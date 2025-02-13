@@ -24,6 +24,7 @@ import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.autocompleter.AutoCompletePreferences;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
+import org.jabref.gui.edit.CopyToPreferences;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
 import org.jabref.gui.externalfiles.UnlinkedFilesDialogPreferences;
 import org.jabref.gui.externalfiletype.ExternalFileType;
@@ -139,6 +140,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     private static final String PUSH_VIM_SERVER = "vimServer";
     private static final String PUSH_VIM = "vim";
     private static final String PUSH_SUBLIME_TEXT_PATH = "sublimeTextPath";
+    private static final String PUSH_VSCODE_PATH = "VScodePath";
     // endregion
 
     // region NameDisplayPreferences
@@ -168,6 +170,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     private static final String OVERRIDE_DEFAULT_FONT_SIZE = "overrideDefaultFontSize";
     private static final String SHOW_ADVANCED_HINTS = "showAdvancedHints";
     private static final String CONFIRM_DELETE = "confirmDelete";
+    private static final String CONFIRM_HIDE_TAB_BAR = "confirmHideTabBar";
     // endregion
 
     private static final String ENTRY_EDITOR_HEIGHT = "entryEditorHeightFX";
@@ -212,6 +215,9 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     private static final String UNLINKED_FILES_SELECTED_DATE_RANGE = "unlinkedFilesSelectedDateRange";
     private static final String UNLINKED_FILES_SELECTED_SORT = "unlinkedFilesSelectedSort";
 
+    private static final String INCLUDE_CROSS_REFERENCES = "includeCrossReferences";
+    private static final String ASK_FOR_INCLUDING_CROSS_REFERENCES = "askForIncludingCrossReferences";
+
     private static JabRefGuiPreferences singleton;
 
     private EntryEditorPreferences entryEditorPreferences;
@@ -231,6 +237,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     private ColumnPreferences mainTableColumnPreferences;
     private ColumnPreferences searchDialogColumnPreferences;
     private KeyBindingRepository keyBindingRepository;
+    private CopyToPreferences copyToPreferences;
 
     private JabRefGuiPreferences() {
         super();
@@ -265,6 +272,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         defaults.put(THEME, Theme.BASE_CSS);
         defaults.put(THEME_SYNC_OS, Boolean.FALSE);
         defaults.put(CONFIRM_DELETE, Boolean.TRUE);
+        defaults.put(CONFIRM_HIDE_TAB_BAR, Boolean.TRUE);
         defaults.put(SHOW_ADVANCED_HINTS, Boolean.TRUE);
         // endregion
 
@@ -360,6 +368,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         defaults.put(PUSH_VIM, "vim");
         defaults.put(PUSH_VIM_SERVER, "vim");
         defaults.put(PUSH_EMACS_ADDITIONAL_PARAMETERS, "-n -e");
+        defaults.put(PUSH_VSCODE_PATH, OS.detectProgramPath("Code", "Microsoft VS Code"));
 
         if (OS.OS_X) {
             defaults.put(PUSH_EMACS_PATH, "emacsclient");
@@ -373,8 +382,8 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
 
         // region: Main table, main table column, and search dialog column preferences
         defaults.put(EXTRA_FILE_COLUMNS, Boolean.FALSE);
-        defaults.put(COLUMN_NAMES, "search_score;groups;group_icons;files;linked_id;field:entrytype;field:author/editor;field:title;field:year;field:journal/booktitle;special:ranking;special:readstatus;special:priority");
-        defaults.put(COLUMN_WIDTHS, "50;28;40;28;28;75;300;470;60;130;50;50;50");
+        defaults.put(COLUMN_NAMES, "groups;group_icons;files;linked_id;field:citationkey;field:entrytype;field:author/editor;field:title;field:year;field:journal/booktitle;special:ranking;special:readstatus;special:priority");
+        defaults.put(COLUMN_WIDTHS, "28;40;28;28;100;75;300;470;60;130;50;50;50");
 
         defaults.put(SIDE_PANE_COMPONENT_NAMES, "");
         defaults.put(SIDE_PANE_COMPONENT_PREFERRED_POSITIONS, "");
@@ -392,14 +401,33 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         // By default disable "Fit table horizontally on the screen"
         defaults.put(AUTO_RESIZE_MODE, Boolean.FALSE);
         // endregion
+
+        defaults.put(ASK_FOR_INCLUDING_CROSS_REFERENCES, Boolean.TRUE);
+        defaults.put(INCLUDE_CROSS_REFERENCES, Boolean.FALSE);
     }
 
+    /**
+     * @deprecated Never ever add a call to this method. There should be only one caller.
+     *             All other usages should get the preferences passed (or injected).
+     *             The JabRef team leaves the <code>@deprecated</code> annotation to have IntelliJ listing this method with a strike-through.
+     */
     @Deprecated
     public static JabRefGuiPreferences getInstance() {
         if (JabRefGuiPreferences.singleton == null) {
             JabRefGuiPreferences.singleton = new JabRefGuiPreferences();
         }
         return JabRefGuiPreferences.singleton;
+    }
+
+    public CopyToPreferences getCopyToPreferences() {
+        if (copyToPreferences != null) {
+            return copyToPreferences;
+        }
+        copyToPreferences = new CopyToPreferences(
+                getBoolean(ASK_FOR_INCLUDING_CROSS_REFERENCES),
+                getBoolean(INCLUDE_CROSS_REFERENCES)
+        );
+        return copyToPreferences;
     }
 
     // region EntryEditorPreferences
@@ -626,6 +654,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                 getBoolean(SHOW_ADVANCED_HINTS),
                 getBoolean(WARN_ABOUT_DUPLICATES_IN_INSPECTION),
                 getBoolean(CONFIRM_DELETE),
+                getBoolean(CONFIRM_HIDE_TAB_BAR),
                 getStringList(SELECTED_SLR_CATALOGS));
 
         EasyBind.listen(workspacePreferences.languageProperty(), (obs, oldValue, newValue) -> {
@@ -644,6 +673,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         EasyBind.listen(workspacePreferences.showAdvancedHintsProperty(), (obs, oldValue, newValue) -> putBoolean(SHOW_ADVANCED_HINTS, newValue));
         EasyBind.listen(workspacePreferences.warnAboutDuplicatesInInspectionProperty(), (obs, oldValue, newValue) -> putBoolean(WARN_ABOUT_DUPLICATES_IN_INSPECTION, newValue));
         EasyBind.listen(workspacePreferences.confirmDeleteProperty(), (obs, oldValue, newValue) -> putBoolean(CONFIRM_DELETE, newValue));
+        EasyBind.listen(workspacePreferences.confirmHideTabBarProperty(), (obs, oldValue, newValue) -> putBoolean(CONFIRM_HIDE_TAB_BAR, newValue));
         workspacePreferences.getSelectedSlrCatalogs().addListener((ListChangeListener<String>) change ->
                 putStringList(SELECTED_SLR_CATALOGS, workspacePreferences.getSelectedSlrCatalogs()));
         return workspacePreferences;
@@ -932,6 +962,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         applicationCommands.put(PushToApplications.VIM, getEmptyIsDefault(PUSH_VIM));
         applicationCommands.put(PushToApplications.WIN_EDT, getEmptyIsDefault(PUSH_WINEDT_PATH));
         applicationCommands.put(PushToApplications.SUBLIME_TEXT, getEmptyIsDefault(PUSH_SUBLIME_TEXT_PATH));
+        applicationCommands.put(PushToApplications.VSCODE, getEmptyIsDefault(PUSH_VSCODE_PATH));
 
         pushToApplicationPreferences = new PushToApplicationPreferences(
                 get(PUSH_TO_APPLICATION),
@@ -966,6 +997,8 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                         put(PUSH_WINEDT_PATH, value);
                 case PushToApplications.SUBLIME_TEXT ->
                         put(PUSH_SUBLIME_TEXT_PATH, value);
+                case PushToApplications.VSCODE ->
+                        put(PUSH_VSCODE_PATH, value);
             }
         });
     }

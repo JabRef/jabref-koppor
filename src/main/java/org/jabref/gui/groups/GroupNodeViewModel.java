@@ -101,13 +101,10 @@ public class GroupNodeViewModel {
         if (groupNode.getGroup() instanceof TexGroup) {
             databaseContext.getMetaData().groupsBinding().addListener(new WeakInvalidationListener(onInvalidatedGroup));
         } else if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
-            stateManager.getLuceneManager(databaseContext).ifPresent(luceneManager -> {
-                BackgroundTask.wrap(() -> {
-                    searchGroup.setMatchedEntries(luceneManager.search(searchGroup.getQuery()).getMatchedEntries());
-                }).onSuccess(success -> {
-                    refreshGroup();
-                    databaseContext.getMetaData().groupsBinding().invalidate();
-                }).executeWith(taskExecutor);
+            stateManager.getIndexManager(databaseContext).ifPresent(indexManager -> {
+                searchGroup.setMatchedEntries(indexManager.search(searchGroup.getSearchQuery()).getMatchedEntries());
+                refreshGroup();
+                databaseContext.getMetaData().groupsBinding().invalidate();
             });
         }
 
@@ -127,7 +124,7 @@ public class GroupNodeViewModel {
         // 'all' returns 'true' for empty streams, so this has to be checked explicitly
         allSelectedEntriesMatched = selectedEntriesMatchStatus.isEmptyBinding().not().and(selectedEntriesMatchStatus.allMatch(matched -> matched));
 
-        this.databaseContext.getDatabase().registerListener(new LuceneIndexListener());
+        this.databaseContext.getDatabase().registerListener(new SearchIndexListener());
     }
 
     public GroupNodeViewModel(BibDatabaseContext databaseContext, StateManager stateManager, TaskExecutor taskExecutor, AbstractGroup group, CustomLocalDragboard localDragboard, GuiPreferences preferences) {
@@ -251,7 +248,7 @@ public class GroupNodeViewModel {
     /**
      * Gets invoked if an entry in the current database changes.
      *
-     * @implNote Search groups are updated in {@link LuceneIndexListener}.
+     * @implNote Search groups are updated in {@link SearchIndexListener}.
      */
     private void onDatabaseChanged(ListChangeListener.Change<? extends BibEntry> change) {
         if (groupNode.getGroup() instanceof SearchGroup) {
@@ -438,115 +435,79 @@ public class GroupNodeViewModel {
 
     public boolean canBeDragged() {
         AbstractGroup group = groupNode.getGroup();
-        if (group instanceof AllEntriesGroup) {
-            return false;
-        } else if (group instanceof ExplicitGroup) {
-            return true;
-        } else if (group instanceof KeywordGroup) {
-            // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-            return groupNode.getParent()
+        return switch (group) {
+            case AllEntriesGroup _ -> false;
+            case ExplicitGroup _, SearchGroup _, AutomaticKeywordGroup _, AutomaticPersonsGroup _, TexGroup _ -> true;
+            case KeywordGroup _ ->
+                // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
+                    groupNode.getParent()
                             .map(GroupTreeNode::getGroup)
-                            .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
+                            .map(groupParent ->
+                                    !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
                             .orElse(false);
-        } else if (group instanceof SearchGroup) {
-            return true;
-        } else if (group instanceof AutomaticKeywordGroup) {
-            return true;
-        } else if (group instanceof AutomaticPersonsGroup) {
-            return true;
-        } else if (group instanceof TexGroup) {
-            return true;
-        } else {
-            throw new UnsupportedOperationException("canBeDragged method not yet implemented in group: " + group.getClass().getName());
-        }
+
+            case null -> throw new IllegalArgumentException("Group cannot be null");
+            default -> throw new UnsupportedOperationException("canBeDragged method not yet implemented in group: " + group.getClass().getName());
+        };
     }
 
     public boolean canAddGroupsIn() {
         AbstractGroup group = groupNode.getGroup();
-        if (group instanceof AllEntriesGroup) {
-            return true;
-        } else if (group instanceof ExplicitGroup) {
-            return true;
-        } else if (group instanceof KeywordGroup) {
-            // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-            return groupNode.getParent()
+        return switch (group) {
+            case AllEntriesGroup _, ExplicitGroup _, SearchGroup _, TexGroup _ -> true;
+            case KeywordGroup _ ->
+                // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
+                    groupNode.getParent()
                             .map(GroupTreeNode::getGroup)
                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
                             .orElse(false);
-        } else if (group instanceof SearchGroup) {
-            return true;
-        } else if (group instanceof AutomaticKeywordGroup) {
-            return false;
-        } else if (group instanceof AutomaticPersonsGroup) {
-            return false;
-        } else if (group instanceof TexGroup) {
-            return true;
-        } else {
-            throw new UnsupportedOperationException("canAddGroupsIn method not yet implemented in group: " + group.getClass().getName());
-        }
+            case AutomaticKeywordGroup _, AutomaticPersonsGroup _ -> false;
+            case null -> throw new IllegalArgumentException("Group cannot be null");
+            default -> throw new UnsupportedOperationException("canAddGroupsIn method not yet implemented in group: " + group.getClass().getName());
+        };
     }
 
     public boolean canRemove() {
         AbstractGroup group = groupNode.getGroup();
-        if (group instanceof AllEntriesGroup) {
-            return false;
-        } else if (group instanceof ExplicitGroup) {
-            return true;
-        } else if (group instanceof KeywordGroup) {
-            // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-            return groupNode.getParent()
+        return switch (group) {
+            case AllEntriesGroup _ -> false;
+            case ExplicitGroup _, SearchGroup _, AutomaticKeywordGroup _, AutomaticPersonsGroup _, TexGroup _ -> true;
+            case KeywordGroup _ ->
+                // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
+                    groupNode.getParent()
                             .map(GroupTreeNode::getGroup)
                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
                             .orElse(false);
-        } else if (group instanceof SearchGroup) {
-            return true;
-        } else if (group instanceof AutomaticKeywordGroup) {
-            return true;
-        } else if (group instanceof AutomaticPersonsGroup) {
-            return true;
-        } else if (group instanceof TexGroup) {
-            return true;
-        } else {
-            throw new UnsupportedOperationException("canRemove method not yet implemented in group: " + group.getClass().getName());
-        }
+            case null -> throw new IllegalArgumentException("Group cannot be null");
+            default -> throw new UnsupportedOperationException("canRemove method not yet implemented in group: " + group.getClass().getName());
+        };
     }
 
     public boolean isEditable() {
         AbstractGroup group = groupNode.getGroup();
-        if (group instanceof AllEntriesGroup) {
-            return false;
-        } else if (group instanceof ExplicitGroup) {
-            return true;
-        } else if (group instanceof KeywordGroup) {
-            // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-            return groupNode.getParent()
+        return switch (group) {
+            case AllEntriesGroup _ -> false;
+            case ExplicitGroup _, SearchGroup _, AutomaticKeywordGroup _, AutomaticPersonsGroup _, TexGroup _ -> true;
+            case KeywordGroup _ ->
+                // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
+                    groupNode.getParent()
                             .map(GroupTreeNode::getGroup)
                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
                             .orElse(false);
-        } else if (group instanceof SearchGroup) {
-            return true;
-        } else if (group instanceof AutomaticKeywordGroup) {
-            return true;
-        } else if (group instanceof AutomaticPersonsGroup) {
-            return true;
-        } else if (group instanceof TexGroup) {
-            return true;
-        } else {
-            throw new UnsupportedOperationException("isEditable method not yet implemented in group: " + group.getClass().getName());
-        }
+
+            case null -> throw new IllegalArgumentException("Group cannot be null");
+            default -> throw new UnsupportedOperationException("isEditable method not yet implemented in group: " + group.getClass().getName());
+        };
     }
 
-    class LuceneIndexListener {
+    class SearchIndexListener {
         @Subscribe
         public void listen(IndexStartedEvent event) {
             if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
-                stateManager.getLuceneManager(databaseContext).ifPresent(luceneManager -> {
-                    BackgroundTask.wrap(() -> {
-                        searchGroup.setMatchedEntries(luceneManager.search(searchGroup.getQuery()).getMatchedEntries());
-                    }).onSuccess(success -> {
-                        refreshGroup();
-                        databaseContext.getMetaData().groupsBinding().invalidate();
-                    }).executeWith(taskExecutor);
+                stateManager.getIndexManager(databaseContext).ifPresent(indexManager -> {
+                    searchGroup.setMatchedEntries(indexManager.search(searchGroup.getSearchQuery()).getMatchedEntries());
+                    refreshGroup();
+                    databaseContext.getMetaData().groupsBinding().invalidate();
                 });
             }
         }
@@ -554,10 +515,10 @@ public class GroupNodeViewModel {
         @Subscribe
         public void listen(IndexAddedOrUpdatedEvent event) {
             if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
-                stateManager.getLuceneManager(databaseContext).ifPresent(luceneManager -> {
+                stateManager.getIndexManager(databaseContext).ifPresent(indexManager -> {
                     BackgroundTask.wrap(() -> {
                         for (BibEntry entry : event.entries()) {
-                            searchGroup.updateMatches(entry, luceneManager.isEntryMatched(entry, searchGroup.getQuery()));
+                            searchGroup.updateMatches(entry, indexManager.isEntryMatched(entry, searchGroup.getSearchQuery()));
                         }
                     }).onFinished(() -> {
                         for (BibEntry entry : event.entries()) {

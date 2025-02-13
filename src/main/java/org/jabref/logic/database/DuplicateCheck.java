@@ -56,6 +56,8 @@ public class DuplicateCheck {
     // Extra weighting of those fields that are most likely to provide correct duplicate detection:
     private static final Map<Field, Double> FIELD_WEIGHTS = new HashMap<>();
 
+    private static final Set<StandardEntryType> STANDARD_ENTRY_TYPES = Set.of(StandardEntryType.Article, StandardEntryType.InBook, StandardEntryType.InCollection);
+
     static {
         DuplicateCheck.FIELD_WEIGHTS.put(StandardField.AUTHOR, 2.5);
         DuplicateCheck.FIELD_WEIGHTS.put(StandardField.EDITOR, 2.5);
@@ -106,7 +108,7 @@ public class DuplicateCheck {
 
     private static boolean isFarFromThreshold(double value) {
         if (value < 0.0) {
-            LOGGER.debug("Value {} is below zero. Should not happen", value);
+            LOGGER.trace("Value {} is below zero. Should not happen", value);
         }
         return value - DuplicateCheck.DUPLICATE_THRESHOLD > DuplicateCheck.DOUBT_RANGE;
     }
@@ -309,7 +311,7 @@ public class DuplicateCheck {
         }
         final double distanceIgnoredCase = new StringSimilarity().editDistanceIgnoreCase(longer, shorter);
         final double similarity = (longerLength - distanceIgnoredCase) / longerLength;
-        LOGGER.debug("Longer string: {} Shorter string: {} Similarity: {}", longer, shorter, similarity);
+        LOGGER.trace("Longer string: {} Shorter string: {} Similarity: {}", longer, shorter, similarity);
         return similarity;
     }
 
@@ -334,7 +336,8 @@ public class DuplicateCheck {
         Optional<ISBN> twoISBN = two.getISBN();
         if (oneISBN.isPresent() && twoISBN.isPresent()
                 && Objects.equals(oneISBN, twoISBN)
-                && !Set.of(StandardEntryType.Article, StandardEntryType.InBook, StandardEntryType.InCollection).contains(one.getType())) {
+                && one.getType() instanceof StandardEntryType standardEntry
+                && !STANDARD_ENTRY_TYPES.contains(standardEntry)) {
             return true;
         }
 

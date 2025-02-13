@@ -23,8 +23,8 @@ import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatReader;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
-import org.jabref.logic.importer.fileformat.PdfGrobidImporter;
 import org.jabref.logic.importer.fileformat.PdfMergeMetadataImporter;
+import org.jabref.logic.importer.fileformat.pdf.PdfGrobidImporter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.BackgroundTask;
@@ -109,7 +109,7 @@ public class ImportCommand extends SimpleCommand {
         if (importMethod == ImportMethod.AS_NEW) {
             task.onSuccess(parserResult -> {
                     tabContainer.addTab(parserResult.getDatabaseContext(), true);
-                    dialogService.notify(Localization.lang("Imported entries") + ": " + parserResult.getDatabase().getEntries().size());
+                    dialogService.notify(Localization.lang("%0 entry(s) imported", parserResult.getDatabase().getEntries().size()));
                 })
                 .onFailure(ex -> {
                     LOGGER.error("Error importing", ex);
@@ -144,7 +144,7 @@ public class ImportCommand extends SimpleCommand {
                 if (importer.isEmpty()) {
                     // Unknown format
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                        if (FileUtil.isPDFFile(filename) && GrobidOptInDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
+                        if (FileUtil.isPDFFile(filename) && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
                             importFormatReader.reset();
                         }
                         dialogService.notify(Localization.lang("Importing file %0 as unknown format", filename.getFileName().toString()));
@@ -153,9 +153,8 @@ public class ImportCommand extends SimpleCommand {
                     imports.add(importFormatReader.importUnknownFormat(filename, fileUpdateMonitor));
                 } else {
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                        if (((importer.get() instanceof PdfGrobidImporter)
-                                || (importer.get() instanceof PdfMergeMetadataImporter))
-                                && GrobidOptInDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
+                        if (((importer.get() instanceof PdfGrobidImporter) || (importer.get() instanceof PdfMergeMetadataImporter))
+                                && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
                             importFormatReader.reset();
                         }
                         dialogService.notify(Localization.lang("Importing in %0 format", importer.get().getName()) + "...");
