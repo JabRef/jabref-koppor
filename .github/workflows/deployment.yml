@@ -155,7 +155,9 @@ jobs:
           --java-options --add-opens=javafx.controls/com.sun.javafx.scene.control=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections.transformation=org.jabref \
-          --java-options --add-modules=jdk.incubator.vector
+          --java-options --add-modules=jdk.incubator.vector \
+          --java-options -Xmx4g \
+          --java-options -XX:+UseZGC
       - name: Build pkg (macOS)
         if: (matrix.os == 'macos-13') && (steps.checksecrets.outputs.secretspresent == 'YES')
         shell: bash
@@ -196,7 +198,9 @@ jobs:
           --java-options --add-opens=javafx.controls/com.sun.javafx.scene.control=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections.transformation=org.jabref \
-          --java-options --add-modules=jdk.incubator.vector
+          --java-options --add-modules=jdk.incubator.vector \
+          --java-options -Xmx4g \
+          --java-options -XX:+UseZGC
       - name: Build runtime image and installer (linux, Windows)
         if: (matrix.os != 'macos-13') && (steps.checksecrets.outputs.secretspresent == 'YES')
         shell: bash

@@ -144,7 +144,9 @@ jobs:
           --java-options --add-opens=javafx.controls/com.sun.javafx.scene.control=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections.transformation=org.jabref \
-          --java-options --add-modules=jdk.incubator.vector
+          --java-options --add-modules=jdk.incubator.vector \
+          --java-options -Xmx4g \
+          --java-options -XX:+UseZGC
       - name: Build pkg (macOS)
         if: (steps.checksecrets.outputs.secretspresent == 'YES')
         shell: bash
@@ -184,7 +186,9 @@ jobs:
           --java-options --add-opens=javafx.controls/com.sun.javafx.scene.control=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections=org.jabref \
           --java-options --add-opens=javafx.base/javafx.collections.transformation=org.jabref \
-          --java-options --add-modules=jdk.incubator.vector
+          --java-options --add-modules=jdk.incubator.vector \
+          --java-options -Xmx4g \
+          --java-options -XX:+UseZGC
       - name: Rename files with arm64 suffix as well
         if: (steps.checksecrets.outputs.secretspresent == 'YES')
         shell: bash
