@@ -4,10 +4,6 @@ import org.jabref.build.xjc.XjcPlugin
 import org.jabref.build.xjc.XjcTask
 
 buildscript {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
     dependencies {
         classpath('com.palantir.javaformat:gradle-palantir-java-format:2.58.0')
     }
