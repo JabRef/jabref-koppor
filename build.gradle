@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath('com.palantir.javaformat:gradle-palantir-java-format:2.38.0')
+        classpath('com.palantir.javaformat:gradle-palantir-java-format:2.58.0')
     }
 }
 
@@ -35,13 +35,11 @@ plugins {
 
     id 'checkstyle'
     id 'com.diffplug.spotless' version '6.22.0'
-    id 'org.openrewrite.rewrite' version '6.4.0'
+    id 'org.openrewrite.rewrite' version '7.1.4'
 
     id 'project-report'
 
     id 'idea'
-
-    id 'org.openrewrite.rewrite' version '7.1.4'
 
     id "org.itsallcode.openfasttrace" version "3.0.1"
 }
