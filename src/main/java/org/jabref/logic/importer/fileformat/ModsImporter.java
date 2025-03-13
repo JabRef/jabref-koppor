@@ -30,6 +30,7 @@ import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.mods.Identifier;
 import org.jabref.logic.importer.fileformat.mods.Name;
 import org.jabref.logic.importer.fileformat.mods.RecordInfo;
+import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
@@ -131,12 +132,8 @@ public class ModsImporter extends Importer implements Parser {
                             entry.setType(EntryTypeFactory.parse(mapGenre(reader.getText())));
                         }
                     }
-                    case "language" -> {
-                        parseLanguage(reader, fields);
-                    }
-                    case "location" -> {
-                        parseLocationAndUrl(reader, fields);
-                    }
+                    case "language" -> parseLanguage(reader, fields);
+                    case "location" -> parseLocationAndUrl(reader, fields);
                     case "identifier" -> {
                         String type = reader.getAttributeValue(null, "type");
                         reader.next();
@@ -150,24 +147,12 @@ public class ModsImporter extends Importer implements Parser {
                             notes.add(reader.getText());
                         }
                     }
-                    case "recordInfo" -> {
-                        parseRecordInfo(reader, fields);
-                    }
-                    case "titleInfo" -> {
-                        parseTitle(reader, fields);
-                    }
-                    case "subject" -> {
-                        parseSubject(reader, fields, keywords);
-                    }
-                    case "originInfo" -> {
-                        parseOriginInfo(reader, fields);
-                    }
-                    case "name" -> {
-                        parseName(reader, fields, authors);
-                    }
-                    case "relatedItem" -> {
-                        parseRelatedItem(reader, fields);
-                    }
+                    case "recordInfo" -> parseRecordInfo(reader, fields);
+                    case "titleInfo" -> parseTitle(reader, fields);
+                    case "subject" -> parseSubject(reader, fields, keywords);
+                    case "originInfo" -> parseOriginInfo(reader, fields);
+                    case "name" -> parseName(reader, fields, authors);
+                    case "relatedItem" -> parseRelatedItem(reader, fields);
                 }
             }
 
@@ -198,12 +183,8 @@ public class ModsImporter extends Importer implements Parser {
                             putIfValueNotNull(fields, StandardField.JOURNAL, reader.getText());
                         }
                     }
-                    case "detail" -> {
-                        handleDetail(reader, fields);
-                    }
-                    case "extent" -> {
-                        handleExtent(reader, fields);
-                    }
+                    case "detail" -> handleDetail(reader, fields);
+                    case "extent" -> handleExtent(reader, fields);
                 }
             }
 
@@ -406,7 +387,7 @@ public class ModsImporter extends Importer implements Parser {
                 if (RecordInfo.elementNameSet.contains(reader.getName().getLocalPart())) {
                     reader.next();
                     if (isCharacterXMLEvent(reader)) {
-                        recordContents.add(0, reader.getText());
+                        recordContents.addFirst(reader.getText());
                     }
                 } else if ("languageTerm".equals(reader.getName().getLocalPart())) {
                     reader.next();
@@ -530,14 +511,10 @@ public class ModsImporter extends Importer implements Parser {
                     fields.computeIfAbsent(StandardField.YEAR, k -> date.substring(0, 4));
                     fields.put(new UnknownField("created"), date);
                 }
-                case "dateCaptured" -> {
-                    optionalParsedDate
-                            .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
-                }
-                case "dateModified" -> {
-                    optionalParsedDate
-                            .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
-                }
+                case "dateCaptured" -> optionalParsedDate
+                        .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
+                case "dateModified" -> optionalParsedDate
+                        .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
             }
         }
     }
@@ -613,6 +590,11 @@ public class ModsImporter extends Importer implements Parser {
     }
 
     @Override
+    public String getId() {
+        return "mods";
+    }
+
+    @Override
     public String getName() {
         return "MODS";
     }
@@ -624,7 +606,7 @@ public class ModsImporter extends Importer implements Parser {
 
     @Override
     public String getDescription() {
-        return "Importer for the MODS format";
+        return Localization.lang("Importer for the MODS format.");
     }
 
     @Override

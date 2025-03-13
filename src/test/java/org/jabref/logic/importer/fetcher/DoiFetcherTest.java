@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 @FetcherTest
-public class DoiFetcherTest {
+class DoiFetcherTest {
 
     private final DoiFetcher fetcher = new DoiFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
@@ -38,6 +38,7 @@ public class DoiFetcherTest {
             .withField(StandardField.PUBLISHER, "IEEE")
             .withField(StandardField.TITLE, "BPEL4Chor: Extending BPEL for Modeling Choreographies")
             .withField(StandardField.YEAR, "2007")
+            .withField(StandardField.PAGES, "296--303")
             .withField(StandardField.DOI, "10.1109/icws.2007.59");
     private final BibEntry bibEntryIannarelli2019 = new BibEntry(StandardEntryType.Article)
             .withField(StandardField.AUTHOR,
@@ -54,7 +55,7 @@ public class DoiFetcherTest {
             .withField(StandardField.YEAR, "2019")
             .withField(StandardField.DOI, "10.3303/CET1977146")
             .withField(StandardField.JOURNAL, "Chemical Engineering Transactions")
-            .withField(StandardField.PAGES, "871-876")
+            .withField(StandardField.PAGES, "871–876")
             .withField(StandardField.VOLUME, "77");
     private final BibEntry bibEntryStenzel2020 = new BibEntry(StandardEntryType.Article)
             .withCitationKey("Stenzel_2020")
@@ -71,56 +72,56 @@ public class DoiFetcherTest {
             .withField(StandardField.NUMBER, "2");
 
     @Test
-    public void testGetName() {
+    void getName() {
         assertEquals("DOI", fetcher.getName());
     }
 
     @Test
-    public void testPerformSearchBurd2011() throws FetcherException {
+    void performSearchBurd2011() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1002/9781118257517");
         assertEquals(Optional.of(bibEntryBurd2011), fetchedEntry);
     }
 
     @Test
-    public void testPerformSearchDecker2007() throws FetcherException {
+    void performSearchDecker2007() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1109/ICWS.2007.59");
         assertEquals(Optional.of(bibEntryDecker2007), fetchedEntry);
     }
 
     @Test
-    public void testPerformSearchIannarelli2019() throws FetcherException {
+    void performSearchIannarelli2019() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.3303/CET1977146");
         assertEquals(Optional.of(bibEntryIannarelli2019), fetchedEntry);
     }
 
     @Test
-    public void testPerformSearchEmptyDOI() {
+    void performSearchEmptyDOI() {
         assertThrows(FetcherException.class, () -> fetcher.performSearchById(""));
     }
 
     @Test
-    public void testPerformSearchInvalidDOI() {
+    void performSearchInvalidDOI() {
         assertThrows(FetcherException.class, () -> fetcher.performSearchById("10.1002/9781118257517F"));
     }
 
     @Test
-    public void testPerformSearchInvalidDOIClientResultsinFetcherClientException() {
+    void performSearchInvalidDOIClientResultsinFetcherClientException() {
         assertThrows(FetcherException.class, () -> fetcher.performSearchById("10.1002/9781118257517F"));
     }
 
     @Test
-    public void testPerformSearchInvalidDOIClientResultsinFetcherClientException2() {
+    void performSearchInvalidDOIClientResultsinFetcherClientException2() {
         assertThrows(FetcherException.class, () -> fetcher.performSearchById("10.1002/9781517F"));
     }
 
     @Test
-    public void testPerformSearchNonTrimmedDOI() throws FetcherException {
+    void performSearchNonTrimmedDOI() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("http s://doi.org/ 10.1109 /ICWS .2007.59 ");
         assertEquals(Optional.of(bibEntryDecker2007), fetchedEntry);
     }
 
     @Test
-    public void testAPSJournalCopiesArticleIdToPageField() throws FetcherException {
+    void aPSJournalCopiesArticleIdToPageField() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1103/physreva.102.023315");
         assertEquals(Optional.of(bibEntryStenzel2020), fetchedEntry);
     }

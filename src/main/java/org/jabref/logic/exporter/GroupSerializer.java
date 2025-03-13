@@ -18,7 +18,7 @@ import org.jabref.model.groups.KeywordGroup;
 import org.jabref.model.groups.RegexKeywordGroup;
 import org.jabref.model.groups.SearchGroup;
 import org.jabref.model.groups.TexGroup;
-import org.jabref.model.search.rules.SearchRules;
+import org.jabref.model.search.SearchFlags;
 import org.jabref.model.strings.StringUtil;
 
 public class GroupSerializer {
@@ -40,7 +40,7 @@ public class GroupSerializer {
     }
 
     private String serializeKeywordGroup(KeywordGroup group) {
-        Boolean isRegex = group instanceof RegexKeywordGroup;
+        boolean isRegex = group instanceof RegexKeywordGroup;
         StringBuilder sb = new StringBuilder();
         sb.append(MetadataSerializationConfiguration.KEYWORD_GROUP_ID);
         sb.append(StringUtil.quote(group.getName(), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR));
@@ -70,9 +70,9 @@ public class GroupSerializer {
         sb.append(MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR);
         sb.append(StringUtil.quote(group.getSearchExpression(), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR));
         sb.append(MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR);
-        sb.append(StringUtil.booleanToBinaryString(group.getSearchFlags().contains(SearchRules.SearchFlags.CASE_SENSITIVE)));
+        sb.append(StringUtil.booleanToBinaryString(group.getSearchFlags().contains(SearchFlags.CASE_SENSITIVE)));
         sb.append(MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR);
-        sb.append(StringUtil.booleanToBinaryString(group.getSearchFlags().contains(SearchRules.SearchFlags.REGULAR_EXPRESSION)));
+        sb.append(StringUtil.booleanToBinaryString(group.getSearchFlags().contains(SearchFlags.REGULAR_EXPRESSION)));
         sb.append(MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR);
 
         appendGroupDetails(sb, group);
@@ -114,23 +114,17 @@ public class GroupSerializer {
     }
 
     private String serializeGroup(AbstractGroup group) {
-        if (group instanceof AllEntriesGroup) {
-            return serializeAllEntriesGroup();
-        } else if (group instanceof ExplicitGroup explicitGroup) {
-            return serializeExplicitGroup(explicitGroup);
-        } else if (group instanceof KeywordGroup keywordGroup) {
-            return serializeKeywordGroup(keywordGroup);
-        } else if (group instanceof SearchGroup searchGroup) {
-            return serializeSearchGroup(searchGroup);
-        } else if (group instanceof AutomaticKeywordGroup keywordGroup) {
-            return serializeAutomaticKeywordGroup(keywordGroup);
-        } else if (group instanceof AutomaticPersonsGroup personsGroup) {
-            return serializeAutomaticPersonsGroup(personsGroup);
-        } else if (group instanceof TexGroup texGroup) {
-            return serializeTexGroup(texGroup);
-        } else {
-            throw new UnsupportedOperationException("Don't know how to serialize group" + group.getClass().getName());
-        }
+        return switch (group) {
+            case AllEntriesGroup _ -> serializeAllEntriesGroup();
+            case ExplicitGroup explicitGroup -> serializeExplicitGroup(explicitGroup);
+            case KeywordGroup keywordGroup -> serializeKeywordGroup(keywordGroup);
+            case SearchGroup searchGroup -> serializeSearchGroup(searchGroup);
+            case AutomaticKeywordGroup keywordGroup -> serializeAutomaticKeywordGroup(keywordGroup);
+            case AutomaticPersonsGroup personsGroup -> serializeAutomaticPersonsGroup(personsGroup);
+            case TexGroup texGroup -> serializeTexGroup(texGroup);
+            case null -> throw new IllegalArgumentException("Group cannot be null");
+            default -> throw new UnsupportedOperationException("Don't know how to serialize group" + group.getClass().getName());
+        };
     }
 
     private String serializeTexGroup(TexGroup group) {

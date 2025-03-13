@@ -36,19 +36,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.BindingsHelper;
-import org.jabref.gui.util.DefaultTaskExecutor;
-import org.jabref.gui.util.TaskExecutor;
+import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.DoiFetcher;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
-import org.jabref.preferences.PreferencesService;
 
 import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
@@ -83,9 +83,9 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
     private final MultiMergeEntriesViewModel viewModel;
     private final TaskExecutor taskExecutor;
 
-    private final PreferencesService preferences;
+    private final GuiPreferences preferences;
 
-    public MultiMergeEntriesView(PreferencesService preferences,
+    public MultiMergeEntriesView(GuiPreferences preferences,
                                  TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
@@ -144,8 +144,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         new ViewModelListCellFactory<DiffMode>()
                 .withText(DiffMode::getDisplayText)
                 .install(diffMode);
-        diffMode.setValue(preferences.getGuiPreferences().getMergeDiffMode());
-        EasyBind.subscribe(this.diffMode.valueProperty(), mode -> preferences.getGuiPreferences().setMergeDiffMode(mode));
+        diffMode.setValue(preferences.getMergeDialogPreferences().getMergeDiffMode());
+        EasyBind.subscribe(this.diffMode.valueProperty(), mode -> preferences.getMergeDialogPreferences().setMergeDiffMode(mode));
     }
 
     private void addColumn(MultiMergeEntriesViewModel.EntrySource entrySourceColumn) {
@@ -164,11 +164,12 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         constraint.prefWidthProperty().bind(header.widthProperty());
         optionsGrid.getColumnConstraints().add(constraint);
 
+        // Copy BibEntry to column - either immediately (if available) or after loading
         if (!entrySourceColumn.isLoadingProperty().getValue()) {
             writeBibEntryToColumn(entrySourceColumn, columnIndex);
         } else {
             header.setDisable(true);
-            entrySourceColumn.isLoadingProperty().addListener((observable, oldValue, newValue) -> {
+            entrySourceColumn.isLoadingProperty().addListener((_, _, newValue) -> {
                 if (!newValue && entrySourceColumn.entryProperty().get() != null) {
                     writeBibEntryToColumn(entrySourceColumn, columnIndex);
                     header.setDisable(false);
@@ -266,7 +267,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             If this is not explicitly done on the JavaFX thread, the bindings to the text fields don't work properly.
             The text only shows up after one text in that same row is selected by the user.
              */
-            DefaultTaskExecutor.runInJavaFXThread(() -> {
+            UiTaskExecutor.runInJavaFXThread(() -> {
 
                 FieldRow row = fieldRows.get(field);
 
@@ -372,7 +373,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
             fieldEditorCell.addEventFilter(KeyEvent.KEY_PRESSED, event -> toggleGroup.selectToggle(null));
 
-            toggleGroup.selectedToggleProperty().addListener((obs, oldValue, newValue) -> {
+            toggleGroup.selectedToggleProperty().addListener((_, _, newValue) -> {
                 if (newValue == null) {
                     viewModel.mergedEntryProperty().get().setField(field, "");
                 } else {

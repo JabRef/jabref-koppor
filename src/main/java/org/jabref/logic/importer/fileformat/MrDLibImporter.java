@@ -6,6 +6,7 @@ package org.jabref.logic.importer.fileformat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,8 +18,8 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import kong.unirest.json.JSONException;
-import kong.unirest.json.JSONObject;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,6 @@ public class MrDLibImporter extends Importer {
     private String recommendationsDescription;
     private String recommendationSetId;
 
-    @SuppressWarnings("unused")
     @Override
     public boolean isRecognizedFormat(BufferedReader input) throws IOException {
         String recommendationsAsString = convertToString(input);
@@ -55,6 +55,11 @@ public class MrDLibImporter extends Importer {
     }
 
     @Override
+    public String getId() {
+        return "mrDlib";
+    }
+
+    @Override
     public String getName() {
         return "MrDLibImporter";
     }
@@ -66,7 +71,7 @@ public class MrDLibImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return "Takes valid JSON documents from the Mr. DLib API and parses them into a BibEntry";
+        return "Takes valid JSON documents from the Mr. DLib API and parses them into a BibEntry.";
     }
 
     /**
@@ -83,7 +88,7 @@ public class MrDLibImporter extends Importer {
                 stringBuilder.append(line);
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("", e);
         }
         return stringBuilder.toString();
     }
@@ -91,15 +96,7 @@ public class MrDLibImporter extends Importer {
     /**
      * Small pair-class to ensure the right order of the recommendations.
      */
-    private static class RankedBibEntry {
-
-        public BibEntry entry;
-        public Integer rank;
-
-        public RankedBibEntry(BibEntry entry, Integer rank) {
-            this.rank = rank;
-            this.entry = entry;
-        }
+    private record RankedBibEntry(BibEntry entry, Integer rank) {
     }
 
     /**
@@ -126,8 +123,7 @@ public class MrDLibImporter extends Importer {
         }
 
         // Sort bib entries according to rank
-        rankedBibEntries.sort((RankedBibEntry rankedBibEntry1,
-                               RankedBibEntry rankedBibEntry2) -> rankedBibEntry1.rank.compareTo(rankedBibEntry2.rank));
+        rankedBibEntries.sort(Comparator.comparing((RankedBibEntry rankedBibEntry) -> rankedBibEntry.rank));
         List<BibEntry> bibEntries = rankedBibEntries.stream().map(e -> e.entry).collect(Collectors.toList());
 
         bibDatabase.insertEntries(bibEntries);

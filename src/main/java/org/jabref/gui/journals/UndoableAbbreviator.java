@@ -1,5 +1,7 @@
 package org.jabref.gui.journals;
 
+import java.util.Optional;
+
 import javax.swing.undo.CompoundEdit;
 
 import org.jabref.gui.undo.UndoableFieldChange;
@@ -11,6 +13,7 @@ import org.jabref.model.entry.field.AMSField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
+// Undo redo stuff
 public class UndoableAbbreviator {
 
     private final JournalAbbreviationRepository journalAbbreviationRepository;
@@ -43,11 +46,13 @@ public class UndoableAbbreviator {
             text = database.resolveForStrings(text);
         }
 
-        if (!journalAbbreviationRepository.isKnownName(text)) {
+        Optional<Abbreviation> foundAbbreviation = journalAbbreviationRepository.get(text);
+
+        if (foundAbbreviation.isEmpty()) {
             return false; // Unknown, cannot abbreviate anything.
         }
 
-        Abbreviation abbreviation = journalAbbreviationRepository.get(text).get();
+        Abbreviation abbreviation = foundAbbreviation.get();
         String newText = getAbbreviatedName(abbreviation);
 
         if (newText.equals(origText)) {
@@ -66,15 +71,15 @@ public class UndoableAbbreviator {
     }
 
     private String getAbbreviatedName(Abbreviation text) {
-        switch (abbreviationType) {
-            case DEFAULT:
-                return text.getAbbreviation();
-            case DOTLESS:
-                return text.getDotlessAbbreviation();
-            case SHORTEST_UNIQUE:
-                return text.getShortestUniqueAbbreviation();
-            default:
-                throw new IllegalStateException(String.format("Unexpected value: %s", abbreviationType));
-        }
+        return switch (abbreviationType) {
+            case DEFAULT ->
+                    text.getAbbreviation();
+            case DOTLESS ->
+                    text.getDotlessAbbreviation();
+            case SHORTEST_UNIQUE ->
+                    text.getShortestUniqueAbbreviation();
+            default ->
+                    throw new IllegalStateException("Unexpected value: %s".formatted(abbreviationType));
+        };
     }
 }

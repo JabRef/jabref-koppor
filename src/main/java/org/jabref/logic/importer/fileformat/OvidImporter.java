@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
@@ -48,6 +49,11 @@ public class OvidImporter extends Importer {
     private static final int MAX_ITEMS = 50;
 
     @Override
+    public String getId() {
+        return "ovid";
+    }
+
+    @Override
     public String getName() {
         return "Ovid";
     }
@@ -59,7 +65,7 @@ public class OvidImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return "Imports an Ovid file.";
+        return Localization.lang("Importer for the Ovid format.");
     }
 
     @Override

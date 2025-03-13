@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jabref.logic.FilePreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-import org.jabref.preferences.FilePreferences;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -47,6 +47,9 @@ public class FieldCheckers {
         fieldCheckers.put(StandardField.YEAR, new YearChecker());
         fieldCheckers.put(StandardField.KEY, new ValidCitationKeyChecker());
         fieldCheckers.put(InternalField.KEY_FIELD, new ValidCitationKeyChecker());
+
+        fieldCheckers.put(StandardField.TITLE, new NoURLChecker());
+        fieldCheckers.put(StandardField.BOOKTITLE, new NoURLChecker());
 
         if (databaseContext.isBiblatexMode()) {
             fieldCheckers.put(StandardField.DATE, new DateChecker());

@@ -10,6 +10,7 @@ import org.jabref.logic.l10n.Localization;
 
 public enum StandardActions implements Action {
 
+    COPY_TO(Localization.lang("Copy to")),
     COPY_MORE(Localization.lang("Copy") + "..."),
     COPY_TITLE(Localization.lang("Copy title"), KeyBinding.COPY_TITLE),
     COPY_KEY(Localization.lang("Copy citation key"), KeyBinding.COPY_CITATION_KEY),
@@ -30,7 +31,10 @@ public enum StandardActions implements Action {
     SEND_AS_EMAIL(Localization.lang("As Email")),
     SEND_TO_KINDLE(Localization.lang("To Kindle")),
     REBUILD_FULLTEXT_SEARCH_INDEX(Localization.lang("Rebuild fulltext search index"), IconTheme.JabRefIcons.FILE),
+    REDOWNLOAD_MISSING_FILES(Localization.lang("Redownload missing files"), IconTheme.JabRefIcons.DOWNLOAD),
     OPEN_EXTERNAL_FILE(Localization.lang("Open file"), IconTheme.JabRefIcons.FILE, KeyBinding.OPEN_FILE),
+    EXTRACT_FILE_REFERENCES_ONLINE(Localization.lang("Extract references from file (online)"), IconTheme.JabRefIcons.FILE_STAR),
+    EXTRACT_FILE_REFERENCES_OFFLINE(Localization.lang("Extract references from file (offline)"), IconTheme.JabRefIcons.FILE_STAR),
     OPEN_URL(Localization.lang("Open URL or DOI"), IconTheme.JabRefIcons.WWW, KeyBinding.OPEN_URL_OR_DOI),
     SEARCH_SHORTSCIENCE(Localization.lang("Search ShortScience")),
     MERGE_WITH_FETCHED_ENTRY(Localization.lang("Get bibliographic data from %0", "DOI/ISBN/...")),
@@ -90,6 +94,8 @@ public enum StandardActions implements Action {
 
     PARSE_LATEX(Localization.lang("Search for citations in LaTeX files..."), IconTheme.JabRefIcons.LATEX_CITATIONS),
     NEW_SUB_LIBRARY_FROM_AUX(Localization.lang("New sublibrary based on AUX file") + "...", Localization.lang("New BibTeX sublibrary") + Localization.lang("This feature generates a new library based on which entries are needed in an existing LaTeX document."), IconTheme.JabRefIcons.NEW),
+    NEW_LIBRARY_FROM_PDF_ONLINE(Localization.lang("New library based on references in PDF file... (online)"), Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses Grobid's functionality."), IconTheme.JabRefIcons.NEW),
+    NEW_LIBRARY_FROM_PDF_OFFLINE(Localization.lang("New library based on references in PDF file... (offline)"), Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses JabRef's built-in functionality."), IconTheme.JabRefIcons.NEW),
     WRITE_METADATA_TO_PDF(Localization.lang("Write metadata to PDF files"), Localization.lang("Will write metadata to the PDFs linked from selected entries."), KeyBinding.WRITE_METADATA_TO_PDF),
 
     START_NEW_STUDY(Localization.lang("Start new systematic literature review")),
@@ -115,11 +121,10 @@ public enum StandardActions implements Action {
     SETUP_GENERAL_FIELDS(Localization.lang("Set up general fields")),
     MANAGE_PROTECTED_TERMS(Localization.lang("Manage protected terms")),
     CITATION_KEY_PATTERN(Localization.lang("Citation key patterns")),
-    SHOW_PREFS(Localization.lang("Preferences"), IconTheme.JabRefIcons.PREFERENCES),
+    SHOW_PREFS(Localization.lang("Preferences"), IconTheme.JabRefIcons.PREFERENCES, KeyBinding.SHOW_PREFS),
     MANAGE_JOURNALS(Localization.lang("Manage journal abbreviations")),
-    CUSTOMIZE_KEYBINDING(Localization.lang("Customize key bindings"), IconTheme.JabRefIcons.KEY_BINDINGS),
-
-    EDIT_ENTRY(Localization.lang("Open entry editor"), IconTheme.JabRefIcons.EDIT_ENTRY, KeyBinding.EDIT_ENTRY),
+    CUSTOMIZE_KEYBINDING(Localization.lang("Customize keyboard shortcuts"), IconTheme.JabRefIcons.KEY_BINDINGS),
+    EDIT_ENTRY(Localization.lang("Open entry editor"), IconTheme.JabRefIcons.EDIT_ENTRY, KeyBinding.OPEN_CLOSE_ENTRY_EDITOR),
     SHOW_PDF_VIEWER(Localization.lang("Open document viewer"), IconTheme.JabRefIcons.PDF_FILE),
     NEXT_PREVIEW_STYLE(Localization.lang("Next preview style"), KeyBinding.NEXT_PREVIEW_LAYOUT),
     PREVIOUS_PREVIEW_STYLE(Localization.lang("Previous preview style"), KeyBinding.PREVIOUS_PREVIEW_LAYOUT),
@@ -131,12 +136,13 @@ public enum StandardActions implements Action {
 
     NEW_ENTRY(Localization.lang("New entry"), IconTheme.JabRefIcons.ADD_ENTRY, KeyBinding.NEW_ENTRY),
     NEW_ARTICLE(Localization.lang("New article"), IconTheme.JabRefIcons.ADD_ARTICLE),
-    NEW_ENTRY_FROM_PLAIN_TEXT(Localization.lang("New entry from plain text"), IconTheme.JabRefIcons.NEW_ENTRY_FROM_PLAIN_TEXT, KeyBinding.NEW_ENTRY_FROM_PLAIN_TEXT),
+    NEW_ENTRY_FROM_PLAIN_TEXT(Localization.lang("New entry from plain text"), IconTheme.JabRefIcons.NEW_ENTRY_FROM_PLAIN_TEXT),
     LIBRARY_PROPERTIES(Localization.lang("Library properties")),
     FIND_DUPLICATES(Localization.lang("Find duplicates"), IconTheme.JabRefIcons.FIND_DUPLICATES),
     MERGE_ENTRIES(Localization.lang("Merge entries"), IconTheme.JabRefIcons.MERGE_ENTRIES, KeyBinding.MERGE_ENTRIES),
     RESOLVE_DUPLICATE_KEYS(Localization.lang("Resolve duplicate citation keys"), Localization.lang("Find and remove duplicate citation keys"), KeyBinding.RESOLVE_DUPLICATE_CITATION_KEYS),
     CHECK_INTEGRITY(Localization.lang("Check integrity"), KeyBinding.CHECK_INTEGRITY),
+    CHECK_CONSISTENCY(Localization.lang("Check consistency"), KeyBinding.CHECK_CONSISTENCY),
     FIND_UNLINKED_FILES(Localization.lang("Search for unlinked local files"), IconTheme.JabRefIcons.SEARCH, KeyBinding.FIND_UNLINKED_FILES),
     AUTO_LINK_FILES(Localization.lang("Automatically set file links"), IconTheme.JabRefIcons.AUTO_FILE_LINK, KeyBinding.AUTOMATICALLY_LINK_FILES),
     LOOKUP_DOC_IDENTIFIER(Localization.lang("Search document identifier online")),
@@ -147,10 +153,11 @@ public enum StandardActions implements Action {
     CLEANUP_ENTRIES(Localization.lang("Cleanup entries"), IconTheme.JabRefIcons.CLEANUP_ENTRIES, KeyBinding.CLEANUP),
     SET_FILE_LINKS(Localization.lang("Automatically set file links"), KeyBinding.AUTOMATICALLY_LINK_FILES),
 
-    EDIT_FILE_LINK(Localization.lang("Edit"), IconTheme.JabRefIcons.EDIT, KeyBinding.EDIT_ENTRY),
+    EDIT_FILE_LINK(Localization.lang("Edit"), IconTheme.JabRefIcons.EDIT, KeyBinding.OPEN_CLOSE_ENTRY_EDITOR),
     DOWNLOAD_FILE(Localization.lang("Download file"), IconTheme.JabRefIcons.DOWNLOAD_FILE),
+    REDOWNLOAD_FILE(Localization.lang("Redownload file"), IconTheme.JabRefIcons.DOWNLOAD_FILE),
     RENAME_FILE_TO_PATTERN(Localization.lang("Rename file to defined pattern"), IconTheme.JabRefIcons.AUTO_RENAME),
-    RENAME_FILE_TO_NAME(Localization.lang("Rename file to a given name"), IconTheme.JabRefIcons.RENAME, KeyBinding.REPLACE_STRING),
+    RENAME_FILE_TO_NAME(Localization.lang("Rename files to configured filename format pattern"), IconTheme.JabRefIcons.RENAME, KeyBinding.REPLACE_STRING),
     MOVE_FILE_TO_FOLDER(Localization.lang("Move file to file directory"), IconTheme.JabRefIcons.MOVE_TO_FOLDER),
     MOVE_FILE_TO_FOLDER_AND_RENAME(Localization.lang("Move file to file directory and rename file")),
     COPY_FILE_TO_FOLDER(Localization.lang("Copy linked file to folder..."), IconTheme.JabRefIcons.COPY_TO_FOLDER, KeyBinding.COPY),
@@ -167,7 +174,8 @@ public enum StandardActions implements Action {
     WEB_MENU(Localization.lang("JabRef resources")),
     OPEN_WEBPAGE(Localization.lang("Website"), Localization.lang("Opens JabRef's website"), IconTheme.JabRefIcons.HOME),
     OPEN_FACEBOOK("Facebook", Localization.lang("Opens JabRef's Facebook page"), IconTheme.JabRefIcons.FACEBOOK),
-    OPEN_TWITTER("Twitter", Localization.lang("Opens JabRef's Twitter page"), IconTheme.JabRefIcons.TWITTER),
+    OPEN_LINKEDIN("LinkedIn", Localization.lang("Opens JabRef's LinkedIn page"), IconTheme.JabRefIcons.LINKEDIN),
+    OPEN_MASTODON("Mastodon", Localization.lang("Opens JabRef's Mastodon page"), IconTheme.JabRefIcons.MASTODON),
     OPEN_BLOG(Localization.lang("Blog"), Localization.lang("Opens JabRef's blog"), IconTheme.JabRefIcons.BLOG),
     OPEN_DEV_VERSION_LINK(Localization.lang("Development version"), Localization.lang("Opens a link where the current development version can be downloaded")),
     OPEN_CHANGELOG(Localization.lang("View change log"), Localization.lang("See what has been changed in the JabRef versions")),
@@ -186,7 +194,10 @@ public enum StandardActions implements Action {
     GROUP_REMOVE(Localization.lang("Remove group")),
     GROUP_REMOVE_KEEP_SUBGROUPS(Localization.lang("Keep subgroups")),
     GROUP_REMOVE_WITH_SUBGROUPS(Localization.lang("Also remove subgroups")),
+    GROUP_CHAT(Localization.lang("Chat with group")),
     GROUP_EDIT(Localization.lang("Edit group")),
+    GROUP_GENERATE_SUMMARIES(Localization.lang("Generate summaries for entries in the group")),
+    GROUP_GENERATE_EMBEDDINGS(Localization.lang("Generate embeddings for linked files in the group")),
     GROUP_SUBGROUP_ADD(Localization.lang("Add subgroup")),
     GROUP_SUBGROUP_REMOVE(Localization.lang("Remove subgroups")),
     GROUP_SUBGROUP_SORT(Localization.lang("Sort subgroups A-Z")),
@@ -194,7 +205,10 @@ public enum StandardActions implements Action {
     GROUP_SUBGROUP_SORT_ENTRIES(Localization.lang("Sort subgroups by # of entries (Descending)")),
     GROUP_SUBGROUP_SORT_ENTRIES_REVERSE(Localization.lang("Sort subgroups by # of entries (Ascending)")),
     GROUP_ENTRIES_ADD(Localization.lang("Add selected entries to this group")),
-    GROUP_ENTRIES_REMOVE(Localization.lang("Remove selected entries from this group"));
+    GROUP_SUBGROUP_RENAME(Localization.lang("Rename subgroup"), KeyBinding.GROUP_SUBGROUP_RENAME),
+    GROUP_ENTRIES_REMOVE(Localization.lang("Remove selected entries from this group")),
+
+    CLEAR_EMBEDDINGS_CACHE(Localization.lang("Clear embeddings cache"));
 
     private String text;
     private final String description;

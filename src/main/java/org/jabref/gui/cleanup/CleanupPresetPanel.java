@@ -12,12 +12,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 import org.jabref.gui.commonfxcontrols.FieldFormatterCleanupsPanel;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.FieldFormatterCleanups;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.field.StandardField;
-import org.jabref.preferences.CleanupPreferences;
-import org.jabref.preferences.FilePreferences;
 
 import com.airhacks.afterburner.views.ViewLoader;
 
@@ -33,6 +33,7 @@ public class CleanupPresetPanel extends VBox {
     @FXML private CheckBox cleanUpMakePathsRelative;
     @FXML private CheckBox cleanUpRenamePDF;
     @FXML private CheckBox cleanUpRenamePDFonlyRelativePaths;
+    @FXML private CheckBox cleanUpDeletedFiles;
     @FXML private CheckBox cleanUpUpgradeExternalLinks;
     @FXML private CheckBox cleanUpBiblatex;
     @FXML private CheckBox cleanUpBibtex;
@@ -67,10 +68,10 @@ public class CleanupPresetPanel extends VBox {
 
         cleanUpUpgradeExternalLinks.setText(Localization.lang("Upgrade external PDF/PS links to use the '%0' field.", StandardField.FILE.getDisplayName()));
 
-        String currentPattern = Localization.lang("Filename format pattern")
-                                            .concat(": ")
+        String currentPattern = Localization.lang("Filename format pattern (from preferences)")
                                             .concat(filePreferences.getFileNamePattern());
         cleanupRenamePDFLabel.setText(currentPattern);
+
         cleanUpBibtex.selectedProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue) {
@@ -109,6 +110,7 @@ public class CleanupPresetPanel extends VBox {
         cleanUpRenamePDF.setSelected(preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF));
         cleanUpRenamePDFonlyRelativePaths.setSelected(preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF_ONLY_RELATIVE_PATHS));
         cleanUpUpgradeExternalLinks.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS));
+        cleanUpDeletedFiles.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_DELETED_LINKED_FILES));
         cleanUpBiblatex.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBLATEX));
         cleanUpBibtex.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBTEX));
         cleanUpTimestampToCreationDate.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE));
@@ -149,6 +151,9 @@ public class CleanupPresetPanel extends VBox {
         }
         if (cleanUpUpgradeExternalLinks.isSelected()) {
             activeJobs.add(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS);
+        }
+        if (cleanUpDeletedFiles.isSelected()) {
+            activeJobs.add(CleanupPreferences.CleanupStep.CLEAN_UP_DELETED_LINKED_FILES);
         }
         if (cleanUpBiblatex.isSelected()) {
             activeJobs.add(CleanupPreferences.CleanupStep.CONVERT_TO_BIBLATEX);

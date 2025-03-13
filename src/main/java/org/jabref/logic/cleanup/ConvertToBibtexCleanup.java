@@ -31,6 +31,10 @@ public class ConvertToBibtexCleanup implements CleanupJob {
                 date.getMonth().flatMap(month -> entry.setField(StandardField.MONTH, month.getJabRefFormat())).ifPresent(changes::add);
             }
 
+            if (StringUtil.isBlank(entry.getField(StandardField.YEARDIVISION))) {
+                date.getSeason().flatMap(season -> entry.setField(StandardField.YEARDIVISION, season.getName())).ifPresent(changes::add);
+            }
+
             if (!changes.isEmpty()) {
                 entry.clearField(StandardField.DATE).ifPresent(changes::add);
             }
@@ -40,7 +44,7 @@ public class ConvertToBibtexCleanup implements CleanupJob {
             Field oldField = alias.getValue();
             Field newField = alias.getKey();
             entry.getField(oldField).ifPresent(oldValue -> {
-                if (!oldValue.isEmpty() && (!entry.getField(newField).isPresent())) {
+                if (!oldValue.isEmpty() && (entry.getField(newField).isEmpty())) {
                     // There is content in the old field and no value in the new, so just copy
                     entry.setField(newField, oldValue).ifPresent(changes::add);
                     entry.clearField(oldField).ifPresent(changes::add);

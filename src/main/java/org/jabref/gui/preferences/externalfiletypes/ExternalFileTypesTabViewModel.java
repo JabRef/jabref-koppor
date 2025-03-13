@@ -8,35 +8,34 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.jabref.gui.DialogService;
-import org.jabref.gui.exporter.CreateModifyExporterDialogViewModel;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
+import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.preferences.FilePreferences;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateModifyExporterDialogViewModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalFileTypesTabViewModel.class);
     private final ObservableList<ExternalFileTypeItemViewModel> fileTypes = FXCollections.observableArrayList();
 
-    private final FilePreferences filePreferences;
+    private final ExternalApplicationsPreferences externalApplicationsPreferences;
     private final DialogService dialogService;
 
-    public ExternalFileTypesTabViewModel(FilePreferences filePreferences, DialogService dialogService) {
-        this.filePreferences = filePreferences;
+    public ExternalFileTypesTabViewModel(ExternalApplicationsPreferences externalApplicationsPreferences, DialogService dialogService) {
+        this.externalApplicationsPreferences = externalApplicationsPreferences;
         this.dialogService = dialogService;
     }
 
     @Override
     public void setValues() {
         fileTypes.clear();
-        fileTypes.addAll(filePreferences.getExternalFileTypes().stream()
-                       .map(ExternalFileTypeItemViewModel::new)
-                       .toList());
+        fileTypes.addAll(externalApplicationsPreferences.getExternalFileTypes().stream()
+                                                        .map(ExternalFileTypeItemViewModel::new)
+                                                        .toList());
         fileTypes.sort(Comparator.comparing(ExternalFileTypeItemViewModel::getName));
     }
 
@@ -48,8 +47,8 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
                                                    .filter(type::equals).findAny()
                                                    .ifPresentOrElse(saveList::add, () -> saveList.add(type)));
 
-        filePreferences.getExternalFileTypes().clear();
-        filePreferences.getExternalFileTypes().addAll(saveList);
+        externalApplicationsPreferences.getExternalFileTypes().clear();
+        externalApplicationsPreferences.getExternalFileTypes().addAll(saveList);
     }
 
     public void resetToDefaults() {
@@ -83,7 +82,12 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
         ExternalFileTypeItemViewModel typeToModify = new ExternalFileTypeItemViewModel(type.toExternalFileType());
         showEditDialog(typeToModify, Localization.lang("Edit file type"));
 
-        if (!isValidExternalFileType(typeToModify)) {
+        if (type.extensionProperty().get().equals(typeToModify.extensionProperty().get())) {
+            if (hasEmptyValue(typeToModify)) {
+                LOGGER.warn("One of the fields is empty or invalid. Not saving.");
+                return false;
+            }
+        } else if (!isValidExternalFileType(typeToModify)) {
             return false;
         }
 
@@ -97,20 +101,20 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
     }
 
     public boolean isValidExternalFileType(ExternalFileTypeItemViewModel item) {
-        if (withEmptyValue(item)) {
-            LOGGER.debug("One of the fields is empty or invalid.");
+        if (hasEmptyValue(item)) {
+            LOGGER.warn("One of the fields is empty or invalid. Not saving.");
             return false;
         }
 
         if (!isUniqueExtension(item)) {
-            LOGGER.debug("File Extension exists already.");
+            LOGGER.warn("File Extension already exists. Not saving.");
             return false;
         }
 
         return true;
     }
 
-    private boolean withEmptyValue(ExternalFileTypeItemViewModel item) {
+    private boolean hasEmptyValue(ExternalFileTypeItemViewModel item) {
         return item.getName().isEmpty() || item.extensionProperty().get().isEmpty() || item.mimetypeProperty().get().isEmpty();
     }
 

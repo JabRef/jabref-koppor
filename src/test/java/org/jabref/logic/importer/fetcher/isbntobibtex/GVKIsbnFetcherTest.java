@@ -18,12 +18,12 @@ import org.mockito.Answers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-public class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
+class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
 
     private BibEntry bibEntryEffectiveJavaLongISBN;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         bibEntryEffectiveJava = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
                 .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
@@ -75,17 +75,18 @@ public class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
         BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "Repository")
                 .withField(StandardField.SUBTITLE, "Eine Einführung")
-                .withField(StandardField.PUBLISHER, "De Gruyter Oldenbourg")
+                .withField(StandardField.PUBLISHER, "Walter de Gruyter GmbH")
                 .withField(StandardField.AUTHOR, "Habermann, Hans-Joachim")
                 .withField(StandardField.ISBN, "9783110702125")
                 .withField(StandardField.YEAR, "2020")
-                .withField(StandardField.ADDRESS, "München")
-                .withField(StandardField.EDITION, "Reprint 2020")
+                .withField(StandardField.ADDRESS, "Berlin/München/Boston")
+                .withField(StandardField.EDITION, "1st ed.")
                 .withField(StandardField.EDITOR, "Frank Leymann")
-                .withField(StandardField.NUMBER, "8.1")
-                .withField(StandardField.PAGETOTAL, "1294")
-                .withField(StandardField.SERIES, "Handbuch der Informatik")
-                .withField(new UnknownField("ppn_gvk"), "1738076555");
+                .withField(StandardField.NUMBER, "v.8.1")
+                .withField(StandardField.PAGETOTAL, "1296")
+                .withField(StandardField.SERIES, "Handbuch der Informatik Series")
+                .withField(StandardField.NOTE, "Description based on publisher supplied metadata and other sources.")
+                .withField(new UnknownField("ppn_gvk"), "1910493767");
 
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("9783110702125");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
@@ -95,14 +96,14 @@ public class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
      * Checks whether the given ISBN is <emph>NOT</emph> available at any ISBN fetcher
      */
     @Test
-    public void testIsbnNeitherAvailableOnEbookDeNorOrViaOpenLibrary() throws Exception {
+    void isbnNeitherAvailableOnEbookDeNorOrViaOpenLibrary() throws Exception {
         // In this test, the ISBN needs to be a valid (syntax+checksum) ISBN number
         // However, the ISBN number must not be assigned to a real book
        assertEquals(Optional.empty(), fetcher.performSearchById("9785646216541"));
     }
 
     @Test
-    void testEResourceIsbnIsReturnedAsBoook() throws Exception {
+    void eResourceIsbnIsReturnedAsBoook() throws Exception {
         assertEquals(Optional.of(StandardEntryType.Book), fetcher.performSearchById("978-0-8229-4557-4").map(BibEntry::getType));
     }
 }

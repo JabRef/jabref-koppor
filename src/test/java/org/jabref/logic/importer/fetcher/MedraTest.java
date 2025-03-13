@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @FetcherTest
-public class MedraTest {
+class MedraTest {
 
     private final Medra fetcher = new Medra();
 
@@ -35,7 +35,7 @@ public class MedraTest {
                                         .withField(StandardField.DOI, "10.2143/TVF.80.3.3285690")
                                         .withField(StandardField.ISSN, "2031-8952, 2031-8952")
                                         .withField(StandardField.JOURNAL, "Tijdschrift voor Filosofie")
-                                        .withField(StandardField.PAGES, "625-629")
+                                        .withField(StandardField.PAGES, "625–629")
                         )),
 
                 Arguments.of("10.3303/CET1977146",
@@ -55,7 +55,7 @@ public class MedraTest {
                                         .withField(StandardField.YEAR, "2019")
                                         .withField(StandardField.DOI, "10.3303/CET1977146")
                                         .withField(StandardField.JOURNAL, "Chemical Engineering Transactions")
-                                        .withField(StandardField.PAGES, "871-876")
+                                        .withField(StandardField.PAGES, "871–876")
                                         .withField(StandardField.VOLUME, "77"))),
                 Arguments.of("10.1400/115378",
                         Optional.of(
@@ -72,23 +72,23 @@ public class MedraTest {
     }
 
     @Test
-    public void testGetName() {
+    void getName() {
         assertEquals("mEDRA", fetcher.getName());
     }
 
     @Test
-    public void testPerformSearchEmptyDOI() throws FetcherException {
+    void performSearchEmptyDOI() throws FetcherException {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 
     @Test
-    public void testPerformNonExistent() throws FetcherException {
+    void performNonExistent() throws FetcherException {
         assertThrows(FetcherServerException.class, () -> fetcher.performSearchById("10.1016/j.bjoms.2007.08.004"));
     }
 
     @ParameterizedTest
     @MethodSource("getDoiBibEntryPairs")
-    public void testDoiBibEntryPairs(String identifier, Optional<BibEntry> expected) throws FetcherException {
+    void doiBibEntryPairs(String identifier, Optional<BibEntry> expected) throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById(identifier);
         assertEquals(expected, fetchedEntry);
     }

@@ -29,15 +29,18 @@ import org.jabref.logic.exporter.AtomicFileWriter;
 import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.BibtexDatabaseWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
+import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.BackupFileType;
 import org.jabref.logic.util.CoarseChangeFilter;
 import org.jabref.logic.util.io.BackupFileUtil;
+import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.BibDatabaseContextChangedEvent;
+import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
+import org.jabref.model.entry.BibtexString;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-import org.jabref.preferences.PreferencesService;
 
 import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
@@ -57,21 +60,21 @@ public class BackupManager {
 
     private static final int DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS = 19;
 
-    private static Set<BackupManager> runningInstances = new HashSet<>();
+    private static final Set<BackupManager> RUNNING_INSTANCES = new HashSet<>();
 
     private final BibDatabaseContext bibDatabaseContext;
-    private final PreferencesService preferences;
+    private final CliPreferences preferences;
     private final ScheduledThreadPoolExecutor executor;
     private final CoarseChangeFilter changeFilter;
     private final BibEntryTypesManager entryTypesManager;
     private final LibraryTab libraryTab;
 
     // Contains a list of all backup paths
-    // During a write, the less recent backup file is deleted
+    // During writing, the less recent backup file is deleted
     private final Queue<Path> backupFilesQueue = new LinkedBlockingQueue<>();
     private boolean needsBackup = false;
 
-    BackupManager(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager, PreferencesService preferences) {
+    BackupManager(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager, CliPreferences preferences) {
         this.bibDatabaseContext = bibDatabaseContext;
         this.entryTypesManager = entryTypesManager;
         this.preferences = preferences;
@@ -104,10 +107,10 @@ public class BackupManager {
      *
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
-    public static BackupManager start(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager, PreferencesService preferences) {
+    public static BackupManager start(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager, CliPreferences preferences) {
         BackupManager backupManager = new BackupManager(libraryTab, bibDatabaseContext, entryTypesManager, preferences);
         backupManager.startBackupTask(preferences.getFilePreferences().getBackupDirectory());
-        runningInstances.add(backupManager);
+        RUNNING_INSTANCES.add(backupManager);
         return backupManager;
     }
 
@@ -117,7 +120,7 @@ public class BackupManager {
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
     public static void discardBackup(BibDatabaseContext bibDatabaseContext, Path backupDir) {
-        runningInstances.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.discardBackup(backupDir));
+        RUNNING_INSTANCES.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.discardBackup(backupDir));
     }
 
     /**
@@ -128,15 +131,15 @@ public class BackupManager {
      * @param backupDir The path to the backup directory
      */
     public static void shutdown(BibDatabaseContext bibDatabaseContext, Path backupDir, boolean createBackup) {
-        runningInstances.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.shutdown(backupDir, createBackup));
-        runningInstances.removeIf(instance -> instance.bibDatabaseContext == bibDatabaseContext);
+        RUNNING_INSTANCES.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.shutdown(backupDir, createBackup));
+        RUNNING_INSTANCES.removeIf(instance -> instance.bibDatabaseContext == bibDatabaseContext);
     }
 
     /**
      * Checks whether a backup file exists for the given database file. If it exists, it is checked whether it is
      * newer and different from the original.
      *
-     * In case a discarded file is present, the method also returns <code>false</code>, See also {@link #discardBackup()}.
+     * In case a discarded file is present, the method also returns <code>false</code>, See also {@link #discardBackup(Path)}.
      *
      * @param originalPath Path to the file a backup should be checked for. Example: jabref.bib.
      *
@@ -178,7 +181,11 @@ public class BackupManager {
                 return false;
             }
             try {
-                return Files.mismatch(originalPath, latestBackupPath) != -1L;
+                boolean result = Files.mismatch(originalPath, latestBackupPath) != -1L;
+                if (result) {
+                    LOGGER.info("Backup file {} differs from current file {}", latestBackupPath, originalPath);
+                }
+                return result;
             } catch (IOException e) {
                 LOGGER.debug("Could not compare original file and backup file.", e);
                 // User has to investigate in this case
@@ -255,10 +262,22 @@ public class BackupManager {
                 .withSaveOrder(saveOrder)
                 .withReformatOnSave(preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
 
+        // "Clone" the database context
+        // We "know" that "only" the BibEntries might be changed during writing (see [org.jabref.logic.exporter.BibDatabaseWriter.savePartOfDatabase])
+        List<BibEntry> list = bibDatabaseContext.getDatabase().getEntries().stream()
+                                                .map(BibEntry::clone)
+                                                .map(BibEntry.class::cast)
+                                                .toList();
+        BibDatabase bibDatabaseClone = new BibDatabase(list);
+        bibDatabaseContext.getDatabase().getStringValues().stream().map(BibtexString::clone)
+                          .map(BibtexString.class::cast)
+                          .forEach(bibDatabaseClone::addString);
+        BibDatabaseContext bibDatabaseContextClone = new BibDatabaseContext(bibDatabaseClone, bibDatabaseContext.getMetaData());
+
         Charset encoding = bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8);
         // We want to have successful backups only
         // Thus, we do not use a plain "FileWriter", but the "AtomicFileWriter"
-        // Example: What happens if one hard powers off the machine (or kills the jabref process) during the write of the backup?
+        // Example: What happens if one hard powers off the machine (or kills the jabref process) during writing of the backup?
         //          This MUST NOT create a broken backup file that then jabref wants to "restore" from?
         try (Writer writer = new AtomicFileWriter(backupPath, encoding, false)) {
             BibWriter bibWriter = new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator());
@@ -268,7 +287,8 @@ public class BackupManager {
                     preferences.getFieldPreferences(),
                     preferences.getCitationKeyPatternPreferences(),
                     entryTypesManager)
-                    .saveDatabase(bibDatabaseContext);
+                    // we save the clone to prevent the original database (and thus the UI) from being changed
+                    .saveDatabase(bibDatabaseContextClone);
             backupFilesQueue.add(backupPath);
 
             // We wrote the file successfully
@@ -323,7 +343,7 @@ public class BackupManager {
 
         executor.scheduleAtFixedRate(
                                      // We need to determine the backup path on each action, because we use the timestamp in the filename
-                                     () -> determineBackupPathForNewBackup(backupDir).ifPresent(path -> this.performBackup(path)),
+                                     () -> determineBackupPathForNewBackup(backupDir).ifPresent(this::performBackup),
                                      DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
                                      DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
                                      TimeUnit.SECONDS);

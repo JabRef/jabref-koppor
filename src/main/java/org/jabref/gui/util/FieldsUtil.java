@@ -1,10 +1,12 @@
 package org.jabref.gui.util;
 
+import javax.swing.undo.UndoManager;
+
 import javafx.util.StringConverter;
 
-import org.jabref.gui.Globals;
 import org.jabref.gui.specialfields.SpecialFieldViewModel;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.IEEEField;
@@ -30,18 +32,16 @@ public class FieldsUtil {
         }
     };
 
-    public static String getNameWithType(Field field) {
-        if (field instanceof SpecialField specialField) {
-            return new SpecialFieldViewModel(specialField, Globals.prefs, Globals.undoManager).getLocalization()
-                    + " (" + Localization.lang("Special") + ")";
-        } else if (field instanceof IEEEField) {
-            return field.getDisplayName() + " (" + Localization.lang("IEEE") + ")";
-        } else if (field instanceof InternalField) {
-            return field.getDisplayName() + " (" + Localization.lang("Internal") + ")";
-        } else if (field instanceof UnknownField) {
-            return field.getDisplayName() + " (" + Localization.lang("Custom") + ")";
-        } else {
-            return field.getDisplayName();
-        }
+    public static String getNameWithType(Field field, CliPreferences preferences, UndoManager undoManager) {
+        return switch (field) {
+            case SpecialField specialField ->
+                    new SpecialFieldViewModel(specialField, preferences, undoManager).getLocalization()
+                            + " (" + Localization.lang("Special") + ")";
+            case IEEEField _ -> field.getDisplayName() + " (" + Localization.lang("IEEE") + ")";
+            case InternalField _ -> field.getDisplayName() + " (" + Localization.lang("Internal") + ")";
+            case UnknownField _ -> field.getDisplayName() + " (" + Localization.lang("Custom") + ")";
+            case null -> throw new IllegalArgumentException("Field must not be null");
+            default -> field.getDisplayName();
+        };
     }
 }

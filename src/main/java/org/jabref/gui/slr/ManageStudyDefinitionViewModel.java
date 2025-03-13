@@ -16,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.WorkspacePreferences;
 import org.jabref.logic.crawler.StudyRepository;
 import org.jabref.logic.crawler.StudyYamlParser;
 import org.jabref.logic.git.GitHandler;
@@ -60,24 +61,28 @@ public class ManageStudyDefinitionViewModel {
 
     private final DialogService dialogService;
 
+    private final WorkspacePreferences workspacePreferences;
+
     /**
      * Constructor for a new study
      */
     public ManageStudyDefinitionViewModel(ImportFormatPreferences importFormatPreferences,
                                           ImporterPreferences importerPreferences,
+                                          WorkspacePreferences workspacePreferences,
                                           DialogService dialogService) {
         databases.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
                                     .stream()
                                     .map(SearchBasedFetcher::getName)
                                     // The user wants to select specific fetchers
                                     // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                    .filter(name -> !name.equals(CompositeSearchBasedFetcher.FETCHER_NAME))
+                                    .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
                                     .map(name -> {
                                         boolean enabled = DEFAULT_SELECTION.contains(name);
                                         return new StudyCatalogItem(name, enabled);
                                     })
                                     .toList());
         this.dialogService = Objects.requireNonNull(dialogService);
+        this.workspacePreferences = Objects.requireNonNull(workspacePreferences);
     }
 
     /**
@@ -90,6 +95,7 @@ public class ManageStudyDefinitionViewModel {
                                           Path studyDirectory,
                                           ImportFormatPreferences importFormatPreferences,
                                           ImporterPreferences importerPreferences,
+                                          WorkspacePreferences workspacePreferences,
                                           DialogService dialogService) {
         // copy the content of the study object into the UI fields
         authors.addAll(Objects.requireNonNull(study).getAuthors());
@@ -102,7 +108,7 @@ public class ManageStudyDefinitionViewModel {
                                     .map(SearchBasedFetcher::getName)
                                     // The user wants to select specific fetchers
                                     // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                    .filter(name -> !name.equals(CompositeSearchBasedFetcher.FETCHER_NAME))
+                                    .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
                                     .map(name -> {
                                         boolean enabled = studyDatabases.contains(new StudyDatabase(name, true));
                                         return new StudyCatalogItem(name, enabled);
@@ -111,6 +117,7 @@ public class ManageStudyDefinitionViewModel {
 
         this.directory.set(Objects.requireNonNull(studyDirectory).toString());
         this.dialogService = Objects.requireNonNull(dialogService);
+        this.workspacePreferences = Objects.requireNonNull(workspacePreferences);
     }
 
     public StringProperty getTitle() {
@@ -216,5 +223,21 @@ public class ManageStudyDefinitionViewModel {
 
     public void deleteQuery(String item) {
         queries.remove(item);
+    }
+
+    public void initializeSelectedCatalogs() {
+        List<String> selectedCatalogs = workspacePreferences.getSelectedSlrCatalogs();
+        for (StudyCatalogItem catalog : databases) {
+            catalog.setEnabled(selectedCatalogs.contains(catalog.getName()));
+        }
+    }
+
+    public void updateSelectedCatalogs() {
+        List<String> selectedCatalogsList = databases.stream()
+                                                     .filter(StudyCatalogItem::isEnabled)
+                                                     .map(StudyCatalogItem::getName)
+                                                     .collect(Collectors.toList());
+
+        workspacePreferences.setSelectedSlrCatalogs(selectedCatalogsList);
     }
 }

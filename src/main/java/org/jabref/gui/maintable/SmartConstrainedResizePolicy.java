@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * This resize policy is almost the same as {@link TableView#CONSTRAINED_RESIZE_POLICY}
  * We make sure that the width of all columns sums up to the total width of the table.
  * However, in contrast to {@link TableView#CONSTRAINED_RESIZE_POLICY} we size the columns initially by their preferred width.
+ * Although {@link TableView#CONSTRAINED_RESIZE_POLICY} is deprecated, this policy maintains a similar resizing behavior.
  */
 public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFeatures, Boolean> {
 
@@ -40,7 +41,7 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
             double totalPrefWidth = visibleLeafColumns.stream().mapToDouble(TableColumnBase::getPrefWidth).sum();
             double currPrefWidth = 0;
             if (totalPrefWidth > 0) {
-                for (TableColumnBase col : visibleLeafColumns) {
+                for (TableColumnBase<?, ?> col : visibleLeafColumns) {
                     double share = col.getPrefWidth() / totalPrefWidth;
                     double newSize = tableWidth * share;
 
@@ -59,7 +60,7 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
         return false;
     }
 
-    private void resize(TableColumnBase column, double delta) {
+    private void resize(TableColumnBase<?, ?> column, double delta) {
         // We have to use reflection since TableUtil is not visible to us
         try {
             // TODO: reflective access, should be removed
@@ -81,7 +82,7 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
                 visibleLeafColumns);
     }
 
-    private Boolean constrainedResize(TableView.ResizeFeatures prop, Boolean isFirstRun, Double contentWidth, List<? extends TableColumnBase<?, ?>> visibleLeafColumns) {
+    private Boolean constrainedResize(TableView.ResizeFeatures<?> prop, Boolean isFirstRun, Double contentWidth, List<? extends TableColumnBase<?, ?>> visibleLeafColumns) {
         // We have to use reflection since TableUtil is not visible to us
         try {
             // TODO: reflective access, should be removed

@@ -23,11 +23,11 @@ public class DOABFetcherTest {
     private final DOABFetcher fetcher = new DOABFetcher();
 
     @Test
-    public void testGetName() {
+    void getName() {
         assertEquals("DOAB", fetcher.getName());
     }
 
-    public static Stream<Arguments> testPerformSearch() {
+    public static Stream<Arguments> performSearch() {
         return Stream.of(
                 Arguments.of(
                         new BibEntry(StandardEntryType.Book)
@@ -39,7 +39,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.URL, "http://library.oapen.org/handle/20.500.12657/25535")
                                 .withField(StandardField.URI, "https://directory.doabooks.org/handle/20.500.12854/34739")
                                 .withField(StandardField.LANGUAGE, "English")
-                                .withField(StandardField.KEYWORDS, "poetry, love, warfare")
+                                .withField(StandardField.KEYWORDS, "poetry, love, warfare, thema EDItEUR::D Biography, Literature and Literary studies::DC Poetry::DCF Poetry by individual poets")
                                 .withField(StandardField.PUBLISHER, "punctum books"),
                         "i open fire"
                 ),
@@ -55,8 +55,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.URL, "http://library.oapen.org/handle/20.500.12657/25287")
                                 .withField(StandardField.URI, "https://directory.doabooks.org/handle/20.500.12854/26303")
                                 .withField(StandardField.LANGUAGE, "English")
-                                .withField(StandardField.KEYWORDS, "Open Access, Monographs, OAPEN Library, " +
-                                        "Directory of Open Access Books")
+                                .withField(StandardField.KEYWORDS, "Open Access, Monographs, OAPEN Library, Directory of Open Access Books, thema EDItEUR::G Reference, Information and Interdisciplinary subjects::GL Library and information sciences / Museology, thema EDItEUR::G Reference, Information and Interdisciplinary subjects::GP Research and information: general")
                                 .withField(StandardField.PUBLISHER, "Amsterdam University Press"),
                         "the deliverance of open access books"
                 ),
@@ -70,7 +69,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.URL, "https://library.oapen.org/handle/20.500.12657/48312")
                                 .withField(StandardField.URI, "https://directory.doabooks.org/handle/20.500.12854/68086")
                                 .withField(StandardField.LANGUAGE, "English")
-                                .withField(StandardField.KEYWORDS, "Religion")
+                                .withField(StandardField.KEYWORDS, "Religion, thema EDItEUR::Q Philosophy and Religion::QR Religion and beliefs::QRM Christianity::QRMF Christianity: sacred texts and revered writings::QRMF1 Bibles::QRMF13 New Testaments")
                                 .withField(StandardField.PUBLISHER, "Brill"),
                         "Four Kingdom Motifs before and beyond the Book of Daniel"
                 ),
@@ -97,7 +96,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.URL, "http://library.oapen.org/handle/20.500.12657/30652")
                                 .withField(StandardField.URI, "https://directory.doabooks.org/handle/20.500.12854/38792")
                                 .withField(StandardField.LANGUAGE, "English")
-                                .withField(StandardField.KEYWORDS, "agile, structural equation modelling, information technology, success, models, strategic alignment, complexity, waterfall, project management, quantitative, Agile software development, Change management, Deliverable, Exploratory factor analysis, South Africa")
+                                .withField(StandardField.KEYWORDS, "agile, structural equation modelling, information technology, success, models, strategic alignment, complexity, waterfall, project management, quantitative, Agile software development, Change management, Deliverable, Exploratory factor analysis, South Africa, thema EDItEUR::U Computing and Information Technology::UB Information technology: general topics")
                                 .withField(StandardField.PUBLISHER, "AOSIS"),
                         "The symbiosis between information system project complexity and information system project success"
                 )
@@ -106,7 +105,7 @@ public class DOABFetcherTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testPerformSearch(BibEntry expected, String query) throws FetcherException {
+    void performSearch(BibEntry expected, String query) throws FetcherException {
         List<BibEntry> entries = fetcher.performSearch(query);
         // We must not contain abstracts in our code base; thus we remove the abstracts from the fetched results
         entries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));

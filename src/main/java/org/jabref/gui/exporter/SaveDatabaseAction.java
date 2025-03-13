@@ -24,7 +24,7 @@ import org.jabref.gui.autosaveandbackup.AutosaveManager;
 import org.jabref.gui.autosaveandbackup.BackupManager;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
 import org.jabref.gui.maintable.columns.MainTableColumn;
-import org.jabref.gui.util.BackgroundTask;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.exporter.AtomicFileWriter;
 import org.jabref.logic.exporter.BibDatabaseWriter;
@@ -34,16 +34,15 @@ import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.l10n.Encodings;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.pdf.search.PdfIndexerManager;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.logic.shared.prefs.SharedDatabasePreferences;
+import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.ChangePropagation;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-import org.jabref.preferences.PreferencesService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +59,7 @@ public class SaveDatabaseAction {
 
     private final LibraryTab libraryTab;
     private final DialogService dialogService;
-    private final PreferencesService preferences;
+    private final GuiPreferences preferences;
     private final BibEntryTypesManager entryTypesManager;
 
     public enum SaveDatabaseMode {
@@ -69,7 +68,7 @@ public class SaveDatabaseAction {
 
     public SaveDatabaseAction(LibraryTab libraryTab,
                               DialogService dialogService,
-                              PreferencesService preferences,
+                              GuiPreferences preferences,
                               BibEntryTypesManager entryTypesManager) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
@@ -121,7 +120,7 @@ public class SaveDatabaseAction {
         askForSavePath().ifPresent(path -> {
             try {
                 saveDatabase(path, true, StandardCharsets.UTF_8, BibDatabaseWriter.SaveType.PLAIN_BIBTEX, getSaveOrder());
-                preferences.getGuiPreferences().getFileHistory().newFile(path);
+                preferences.getLastFilesOpenedPreferences().getFileHistory().newFile(path);
                 dialogService.notify(Localization.lang("Saved selected to '%0'.", path.toString()));
             } catch (SaveException ex) {
                 LOGGER.error("A problem occurred when trying to save the file", ex);
@@ -140,10 +139,10 @@ public class SaveDatabaseAction {
 
         Optional<Path> databasePath = context.getDatabasePath();
         if (databasePath.isPresent()) {
-            // Close AutosaveManager, BackupManager, and PdfIndexer for original library
+            // Close AutosaveManager, BackupManager, and IndexManager for original library
             AutosaveManager.shutdown(context);
             BackupManager.shutdown(context, this.preferences.getFilePreferences().getBackupDirectory(), preferences.getFilePreferences().shouldCreateBackup());
-            PdfIndexerManager.shutdownIndexer(context);
+            libraryTab.closeIndexManger();
         }
 
         // Set new location
@@ -161,14 +160,13 @@ public class SaveDatabaseAction {
             context.setDatabasePath(file);
             libraryTab.updateTabTitle(false);
 
-            // Reset (here: uninstall and install again) AutosaveManager and BackupManager for the new file name
+            // Reset (here: uninstall and install again) AutosaveManager, BackupManager and IndexManager for the new file name
             libraryTab.resetChangeMonitor();
             libraryTab.installAutosaveManagerAndBackupManager();
-            // PdfIndexerManager does not need to be called; the method {@link org.jabref.logic.pdf.search.PdfIndexerManager.get()} is called if a new indexer is needed
+            libraryTab.createIndexManager();
 
-            preferences.getGuiPreferences().getFileHistory().newFile(file);
+            preferences.getLastFilesOpenedPreferences().getFileHistory().newFile(file);
         }
-
         return saveResult;
     }
 
@@ -189,7 +187,7 @@ public class SaveDatabaseAction {
         if (selectedPath.isPresent()) {
             Path savePath = selectedPath.get();
             // Workaround for linux systems not adding file extension
-            if (!(savePath.getFileName().toString().toLowerCase().endsWith(".bib"))) {
+            if (!savePath.getFileName().toString().toLowerCase().endsWith(".bib")) {
                 savePath = Path.of(savePath.toString() + ".bib");
                 if (!Files.notExists(savePath)) {
                     if (!dialogService.showConfirmationDialogAndWait(Localization.lang("Overwrite file"), Localization.lang("'%0' exists. Overwrite file?", savePath.getFileName()))) {
@@ -206,18 +204,15 @@ public class SaveDatabaseAction {
         Optional<Path> databasePath = bibDatabaseContext.getDatabasePath();
         if (databasePath.isEmpty()) {
             Optional<Path> savePath = askForSavePath();
-            if (savePath.isEmpty()) {
-                return false;
-            }
-            return saveAs(savePath.get(), mode);
+            return savePath.filter(path -> saveAs(path, mode)).isPresent();
         }
 
         return save(databasePath.get(), mode);
     }
 
     private boolean save(Path targetPath, SaveDatabaseMode mode) {
-        if (mode == SaveDatabaseMode.NORMAL) {
-            dialogService.notify(String.format("%s...", Localization.lang("Saving library")));
+        if (mode == SaveDatabaseMode.NORMAL && libraryTab.getBibDatabaseContext().getEntries().size() > 2_000) {
+            dialogService.notify("%s...".formatted(Localization.lang("Saving library")));
         }
 
         synchronized (libraryTab) {
@@ -246,7 +241,7 @@ public class SaveDatabaseAction {
             dialogService.notify(Localization.lang("Library saved"));
             return success;
         } catch (SaveException ex) {
-            LOGGER.error(String.format("A problem occurred when trying to save the file %s", targetPath), ex);
+            LOGGER.error("A problem occurred when trying to save the file %s".formatted(targetPath), ex);
             dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
             return false;
         } finally {

@@ -24,9 +24,6 @@ public class BibTeXConverter {
 
     /**
      * Converts an {@link MSBibEntry} to a {@link BibEntry} for import
-     *
-     * @param entry The MsBibEntry to convert
-     * @return The bib entry
      */
     public static BibEntry convert(MSBibEntry entry) {
         BibEntry result;
@@ -47,7 +44,7 @@ public class BibTeXConverter {
 
         // Value must be converted
         if (fieldValues.containsKey(StandardField.LANGUAGE)) {
-            int lcid = Integer.valueOf(fieldValues.get(StandardField.LANGUAGE));
+            int lcid = Integer.parseInt(fieldValues.get(StandardField.LANGUAGE));
             fieldValues.put(StandardField.LANGUAGE, MSBibMapping.getLanguage(lcid));
         }
 

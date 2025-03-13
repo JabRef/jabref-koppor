@@ -9,7 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
 
-import org.jabref.logic.util.OS;
+import org.jabref.logic.os.OS;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,10 +99,9 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ProtectedTermsList)) {
+        if (!(o instanceof ProtectedTermsList otherList)) {
             return false;
         }
-        ProtectedTermsList otherList = (ProtectedTermsList) o;
         return (this.location.equals(otherList.location)) && (this.description.equals(otherList.description));
     }
 

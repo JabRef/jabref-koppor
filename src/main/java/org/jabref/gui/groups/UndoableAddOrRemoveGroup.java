@@ -82,17 +82,12 @@ public class UndoableAddOrRemoveGroup extends AbstractUndoableJabRefEdit {
 
     @Override
     public String getPresentationName() {
-        switch (m_editType) {
-            case ADD_NODE:
-                return Localization.lang("Add group");
-            case REMOVE_NODE_KEEP_CHILDREN:
-                return Localization.lang("Keep subgroups)");
-            case REMOVE_NODE_AND_CHILDREN:
-                return Localization.lang("Also remove subgroups");
-            default:
-                break;
-        }
-        return "? (" + Localization.lang("unknown edit") + ")";
+        return switch (m_editType) {
+            case ADD_NODE -> Localization.lang("Add group");
+            case REMOVE_NODE_KEEP_CHILDREN -> Localization.lang("Keep subgroups)");
+            case REMOVE_NODE_AND_CHILDREN -> Localization.lang("Also remove subgroups");
+            default -> "? (" + Localization.lang("unknown edit") + ")";
+        };
     }
 
     @Override
@@ -109,7 +104,7 @@ public class UndoableAddOrRemoveGroup extends AbstractUndoableJabRefEdit {
 
     private void doOperation(boolean undo) {
         GroupTreeNode cursor = m_groupsRootHandle.getNode();
-        final int childIndex = m_pathToNode.get(m_pathToNode.size() - 1);
+        final int childIndex = m_pathToNode.getLast();
         // traverse path up to but last element
         for (int i = 0; i < (m_pathToNode.size() - 1); ++i) {
             cursor = cursor.getChildAt(m_pathToNode.get(i)).get();

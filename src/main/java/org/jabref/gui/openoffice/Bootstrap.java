@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import com.sun.star.comp.helper.ComponentContext;
 import com.sun.star.comp.helper.ComponentContextEntry;
 import com.sun.star.comp.loader.JavaLoader;
 import com.sun.star.comp.servicemanager.ServiceManager;
+import com.sun.star.connection.NoConnectException;
 import com.sun.star.container.XSet;
 import com.sun.star.lang.XInitialization;
 import com.sun.star.lang.XMultiComponentFactory;
@@ -314,7 +314,7 @@ public class Bootstrap {
                         throw new BootstrapException("no component context!");
                     }
                     break;
-                } catch (com.sun.star.connection.NoConnectException ex) {
+                } catch (NoConnectException ex) {
                     // Wait 500 ms, then try to connect again, but do not wait
                     // longer than 5 min (= 600 * 500 ms) total:
                     if (i == 600) {
@@ -323,9 +323,7 @@ public class Bootstrap {
                     Thread.sleep(500);
                 }
             }
-        } catch (BootstrapException e) {
-            throw e;
-        } catch (java.lang.RuntimeException e) {
+        } catch (BootstrapException | RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new BootstrapException(e);
@@ -348,8 +346,6 @@ public class Bootstrap {
                         }
                         out.println(prefix + s);
                     }
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace(System.err);
                 } catch (IOException e) {
                     e.printStackTrace(System.err);
                 }

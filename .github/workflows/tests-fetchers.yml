@@ -7,6 +7,8 @@ on:
     paths:
       - 'src/main/java/org/jabref/logic/importer/fetcher/**'
       - 'src/test/java/org/jabref/logic/importer/fetcher/**'
+      - 'src/main/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporter.java'
+      - 'src/test/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporterTest.java'
       - 'src/main/java/org/jabref/logic/crawler/**'
       - 'src/test/java/org/jabref/logic/crawler/**'
       - '.github/workflows/tests-fetchers.yml'
@@ -15,6 +17,10 @@ on:
     paths:
       - 'src/main/java/org/jabref/logic/importer/fetcher/**'
       - 'src/test/java/org/jabref/logic/importer/fetcher/**'
+      - 'src/main/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporter.java'
+      - 'src/test/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporterTest.java'
+      - 'src/main/java/org/jabref/logic/crawler/**'
+      - 'src/test/java/org/jabref/logic/crawler/**'
       - '.github/workflows/tests-fetchers.yml'
       - 'build.gradle'
   schedule:
@@ -48,10 +54,12 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 21.0.1
-          distribution: 'liberica'
+          java-version: 23.0.1
+          distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
       - name: Run fetcher tests
         run: ./gradlew fetcherTest
         env:

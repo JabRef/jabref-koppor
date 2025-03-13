@@ -31,7 +31,7 @@ public enum Month {
     Month(String fullName, String shortName, int number) {
         this.fullName = fullName;
         this.shortName = shortName;
-        this.twoDigitNumber = String.format("%02d", number);
+        this.twoDigitNumber = "%02d".formatted(number);
         this.number = number;
     }
 
@@ -51,7 +51,7 @@ public enum Month {
     }
 
     /**
-     * Find month by shortName (3 letters) case insensitive.
+     * Find month by shortName (3 letters) case-insensitive.
      * If no matching month is found, then an empty Optional is returned.
      *
      * @param shortName "jan", "feb", ...
@@ -113,47 +113,21 @@ public enum Month {
      */
     static Optional<Month> parseGermanShortMonth(String value) {
         value = value.toLowerCase();
-        switch (value) {
-            case "jan":
-            case "januar":
-                return Month.getMonthByNumber(1);
-            case "feb":
-            case "februar":
-                return Month.getMonthByNumber(2);
-            case "mär":
-            case "mae":
-            case "märz":
-            case "maerz":
-                return Month.getMonthByNumber(3);
-            case "apr":
-            case "april":
-                return Month.getMonthByNumber(4);
-            case "mai":
-                return Month.getMonthByNumber(5);
-            case "jun":
-            case "juni":
-                return Month.getMonthByNumber(6);
-            case "jul":
-            case "juli":
-                return Month.getMonthByNumber(7);
-            case "aug":
-            case "august":
-                return Month.getMonthByNumber(8);
-            case "sep":
-            case "september":
-                return Month.getMonthByNumber(9);
-            case "okt":
-            case "oktober":
-                return Month.getMonthByNumber(10);
-            case "nov":
-            case "november":
-                return Month.getMonthByNumber(11);
-            case "dez":
-            case "dezember":
-                return Month.getMonthByNumber(12);
-            default:
-                return Optional.empty();
-        }
+        return switch (value) {
+            case "jan", "januar" -> Month.getMonthByNumber(1);
+            case "feb", "februar" -> Month.getMonthByNumber(2);
+            case "mär", "mae", "märz", "maerz" -> Month.getMonthByNumber(3);
+            case "apr", "april" -> Month.getMonthByNumber(4);
+            case "mai" -> Month.getMonthByNumber(5);
+            case "jun", "juni" -> Month.getMonthByNumber(6);
+            case "jul", "juli" -> Month.getMonthByNumber(7);
+            case "aug", "august" -> Month.getMonthByNumber(8);
+            case "sep", "september" -> Month.getMonthByNumber(9);
+            case "okt", "oktober" -> Month.getMonthByNumber(10);
+            case "nov", "november" -> Month.getMonthByNumber(11);
+            case "dez", "dezember" -> Month.getMonthByNumber(12);
+            default -> Optional.empty();
+        };
     }
 
     /**
@@ -176,7 +150,7 @@ public enum Month {
      * @return Month in JabRef format
      */
     public String getJabRefFormat() {
-        return String.format(FieldWriter.BIBTEX_STRING_START_END_SYMBOL + "%s" + FieldWriter.BIBTEX_STRING_START_END_SYMBOL, shortName);
+        return (FieldWriter.BIBTEX_STRING_START_END_SYMBOL + "%s" + FieldWriter.BIBTEX_STRING_START_END_SYMBOL).formatted(shortName);
     }
 
     /**

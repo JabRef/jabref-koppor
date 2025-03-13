@@ -28,8 +28,8 @@ import org.w3c.dom.NodeList;
  */
 class MSBibEntry {
 
-    // MSBib fields and values
     public Map<String, String> fields = new HashMap<>();
+
     public List<MsBibAuthor> authors;
     public List<MsBibAuthor> bookAuthors;
     public List<MsBibAuthor> editors;
@@ -74,7 +74,6 @@ class MSBibEntry {
      *  Matches both single locations (only city) like Berlin and full locations like Stroudsburg, PA, USA <br>
      *  tested using http://www.regexpal.com/
      */
-
     private final Pattern ADDRESS_PATTERN = Pattern.compile("\\b(\\w+)\\s?[,]?\\s?(\\w*)\\s?[,]?\\s?(\\w*)\\b");
 
     public MSBibEntry() {
@@ -82,7 +81,7 @@ class MSBibEntry {
     }
 
     /**
-     * Create a new {@link MsBibEntry} to import from an xml element
+     * Create a new {@link MSBibEntry} to import from an XML element
      */
     public MSBibEntry(Element entry) {
         populateFromXml(entry);
@@ -311,14 +310,14 @@ class MSBibEntry {
         }
         Element authorTop = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + entryName);
 
-        Optional<MsBibAuthor> personName = authorsLst.stream().filter(MsBibAuthor::isCorporate)
+        Optional<MsBibAuthor> personName = authorsLst.stream()
+                                                     .filter(MsBibAuthor::isCorporate)
                                                      .findFirst();
         if (personName.isPresent()) {
             MsBibAuthor person = personName.get();
-
             Element corporate = document.createElementNS(MSBibDatabase.NAMESPACE,
                     MSBibDatabase.PREFIX + "Corporate");
-            corporate.setTextContent(person.getFirstLast());
+            corporate.setTextContent(person.getLastName());
             authorTop.appendChild(corporate);
         } else {
             Element nameList = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + "NameList");
@@ -336,17 +335,16 @@ class MSBibEntry {
 
     private void addDateAcessedFields(Document document, Element rootNode) {
         Optional<Date> parsedDateAcesseField = Date.parse(dateAccessed);
-        parsedDateAcesseField.flatMap(Date::getYear).map(Object::toString).ifPresent(yearAccessed -> {
-            addField(document, rootNode, "Year" + "Accessed", yearAccessed);
-        });
+        parsedDateAcesseField.flatMap(Date::getYear)
+            .map(Object::toString)
+            .ifPresent(yearAccessed -> addField(document, rootNode, "Year" + "Accessed", yearAccessed));
 
         parsedDateAcesseField.flatMap(Date::getMonth)
-                             .map(Month::getFullName).ifPresent(monthAcessed -> {
-            addField(document, rootNode, "Month" + "Accessed", monthAcessed);
-        });
-        parsedDateAcesseField.flatMap(Date::getDay).map(Object::toString).ifPresent(dayAccessed -> {
-            addField(document, rootNode, "Day" + "Accessed", dayAccessed);
-        });
+                             .map(Month::getFullName)
+                             .ifPresent(monthAcessed -> addField(document, rootNode, "Month" + "Accessed", monthAcessed));
+        parsedDateAcesseField.flatMap(Date::getDay)
+            .map(Object::toString)
+            .ifPresent(dayAccessed -> addField(document, rootNode, "Day" + "Accessed", dayAccessed));
     }
 
     private void addAddress(Document document, Element parent, String addressToSplit) {

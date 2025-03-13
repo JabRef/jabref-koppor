@@ -2,6 +2,7 @@ package org.jabref.gui.entryeditor;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedSet;
@@ -15,61 +16,56 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
-import org.jabref.gui.DialogService;
-import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProviders;
 import org.jabref.gui.fieldeditors.FieldEditorFX;
 import org.jabref.gui.fieldeditors.FieldNameLabel;
+import org.jabref.gui.fieldeditors.MarkdownEditor;
 import org.jabref.gui.icon.IconTheme;
-import org.jabref.gui.theme.ThemeManager;
-import org.jabref.gui.util.TaskExecutor;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.preview.PreviewPanel;
+import org.jabref.gui.undo.RedoAction;
+import org.jabref.gui.undo.UndoAction;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.pdf.search.IndexingTaskManager;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
-import org.jabref.preferences.PreferencesService;
 
 public class CommentsTab extends FieldsEditorTab {
     public static final String NAME = "Comments";
 
     private final String defaultOwner;
     private final UserSpecificCommentField userSpecificCommentField;
-
     private final EntryEditorPreferences entryEditorPreferences;
+    private boolean isFieldCurrentlyVisible;
+    private boolean shouldShowHideButton;
 
-    public CommentsTab(PreferencesService preferences,
+    public CommentsTab(GuiPreferences preferences,
                        BibDatabaseContext databaseContext,
                        SuggestionProviders suggestionProviders,
                        UndoManager undoManager,
-                       DialogService dialogService,
-                       StateManager stateManager,
-                       ThemeManager themeManager,
-                       IndexingTaskManager indexingTaskManager,
-                       TaskExecutor taskExecutor,
-                       JournalAbbreviationRepository journalAbbreviationRepository) {
-        super(
-                false,
+                       UndoAction undoAction,
+                       RedoAction redoAction,
+                       JournalAbbreviationRepository journalAbbreviationRepository,
+                       PreviewPanel previewPanel) {
+        super(false,
                 databaseContext,
                 suggestionProviders,
                 undoManager,
-                dialogService,
+                undoAction,
+                redoAction,
                 preferences,
-                stateManager,
-                themeManager,
-                taskExecutor,
                 journalAbbreviationRepository,
-                indexingTaskManager
-        );
-        this.defaultOwner = preferences.getOwnerPreferences().getDefaultOwner();
+                previewPanel);
+        this.defaultOwner = preferences.getOwnerPreferences().getDefaultOwner().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "-");
         setText(Localization.lang("Comments"));
         setGraphic(IconTheme.JabRefIcons.COMMENT.getGraphicNode());
 
         userSpecificCommentField = new UserSpecificCommentField(defaultOwner);
         entryEditorPreferences = preferences.getEntryEditorPreferences();
+        shouldShowHideButton = true;
     }
 
     @Override
@@ -79,17 +75,18 @@ public class CommentsTab extends FieldsEditorTab {
         // First comes the standard comment field
         comments.add(StandardField.COMMENT);
 
-        // Also show comment field of the current user (if enabled in the preferences)
-        if (entry.hasField(userSpecificCommentField) || entryEditorPreferences.shouldShowUserCommentsFields()) {
+        // Only show the user-specific comment field if it's enabled and should be visible
+        if (entryEditorPreferences.shouldShowUserCommentsFields() && shouldShowHideButton) {
             comments.add(userSpecificCommentField);
         }
 
         // Show all non-empty comment fields (otherwise, they are completely hidden)
         comments.addAll(entry.getFields().stream()
-                .filter(field -> (field instanceof UserSpecificCommentField && !field.equals(userSpecificCommentField))
-                        || field.getName().toLowerCase().contains("comment"))
-                .sorted(Comparator.comparing(Field::getName))
-                .collect(Collectors.toCollection(LinkedHashSet::new)));
+                             .filter(field -> (field instanceof UserSpecificCommentField && !field.equals(userSpecificCommentField))
+                                     || field.getName().toLowerCase().contains("comment"))
+                             .sorted(Comparator.comparing(Field::getName))
+                             .collect(Collectors.toCollection(LinkedHashSet::new)));
+
         return comments;
     }
 
@@ -125,31 +122,46 @@ public class CommentsTab extends FieldsEditorTab {
         super.setupPanel(entry, compressed);
 
         Optional<FieldEditorFX> fieldEditorForUserDefinedComment = editors.entrySet().stream().filter(f -> f.getKey().getName().contains(defaultOwner)).map(Map.Entry::getValue).findFirst();
+
         for (Map.Entry<Field, FieldEditorFX> fieldEditorEntry : editors.entrySet()) {
             Field field = fieldEditorEntry.getKey();
-            FieldEditorFX editor = fieldEditorEntry.getValue();
+            MarkdownEditor editor = (MarkdownEditor) fieldEditorEntry.getValue().getNode();
 
             boolean isStandardBibtexComment = field == StandardField.COMMENT;
             boolean isDefaultOwnerComment = field.equals(userSpecificCommentField);
             boolean shouldBeEnabled = isStandardBibtexComment || isDefaultOwnerComment;
-            editor.getNode().setDisable(!shouldBeEnabled);
+            editor.setEditable(shouldBeEnabled);
         }
 
-        // Show "Hide" button only if user-specific comment field is empty. Otherwise, it is a strange UI, because the
-        // button would just disappear and no change **in the current** editor would be made
-        if (entryEditorPreferences.shouldShowUserCommentsFields() && !entry.hasField(userSpecificCommentField)) {
-            Button hideDefaultOwnerCommentButton = new Button(Localization.lang("Hide user comments"));
-            hideDefaultOwnerCommentButton.setOnAction(e -> {
-                var labelForField = gridPane.getChildren().stream().filter(s -> s instanceof FieldNameLabel).filter(x -> ((FieldNameLabel) x).getText().equals(userSpecificCommentField.getDisplayName())).findFirst();
-                labelForField.ifPresent(label -> gridPane.getChildren().remove(label));
-                fieldEditorForUserDefinedComment.ifPresent(f -> gridPane.getChildren().remove(f.getNode()));
-                editors.remove(userSpecificCommentField);
+        if (entryEditorPreferences.shouldShowUserCommentsFields()) {
+            // Show "Hide" button only if user-specific comment field is empty
+            if (!entry.hasField(userSpecificCommentField)) {
+                if (shouldShowHideButton) {
+                    Button hideDefaultOwnerCommentButton = new Button(Localization.lang("Hide user-specific comments field"));
+                    hideDefaultOwnerCommentButton.setOnAction(e -> {
+                        gridPane.getChildren().removeIf(node ->
+                                (node instanceof FieldNameLabel fieldNameLabel && fieldNameLabel.getText().equals(userSpecificCommentField.getName()))
+                        );
+                        fieldEditorForUserDefinedComment.ifPresent(f -> gridPane.getChildren().remove(f.getNode()));
+                        editors.remove(userSpecificCommentField);
+                        entry.clearField(userSpecificCommentField);
+                        shouldShowHideButton = false;
 
-                entryEditorPreferences.setShowUserCommentsFields(false);
-                setupPanel(entry, false);
-            });
-            gridPane.add(hideDefaultOwnerCommentButton, 1, gridPane.getRowCount(), 2, 1);
-            setCompressedRowLayout();
+                        setupPanel(entry, false);
+                    });
+                    gridPane.add(hideDefaultOwnerCommentButton, 1, gridPane.getRowCount(), 2, 1);
+                    setCompressedRowLayout();
+                } else {
+                    // Show "Show" button when user comments field is hidden
+                    Button showDefaultOwnerCommentButton = new Button(Localization.lang("Show user-specific comments field"));
+                    showDefaultOwnerCommentButton.setOnAction(e -> {
+                        shouldShowHideButton = true;
+                        setupPanel(entry, false);
+                    });
+                    gridPane.add(showDefaultOwnerCommentButton, 1, gridPane.getRowCount(), 2, 1);
+                    setCompressedRowLayout();
+                }
+            }
         }
     }
 }

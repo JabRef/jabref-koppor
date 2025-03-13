@@ -36,7 +36,7 @@ public abstract class Importer implements Comparable<Importer> {
      * The effect of this method is primarily to avoid unnecessary processing of files when searching for a suitable
      * import format. If this method returns false, the import routine will move on to the next import format.
      * <p>
-     * Thus the correct behaviour is to return false if it is certain that the file is not of the suitable type, and
+     * Thus, the correct behaviour is to return false if it is certain that the file is not of the suitable type, and
      * true otherwise. Returning true is the safe choice if not certain.
      */
     public abstract boolean isRecognizedFormat(BufferedReader input) throws IOException;
@@ -77,6 +77,12 @@ public abstract class Importer implements Comparable<Importer> {
      * <p>
      * If importing in a specified format and an empty library is returned, JabRef reports that no entries were found.
      * <p>
+     * If your format is binary-based (PDF, ZIP-based, or others), then you should not solely override this method.
+     * For binary formats do this:
+     * 1. Throw {@link UnsupportedOperationException} in this method.
+     * 2. Override the method {@link Importer#importDatabase(Path)}.
+     * Example of this workaround is in: {@link org.jabref.logic.importer.fileformat.pdf.PdfImporter}.
+     * <p>
      * This method should never return null.
      *
      * @param input the input to read from
@@ -96,10 +102,7 @@ public abstract class Importer implements Comparable<Importer> {
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream, charset));
             ParserResult parserResult = importDatabase(bufferedReader);
-
-            // store the detected encoding
             parserResult.getMetaData().setEncoding(charset);
-
             parserResult.setPath(filePath);
 
             // Make sure the mode is always set
@@ -124,7 +127,8 @@ public abstract class Importer implements Comparable<Importer> {
                 return defaultCharSet;
             }
 
-            if (Arrays.stream(matches).anyMatch(charset -> "ASCII".equals(charset.getName()))) {
+            // if we have utf8 with 100 confidence we assume that the file is in utf8, more likely
+            if (Arrays.stream(matches).anyMatch(charset -> "ASCII".equals(charset.getName()) || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
                 return defaultCharSet;
             }
 
@@ -172,38 +176,22 @@ public abstract class Importer implements Comparable<Importer> {
     }
 
     /**
-     * Returns the name of this import format.
+     * Returns a <a href="https://developer.mozilla.org/en-US/docs/Glossary/Slug">slug</a>, which identifies this importer.
+     * Used, for example, to identify the importer in CLI.
+     * <p>
+     * Typically, this name should be short, in English, and should not contain special characters like #, %, etc.
      *
-     * <p>The name must be unique.</p>
+     * @return ID, must be unique and not <code>null</code>
+     */
+    public abstract String getId();
+
+    /**
+     * Returns the name of this import format. Typically, this is a string that denotes file type or format.
+     * It can also be localized, like "XMP-annotated PDF".
      *
      * @return format name, must be unique and not <code>null</code>
      */
     public abstract String getName();
-
-    /**
-     * Returns the type of files that this importer can read
-     *
-     * @return {@link FileType} corresponding to the importer
-     */
-    public abstract FileType getFileType();
-
-    /**
-     * Returns a one-word ID which identifies this importer. Used for example, to identify the importer when used from
-     * the command line.
-     *
-     * @return ID, must be unique and not <code>null</code>
-     */
-    public String getId() {
-        String id = getName();
-        StringBuilder result = new StringBuilder(id.length());
-        for (int i = 0; i < id.length(); i++) {
-            char c = id.charAt(i);
-            if (Character.isLetterOrDigit(c)) {
-                result.append(Character.toLowerCase(c));
-            }
-        }
-        return result.toString();
-    }
 
     /**
      * Returns the description of the import format.
@@ -212,12 +200,19 @@ public abstract class Importer implements Comparable<Importer> {
      * <ul><li>
      *   what kind of entries from what sources and based on what specification it is able to import
      * </li><li>
-     *   by what criteria it {@link #isRecognizedFormat(BufferedReader) recognizes} an import format
+     *   by what criteria it {@link #isRecognizedFormat(BufferedReader)} recognizes an import format
      * </li></ul>
      *
      * @return description of the import format
      */
     public abstract String getDescription();
+
+    /**
+     * Returns the type of files that this importer can read
+     *
+     * @return {@link FileType} corresponding to the importer
+     */
+    public abstract FileType getFileType();
 
     @Override
     public int hashCode() {
@@ -229,10 +224,9 @@ public abstract class Importer implements Comparable<Importer> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Importer)) {
+        if (!(obj instanceof Importer other)) {
             return false;
         }
-        Importer other = (Importer) obj;
         return Objects.equals(this.getName(), other.getName());
     }
 

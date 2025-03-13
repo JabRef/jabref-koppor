@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
@@ -27,6 +28,11 @@ public class InspecImporter extends Importer {
     private static final Pattern INSPEC_PATTERN = Pattern.compile("Record.*INSPEC.*");
 
     @Override
+    public String getId() {
+        return "inspec";
+    }
+
+    @Override
     public String getName() {
         return "INSPEC";
     }
@@ -38,7 +44,7 @@ public class InspecImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return "INSPEC format importer.";
+        return Localization.lang("Importer for the INSPEC format.");
     }
 
     @Override
