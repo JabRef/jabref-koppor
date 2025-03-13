@@ -3,6 +3,12 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jabref.build.xjc.XjcPlugin
 import org.jabref.build.xjc.XjcTask
 
+buildscript {
+    dependencies {
+        classpath('com.palantir.javaformat:gradle-palantir-java-format:2.58.0')
+    }
+}
+
 plugins {
     id 'application'
 
@@ -24,22 +30,25 @@ plugins {
     id 'jacoco'
 
     id 'checkstyle'
+    id 'com.diffplug.spotless' version '6.22.0'
+    id 'org.openrewrite.rewrite' version '7.1.4'
 
     id 'project-report'
 
     id 'idea'
 
-    id 'org.openrewrite.rewrite' version '7.1.4'
-
     id "org.itsallcode.openfasttrace" version "3.0.1"
 }
 
-// Enable following for debugging
-// gradle.startParameter.showStacktrace = org.gradle.api.logging.configuration.ShowStacktrace.
+apply plugin: 'com.palantir.java-format'
+apply plugin: 'com.diffplug.spotless'
 
 apply plugin: XjcPlugin
 
 apply from: 'eclipse.gradle'
+
+// Enable following for debugging
+// gradle.startParameter.showStacktrace = org.gradle.api.logging.configuration.ShowStacktrace.
 
 group = "org.jabref"
 version = project.findProperty('projVersion') ?: '100.0.0'
@@ -711,6 +720,12 @@ jacocoTestReport {
 checkstyle {
     // will only run when called explicitly from the command line
     sourceSets = []
+}
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/main/test/**/*.java'
+    }
 }
 
 rewrite {
