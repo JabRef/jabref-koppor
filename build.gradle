@@ -41,7 +41,10 @@ plugins {
 }
 
 apply plugin: 'com.palantir.java-format'
+apply plugin: 'com.diffplug.spotless'
+
 apply plugin: XjcPlugin
+
 apply from: 'eclipse.gradle'
 
 // Enable following for debugging
@@ -717,6 +720,12 @@ jacocoTestReport {
 checkstyle {
     // will only run when called explicitly from the command line
     sourceSets = []
+}
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/main/test/**/*.java'
+    }
 }
 
 rewrite {
