@@ -6,17 +6,22 @@ nav_order: 13
 
 # Step 3: Set up JabRef's code style
 
-Contributions to JabRef's source code need to have a code formatting that is consistent with existing source code. For that purpose, JabRef provides code-style and check-style definitions.
+Contributions to JabRef's source code need to have a code formatting that is consistent with existing source code.
+For that purpose, JabRef relies on both the [palantir-java-format](https://github.com/palantir/palantir-java-format#palantir-java-format) and [checkstyle](https://checkstyle.sourceforge.io/).
+`palantir-java-format` is automatically configured by the [Gradle plugin](https://github.com/palantir/palantir-java-format#compalantirjava-format-gradle-plugin).
+While `palantir-java-format` ensures proper formatting, the configuration of imports needs to be done, too.
 
-Install the [CheckStyle-IDEA plugin](http://plugins.jetbrains.com/plugin/1065?pr=idea), it can be found via the plug-in repository:
+## Install checkstyle plugin
+
+Install the [Checkstyle-IDEA plugin](http://plugins.jetbrains.com/plugin/1065?pr=idea), it can be found via the plug-in repository:
 Navigate to **File > Settings... > Plugins"**.
 On the top, click on "Marketplace".
 Then, search for "Checkstyle".
 Click on "Install" choose "CheckStyle-IDEA".<br>
 **Note:** In some MacBooks, `Settings` can be found at the "IntelliJ" button of the app menu instead of at "File".
 
-{% figure caption:"Install CheckStyle" %}
-![Install CheckStyle](guidelines-intellij-install-checkstyle.png)
+{% figure caption:"Install Checkstyle" %}
+![Install Checkstyle](guidelines-intellij-install-checkstyle.png)
 {% endfigure %}
 
 After clicking, IntelliJ asks for confirmation:
@@ -36,6 +41,8 @@ Afterwards, use the "Restart IDE" button to restart IntelliJ.
 Click on "Restart" to finally restart.
 
 Wait for IntelliJ coming up again.
+
+## Active JabRef's code style
 
 Go to **File > Settings... > Editor > Code Style**
 
@@ -67,7 +74,7 @@ Click on "Apply" to store the preferences.
 
 ## Put JabRef's checkstyle configuration in place
 
-Now, put the checkstyle configuration file is in place:
+Now, we put the checkstyle configuration file is in place:
 
 Go to **File > Settings... > Tools > Checkstyle > Configuration File**
 
@@ -115,16 +122,32 @@ Then, you can run a check on all modified files.
 ![JabRef's style is active - and we are ready to run a check on all modified files](guidelines-intellij-checkstyle-window.png)
 {% endfigure %}
 
-## Have auto format working properly in JavaDoc
+## Enable `palantir-java-format`
 
-To have auto format working properly in the context of JavaDoc and line wrapping, "Wrap at right margin" has to be disabled. Details are found in [IntelliJ issue 240517](https://youtrack.jetbrains.com/issue/IDEA-240517).
+Go to **File > Settings... > Plugins**.
 
-Go to **File > Settings... > Editor > Code Style > Java > JavaDoc**.
+Go to "Marketplace"
 
-At "Other", disable "Wrap at right margin"
+Enter "palantir-java-format" in the search box.
 
-{% figure caption:"”Wrap at right margin” disabled" %}
-!["Wrap at right margin" disabled](guidelines-intellij-editor-javadoc-do-not-wrap.png)
+Click on "Install"
+
+{% figure caption:"Marketplace result for planatgir-java-format" %}
+![Button install for palantir-java-format](guidelines-intellij-palantir-plugin-install.png)
+{% endfigure %}
+
+Afterwards, restart IntelliJ:
+
+{% figure caption:"Prompt for IntelliJ restart" %}
+![Prompt for IntelliJ restart](guidelines-intellij-palantir-plugin-restart.png)
+{% endfigure %}
+
+Finally, activate `planatir-java-format` in the settings:
+
+Go to **File > Settings... > Other > **.
+
+{% figure caption:"Enable palantir-java-plugin" %}
+![Enable palantir-java-plugin](guidelines-intellij-palantir-plugin-enable.png)
 {% endfigure %}
 
 ## Enable proper import cleanup
