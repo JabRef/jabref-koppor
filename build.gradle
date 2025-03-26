@@ -105,6 +105,7 @@ application {
         '--enable-native-access=javafx.graphics,javafx.media,javafx.web,org.apache.lucene.core',
 
         '-Xmx4g',
+        '-XX:SoftMaxHeapSize=2g',
         '-XX:+UseZGC'
     ]
 }
