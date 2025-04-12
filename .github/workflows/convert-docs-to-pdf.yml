@@ -6,11 +6,15 @@ on:
       - main
     paths:
       - 'docs/**.md'
-      - .github/workflows/convert-docs-to-pdf.yml
+      - '.github/workflows/convert-docs-to-pdf.yml'
   pull_request:
     paths:
       - 'docs/**.md'
-      - .github/workflows/convert-docs-to-pdf.yml
+      - '.github/workflows/convert-docs-to-pdf.yml'
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
 
 jobs:
   build:
