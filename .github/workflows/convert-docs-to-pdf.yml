@@ -113,7 +113,7 @@ jobs:
 
     - name: Merge PDFs into one PDF file
       run: |
-        (echo -n "pdfs/index.pdf"; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort | sed 's/^/, /') > filelist.txt
+        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort) | paste -sd, - > filelist.txt
 
         cat <<EOF > jabref-devdocs.tex
         \documentclass[a4paper]{article}
