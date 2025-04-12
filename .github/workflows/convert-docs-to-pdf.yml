@@ -36,23 +36,26 @@ jobs:
 
         mkdir -p urls
 
-        # Debug: Tool-Versionen prüfen
+        # Debug: Check tool versions
         curl --version
         xmlstarlet --version
 
-        # 1. Sitemap herunterladen
+        # Step 1: Download sitemap
         curl -s https://devdocs.jabref.org/sitemap.xml > urls/sitemap.xml
         echo "=== sitemap.xml ==="
         cat urls/sitemap.xml
 
-        # 2. URLs extrahieren
-        xmlstarlet sel -t -m '//url/loc' -v . -n urls/sitemap.xml > urls/raw.txt
-        echo "=== raw.txt (extrahierte loc-Tags) ==="
+        # Step 2: Extract <loc> entries using xmlstarlet
+        xmlstarlet sel \
+          -N x="http://www.sitemaps.org/schemas/sitemap/0.9" \
+          -t -m '//x:url/x:loc' -v . -n urls/sitemap.xml \
+          > urls/raw.txt
+        echo "=== raw.txt (raw <loc> entries) ==="
         cat urls/raw.txt
 
-        # 3. Absolute URLs erzeugen (falls sie mit / beginnen)
+        # Step 3: Ensure full URLs (prefix relative paths)
         sed 's|^/|https://devdocs.jabref.org/|' urls/raw.txt > urls/list.txt
-        echo "=== list.txt (bereinigte URLs) ==="
+        echo "=== list.txt (final full URLs) ==="
         cat urls/list.txt
 
     - name: Download pages as PDFs
