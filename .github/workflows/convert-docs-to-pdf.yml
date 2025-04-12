@@ -43,19 +43,48 @@ jobs:
       run: |
         # source: https://stackoverflow.com/a/78897319/873282
         node <<'EOF'
-        const fs = require('fs');
-        const puppeteer = require('puppeteer');
-        (async () => {
-          const browser = await puppeteer.launch({ headless: "new" });
-          const files = fs.readdirSync('publish').filter(f => f.endsWith('.html'));
-          for (const file of files) {
+            const fs = require('fs');
+            const puppeteer = require('puppeteer');
+            (async () => {
+            const browser = await puppeteer.launch({ headless: "new" });
+            const files = fs.readdirSync('publish').filter(f => f.endsWith('.html'));
+            for (const file of files) {
+                const page = await browser.newPage();
+                await page.goto(`file://${process.cwd()}/publish/${file}`, {
+                waitUntil: 'networkidle2'
+                });
+                await page.pdf({ path: `publish/${file.replace('.html', '.pdf')}` });
+            }
+            await browser.close();
+            })();
+        EOF
+
+    - name: Merge all HTMLs into single PDF
+      run: |
+        node <<'EOF'
+            const fs = require('fs');
+            const puppeteer = require('puppeteer');
+
+            (async () => {
+            const browser = await puppeteer.launch({ headless: "new" });
             const page = await browser.newPage();
-            await page.goto(`file://${process.cwd()}/publish/${file}`, {
-              waitUntil: 'networkidle2'
-            });
-            await page.pdf({ path: `publish/${file.replace('.html', '.pdf')}` });
-          }
-          await browser.close();
+
+            // Sort filenames alphabetically for consistent order
+            const files = fs.readdirSync('publish').filter(f => f.endsWith('.html')).sort();
+
+            let combinedHTML = '';
+            for (const file of files) {
+                const html = fs.readFileSync(`publish/${file}`, 'utf8');
+                combinedHTML += `\n<div style="page-break-after: always;">${html}</div>\n`;
+            }
+
+            const tempPath = 'publish/_combined.html';
+            fs.writeFileSync(tempPath, `<html><body>${combinedHTML}</body></html>`);
+
+            await page.goto(`file://${process.cwd()}/${tempPath}`, { waitUntil: 'networkidle2' });
+            await page.pdf({ path: 'publish/jabref-devdocs.pdf' });
+
+            await browser.close();
         })();
         EOF
 
