@@ -33,8 +33,8 @@ jobs:
     - name: Convert Markdown to HTML
       run: |
         mkdir -p publish
-        for file in docs/*.md; do
-          filename=$(basename "$file" .md)
+        find docs -type f -name '*.md' ! -iname 'README.md' | while read file; do
+          filename=$(basename "${file%.*}")
           pandoc "$file" -o "publish/$filename.html"
         done
 
@@ -49,9 +49,7 @@ jobs:
             const files = fs.readdirSync('publish').filter(f => f.endsWith('.html'));
             for (const file of files) {
                 const page = await browser.newPage();
-                await page.goto(`file://${process.cwd()}/publish/${file}`, {
-                waitUntil: 'networkidle2'
-                });
+                await page.goto(`file://${process.cwd()}/publish/${file}`, { waitUntil: 'networkidle2' });
                 await page.pdf({ path: `publish/${file.replace('.html', '.pdf')}` });
             }
             await browser.close();
