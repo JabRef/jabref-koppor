@@ -179,6 +179,7 @@ jobs:
 
         \CatchFileDef{\filelist}{filelist.txt}{}
 
+        \pdfbookmark[1]{Contents}{Contents}%
         \tableofcontents
 
         \expandafter\docsvlist\expandafter{\filelist}
