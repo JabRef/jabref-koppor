@@ -141,6 +141,7 @@ jobs:
           lm
           ltxcmds
           metafont
+          mfware
           pdfescape
           pdflscape
           pdfpages
