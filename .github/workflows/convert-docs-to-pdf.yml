@@ -136,6 +136,7 @@ jobs:
           latexconfig
           lm
           ltxcmds
+          mf
           pdfescape
           pdflscape
           pdfpages
