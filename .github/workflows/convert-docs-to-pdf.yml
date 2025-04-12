@@ -64,28 +64,42 @@ jobs:
         node <<'EOF'
         const fs = require('fs');
         const puppeteer = require('puppeteer');
+
         (async () => {
             const urls = fs.readFileSync('urls/list.txt', 'utf-8')
-                            .split('\n')
-                            .filter(Boolean);
+                           .split('\n')
+                           .filter(Boolean);
+
             const browser = await puppeteer.launch({
-            headless: "new",
-            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+              headless: "new",
+              args: ["--no-sandbox", "--disable-setuid-sandbox"]
             });
-            const page = await browser.newPage();
+
             for (let i = 0; i < urls.length; i++) {
-            const url = urls[i];
-            const filename = `pdfs/page${String(i + 1).padStart(3, '0')}.pdf`;
-            console.log(`Rendering ${url} → ${filename}`);
-            await page.goto(url, { waitUntil: 'networkidle2' });
-            await page.pdf({
-                path: filename,
+              const url = urls[i];
+              const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
+              const safeName = urlPath.replace(/\//g, '--') || 'index';
+              const basePath = `pdfs/${safeName}`;
+
+              console.log(`Rendering ${url} → ${basePath}.html/pdf`);
+
+              const page = await browser.newPage();
+              await page.goto(url, { waitUntil: 'networkidle2' });
+
+              const content = await page.content();
+              fs.writeFileSync(`${basePath}.html`, content);
+
+              await page.pdf({
+                path: `${basePath}.pdf`,
                 format: 'A4',
                 printBackground: true
-            });
+              });
+
+              await page.close();
             }
+
             await browser.close();
-        })();
+         })();
         EOF
 
     - name: Merge PDFs into one file
