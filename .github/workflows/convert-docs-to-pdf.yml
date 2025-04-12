@@ -62,9 +62,6 @@ jobs:
         echo "=== list.txt (final full URLs) ==="
         cat urls/list.txt
 
-        echo https://devdocs.jabref.org/index.html > urls/list.txt
-        echo https://devdocs.jabref.org/code-howtos/remote-storage-sql.html >> urls/list.txt
-
     - name: Download pages as PDFs
       run: |
         mkdir pdfs
