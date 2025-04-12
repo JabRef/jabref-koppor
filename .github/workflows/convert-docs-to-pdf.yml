@@ -136,7 +136,7 @@ jobs:
           latexconfig
           lm
           ltxcmds
-          mf
+          metafont
           pdfescape
           pdflscape
           pdfpages
