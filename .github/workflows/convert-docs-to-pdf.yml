@@ -1,0 +1,75 @@
+name: Convert DevDocs to PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**.md'
+      - .github/workflows/convert-docs-to-pdf.yml
+  pull_request:
+    paths:
+      - 'docs/**.md'
+      - .github/workflows/convert-docs-to-pdf.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: pandoc
+        version: 1.0
+
+    - run: npm install puppeteer
+
+    - name: Convert Markdown to HTML
+      run: |
+        mkdir -p publish
+        for file in docs/*.md; do
+          filename=$(basename "$file" .md)
+          pandoc "$file" -o "publish/$filename.html"
+        done
+
+    - name: Convert HTML to PDF using Puppeteer
+      run: |
+        # source: https://stackoverflow.com/a/78897319/873282
+        node <<'EOF'
+        const fs = require('fs');
+        const puppeteer = require('puppeteer');
+        (async () => {
+          const browser = await puppeteer.launch({ headless: "new" });
+          const files = fs.readdirSync('publish').filter(f => f.endsWith('.html'));
+          for (const file of files) {
+            const page = await browser.newPage();
+            await page.goto(`file://${process.cwd()}/publish/${file}`, {
+              waitUntil: 'networkidle2'
+            });
+            await page.pdf({ path: `publish/${file.replace('.html', '.pdf')}` });
+          }
+          await browser.close();
+        })();
+        EOF
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: docs
+        path: publish/
+
+    - name: Publish
+      if: github.head_ref == 'main'
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./publish
+        publish_branch: devdocs
+        force_orphan: true
+        enable_jekyll: false
