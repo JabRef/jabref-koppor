@@ -25,77 +25,64 @@ jobs:
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: pandoc
+        packages: poppler-utils xmlstarlet
         version: 1.0
 
     - run: npm install puppeteer
 
-    - name: Convert Markdown to HTML
+    - name: Crawl URLs from sitemap
       run: |
-        mkdir -p publish
-        find docs -type f -name '*.md' ! -iname 'README.md' | while read file; do
-          filename=$(basename "${file%.*}")
-          pandoc "$file" -o "publish/$filename.html"
-        done
+        mkdir urls
+        curl -s https://devdocs.jabref.org/sitemap.xml |
+            xmlstarlet sel -t -m '//url/loc' -v . -n > urls/list.txt
+        sed -i 's|^/|https://devdocs.jabref.org/|' urls/list.txt
+        cat urls/list.txt
 
-    - name: Convert HTML to PDF using Puppeteer
+    - name: Download pages as PDFs
       run: |
-        # source: https://stackoverflow.com/a/78897319/873282
+        mkdir pdfs
         node <<'EOF'
-            const fs = require('fs');
-            const puppeteer = require('puppeteer');
-            (async () => {
-            const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"] })
-            const files = fs.readdirSync('publish').filter(f => f.endsWith('.html'));
-            for (const file of files) {
-                const page = await browser.newPage();
-                await page.goto(`file://${process.cwd()}/publish/${file}`, { waitUntil: 'networkidle2' });
-                await page.pdf({ path: `publish/${file.replace('.html', '.pdf')}` });
-            }
-            await browser.close();
-            })();
-        EOF
-
-    - name: Merge all HTMLs into single PDF
-      run: |
-        node <<'EOF'
-            const fs = require('fs');
-            const puppeteer = require('puppeteer');
-
-            (async () => {
-            const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"] })
+        const fs = require('fs');
+        const puppeteer = require('puppeteer');
+        (async () => {
+            const urls = fs.readFileSync('urls/list.txt', 'utf-8')
+                            .split('\n')
+                            .filter(Boolean);
+            const browser = await puppeteer.launch({
+            headless: "new",
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+            });
             const page = await browser.newPage();
-
-            // Sort filenames alphabetically for consistent order
-            const files = fs.readdirSync('publish').filter(f => f.endsWith('.html')).sort();
-
-            let combinedHTML = '';
-            for (const file of files) {
-                const html = fs.readFileSync(`publish/${file}`, 'utf8');
-                combinedHTML += `\n<div style="page-break-after: always;">${html}</div>\n`;
+            for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            const filename = `pdfs/page${String(i + 1).padStart(3, '0')}.pdf`;
+            console.log(`Rendering ${url} → ${filename}`);
+            await page.goto(url, { waitUntil: 'networkidle2' });
+            await page.pdf({
+                path: filename,
+                format: 'A4',
+                printBackground: true
+            });
             }
-
-            const tempPath = 'publish/_combined.html';
-            fs.writeFileSync(tempPath, `<html><body>${combinedHTML}</body></html>`);
-
-            await page.goto(`file://${process.cwd()}/${tempPath}`, { waitUntil: 'networkidle2' });
-            await page.pdf({ path: 'publish/jabref-devdocs.pdf' });
-
             await browser.close();
         })();
         EOF
 
+    - name: Merge PDFs into one file
+      run: |
+        pdfunite pdfs/*.pdf pdfs/jabref-docs-complete.pdf
+
     - uses: actions/upload-artifact@v4
       with:
         name: docs
-        path: publish/
+        path: pdfs/
 
     - name: Publish
       if: github.head_ref == 'main'
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./publish
+        publish_dir: ./pdfs
         publish_branch: devdocs
         force_orphan: true
         enable_jekyll: false
