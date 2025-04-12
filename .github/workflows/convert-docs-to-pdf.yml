@@ -171,7 +171,7 @@ jobs:
           \clearpage
           \phantomsection
           \addcontentsline{toc}{section}{\bookmarktitle}
-          \includepdf[pages=-]{#1}%
+          \includepdf[pages=-]{\detokenize{#1}}%
         }
 
         \CatchFileDef{\filelist}{filelist.txt}{}
