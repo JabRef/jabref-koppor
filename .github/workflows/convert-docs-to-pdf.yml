@@ -58,6 +58,9 @@ jobs:
         echo "=== list.txt (final full URLs) ==="
         cat urls/list.txt
 
+        echo https://devdocs.jabref.org/index.html > urls/list.txt
+        echo https://devdocs.jabref.org/code-howtos/remote-storage-sql.html >> urls/list.txt
+
     - name: Download pages as PDFs
       run: |
         mkdir pdfs
@@ -110,7 +113,7 @@ jobs:
 
     - name: Merge PDFs into one PDF file
       run: |
-        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort) > filelist.txt
+        (echo -n "pdfs/index.pdf"; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort | sed 's/^/, /') > filelist.txt
 
         cat <<EOF > jabref-devdocs.tex
         \documentclass[a4paper]{article}
