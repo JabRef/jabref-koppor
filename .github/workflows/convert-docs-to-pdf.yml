@@ -33,10 +33,26 @@ jobs:
     - name: Crawl URLs from sitemap
       run: |
         set -e
-        mkdir urls
-        curl -s https://devdocs.jabref.org/sitemap.xml |
-            xmlstarlet sel -t -m '//url/loc' -v . -n > urls/list.txt
-        sed -i 's|^/|https://devdocs.jabref.org/|' urls/list.txt
+
+        mkdir -p urls
+
+        # Debug: Tool-Versionen prüfen
+        curl --version
+        xmlstarlet --version
+
+        # 1. Sitemap herunterladen
+        curl -s https://devdocs.jabref.org/sitemap.xml > urls/sitemap.xml
+        echo "=== sitemap.xml ==="
+        cat urls/sitemap.xml
+
+        # 2. URLs extrahieren
+        xmlstarlet sel -t -m '//url/loc' -v . -n urls/sitemap.xml > urls/raw.txt
+        echo "=== raw.txt (extrahierte loc-Tags) ==="
+        cat urls/raw.txt
+
+        # 3. Absolute URLs erzeugen (falls sie mit / beginnen)
+        sed 's|^/|https://devdocs.jabref.org/|' urls/raw.txt > urls/list.txt
+        echo "=== list.txt (bereinigte URLs) ==="
         cat urls/list.txt
 
     - name: Download pages as PDFs
