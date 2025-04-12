@@ -79,7 +79,7 @@ jobs:
               const url = urls[i];
               const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
               const safeName = urlPath.replace(/\//g, '--') || 'index';
-              const basePath = `pdfs/${safeName}`;
+              const basePath = `pdfs/${safeName.replace(/\.html$/, '')}`;
 
               console.log(`Rendering ${url} → ${basePath}.html/pdf`);
 
@@ -102,9 +102,42 @@ jobs:
          })();
         EOF
 
-    - name: Merge PDFs into one file
+    - name: Install TeX Live
+      uses: zauguin/install-texlive@v4
+      with:
+        packages: >
+          latex latex-bin pdfpages hyperref catchfile xstring etoolbox
+
+    - name: Merge PDFs into one PDF file
       run: |
-        pdfunite pdfs/*.pdf pdfs/jabref-docs-complete.pdf
+        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort) > filelist.txt
+
+        cat <<EOF > jabref-devdocs.tex
+        \documentclass[a4paper]{article}
+        \usepackage{pdfpages}
+        \usepackage[bookmarks=true]{hyperref}
+        \usepackage{catchfile}
+        \usepackage{xstring}
+        \usepackage{etoolbox}
+
+        \newcommand{\includepdfwithbookmark}[1]{%
+        \StrBehind{#1}{/}[\filename]%
+        \StrBefore{\filename}{.pdf}[\bookmarktitle]%
+        \pdfbookmark[1]{\bookmarktitle}{\bookmarktitle}%
+        \includepdf[pages=-]{#1}%
+        }
+
+        \CatchFileDef{\filelist}{filelist.txt}{}
+
+        \renewcommand*{\do}[1]{\includepdfwithbookmark{##1}}
+        \docsvlist{\filelist}
+
+        \end{document}
+        EOF
+
+        pdflatex -shell-escape jabref-devdocs
+        pdflatex -shell-escape jabref-devdocs
+        mv jabref-devdocs.pdf pdfs/
 
     - uses: actions/upload-artifact@v4
       with:
