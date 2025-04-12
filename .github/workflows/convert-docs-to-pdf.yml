@@ -109,8 +109,45 @@ jobs:
       uses: zauguin/install-texlive@v4
       with:
         packages: >
-          latex latex-bin pdfpages hyperref catchfile xstring etoolbox
-
+          bigintcalc
+          bitset
+          catchfile
+          cm
+          epstopdf-pkg
+          eso-pic
+          etexcmds
+          etoolbox
+          gettitlestring
+          graphics
+          graphics-cfg
+          graphics-def
+          hycolor
+          hyperref
+          iftex
+          infwarerr
+          intcalc
+          kvdefinekeys
+          kvoptions
+          kvsetkeys
+          l3backend
+          latex
+          latex-bin
+          latex-fonts
+          latexconfig
+          lm
+          ltxcmds
+          pdfescape
+          pdflscape
+          pdfpages
+          pdftexcmds
+          refcount
+          rerunfilecheck
+          stringenc
+          tools
+          uniquecounter
+          url
+          xcolor
+          xstring
     - name: Merge PDFs into one PDF file
       run: |
         (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort) | paste -sd, - > filelist.txt
