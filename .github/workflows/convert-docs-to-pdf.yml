@@ -153,8 +153,9 @@ jobs:
           xstring
     - name: Merge PDFs into one PDF file
       run: |
-        # Currently, filenames with % cannot be handled; thus we filter it
-        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | grep -v '%' | sort) | paste -sd, - > filelist.txt
+        # Currently, filenames with % and # cannot be handled; thus we filter it
+        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | grep -v '%' | grep -v '#' | sort) | paste -sd, - > filelist.txt
+        cat filelist.txt
 
         cat <<EOF > jabref-devdocs.tex
         \documentclass[a4paper]{article}
