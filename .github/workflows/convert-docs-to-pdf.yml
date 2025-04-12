@@ -82,7 +82,7 @@ jobs:
             for (let i = 0; i < urls.length; i++) {
               const url = urls[i];
               const urlPath = new URL(url).pathname.replace(/^\/|\/$/g, '');
-              const safeName = urlPath.replace(/\//g, '--') || 'index';
+              const safeName = decodeURIComponent(urlPath).replace(/\//g, '--') || 'index';
               const basePath = `pdfs/${safeName.replace(/\.html$/, '')}`;
 
               console.log(`Rendering ${url} → ${basePath}.html/pdf`);
