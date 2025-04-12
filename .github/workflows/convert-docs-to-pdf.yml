@@ -169,13 +169,12 @@ jobs:
         \begin{document}
 
         \renewcommand{\do}[1]{%
-        \StrBehind{#1}{/}[\filename]%
-        \StrBefore{\filename}{.pdf}[\bookmarktitle]%
-        \pdfbookmark[1]{\bookmarktitle}{\bookmarktitle}%
-        \clearpage
-        \phantomsection
-        \addcontentsline{toc}{section}{\bookmarktitle}
-        \includepdf[pages=-]{#1}%
+          \StrBehind{#1}{/}[\filename]%
+          \StrBefore{\filename}{.pdf}[\bookmarktitle]%
+          \clearpage
+          \phantomsection
+          \addcontentsline{toc}{section}{\bookmarktitle}
+          \includepdf[pages=-]{#1}%
         }
 
         \CatchFileDef{\filelist}{filelist.txt}{}
