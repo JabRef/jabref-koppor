@@ -153,7 +153,7 @@ jobs:
           xstring
     - name: Merge PDFs into one PDF file
       run: |
-        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | sort) | paste -sd, - > filelist.txt
+        (echo pdfs/index.pdf; find pdfs/ -type f -name '*.pdf' ! -name 'index.pdf' | grep -v '%' | sort) | paste -sd, - > filelist.txt
 
         cat <<EOF > jabref-devdocs.tex
         \documentclass[a4paper]{article}
