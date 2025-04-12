@@ -32,6 +32,7 @@ jobs:
 
     - name: Crawl URLs from sitemap
       run: |
+        set -e
         mkdir urls
         curl -s https://devdocs.jabref.org/sitemap.xml |
             xmlstarlet sel -t -m '//url/loc' -v . -n > urls/list.txt
