@@ -7,8 +7,9 @@ on:
     paths:
       - '.github/workflows/convert-docs-to-pdf.yml'
   pull_request:
-    paths:
-      - '.github/workflows/convert-docs-to-pdf.yml'
+     # always build - therefore disabled
+#    paths:
+#      - '.github/workflows/convert-docs-to-pdf.yml'
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
