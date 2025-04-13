@@ -5,11 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**.md'
       - '.github/workflows/convert-docs-to-pdf.yml'
   pull_request:
     paths:
-      - 'docs/**.md'
       - '.github/workflows/convert-docs-to-pdf.yml'
 
 concurrency:
