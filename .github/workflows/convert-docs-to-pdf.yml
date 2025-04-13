@@ -196,7 +196,7 @@ jobs:
         path: pdfs/
 
     - name: Publish
-      if: github.head_ref == 'main'
+      if: github.ref == 'main' || github.head_ref == 'publish-devdocs-as-pdf'
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
