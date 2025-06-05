@@ -24,7 +24,6 @@ application{
 }
 
 val javafxVersion = "24.0.1"
-
 dependencies {
     implementation(project(":jablib"))
     implementation(project(":jabsrv"))
