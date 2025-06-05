@@ -321,7 +321,7 @@ jobs:
       - name: Build runtime JabSrv-CLI image and installer (linux, Windows)
         if: ${{ !startsWith(matrix.os, 'macos') }}
         shell: bash
-        run: ./gradlew -i -PprojVersion="${{ steps.gitversion.outputs.AssemblySemVer }}" -PprojVersionInfo="${{ steps.gitversion.outputs.InformationalVersion }}" :jabsrv-cli:jpackageUbuntu-22.04
+        run: ./gradlew -i -PprojVersion="${{ steps.gitversion.outputs.AssemblySemVer }}" -PprojVersionInfo="${{ steps.gitversion.outputs.InformationalVersion }}" :jabsrv-cli:jpackageBuild
       - name: Package JabGui application image (linux, Windows)
         if: ${{ !startsWith(matrix.os, 'macos') }}
         shell: bash

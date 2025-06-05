@@ -4,6 +4,8 @@ plugins {
     id("buildlogic.java-common-conventions")
 
     application
+
+    id("com.xcporter.jpkg") version "0.0.7"
 }
 
 application{
@@ -121,12 +123,67 @@ tasks.named<JavaExec>("run") {
 
 val version: String = project.findProperty("projVersion") as? String ?: "100.0.0"
 
-javaModulePackaging {
-    applicationName = "JabRef";
-    applicationVersion = version;
-    // applicationDescription = ""
-        vendor = "JabRef e.V."
-    copyright = "(c) JabRef e.V. and contributors"
-    // jpackageResources.setFrom(...);
-    // resources.from(...)
+//default values
+jpkg {
+//    When true, jpkg looks for a git repo
+//    and takes the version from the most recent tag it finds
+//    (similar to git describe --tags)
+    useVersionFromGit = false
+
+//    override file name for artifacts
+    packageName = "JabRef"
+
+//    needed for all tasks; can be set here or at project level
+    mainClass = "org.jabref.http.cli.server.ServerCli.java"
+
+    packageName = "JabRef"
+    vendor = "JabRef e.V."
+    copyright = "2025"
+    description = "JabRef"
+
+    // runtimeImage = "path/to/custom/jre"
+
+    menuGroup = "JabRef"
+    verbose = false
+    deeplyVerbose = false
+
+//    Platform level configuration
+//    each can specify custom type, icon, or name per platform
+//    to configure type use function type() which accepts a string
+//    that's also a valid jpackage argument, otherwise platform defaults are:
+//    mac : dmg
+//    windows : msi
+//    linux : deb
+    mac {
+        // name = "Mac Package Name (how it appears in menu bar)"
+        // icon = "path to icon"
+
+//      code sign and notarization configuration
+        // signingIdentity = "Your dev certificate identity"
+        // bundleName = "mac-package-identifier for notarization"
+
+//      A function env() is available to parse in secrets stored in a file
+//        named '.env' stored in the project root, one per line with the form
+//        'USERNAME=*********'
+        // userName = env('USERNAME')
+        // password: env('PASSWORD')
+    }
+
+    windows {
+        winDirChooser = true
+        winPerUser = false
+        winMenu = true
+        // menuGroup: String? = null
+        shortcut = true
+    }
+
+    linux {
+        // menuGroup: String? = null
+        // shortcut: Boolean? = true
+        // maintainer: String? = null
+        // packageDependencies: MutableList<String>? = null
+        // release: String? = null
+        // category: String? = null
+    }
+
 }
