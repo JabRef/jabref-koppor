@@ -5,7 +5,7 @@ plugins {
 
     application
 
-    id("org.beryx.jlink") version "3.1.1"
+    id("com.xcporter.jpkg") version "0.0.7"
 }
 
 application{
@@ -121,72 +121,69 @@ tasks.named<JavaExec>("run") {
     }
 }
 
-// This is more or less a clone of jabgui/build.gradle.kts -> jlink
-jlink {
-    // https://github.com/beryx/badass-jlink-plugin/issues/61#issuecomment-504640018
-    addExtraDependencies(
-        "javafx"
-    )
+val version: String = project.findProperty("projVersion") as? String ?: "100.0.0"
 
-    mergedModuleName = "jabsrv.merged.module"
+//default values
+jpkg {
+//    When true, jpkg looks for a git repo
+//    and takes the version from the most recent tag it finds
+//    (similar to git describe --tags)
+    useVersionFromGit = false
 
-    // We keep debug statements - otherwise "--strip-debug" would be included
-    addOptions(
-        "--compress",
-        "zip-6",
-        "--no-header-files",
-        "--no-man-pages",
-        "--bind-services"
-    )
+//    override file name for artifacts
+    packageName = "JabRef"
 
-    launcher {
-        name = "jabsrv"
+//    needed for all tasks; can be set here or at project level
+    mainClass = "org.jabref.http.cli.server.ServerCli.java"
+
+    packageName = "JabRef"
+    vendor = "JabRef e.V."
+    copyright = "2025"
+    description = "JabRef"
+
+    // runtimeImage = "path/to/custom/jre"
+
+    menuGroup = "JabRef"
+    verbose = false
+    deeplyVerbose = false
+
+//    Platform level configuration
+//    each can specify custom type, icon, or name per platform
+//    to configure type use function type() which accepts a string
+//    that's also a valid jpackage argument, otherwise platform defaults are:
+//    mac : dmg
+//    windows : msi
+//    linux : deb
+    mac {
+        // name = "Mac Package Name (how it appears in menu bar)"
+        // icon = "path to icon"
+
+//      code sign and notarization configuration
+        // signingIdentity = "Your dev certificate identity"
+        // bundleName = "mac-package-identifier for notarization"
+
+//      A function env() is available to parse in secrets stored in a file
+//        named '.env' stored in the project root, one per line with the form
+//        'USERNAME=*********'
+        // userName = env('USERNAME')
+        // password: env('PASSWORD')
     }
 
-    // TODO: Remove as soon as dependencies are fixed (upstream)
-    forceMerge(
-        "bcprov",
-        "jaxb",
-        "istack",
-        "stax"
-    )
-
-    mergedModule {
-        uses("org.jvnet.hk2.external.generator.ServiceLocatorGeneratorImpl")
-
-        uses("org.glassfish.jersey.internal.inject.InjectionManager")
-        uses("dev.langchain4j.spi.prompt.PromptTemplateFactory")
-
-        excludeRequires("org.glassfish.hk2.locator")
-        excludeRequires("org.apache.logging.log4j")
-        excludeRequires("kotlin.stdlib")
-
+    windows {
+        winDirChooser = true
+        winPerUser = false
+        winMenu = true
+        // menuGroup: String? = null
+        shortcut = true
     }
-    jpackage {
-        outputDir = "distribution"
 
-        imageOptions.addAll(listOf(
-            "--java-options", "--add-reads jabsrv.merged.module=jakarta.inject",
-            "--java-options", "--enable-native-access=jabsrv.merged.module"))
-
-        // See https://docs.oracle.com/en/java/javase/24/docs/specs/man/jpackage.html#platform-dependent-options-for-creating-the-application-package for available options
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-            imageOptions.addAll(
-                listOf(
-                    "--win-console"
-                )
-            )
-            skipInstaller = true
-        } else if (org.gradle.internal.os.OperatingSystem.current().isLinux) {
-            imageOptions.addAll(
-                listOf(
-                    "--icon", "$projectDir/../jabgui/src/main/resources/icons/JabRef-linux-icon-64.png",
-                    "--app-version", "$version"
-                )
-            )
-            skipInstaller = true
-        } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX) {
-            skipInstaller = true
-        }
+    linux {
+        // menuGroup: String? = null
+        // shortcut: Boolean? = true
+        // maintainer: String? = null
+        // packageDependencies: MutableList<String>? = null
+        // release: String? = null
+        // category: String? = null
     }
+
 }
