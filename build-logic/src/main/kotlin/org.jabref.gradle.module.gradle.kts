@@ -9,4 +9,5 @@ plugins {
     id("org.jabref.gradle.feature.test")
     id("org.jabref.gradle.check.checkstyle")
     id("org.jabref.gradle.check.modernizer")
+    id("org.jabref.gradle.check.spring-javaformat")
 }

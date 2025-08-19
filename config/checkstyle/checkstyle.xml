@@ -6,6 +6,10 @@
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
 
+    <module name="io.spring.javaformat.checkstyle.SpringChecks">
+        <property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringAvoidStaticImportCheck" />
+    </module>
+
     <module name="Header">
         <property name="header" value=""/>
     </module>

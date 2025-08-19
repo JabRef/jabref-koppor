@@ -18,4 +18,5 @@ dependencies {
     implementation("org.gradlex:java-module-testing:1.7")
     implementation("org.gradlex:jvm-dependency-conflict-resolution:2.4")
     implementation("org.gradle.toolchains:foojay-resolver:1.0.0")
+    implementation("io.spring.javaformat:io.spring.javaformat.gradle.plugin:0.0.47")
 }
