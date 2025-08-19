@@ -1,22 +1,22 @@
 package org.jabref.logic.importer.fetcher.citation.semanticscholar;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import com.google.gson.annotations.SerializedName;
-
 public class PaperDetails {
+
     private String paperId;
     private String title;
     private String year;
 
     @SerializedName("abstract")
     private String abstr;
+
     private String url;
     private int citationCount;
     private int referenceCount;
@@ -94,30 +94,18 @@ public class PaperDetails {
             return "Article";
         } else {
             return switch (publicationTypes.getFirst()) {
-                case "Review" ->
-                        "Misc";
-                case "CaseReport" ->
-                        "Report";
-                case "ClinicalTrial" ->
-                        "Report";
-                case "Dataset" ->
-                        "Dataset";
-                case "Editorial" ->
-                        "Misc";
-                case "LettersAndComments" ->
-                        "Misc";
-                case "MetaAnalysis" ->
-                        "Article";
-                case "News" ->
-                        "Misc";
-                case "Study" ->
-                        "Article";
-                case "Book" ->
-                        "Book";
-                case "BookSection" ->
-                        "InBook";
-                default ->
-                        "Misc";
+                case "Review" -> "Misc";
+                case "CaseReport" -> "Report";
+                case "ClinicalTrial" -> "Report";
+                case "Dataset" -> "Dataset";
+                case "Editorial" -> "Misc";
+                case "LettersAndComments" -> "Misc";
+                case "MetaAnalysis" -> "Article";
+                case "News" -> "Misc";
+                case "Study" -> "Article";
+                case "Book" -> "Book";
+                case "BookSection" -> "InBook";
+                default -> "Misc";
             };
         }
     }
@@ -141,9 +129,10 @@ public class PaperDetails {
             bibEntry.setField(StandardField.YEAR, getYear());
         }
 
-        String authors = getAuthors().stream()
-                                     .map(AuthorResponse::getName)
-                                     .collect(Collectors.joining(" and "));
+        String authors = getAuthors()
+            .stream()
+            .map(AuthorResponse::getName)
+            .collect(Collectors.joining(" and "));
         bibEntry.setField(StandardField.AUTHOR, authors);
 
         bibEntry.setType(StandardEntryType.valueOf(getPublicationType()));
@@ -165,12 +154,22 @@ public class PaperDetails {
 
     @Override
     public String toString() {
-        return "PaperDetails{" +
-                "paperId='" + paperId + '\'' +
-                ", title='" + title + '\'' +
-                ", year='" + year + '\'' +
-                ", citationCount=" + citationCount +
-                ", referenceCount=" + referenceCount +
-                '}';
+        return (
+            "PaperDetails{"
+            + "paperId='"
+            + paperId
+            + '\''
+            + ", title='"
+            + title
+            + '\''
+            + ", year='"
+            + year
+            + '\''
+            + ", citationCount="
+            + citationCount
+            + ", referenceCount="
+            + referenceCount
+            + '}'
+        );
     }
 }

@@ -3,7 +3,6 @@ package org.jabref.gui.externalfiles;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Supplier;
-
 import org.jabref.gui.mergeentries.multiwaymerge.MultiMergeEntriesView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.importer.Importer;
@@ -33,7 +32,12 @@ public class PdfMergeDialog {
      * @param preferences the preferences to use. Full preference object is required, because of current implementation of {@link MultiMergeEntriesView}.
      * @param taskExecutor the task executor to use when the multi merge dialog executes the importers.
      */
-    public static MultiMergeEntriesView createMergeDialog(BibEntry entry, Path filePath, GuiPreferences preferences, TaskExecutor taskExecutor) {
+    public static MultiMergeEntriesView createMergeDialog(
+        BibEntry entry,
+        Path filePath,
+        GuiPreferences preferences,
+        TaskExecutor taskExecutor
+    ) {
         MultiMergeEntriesView dialog = initDialog(preferences, taskExecutor);
 
         dialog.addSource(Localization.lang("Entry"), entry);
@@ -42,7 +46,11 @@ public class PdfMergeDialog {
         return dialog;
     }
 
-    public static MultiMergeEntriesView createMergeDialog(Path filePath, GuiPreferences preferences, TaskExecutor taskExecutor) {
+    public static MultiMergeEntriesView createMergeDialog(
+        Path filePath,
+        GuiPreferences preferences,
+        TaskExecutor taskExecutor
+    ) {
         MultiMergeEntriesView dialog = initDialog(preferences, taskExecutor);
 
         finishDialog(dialog, filePath, preferences);
@@ -50,27 +58,77 @@ public class PdfMergeDialog {
         return dialog;
     }
 
-    private static MultiMergeEntriesView initDialog(GuiPreferences preferences, TaskExecutor taskExecutor) {
-        MultiMergeEntriesView dialog = new MultiMergeEntriesView(preferences, taskExecutor);
+    private static MultiMergeEntriesView initDialog(
+        GuiPreferences preferences,
+        TaskExecutor taskExecutor
+    ) {
+        MultiMergeEntriesView dialog = new MultiMergeEntriesView(
+            preferences,
+            taskExecutor
+        );
         dialog.setTitle(Localization.lang("Merge PDF metadata"));
         return dialog;
     }
 
-    private static void finishDialog(MultiMergeEntriesView dialog, Path filePath, GuiPreferences preferences) {
-        dialog.addSource(Localization.lang("Verbatim"), wrapImporterToSupplier(new PdfVerbatimBibtexImporter(preferences.getImportFormatPreferences()), filePath));
-        dialog.addSource(Localization.lang("Embedded"), wrapImporterToSupplier(new PdfEmbeddedBibFileImporter(preferences.getImportFormatPreferences()), filePath));
+    private static void finishDialog(
+        MultiMergeEntriesView dialog,
+        Path filePath,
+        GuiPreferences preferences
+    ) {
+        dialog.addSource(
+            Localization.lang("Verbatim"),
+            wrapImporterToSupplier(
+                new PdfVerbatimBibtexImporter(
+                    preferences.getImportFormatPreferences()
+                ),
+                filePath
+            )
+        );
+        dialog.addSource(
+            Localization.lang("Embedded"),
+            wrapImporterToSupplier(
+                new PdfEmbeddedBibFileImporter(
+                    preferences.getImportFormatPreferences()
+                ),
+                filePath
+            )
+        );
         if (preferences.getGrobidPreferences().isGrobidEnabled()) {
-            dialog.addSource("Grobid", wrapImporterToSupplier(new PdfGrobidImporter(preferences.getImportFormatPreferences()), filePath));
+            dialog.addSource(
+                "Grobid",
+                wrapImporterToSupplier(
+                    new PdfGrobidImporter(
+                        preferences.getImportFormatPreferences()
+                    ),
+                    filePath
+                )
+            );
         }
-        dialog.addSource(Localization.lang("XMP metadata"), wrapImporterToSupplier(new PdfXmpImporter(preferences.getXmpPreferences()), filePath));
-        dialog.addSource(Localization.lang("Content"), wrapImporterToSupplier(new PdfContentImporter(), filePath));
+        dialog.addSource(
+            Localization.lang("XMP metadata"),
+            wrapImporterToSupplier(
+                new PdfXmpImporter(preferences.getXmpPreferences()),
+                filePath
+            )
+        );
+        dialog.addSource(
+            Localization.lang("Content"),
+            wrapImporterToSupplier(new PdfContentImporter(), filePath)
+        );
     }
 
-    private static Supplier<BibEntry> wrapImporterToSupplier(Importer importer, Path filePath) {
+    private static Supplier<BibEntry> wrapImporterToSupplier(
+        Importer importer,
+        Path filePath
+    ) {
         return () -> {
             try {
                 ParserResult parserResult = importer.importDatabase(filePath);
-                if (parserResult.isInvalid() || parserResult.isEmpty() || !parserResult.getDatabase().hasEntries()) {
+                if (
+                    parserResult.isInvalid()
+                    || parserResult.isEmpty()
+                    || !parserResult.getDatabase().hasEntries()
+                ) {
                     return null;
                 }
                 return parserResult.getDatabase().getEntries().getFirst();

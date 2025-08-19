@@ -1,9 +1,7 @@
 package org.jabref.gui.frame;
 
 import java.util.List;
-
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.util.UiTaskExecutor;
@@ -25,7 +23,9 @@ public class ProcessingLibraryDialog {
             Task<Void> waitForSaveFinished = new Task<>() {
                 @Override
                 protected Void call() throws InterruptedException {
-                    while (libraryTabs.stream().anyMatch(LibraryTab::isSaving)) {
+                    while (
+                        libraryTabs.stream().anyMatch(LibraryTab::isSaving)
+                    ) {
                         if (isCancelled()) {
                             return null;
                         } else {
@@ -38,9 +38,9 @@ public class ProcessingLibraryDialog {
 
             UiTaskExecutor.runInJavaFXThread(waitForSaveFinished);
             dialogService.showProgressDialogAndWait(
-                    Localization.lang("Please wait..."),
-                    Localization.lang("Waiting for save operation to finish..."),
-                    waitForSaveFinished
+                Localization.lang("Please wait..."),
+                Localization.lang("Waiting for save operation to finish..."),
+                waitForSaveFinished
             );
         }
     }

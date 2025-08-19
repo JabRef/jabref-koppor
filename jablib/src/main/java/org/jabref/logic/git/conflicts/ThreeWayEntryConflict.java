@@ -1,7 +1,6 @@
 package org.jabref.logic.git.conflicts;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -16,6 +15,8 @@ public record ThreeWayEntryConflict(
     @Nullable BibEntry remote
 ) {
     public ThreeWayEntryConflict {
-        assert !(local == null && remote == null) : "Both local and remote are null: conflict must involve at least one side.";
+        assert !(local == null
+            && remote
+            == null) : "Both local and remote are null: conflict must involve at least one side.";
     }
 }

@@ -1,9 +1,7 @@
 package org.jabref.gui.menus;
 
 import java.util.List;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.undo.NamedCompound;
 import org.jabref.gui.undo.UndoableChangeType;
@@ -17,7 +15,11 @@ public class ChangeEntryTypeAction extends SimpleCommand {
     private final List<BibEntry> entries;
     private final UndoManager undoManager;
 
-    public ChangeEntryTypeAction(EntryType type, List<BibEntry> entries, UndoManager undoManager) {
+    public ChangeEntryTypeAction(
+        EntryType type,
+        List<BibEntry> entries,
+        UndoManager undoManager
+    ) {
         this.type = type;
         this.entries = entries;
         this.undoManager = undoManager;
@@ -25,9 +27,16 @@ public class ChangeEntryTypeAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        NamedCompound compound = new NamedCompound(Localization.lang("Change entry type"));
-        entries.forEach(e -> e.setType(type)
-                              .ifPresent(change -> compound.addEdit(new UndoableChangeType(change))));
+        NamedCompound compound = new NamedCompound(
+            Localization.lang("Change entry type")
+        );
+        entries.forEach(e ->
+            e
+                .setType(type)
+                .ifPresent(change ->
+                    compound.addEdit(new UndoableChangeType(change))
+                )
+        );
         undoManager.addEdit(compound);
     }
 }

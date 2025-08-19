@@ -8,18 +8,33 @@ import org.jabref.logic.push.PushToApplication;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToEmacs;
 
-public class GuiPushToEmacs extends PushToEmacs implements GuiPushToApplication {
+public class GuiPushToEmacs
+    extends PushToEmacs
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToEmacs(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToEmacs(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
-        return new GuiPushToEmacsSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
+    public GuiPushToApplicationSettings getSettings(
+        PushToApplication application,
+        DialogService dialogService,
+        FilePreferences filePreferences,
+        PushToApplicationPreferences pushToApplicationPreferences
+    ) {
+        return new GuiPushToEmacsSettings(
+            application,
+            dialogService,
+            filePreferences,
+            pushToApplicationPreferences
+        );
     }
 
     @Override

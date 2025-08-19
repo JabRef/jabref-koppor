@@ -1,9 +1,9 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EscapeAmpersandsFormatterTest {
 
@@ -26,16 +26,25 @@ class EscapeAmpersandsFormatterTest {
 
     @Test
     void formatExample() {
-        assertEquals("Text \\& with \\&ampersands", formatter.format(formatter.getExampleInput()));
+        assertEquals(
+            "Text \\& with \\&ampersands",
+            formatter.format(formatter.getExampleInput())
+        );
     }
 
     @Test
     void formatReturnsSameTextInNewUserDefinedLatexCommandIfNoAmpersandsPresent() {
-        assertEquals("\\newcommand[1]{Lorem ipsum}", formatter.format("\\newcommand[1]{Lorem ipsum}"));
+        assertEquals(
+            "\\newcommand[1]{Lorem ipsum}",
+            formatter.format("\\newcommand[1]{Lorem ipsum}")
+        );
     }
 
     @Test
     void formatReturnsSameTextInLatexCommandIfOneAmpersandPresent() {
-        assertEquals("\\textbf{Lorem\\&ipsum}", formatter.format("\\textbf{Lorem\\&ipsum}"));
+        assertEquals(
+            "\\textbf{Lorem\\&ipsum}",
+            formatter.format("\\textbf{Lorem\\&ipsum}")
+        );
     }
 }

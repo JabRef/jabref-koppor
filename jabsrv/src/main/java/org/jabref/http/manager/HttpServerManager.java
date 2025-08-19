@@ -1,9 +1,7 @@
 package org.jabref.http.manager;
 
 import java.net.URI;
-
 import org.jabref.http.SrvStateManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +13,17 @@ import org.slf4j.LoggerFactory;
 /// Observer: isOpen, isNotStartedBefore
 public class HttpServerManager implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        HttpServerManager.class
+    );
 
     private HttpServerThread httpServerThread;
 
     public synchronized void start(SrvStateManager srvStateManager, URI uri) {
         if (httpServerThread != null) {
-            LOGGER.warn("HTTP server manager already started, cannot start again.");
+            LOGGER.warn(
+                "HTTP server manager already started, cannot start again."
+            );
             return;
         }
 

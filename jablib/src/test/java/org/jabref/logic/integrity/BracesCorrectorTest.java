@@ -1,9 +1,9 @@
 package org.jabref.logic.integrity;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
 
 class BracesCorrectorTest {
 
@@ -44,7 +44,10 @@ class BracesCorrectorTest {
 
     @Test
     void inputWithMixedBraces() {
-        assertEquals("{b{anana\\\\\\}}}", BracesCorrector.apply("{b{anana\\\\\\}"));
+        assertEquals(
+            "{b{anana\\\\\\}}}",
+            BracesCorrector.apply("{b{anana\\\\\\}")
+        );
     }
 
     @Test

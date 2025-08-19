@@ -8,5 +8,5 @@ public enum SyncStatus {
     CONFLICT,
     UNTRACKED,
     UNKNOWN,
-    REMOTE_EMPTY
+    REMOTE_EMPTY,
 }

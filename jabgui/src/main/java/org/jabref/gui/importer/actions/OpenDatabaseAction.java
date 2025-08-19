@@ -1,5 +1,6 @@
 package org.jabref.gui.importer.actions;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,9 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -40,26 +39,27 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileHistory;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // The action concerned with opening an existing database.
 public class OpenDatabaseAction extends SimpleCommand {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenDatabaseAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        OpenDatabaseAction.class
+    );
 
     // List of actions that may need to be called after opening the file. Such as
     // upgrade actions etc. that may depend on the JabRef version that wrote the file:
     private static final List<GUIPostOpenAction> POST_OPEN_ACTIONS = List.of(
-            // Migrations:
-            // Warning for migrating the Review into the Comment field
-            new MergeReviewIntoCommentAction(),
-            // Check for new custom entry types loaded from the BIB file:
-            new CheckForNewEntryTypesAction(),
-            // Migrate search groups fielded terms to use the new operators (RegEx, case sensitive)
-            new SearchGroupsMigrationAction());
+        // Migrations:
+        // Warning for migrating the Review into the Comment field
+        new MergeReviewIntoCommentAction(),
+        // Check for new custom entry types loaded from the BIB file:
+        new CheckForNewEntryTypesAction(),
+        // Migrate search groups fielded terms to use the new operators (RegEx, case sensitive)
+        new SearchGroupsMigrationAction()
+    );
 
     private final LibraryTabContainer tabContainer;
     private final GuiPreferences preferences;
@@ -72,16 +72,18 @@ public class OpenDatabaseAction extends SimpleCommand {
     private final ClipBoardManager clipboardManager;
     private final TaskExecutor taskExecutor;
 
-    public OpenDatabaseAction(LibraryTabContainer tabContainer,
-                              GuiPreferences preferences,
-                              AiService aiService,
-                              DialogService dialogService,
-                              StateManager stateManager,
-                              FileUpdateMonitor fileUpdateMonitor,
-                              BibEntryTypesManager entryTypesManager,
-                              CountingUndoManager undoManager,
-                              ClipBoardManager clipBoardManager,
-                              TaskExecutor taskExecutor) {
+    public OpenDatabaseAction(
+        LibraryTabContainer tabContainer,
+        GuiPreferences preferences,
+        AiService aiService,
+        DialogService dialogService,
+        StateManager stateManager,
+        FileUpdateMonitor fileUpdateMonitor,
+        BibEntryTypesManager entryTypesManager,
+        CountingUndoManager undoManager,
+        ClipBoardManager clipBoardManager,
+        TaskExecutor taskExecutor
+    ) {
         this.tabContainer = tabContainer;
         this.preferences = preferences;
         this.aiService = aiService;
@@ -94,7 +96,11 @@ public class OpenDatabaseAction extends SimpleCommand {
         this.taskExecutor = taskExecutor;
     }
 
-    public static void performPostOpenActions(ParserResult result, DialogService dialogService, CliPreferences preferences) {
+    public static void performPostOpenActions(
+        ParserResult result,
+        DialogService dialogService,
+        CliPreferences preferences
+    ) {
         for (GUIPostOpenAction action : OpenDatabaseAction.POST_OPEN_ACTIONS) {
             if (action.isActionNecessary(result, dialogService, preferences)) {
                 action.performAction(result, dialogService, preferences);
@@ -113,13 +119,19 @@ public class OpenDatabaseAction extends SimpleCommand {
         List<Path> filesToOpen;
 
         try {
-            FileDialogConfiguration initialDirectoryConfig = getFileDialogConfiguration(getInitialDirectory());
-            filesToOpen = dialogService.showFileOpenDialogAndGetMultipleFiles(initialDirectoryConfig);
+            FileDialogConfiguration initialDirectoryConfig =
+                getFileDialogConfiguration(getInitialDirectory());
+            filesToOpen = dialogService.showFileOpenDialogAndGetMultipleFiles(
+                initialDirectoryConfig
+            );
         } catch (IllegalArgumentException e) {
             // See https://github.com/JabRef/jabref/issues/10548 for details
             // Rebuild a new config with the home directory
-            FileDialogConfiguration homeDirectoryConfig = getFileDialogConfiguration(Directories.getUserDirectory());
-            filesToOpen = dialogService.showFileOpenDialogAndGetMultipleFiles(homeDirectoryConfig);
+            FileDialogConfiguration homeDirectoryConfig =
+                getFileDialogConfiguration(Directories.getUserDirectory());
+            filesToOpen = dialogService.showFileOpenDialogAndGetMultipleFiles(
+                homeDirectoryConfig
+            );
         }
 
         return filesToOpen;
@@ -132,12 +144,14 @@ public class OpenDatabaseAction extends SimpleCommand {
      * @param initialDirectory Path to use as the initial directory
      * @return new FileDialogConfig with given initial directory
      */
-    public FileDialogConfiguration getFileDialogConfiguration(Path initialDirectory) {
+    public FileDialogConfiguration getFileDialogConfiguration(
+        Path initialDirectory
+    ) {
         return new FileDialogConfiguration.Builder()
-                .addExtensionFilter(StandardFileType.BIBTEX_DB)
-                .withDefaultExtension(StandardFileType.BIBTEX_DB)
-                .withInitialDirectory(initialDirectory)
-                .build();
+            .addExtensionFilter(StandardFileType.BIBTEX_DB)
+            .withDefaultExtension(StandardFileType.BIBTEX_DB)
+            .withInitialDirectory(initialDirectory)
+            .build();
     }
 
     /**
@@ -145,12 +159,20 @@ public class OpenDatabaseAction extends SimpleCommand {
      */
     @VisibleForTesting
     Path getInitialDirectory() {
-        if (tabContainer.getLibraryTabs().isEmpty() || tabContainer.getCurrentLibraryTab() == null) {
+        if (
+            tabContainer.getLibraryTabs().isEmpty()
+            || tabContainer.getCurrentLibraryTab() == null
+        ) {
             // currentTab might not be a LibraryTab but the WelcomeTab
             return preferences.getFilePreferences().getWorkingDirectory();
         } else {
-            Optional<Path> databasePath = tabContainer.getCurrentLibraryTab().getBibDatabaseContext().getDatabasePath();
-            return databasePath.map(Path::getParent).orElse(preferences.getFilePreferences().getWorkingDirectory());
+            Optional<Path> databasePath = tabContainer
+                .getCurrentLibraryTab()
+                .getBibDatabaseContext()
+                .getDatabasePath();
+            return databasePath
+                .map(Path::getParent)
+                .orElse(preferences.getFilePreferences().getWorkingDirectory());
         }
     }
 
@@ -176,11 +198,24 @@ public class OpenDatabaseAction extends SimpleCommand {
         int removed = 0;
 
         // Check if any of the files are already open:
-        for (Iterator<Path> iterator = filesToOpen.iterator(); iterator.hasNext(); ) {
+        for (
+            Iterator<Path> iterator = filesToOpen.iterator();
+            iterator.hasNext();
+
+        ) {
             Path file = iterator.next();
             for (LibraryTab libraryTab : tabContainer.getLibraryTabs()) {
-                if ((libraryTab.getBibDatabaseContext().getDatabasePath().isPresent())
-                        && libraryTab.getBibDatabaseContext().getDatabasePath().get().equals(file)) {
+                if (
+                    (libraryTab
+                            .getBibDatabaseContext()
+                            .getDatabasePath()
+                            .isPresent())
+                    && libraryTab
+                        .getBibDatabaseContext()
+                        .getDatabasePath()
+                        .get()
+                        .equals(file)
+                ) {
                     iterator.remove();
                     removed++;
                     // See if we removed the final one. If so, we must perhaps
@@ -198,13 +233,17 @@ public class OpenDatabaseAction extends SimpleCommand {
         // locking until the file is loaded.
         if (!filesToOpen.isEmpty()) {
             assert fileUpdateMonitor != null;
-            FileHistory fileHistory = preferences.getLastFilesOpenedPreferences().getFileHistory();
+            FileHistory fileHistory = preferences
+                .getLastFilesOpenedPreferences()
+                .getFileHistory();
             filesToOpen.forEach(theFile -> {
                 // This method will execute the concrete file opening and loading in a background thread
                 openTheFile(theFile);
                 fileHistory.newFile(theFile);
             });
-        } else if (toRaise != null && tabContainer.getCurrentLibraryTab() == null) {
+        } else if (
+            toRaise != null && tabContainer.getCurrentLibraryTab() == null
+        ) {
             // If no files are remaining to open, this could mean that a file was
             // already open. If so, we may have to raise the correct tab:
             // If there is already a library focused, do not show this library
@@ -227,53 +266,75 @@ public class OpenDatabaseAction extends SimpleCommand {
 
         assert fileUpdateMonitor != null;
 
-        BackgroundTask<ParserResult> backgroundTask = BackgroundTask.wrap(() -> loadDatabase(file));
+        BackgroundTask<ParserResult> backgroundTask = BackgroundTask.wrap(() ->
+            loadDatabase(file)
+        );
         // The backgroundTask is executed within the method createLibraryTab
         LibraryTab newTab = LibraryTab.createLibraryTab(
-                backgroundTask,
-                file,
-                dialogService,
-                aiService,
-                preferences,
-                stateManager,
-                tabContainer,
-                fileUpdateMonitor,
-                entryTypesManager,
-                undoManager,
-                clipboardManager,
-                taskExecutor);
+            backgroundTask,
+            file,
+            dialogService,
+            aiService,
+            preferences,
+            stateManager,
+            tabContainer,
+            fileUpdateMonitor,
+            entryTypesManager,
+            undoManager,
+            clipboardManager,
+            taskExecutor
+        );
         tabContainer.addTab(newTab, true);
     }
 
-    private ParserResult loadDatabase(Path file) throws NotASharedDatabaseException, SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
+    private ParserResult loadDatabase(Path file)
+        throws NotASharedDatabaseException, SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
         Path fileToLoad = file.toAbsolutePath();
 
         dialogService.notify(Localization.lang("Opening") + ": '" + file + "'");
 
-        preferences.getFilePreferences().setWorkingDirectory(fileToLoad.getParent());
+        preferences
+            .getFilePreferences()
+            .setWorkingDirectory(fileToLoad.getParent());
         Path backupDir = preferences.getFilePreferences().getBackupDirectory();
 
         ParserResult parserResult = null;
         if (BackupManager.backupFileDiffers(fileToLoad, backupDir)) {
             // In case the backup differs, ask the user what to do.
             // In case the user opted for restoring a backup, the content of the backup is contained in parserResult.
-            parserResult = BackupUIManager.showRestoreBackupDialog(dialogService, fileToLoad, preferences, fileUpdateMonitor, undoManager, stateManager)
-                                          .orElse(null);
+            parserResult = BackupUIManager.showRestoreBackupDialog(
+                dialogService,
+                fileToLoad,
+                preferences,
+                fileUpdateMonitor,
+                undoManager,
+                stateManager
+            ).orElse(null);
         }
 
         try {
             if (parserResult == null) {
                 // No backup was restored, do the "normal" loading
-                parserResult = OpenDatabase.loadDatabase(fileToLoad,
-                        preferences.getImportFormatPreferences(),
-                        fileUpdateMonitor);
+                parserResult = OpenDatabase.loadDatabase(
+                    fileToLoad,
+                    preferences.getImportFormatPreferences(),
+                    fileUpdateMonitor
+                );
             }
 
             if (parserResult.hasWarnings()) {
-                String content = Localization.lang("Please check your library file for wrong syntax.")
-                        + "\n\n" + parserResult.getErrorMessage();
+                String content =
+                    Localization.lang(
+                        "Please check your library file for wrong syntax."
+                    )
+                    + "\n\n"
+                    + parserResult.getErrorMessage();
                 UiTaskExecutor.runInJavaFXThread(() ->
-                        dialogService.showWarningDialogAndWait(Localization.lang("Open library error"), content));
+                    dialogService.showWarningDialogAndWait(
+                        Localization.lang("Open library error"),
+                        content
+                    )
+                );
             }
         } catch (IOException e) {
             parserResult = ParserResult.fromError(e);
@@ -281,49 +342,56 @@ public class OpenDatabaseAction extends SimpleCommand {
         }
 
         if (parserResult.getDatabase().isShared()) {
-                         openSharedDatabase(
-                                 parserResult,
-                                 tabContainer,
-                                 dialogService,
-                                 preferences,
-                                 aiService,
-                                 stateManager,
-                                 entryTypesManager,
-                                 fileUpdateMonitor,
-                                 undoManager,
-                                 clipboardManager,
-                                 taskExecutor);
+            openSharedDatabase(
+                parserResult,
+                tabContainer,
+                dialogService,
+                preferences,
+                aiService,
+                stateManager,
+                entryTypesManager,
+                fileUpdateMonitor,
+                undoManager,
+                clipboardManager,
+                taskExecutor
+            );
         }
         return parserResult;
     }
 
-    public static void openSharedDatabase(ParserResult parserResult,
-                                          LibraryTabContainer tabContainer,
-                                          DialogService dialogService,
-                                          GuiPreferences preferences,
-                                          AiService aiService,
-                                          StateManager stateManager,
-                                          BibEntryTypesManager entryTypesManager,
-                                          FileUpdateMonitor fileUpdateMonitor,
-                                          UndoManager undoManager,
-                                          ClipBoardManager clipBoardManager,
-                                          TaskExecutor taskExecutor)
-            throws SQLException, DatabaseNotSupportedException, InvalidDBMSConnectionPropertiesException, NotASharedDatabaseException {
+    public static void openSharedDatabase(
+        ParserResult parserResult,
+        LibraryTabContainer tabContainer,
+        DialogService dialogService,
+        GuiPreferences preferences,
+        AiService aiService,
+        StateManager stateManager,
+        BibEntryTypesManager entryTypesManager,
+        FileUpdateMonitor fileUpdateMonitor,
+        UndoManager undoManager,
+        ClipBoardManager clipBoardManager,
+        TaskExecutor taskExecutor
+    )
+        throws SQLException, DatabaseNotSupportedException, InvalidDBMSConnectionPropertiesException, NotASharedDatabaseException {
         try {
             new SharedDatabaseUIManager(
-                    tabContainer,
-                    dialogService,
-                    preferences,
-                    aiService,
-                    stateManager,
-                    entryTypesManager,
-                    fileUpdateMonitor,
-                    undoManager,
-                    clipBoardManager,
-                    taskExecutor)
-                    .openSharedDatabaseFromParserResult(parserResult);
-        } catch (SQLException | DatabaseNotSupportedException | InvalidDBMSConnectionPropertiesException |
-                 NotASharedDatabaseException e) {
+                tabContainer,
+                dialogService,
+                preferences,
+                aiService,
+                stateManager,
+                entryTypesManager,
+                fileUpdateMonitor,
+                undoManager,
+                clipBoardManager,
+                taskExecutor
+            ).openSharedDatabaseFromParserResult(parserResult);
+        } catch (
+            SQLException
+            | DatabaseNotSupportedException
+            | InvalidDBMSConnectionPropertiesException
+            | NotASharedDatabaseException e
+        ) {
             parserResult.getDatabaseContext().clearDatabasePath(); // do not open the original file
             parserResult.getDatabase().clearSharedDatabaseID();
 

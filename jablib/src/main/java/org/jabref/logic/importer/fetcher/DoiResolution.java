@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -21,7 +20,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -39,7 +37,9 @@ import org.slf4j.LoggerFactory;
  */
 public class DoiResolution implements FulltextFetcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DoiResolution.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        DoiResolution.class
+    );
     private final DOIPreferences doiPreferences;
 
     public DoiResolution(DOIPreferences doiPreferences) {
@@ -51,7 +51,9 @@ public class DoiResolution implements FulltextFetcher {
     public Optional<URL> findFullText(BibEntry entry) throws IOException {
         Objects.requireNonNull(entry);
 
-        Optional<DOI> doi = entry.getField(StandardField.DOI).flatMap(DOI::parse);
+        Optional<DOI> doi = entry
+            .getField(StandardField.DOI)
+            .flatMap(DOI::parse);
 
         if (doi.isEmpty()) {
             return Optional.empty();
@@ -62,10 +64,11 @@ public class DoiResolution implements FulltextFetcher {
         String doiLink;
         if (doiPreferences.isUseCustom()) {
             base = URLUtil.create(doiPreferences.getDefaultBaseURI());
-            doiLink = doi.get()
-                         .getExternalURIWithCustomBase(base.toString())
-                         .map(URI::toASCIIString)
-                         .orElse("");
+            doiLink = doi
+                .get()
+                .getExternalURIWithCustomBase(base.toString())
+                .map(URI::toASCIIString)
+                .orElse("");
         } else {
             base = DOI.RESOLVER.toURL();
             doiLink = doi.get().getURIAsASCIIString();
@@ -103,17 +106,29 @@ public class DoiResolution implements FulltextFetcher {
 
             List<URL> links = new ArrayList<>();
             for (Element element : hrefElements) {
-                String href = element.attr("abs:href").toLowerCase(Locale.ENGLISH);
+                String href = element
+                    .attr("abs:href")
+                    .toLowerCase(Locale.ENGLISH);
                 String hrefText = element.text().toLowerCase(Locale.ENGLISH);
                 // Only check if pdf is included in the link or inside the text
                 // ACM uses tokens without PDF inside the link
                 // See https://github.com/lehner/LocalCopy for more scrape ideas
                 // link with "PDF" in title tag
-                if (element.attr("title").toLowerCase(Locale.ENGLISH).contains("pdf") && new URLDownload(href).isPdf()) {
+                if (
+                    element
+                        .attr("title")
+                        .toLowerCase(Locale.ENGLISH)
+                        .contains("pdf")
+                    && new URLDownload(href).isPdf()
+                ) {
                     return Optional.of(URLUtil.create(href));
                 }
 
-                if (href.contains("pdf") || hrefText.contains("pdf") && new URLDownload(href).isPdf()) {
+                if (
+                    href.contains("pdf")
+                    || (hrefText.contains("pdf")
+                        && new URLDownload(href).isPdf())
+                ) {
                     links.add(URLUtil.create(href));
                 }
             }
@@ -143,8 +158,13 @@ public class DoiResolution implements FulltextFetcher {
      * See https://scholar.google.com/intl/de/scholar/inclusion.html#indexing
      */
     private Optional<URL> citationMetaTag(Document html) {
-        Elements citationPdfUrlElement = html.head().select("meta[name='citation_pdf_url']");
-        Optional<String> citationPdfUrl = citationPdfUrlElement.stream().map(e -> e.attr("content")).findFirst();
+        Elements citationPdfUrlElement = html
+            .head()
+            .select("meta[name='citation_pdf_url']");
+        Optional<String> citationPdfUrl = citationPdfUrlElement
+            .stream()
+            .map(e -> e.attr("content"))
+            .findFirst();
 
         if (citationPdfUrl.isPresent()) {
             try {
@@ -159,8 +179,9 @@ public class DoiResolution implements FulltextFetcher {
     private Optional<URL> findEmbeddedLink(Document html, URL base) {
         Elements embedElement = html.body().select("embed[id='pdf']");
         Optional<String> pdfUrl = embedElement
-                .stream()
-                .map(e -> e.attr("src")).findFirst();
+            .stream()
+            .map(e -> e.attr("src"))
+            .findFirst();
 
         if (pdfUrl.isPresent()) {
             try {

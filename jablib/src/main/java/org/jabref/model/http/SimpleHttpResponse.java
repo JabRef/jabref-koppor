@@ -6,20 +6,31 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
-
 import org.jsoup.HttpStatusException;
 
-public record SimpleHttpResponse(int statusCode, String responseMessage, String responseBody) {
+public record SimpleHttpResponse(
+    int statusCode,
+    String responseMessage,
+    String responseBody
+) {
     private static final int MAX_RESPONSE_LENGTH = 1024; // 1 KB
 
-    public SimpleHttpResponse(int statusCode, String responseMessage, String responseBody) {
+    public SimpleHttpResponse(
+        int statusCode,
+        String responseMessage,
+        String responseBody
+    ) {
         this.statusCode = statusCode;
         this.responseBody = truncateResponseBody(responseBody);
         this.responseMessage = responseMessage;
     }
 
     public SimpleHttpResponse(HttpURLConnection connection) {
-        this(getStatusCode(connection), getResponseMessage(connection), getResponseBodyDefaultEmpty(connection));
+        this(
+            getStatusCode(connection),
+            getResponseMessage(connection),
+            getResponseBodyDefaultEmpty(connection)
+        );
     }
 
     public SimpleHttpResponse(HttpStatusException e) {
@@ -28,11 +39,18 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
 
     @Override
     public String toString() {
-        return "SimpleHttpResponse{" +
-                "statusCode=" + statusCode +
-                ", responseMessage='" + responseMessage + '\'' +
-                ", responseBody='" + responseBody + '\'' +
-                '}';
+        return (
+            "SimpleHttpResponse{"
+            + "statusCode="
+            + statusCode
+            + ", responseMessage='"
+            + responseMessage
+            + '\''
+            + ", responseBody='"
+            + responseBody
+            + '\''
+            + '}'
+        );
     }
 
     private static int getStatusCode(HttpURLConnection connection) {
@@ -55,7 +73,9 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
         return responseMessage;
     }
 
-    private static String getResponseBodyDefaultEmpty(HttpURLConnection connection) {
+    private static String getResponseBodyDefaultEmpty(
+        HttpURLConnection connection
+    ) {
         String responseBody;
         try {
             responseBody = getResponseBody(connection);
@@ -77,7 +97,15 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
         if (bytes.length > MAX_RESPONSE_LENGTH) {
             // Truncate the response body to 1 KB and append "... (truncated)"
             // Response is in English, thus we append English text - and not localized text
-            return new String(bytes, 0, MAX_RESPONSE_LENGTH, StandardCharsets.UTF_8) + "... (truncated)";
+            return (
+                new String(
+                    bytes,
+                    0,
+                    MAX_RESPONSE_LENGTH,
+                    StandardCharsets.UTF_8
+                )
+                + "... (truncated)"
+            );
         }
         // Return the original response body if it's within the 1 KB limit
         return responseBody;
@@ -92,15 +120,23 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
      * @return the response body as a string
      * @throws IOException if an I/O error occurs while reading the response body
      */
-    private static String getResponseBody(HttpURLConnection connection) throws IOException {
+    private static String getResponseBody(HttpURLConnection connection)
+        throws IOException {
         InputStream errorStream = connection.getErrorStream();
         if (errorStream == null) {
             return "";
         }
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(errorStream))) {
+        try (
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(errorStream)
+            )
+        ) {
             String inputLine;
             StringBuilder content = new StringBuilder();
-            while ((content.length() < MAX_RESPONSE_LENGTH) && (inputLine = in.readLine()) != null) {
+            while (
+                (content.length() < MAX_RESPONSE_LENGTH)
+                && (inputLine = in.readLine()) != null
+            ) {
                 content.append(inputLine);
             }
             return truncateResponseBody(content.toString());

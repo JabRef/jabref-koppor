@@ -1,5 +1,9 @@
 package org.jabref.gui.preferences.customentrytypes;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -7,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -15,7 +18,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.l10n.Localization;
@@ -33,18 +35,21 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
 import org.jabref.model.strings.StringUtil;
 
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-
 public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
 
-    private final ObservableList<Field> fieldsForAdding = FXCollections.observableArrayList(FieldFactory.getStandardFieldsWithCitationKey());
-    private final ObjectProperty<EntryTypeViewModel> selectedEntryType = new SimpleObjectProperty<>();
+    private final ObservableList<Field> fieldsForAdding =
+        FXCollections.observableArrayList(
+            FieldFactory.getStandardFieldsWithCitationKey()
+        );
+    private final ObjectProperty<EntryTypeViewModel> selectedEntryType =
+        new SimpleObjectProperty<>();
     private final StringProperty entryTypeToAdd = new SimpleStringProperty("");
-    private final ObjectProperty<Field> newFieldToAdd = new SimpleObjectProperty<>();
-    private final ObservableList<EntryTypeViewModel> entryTypesWithFields = FXCollections.observableArrayList(extractor -> new Observable[]{extractor.entryType(), extractor.fields()});
+    private final ObjectProperty<Field> newFieldToAdd =
+        new SimpleObjectProperty<>();
+    private final ObservableList<EntryTypeViewModel> entryTypesWithFields =
+        FXCollections.observableArrayList(extractor ->
+            new Observable[] { extractor.entryType(), extractor.fields() }
+        );
     private final List<BibEntryType> entryTypesToDelete = new ArrayList<>();
 
     private final CliPreferences preferences;
@@ -56,27 +61,43 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
     private final Validator fieldValidator;
     private final Set<Field> multiLineFields = new HashSet<>();
 
-    Predicate<Field> isMultiline = field -> this.multiLineFields.contains(field) || field.getProperties().contains(FieldProperty.MULTILINE_TEXT);
+    Predicate<Field> isMultiline = field ->
+        this.multiLineFields.contains(field)
+        || field.getProperties().contains(FieldProperty.MULTILINE_TEXT);
 
-    public CustomEntryTypesTabViewModel(BibDatabaseMode mode,
-                                        BibEntryTypesManager entryTypesManager,
-                                        DialogService dialogService,
-                                        CliPreferences preferences) {
+    public CustomEntryTypesTabViewModel(
+        BibDatabaseMode mode,
+        BibEntryTypesManager entryTypesManager,
+        DialogService dialogService,
+        CliPreferences preferences
+    ) {
         this.preferences = preferences;
         this.entryTypesManager = entryTypesManager;
         this.dialogService = dialogService;
         this.bibDatabaseMode = mode;
 
-        this.multiLineFields.addAll(preferences.getFieldPreferences().getNonWrappableFields());
+        this.multiLineFields.addAll(
+            preferences.getFieldPreferences().getNonWrappableFields()
+        );
 
         entryTypeValidator = new FunctionBasedValidator<>(
-                entryTypeToAdd,
-                StringUtil::isNotBlank,
-                ValidationMessage.error(Localization.lang("Entry type cannot be empty. Please enter a name.")));
+            entryTypeToAdd,
+            StringUtil::isNotBlank,
+            ValidationMessage.error(
+                Localization.lang(
+                    "Entry type cannot be empty. Please enter a name."
+                )
+            )
+        );
         fieldValidator = new FunctionBasedValidator<>(
-                newFieldToAdd,
-                input -> (input != null) && StringUtil.isNotBlank(input.getDisplayName()),
-                ValidationMessage.error(Localization.lang("Field cannot be empty. Please enter a name.")));
+            newFieldToAdd,
+            input ->
+                (input != null)
+                && StringUtil.isNotBlank(input.getDisplayName()),
+            ValidationMessage.error(
+                Localization.lang("Field cannot be empty. Please enter a name.")
+            )
+        );
     }
 
     @Override
@@ -84,12 +105,17 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
         if (!this.entryTypesWithFields.isEmpty()) {
             this.entryTypesWithFields.clear();
         }
-        Collection<BibEntryType> allTypes = entryTypesManager.getAllTypes(bibDatabaseMode);
+        Collection<BibEntryType> allTypes = entryTypesManager.getAllTypes(
+            bibDatabaseMode
+        );
 
         for (BibEntryType entryType : allTypes) {
             EntryTypeViewModel viewModel;
             if (entryTypesManager.isCustomType(entryType, bibDatabaseMode)) {
-                viewModel = new CustomEntryTypeViewModel(entryType, isMultiline);
+                viewModel = new CustomEntryTypeViewModel(
+                    entryType,
+                    isMultiline
+                );
             } else {
                 viewModel = new EntryTypeViewModel(entryType, isMultiline);
             }
@@ -107,36 +133,61 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
             EntryType newPlainType = type.getType();
 
             // Collect multilineFields for storage in preferences later
-            multilineFields.addAll(allFields.stream()
-                                            .filter(FieldViewModel::isMultiline)
-                                            .map(model -> model.toField(newPlainType))
-                                            .toList());
+            multilineFields.addAll(
+                allFields
+                    .stream()
+                    .filter(FieldViewModel::isMultiline)
+                    .map(model -> model.toField(newPlainType))
+                    .toList()
+            );
 
-            List<OrFields> required = allFields.stream()
-                                               .filter(FieldViewModel::isRequired)
-                                               .map(model -> model.toField(newPlainType))
-                                               .map(OrFields::new)
-                                               .collect(Collectors.toList());
+            List<OrFields> required = allFields
+                .stream()
+                .filter(FieldViewModel::isRequired)
+                .map(model -> model.toField(newPlainType))
+                .map(OrFields::new)
+                .collect(Collectors.toList());
 
-            List<BibField> fields = allFields.stream().map(model -> model.toBibField(newPlainType)).collect(Collectors.toList());
+            List<BibField> fields = allFields
+                .stream()
+                .map(model -> model.toBibField(newPlainType))
+                .collect(Collectors.toList());
 
-            BibEntryType newType = new BibEntryType(newPlainType, fields, required);
+            BibEntryType newType = new BibEntryType(
+                newPlainType,
+                fields,
+                required
+            );
 
             entryTypesManager.update(newType, bibDatabaseMode);
         }
 
         for (BibEntryType entryType : entryTypesToDelete) {
-            entryTypesManager.removeCustomOrModifiedEntryType(entryType, bibDatabaseMode);
+            entryTypesManager.removeCustomOrModifiedEntryType(
+                entryType,
+                bibDatabaseMode
+            );
         }
 
-        preferences.getFieldPreferences().setNonWrappableFields(multilineFields);
+        preferences
+            .getFieldPreferences()
+            .setNonWrappableFields(multilineFields);
         preferences.storeCustomEntryTypesRepository(entryTypesManager);
     }
 
     public EntryTypeViewModel addNewCustomEntryType() {
-        EntryType newentryType = new UnknownEntryType(entryTypeToAdd.getValue());
-        BibEntryType type = new BibEntryType(newentryType, new ArrayList<>(), List.of());
-        EntryTypeViewModel viewModel = new CustomEntryTypeViewModel(type, isMultiline);
+        EntryType newentryType = new UnknownEntryType(
+            entryTypeToAdd.getValue()
+        );
+        BibEntryType type = new BibEntryType(
+            newentryType,
+            new ArrayList<>(),
+            List.of()
+        );
+        EntryTypeViewModel viewModel = new CustomEntryTypeViewModel(
+            type,
+            isMultiline
+        );
         this.entryTypesWithFields.add(viewModel);
         this.entryTypeToAdd.setValue("");
 
@@ -154,22 +205,36 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
 
         if (fieldExists) {
             dialogService.showWarningDialogAndWait(
-                    Localization.lang("Duplicate fields"),
-                    Localization.lang("Warning: You added field \"%0\" twice. Only one will be kept.", field.getDisplayName()));
+                Localization.lang("Duplicate fields"),
+                Localization.lang(
+                    "Warning: You added field \"%0\" twice. Only one will be kept.",
+                    field.getDisplayName()
+                )
+            );
         } else {
-            this.selectedEntryType.getValue().addField(new FieldViewModel(
+            this.selectedEntryType.getValue().addField(
+                new FieldViewModel(
                     field,
                     FieldViewModel.Mandatory.REQUIRED,
                     FieldPriority.IMPORTANT,
-                    false));
+                    false
+                )
+            );
         }
         newFieldToAddProperty().setValue(null);
     }
 
     public boolean displayNameExists(String displayName) {
-        ObservableList<FieldViewModel> entryFields = this.selectedEntryType.getValue().fields();
-        return entryFields.stream().anyMatch(fieldViewModel ->
-                fieldViewModel.displayNameProperty().getValue().equals(displayName));
+        ObservableList<FieldViewModel> entryFields =
+            this.selectedEntryType.getValue().fields();
+        return entryFields
+            .stream()
+            .anyMatch(fieldViewModel ->
+                fieldViewModel
+                    .displayNameProperty()
+                    .getValue()
+                    .equals(displayName)
+            );
     }
 
     public void removeField(FieldViewModel focusedItem) {

@@ -1,19 +1,17 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ModsImporterFilesTest {
 
@@ -21,25 +19,38 @@ class ModsImporterFilesTest {
     private ImportFormatPreferences importFormatPreferences;
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("MODS") && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name ->
+            name.startsWith("MODS") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
     @BeforeEach
     void setUp() {
-        importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        importFormatPreferences = mock(
+            ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
+        when(
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+        ).thenReturn(',');
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
     void isRecognizedFormat(String fileName) throws IOException {
-        ImporterTestEngine.testIsRecognizedFormat(new ModsImporter(importFormatPreferences), fileName);
+        ImporterTestEngine.testIsRecognizedFormat(
+            new ModsImporter(importFormatPreferences),
+            fileName
+        );
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
     void importEntries(String fileName) throws ImportException, IOException {
-        ImporterTestEngine.testImportEntries(new ModsImporter(importFormatPreferences), fileName, FILE_ENDING);
+        ImporterTestEngine.testImportEntries(
+            new ModsImporter(importFormatPreferences),
+            fileName,
+            FILE_ENDING
+        );
     }
 }

@@ -1,9 +1,7 @@
 package org.jabref.gui.groups;
 
 import java.util.List;
-
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +16,10 @@ public class GroupColorPicker {
     /**
      * Algorithm optimized for colors, not for gray-scale (where it does not work)
      */
-    public static Color generateColor(List<Color> siblingColors, @Nullable Color parentColor) {
+    public static Color generateColor(
+        List<Color> siblingColors,
+        @Nullable Color parentColor
+    ) {
         if (siblingColors.isEmpty()) {
             if (parentColor == null) {
                 // We need something colorful to derive other colors based on the color

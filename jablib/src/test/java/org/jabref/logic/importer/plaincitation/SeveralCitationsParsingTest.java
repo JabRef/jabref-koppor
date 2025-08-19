@@ -1,13 +1,15 @@
 package org.jabref.logic.importer.plaincitation;
 
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
 public class SeveralCitationsParsingTest {
-    static SeveralPlainCitationParser parser = new SeveralPlainCitationParser(new RuleBasedPlainCitationParser());
+
+    static SeveralPlainCitationParser parser = new SeveralPlainCitationParser(
+        new RuleBasedPlainCitationParser()
+    );
 
     @Test
     void correctlySplitTexts() {

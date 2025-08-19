@@ -4,7 +4,6 @@ import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -20,7 +19,10 @@ public class FileExtensionViewModel {
     private final List<String> extensions;
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    FileExtensionViewModel(FileType fileType, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    FileExtensionViewModel(
+        FileType fileType,
+        ExternalApplicationsPreferences externalApplicationsPreferences
+    ) {
         this.name = fileType.getName();
         this.description = Localization.lang("%0 file", fileType.getName());
         this.extensions = fileType.getExtensionsWithAsteriskAndDot();
@@ -32,13 +34,19 @@ public class FileExtensionViewModel {
     }
 
     public String getDescription() {
-        return this.description + extensions.stream().collect(Collectors.joining(", ", " (", ")"));
+        return (
+            this.description
+            + extensions.stream().collect(Collectors.joining(", ", " (", ")"))
+        );
     }
 
     public JabRefIcon getIcon() {
-        return ExternalFileTypes.getExternalFileTypeByExt(extensions.getFirst(), externalApplicationsPreferences)
-                                .map(ExternalFileType::getIcon)
-                                .orElse(null);
+        return ExternalFileTypes.getExternalFileTypeByExt(
+            extensions.getFirst(),
+            externalApplicationsPreferences
+        )
+            .map(ExternalFileType::getIcon)
+            .orElse(null);
     }
 
     public Filter<Path> dirFilter() {

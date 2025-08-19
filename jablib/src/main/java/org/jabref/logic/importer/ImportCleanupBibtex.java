@@ -6,7 +6,8 @@ import org.jabref.model.entry.BibEntry;
 
 public class ImportCleanupBibtex extends ImportCleanup {
 
-    private final ConvertToBibtexCleanup convertToBibtexCleanup = new ConvertToBibtexCleanup();
+    private final ConvertToBibtexCleanup convertToBibtexCleanup =
+        new ConvertToBibtexCleanup();
 
     public ImportCleanupBibtex(FieldPreferences fieldPreferences) {
         super(fieldPreferences);

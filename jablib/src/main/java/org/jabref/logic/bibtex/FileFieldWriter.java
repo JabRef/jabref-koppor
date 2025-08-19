@@ -3,23 +3,30 @@ package org.jabref.logic.bibtex;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.strings.StringUtil;
 
 public class FileFieldWriter {
 
-    private FileFieldWriter() {
-    }
+    private FileFieldWriter() {}
 
     public static String getStringRepresentation(List<LinkedFile> fields) {
         String[][] array = new String[fields.size()][];
         int i = 0;
         for (LinkedFile entry : fields) {
             if (StringUtil.isNullOrEmpty(entry.getSourceUrl())) {
-                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType()};
+                array[i] = new String[] {
+                    entry.getDescription(),
+                    entry.getLink(),
+                    entry.getFileType(),
+                };
             } else {
-                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType(), entry.getSourceUrl()};
+                array[i] = new String[] {
+                    entry.getDescription(),
+                    entry.getLink(),
+                    entry.getFileType(),
+                    entry.getSourceUrl(),
+                };
             }
             i++;
         }
@@ -39,8 +46,8 @@ public class FileFieldWriter {
      */
     public static String encodeStringArray(String[][] values) {
         return Arrays.stream(values)
-                     .map(FileFieldWriter::encodeStringArray)
-                     .collect(Collectors.joining(";"));
+            .map(FileFieldWriter::encodeStringArray)
+            .collect(Collectors.joining(";"));
     }
 
     /**
@@ -52,8 +59,8 @@ public class FileFieldWriter {
      */
     private static String encodeStringArray(String[] entry) {
         return Arrays.stream(entry)
-                     .map(FileFieldWriter::quote)
-                     .collect(Collectors.joining(":"));
+            .map(FileFieldWriter::quote)
+            .collect(Collectors.joining(":"));
     }
 
     public static String quote(String s) {

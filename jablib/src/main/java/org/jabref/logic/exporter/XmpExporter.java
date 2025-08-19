@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilWriter;
@@ -35,7 +34,11 @@ public class XmpExporter extends Exporter {
      * @param entries         a list containing all entries that should be exported
      */
     @Override
-    public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws IOException {
+    public void export(
+        BibDatabaseContext databaseContext,
+        Path file,
+        List<BibEntry> entries
+    ) throws IOException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(file);
         Objects.requireNonNull(entries);
@@ -46,11 +49,19 @@ public class XmpExporter extends Exporter {
 
         // This is a distinction between writing all entries from the supplied list to a single .xmp file,
         // or write every entry to a separate file.
-        if (XMP_SPLIT_DIRECTORY_INDICATOR.equals(file.getFileName().toString().trim())) {
+        if (
+            XMP_SPLIT_DIRECTORY_INDICATOR.equals(
+                file.getFileName().toString().trim()
+            )
+        ) {
             for (BibEntry entry : entries) {
                 // Avoid situations, where two citation keys are null
                 Path entryFile;
-                String suffix = entry.getId() + "_" + entry.getField(InternalField.KEY_FIELD).orElse("null") + ".xmp";
+                String suffix =
+                    entry.getId()
+                    + "_"
+                    + entry.getField(InternalField.KEY_FIELD).orElse("null")
+                    + ".xmp";
                 if (file.getParent() == null) {
                     entryFile = Path.of(suffix);
                 } else {
@@ -63,8 +74,11 @@ public class XmpExporter extends Exporter {
         }
     }
 
-    private void writeBibToXmp(Path file, List<BibEntry> entries) throws IOException {
-        String xmpContent = new XmpUtilWriter(this.xmpPreferences).generateXmpStringWithoutXmpDeclaration(entries);
+    private void writeBibToXmp(Path file, List<BibEntry> entries)
+        throws IOException {
+        String xmpContent = new XmpUtilWriter(
+            this.xmpPreferences
+        ).generateXmpStringWithoutXmpDeclaration(entries);
         Files.writeString(file, xmpContent);
     }
 }

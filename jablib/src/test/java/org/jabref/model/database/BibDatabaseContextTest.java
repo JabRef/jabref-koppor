@@ -1,12 +1,19 @@
 package org.jabref.model.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -16,17 +23,8 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BibDatabaseContextTest {
 
@@ -48,7 +46,10 @@ class BibDatabaseContextTest {
     void getFileDirectoriesWithEmptyDbParent() {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(Path.of("biblio.bib"));
-        assertEquals(List.of(currentWorkingDir), database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(currentWorkingDir),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -57,7 +58,10 @@ class BibDatabaseContextTest {
 
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
-        assertEquals(List.of(currentWorkingDir.resolve(file.getParent())), database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(currentWorkingDir.resolve(file.getParent())),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -66,7 +70,10 @@ class BibDatabaseContextTest {
 
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
-        assertEquals(List.of(currentWorkingDir.resolve(file.getParent())), database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(currentWorkingDir.resolve(file.getParent())),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -75,7 +82,10 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(currentWorkingDir.resolve(file));
         database.getMetaData().setLibrarySpecificFileDirectory(".");
-        assertEquals(List.of(currentWorkingDir), database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(currentWorkingDir),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -84,7 +94,10 @@ class BibDatabaseContextTest {
 
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
-        assertEquals(List.of(currentWorkingDir.resolve(file.getParent())), database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(currentWorkingDir.resolve(file.getParent())),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -94,12 +107,14 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("../Literature");
-        assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
-                database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(
+                // first directory originates from the metadata
+                Path.of("/absolute/Literature").toAbsolutePath(),
+                Path.of("/absolute/subdir").toAbsolutePath()
+            ),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
@@ -109,17 +124,22 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("Literature");
-        assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/subdir/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
-                database.getFileDirectories(fileDirPrefs));
+        assertEquals(
+            List.of(
+                // first directory originates from the metadata
+                Path.of("/absolute/subdir/Literature").toAbsolutePath(),
+                Path.of("/absolute/subdir").toAbsolutePath()
+            ),
+            database.getFileDirectories(fileDirPrefs)
+        );
     }
 
     @Test
     void typeBasedOnDefaultBiblatex() {
-        BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(), new MetaData());
+        BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(
+            new BibDatabase(),
+            new MetaData()
+        );
         assertEquals(BibDatabaseMode.BIBLATEX, bibDatabaseContext.getMode());
 
         bibDatabaseContext.setMode(BibDatabaseMode.BIBLATEX);
@@ -128,7 +148,10 @@ class BibDatabaseContextTest {
 
     @Test
     void typeBasedOnDefaultBibtex() {
-        BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(), new MetaData());
+        BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(
+            new BibDatabase(),
+            new MetaData()
+        );
         assertEquals(BibDatabaseMode.BIBLATEX, bibDatabaseContext.getMode());
 
         bibDatabaseContext.setMode(BibDatabaseMode.BIBTEX);
@@ -150,7 +173,9 @@ class BibDatabaseContextTest {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
         bibDatabaseContext.setDatabasePath(null);
 
-        Path expectedPath = Directories.getFulltextIndexBaseDirectory().resolve("unsaved");
+        Path expectedPath = Directories.getFulltextIndexBaseDirectory().resolve(
+            "unsaved"
+        );
         Path actualPath = bibDatabaseContext.getFulltextIndexPath();
 
         assertEquals(expectedPath, actualPath);
@@ -166,27 +191,33 @@ class BibDatabaseContextTest {
         Path actualPath = bibDatabaseContext.getFulltextIndexPath();
         assertNotNull(actualPath);
 
-        String fulltextIndexBaseDirectory = Directories.getFulltextIndexBaseDirectory().toString();
-        String actualPathStart = actualPath.toString().substring(0, fulltextIndexBaseDirectory.length());
+        String fulltextIndexBaseDirectory =
+            Directories.getFulltextIndexBaseDirectory().toString();
+        String actualPathStart = actualPath
+            .toString()
+            .substring(0, fulltextIndexBaseDirectory.length());
         assertEquals(fulltextIndexBaseDirectory, actualPathStart);
     }
 
     @Test
     void ofParsesValidBibtexStringCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+            @article{Alice2023,
+                author = {Alice},
+                title = {Test Title},
+                year = {2023}
+            }
+            """;
 
-        BibDatabaseContext context = BibDatabaseContext.of(bibContent, importPrefs);
+        BibDatabaseContext context = BibDatabaseContext.of(
+            bibContent,
+            importPrefs
+        );
         BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Alice2023")
-                .withField(StandardField.AUTHOR, "Alice")
-                .withField(StandardField.TITLE, "Test Title")
-                .withField(StandardField.YEAR, "2023");
+            .withCitationKey("Alice2023")
+            .withField(StandardField.AUTHOR, "Alice")
+            .withField(StandardField.TITLE, "Test Title")
+            .withField(StandardField.YEAR, "2023");
 
         assertEquals(List.of(expected), context.getDatabase().getEntries());
     }
@@ -194,20 +225,27 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStreamCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+            @article{Alice2023,
+                author = {Alice},
+                title = {Test Title},
+                year = {2023}
+            }
+            """;
 
-        try (InputStream bibContentStream = new ByteArrayInputStream(bibContent.getBytes(StandardCharsets.UTF_8))) {
-            BibDatabaseContext context = BibDatabaseContext.of(bibContentStream, importPrefs);
+        try (
+            InputStream bibContentStream = new ByteArrayInputStream(
+                bibContent.getBytes(StandardCharsets.UTF_8)
+            )
+        ) {
+            BibDatabaseContext context = BibDatabaseContext.of(
+                bibContentStream,
+                importPrefs
+            );
             BibEntry expected = new BibEntry(StandardEntryType.Article)
-                    .withCitationKey("Alice2023")
-                    .withField(StandardField.AUTHOR, "Alice")
-                    .withField(StandardField.TITLE, "Test Title")
-                    .withField(StandardField.YEAR, "2023");
+                .withCitationKey("Alice2023")
+                .withField(StandardField.AUTHOR, "Alice")
+                .withField(StandardField.TITLE, "Test Title")
+                .withField(StandardField.YEAR, "2023");
 
             assertEquals(List.of(expected), context.getDatabase().getEntries());
         }
@@ -216,8 +254,12 @@ class BibDatabaseContextTest {
     @Test
     void ofWrapsStreamIOExceptionsInJabRefExceptions() throws Exception {
         InputStream bibInputStream = mock(InputStream.class);
-        when(bibInputStream.readAllBytes()).thenThrow(new IOException("Error occurred"));
-        assertThrows(JabRefException.class, () -> BibDatabaseContext.of(bibInputStream, importPrefs));
+        when(bibInputStream.readAllBytes()).thenThrow(
+            new IOException("Error occurred")
+        );
+        assertThrows(JabRefException.class, () ->
+            BibDatabaseContext.of(bibInputStream, importPrefs)
+        );
     }
 
     @Test

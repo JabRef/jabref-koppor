@@ -4,17 +4,18 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.formatter.casechanger.Word;
 import org.jabref.model.entry.AuthorList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ISIDOREQueryTransformer extends YearRangeByFilteringQueryTransformer {
+public class ISIDOREQueryTransformer
+    extends YearRangeByFilteringQueryTransformer {
 
     public static final int MAX_TERMS = 4;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ISIDOREQueryTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ISIDOREQueryTransformer.class
+    );
 
     private int handleCountTitle = 0;
     private int handleCountAuthor = 0;
@@ -43,7 +44,11 @@ public class ISIDOREQueryTransformer extends YearRangeByFilteringQueryTransforme
         if (handleCountAuthor > 3) {
             return "";
         }
-        String lastFirst = AuthorList.fixAuthorLastNameFirstCommas(author, false, true);
+        String lastFirst = AuthorList.fixAuthorLastNameFirstCommas(
+            author,
+            false,
+            true
+        );
         lastFirst = lastFirst.replace(", ", "_").toLowerCase(Locale.ENGLISH);
         parameterMap.put("author", lastFirst);
         return "";
@@ -93,7 +98,10 @@ public class ISIDOREQueryTransformer extends YearRangeByFilteringQueryTransforme
     }
 
     @Override
-    protected Optional<String> handleOtherField(String fieldAsString, String term) {
+    protected Optional<String> handleOtherField(
+        String fieldAsString,
+        String term
+    ) {
         Optional<String> first = handleUnFieldedTerm(fieldAsString);
         Optional<String> second = handleUnFieldedTerm(term);
         if (first.isEmpty() && second.isEmpty()) {

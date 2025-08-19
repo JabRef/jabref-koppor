@@ -3,7 +3,6 @@ package org.jabref.gui.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.preview.PreviewLayout;
@@ -15,7 +14,10 @@ import org.jabref.model.entry.BibEntry;
  */
 public class CustomLocalDragboard {
 
-    @SuppressWarnings("unchecked") private static final Class<List<BibEntry>> BIB_ENTRIES = (Class<List<BibEntry>>) (Class<?>) List.class;
+    @SuppressWarnings("unchecked")
+    private static final Class<List<BibEntry>> BIB_ENTRIES = (Class<
+        List<BibEntry>
+    >) (Class<?>) List.class;
 
     private final Map<Class<?>, Object> contents = new HashMap<>();
 
@@ -77,7 +79,10 @@ public class CustomLocalDragboard {
      * @param previewLayouts The list to put
      */
     public void putPreviewLayouts(List<PreviewLayout> previewLayouts) {
-        putValue(DragAndDropDataFormats.PREVIEWLAYOUT_LIST_CLASS, previewLayouts);
+        putValue(
+            DragAndDropDataFormats.PREVIEWLAYOUT_LIST_CLASS,
+            previewLayouts
+        );
     }
 
     /**

@@ -1,10 +1,11 @@
 package org.jabref.gui.importer.fetcher;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
+
 import java.util.List;
 import java.util.Optional;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.Action;
@@ -21,16 +22,15 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
-import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
+public class LookupIdentifierAction<T extends Identifier>
+    extends SimpleCommand {
 
-public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LookupIdentifierAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LookupIdentifierAction.class
+    );
 
     private final IdFetcher<T> fetcher;
     private final StateManager stateManager;
@@ -38,27 +38,43 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
 
-    public LookupIdentifierAction(IdFetcher<T> fetcher,
-                                  StateManager stateManager,
-                                  UndoManager undoManager,
-                                  DialogService dialogService,
-                                  TaskExecutor taskExecutor) {
+    public LookupIdentifierAction(
+        IdFetcher<T> fetcher,
+        StateManager stateManager,
+        UndoManager undoManager,
+        DialogService dialogService,
+        TaskExecutor taskExecutor
+    ) {
         this.fetcher = fetcher;
         this.stateManager = stateManager;
         this.undoManager = undoManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
 
-        this.executable.bind(needsDatabase(this.stateManager).and(needsEntriesSelected(this.stateManager)));
-        this.statusMessage.bind(BindingsHelper.ifThenElse(executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
+        this.executable.bind(
+            needsDatabase(this.stateManager).and(
+                needsEntriesSelected(this.stateManager)
+            )
+        );
+        this.statusMessage.bind(
+            BindingsHelper.ifThenElse(
+                executable,
+                "",
+                Localization.lang(
+                    "This operation requires one or more entries to be selected."
+                )
+            )
+        );
     }
 
     @Override
     public void execute() {
         try {
-            BackgroundTask.wrap(() -> lookupIdentifiers(stateManager.getSelectedEntries()))
-                          .onSuccess(dialogService::notify)
-                          .executeWith(taskExecutor);
+            BackgroundTask.wrap(() ->
+                lookupIdentifiers(stateManager.getSelectedEntries())
+            )
+                .onSuccess(dialogService::notify)
+                .executeWith(taskExecutor);
         } catch (Exception e) {
             LOGGER.error("Problem running ID Worker", e);
         }
@@ -70,35 +86,69 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
 
     private String lookupIdentifiers(List<BibEntry> bibEntries) {
         String totalCount = Integer.toString(bibEntries.size());
-        NamedCompound namedCompound = new NamedCompound(Localization.lang("Look up %0", fetcher.getIdentifierName()));
+        NamedCompound namedCompound = new NamedCompound(
+            Localization.lang("Look up %0", fetcher.getIdentifierName())
+        );
         int count = 0;
         int foundCount = 0;
         for (BibEntry bibEntry : bibEntries) {
             count++;
-            final String statusMessage = Localization.lang("Looking up %0... - entry %1 out of %2 - found %3",
-                    fetcher.getIdentifierName(), Integer.toString(count), totalCount, Integer.toString(foundCount));
-            UiTaskExecutor.runInJavaFXThread(() -> dialogService.notify(statusMessage));
+            final String statusMessage = Localization.lang(
+                "Looking up %0... - entry %1 out of %2 - found %3",
+                fetcher.getIdentifierName(),
+                Integer.toString(count),
+                totalCount,
+                Integer.toString(foundCount)
+            );
+            UiTaskExecutor.runInJavaFXThread(() ->
+                dialogService.notify(statusMessage)
+            );
             Optional<T> identifier = Optional.empty();
             try {
                 identifier = fetcher.findIdentifier(bibEntry);
             } catch (FetcherException e) {
-                LOGGER.error("Could not fetch {}", fetcher.getIdentifierName(), e);
+                LOGGER.error(
+                    "Could not fetch {}",
+                    fetcher.getIdentifierName(),
+                    e
+                );
             }
-            if (identifier.isPresent() && !bibEntry.hasField(identifier.get().getDefaultField())) {
-                Optional<FieldChange> fieldChange = bibEntry.setField(identifier.get().getDefaultField(), identifier.get().asString());
+            if (
+                identifier.isPresent()
+                && !bibEntry.hasField(identifier.get().getDefaultField())
+            ) {
+                Optional<FieldChange> fieldChange = bibEntry.setField(
+                    identifier.get().getDefaultField(),
+                    identifier.get().asString()
+                );
                 if (fieldChange.isPresent()) {
-                    namedCompound.addEdit(new UndoableFieldChange(fieldChange.get()));
+                    namedCompound.addEdit(
+                        new UndoableFieldChange(fieldChange.get())
+                    );
                     foundCount++;
-                    final String nextStatusMessage = Localization.lang("Looking up %0... - entry %1 out of %2 - found %3",
-                            fetcher.getIdentifierName(), Integer.toString(count), totalCount, Integer.toString(foundCount));
-                    UiTaskExecutor.runInJavaFXThread(() -> dialogService.notify(nextStatusMessage));
+                    final String nextStatusMessage = Localization.lang(
+                        "Looking up %0... - entry %1 out of %2 - found %3",
+                        fetcher.getIdentifierName(),
+                        Integer.toString(count),
+                        totalCount,
+                        Integer.toString(foundCount)
+                    );
+                    UiTaskExecutor.runInJavaFXThread(() ->
+                        dialogService.notify(nextStatusMessage)
+                    );
                 }
             }
         }
         namedCompound.end();
         if (foundCount > 0) {
-            UiTaskExecutor.runInJavaFXThread(() -> undoManager.addEdit(namedCompound));
+            UiTaskExecutor.runInJavaFXThread(() ->
+                undoManager.addEdit(namedCompound)
+            );
         }
-        return Localization.lang("Determined %0 for %1 entries", fetcher.getIdentifierName(), Integer.toString(foundCount));
+        return Localization.lang(
+            "Determined %0 for %1 entries",
+            fetcher.getIdentifierName(),
+            Integer.toString(foundCount)
+        );
     }
 }

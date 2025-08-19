@@ -18,10 +18,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class BstTextPrefixer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BstTextPrefixer.class);
 
-    private BstTextPrefixer() {
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BstTextPrefixer.class
+    );
+
+    private BstTextPrefixer() {}
 
     public static String textPrefix(int numOfChars, String toPrefix) {
         StringBuilder sb = new StringBuilder();
@@ -44,14 +46,24 @@ public class BstTextPrefixer {
         return sb.toString();
     }
 
-    private static void handleOpeningBrace(char[] cs, PrefixState prefixState, char c) {
+    private static void handleOpeningBrace(
+        char[] cs,
+        PrefixState prefixState,
+        char c
+    ) {
         if (c != '{') {
             return;
         }
         prefixState.braceLevel++;
-        if ((prefixState.braceLevel == 1) && (prefixState.index < cs.length) && (cs[prefixState.index] == '\\')) {
+        if (
+            (prefixState.braceLevel == 1)
+            && (prefixState.index < cs.length)
+            && (cs[prefixState.index] == '\\')
+        ) {
             prefixState.index++; // skip backslash
-            while ((prefixState.index < cs.length) && (prefixState.braceLevel > 0)) {
+            while (
+                (prefixState.index < cs.length) && (prefixState.braceLevel > 0)
+            ) {
                 if (cs[prefixState.index] == '}') {
                     prefixState.braceLevel--;
                 } else if (cs[prefixState.index] == '{') {
@@ -63,7 +75,11 @@ public class BstTextPrefixer {
         }
     }
 
-    private static void handleClosingBrace(PrefixState prefixState, String toPrefix, char c) {
+    private static void handleClosingBrace(
+        PrefixState prefixState,
+        String toPrefix,
+        char c
+    ) {
         if (c != '}') {
             return;
         }
@@ -75,9 +91,11 @@ public class BstTextPrefixer {
     }
 
     private static class PrefixState {
+
         public int index;
         public int braceLevel;
         public int numOfChars;
+
         public PrefixState(int index, int braceLevel, int numOfChars) {
             this.index = index;
             this.braceLevel = braceLevel;

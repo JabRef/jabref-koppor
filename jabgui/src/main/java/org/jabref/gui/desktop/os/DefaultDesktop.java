@@ -4,12 +4,10 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.util.Directories;
-
 import org.slf4j.LoggerFactory;
 
 /**
@@ -23,12 +21,17 @@ import org.slf4j.LoggerFactory;
 public class DefaultDesktop extends NativeDesktop {
 
     @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
+    public void openFile(
+        String filePath,
+        String fileType,
+        ExternalApplicationsPreferences externalApplicationsPreferences
+    ) throws IOException {
         Desktop.getDesktop().open(Path.of(filePath).toFile());
     }
 
     @Override
-    public void openFileWithApplication(String filePath, String application) throws IOException {
+    public void openFileWithApplication(String filePath, String application)
+        throws IOException {
         Desktop.getDesktop().open(Path.of(filePath).toFile());
     }
 
@@ -39,8 +42,11 @@ public class DefaultDesktop extends NativeDesktop {
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
-        LoggerFactory.getLogger(DefaultDesktop.class).error("This feature is not supported by your Operating System.");
+    public void openConsole(String absolutePath, DialogService dialogService)
+        throws IOException {
+        LoggerFactory.getLogger(DefaultDesktop.class).error(
+            "This feature is not supported by your Operating System."
+        );
     }
 
     @Override

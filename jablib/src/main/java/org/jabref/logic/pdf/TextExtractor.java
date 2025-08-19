@@ -3,20 +3,20 @@ package org.jabref.logic.pdf;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Objects;
-
-import org.jabref.architecture.AllowedToUseAwt;
-
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.jabref.architecture.AllowedToUseAwt;
 
 /**
  * Extracts the text of marked annotations using bounding boxes.
  */
-@AllowedToUseAwt("org.apache.pdfbox.text.PDFTextStripperByArea.addRegion uses AWT's Rectangle to indicate a region")
+@AllowedToUseAwt(
+    "org.apache.pdfbox.text.PDFTextStripperByArea.addRegion uses AWT's Rectangle to indicate a region"
+)
 public final class TextExtractor {
 
     private final COSArray boundingBoxes;
@@ -44,12 +44,21 @@ public final class TextExtractor {
 
         // Iterates over the array of segments. Each segment consists of 8 points forming a bounding box.
         int totalSegments = boundingBoxes.size() / 8;
-        for (int currentSegment = 1, segmentPointer = 0; currentSegment <= totalSegments; currentSegment++, segmentPointer += 8) {
+        for (
+            int currentSegment = 1, segmentPointer = 0;
+            currentSegment <= totalSegments;
+            currentSegment++, segmentPointer += 8
+        ) {
             try {
-                stripperByArea.addRegion("markedRegion", calculateSegmentBoundingBox(boundingBoxes, segmentPointer));
+                stripperByArea.addRegion(
+                    "markedRegion",
+                    calculateSegmentBoundingBox(boundingBoxes, segmentPointer)
+                );
                 stripperByArea.extractRegions(page);
 
-                markedText = markedText.concat(stripperByArea.getTextForRegion("markedRegion"));
+                markedText = markedText.concat(
+                    stripperByArea.getTextForRegion("markedRegion")
+                );
             } catch (IllegalArgumentException e) {
                 throw new IOException("Cannot read annotation coordinates!", e);
             }
@@ -58,7 +67,10 @@ public final class TextExtractor {
         return markedText.trim();
     }
 
-    private Rectangle2D calculateSegmentBoundingBox(COSArray quadsArray, int segmentPointer) {
+    private Rectangle2D calculateSegmentBoundingBox(
+        COSArray quadsArray,
+        int segmentPointer
+    ) {
         // Extract coordinate values
         float upperLeftX = toFloat(quadsArray.get(segmentPointer));
         float upperLeftY = toFloat(quadsArray.get(segmentPointer + 1));
@@ -84,6 +96,8 @@ public final class TextExtractor {
         if (cosNumber instanceof COSInteger integer) {
             return integer.floatValue();
         }
-        throw new IllegalArgumentException("The number type of the annotation is not supported!");
+        throw new IllegalArgumentException(
+            "The number type of the annotation is not supported!"
+        );
     }
 }

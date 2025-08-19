@@ -1,7 +1,6 @@
 package org.jabref.gui.git;
 
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.mergeentries.threewaymerge.MergeEntriesDialog;
 import org.jabref.gui.mergeentries.threewaymerge.ShowDiffConfig;
@@ -16,10 +15,14 @@ import org.jabref.model.entry.BibEntry;
 ///
 /// Receives a semantic conflict (ThreeWayEntryConflict), pops up an interactive GUI (belonging to mergeentries), and returns a user-confirmed BibEntry merge result.
 public class GitConflictResolverDialog {
+
     private final DialogService dialogService;
     private final GuiPreferences preferences;
 
-    public GitConflictResolverDialog(DialogService dialogService, GuiPreferences preferences) {
+    public GitConflictResolverDialog(
+        DialogService dialogService,
+        GuiPreferences preferences
+    ) {
         this.dialogService = dialogService;
         this.preferences = preferences;
     }
@@ -29,16 +32,21 @@ public class GitConflictResolverDialog {
         BibEntry local = conflict.local();
         BibEntry remote = conflict.remote();
 
-        MergeEntriesDialog dialog = new MergeEntriesDialog(local, remote, preferences);
+        MergeEntriesDialog dialog = new MergeEntriesDialog(
+            local,
+            remote,
+            preferences
+        );
         dialog.setLeftHeaderText(Localization.lang("Local"));
         dialog.setRightHeaderText(Localization.lang("Remote"));
         ShowDiffConfig diffConfig = new ShowDiffConfig(
-                ThreeWayMergeToolbar.DiffView.SPLIT,
-                DiffHighlighter.BasicDiffMethod.WORDS
+            ThreeWayMergeToolbar.DiffView.SPLIT,
+            DiffHighlighter.BasicDiffMethod.WORDS
         );
         dialog.configureDiff(diffConfig);
 
-        return dialogService.showCustomDialogAndWait(dialog)
-                            .map(result -> result.mergedEntry());
+        return dialogService
+            .showCustomDialogAndWait(dialog)
+            .map(result -> result.mergedEntry());
     }
 }

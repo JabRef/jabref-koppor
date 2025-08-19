@@ -1,7 +1,7 @@
 package org.jabref.gui.walkthrough.utils;
 
+import com.sun.javafx.scene.NodeHelper;
 import java.util.function.BooleanSupplier;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
@@ -10,12 +10,11 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
-import com.sun.javafx.scene.NodeHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class WalkthroughUtils {
+
     public static final long DEFAULT_DEBOUNCE = 100L;
 
     public static boolean isNodeVisible(@Nullable Node node) {
@@ -23,10 +22,16 @@ public class WalkthroughUtils {
     }
 
     public static boolean cannotPositionNode(@Nullable Node node) {
-        return node == null || node.getScene() == null || !isNodeVisible(node) || node.getBoundsInLocal().isEmpty();
+        return (
+            node == null
+            || node.getScene() == null
+            || !isNodeVisible(node)
+            || node.getBoundsInLocal().isEmpty()
+        );
     }
 
-    public interface DebouncedInvalidationListener extends InvalidationListener {
+    public interface DebouncedInvalidationListener
+        extends InvalidationListener {
         /// Cancel any debounced InvalidationListener that's scheduled to run in the
         /// future.
         ///
@@ -50,7 +55,9 @@ public class WalkthroughUtils {
     ///
     /// @param listener the listener to debounce
     /// @return a debounced listener
-    public static DebouncedInvalidationListener debounced(InvalidationListener listener) {
+    public static DebouncedInvalidationListener debounced(
+        InvalidationListener listener
+    ) {
         return debounced(listener, DEFAULT_DEBOUNCE);
     }
 
@@ -66,7 +73,10 @@ public class WalkthroughUtils {
     /// @param listener   the listener to debounce
     /// @param intervalMs the minimum interval between executions in milliseconds
     /// @return a debounced listener
-    public static DebouncedInvalidationListener debounced(InvalidationListener listener, long intervalMs) {
+    public static DebouncedInvalidationListener debounced(
+        InvalidationListener listener,
+        long intervalMs
+    ) {
         Timeline timeline = new Timeline();
 
         return new DebouncedInvalidationListener() {
@@ -119,7 +129,10 @@ public class WalkthroughUtils {
     /// @param runnable   the runnable to debounce
     /// @param intervalMs the minimum interval between executions in milliseconds
     /// @return a debounced runnable
-    public static DebouncedRunnable debounced(Runnable runnable, long intervalMs) {
+    public static DebouncedRunnable debounced(
+        Runnable runnable,
+        long intervalMs
+    ) {
         Timeline timeline = new Timeline();
         return new DebouncedRunnable() {
             @Override
@@ -135,9 +148,17 @@ public class WalkthroughUtils {
         };
     }
 
-    private static void scheduleExecution(Timeline timeline, long intervalMs, Runnable action) {
+    private static void scheduleExecution(
+        Timeline timeline,
+        long intervalMs,
+        Runnable action
+    ) {
         timeline.stop();
-        timeline.getKeyFrames().setAll(new KeyFrame(Duration.millis(intervalMs), _ -> action.run()));
+        timeline
+            .getKeyFrames()
+            .setAll(
+                new KeyFrame(Duration.millis(intervalMs), _ -> action.run())
+            );
         timeline.play();
     }
 
@@ -148,7 +169,9 @@ public class WalkthroughUtils {
     ///                      be detached (as well as run anything interesting for the
     ///                      actual callee).
     /// @return A runnable that can be used to detach the listener prematurely.
-    public static Runnable onWindowChangedUntil(@NonNull BooleanSupplier stopCondition) {
+    public static Runnable onWindowChangedUntil(
+        @NonNull BooleanSupplier stopCondition
+    ) {
         ListChangeListener<Window> listener = new ListChangeListener<>() {
             @Override
             public void onChanged(Change<? extends Window> change) {

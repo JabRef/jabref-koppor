@@ -1,26 +1,25 @@
 package org.jabref.logic.git.util;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
-import org.jabref.logic.git.GitHandler;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.git.GitHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class GitHandlerRegistryTest {
+
     @TempDir
     Path tempDir;
 
@@ -67,7 +66,10 @@ class GitHandlerRegistryTest {
         Path subDir = Files.createDirectory(tempDir.resolve("nested"));
         Optional<GitHandler> handlerOpt = registry.fromAnyPath(subDir);
 
-        assertTrue(handlerOpt.isPresent(), "Should resolve handler from subdirectory inside repo");
+        assertTrue(
+            handlerOpt.isPresent(),
+            "Should resolve handler from subdirectory inside repo"
+        );
 
         GitHandler handler1 = registry.get(tempDir);
         GitHandler handler2 = handlerOpt.get();

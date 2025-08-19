@@ -1,11 +1,8 @@
 package org.jabref.gui;
 
 import java.util.List;
-
 import javafx.collections.ObservableList;
-
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;

@@ -13,14 +13,29 @@ public class TestManager {
      * Determine the DBMSType to test from the environment variable "DMBS". In case that variable is not set, use "PostgreSQL" as default
      */
     public static DBMSType getDBMSTypeTestParameter() {
-        return DBMSType.fromString(System.getenv("DBMS")).orElse(DBMSType.POSTGRESQL);
+        return DBMSType.fromString(System.getenv("DBMS")).orElse(
+            DBMSType.POSTGRESQL
+        );
     }
 
-    public static void clearTables(DBMSConnection dbmsConnection) throws SQLException {
+    public static void clearTables(DBMSConnection dbmsConnection)
+        throws SQLException {
         Objects.requireNonNull(dbmsConnection);
-        dbmsConnection.getConnection().createStatement().executeUpdate("DROP TABLE IF EXISTS jabref.\"FIELD\"");
-        dbmsConnection.getConnection().createStatement().executeUpdate("DROP TABLE IF EXISTS jabref.\"ENTRY\"");
-        dbmsConnection.getConnection().createStatement().executeUpdate("DROP TABLE IF EXISTS jabref.\"METADATA\"");
-        dbmsConnection.getConnection().createStatement().executeUpdate("DROP SCHEMA IF EXISTS jabref");
+        dbmsConnection
+            .getConnection()
+            .createStatement()
+            .executeUpdate("DROP TABLE IF EXISTS jabref.\"FIELD\"");
+        dbmsConnection
+            .getConnection()
+            .createStatement()
+            .executeUpdate("DROP TABLE IF EXISTS jabref.\"ENTRY\"");
+        dbmsConnection
+            .getConnection()
+            .createStatement()
+            .executeUpdate("DROP TABLE IF EXISTS jabref.\"METADATA\"");
+        dbmsConnection
+            .getConnection()
+            .createStatement()
+            .executeUpdate("DROP SCHEMA IF EXISTS jabref");
     }
 }

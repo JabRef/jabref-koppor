@@ -8,18 +8,18 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
-
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.preferences.CliPreferences;
-
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.jabref.logic.preferences.CliPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LSPLauncher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LSPLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LSPLauncher.class
+    );
 
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
@@ -31,7 +31,10 @@ public class LSPLauncher {
         run(cliPreferences, new JournalAbbreviationRepository());
     }
 
-    public void run(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository) {
+    public void run(
+        CliPreferences cliPreferences,
+        JournalAbbreviationRepository abbreviationRepository
+    ) {
         this.cliPreferences = cliPreferences;
         this.abbreviationRepository = abbreviationRepository;
         start(2087);
@@ -65,12 +68,24 @@ public class LSPLauncher {
     }
 
     private void handleClient(Socket socket) {
-        LSPServer server = new LSPServer(cliPreferences, abbreviationRepository);
+        LSPServer server = new LSPServer(
+            cliPreferences,
+            abbreviationRepository
+        );
         LOGGER.debug("LSP server started.");
-        try (socket; // socket should be closed on error
-             InputStream in = socket.getInputStream();
-             OutputStream out = socket.getOutputStream()) {
-            Launcher<LanguageClient> launcher = org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(server, in, out, Executors.newCachedThreadPool(), Function.identity());
+        try (
+            socket; // socket should be closed on error
+            InputStream in = socket.getInputStream();
+            OutputStream out = socket.getOutputStream()
+        ) {
+            Launcher<LanguageClient> launcher =
+                org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(
+                    server,
+                    in,
+                    out,
+                    Executors.newCachedThreadPool(),
+                    Function.identity()
+                );
             LOGGER.debug("LSP server launched.");
             server.connect(launcher.getRemoteProxy());
             LOGGER.debug("LSP server connected.");

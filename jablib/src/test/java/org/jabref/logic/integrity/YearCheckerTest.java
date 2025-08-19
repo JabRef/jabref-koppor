@@ -1,11 +1,10 @@
 package org.jabref.logic.integrity;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 class YearCheckerTest {
 
@@ -43,7 +42,10 @@ class YearCheckerTest {
 
     @Test
     void yearFieldRemovesSpecialCharactersFromYear() {
-        assertEquals(Optional.empty(), checker.checkValue("1986(){},.;!?<>%&$"));
+        assertEquals(
+            Optional.empty(),
+            checker.checkValue("1986(){},.;!?<>%&$")
+        );
     }
 
     @Test
@@ -83,7 +85,10 @@ class YearCheckerTest {
 
     @Test
     void yearFieldDoesNotRemoveStringBeforeSpecialCharacters() {
-        assertNotEquals(Optional.empty(), checker.checkValue("1986a(){},.;!?<>%&$"));
+        assertNotEquals(
+            Optional.empty(),
+            checker.checkValue("1986a(){},.;!?<>%&$")
+        );
     }
 
     @Test

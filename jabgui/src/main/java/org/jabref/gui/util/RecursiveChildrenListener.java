@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -10,16 +9,19 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class RecursiveChildrenListener {
+
     private final InvalidationListener listener;
     private @Nullable ChangeListener<Parent> sceneRootListener;
     private @Nullable Scene attachedScene;
     private @Nullable Parent attachedRoot;
-    private final @NonNull Map<Parent, ListChangeListener<Node>> childListeners = new HashMap<>();
+    private final @NonNull Map<
+        Parent,
+        ListChangeListener<Node>
+    > childListeners = new HashMap<>();
 
     /// Creates a new RecursiveChildrenListener that will recursively monitor changes in
     /// the children of all parent nodes in a scene graph.
@@ -83,7 +85,8 @@ public class RecursiveChildrenListener {
     }
 
     private void addChildrenListener(Parent parent) {
-        ObservableList<Node> childrenUnmodifiable = parent.getChildrenUnmodifiable();
+        ObservableList<Node> childrenUnmodifiable =
+            parent.getChildrenUnmodifiable();
 
         ListChangeListener<Node> childListener = change -> {
             while (change.next()) {

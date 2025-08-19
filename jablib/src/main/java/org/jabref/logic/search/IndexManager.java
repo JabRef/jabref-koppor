@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
-
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.search.indexing.BibFieldsIndexer;
 import org.jabref.logic.search.indexing.DefaultLinkedFilesIndexer;
@@ -36,12 +34,14 @@ import org.jabref.model.search.event.IndexRemovedEvent;
 import org.jabref.model.search.event.IndexStartedEvent;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IndexManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IndexManager.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        IndexManager.class
+    );
 
     private final TaskExecutor taskExecutor;
     private final BibDatabaseContext databaseContext;
@@ -52,29 +52,50 @@ public class IndexManager {
     private final BibFieldsSearcher bibFieldsSearcher;
     private final LinkedFilesSearcher linkedFilesSearcher;
 
-    public IndexManager(BibDatabaseContext databaseContext,
-                        TaskExecutor executor,
-                        CliPreferences preferences,
-                        PostgreServer postgreServer) {
+    public IndexManager(
+        BibDatabaseContext databaseContext,
+        TaskExecutor executor,
+        CliPreferences preferences,
+        PostgreServer postgreServer
+    ) {
         this.taskExecutor = executor;
         this.databaseContext = databaseContext;
-        this.shouldIndexLinkedFiles = preferences.getFilePreferences().fulltextIndexLinkedFilesProperty();
-        this.preferencesListener = (_, _, newValue) -> bindToPreferences(newValue);
+        this.shouldIndexLinkedFiles = preferences
+            .getFilePreferences()
+            .fulltextIndexLinkedFilesProperty();
+        this.preferencesListener = (_, _, newValue) ->
+            bindToPreferences(newValue);
         this.shouldIndexLinkedFiles.addListener(preferencesListener);
 
-        bibFieldsIndexer = new BibFieldsIndexer(preferences.getBibEntryPreferences(), databaseContext, postgreServer.getConnection());
+        bibFieldsIndexer = new BibFieldsIndexer(
+            preferences.getBibEntryPreferences(),
+            databaseContext,
+            postgreServer.getConnection()
+        );
 
         LuceneIndexer indexer;
         try {
-            indexer = new DefaultLinkedFilesIndexer(databaseContext, preferences.getFilePreferences());
+            indexer = new DefaultLinkedFilesIndexer(
+                databaseContext,
+                preferences.getFilePreferences()
+            );
         } catch (IOException e) {
-            LOGGER.debug("Error initializing linked files index - using read only index");
+            LOGGER.debug(
+                "Error initializing linked files index - using read only index"
+            );
             indexer = new ReadOnlyLinkedFilesIndexer(databaseContext);
         }
         linkedFilesIndexer = indexer;
 
-        this.bibFieldsSearcher = new BibFieldsSearcher(postgreServer.getConnection(), bibFieldsIndexer.getTable());
-        this.linkedFilesSearcher = new LinkedFilesSearcher(databaseContext, linkedFilesIndexer, preferences.getFilePreferences());
+        this.bibFieldsSearcher = new BibFieldsSearcher(
+            postgreServer.getConnection(),
+            bibFieldsIndexer.getTable()
+        );
+        this.linkedFilesSearcher = new LinkedFilesSearcher(
+            databaseContext,
+            linkedFilesIndexer,
+            preferences.getFilePreferences()
+        );
         updateOnStart();
     }
 
@@ -86,7 +107,8 @@ public class IndexManager {
                     linkedFilesIndexer.updateOnStart(this);
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         } else {
             linkedFilesIndexer.removeAllFromIndex();
         }
@@ -99,9 +121,14 @@ public class IndexManager {
                 bibFieldsIndexer.updateOnStart(this);
                 return null;
             }
-        }.willBeRecoveredAutomatically(true)
-         .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
-         .executeWith(taskExecutor);
+        }
+            .willBeRecoveredAutomatically(true)
+            .onFinished(() ->
+                this.databaseContext.getDatabase().postEvent(
+                    new IndexStartedEvent()
+                )
+            )
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -110,7 +137,8 @@ public class IndexManager {
                     linkedFilesIndexer.updateOnStart(this);
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         }
     }
 
@@ -121,8 +149,13 @@ public class IndexManager {
                 bibFieldsIndexer.addToIndex(entries, this);
                 return null;
             }
-        }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(entries)))
-         .executeWith(taskExecutor);
+        }
+            .onFinished(() ->
+                this.databaseContext.getDatabase().postEvent(
+                    new IndexAddedOrUpdatedEvent(entries)
+                )
+            )
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -131,7 +164,8 @@ public class IndexManager {
                     linkedFilesIndexer.addToIndex(entries, this);
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         }
     }
 
@@ -142,8 +176,13 @@ public class IndexManager {
                 bibFieldsIndexer.removeFromIndex(entries, this);
                 return null;
             }
-        }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexRemovedEvent(entries)))
-         .executeWith(taskExecutor);
+        }
+            .onFinished(() ->
+                this.databaseContext.getDatabase().postEvent(
+                    new IndexRemovedEvent(entries)
+                )
+            )
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -152,7 +191,8 @@ public class IndexManager {
                     linkedFilesIndexer.removeFromIndex(entries, this);
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         }
     }
 
@@ -160,20 +200,37 @@ public class IndexManager {
         new BackgroundTask<>() {
             @Override
             public Object call() {
-                bibFieldsIndexer.updateEntry(event.getBibEntry(), event.getField());
+                bibFieldsIndexer.updateEntry(
+                    event.getBibEntry(),
+                    event.getField()
+                );
                 return null;
             }
-        }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(List.of(event.getBibEntry()))))
-         .executeWith(taskExecutor);
+        }
+            .onFinished(() ->
+                this.databaseContext.getDatabase().postEvent(
+                    new IndexAddedOrUpdatedEvent(List.of(event.getBibEntry()))
+                )
+            )
+            .executeWith(taskExecutor);
 
-        if (shouldIndexLinkedFiles.get() && event.getField().equals(StandardField.FILE)) {
+        if (
+            shouldIndexLinkedFiles.get()
+            && event.getField().equals(StandardField.FILE)
+        ) {
             new BackgroundTask<>() {
                 @Override
                 public Object call() {
-                    linkedFilesIndexer.updateEntry(event.getBibEntry(), event.getOldValue(), event.getNewValue(), this);
+                    linkedFilesIndexer.updateEntry(
+                        event.getBibEntry(),
+                        event.getOldValue(),
+                        event.getNewValue(),
+                        this
+                    );
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         }
     }
 
@@ -185,7 +242,8 @@ public class IndexManager {
                     linkedFilesIndexer.rebuildIndex(this);
                     return null;
                 }
-            }.executeWith(taskExecutor);
+            }
+                .executeWith(taskExecutor);
         }
     }
 
@@ -211,7 +269,8 @@ public class IndexManager {
             tasks.add(() -> linkedFilesSearcher.search(query));
         }
 
-        List<Future<SearchResults>> futures = HeadlessExecutorService.INSTANCE.executeAll(tasks);
+        List<Future<SearchResults>> futures =
+            HeadlessExecutorService.INSTANCE.executeAll(tasks);
 
         SearchResults searchResults = new SearchResults();
         for (Future<SearchResults> future : futures) {
@@ -244,13 +303,20 @@ public class IndexManager {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(appData)) {
             for (Path path : stream) {
-                if (Files.isDirectory(path) && !path.toString().endsWith("ssl") && path.toString().contains("lucene")
-                        && !path.equals(currentIndexPath)) {
-                    LOGGER.info("Deleting out-of-date fulltext search index at {}.", path);
+                if (
+                    Files.isDirectory(path)
+                    && !path.toString().endsWith("ssl")
+                    && path.toString().contains("lucene")
+                    && !path.equals(currentIndexPath)
+                ) {
+                    LOGGER.info(
+                        "Deleting out-of-date fulltext search index at {}.",
+                        path
+                    );
                     Files.walk(path)
-                         .sorted(Comparator.reverseOrder())
-                         .map(Path::toFile)
-                         .forEach(File::delete);
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
                 }
             }
         } catch (IOException e) {

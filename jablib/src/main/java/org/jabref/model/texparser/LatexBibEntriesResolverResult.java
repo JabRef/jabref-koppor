@@ -1,19 +1,19 @@
 package org.jabref.model.texparser;
 
+import com.google.common.collect.Multimap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jabref.model.entry.BibEntry;
-
-import com.google.common.collect.Multimap;
 
 public class LatexBibEntriesResolverResult {
 
     private final LatexParserResults latexParserResults;
     private final Set<BibEntry> newEntries;
 
-    public LatexBibEntriesResolverResult(LatexParserResults latexParserResults) {
+    public LatexBibEntriesResolverResult(
+        LatexParserResults latexParserResults
+    ) {
         this.latexParserResults = latexParserResults;
         this.newEntries = new HashSet<>();
     }
@@ -33,8 +33,9 @@ public class LatexBibEntriesResolverResult {
     @Override
     public String toString() {
         return "TexBibEntriesResolverResult{latexParserResults=%s, newEntries=%s}".formatted(
-                this.latexParserResults,
-                this.newEntries);
+            this.latexParserResults,
+            this.newEntries
+        );
     }
 
     @Override
@@ -47,10 +48,13 @@ public class LatexBibEntriesResolverResult {
             return false;
         }
 
-        LatexBibEntriesResolverResult that = (LatexBibEntriesResolverResult) obj;
+        LatexBibEntriesResolverResult that =
+            (LatexBibEntriesResolverResult) obj;
 
-        return Objects.equals(latexParserResults, that.latexParserResults)
-                && Objects.equals(newEntries, that.newEntries);
+        return (
+            Objects.equals(latexParserResults, that.latexParserResults)
+            && Objects.equals(newEntries, that.newEntries)
+        );
     }
 
     @Override

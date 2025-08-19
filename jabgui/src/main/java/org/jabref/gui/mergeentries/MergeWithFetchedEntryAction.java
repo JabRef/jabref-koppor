@@ -1,7 +1,6 @@
 package org.jabref.gui.mergeentries;
 
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -21,19 +20,27 @@ public class MergeWithFetchedEntryAction extends SimpleCommand {
     private final UndoManager undoManager;
     private final TaskExecutor taskExecutor;
 
-    public MergeWithFetchedEntryAction(DialogService dialogService,
-                                       StateManager stateManager,
-                                       TaskExecutor taskExecutor,
-                                       GuiPreferences preferences,
-                                       UndoManager undoManager) {
+    public MergeWithFetchedEntryAction(
+        DialogService dialogService,
+        StateManager stateManager,
+        TaskExecutor taskExecutor,
+        GuiPreferences preferences,
+        UndoManager undoManager
+    ) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
         this.undoManager = undoManager;
 
-        this.executable.bind(ActionHelper.needsEntriesSelected(1, stateManager)
-                                         .and(ActionHelper.isAnyFieldSetForSelectedEntry(FetchAndMergeEntry.SUPPORTED_FIELDS, stateManager)));
+        this.executable.bind(
+            ActionHelper.needsEntriesSelected(1, stateManager).and(
+                ActionHelper.isAnyFieldSetForSelectedEntry(
+                    FetchAndMergeEntry.SUPPORTED_FIELDS,
+                    stateManager
+                )
+            )
+        );
     }
 
     @Override
@@ -44,11 +51,27 @@ public class MergeWithFetchedEntryAction extends SimpleCommand {
 
         if (stateManager.getSelectedEntries().size() != 1) {
             dialogService.showInformationDialogAndWait(
-                    Localization.lang("Merge entry with %0 information", new OrFields(StandardField.DOI, StandardField.ISBN, StandardField.EPRINT).getDisplayName()),
-                    Localization.lang("This operation requires exactly one item to be selected."));
+                Localization.lang(
+                    "Merge entry with %0 information",
+                    new OrFields(
+                        StandardField.DOI,
+                        StandardField.ISBN,
+                        StandardField.EPRINT
+                    ).getDisplayName()
+                ),
+                Localization.lang(
+                    "This operation requires exactly one item to be selected."
+                )
+            );
         }
 
         BibEntry originalEntry = stateManager.getSelectedEntries().getFirst();
-        new FetchAndMergeEntry(stateManager.getActiveDatabase().get(), taskExecutor, preferences, dialogService, undoManager).fetchAndMerge(originalEntry);
+        new FetchAndMergeEntry(
+            stateManager.getActiveDatabase().get(),
+            taskExecutor,
+            preferences,
+            dialogService,
+            undoManager
+        ).fetchAndMerge(originalEntry);
     }
 }

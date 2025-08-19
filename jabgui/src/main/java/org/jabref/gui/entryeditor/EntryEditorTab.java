@@ -1,16 +1,16 @@
 package org.jabref.gui.entryeditor;
 
 import javafx.scene.control.Tab;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class EntryEditorTab extends Tab {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntryEditorTab.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        EntryEditorTab.class
+    );
 
     protected BibEntry currentEntry;
 
@@ -41,11 +41,20 @@ public abstract class EntryEditorTab extends Tab {
      * Notifies the tab that it got focus and should display the given entry.
      */
     public void notifyAboutFocus(BibEntry entry) {
-        if (!entry.equals(currentEntry) || !entry.getType().equals(currentEntryType)) {
+        if (
+            !entry.equals(currentEntry)
+            || !entry.getType().equals(currentEntryType)
+        ) {
             // TODO: Shouldn't "bindToEntry" called when changing the entry?
-            LOGGER.trace("Tab got focus with different entry (or entry type) {}", entry);
+            LOGGER.trace(
+                "Tab got focus with different entry (or entry type) {}",
+                entry
+            );
             LOGGER.trace("Different entry: {}", entry.equals(currentEntry));
-            LOGGER.trace("Different entry type: {}", !entry.getType().equals(currentEntryType));
+            LOGGER.trace(
+                "Different entry type: {}",
+                !entry.getType().equals(currentEntryType)
+            );
             currentEntry = entry;
             currentEntryType = entry.getType();
             bindToEntry(entry);

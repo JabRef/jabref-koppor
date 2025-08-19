@@ -19,7 +19,10 @@ public class NewDatabaseAction extends SimpleCommand {
      * @param tabContainer       the ui container for libraries
      * @param preferences the preferencesService of JabRef
      */
-    public NewDatabaseAction(LibraryTabContainer tabContainer, CliPreferences preferences) {
+    public NewDatabaseAction(
+        LibraryTabContainer tabContainer,
+        CliPreferences preferences
+    ) {
         this.tabContainer = tabContainer;
         this.preferences = preferences;
     }
@@ -27,7 +30,9 @@ public class NewDatabaseAction extends SimpleCommand {
     @Override
     public void execute() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
-        bibDatabaseContext.setMode(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
+        bibDatabaseContext.setMode(
+            preferences.getLibraryPreferences().getDefaultBibDatabaseMode()
+        );
         tabContainer.addTab(bibDatabaseContext, true);
     }
 }

@@ -1,15 +1,15 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 import org.apache.lucene.queryparser.flexible.standard.parser.StandardSyntaxParser;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer> {
+class DBLPQueryTransformerTest
+    extends InfixTransformerTest<DBLPQueryTransformer> {
 
     @Override
     public DBLPQueryTransformer getTransformer() {
@@ -40,9 +40,14 @@ class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer
     @Test
     public void convertYearField() throws QueryNodeParseException {
         String queryString = "year:2015";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(
+            queryString,
+            AbstractQueryTransformer.NO_EXPLICIT_FIELD
+        );
         DBLPQueryTransformer transformer = getTransformer();
-        Optional<String> searchQuery = transformer.transformLuceneQuery(luceneQuery);
+        Optional<String> searchQuery = transformer.transformLuceneQuery(
+            luceneQuery
+        );
         assertEquals(Optional.empty(), searchQuery);
         assertEquals(Optional.of(2015), transformer.getStartYear());
         assertEquals(Optional.of(2015), transformer.getEndYear());
@@ -52,9 +57,14 @@ class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer
     @Test
     public void convertYearRangeField() throws QueryNodeParseException {
         String queryString = "year-range:2012-2015";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(
+            queryString,
+            AbstractQueryTransformer.NO_EXPLICIT_FIELD
+        );
         DBLPQueryTransformer transformer = getTransformer();
-        Optional<String> searchQuery = transformer.transformLuceneQuery(luceneQuery);
+        Optional<String> searchQuery = transformer.transformLuceneQuery(
+            luceneQuery
+        );
         assertEquals(Optional.empty(), searchQuery);
         assertEquals(Optional.of(2012), transformer.getStartYear());
         assertEquals(Optional.of(2015), transformer.getEndYear());

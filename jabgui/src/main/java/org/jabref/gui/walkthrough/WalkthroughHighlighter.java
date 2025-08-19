@@ -2,25 +2,24 @@ package org.jabref.gui.walkthrough;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Window;
-
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
 import org.jabref.gui.walkthrough.declarative.effect.HighlightEffect;
 import org.jabref.gui.walkthrough.declarative.effect.WalkthroughEffect;
 import org.jabref.gui.walkthrough.effects.FullScreenDarken;
 import org.jabref.gui.walkthrough.effects.Ping;
 import org.jabref.gui.walkthrough.effects.Spotlight;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class WalkthroughHighlighter {
+
     private final Map<Window, Spotlight> backdropHighlights = new HashMap<>();
     private final Map<Window, Ping> pulseIndicators = new HashMap<>();
-    private final Map<Window, FullScreenDarken> fullScreenDarkens = new HashMap<>();
+    private final Map<Window, FullScreenDarken> fullScreenDarkens =
+        new HashMap<>();
 
     private final Map<Window, EffectState> currentEffects = new HashMap<>();
     private @Nullable Runnable onBackgroundClickHandler;
@@ -32,8 +31,16 @@ public class WalkthroughHighlighter {
     /// @param scene          The primary scene to apply the highlight to.
     /// @param fallbackTarget The fallback target node to use if no highlight
     ///                       configuration is provided.
-    public void applyHighlight(@Nullable WalkthroughEffect config, @NonNull Scene scene, @Nullable Node fallbackTarget) {
-        Map<Window, EffectState> newEffects = computeNewEffects(config, scene, fallbackTarget);
+    public void applyHighlight(
+        @Nullable WalkthroughEffect config,
+        @NonNull Scene scene,
+        @Nullable Node fallbackTarget
+    ) {
+        Map<Window, EffectState> newEffects = computeNewEffects(
+            config,
+            scene,
+            fallbackTarget
+        );
 
         Map<Window, EffectState> toUpdate = new HashMap<>();
         Map<Window, EffectState> toCreate = new HashMap<>();
@@ -45,7 +52,9 @@ public class WalkthroughHighlighter {
 
         toUpdate.forEach(this::updateExistingEffect);
 
-        toCreate.forEach((window, newState) -> applyEffect(window, newState.effect, newState.targetNode));
+        toCreate.forEach((window, newState) ->
+            applyEffect(window, newState.effect, newState.targetNode)
+        );
 
         currentEffects.clear();
         currentEffects.putAll(newEffects);
@@ -93,43 +102,73 @@ public class WalkthroughHighlighter {
         currentEffects.clear();
     }
 
-    private Map<Window, EffectState> computeNewEffects(@Nullable WalkthroughEffect config, @NonNull Scene fallbackWindow, @Nullable Node fallbackTarget) {
+    private Map<Window, EffectState> computeNewEffects(
+        @Nullable WalkthroughEffect config,
+        @NonNull Scene fallbackWindow,
+        @Nullable Node fallbackTarget
+    ) {
         Map<Window, EffectState> newEffects = new HashMap<>();
 
         if (config == null) {
             if (fallbackTarget != null) {
-                newEffects.put(fallbackWindow.getWindow(),
-                        new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget));
+                newEffects.put(
+                    fallbackWindow.getWindow(),
+                    new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget)
+                );
             }
             return newEffects;
         }
 
-        if (config.windowEffects().isEmpty() && config.fallbackEffect().isPresent()) {
-            newEffects.put(fallbackWindow.getWindow(),
-                    new EffectState(config.fallbackEffect().get(), fallbackTarget));
+        if (
+            config.windowEffects().isEmpty()
+            && config.fallbackEffect().isPresent()
+        ) {
+            newEffects.put(
+                fallbackWindow.getWindow(),
+                new EffectState(config.fallbackEffect().get(), fallbackTarget)
+            );
             return newEffects;
         }
 
-        config.windowEffects().forEach(effect -> {
-            Window window = effect.windowResolver().flatMap(WindowResolver::resolve).orElse(fallbackWindow.getWindow());
-            Node targetNode = effect
+        config
+            .windowEffects()
+            .forEach(effect -> {
+                Window window = effect
+                    .windowResolver()
+                    .flatMap(WindowResolver::resolve)
+                    .orElse(fallbackWindow.getWindow());
+                Node targetNode = effect
                     .targetNodeResolver()
-                    .flatMap(resolver -> resolver.resolve(window.getScene() != null ? window.getScene() : fallbackWindow))
+                    .flatMap(resolver ->
+                        resolver.resolve(
+                            window.getScene() != null
+                                ? window.getScene()
+                                : fallbackWindow
+                        )
+                    )
                     .orElse(fallbackTarget);
 
-            if (targetNode != null || effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN) {
-                newEffects.put(window, new EffectState(effect.effect(), targetNode));
-            }
-        });
+                if (
+                    targetNode != null
+                    || effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN
+                ) {
+                    newEffects.put(
+                        window,
+                        new EffectState(effect.effect(), targetNode)
+                    );
+                }
+            });
 
         return newEffects;
     }
 
-    private void diffEffects(Map<Window, EffectState> current,
-                             Map<Window, EffectState> desired,
-                             Map<Window, EffectState> toUpdate,
-                             Map<Window, EffectState> toCreate,
-                             Map<Window, EffectState> toRemove) {
+    private void diffEffects(
+        Map<Window, EffectState> current,
+        Map<Window, EffectState> desired,
+        Map<Window, EffectState> toUpdate,
+        Map<Window, EffectState> toCreate,
+        Map<Window, EffectState> toRemove
+    ) {
         current.forEach((window, currentState) -> {
             EffectState desiredState = desired.get(window);
             if (desiredState == null) {
@@ -149,7 +188,10 @@ public class WalkthroughHighlighter {
         });
     }
 
-    private void updateExistingEffect(@NonNull Window window, @NonNull EffectState newState) {
+    private void updateExistingEffect(
+        @NonNull Window window,
+        @NonNull EffectState newState
+    ) {
         switch (newState.effect) {
             case SPOT_LIGHT -> {
                 Spotlight backdrop = backdropHighlights.get(window);
@@ -170,7 +212,11 @@ public class WalkthroughHighlighter {
         }
     }
 
-    private void applyEffect(@NonNull Window window, @NonNull HighlightEffect effect, @Nullable Node targetNode) {
+    private void applyEffect(
+        @NonNull Window window,
+        @NonNull HighlightEffect effect,
+        @Nullable Node targetNode
+    ) {
         switch (effect) {
             case SPOT_LIGHT -> {
                 if (targetNode != null) {
@@ -187,14 +233,20 @@ public class WalkthroughHighlighter {
         }
     }
 
-    private void applyBackdropHighlight(@NonNull Window window, @NonNull Node targetNode) {
+    private void applyBackdropHighlight(
+        @NonNull Window window,
+        @NonNull Node targetNode
+    ) {
         WalkthroughPane pane = WalkthroughPane.getInstance(window);
         Spotlight backdrop = getOrCreateBackdropHighlight(window, pane);
         backdrop.setOnClick(onBackgroundClickHandler);
         backdrop.attach(targetNode);
     }
 
-    private void applyPulseAnimation(@NonNull Window window, @NonNull Node targetNode) {
+    private void applyPulseAnimation(
+        @NonNull Window window,
+        @NonNull Node targetNode
+    ) {
         WalkthroughPane pane = WalkthroughPane.getInstance(window);
         Ping ping = getOrCreatePulseIndicator(window, pane);
         ping.attach(targetNode);
@@ -207,19 +259,35 @@ public class WalkthroughHighlighter {
         fullDarken.attach();
     }
 
-    private Spotlight getOrCreateBackdropHighlight(@NonNull Window window, @NonNull WalkthroughPane pane) {
-        return backdropHighlights.computeIfAbsent(window, _ -> new Spotlight(pane));
+    private Spotlight getOrCreateBackdropHighlight(
+        @NonNull Window window,
+        @NonNull WalkthroughPane pane
+    ) {
+        return backdropHighlights.computeIfAbsent(window, _ ->
+            new Spotlight(pane)
+        );
     }
 
-    private Ping getOrCreatePulseIndicator(@NonNull Window window, @NonNull WalkthroughPane pane) {
+    private Ping getOrCreatePulseIndicator(
+        @NonNull Window window,
+        @NonNull WalkthroughPane pane
+    ) {
         return pulseIndicators.computeIfAbsent(window, _ -> new Ping(pane));
     }
 
-    private FullScreenDarken getOrCreateFullScreenDarken(@NonNull Window window, @NonNull WalkthroughPane pane) {
-        return fullScreenDarkens.computeIfAbsent(window, _ -> new FullScreenDarken(pane));
+    private FullScreenDarken getOrCreateFullScreenDarken(
+        @NonNull Window window,
+        @NonNull WalkthroughPane pane
+    ) {
+        return fullScreenDarkens.computeIfAbsent(window, _ ->
+            new FullScreenDarken(pane)
+        );
     }
 
-    private record EffectState(HighlightEffect effect, @Nullable Node targetNode) {
+    private record EffectState(
+        HighlightEffect effect,
+        @Nullable Node targetNode
+    ) {
         boolean canTransitionTo(EffectState other) {
             return effect == other.effect;
         }

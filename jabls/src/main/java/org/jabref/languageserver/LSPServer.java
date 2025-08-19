@@ -1,10 +1,6 @@
 package org.jabref.languageserver;
 
 import java.util.concurrent.CompletableFuture;
-
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.preferences.CliPreferences;
-
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.MessageParams;
@@ -17,24 +13,36 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.jabref.logic.preferences.CliPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LSPServer implements LanguageServer, LanguageClientAware {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LSPServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LSPServer.class
+    );
 
     private LanguageClient client;
     private BibtexWorkspaceService workspaceService;
     private BibtexTextDocumentService textDocumentService;
 
-    public LSPServer(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository) {
+    public LSPServer(
+        CliPreferences cliPreferences,
+        JournalAbbreviationRepository abbreviationRepository
+    ) {
         this.workspaceService = new BibtexWorkspaceService();
-        this.textDocumentService = new BibtexTextDocumentService(cliPreferences, abbreviationRepository);
+        this.textDocumentService = new BibtexTextDocumentService(
+            cliPreferences,
+            abbreviationRepository
+        );
     }
 
     @Override
-    public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+    public CompletableFuture<InitializeResult> initialize(
+        InitializeParams params
+    ) {
         ServerCapabilities capabilities = new ServerCapabilities();
 
         TextDocumentSyncOptions syncOptions = new TextDocumentSyncOptions();
@@ -44,7 +52,9 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
 
         capabilities.setTextDocumentSync(syncOptions);
 
-        return CompletableFuture.completedFuture(new InitializeResult(capabilities));
+        return CompletableFuture.completedFuture(
+            new InitializeResult(capabilities)
+        );
     }
 
     @Override
@@ -56,8 +66,7 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
     /// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
     /// we have to decide how to implement this so jabls gets stopped only when started before by a lsp client
     @Override
-    public void exit() {
-    }
+    public void exit() {}
 
     @Override
     public TextDocumentService getTextDocumentService() {
@@ -74,6 +83,8 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
         this.client = client;
         workspaceService.setClient(client);
         textDocumentService.setClient(client);
-        client.logMessage(new MessageParams(MessageType.Warning, "BibtexLSPServer connected."));
+        client.logMessage(
+            new MessageParams(MessageType.Warning, "BibtexLSPServer connected.")
+        );
     }
 }

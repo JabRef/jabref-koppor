@@ -1,15 +1,5 @@
 package org.jabref.gui.preferences.externalfiletypes;
 
-import javafx.collections.ObservableList;
-
-import org.jabref.gui.DialogService;
-import org.jabref.gui.frame.ExternalApplicationsPreferences;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Spy;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,20 +8,39 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
+import javafx.collections.ObservableList;
+import org.jabref.gui.DialogService;
+import org.jabref.gui.frame.ExternalApplicationsPreferences;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Spy;
+
 public class ExternalFileTypesTabViewModelTest {
 
-    private ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+    private ExternalApplicationsPreferences externalApplicationsPreferences =
+        mock(ExternalApplicationsPreferences.class);
     private DialogService dialogService = mock(DialogService.class);
-    private ExternalFileTypeItemViewModel externalFileTypeItemViewModel = new ExternalFileTypeItemViewModel();
+    private ExternalFileTypeItemViewModel externalFileTypeItemViewModel =
+        new ExternalFileTypeItemViewModel();
 
     @Spy
-    private ExternalFileTypesTabViewModel externalFileTypesTabViewModel = spy(new ExternalFileTypesTabViewModel(externalApplicationsPreferences, dialogService));
+    private ExternalFileTypesTabViewModel externalFileTypesTabViewModel = spy(
+        new ExternalFileTypesTabViewModel(
+            externalApplicationsPreferences,
+            dialogService
+        )
+    );
 
     @BeforeEach
     void setUp() {
         externalFileTypeItemViewModel.nameProperty().set("Excel 2007");
         externalFileTypeItemViewModel.extensionProperty().set("xlsx");
-        externalFileTypeItemViewModel.mimetypeProperty().set("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        externalFileTypeItemViewModel
+            .mimetypeProperty()
+            .set(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
         externalFileTypeItemViewModel.applicationProperty().set("oocalc");
     }
 
@@ -40,42 +49,75 @@ public class ExternalFileTypesTabViewModelTest {
     }
 
     public void viewModelClone(ExternalFileTypeItemViewModel updatedModel) {
-        updatedModel.nameProperty().set(externalFileTypeItemViewModel.getName());
-        updatedModel.extensionProperty().set(externalFileTypeItemViewModel.extensionProperty().get());
-        updatedModel.mimetypeProperty().set(externalFileTypeItemViewModel.mimetypeProperty().get());
-        updatedModel.applicationProperty().set(externalFileTypeItemViewModel.applicationProperty().get());
+        updatedModel
+            .nameProperty()
+            .set(externalFileTypeItemViewModel.getName());
+        updatedModel
+            .extensionProperty()
+            .set(externalFileTypeItemViewModel.extensionProperty().get());
+        updatedModel
+            .mimetypeProperty()
+            .set(externalFileTypeItemViewModel.mimetypeProperty().get());
+        updatedModel
+            .applicationProperty()
+            .set(externalFileTypeItemViewModel.applicationProperty().get());
     }
 
     public boolean viewModelIsSameValue(ExternalFileTypeItemViewModel item) {
-        return !(!item.getName().equals(externalFileTypeItemViewModel.getName())
-                || !item.extensionProperty().get().equals(externalFileTypeItemViewModel.extensionProperty().get())
-                || !item.mimetypeProperty().get().equals(externalFileTypeItemViewModel.mimetypeProperty().get())
-                || !item.applicationProperty().get().equals(externalFileTypeItemViewModel.applicationProperty().get()));
+        return !(
+            !item.getName().equals(externalFileTypeItemViewModel.getName())
+            || !item
+                .extensionProperty()
+                .get()
+                .equals(externalFileTypeItemViewModel.extensionProperty().get())
+            || !item
+                .mimetypeProperty()
+                .get()
+                .equals(externalFileTypeItemViewModel.mimetypeProperty().get())
+            || !item
+                .applicationProperty()
+                .get()
+                .equals(
+                    externalFileTypeItemViewModel.applicationProperty().get()
+                )
+        );
     }
 
     @Test
     void whenExternalFileTypeItemViewModelWithNonEmptyStringValueThenisValidExternalFileTypeReturnTrue() {
-        assertTrue(externalFileTypesTabViewModel.isValidExternalFileType(externalFileTypeItemViewModel));
+        assertTrue(
+            externalFileTypesTabViewModel.isValidExternalFileType(
+                externalFileTypeItemViewModel
+            )
+        );
     }
 
     @Test
     void whenExternalFileTypeItemViewModelWithEmptyNameThenisValidExternalFileTypeReturnFalse() {
         this.setupViewModelWithoutName();
-        assertFalse(externalFileTypesTabViewModel.isValidExternalFileType(externalFileTypeItemViewModel));
+        assertFalse(
+            externalFileTypesTabViewModel.isValidExternalFileType(
+                externalFileTypeItemViewModel
+            )
+        );
     }
 
     @Test
     void WhenExternalFileTypeItemViewModelIsValidThenAddNewTypeIsSuccessful() {
-        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
+        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor =
+            ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(mocked -> {
             ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
             this.viewModelClone(capturedItem);
             return null;
-        }).when(externalFileTypesTabViewModel).showEditDialog(itemCaptor.capture(), any());
+        })
+            .when(externalFileTypesTabViewModel)
+            .showEditDialog(itemCaptor.capture(), any());
 
         externalFileTypesTabViewModel.addNewType();
 
-        ObservableList<ExternalFileTypeItemViewModel> actualFileTypes = externalFileTypesTabViewModel.getFileTypes();
+        ObservableList<ExternalFileTypeItemViewModel> actualFileTypes =
+            externalFileTypesTabViewModel.getFileTypes();
         assertEquals(1, actualFileTypes.size());
         assertTrue(viewModelIsSameValue(actualFileTypes.getFirst()));
     }
@@ -83,16 +125,20 @@ public class ExternalFileTypesTabViewModelTest {
     @Test
     void WhenExternalFileTypeItemViewModelMissNameThenAddNewTypeIsFailed() {
         setupViewModelWithoutName();
-        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
+        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor =
+            ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(mocked -> {
             ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
             viewModelClone(capturedItem);
             return null;
-        }).when(externalFileTypesTabViewModel).showEditDialog(itemCaptor.capture(), any());
+        })
+            .when(externalFileTypesTabViewModel)
+            .showEditDialog(itemCaptor.capture(), any());
 
         externalFileTypesTabViewModel.addNewType();
 
-        ObservableList<ExternalFileTypeItemViewModel> emptyFileTypes = externalFileTypesTabViewModel.getFileTypes();
+        ObservableList<ExternalFileTypeItemViewModel> emptyFileTypes =
+            externalFileTypesTabViewModel.getFileTypes();
         assertEquals(0, emptyFileTypes.size());
     }
 }

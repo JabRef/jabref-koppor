@@ -1,14 +1,15 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jabref.architecture.AllowedToUseApacheCommonsLang3;
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 @AllowedToUseApacheCommonsLang3("There is no equivalent in Google's Guava")
-public class HtmlToUnicodeFormatter extends Formatter implements LayoutFormatter {
+public class HtmlToUnicodeFormatter
+    extends Formatter
+    implements LayoutFormatter {
 
     @Override
     public String getName() {
@@ -33,6 +34,9 @@ public class HtmlToUnicodeFormatter extends Formatter implements LayoutFormatter
     @Override
     public String format(String fieldText) {
         // StringEscapeUtils converts characters and regex kills tags
-        return StringEscapeUtils.unescapeHtml4(fieldText).replaceAll("<[^>]*>", "");
+        return StringEscapeUtils.unescapeHtml4(fieldText).replaceAll(
+            "<[^>]*>",
+            ""
+        );
     }
 }

@@ -1,11 +1,11 @@
 package org.jabref.gui.mergeentries.threewaymerge.cell;
 
 import java.util.Objects;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.actions.SimpleCommand;
 
 public class CopyFieldValueCommand extends SimpleCommand {
+
     private final String fieldValue;
     private final ClipBoardManager clipBoardManager;
 

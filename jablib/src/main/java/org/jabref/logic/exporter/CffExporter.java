@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.Author;
@@ -26,43 +25,73 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 public class CffExporter extends Exporter {
+
     // Fields that are taken 1:1 from BibTeX to CFF
     public static final List<String> UNMAPPED_FIELDS = List.of(
-            "abbreviation", "collection-doi", "collection-title", "collection-type", "commit", "copyright",
-            "data-type", "database", "date-accessed", "date-downloaded", "date-published", "department", "end",
-            "entry", "filename", "format", "issue-date", "issue-title", "license-url", "loc-end", "loc-start",
-            "medium", "nihmsid", "number-volumes", "patent-states", "pmcid", "repository-artifact", "repository-code",
-            "scope", "section", "start", "term", "thesis-type", "volume-title", "year-original"
+        "abbreviation",
+        "collection-doi",
+        "collection-title",
+        "collection-type",
+        "commit",
+        "copyright",
+        "data-type",
+        "database",
+        "date-accessed",
+        "date-downloaded",
+        "date-published",
+        "department",
+        "end",
+        "entry",
+        "filename",
+        "format",
+        "issue-date",
+        "issue-title",
+        "license-url",
+        "loc-end",
+        "loc-start",
+        "medium",
+        "nihmsid",
+        "number-volumes",
+        "patent-states",
+        "pmcid",
+        "repository-artifact",
+        "repository-code",
+        "scope",
+        "section",
+        "start",
+        "term",
+        "thesis-type",
+        "volume-title",
+        "year-original"
     );
 
     public static final Map<Field, String> FIELDS_MAP = Map.ofEntries(
-            Map.entry(StandardField.ABSTRACT, "abstract"),
-            Map.entry(StandardField.DATE, "date-released"),
-            Map.entry(StandardField.DOI, "doi"),
-            Map.entry(StandardField.KEYWORDS, "keywords"),
-            Map.entry(BiblatexSoftwareField.LICENSE, "license"),
-            Map.entry(StandardField.COMMENT, "message"),
-            Map.entry(BiblatexSoftwareField.REPOSITORY, "repository"),
-            Map.entry(StandardField.TITLE, "title"),
-            Map.entry(StandardField.URL, "url"),
-            Map.entry(StandardField.VERSION, "version"),
-            Map.entry(StandardField.EDITION, "edition"),
-            Map.entry(StandardField.ISBN, "isbn"),
-            Map.entry(StandardField.ISSN, "issn"),
-            Map.entry(StandardField.ISSUE, "issue"),
-            Map.entry(StandardField.JOURNAL, "journal"),
-            Map.entry(StandardField.MONTH, "month"),
-            Map.entry(StandardField.NOTE, "notes"),
-            Map.entry(StandardField.NUMBER, "number"),
-            Map.entry(StandardField.PAGES, "pages"),
-            Map.entry(StandardField.PUBSTATE, "status"),
-            Map.entry(StandardField.VOLUME, "volume"),
-            Map.entry(StandardField.YEAR, "year")
+        Map.entry(StandardField.ABSTRACT, "abstract"),
+        Map.entry(StandardField.DATE, "date-released"),
+        Map.entry(StandardField.DOI, "doi"),
+        Map.entry(StandardField.KEYWORDS, "keywords"),
+        Map.entry(BiblatexSoftwareField.LICENSE, "license"),
+        Map.entry(StandardField.COMMENT, "message"),
+        Map.entry(BiblatexSoftwareField.REPOSITORY, "repository"),
+        Map.entry(StandardField.TITLE, "title"),
+        Map.entry(StandardField.URL, "url"),
+        Map.entry(StandardField.VERSION, "version"),
+        Map.entry(StandardField.EDITION, "edition"),
+        Map.entry(StandardField.ISBN, "isbn"),
+        Map.entry(StandardField.ISSN, "issn"),
+        Map.entry(StandardField.ISSUE, "issue"),
+        Map.entry(StandardField.JOURNAL, "journal"),
+        Map.entry(StandardField.MONTH, "month"),
+        Map.entry(StandardField.NOTE, "notes"),
+        Map.entry(StandardField.NUMBER, "number"),
+        Map.entry(StandardField.PAGES, "pages"),
+        Map.entry(StandardField.PUBSTATE, "status"),
+        Map.entry(StandardField.VOLUME, "volume"),
+        Map.entry(StandardField.YEAR, "year")
     );
 
     public static final Map<EntryType, String> TYPES_MAP = Map.ofEntries(
@@ -84,7 +113,11 @@ public class CffExporter extends Exporter {
     }
 
     @Override
-    public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws SaveException {
+    public void export(
+        BibDatabaseContext databaseContext,
+        Path file,
+        List<BibEntry> entries
+    ) throws SaveException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(file);
         Objects.requireNonNull(entries);
@@ -110,7 +143,10 @@ public class CffExporter extends Exporter {
         boolean mainIsDummy = false;
         int countOfSoftwareAndDataSetEntries = 0;
         for (BibEntry entry : entriesToTransform) {
-            if (entry.getType() == StandardEntryType.Software || entry.getType() == StandardEntryType.Dataset) {
+            if (
+                entry.getType() == StandardEntryType.Software
+                || entry.getType() == StandardEntryType.Dataset
+            ) {
                 main = entry;
                 countOfSoftwareAndDataSetEntries++;
             }
@@ -129,19 +165,31 @@ public class CffExporter extends Exporter {
 
         // Preferred citation
         if (main.hasField(StandardField.CITES)) {
-            String citeKey = main.getField(StandardField.CITES).orElse("").split(",")[0];
-            List<BibEntry> citedEntries = databaseContext.getDatabase().getEntriesByCitationKey(citeKey);
+            String citeKey = main
+                .getField(StandardField.CITES)
+                .orElse("")
+                .split(",")[0];
+            List<BibEntry> citedEntries = databaseContext
+                .getDatabase()
+                .getEntriesByCitationKey(citeKey);
             entriesToTransform.removeAll(citedEntries);
             if (!citedEntries.isEmpty()) {
                 BibEntry citedEntry = citedEntries.getFirst();
-                cffData.put("preferred-citation", transformEntry(citedEntry, false, false));
+                cffData.put(
+                    "preferred-citation",
+                    transformEntry(citedEntry, false, false)
+                );
             }
         }
 
         // References
         List<Map<String, Object>> related = new ArrayList<>();
         if (main.hasField(StandardField.RELATED)) {
-            main.getEntryLinkList(StandardField.RELATED, databaseContext.getDatabase())
+            main
+                .getEntryLinkList(
+                    StandardField.RELATED,
+                    databaseContext.getDatabase()
+                )
                 .stream()
                 .map(ParsedEntryLink::getLinkedEntry)
                 .filter(Optional::isPresent)
@@ -160,14 +208,23 @@ public class CffExporter extends Exporter {
             cffData.put("references", related);
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+        try (
+            BufferedWriter writer = Files.newBufferedWriter(
+                file,
+                StandardCharsets.UTF_8
+            )
+        ) {
             yaml.dump(cffData, writer);
         } catch (IOException ex) {
             throw new SaveException(ex);
         }
     }
 
-    private Map<String, Object> transformEntry(BibEntry entry, boolean main, boolean dummy) {
+    private Map<String, Object> transformEntry(
+        BibEntry entry,
+        boolean main,
+        boolean dummy
+    ) {
         Map<String, Object> cffData = new LinkedHashMap<>();
         Map<Field, String> fields = new HashMap<>(entry.getFieldMap());
 
@@ -176,26 +233,35 @@ public class CffExporter extends Exporter {
             cffData.put("cff-version", "1.2.0");
 
             // Mandatory message field
-            String message = fields.getOrDefault(StandardField.COMMENT,
-                    "If you use this software, please cite it using the metadata from this file.");
+            String message = fields.getOrDefault(
+                StandardField.COMMENT,
+                "If you use this software, please cite it using the metadata from this file."
+            );
             cffData.put("message", message);
             fields.remove(StandardField.COMMENT);
         }
 
         // Mandatory title field
-        String title = fields.getOrDefault(StandardField.TITLE, "No title specified.");
+        String title = fields.getOrDefault(
+            StandardField.TITLE,
+            "No title specified."
+        );
         cffData.put("title", title);
         fields.remove(StandardField.TITLE);
 
         // Mandatory authors field
-        List<Author> authors = AuthorList.parse(fields.getOrDefault(StandardField.AUTHOR, ""))
-                                         .getAuthors();
+        List<Author> authors = AuthorList.parse(
+            fields.getOrDefault(StandardField.AUTHOR, "")
+        ).getAuthors();
         parseAuthors(cffData, authors);
         fields.remove(StandardField.AUTHOR);
 
         // Type
         if (!dummy) {
-            cffData.put("type", TYPES_MAP.getOrDefault(entry.getType(), "misc"));
+            cffData.put(
+                "type",
+                TYPES_MAP.getOrDefault(entry.getType(), "misc")
+            );
         }
 
         // Keywords
@@ -244,7 +310,10 @@ public class CffExporter extends Exporter {
             }
             authorsList.add(authorMap);
         });
-        data.put("authors", authorsList.isEmpty() ? List.of(Map.of("name", "/")) : authorsList);
+        data.put(
+            "authors",
+            authorsList.isEmpty() ? List.of(Map.of("name", "/")) : authorsList
+        );
     }
 
     private void parseDate(Map<String, Object> data, String date) {
@@ -254,12 +323,17 @@ public class CffExporter extends Exporter {
             return;
         }
         Date parsedDate = parsedDateOpt.get();
-        if (parsedDate.getYear().isPresent() && parsedDate.getMonth().isPresent() && parsedDate.getDay().isPresent()) {
+        if (
+            parsedDate.getYear().isPresent()
+            && parsedDate.getMonth().isPresent()
+            && parsedDate.getDay().isPresent()
+        ) {
             data.put("date-released", parsedDate.getNormalized());
             return;
         }
-        parsedDate.getMonth().ifPresent(month -> data.put("month", month.getNumber()));
+        parsedDate
+            .getMonth()
+            .ifPresent(month -> data.put("month", month.getNumber()));
         parsedDate.getYear().ifPresent(year -> data.put("year", year));
     }
 }
-

@@ -1,5 +1,7 @@
 package org.jabref.logic.importer;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,13 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Objects;
-
 import org.jabref.logic.util.FileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseModeDetection;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +26,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Importer implements Comparable<Importer> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Importer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        Importer.class
+    );
 
     /**
      * Check whether the source is in the correct format for this importer.
@@ -39,7 +39,8 @@ public abstract class Importer implements Comparable<Importer> {
      * Thus, the correct behaviour is to return false if it is certain that the file is not of the suitable type, and
      * true otherwise. Returning true is the safe choice if not certain.
      */
-    public abstract boolean isRecognizedFormat(BufferedReader input) throws IOException;
+    public abstract boolean isRecognizedFormat(BufferedReader input)
+        throws IOException;
 
     /**
      * Check whether the source is in the correct format for this importer.
@@ -62,8 +63,10 @@ public abstract class Importer implements Comparable<Importer> {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public boolean isRecognizedFormat(String data) throws IOException {
-        try (Reader reader = Reader.of(data);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        try (
+            Reader reader = Reader.of(data);
+            BufferedReader bufferedReader = new BufferedReader(reader)
+        ) {
             return isRecognizedFormat(bufferedReader);
         }
     }
@@ -87,7 +90,8 @@ public abstract class Importer implements Comparable<Importer> {
      *
      * @param input the input to read from
      */
-    public abstract ParserResult importDatabase(BufferedReader input) throws IOException;
+    public abstract ParserResult importDatabase(BufferedReader input)
+        throws IOException;
 
     /**
      * Parse the database in the specified file.
@@ -95,25 +99,42 @@ public abstract class Importer implements Comparable<Importer> {
      * @param filePath the path to the file which should be imported
      */
     public ParserResult importDatabase(Path filePath) throws IOException {
-        try (InputStream inputStream = Files.newInputStream(filePath, StandardOpenOption.READ)) {
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        try (
+            InputStream inputStream = Files.newInputStream(
+                filePath,
+                StandardOpenOption.READ
+            )
+        ) {
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(
+                inputStream
+            );
 
             Charset charset = StandardCharsets.UTF_8;
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream, charset));
+            BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(bufferedInputStream, charset)
+            );
             ParserResult parserResult = importDatabase(bufferedReader);
             parserResult.getMetaData().setEncoding(charset);
             parserResult.setPath(filePath);
 
             // Make sure the mode is always set
             if (parserResult.getMetaData().getMode().isEmpty()) {
-                parserResult.getMetaData().setMode(BibDatabaseModeDetection.inferMode(parserResult.getDatabase()));
+                parserResult
+                    .getMetaData()
+                    .setMode(
+                        BibDatabaseModeDetection.inferMode(
+                            parserResult.getDatabase()
+                        )
+                    );
             }
             return parserResult;
         }
     }
 
-    protected static Charset getCharset(BufferedInputStream bufferedInputStream) {
+    protected static Charset getCharset(
+        BufferedInputStream bufferedInputStream
+    ) {
         Charset defaultCharSet = StandardCharsets.UTF_8;
 
         // This reads the first 8000 bytes only, thus the default size of 8192 of the bufferedInputStream is OK.
@@ -128,7 +149,14 @@ public abstract class Importer implements Comparable<Importer> {
             }
 
             // if we have utf8 with 100 confidence we assume that the file is in utf8, more likely
-            if (Arrays.stream(matches).anyMatch(charset -> "ASCII".equals(charset.getName()) || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
+            if (
+                Arrays.stream(matches).anyMatch(
+                    charset ->
+                        "ASCII".equals(charset.getName())
+                        || ("UTF-8".equals(charset.getName())
+                            && charset.getConfidence() == 100)
+                )
+            ) {
                 return defaultCharSet;
             }
 
@@ -152,26 +180,38 @@ public abstract class Importer implements Comparable<Importer> {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public ParserResult importDatabase(String data) throws IOException {
-        try (Reader reader = Reader.of(data);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        try (
+            Reader reader = Reader.of(data);
+            BufferedReader bufferedReader = new BufferedReader(reader)
+        ) {
             return importDatabase(bufferedReader);
         }
     }
 
     public static BufferedReader getReader(Path filePath) throws IOException {
-        InputStream stream = Files.newInputStream(filePath, StandardOpenOption.READ);
+        InputStream stream = Files.newInputStream(
+            filePath,
+            StandardOpenOption.READ
+        );
 
         if (FileUtil.isBibFile(filePath)) {
             return getReader(stream);
         }
 
-        return new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        return new BufferedReader(
+            new InputStreamReader(stream, StandardCharsets.UTF_8)
+        );
     }
 
     public static BufferedReader getReader(InputStream stream) {
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(stream);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(
+            stream
+        );
         Charset charset = getCharset(bufferedInputStream);
-        InputStreamReader reader = new InputStreamReader(bufferedInputStream, charset);
+        InputStreamReader reader = new InputStreamReader(
+            bufferedInputStream,
+            charset
+        );
         return new BufferedReader(reader);
     }
 

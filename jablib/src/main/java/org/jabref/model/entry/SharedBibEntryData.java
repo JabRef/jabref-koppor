@@ -41,9 +41,9 @@ public class SharedBibEntryData implements Comparable<SharedBibEntryData> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                          .add("sharedID", sharedID)
-                          .add("version", version)
-                          .toString();
+            .add("sharedID", sharedID)
+            .add("version", version)
+            .toString();
     }
 
     @Override

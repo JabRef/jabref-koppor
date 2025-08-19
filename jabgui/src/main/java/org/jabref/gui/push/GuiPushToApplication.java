@@ -9,12 +9,14 @@ import org.jabref.logic.push.PushToApplication;
 import org.jabref.logic.push.PushToApplicationPreferences;
 
 public interface GuiPushToApplication extends PushToApplication {
-
     /**
      * Gets a tooltip for the push operation.
      */
     default String getTooltip() {
-        return Localization.lang("Push entries to external application (%0)", getDisplayName());
+        return Localization.lang(
+            "Push entries to external application (%0)",
+            getDisplayName()
+        );
     }
 
     /**
@@ -25,10 +27,23 @@ public interface GuiPushToApplication extends PushToApplication {
     JabRefIcon getApplicationIcon();
 
     default Action getAction() {
-        return new GuiPushToApplicationAction(getDisplayName(), getApplicationIcon());
+        return new GuiPushToApplicationAction(
+            getDisplayName(),
+            getApplicationIcon()
+        );
     }
 
-    default GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
-            return new GuiPushToApplicationSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
+    default GuiPushToApplicationSettings getSettings(
+        PushToApplication application,
+        DialogService dialogService,
+        FilePreferences filePreferences,
+        PushToApplicationPreferences pushToApplicationPreferences
+    ) {
+        return new GuiPushToApplicationSettings(
+            application,
+            dialogService,
+            filePreferences,
+            pushToApplicationPreferences
+        );
     }
 }

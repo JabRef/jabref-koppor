@@ -4,7 +4,6 @@ import org.jabref.logic.cleanup.Formatter;
 import org.jabref.model.entry.BibEntry;
 
 public interface ParserFetcher {
-
     /**
      * Performs a cleanup of the fetched entry.
      * <p>

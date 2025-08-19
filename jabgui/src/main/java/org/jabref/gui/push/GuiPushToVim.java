@@ -12,14 +12,27 @@ public class GuiPushToVim extends PushToVim implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToVim(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToVim(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences preferences) {
-        return new GuiPushToVimSettings(application, dialogService, filePreferences, preferences);
+    public GuiPushToApplicationSettings getSettings(
+        PushToApplication application,
+        DialogService dialogService,
+        FilePreferences filePreferences,
+        PushToApplicationPreferences preferences
+    ) {
+        return new GuiPushToVimSettings(
+            application,
+            dialogService,
+            filePreferences,
+            preferences
+        );
     }
 
     @Override

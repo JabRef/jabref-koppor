@@ -11,5 +11,5 @@ public enum HighlightEffect {
     FULL_SCREEN_DARKEN,
 
     /// No highlight effect is applied.
-    NONE
+    NONE,
 }

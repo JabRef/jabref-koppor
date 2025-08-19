@@ -1,23 +1,24 @@
 package org.jabref.logic.bibtex.comparator;
 
-import java.util.List;
-
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibtexString;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibtexString;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 class BibStringDiffTest {
 
     private final BibDatabase originalDataBase = mock(BibDatabase.class);
     private final BibDatabase newDataBase = mock(BibDatabase.class);
-    private final BibStringDiff diff = new BibStringDiff(new BibtexString("name2", "content2"), new BibtexString("name2", "content3"));
+    private final BibStringDiff diff = new BibStringDiff(
+        new BibtexString("name2", "content2"),
+        new BibtexString("name2", "content3")
+    );
 
     @BeforeEach
     void setUp() {
@@ -27,23 +28,42 @@ class BibStringDiffTest {
 
     @Test
     void compareTest() {
-        when(originalDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content"), new BibtexString("name2", "content2")));
-        when(newDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content"), new BibtexString("name2", "content3")));
+        when(originalDataBase.getStringValues()).thenReturn(
+            List.of(
+                new BibtexString("name", "content"),
+                new BibtexString("name2", "content2")
+            )
+        );
+        when(newDataBase.getStringValues()).thenReturn(
+            List.of(
+                new BibtexString("name", "content"),
+                new BibtexString("name2", "content3")
+            )
+        );
 
-        List<BibStringDiff> result = BibStringDiff.compare(originalDataBase, newDataBase);
+        List<BibStringDiff> result = BibStringDiff.compare(
+            originalDataBase,
+            newDataBase
+        );
         assertEquals(List.of(diff), result);
     }
 
     @Test
     void equalTest() {
-        BibStringDiff other = new BibStringDiff(diff.getOriginalString(), diff.getNewString());
+        BibStringDiff other = new BibStringDiff(
+            diff.getOriginalString(),
+            diff.getNewString()
+        );
         assertEquals(diff, other);
         assertEquals(diff.hashCode(), other.hashCode());
     }
 
     @Test
     void notEqualTest() {
-        BibStringDiff other = new BibStringDiff(diff.getNewString(), diff.getOriginalString());
+        BibStringDiff other = new BibStringDiff(
+            diff.getNewString(),
+            diff.getOriginalString()
+        );
         assertNotEquals(diff, other);
         assertNotEquals(diff.hashCode(), other.hashCode());
     }
@@ -67,7 +87,10 @@ class BibStringDiffTest {
     @Test
     void getters() {
         BibtexString bsOne = new BibtexString("aKahle", "Kahle, Brewster");
-        BibtexString bsTwo = new BibtexString("iMIT", "Institute of Technology");
+        BibtexString bsTwo = new BibtexString(
+            "iMIT",
+            "Institute of Technology"
+        );
         BibStringDiff diff = new BibStringDiff(bsOne, bsTwo);
         assertEquals(diff.getOriginalString(), bsOne);
         assertEquals(diff.getNewString(), bsTwo);
@@ -78,45 +101,81 @@ class BibStringDiffTest {
         when(originalDataBase.hasNoStrings()).thenReturn(true);
         when(newDataBase.hasNoStrings()).thenReturn(true);
 
-        assertEquals(List.of(), BibStringDiff.compare(originalDataBase, newDataBase));
+        assertEquals(
+            List.of(),
+            BibStringDiff.compare(originalDataBase, newDataBase)
+        );
     }
 
     @Test
     void compareNameChange() {
-        when(originalDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content")));
-        when(newDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name2", "content")));
+        when(originalDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name", "content"))
+        );
+        when(newDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name2", "content"))
+        );
 
-        List<BibStringDiff> result = BibStringDiff.compare(originalDataBase, newDataBase);
-        BibStringDiff expectedDiff = new BibStringDiff(new BibtexString("name", "content"), new BibtexString("name2", "content"));
+        List<BibStringDiff> result = BibStringDiff.compare(
+            originalDataBase,
+            newDataBase
+        );
+        BibStringDiff expectedDiff = new BibStringDiff(
+            new BibtexString("name", "content"),
+            new BibtexString("name2", "content")
+        );
         assertEquals(List.of(expectedDiff), result);
     }
 
     @Test
     void compareNoDiff() {
-        when(originalDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content")));
-        when(newDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content")));
+        when(originalDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name", "content"))
+        );
+        when(newDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name", "content"))
+        );
 
-        List<BibStringDiff> result = BibStringDiff.compare(originalDataBase, newDataBase);
+        List<BibStringDiff> result = BibStringDiff.compare(
+            originalDataBase,
+            newDataBase
+        );
         assertEquals(List.of(), result);
     }
 
     @Test
     void compareRemovedString() {
-        when(originalDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content")));
+        when(originalDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name", "content"))
+        );
         when(newDataBase.getStringValues()).thenReturn(List.of());
 
-        List<BibStringDiff> result = BibStringDiff.compare(originalDataBase, newDataBase);
-        BibStringDiff expectedDiff = new BibStringDiff(new BibtexString("name", "content"), null);
+        List<BibStringDiff> result = BibStringDiff.compare(
+            originalDataBase,
+            newDataBase
+        );
+        BibStringDiff expectedDiff = new BibStringDiff(
+            new BibtexString("name", "content"),
+            null
+        );
         assertEquals(List.of(expectedDiff), result);
     }
 
     @Test
     void compareAddString() {
         when(originalDataBase.getStringValues()).thenReturn(List.of());
-        when(newDataBase.getStringValues()).thenReturn(List.of(new BibtexString("name", "content")));
+        when(newDataBase.getStringValues()).thenReturn(
+            List.of(new BibtexString("name", "content"))
+        );
 
-        List<BibStringDiff> result = BibStringDiff.compare(originalDataBase, newDataBase);
-        BibStringDiff expectedDiff = new BibStringDiff(null, new BibtexString("name", "content"));
+        List<BibStringDiff> result = BibStringDiff.compare(
+            originalDataBase,
+            newDataBase
+        );
+        BibStringDiff expectedDiff = new BibStringDiff(
+            null,
+            new BibtexString("name", "content")
+        );
         assertEquals(List.of(expectedDiff), result);
     }
 }

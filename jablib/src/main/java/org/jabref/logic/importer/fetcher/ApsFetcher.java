@@ -6,14 +6,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 import java.util.Optional;
-
+import kong.unirest.core.Unirest;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import kong.unirest.core.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ApsFetcher implements FulltextFetcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApsFetcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ApsFetcher.class
+    );
 
     // The actual API needs either an API key or a header. This is a workaround.
     private static final String DOI_URL = "https://www.doi.org/";
@@ -33,7 +33,9 @@ public class ApsFetcher implements FulltextFetcher {
     public Optional<URL> findFullText(BibEntry entry) throws IOException {
         Objects.requireNonNull(entry);
 
-        Optional<DOI> doi = entry.getField(StandardField.DOI).flatMap(DOI::parse);
+        Optional<DOI> doi = entry
+            .getField(StandardField.DOI)
+            .flatMap(DOI::parse);
 
         if (doi.isEmpty()) {
             return Optional.empty();

@@ -3,7 +3,6 @@ package org.jabref.logic.cleanup;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -26,9 +25,14 @@ public class CleanupPreferences {
         this(EnumSet.noneOf(CleanupStep.class), formatterCleanups);
     }
 
-    public CleanupPreferences(EnumSet<CleanupStep> activeJobs, FieldFormatterCleanups formatterCleanups) {
+    public CleanupPreferences(
+        EnumSet<CleanupStep> activeJobs,
+        FieldFormatterCleanups formatterCleanups
+    ) {
         this.activeJobs = FXCollections.observableSet(activeJobs);
-        this.fieldFormatterCleanups = new SimpleObjectProperty<>(formatterCleanups);
+        this.fieldFormatterCleanups = new SimpleObjectProperty<>(
+            formatterCleanups
+        );
     }
 
     public EnumSet<CleanupStep> getActiveJobs() {
@@ -64,11 +68,15 @@ public class CleanupPreferences {
         return fieldFormatterCleanups.get();
     }
 
-    public ObjectProperty<FieldFormatterCleanups> fieldFormatterCleanupsProperty() {
+    public ObjectProperty<
+        FieldFormatterCleanups
+    > fieldFormatterCleanupsProperty() {
         return fieldFormatterCleanups;
     }
 
-    public void setFieldFormatterCleanups(FieldFormatterCleanups fieldFormatters) {
+    public void setFieldFormatterCleanups(
+        FieldFormatterCleanups fieldFormatters
+    ) {
         fieldFormatterCleanups.setValue(fieldFormatters);
     }
 
@@ -104,6 +112,6 @@ public class CleanupPreferences {
         /*
          * Converts Math Subject Classification Codes presented in Keywords into their Descriptions
          */
-        CONVERT_MSC_CODES
+        CONVERT_MSC_CODES,
     }
 }

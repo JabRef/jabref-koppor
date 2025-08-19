@@ -5,7 +5,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,9 @@ import org.slf4j.LoggerFactory;
  */
 public class DelayTaskThrottler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DelayTaskThrottler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        DelayTaskThrottler.class
+    );
 
     private final ScheduledThreadPoolExecutor executor;
 
@@ -42,7 +43,11 @@ public class DelayTaskThrottler {
             cancel();
         }
         try {
-            scheduledTask = executor.schedule(command, delay, TimeUnit.MILLISECONDS);
+            scheduledTask = executor.schedule(
+                command,
+                delay,
+                TimeUnit.MILLISECONDS
+            );
         } catch (RejectedExecutionException e) {
             LOGGER.debug("Rejecting while another process is already running.");
         }
@@ -54,7 +59,11 @@ public class DelayTaskThrottler {
             cancel();
         }
         try {
-            scheduledTask = executor.schedule(command, delay, TimeUnit.MILLISECONDS);
+            scheduledTask = executor.schedule(
+                command,
+                delay,
+                TimeUnit.MILLISECONDS
+            );
         } catch (RejectedExecutionException e) {
             LOGGER.debug("Rejecting while another process is already running.");
         }
@@ -81,6 +90,10 @@ public class DelayTaskThrottler {
      */
     public void shutdown() {
         LOGGER.trace("Gracefully shutting down DelayTaskThrottler");
-        HeadlessExecutorService.gracefullyShutdown("ScheduledThreadPoolExecutor of DelayTaskThrottler", executor, 15);
+        HeadlessExecutorService.gracefullyShutdown(
+            "ScheduledThreadPoolExecutor of DelayTaskThrottler",
+            executor,
+            15
+        );
     }
 }

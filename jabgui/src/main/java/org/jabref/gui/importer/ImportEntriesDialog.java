@@ -1,9 +1,9 @@
 package org.jabref.gui.importer;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import jakarta.inject.Inject;
 import java.util.Optional;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.css.PseudoClass;
@@ -26,7 +26,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-
+import javax.swing.undo.UndoManager;
+import org.controlsfx.control.CheckListView;
+import org.fxmisc.richtext.CodeArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.citationrelationtab.BibEntryView;
@@ -46,36 +48,62 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import jakarta.inject.Inject;
-import org.controlsfx.control.CheckListView;
-import org.fxmisc.richtext.CodeArea;
-
 public class ImportEntriesDialog extends BaseDialog<Boolean> {
 
-    @FXML private CheckListView<BibEntry> entriesListView;
-    @FXML private ComboBox<BibDatabaseContext> libraryListView;
-    @FXML private ButtonType importButton;
-    @FXML private Label totalItems;
-    @FXML private Label selectedItems;
-    @FXML private Label bibTeXDataLabel;
-    @FXML private CheckBox downloadLinkedOnlineFiles;
-    @FXML private CheckBox showEntryInformation;
-    @FXML private CodeArea bibTeXData;
-    @FXML private VBox bibTeXDataBox;
+    @FXML
+    private CheckListView<BibEntry> entriesListView;
+
+    @FXML
+    private ComboBox<BibDatabaseContext> libraryListView;
+
+    @FXML
+    private ButtonType importButton;
+
+    @FXML
+    private Label totalItems;
+
+    @FXML
+    private Label selectedItems;
+
+    @FXML
+    private Label bibTeXDataLabel;
+
+    @FXML
+    private CheckBox downloadLinkedOnlineFiles;
+
+    @FXML
+    private CheckBox showEntryInformation;
+
+    @FXML
+    private CodeArea bibTeXData;
+
+    @FXML
+    private VBox bibTeXDataBox;
 
     private final BackgroundTask<ParserResult> task;
     private final BibDatabaseContext database;
     private ImportEntriesViewModel viewModel;
 
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private DialogService dialogService;
-    @Inject private UndoManager undoManager;
-    @Inject private GuiPreferences preferences;
-    @Inject private StateManager stateManager;
-    @Inject private BibEntryTypesManager entryTypesManager;
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
+
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
 
     /**
      * Imports the given entries into the given database. The entries are provided using the BackgroundTask
@@ -83,22 +111,30 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
      * @param database the database to import into
      * @param task     the task executed for parsing the selected files(s).
      */
-    public ImportEntriesDialog(BibDatabaseContext database, BackgroundTask<ParserResult> task) {
+    public ImportEntriesDialog(
+        BibDatabaseContext database,
+        BackgroundTask<ParserResult> task
+    ) {
         this.database = database;
         this.task = task;
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
-        BooleanBinding booleanBind = Bindings.isEmpty(entriesListView.getCheckModel().getCheckedItems());
+        BooleanBinding booleanBind = Bindings.isEmpty(
+            entriesListView.getCheckModel().getCheckedItems()
+        );
         Button btn = (Button) this.getDialogPane().lookupButton(importButton);
         btn.disableProperty().bind(booleanBind);
 
-        downloadLinkedOnlineFiles.setSelected(preferences.getFilePreferences().shouldDownloadLinkedFiles());
+        downloadLinkedOnlineFiles.setSelected(
+            preferences.getFilePreferences().shouldDownloadLinkedFiles()
+        );
 
         setResultConverter(button -> {
             if (button == importButton) {
-                viewModel.importEntries(entriesListView.getCheckModel().getCheckedItems(), downloadLinkedOnlineFiles.isSelected());
+                viewModel.importEntries(
+                    entriesListView.getCheckModel().getCheckedItems(),
+                    downloadLinkedOnlineFiles.isSelected()
+                );
             } else {
                 dialogService.notify(Localization.lang("Import canceled"));
             }
@@ -109,7 +145,17 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
 
     @FXML
     private void initialize() {
-        viewModel = new ImportEntriesViewModel(task, taskExecutor, database, dialogService, undoManager, preferences, stateManager, entryTypesManager, fileUpdateMonitor);
+        viewModel = new ImportEntriesViewModel(
+            task,
+            taskExecutor,
+            database,
+            dialogService,
+            undoManager,
+            preferences,
+            stateManager,
+            entryTypesManager,
+            fileUpdateMonitor
+        );
         Label placeholder = new Label();
         placeholder.textProperty().bind(viewModel.messageProperty());
         entriesListView.setPlaceholder(placeholder);
@@ -118,70 +164,115 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
         libraryListView.setEditable(false);
         libraryListView.getItems().addAll(stateManager.getOpenDatabases());
         new ViewModelListCellFactory<BibDatabaseContext>()
-                .withText(database -> {
-                    Optional<String> dbOpt = Optional.empty();
-                    if (database.getDatabasePath().isPresent()) {
-                        dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(), database.getDatabasePath().get());
-                    }
-                    if (database.getLocation() == DatabaseLocation.SHARED) {
-                        return database.getDBMSSynchronizer().getDBName() + " [" + Localization.lang("shared") + "]";
-                    }
+            .withText(database -> {
+                Optional<String> dbOpt = Optional.empty();
+                if (database.getDatabasePath().isPresent()) {
+                    dbOpt = FileUtil.getUniquePathFragment(
+                        stateManager.getAllDatabasePaths(),
+                        database.getDatabasePath().get()
+                    );
+                }
+                if (database.getLocation() == DatabaseLocation.SHARED) {
+                    return (
+                        database.getDBMSSynchronizer().getDBName()
+                        + " ["
+                        + Localization.lang("shared")
+                        + "]"
+                    );
+                }
 
-                    return dbOpt.orElseGet(() -> Localization.lang("untitled"));
-                })
-                .install(libraryListView);
-        viewModel.selectedDbProperty().bind(libraryListView.getSelectionModel().selectedItemProperty());
-        stateManager.getActiveDatabase().ifPresent(database1 -> libraryListView.getSelectionModel().select(database1));
+                return dbOpt.orElseGet(() -> Localization.lang("untitled"));
+            })
+            .install(libraryListView);
+        viewModel
+            .selectedDbProperty()
+            .bind(libraryListView.getSelectionModel().selectedItemProperty());
+        stateManager
+            .getActiveDatabase()
+            .ifPresent(database1 ->
+                libraryListView.getSelectionModel().select(database1)
+            );
 
         PseudoClass entrySelected = PseudoClass.getPseudoClass("selected");
         new ViewModelListCellFactory<BibEntry>()
-                .withGraphic(entry -> {
-                    ToggleButton addToggle = IconTheme.JabRefIcons.ADD.asToggleButton();
-                    EasyBind.subscribe(addToggle.selectedProperty(), selected -> {
-                        if (selected) {
-                            addToggle.setGraphic(IconTheme.JabRefIcons.ADD_FILLED.withColor(IconTheme.SELECTED_COLOR).getGraphicNode());
-                        } else {
-                            addToggle.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
-                        }
-                    });
-                    addToggle.getStyleClass().add("addEntryButton");
-                    addToggle.selectedProperty().bindBidirectional(entriesListView.getItemBooleanProperty(entry));
-                    HBox separator = new HBox();
-                    HBox.setHgrow(separator, Priority.SOMETIMES);
-                    Node entryNode = BibEntryView.getEntryNode(entry);
-                    HBox.setHgrow(entryNode, Priority.ALWAYS);
-                    HBox container = new HBox(entryNode, separator, addToggle);
-                    container.getStyleClass().add("entry-container");
-                    container.prefWidthProperty().bind(entriesListView.widthProperty().subtract(25));
+            .withGraphic(entry -> {
+                ToggleButton addToggle =
+                    IconTheme.JabRefIcons.ADD.asToggleButton();
+                EasyBind.subscribe(addToggle.selectedProperty(), selected -> {
+                    if (selected) {
+                        addToggle.setGraphic(
+                            IconTheme.JabRefIcons.ADD_FILLED.withColor(
+                                IconTheme.SELECTED_COLOR
+                            ).getGraphicNode()
+                        );
+                    } else {
+                        addToggle.setGraphic(
+                            IconTheme.JabRefIcons.ADD.getGraphicNode()
+                        );
+                    }
+                });
+                addToggle.getStyleClass().add("addEntryButton");
+                addToggle
+                    .selectedProperty()
+                    .bindBidirectional(
+                        entriesListView.getItemBooleanProperty(entry)
+                    );
+                HBox separator = new HBox();
+                HBox.setHgrow(separator, Priority.SOMETIMES);
+                Node entryNode = BibEntryView.getEntryNode(entry);
+                HBox.setHgrow(entryNode, Priority.ALWAYS);
+                HBox container = new HBox(entryNode, separator, addToggle);
+                container.getStyleClass().add("entry-container");
+                container
+                    .prefWidthProperty()
+                    .bind(entriesListView.widthProperty().subtract(25));
 
-                    BackgroundTask.wrap(() -> viewModel.hasDuplicate(entry)).onSuccess(duplicateFound -> {
+                BackgroundTask.wrap(() -> viewModel.hasDuplicate(entry))
+                    .onSuccess(duplicateFound -> {
                         if (duplicateFound) {
-                            Node icon = IconTheme.JabRefIcons.ERROR.getGraphicNode();
-                            Tooltip tooltip = new Tooltip(Localization.lang("Possible duplicate of existing entry. Will be resolved on import."));
+                            Node icon =
+                                IconTheme.JabRefIcons.ERROR.getGraphicNode();
+                            Tooltip tooltip = new Tooltip(
+                                Localization.lang(
+                                    "Possible duplicate of existing entry. Will be resolved on import."
+                                )
+                            );
                             Tooltip.install(icon, tooltip);
                             container.getChildren().add(icon);
                         }
-                    }).executeWith(taskExecutor);
+                    })
+                    .executeWith(taskExecutor);
 
-                    /*
+                /*
                     inserted the if-statement here, since a Platform.runLater() call did not work.
                     also tried to move it to the end of the initialize method, but it did not select the entry.
                     */
-                    if (entriesListView.getItems().size() == 1) {
-                        selectAllNewEntries();
-                    }
+                if (entriesListView.getItems().size() == 1) {
+                    selectAllNewEntries();
+                }
 
-                    return container;
-                })
-                .withOnMouseClickedEvent((entry, event) -> {
-                    entriesListView.getCheckModel().toggleCheckState(entry);
-                    displayBibTeX(entry, viewModel.getSourceString(entry));
-                })
-                .withPseudoClass(entrySelected, entriesListView::getItemBooleanProperty)
-                .install(entriesListView);
+                return container;
+            })
+            .withOnMouseClickedEvent((entry, event) -> {
+                entriesListView.getCheckModel().toggleCheckState(entry);
+                displayBibTeX(entry, viewModel.getSourceString(entry));
+            })
+            .withPseudoClass(
+                entrySelected,
+                entriesListView::getItemBooleanProperty
+            )
+            .install(entriesListView);
 
-        selectedItems.textProperty().bind(Bindings.size(entriesListView.getCheckModel().getCheckedItems()).asString());
-        totalItems.textProperty().bind(Bindings.size(entriesListView.getItems()).asString());
+        selectedItems
+            .textProperty()
+            .bind(
+                Bindings.size(
+                    entriesListView.getCheckModel().getCheckedItems()
+                ).asString()
+            );
+        totalItems
+            .textProperty()
+            .bind(Bindings.size(entriesListView.getItems()).asString());
         entriesListView.setSelectionModel(new NoSelectionModel<>());
         initBibTeX();
     }
@@ -199,12 +290,23 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
 
     private void initBibTeX() {
         bibTeXDataLabel.setText(Localization.lang("%0 source", "BibTeX"));
-        bibTeXData.setBorder(new Border(new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        bibTeXData.setBorder(
+            new Border(
+                new BorderStroke(
+                    Color.GREY,
+                    BorderStrokeStyle.SOLID,
+                    CornerRadii.EMPTY,
+                    BorderWidths.DEFAULT
+                )
+            )
+        );
         bibTeXData.setPadding(new Insets(5.0));
-        showEntryInformation.selectedProperty().addListener((observableValue, old_val, new_val) -> {
-            bibTeXDataBox.setVisible(new_val);
-            bibTeXDataBox.setManaged(new_val);
-        });
+        showEntryInformation
+            .selectedProperty()
+            .addListener((observableValue, old_val, new_val) -> {
+                bibTeXDataBox.setVisible(new_val);
+                bibTeXDataBox.setManaged(new_val);
+            });
     }
 
     public void unselectAll() {

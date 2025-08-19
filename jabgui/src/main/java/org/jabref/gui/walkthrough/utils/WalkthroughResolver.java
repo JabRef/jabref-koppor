@@ -2,7 +2,6 @@ package org.jabref.gui.walkthrough.utils;
 
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -12,18 +11,19 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.util.RecursiveChildrenListener;
 import org.jabref.gui.walkthrough.declarative.NodeResolver;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughResolver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughResolver.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WalkthroughResolver.class
+    );
     private static final Duration RESOLVE_TIMEOUT = Duration.millis(2_500);
 
     private final WindowResolver windowResolver;
@@ -59,9 +59,11 @@ public class WalkthroughResolver {
     ///
     /// You may NOT use this class to resolve more than once. In such case,
     /// [#onCompletion] will never be called.
-    public WalkthroughResolver(WindowResolver windowResolver,
-                               @Nullable NodeResolver nodeResolver,
-                               Consumer<WalkthroughResult> onCompletion) {
+    public WalkthroughResolver(
+        WindowResolver windowResolver,
+        @Nullable NodeResolver nodeResolver,
+        Consumer<WalkthroughResult> onCompletion
+    ) {
         this.windowResolver = windowResolver;
         this.nodeResolver = nodeResolver;
         this.onCompletion = onCompletion;
@@ -74,21 +76,24 @@ public class WalkthroughResolver {
         });
         delayedExecution.start();
 
-        windowResolver.resolve().ifPresentOrElse(
-                this::handleWindowResolved,
-                () -> listenForWindow(windowResolver)
-        );
+        windowResolver
+            .resolve()
+            .ifPresentOrElse(this::handleWindowResolved, () ->
+                listenForWindow(windowResolver)
+            );
     }
 
     private void listenForWindow(WindowResolver resolver) {
-        this.windowListenerCleanup = WalkthroughUtils.onWindowChangedUntil(() -> {
-            Optional<Window> window = resolver.resolve();
-            if (window.isPresent()) {
-                Platform.runLater(() -> handleWindowResolved(window.get())); // Make sure window listener detaches first.
-                return true;
+        this.windowListenerCleanup = WalkthroughUtils.onWindowChangedUntil(
+            () -> {
+                Optional<Window> window = resolver.resolve();
+                if (window.isPresent()) {
+                    Platform.runLater(() -> handleWindowResolved(window.get())); // Make sure window listener detaches first.
+                    return true;
+                }
+                return false;
             }
-            return false;
-        });
+        );
     }
 
     private void handleWindowResolved(Window window) {
@@ -108,7 +113,11 @@ public class WalkthroughResolver {
     private void listenForScene(Window window, NodeResolver resolver) {
         sceneListener = new ChangeListener<>() {
             @Override
-            public void changed(ObservableValue<? extends Scene> observable, Scene oldScene, Scene newScene) {
+            public void changed(
+                ObservableValue<? extends Scene> observable,
+                Scene oldScene,
+                Scene newScene
+            ) {
                 if (newScene != null) {
                     window.sceneProperty().removeListener(this);
                     sceneListener = null;
@@ -119,33 +128,47 @@ public class WalkthroughResolver {
         window.sceneProperty().addListener(sceneListener);
     }
 
-    private void handleSceneResolved(Window window, Scene scene, NodeResolver resolver) {
-        resolver.resolve(scene).ifPresentOrElse(
+    private void handleSceneResolved(
+        Window window,
+        Scene scene,
+        NodeResolver resolver
+    ) {
+        resolver
+            .resolve(scene)
+            .ifPresentOrElse(
                 node -> finish(new WalkthroughResult(window, node)),
                 () -> listenForNodeInScene(window, scene, resolver)
-        );
+            );
     }
 
-    private void listenForNodeInScene(Window window, Scene scene, NodeResolver resolver) {
-        debouncedNodeFinder = WalkthroughUtils.debounced(new InvalidationListener() {
-            private boolean handled = false;
+    private void listenForNodeInScene(
+        Window window,
+        Scene scene,
+        NodeResolver resolver
+    ) {
+        debouncedNodeFinder = WalkthroughUtils.debounced(
+            new InvalidationListener() {
+                private boolean handled = false;
 
-            @Override
-            public void invalidated(Observable observable) {
-                if (handled) {
-                    return;
-                }
+                @Override
+                public void invalidated(Observable observable) {
+                    if (handled) {
+                        return;
+                    }
 
-                Optional<Node> node = resolver.resolve(scene);
-                if (node.isPresent()) {
-                    handled = true;
-                    detachChildrenListener();
-                    finish(new WalkthroughResult(window, node.get()));
+                    Optional<Node> node = resolver.resolve(scene);
+                    if (node.isPresent()) {
+                        handled = true;
+                        detachChildrenListener();
+                        finish(new WalkthroughResult(window, node.get()));
+                    }
                 }
             }
-        });
+        );
 
-        recursiveChildrenListener = new RecursiveChildrenListener(debouncedNodeFinder);
+        recursiveChildrenListener = new RecursiveChildrenListener(
+            debouncedNodeFinder
+        );
         recursiveChildrenListener.attachToScene(scene);
     }
 

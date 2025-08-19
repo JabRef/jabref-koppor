@@ -1,15 +1,15 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 import org.apache.lucene.queryparser.flexible.standard.parser.StandardSyntaxParser;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class ZbMathQueryTransformerTest extends InfixTransformerTest<ZbMathQueryTransformer> {
+class ZbMathQueryTransformerTest
+    extends InfixTransformerTest<ZbMathQueryTransformer> {
 
     @Override
     public ZbMathQueryTransformer getTransformer() {
@@ -40,8 +40,13 @@ class ZbMathQueryTransformerTest extends InfixTransformerTest<ZbMathQueryTransfo
     @Test
     public void convertYearField() throws QueryNodeParseException {
         String queryString = "year:2015";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
-        Optional<String> searchQuery = getTransformer().transformLuceneQuery(luceneQuery);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(
+            queryString,
+            AbstractQueryTransformer.NO_EXPLICIT_FIELD
+        );
+        Optional<String> searchQuery = getTransformer().transformLuceneQuery(
+            luceneQuery
+        );
         Optional<String> expected = Optional.of("py:2015");
         assertEquals(expected, searchQuery);
     }
@@ -50,8 +55,13 @@ class ZbMathQueryTransformerTest extends InfixTransformerTest<ZbMathQueryTransfo
     @Test
     public void convertYearRangeField() throws QueryNodeParseException {
         String queryString = "year-range:2012-2015";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
-        Optional<String> searchQuery = getTransformer().transformLuceneQuery(luceneQuery);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(
+            queryString,
+            AbstractQueryTransformer.NO_EXPLICIT_FIELD
+        );
+        Optional<String> searchQuery = getTransformer().transformLuceneQuery(
+            luceneQuery
+        );
         Optional<String> expected = Optional.of("py:2012-2015");
         assertEquals(expected, searchQuery);
     }

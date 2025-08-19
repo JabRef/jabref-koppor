@@ -4,15 +4,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.model.entry.identifier.DOI;
-
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 
 /**
  * Class for obtaining shortened DOI names. See <a href="https://shortdoi.org">https://shortdoi.org</a>.
@@ -52,7 +50,9 @@ public class ShortDOIService {
         URLDownload urlDownload = new URLDownload(url);
 
         try {
-            JSONObject resultAsJSON = JsonReader.toJsonObject(urlDownload.asInputStream());
+            JSONObject resultAsJSON = JsonReader.toJsonObject(
+                urlDownload.asInputStream()
+            );
             if (resultAsJSON.isEmpty()) {
                 throw new ShortDOIServiceException("Cannot get short DOI");
             }

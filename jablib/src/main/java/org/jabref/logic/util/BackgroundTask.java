@@ -1,11 +1,11 @@
 package org.jabref.logic.util;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,8 +14,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,22 +41,37 @@ import org.slf4j.LoggerFactory;
 /// @param <V> type of the return value of the task
 public abstract class BackgroundTask<V> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BackgroundTask.class
+    );
 
     private Runnable onRunning;
     private Consumer<V> onSuccess;
     private Consumer<Exception> onException;
     private Runnable onFinished;
-    private final BooleanProperty isCancelled = new SimpleBooleanProperty(false);
-    private final ObjectProperty<BackgroundProgress> progress = new SimpleObjectProperty<>(new BackgroundProgress(0, 0));
+    private final BooleanProperty isCancelled = new SimpleBooleanProperty(
+        false
+    );
+    private final ObjectProperty<BackgroundProgress> progress =
+        new SimpleObjectProperty<>(new BackgroundProgress(0, 0));
     private final StringProperty message = new SimpleStringProperty("");
-    private final StringProperty title = new SimpleStringProperty(this.getClass().getSimpleName());
-    private final DoubleProperty workDonePercentage = new SimpleDoubleProperty(0);
+    private final StringProperty title = new SimpleStringProperty(
+        this.getClass().getSimpleName()
+    );
+    private final DoubleProperty workDonePercentage = new SimpleDoubleProperty(
+        0
+    );
     private final BooleanProperty showToUser = new SimpleBooleanProperty(false);
-    private final BooleanProperty willBeRecoveredAutomatically = new SimpleBooleanProperty(false);
+    private final BooleanProperty willBeRecoveredAutomatically =
+        new SimpleBooleanProperty(false);
 
     public BackgroundTask() {
-        workDonePercentage.bind(EasyBind.map(progress, BackgroundTask.BackgroundProgress::getWorkDonePercentage));
+        workDonePercentage.bind(
+            EasyBind.map(
+                progress,
+                BackgroundTask.BackgroundProgress::getWorkDonePercentage
+            )
+        );
     }
 
     public static <V> BackgroundTask<V> wrap(Callable<V> callable) {
@@ -154,7 +167,9 @@ public abstract class BackgroundTask<V> {
         return willBeRecoveredAutomatically.get();
     }
 
-    public BackgroundTask<V> willBeRecoveredAutomatically(boolean willBeRecoveredAutomatically) {
+    public BackgroundTask<V> willBeRecoveredAutomatically(
+        boolean willBeRecoveredAutomatically
+    ) {
         this.willBeRecoveredAutomatically.set(willBeRecoveredAutomatically);
         return this;
     }
@@ -170,7 +185,9 @@ public abstract class BackgroundTask<V> {
     /**
      * Carry a consumer to a running runnable and invoke it after the task is started.
      */
-    public @NonNull BackgroundTask<V> consumeOnRunning(@NonNull Consumer<BackgroundTask<V>> onRunningConsumer) {
+    public @NonNull BackgroundTask<V> consumeOnRunning(
+        @NonNull Consumer<BackgroundTask<V>> onRunningConsumer
+    ) {
         return this.onRunning(() -> onRunningConsumer.accept(this));
     }
 
@@ -210,7 +227,11 @@ public abstract class BackgroundTask<V> {
         return taskExecutor.execute(this);
     }
 
-    public Future<?> scheduleWith(TaskExecutor taskExecutor, long delay, TimeUnit unit) {
+    public Future<?> scheduleWith(
+        TaskExecutor taskExecutor,
+        long delay,
+        TimeUnit unit
+    ) {
         return taskExecutor.schedule(this, delay, unit);
     }
 
@@ -229,13 +250,18 @@ public abstract class BackgroundTask<V> {
      * @param nextTaskFactory the function that creates the new task
      * @param <T>             type of the return value of the second task
      */
-    public <T> BackgroundTask<T> then(Function<V, BackgroundTask<T>> nextTaskFactory) {
+    public <T> BackgroundTask<T> then(
+        Function<V, BackgroundTask<T>> nextTaskFactory
+    ) {
         return new BackgroundTask<>() {
             @Override
             public T call() throws Exception {
                 V result = BackgroundTask.this.call();
                 BackgroundTask<T> nextTask = nextTaskFactory.apply(result);
-                EasyBind.subscribe(nextTask.progressProperty(), this::updateProgress);
+                EasyBind.subscribe(
+                    nextTask.progressProperty(),
+                    this::updateProgress
+                );
                 return nextTask.call();
             }
         };
@@ -252,8 +278,13 @@ public abstract class BackgroundTask<V> {
             @Override
             public T call() throws Exception {
                 V result = BackgroundTask.this.call();
-                BackgroundTask<T> nextTask = BackgroundTask.wrap(() -> nextOperation.apply(result));
-                EasyBind.subscribe(nextTask.progressProperty(), this::updateProgress);
+                BackgroundTask<T> nextTask = BackgroundTask.wrap(() ->
+                    nextOperation.apply(result)
+                );
+                EasyBind.subscribe(
+                    nextTask.progressProperty(),
+                    this::updateProgress
+                );
                 return nextTask.call();
             }
         };
@@ -269,8 +300,13 @@ public abstract class BackgroundTask<V> {
             @Override
             public Void call() throws Exception {
                 V result = BackgroundTask.this.call();
-                BackgroundTask<Void> nextTask = BackgroundTask.wrap(() -> nextOperation.accept(result));
-                EasyBind.subscribe(nextTask.progressProperty(), this::updateProgress);
+                BackgroundTask<Void> nextTask = BackgroundTask.wrap(() ->
+                    nextOperation.accept(result)
+                );
+                EasyBind.subscribe(
+                    nextTask.progressProperty(),
+                    this::updateProgress
+                );
                 return nextTask.call();
             }
         };
@@ -293,10 +329,7 @@ public abstract class BackgroundTask<V> {
         return this;
     }
 
-    public record BackgroundProgress(
-            double workDone,
-            double max) {
-
+    public record BackgroundProgress(double workDone, double max) {
         public double getWorkDonePercentage() {
             if (max == 0) {
                 return 0;

@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,31 +24,36 @@ import org.slf4j.LoggerFactory;
 /// Offers both high-priority and low-priority thread pools.
 public class HeadlessExecutorService implements Executor {
 
-    public static final HeadlessExecutorService INSTANCE = new HeadlessExecutorService();
+    public static final HeadlessExecutorService INSTANCE =
+        new HeadlessExecutorService();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeadlessExecutorService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        HeadlessExecutorService.class
+    );
 
     private static final String EXECUTOR_NAME = "JabRef CachedThreadPool";
-    private static final String LOW_PRIORITY_EXECUTOR_NAME = "JabRef LowPriorityCachedThreadPool";
+    private static final String LOW_PRIORITY_EXECUTOR_NAME =
+        "JabRef LowPriorityCachedThreadPool";
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool(r -> {
-        Thread thread = new Thread(r);
-        thread.setName(EXECUTOR_NAME);
-        thread.setUncaughtExceptionHandler(new FallbackExceptionHandler());
-        return thread;
-    });
+    private final ExecutorService executorService =
+        Executors.newCachedThreadPool(r -> {
+            Thread thread = new Thread(r);
+            thread.setName(EXECUTOR_NAME);
+            thread.setUncaughtExceptionHandler(new FallbackExceptionHandler());
+            return thread;
+        });
 
-    private final ExecutorService lowPriorityExecutorService = Executors.newCachedThreadPool(r -> {
-        Thread thread = new Thread(r);
-        thread.setName(LOW_PRIORITY_EXECUTOR_NAME);
-        thread.setUncaughtExceptionHandler(new FallbackExceptionHandler());
-        return thread;
-    });
+    private final ExecutorService lowPriorityExecutorService =
+        Executors.newCachedThreadPool(r -> {
+            Thread thread = new Thread(r);
+            thread.setName(LOW_PRIORITY_EXECUTOR_NAME);
+            thread.setUncaughtExceptionHandler(new FallbackExceptionHandler());
+            return thread;
+        });
 
     private final Timer timer = new Timer("timer", true);
 
-    private HeadlessExecutorService() {
-   }
+    private HeadlessExecutorService() {}
 
     public void execute(Runnable command) {
         Objects.requireNonNull(command);
@@ -95,7 +99,11 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    public <T> List<Future<T>> executeAll(Collection<Callable<T>> tasks, int timeout, TimeUnit timeUnit) {
+    public <T> List<Future<T>> executeAll(
+        Collection<Callable<T>> tasks,
+        int timeout,
+        TimeUnit timeUnit
+    ) {
         Objects.requireNonNull(tasks);
         try {
             return executorService.invokeAll(tasks, timeout, timeUnit);
@@ -105,8 +113,13 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    public void executeInterruptableTask(final Runnable runnable, String taskName) {
-        this.lowPriorityExecutorService.execute(new NamedRunnable(taskName, runnable));
+    public void executeInterruptableTask(
+        final Runnable runnable,
+        String taskName
+    ) {
+        this.lowPriorityExecutorService.execute(
+            new NamedRunnable(taskName, runnable)
+        );
     }
 
     public void executeInterruptableTaskAndWait(Runnable runnable) {
@@ -134,7 +147,11 @@ public class HeadlessExecutorService implements Executor {
         gracefullyShutdown(EXECUTOR_NAME, this.executorService, 15);
 
         LOGGER.trace("Gracefully shut down low priority executor service");
-        gracefullyShutdown(LOW_PRIORITY_EXECUTOR_NAME, this.lowPriorityExecutorService, 15);
+        gracefullyShutdown(
+            LOW_PRIORITY_EXECUTOR_NAME,
+            this.lowPriorityExecutorService,
+            15
+        );
 
         LOGGER.trace("Canceling timer");
         timer.cancel();
@@ -169,16 +186,38 @@ public class HeadlessExecutorService implements Executor {
      * Shuts down the provided executor service by first trying a normal shutdown, then waiting for the shutdown and then forcibly shutting it down.
      * Returns if the status of the shut down is known.
      */
-    public static void gracefullyShutdown(String name, ExecutorService executorService, int timeoutInSeconds) {
+    public static void gracefullyShutdown(
+        String name,
+        ExecutorService executorService,
+        int timeoutInSeconds
+    ) {
         try {
             // This is non-blocking. See https://stackoverflow.com/a/57383461/873282.
             executorService.shutdown();
-            if (!executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {
-                LOGGER.debug("{} seconds passed, {} still not completed. Trying forced shutdown.", timeoutInSeconds, name);
+            if (
+                !executorService.awaitTermination(
+                    timeoutInSeconds,
+                    TimeUnit.SECONDS
+                )
+            ) {
+                LOGGER.debug(
+                    "{} seconds passed, {} still not completed. Trying forced shutdown.",
+                    timeoutInSeconds,
+                    name
+                );
                 // those threads will be interrupted in their current task
                 executorService.shutdownNow();
-                if (executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {
-                    LOGGER.debug("{} seconds passed again - forced shutdown of {} worked.", timeoutInSeconds, name);
+                if (
+                    executorService.awaitTermination(
+                        timeoutInSeconds,
+                        TimeUnit.SECONDS
+                    )
+                ) {
+                    LOGGER.debug(
+                        "{} seconds passed again - forced shutdown of {} worked.",
+                        timeoutInSeconds,
+                        name
+                    );
                 } else {
                     LOGGER.error("{} did not terminate", name);
                 }

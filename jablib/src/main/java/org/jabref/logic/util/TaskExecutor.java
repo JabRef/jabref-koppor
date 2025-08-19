@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
  * use, scheduling, thread pooling, etc.
  */
 public interface TaskExecutor {
-
     /**
      * Runs the given task and returns a Future representing that task.
      *

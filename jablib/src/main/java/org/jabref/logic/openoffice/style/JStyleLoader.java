@@ -6,23 +6,28 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JStyleLoader {
 
-    public static final String DEFAULT_AUTHORYEAR_STYLE_PATH = "/resource/openoffice/default_authoryear.jstyle";
-    public static final String DEFAULT_NUMERICAL_STYLE_PATH = "/resource/openoffice/default_numerical.jstyle";
+    public static final String DEFAULT_AUTHORYEAR_STYLE_PATH =
+        "/resource/openoffice/default_authoryear.jstyle";
+    public static final String DEFAULT_NUMERICAL_STYLE_PATH =
+        "/resource/openoffice/default_numerical.jstyle";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JStyleLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        JStyleLoader.class
+    );
 
     // All internal styles
-    private final List<String> internalStyleFiles = List.of(DEFAULT_AUTHORYEAR_STYLE_PATH, DEFAULT_NUMERICAL_STYLE_PATH);
+    private final List<String> internalStyleFiles = List.of(
+        DEFAULT_AUTHORYEAR_STYLE_PATH,
+        DEFAULT_NUMERICAL_STYLE_PATH
+    );
 
     private final OpenOfficePreferences openOfficePreferences;
     private final LayoutFormatterPreferences layoutFormatterPreferences;
@@ -33,12 +38,20 @@ public class JStyleLoader {
     private final List<JStyle> internalStyles = new ArrayList<>();
     private final List<JStyle> externalStyles = new ArrayList<>();
 
-    public JStyleLoader(OpenOfficePreferences openOfficePreferences,
-                        LayoutFormatterPreferences formatterPreferences,
-                        JournalAbbreviationRepository abbreviationRepository) {
-        this.openOfficePreferences = Objects.requireNonNull(openOfficePreferences);
-        this.layoutFormatterPreferences = Objects.requireNonNull(formatterPreferences);
-        this.abbreviationRepository = Objects.requireNonNull(abbreviationRepository);
+    public JStyleLoader(
+        OpenOfficePreferences openOfficePreferences,
+        LayoutFormatterPreferences formatterPreferences,
+        JournalAbbreviationRepository abbreviationRepository
+    ) {
+        this.openOfficePreferences = Objects.requireNonNull(
+            openOfficePreferences
+        );
+        this.layoutFormatterPreferences = Objects.requireNonNull(
+            formatterPreferences
+        );
+        this.abbreviationRepository = Objects.requireNonNull(
+            abbreviationRepository
+        );
         loadInternalStyles();
         loadExternalStyles();
     }
@@ -58,9 +71,16 @@ public class JStyleLoader {
     public boolean addStyleIfValid(Path filename) {
         Objects.requireNonNull(filename);
         try {
-            JStyle newStyle = new JStyle(filename, layoutFormatterPreferences, abbreviationRepository);
+            JStyle newStyle = new JStyle(
+                filename,
+                layoutFormatterPreferences,
+                abbreviationRepository
+            );
             if (externalStyles.contains(newStyle)) {
-                LOGGER.info("External style file {} already existing.", filename);
+                LOGGER.info(
+                    "External style file {} already existing.",
+                    filename
+                );
             } else if (newStyle.isValid()) {
                 externalStyles.add(newStyle);
                 storeExternalStyles();
@@ -83,8 +103,13 @@ public class JStyleLoader {
         List<String> lists = openOfficePreferences.getExternalJStyles();
         for (String filename : lists) {
             try {
-                JStyle style = new JStyle(Path.of(filename), layoutFormatterPreferences, abbreviationRepository);
-                if (style.isValid()) { // Problem!
+                JStyle style = new JStyle(
+                    Path.of(filename),
+                    layoutFormatterPreferences,
+                    abbreviationRepository
+                );
+                if (style.isValid()) {
+                    // Problem!
                     externalStyles.add(style);
                 } else {
                     LOGGER.error("Style with filename {} is invalid", filename);
@@ -93,7 +118,11 @@ public class JStyleLoader {
                 // The file couldn't be found... should we tell anyone?
                 LOGGER.info("Cannot find external style file {}", filename);
             } catch (IOException e) {
-                LOGGER.info("Problem reading external style file {}", filename, e);
+                LOGGER.info(
+                    "Problem reading external style file {}",
+                    filename,
+                    e
+                );
             }
         }
     }
@@ -102,9 +131,19 @@ public class JStyleLoader {
         internalStyles.clear();
         for (String filename : internalStyleFiles) {
             try {
-                internalStyles.add(new JStyle(filename, layoutFormatterPreferences, abbreviationRepository));
+                internalStyles.add(
+                    new JStyle(
+                        filename,
+                        layoutFormatterPreferences,
+                        abbreviationRepository
+                    )
+                );
             } catch (IOException e) {
-                LOGGER.info("Problem reading internal style file {}", filename, e);
+                LOGGER.info(
+                    "Problem reading internal style file {}",
+                    filename,
+                    e
+                );
             }
         }
     }
@@ -137,7 +176,9 @@ public class JStyleLoader {
             }
         }
         // Pick the first internal
-        openOfficePreferences.setCurrentJStyle(internalStyles.getFirst().getPath());
+        openOfficePreferences.setCurrentJStyle(
+            internalStyles.getFirst().getPath()
+        );
         return internalStyles.getFirst();
     }
 }

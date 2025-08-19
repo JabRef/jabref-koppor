@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
-
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -14,12 +13,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 
-public class EditorTextArea extends TextArea implements Initializable, ContextMenuAddable {
+public class EditorTextArea
+    extends TextArea
+    implements Initializable, ContextMenuAddable {
 
     private final ContextMenu contextMenu = new ContextMenu();
     /**
@@ -35,7 +35,6 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
     public EditorTextArea(final String text) {
         super(text);
-
         // Hide horizontal scrollbar and always wrap text
         setWrapText(true);
 
@@ -46,9 +45,14 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
     }
 
     @Override
-    public void initContextMenu(final Supplier<List<MenuItem>> items, KeyBindingRepository keyBindingRepository) {
+    public void initContextMenu(
+        final Supplier<List<MenuItem>> items,
+        KeyBindingRepository keyBindingRepository
+    ) {
         setOnContextMenuRequested(event -> {
-            contextMenu.getItems().setAll(EditorContextAction.getDefaultContextMenuItems(this));
+            contextMenu
+                .getItems()
+                .setAll(EditorContextAction.getDefaultContextMenuItems(this));
             contextMenu.getItems().addAll(0, items.get());
             contextMenu.show(this, event.getScreenX(), event.getScreenY());
         });
@@ -79,20 +83,32 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
     }
 
     // Custom event handler for Tab key presses.
-    private static class FieldTraversalEventHandler implements EventHandler<KeyEvent> {
+    private static class FieldTraversalEventHandler
+        implements EventHandler<KeyEvent> {
+
         @Override
         public void handle(KeyEvent event) {
-            if (event.getCode() == KeyCode.TAB && !event.isShiftDown() && !event.isControlDown()) {
+            if (
+                event.getCode() == KeyCode.TAB
+                && !event.isShiftDown()
+                && !event.isControlDown()
+            ) {
                 event.consume();
 
                 // Get the current text area
                 Node node = (Node) event.getSource();
-                KeyEvent newEvent = new KeyEvent(node,
-                        event.getTarget(), event.getEventType(),
-                        event.getCharacter(), event.getText(),
-                        event.getCode(), event.isShiftDown(),
-                        true, event.isAltDown(),
-                        event.isMetaDown());
+                KeyEvent newEvent = new KeyEvent(
+                    node,
+                    event.getTarget(),
+                    event.getEventType(),
+                    event.getCharacter(),
+                    event.getText(),
+                    event.getCode(),
+                    event.isShiftDown(),
+                    true,
+                    event.isAltDown(),
+                    event.isMetaDown()
+                );
 
                 node.fireEvent(newEvent);
             }

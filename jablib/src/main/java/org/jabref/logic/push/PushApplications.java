@@ -3,7 +3,6 @@ package org.jabref.logic.push;
 import java.util.Optional;
 
 public enum PushApplications {
-
     EMACS("emacs", "Emacs"),
     LYX("lyx", "LyX/Kile"),
     TEXMAKER("texmaker", "Texmaker"),
@@ -23,7 +22,9 @@ public enum PushApplications {
         this.displayName = displayName;
     }
 
-    public static Optional<PushApplications> getApplicationByDisplayName(String key) {
+    public static Optional<PushApplications> getApplicationByDisplayName(
+        String key
+    ) {
         for (PushApplications application : PushApplications.values()) {
             if (application.getDisplayName().equalsIgnoreCase(key)) {
                 return Optional.of(application);

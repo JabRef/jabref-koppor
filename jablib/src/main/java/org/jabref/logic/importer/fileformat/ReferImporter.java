@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
@@ -54,7 +53,8 @@ public class ReferImporter extends Importer {
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
+    public boolean isRecognizedFormat(BufferedReader reader)
+        throws IOException {
         // look for the "%0 *" line;
         String str;
         while ((str = reader.readLine()) != null) {
@@ -66,7 +66,8 @@ public class ReferImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
+    public ParserResult importDatabase(BufferedReader reader)
+        throws IOException {
         List<BibEntry> bibEntryList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         String str;
@@ -83,13 +84,18 @@ public class ReferImporter extends Importer {
             sb.append(str).append('\n');
         }
 
-        List<String> allEntries = new ArrayList<>(List.of(sb.toString().split(ENDOFRECORD)));
+        List<String> allEntries = new ArrayList<>(
+            List.of(sb.toString().split(ENDOFRECORD))
+        );
         stringToBibEntry(bibEntryList, allEntries);
 
         return new ParserResult(bibEntryList);
     }
 
-    private void stringToBibEntry(List<BibEntry> bibEntryList, List<String> allEntries) {
+    private void stringToBibEntry(
+        List<BibEntry> bibEntryList,
+        List<String> allEntries
+    ) {
         Map<Field, String> fieldMap = new HashMap<>();
         EntryType type;
         StringBuilder author;
@@ -97,7 +103,9 @@ public class ReferImporter extends Importer {
         AtomicBoolean isEdited;
 
         for (String entry : allEntries) {
-            List<String> fields = new ArrayList<>(List.of(entry.trim().substring(1).split("\n%")));
+            List<String> fields = new ArrayList<>(
+                List.of(entry.trim().substring(1).split("\n%"))
+            );
             type = BibEntry.DEFAULT_TYPE;
             author = new StringBuilder();
             editor = new StringBuilder();
@@ -118,14 +126,23 @@ public class ReferImporter extends Importer {
                     case "C" -> fieldMap.put(StandardField.ADDRESS, val);
                     case "D" -> fieldMap.put(StandardField.YEAR, val);
                     case "E" -> addEditor(editor, val);
-                    case "F" -> fieldMap.put(InternalField.KEY_FIELD, CitationKeyGenerator.cleanKey(val, ""));
+                    case "F" -> fieldMap.put(
+                        InternalField.KEY_FIELD,
+                        CitationKeyGenerator.cleanKey(val, "")
+                    );
                     case "G" -> fieldMap.put(StandardField.LANGUAGE, val);
                     case "I" -> addTag(fieldMap, type, val, "I");
-                    case "J" -> fieldMap.putIfAbsent(StandardField.JOURNAL, val);
+                    case "J" -> fieldMap.putIfAbsent(
+                        StandardField.JOURNAL,
+                        val
+                    );
                     case "K" -> fieldMap.put(StandardField.KEYWORDS, val);
                     case "N" -> fieldMap.put(StandardField.ISSUE, val);
                     case "O" -> fieldMap.put(StandardField.NOTE, val);
-                    case "P" -> fieldMap.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
+                    case "P" -> fieldMap.put(
+                        StandardField.PAGES,
+                        val.replaceAll("([0-9]) *- *([0-9])", "$1--$2")
+                    );
                     case "R" -> addTag(fieldMap, type, val, "R");
                     case "S" -> fieldMap.put(StandardField.SERIES, val);
                     case "T" -> fieldMap.put(StandardField.TITLE, val);
@@ -190,12 +207,20 @@ public class ReferImporter extends Importer {
         }
     }
 
-    private void addTag(Map<Field, String> m, EntryType type, String val, String tag) {
+    private void addTag(
+        Map<Field, String> m,
+        EntryType type,
+        String val,
+        String tag
+    ) {
         switch (tag) {
             case "B" -> {
                 if (type.equals(StandardEntryType.Article)) {
                     m.put(StandardField.JOURNAL, val);
-                } else if (type.equals(StandardEntryType.Book) || type.equals(StandardEntryType.InBook)) {
+                } else if (
+                    type.equals(StandardEntryType.Book)
+                    || type.equals(StandardEntryType.InBook)
+                ) {
                     m.put(StandardField.SERIES, val);
                 } else {
                     /* type = inproceedings */
@@ -221,7 +246,8 @@ public class ReferImporter extends Importer {
                 // other fields e.g. header(if any), rights, table of content, government ordering, call number, price, location of archive/conference etc.
                 if (m.containsKey(StandardField.NOTE)) {
                     String oldValue = m.get(StandardField.NOTE);
-                    String newValue = (oldValue == null ? "" : oldValue + "; ") + val;
+                    String newValue =
+                        (oldValue == null ? "" : oldValue + "; ") + val;
                     m.put(StandardField.NOTE, newValue);
                 } else {
                     m.put(StandardField.NOTE, val);
@@ -230,7 +256,12 @@ public class ReferImporter extends Importer {
         }
     }
 
-    private void postFix(Map<Field, String> hm, StringBuilder author, StringBuilder editor, AtomicBoolean isEditedBook) {
+    private void postFix(
+        Map<Field, String> hm,
+        StringBuilder author,
+        StringBuilder editor,
+        AtomicBoolean isEditedBook
+    ) {
         // In some of the documentation editor name can be found in place of author name
         if (isEditedBook.get() && editor.toString().isEmpty()) {
             editor = new StringBuilder(author.toString());

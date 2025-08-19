@@ -1,15 +1,13 @@
 package org.jabref.gui.undo;
 
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEdit;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 import org.jabref.gui.util.UiTaskExecutor;
 
 public class CountingUndoManager extends UndoManager {
@@ -19,9 +17,15 @@ public class CountingUndoManager extends UndoManager {
     /**
      * Indicates the number of edits aka balance of edits on the stack +1 when an edit is added/redone and -1 when an edit is undoed.
      */
-    private final IntegerProperty balanceProperty = new SimpleIntegerProperty(0);
-    private final BooleanProperty undoableProperty = new SimpleBooleanProperty(false);
-    private final BooleanProperty redoableProperty = new SimpleBooleanProperty(false);
+    private final IntegerProperty balanceProperty = new SimpleIntegerProperty(
+        0
+    );
+    private final BooleanProperty undoableProperty = new SimpleBooleanProperty(
+        false
+    );
+    private final BooleanProperty redoableProperty = new SimpleBooleanProperty(
+        false
+    );
 
     @Override
     public synchronized boolean addEdit(UndoableEdit edit) {
@@ -69,11 +73,15 @@ public class CountingUndoManager extends UndoManager {
     }
 
     private void updateUndoableStatus() {
-        UiTaskExecutor.runInJavaFXThread(() -> undoableProperty.setValue(canUndo()));
+        UiTaskExecutor.runInJavaFXThread(() ->
+            undoableProperty.setValue(canUndo())
+        );
     }
 
     private void updateRedoableStatus() {
-        UiTaskExecutor.runInJavaFXThread(() -> redoableProperty.setValue(canRedo()));
+        UiTaskExecutor.runInJavaFXThread(() ->
+            redoableProperty.setValue(canRedo())
+        );
     }
 
     public ReadOnlyBooleanProperty getUndoableProperty() {

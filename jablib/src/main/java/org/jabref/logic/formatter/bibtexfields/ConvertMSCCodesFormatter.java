@@ -1,10 +1,13 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import org.eclipse.jgit.annotations.NonNull;
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
@@ -14,16 +17,16 @@ import org.jabref.logic.util.MscCodeUtils;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import org.eclipse.jgit.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertMSCCodesFormatter.class);
+public class ConvertMSCCodesFormatter
+    extends Formatter
+    implements LayoutFormatter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ConvertMSCCodesFormatter.class
+    );
     private static final BiMap<String, String> MSCMAP;
     private static boolean conversionPossible;
 
@@ -34,7 +37,10 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
     private static HashBiMap<String, String> initializeMap() {
         HashBiMap<String, String> tempMap = HashBiMap.create();
 
-        URL resourceUrl = ConvertMSCCodesFormatter.class.getClassLoader().getResource("msc_codes.json");
+        URL resourceUrl =
+            ConvertMSCCodesFormatter.class.getClassLoader().getResource(
+                "msc_codes.json"
+            );
 
         // Check for valid mapping of msc codes
         if (resourceUrl == null) {
@@ -65,10 +71,12 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
 
         // Using Injector to avoid widespread refactoring for constructor injection.
         // Class that calls formatters (FieldFormatterCleanups.java) has many usages that would need updates.
-        JabRefCliPreferences cliPreferences = Injector.instantiateModelOrService(JabRefCliPreferences.class);
+        JabRefCliPreferences cliPreferences =
+            Injector.instantiateModelOrService(JabRefCliPreferences.class);
 
         // get preferences for BibEntry
-        BibEntryPreferences bibPreferences = cliPreferences.getBibEntryPreferences();
+        BibEntryPreferences bibPreferences =
+            cliPreferences.getBibEntryPreferences();
         Character dlim = bibPreferences.getKeywordSeparator();
         Character hdlim = Keyword.DEFAULT_HIERARCHICAL_DELIMITER;
 
@@ -91,7 +99,9 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
 
     @Override
     public String getDescription() {
-        return Localization.lang("Convert MSC Keyword codes to their respective descriptions.");
+        return Localization.lang(
+            "Convert MSC Keyword codes to their respective descriptions."
+        );
     }
 
     @Override
@@ -101,7 +111,8 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
 
     @Override
     public String getKey() {
-        return "MSC_codes_to_descriptions"; }
+        return "MSC_codes_to_descriptions";
+    }
 
     @Override
     public String getExampleInput() {

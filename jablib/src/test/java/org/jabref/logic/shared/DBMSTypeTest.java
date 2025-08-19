@@ -1,13 +1,11 @@
 package org.jabref.logic.shared;
 
-import java.util.Optional;
-
-import org.jabref.testutils.category.DatabaseTest;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import java.util.Optional;
+import org.jabref.testutils.category.DatabaseTest;
+import org.junit.jupiter.api.Test;
 
 @DatabaseTest
 class DBMSTypeTest {
@@ -19,7 +17,10 @@ class DBMSTypeTest {
 
     @Test
     void fromStringWorksForPostgreSQL() {
-        assertEquals(Optional.of(DBMSType.POSTGRESQL), DBMSType.fromString("PostgreSQL"));
+        assertEquals(
+            Optional.of(DBMSType.POSTGRESQL),
+            DBMSType.fromString("PostgreSQL")
+        );
     }
 
     @Test
@@ -39,12 +40,18 @@ class DBMSTypeTest {
 
     @Test
     void driverClassForPostgresIsCorrect() {
-        assertEquals("org.postgresql.Driver", DBMSType.POSTGRESQL.getDriverClassPath());
+        assertEquals(
+            "org.postgresql.Driver",
+            DBMSType.POSTGRESQL.getDriverClassPath()
+        );
     }
 
     @Test
     void fromStringForPostgresReturnsCorrectValue() {
-        assertEquals(DBMSType.POSTGRESQL, DBMSType.fromString("PostgreSQL").get());
+        assertEquals(
+            DBMSType.POSTGRESQL,
+            DBMSType.fromString("PostgreSQL").get()
+        );
     }
 
     @Test
@@ -54,7 +61,10 @@ class DBMSTypeTest {
 
     @Test
     void getUrlForPostgresHasCorrectFormat() {
-        assertEquals("jdbc:postgresql://localhost:5432/xe", DBMSType.POSTGRESQL.getUrl("localhost", 5432, "xe"));
+        assertEquals(
+            "jdbc:postgresql://localhost:5432/xe",
+            DBMSType.POSTGRESQL.getUrl("localhost", 5432, "xe")
+        );
     }
 
     @Test

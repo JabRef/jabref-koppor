@@ -5,5 +5,5 @@ public enum TooltipPosition {
     TOP,
     BOTTOM,
     LEFT,
-    RIGHT
+    RIGHT,
 }

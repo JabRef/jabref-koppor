@@ -2,9 +2,7 @@ package org.jabref.http.server.cayw.format;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
-
 import org.jvnet.hk2.annotations.Service;
 
 @Service
@@ -24,6 +22,9 @@ public class FormatterService {
     }
 
     public CAYWFormatter getFormatter(CAYWQueryParams queryParams) {
-        return formatters.getOrDefault(queryParams.getFormat().toLowerCase(), formatters.get(DEFAULT_FORMATTER));
+        return formatters.getOrDefault(
+            queryParams.getFormat().toLowerCase(),
+            formatters.get(DEFAULT_FORMATTER)
+        );
     }
 }

@@ -1,12 +1,17 @@
 package org.jabref.logic.importer.fetcher;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.ParseException;
@@ -20,13 +25,6 @@ import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +33,20 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="https://www.biodiversitylibrary.org/docs/api3.html">API documentation</a>
  */
-public class BiodiversityLibrary implements SearchBasedParserFetcher, CustomizableKeyFetcher {
+public class BiodiversityLibrary
+    implements SearchBasedParserFetcher, CustomizableKeyFetcher {
+
     public static final String FETCHER_NAME = "Biodiversity Heritage";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BiodiversityLibrary.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BiodiversityLibrary.class
+    );
 
-    private static final String BASE_URL = "https://www.biodiversitylibrary.org/api3";
+    private static final String BASE_URL =
+        "https://www.biodiversitylibrary.org/api3";
     private static final String RESPONSE_FORMAT = "json";
-    private static final String TEST_URL_WIH_OPTIONAL_KEY = "https://www.biodiversitylibrary.org/api3?apikey=";
+    private static final String TEST_URL_WIH_OPTIONAL_KEY =
+        "https://www.biodiversitylibrary.org/api3?apikey=";
 
     private final ImporterPreferences importerPreferences;
 
@@ -62,13 +66,16 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
 
     public URL getBaseURL() throws URISyntaxException, MalformedURLException {
         URIBuilder baseURI = new URIBuilder(BASE_URL);
-        importerPreferences.getApiKey(getName()).ifPresent(key -> baseURI.addParameter("apikey", key));
+        importerPreferences
+            .getApiKey(getName())
+            .ifPresent(key -> baseURI.addParameter("apikey", key));
         baseURI.addParameter("format", RESPONSE_FORMAT);
 
         return baseURI.build().toURL();
     }
 
-    public URL getItemMetadataURL(String identifier) throws URISyntaxException, MalformedURLException {
+    public URL getItemMetadataURL(String identifier)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(getBaseURL().toURI());
         uriBuilder.addParameter("op", "GetItemMetadata");
         uriBuilder.addParameter("pages", "f");
@@ -80,7 +87,8 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
     }
 
     @VisibleForTesting
-    URL getPartMetadataURL(String identifier) throws URISyntaxException, MalformedURLException {
+    URL getPartMetadataURL(String identifier)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(getBaseURL().toURI());
         uriBuilder.addParameter("op", "GetPartMetadata");
         uriBuilder.addParameter("pages", "f");
@@ -97,7 +105,8 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
         return new JSONObject(response).getJSONArray("Result").getJSONObject(0);
     }
 
-    public BibEntry parseBibJSONtoBibtex(JSONObject item, BibEntry entry) throws FetcherException {
+    public BibEntry parseBibJSONtoBibtex(JSONObject item, BibEntry entry)
+        throws FetcherException {
         if (item.has("BHLType")) {
             if ("Part".equals(item.getString("BHLType"))) {
                 URL url;
@@ -107,14 +116,32 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
                     throw new FetcherException("Malformed URL", e);
                 }
                 JSONObject itemsDetails = getDetails(url);
-                entry.setField(StandardField.LANGUAGE, itemsDetails.optString("Language", ""));
+                entry.setField(
+                    StandardField.LANGUAGE,
+                    itemsDetails.optString("Language", "")
+                );
 
-                entry.setField(StandardField.DOI, itemsDetails.optString("Doi", ""));
+                entry.setField(
+                    StandardField.DOI,
+                    itemsDetails.optString("Doi", "")
+                );
 
-                entry.setField(StandardField.PUBLISHER, itemsDetails.optString("PublisherName", ""));
-                entry.setField(StandardField.DATE, itemsDetails.optString("Date", ""));
-                entry.setField(StandardField.VOLUME, itemsDetails.optString("Volume", ""));
-                entry.setField(StandardField.URL, itemsDetails.optString("PartUrl", ""));
+                entry.setField(
+                    StandardField.PUBLISHER,
+                    itemsDetails.optString("PublisherName", "")
+                );
+                entry.setField(
+                    StandardField.DATE,
+                    itemsDetails.optString("Date", "")
+                );
+                entry.setField(
+                    StandardField.VOLUME,
+                    itemsDetails.optString("Volume", "")
+                );
+                entry.setField(
+                    StandardField.URL,
+                    itemsDetails.optString("PartUrl", "")
+                );
             }
 
             if ("Item".equals(item.getString("BHLType"))) {
@@ -125,12 +152,31 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
                     throw new FetcherException("Malformed URL", e);
                 }
                 JSONObject itemsDetails = getDetails(url);
-                entry.setField(StandardField.EDITOR, itemsDetails.optString("Sponsor", ""));
-                entry.setField(StandardField.PUBLISHER, itemsDetails.optString("HoldingInstitution", ""));
-                entry.setField(StandardField.LANGUAGE, itemsDetails.optString("Language", ""));
-                entry.setField(StandardField.URL, itemsDetails.optString("ItemUrl", ""));
-                if (itemsDetails.has("Date") && !entry.hasField(StandardField.DATE) && !entry.hasField(StandardField.YEAR)) {
-                    entry.setField(StandardField.DATE, itemsDetails.getString("Date"));
+                entry.setField(
+                    StandardField.EDITOR,
+                    itemsDetails.optString("Sponsor", "")
+                );
+                entry.setField(
+                    StandardField.PUBLISHER,
+                    itemsDetails.optString("HoldingInstitution", "")
+                );
+                entry.setField(
+                    StandardField.LANGUAGE,
+                    itemsDetails.optString("Language", "")
+                );
+                entry.setField(
+                    StandardField.URL,
+                    itemsDetails.optString("ItemUrl", "")
+                );
+                if (
+                    itemsDetails.has("Date")
+                    && !entry.hasField(StandardField.DATE)
+                    && !entry.hasField(StandardField.YEAR)
+                ) {
+                    entry.setField(
+                        StandardField.DATE,
+                        itemsDetails.getString("Date")
+                    );
                 }
             }
         }
@@ -148,15 +194,30 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
         }
         entry.setField(StandardField.TITLE, item.optString("Title", ""));
 
-        entry.setField(StandardField.AUTHOR, toAuthors(item.optJSONArray("Authors")));
+        entry.setField(
+            StandardField.AUTHOR,
+            toAuthors(item.optJSONArray("Authors"))
+        );
 
         entry.setField(StandardField.PAGES, item.optString("PageRange", ""));
-        entry.setField(StandardField.LOCATION, item.optString("PublisherPlace", ""));
-        entry.setField(StandardField.PUBLISHER, item.optString("PublisherName", ""));
+        entry.setField(
+            StandardField.LOCATION,
+            item.optString("PublisherPlace", "")
+        );
+        entry.setField(
+            StandardField.PUBLISHER,
+            item.optString("PublisherName", "")
+        );
 
         entry.setField(StandardField.DATE, item.optString("Date", ""));
-        entry.setField(StandardField.YEAR, item.optString("PublicationDate", ""));
-        entry.setField(StandardField.JOURNALTITLE, item.optString("ContainerTitle", ""));
+        entry.setField(
+            StandardField.YEAR,
+            item.optString("PublicationDate", "")
+        );
+        entry.setField(
+            StandardField.JOURNALTITLE,
+            item.optString("ContainerTitle", "")
+        );
         entry.setField(StandardField.VOLUME, item.optString("Volume", ""));
 
         return entry;
@@ -169,11 +230,12 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
 
         // input: list of { "Name": "Author name,"}
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(author -> new Author(
-                                author.optString("Name", ""), "", "", "", ""))
-                        .collect(AuthorList.collect())
-                        .getAsFirstLastNamesWithAnd();
+            .mapToObj(authors::getJSONObject)
+            .map(author ->
+                new Author(author.optString("Name", ""), "", "", "", "")
+            )
+            .collect(AuthorList.collect())
+            .getAsFirstLastNamesWithAnd();
     }
 
     @Override
@@ -197,7 +259,10 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
                 try {
                     entry = parseBibJSONtoBibtex(item, entry);
                 } catch (JSONException | FetcherException exception) {
-                    throw new ParseException("Error when parsing entry", exception);
+                    throw new ParseException(
+                        "Error when parsing entry",
+                        exception
+                    );
                 }
                 entries.add(entry);
             }
@@ -207,12 +272,17 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
     }
 
     @Override
-    public URL getURLForQuery(QueryNode luceneQuery) throws URISyntaxException, MalformedURLException {
+    public URL getURLForQuery(QueryNode luceneQuery)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(getBaseURL().toURI());
-        BiodiversityLibraryTransformer transformer = new BiodiversityLibraryTransformer();
+        BiodiversityLibraryTransformer transformer =
+            new BiodiversityLibraryTransformer();
         uriBuilder.addParameter("op", "PublicationSearch");
         uriBuilder.addParameter("searchtype", "C");
-        uriBuilder.addParameter("searchterm", transformer.transformLuceneQuery(luceneQuery).orElse(""));
+        uriBuilder.addParameter(
+            "searchterm",
+            transformer.transformLuceneQuery(luceneQuery).orElse("")
+        );
         return uriBuilder.build().toURL();
     }
 }

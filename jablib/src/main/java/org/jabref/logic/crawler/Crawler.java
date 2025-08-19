@@ -3,7 +3,7 @@ package org.jabref.logic.crawler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.git.SlrGitHandler;
@@ -13,8 +13,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.study.QueryResult;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
-
 /**
  * This class provides a service for SLR support by conducting an automated search and persistance
  * of studies using the queries and E-Libraries specified in the provided study definition file.
@@ -23,6 +21,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  * and a StudyFetcher that manages the crawling over the selected E-Libraries.
  */
 public class Crawler {
+
     public static final String FILENAME_STUDY_RESULT_BIB = "studyResult.bib";
 
     private final StudyRepository studyRepository;
@@ -33,24 +32,31 @@ public class Crawler {
      *
      * @param studyRepositoryRoot The path to the study repository
      */
-    public Crawler(Path studyRepositoryRoot,
-                   SlrGitHandler gitHandler,
-                   CliPreferences preferences,
-                   BibEntryTypesManager bibEntryTypesManager,
-                   FileUpdateMonitor fileUpdateMonitor) throws IllegalArgumentException, IOException, ParseException, JabRefException {
+    public Crawler(
+        Path studyRepositoryRoot,
+        SlrGitHandler gitHandler,
+        CliPreferences preferences,
+        BibEntryTypesManager bibEntryTypesManager,
+        FileUpdateMonitor fileUpdateMonitor
+    )
+        throws IllegalArgumentException, IOException, ParseException, JabRefException {
         this.studyRepository = new StudyRepository(
-                studyRepositoryRoot,
-                gitHandler,
-                preferences,
-                fileUpdateMonitor,
-                bibEntryTypesManager);
-        StudyCatalogToFetcherConverter studyCatalogToFetcherConverter = new StudyCatalogToFetcherConverter(
+            studyRepositoryRoot,
+            gitHandler,
+            preferences,
+            fileUpdateMonitor,
+            bibEntryTypesManager
+        );
+        StudyCatalogToFetcherConverter studyCatalogToFetcherConverter =
+            new StudyCatalogToFetcherConverter(
                 studyRepository.getActiveLibraryEntries(),
                 preferences.getImportFormatPreferences(),
-                preferences.getImporterPreferences());
+                preferences.getImporterPreferences()
+            );
         this.studyFetcher = new StudyFetcher(
-                studyCatalogToFetcherConverter.getActiveFetchers(),
-                studyRepository.getSearchQueryStrings());
+            studyCatalogToFetcherConverter.getActiveFetchers(),
+            studyRepository.getSearchQueryStrings()
+        );
     }
 
     /**
@@ -67,7 +73,8 @@ public class Crawler {
      *
      * @throws IOException Thrown if a problem occurred during the persistence of the result.
      */
-    public void performCrawl() throws IOException, GitAPIException, SaveException, JabRefException {
+    public void performCrawl()
+        throws IOException, GitAPIException, SaveException, JabRefException {
         List<QueryResult> results = studyFetcher.crawl();
         studyRepository.persist(results);
     }

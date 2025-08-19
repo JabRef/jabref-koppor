@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.preferences.CliPreferences;
 
 public class PreferencesFilter {
@@ -21,23 +20,35 @@ public class PreferencesFilter {
         Map<String, Object> defaults = new HashMap<>(preferences.getDefaults());
         Map<String, Object> prefs = preferences.getPreferences();
 
-        return prefs.entrySet().stream()
-                    .map(entry -> new PreferenceOption(entry.getKey(), entry.getValue(), defaults.get(entry.getKey())))
-                    .collect(Collectors.toList());
+        return prefs
+            .entrySet()
+            .stream()
+            .map(entry ->
+                new PreferenceOption(
+                    entry.getKey(),
+                    entry.getValue(),
+                    defaults.get(entry.getKey())
+                )
+            )
+            .collect(Collectors.toList());
     }
 
     public List<PreferenceOption> getDeviatingPreferences() {
-        return getPreferenceOptions().stream()
-                                     .filter(PreferenceOption::isChanged)
-                                     .sorted()
-                                     .collect(Collectors.toList());
+        return getPreferenceOptions()
+            .stream()
+            .filter(PreferenceOption::isChanged)
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public enum PreferenceType {
-        BOOLEAN, INTEGER, STRING
+        BOOLEAN,
+        INTEGER,
+        STRING,
     }
 
-    public static class PreferenceOption implements Comparable<PreferenceOption> {
+    public static class PreferenceOption
+        implements Comparable<PreferenceOption> {
 
         private final String key;
         private final Object value;
@@ -50,8 +61,13 @@ public class PreferencesFilter {
             this.defaultValue = Optional.ofNullable(defaultValue);
             this.type = Objects.requireNonNull(getType(value));
 
-            if ((defaultValue != null) && !Objects.equals(this.type, getType(defaultValue))) {
-                throw new IllegalStateException("types must match between default value and value");
+            if (
+                (defaultValue != null)
+                && !Objects.equals(this.type, getType(defaultValue))
+            ) {
+                throw new IllegalStateException(
+                    "types must match between default value and value"
+                );
             }
         }
 
@@ -75,7 +91,12 @@ public class PreferencesFilter {
 
         @Override
         public String toString() {
-            return "%s: %s=%s (%s)".formatted(type, key, value, defaultValue.orElse("NULL"));
+            return "%s: %s=%s (%s)".formatted(
+                type,
+                key,
+                value,
+                defaultValue.orElse("NULL")
+            );
         }
 
         public String getKey() {

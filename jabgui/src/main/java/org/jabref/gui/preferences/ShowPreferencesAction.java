@@ -11,11 +11,18 @@ public class ShowPreferencesAction extends SimpleCommand {
 
     private final DialogService dialogService;
 
-    public ShowPreferencesAction(LibraryTabContainer tabContainer, DialogService dialogService) {
+    public ShowPreferencesAction(
+        LibraryTabContainer tabContainer,
+        DialogService dialogService
+    ) {
         this(tabContainer, null, dialogService);
     }
 
-    public ShowPreferencesAction(LibraryTabContainer tabContainer, Class<? extends PreferencesTab> preferencesTabToSelectClass, DialogService dialogService) {
+    public ShowPreferencesAction(
+        LibraryTabContainer tabContainer,
+        Class<? extends PreferencesTab> preferencesTabToSelectClass,
+        DialogService dialogService
+    ) {
         this.tabContainer = tabContainer;
         this.preferencesTabToSelectClass = preferencesTabToSelectClass;
         this.dialogService = dialogService;
@@ -23,7 +30,9 @@ public class ShowPreferencesAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        dialogService.showCustomDialogAndWait(new PreferencesDialogView(preferencesTabToSelectClass));
+        dialogService.showCustomDialogAndWait(
+            new PreferencesDialogView(preferencesTabToSelectClass)
+        );
         tabContainer.refresh();
     }
 }

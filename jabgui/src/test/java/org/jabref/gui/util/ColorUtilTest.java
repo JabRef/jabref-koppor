@@ -1,15 +1,13 @@
 package org.jabref.gui.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import javafx.scene.paint.Color;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ColorUtilTest {
 
@@ -35,11 +33,11 @@ class ColorUtilTest {
 
     private static Stream<Arguments> provideToRGBACodeTest() {
         return Stream.of(
-                Arguments.of(C1, "rgba(51,102,255,%f)".formatted(1.0)),
-                Arguments.of(C2, "rgba(255,255,255,%f)".formatted(1.0)),
-                Arguments.of(C3, "rgba(0,0,0,%f)".formatted(0.0)),
-                Arguments.of(C4, "rgba(255,255,255,%f)".formatted(1.0)),
-                Arguments.of(C5, "rgba(153,204,127,%f)".formatted(0.3))
+            Arguments.of(C1, "rgba(51,102,255,%f)".formatted(1.0)),
+            Arguments.of(C2, "rgba(255,255,255,%f)".formatted(1.0)),
+            Arguments.of(C3, "rgba(0,0,0,%f)".formatted(0.0)),
+            Arguments.of(C4, "rgba(255,255,255,%f)".formatted(1.0)),
+            Arguments.of(C5, "rgba(153,204,127,%f)".formatted(0.3))
         );
     }
 

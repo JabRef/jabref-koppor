@@ -2,7 +2,6 @@ package org.jabref.logic.layout.format;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.layout.LayoutFormatter;
 
 /**

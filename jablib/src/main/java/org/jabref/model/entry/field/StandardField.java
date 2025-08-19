@@ -104,7 +104,12 @@ public enum StandardField implements Field {
     PRIMARYCLASS("primaryclass"),
     RELATED("related", FieldProperty.MULTIPLE_ENTRY_LINK),
     REPORTNO("reportno"),
-    REVIEW("review", FieldProperty.MULTILINE_TEXT, FieldProperty.VERBATIM, FieldProperty.MARKDOWN),
+    REVIEW(
+        "review",
+        FieldProperty.MULTILINE_TEXT,
+        FieldProperty.VERBATIM,
+        FieldProperty.MARKDOWN
+    ),
     REVISION("revision"),
     SCHOOL("school"),
     SERIES("series"),
@@ -141,9 +146,15 @@ public enum StandardField implements Field {
     CREATIONDATE("creationdate", FieldProperty.DATE),
     MODIFICATIONDATE("modificationdate", FieldProperty.DATE);
 
-    public static final Set<Field> AUTOMATIC_FIELDS = Set.of(OWNER, TIMESTAMP, CREATIONDATE, MODIFICATIONDATE);
+    public static final Set<Field> AUTOMATIC_FIELDS = Set.of(
+        OWNER,
+        TIMESTAMP,
+        CREATIONDATE,
+        MODIFICATIONDATE
+    );
 
-    private static final Map<String, StandardField> NAME_TO_STANDARD_FIELD = new HashMap<>();
+    private static final Map<String, StandardField> NAME_TO_STANDARD_FIELD =
+        new HashMap<>();
 
     private final String name;
     private final String displayName;
@@ -151,7 +162,10 @@ public enum StandardField implements Field {
 
     static {
         for (StandardField field : StandardField.values()) {
-            NAME_TO_STANDARD_FIELD.put(field.getName().toLowerCase(Locale.ROOT), field);
+            NAME_TO_STANDARD_FIELD.put(
+                field.getName().toLowerCase(Locale.ROOT),
+                field
+            );
         }
     }
 
@@ -167,7 +181,12 @@ public enum StandardField implements Field {
         this.properties = EnumSet.noneOf(FieldProperty.class);
     }
 
-    StandardField(String name, String displayName, FieldProperty first, FieldProperty... rest) {
+    StandardField(
+        String name,
+        String displayName,
+        FieldProperty first,
+        FieldProperty... rest
+    ) {
         this.name = name;
         this.displayName = displayName;
         this.properties = EnumSet.of(first, rest);
@@ -180,7 +199,9 @@ public enum StandardField implements Field {
     }
 
     public static Optional<StandardField> fromName(String name) {
-        return Optional.ofNullable(NAME_TO_STANDARD_FIELD.get(name.toLowerCase(Locale.ROOT)));
+        return Optional.ofNullable(
+            NAME_TO_STANDARD_FIELD.get(name.toLowerCase(Locale.ROOT))
+        );
     }
 
     @Override

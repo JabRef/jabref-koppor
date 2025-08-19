@@ -2,7 +2,6 @@ package org.jabref.model.entry;
 
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.formatter.bibtexfields.RemoveWordEnclosingAndOuterEnclosingBracesFormatter;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
@@ -21,9 +20,16 @@ public class Author {
      * Example: <code>authors = {Oliver Kopp and others}</code>. This is then appearing as "Oliver Kopp et al.".
      * In the context of BibTeX key generation, this is "Kopp+" (<code>+</code> for "et al.") and not "KO".
      */
-    public static final Author OTHERS = new Author("", "", null, "others", null);
+    public static final Author OTHERS = new Author(
+        "",
+        "",
+        null,
+        "others",
+        null
+    );
 
-    public static final RemoveWordEnclosingAndOuterEnclosingBracesFormatter FORMATTER = new RemoveWordEnclosingAndOuterEnclosingBracesFormatter();
+    public static final RemoveWordEnclosingAndOuterEnclosingBracesFormatter FORMATTER =
+        new RemoveWordEnclosingAndOuterEnclosingBracesFormatter();
 
     private final String givenName;
     private final String givenNameAbbreviated;
@@ -43,8 +49,19 @@ public class Author {
      * @param familyName      the last name of the author (may consist of several tokens, like "Vall{\'e}e Poussin" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
      * @param nameSuffix        the junior part of the author's name (may consist of several tokens, like "Jr. III" in "Smith, Jr. III, John")
      */
-    public Author(String givenName, String givenNameAbbreviated, String namePrefix, String familyName, String nameSuffix) {
-        boolean keepBracesAtLastPart = StringUtil.isBlank(givenName) && StringUtil.isBlank(givenNameAbbreviated) && StringUtil.isBlank(namePrefix) && !StringUtil.isBlank(familyName) && StringUtil.isBlank(nameSuffix);
+    public Author(
+        String givenName,
+        String givenNameAbbreviated,
+        String namePrefix,
+        String familyName,
+        String nameSuffix
+    ) {
+        boolean keepBracesAtLastPart =
+            StringUtil.isBlank(givenName)
+            && StringUtil.isBlank(givenNameAbbreviated)
+            && StringUtil.isBlank(namePrefix)
+            && !StringUtil.isBlank(familyName)
+            && StringUtil.isBlank(nameSuffix);
 
         if (!StringUtil.isBlank(givenName)) {
             this.givenName = addDotIfAbbreviation(FORMATTER.format(givenName));
@@ -84,8 +101,11 @@ public class Author {
             return name;
         }
         // If only one character (uppercase letter), add a dot and return immediately:
-        if ((name.length() == 1) && Character.isLetter(name.charAt(0)) &&
-                Character.isUpperCase(name.charAt(0))) {
+        if (
+            (name.length() == 1)
+            && Character.isLetter(name.charAt(0))
+            && Character.isUpperCase(name.charAt(0))
+        ) {
             return name + ".";
         }
 
@@ -100,18 +120,24 @@ public class Author {
 
             if (currentChar == '.') {
                 // A.A. -> A. A.
-                if (((i + 1) < name.length()) && Character.isUpperCase(name.charAt(i + 1))) {
+                if (
+                    ((i + 1) < name.length())
+                    && Character.isUpperCase(name.charAt(i + 1))
+                ) {
                     sb.append(' ');
                 }
             }
 
-            boolean currentIsUppercaseLetter = Character.isLetter(currentChar) && Character.isUpperCase(currentChar);
+            boolean currentIsUppercaseLetter =
+                Character.isLetter(currentChar)
+                && Character.isUpperCase(currentChar);
             if (!currentIsUppercaseLetter) {
                 // No uppercase letter, hence nothing to do
                 continue;
             }
 
-            boolean lastIsLowercaseLetter = Character.isLetter(lastChar) && Character.isLowerCase(lastChar);
+            boolean lastIsLowercaseLetter =
+                Character.isLetter(lastChar) && Character.isLowerCase(lastChar);
             if (lastIsLowercaseLetter) {
                 // previous character was lowercase (probably an acronym like JabRef) -> don't change anything
                 continue;
@@ -140,12 +166,19 @@ public class Author {
             char furtherChar = Character.MIN_VALUE;
             for (int j = i + 1; j < name.length(); j++) {
                 furtherChar = name.charAt(j);
-                if (Character.isWhitespace(furtherChar) || (furtherChar == '-') || (furtherChar == '~') || (furtherChar == '.')) {
+                if (
+                    Character.isWhitespace(furtherChar)
+                    || (furtherChar == '-')
+                    || (furtherChar == '~')
+                    || (furtherChar == '.')
+                ) {
                     // end of word
                     break;
                 }
 
-                boolean furtherIsUppercaseLetter = Character.isLetter(furtherChar) && Character.isUpperCase(furtherChar);
+                boolean furtherIsUppercaseLetter =
+                    Character.isLetter(furtherChar)
+                    && Character.isUpperCase(furtherChar);
                 if (!furtherIsUppercaseLetter) {
                     nextWordIsUppercase = false;
                     break;
@@ -165,7 +198,13 @@ public class Author {
 
     @Override
     public int hashCode() {
-        return Objects.hash(givenNameAbbreviated, givenName, nameSuffix, familyName, namePrefix);
+        return Objects.hash(
+            givenNameAbbreviated,
+            givenName,
+            nameSuffix,
+            familyName,
+            namePrefix
+        );
     }
 
     /**
@@ -180,11 +219,16 @@ public class Author {
         }
 
         if (other instanceof Author that) {
-            return Objects.equals(givenName, that.givenName)
-                    && Objects.equals(givenNameAbbreviated, that.givenNameAbbreviated)
-                    && Objects.equals(namePrefix, that.namePrefix)
-                    && Objects.equals(familyName, that.familyName)
-                    && Objects.equals(nameSuffix, that.nameSuffix);
+            return (
+                Objects.equals(givenName, that.givenName)
+                && Objects.equals(
+                    givenNameAbbreviated,
+                    that.givenNameAbbreviated
+                )
+                && Objects.equals(namePrefix, that.namePrefix)
+                && Objects.equals(familyName, that.familyName)
+                && Objects.equals(nameSuffix, that.nameSuffix)
+            );
         }
 
         return false;
@@ -244,7 +288,9 @@ public class Author {
         if (namePrefix == null || namePrefix.isEmpty()) {
             return getFamilyName().orElse("");
         } else {
-            return familyName == null ? namePrefix : namePrefix + ' ' + familyName;
+            return familyName == null
+                ? namePrefix
+                : namePrefix + ' ' + familyName;
         }
     }
 
@@ -258,7 +304,9 @@ public class Author {
         StringBuilder res = new StringBuilder(getNamePrefixAndFamilyName());
         getNameSuffix().ifPresent(jr -> res.append(", ").append(jr));
         if (abbr) {
-            getGivenNameAbbreviated().ifPresent(firstA -> res.append(", ").append(firstA));
+            getGivenNameAbbreviated().ifPresent(firstA ->
+                res.append(", ").append(firstA)
+            );
         } else {
             getGivenName().ifPresent(first -> res.append(", ").append(first));
         }
@@ -274,9 +322,13 @@ public class Author {
     public String getGivenFamily(boolean abbr) {
         StringBuilder res = new StringBuilder();
         if (abbr) {
-            getGivenNameAbbreviated().map(firstA -> firstA + ' ').ifPresent(res::append);
+            getGivenNameAbbreviated()
+                .map(firstA -> firstA + ' ')
+                .ifPresent(res::append);
         } else {
-            getGivenName().map(first -> first + ' ').ifPresent(res::append);
+            getGivenName()
+                .map(first -> first + ' ')
+                .ifPresent(res::append);
         }
         res.append(getNamePrefixAndFamilyName());
         getNameSuffix().ifPresent(jr -> res.append(", ").append(jr));
@@ -285,12 +337,25 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Author{" + "givenName='" + givenName + '\'' +
-                ", givenNameAbbreviated='" + givenNameAbbreviated + '\'' +
-                ", namePrefix='" + namePrefix + '\'' +
-                ", familyName='" + familyName + '\'' +
-                ", nameSuffix='" + nameSuffix + '\'' +
-                '}';
+        return (
+            "Author{"
+            + "givenName='"
+            + givenName
+            + '\''
+            + ", givenNameAbbreviated='"
+            + givenNameAbbreviated
+            + '\''
+            + ", namePrefix='"
+            + namePrefix
+            + '\''
+            + ", familyName='"
+            + familyName
+            + '\''
+            + ", nameSuffix='"
+            + nameSuffix
+            + '\''
+            + '}'
+        );
     }
 
     /**
@@ -302,7 +367,9 @@ public class Author {
         StringBuilder res = new StringBuilder();
         getFamilyName().ifPresent(res::append);
         getNameSuffix().ifPresent(jr -> res.append(", ").append(jr));
-        getGivenNameAbbreviated().ifPresent(firstA -> res.append(", ").append(firstA));
+        getGivenNameAbbreviated().ifPresent(firstA ->
+            res.append(", ").append(firstA)
+        );
         while ((!res.isEmpty()) && (res.charAt(0) == '{')) {
             res.deleteCharAt(0);
         }
@@ -314,12 +381,28 @@ public class Author {
      */
     public Author latexFree() {
         if (latexFreeAuthor == null) {
-            String first = getGivenName().map(LatexToUnicodeAdapter::format).orElse(null);
-            String givenNameAbbreviated = getGivenNameAbbreviated().map(LatexToUnicodeAdapter::format).orElse(null);
-            String von = getNamePrefix().map(LatexToUnicodeAdapter::format).orElse(null);
-            String last = getFamilyName().map(LatexToUnicodeAdapter::format).orElse(null);
-            String jr = getNameSuffix().map(LatexToUnicodeAdapter::format).orElse(null);
-            latexFreeAuthor = new Author(first, givenNameAbbreviated, von, last, jr);
+            String first = getGivenName()
+                .map(LatexToUnicodeAdapter::format)
+                .orElse(null);
+            String givenNameAbbreviated = getGivenNameAbbreviated()
+                .map(LatexToUnicodeAdapter::format)
+                .orElse(null);
+            String von = getNamePrefix()
+                .map(LatexToUnicodeAdapter::format)
+                .orElse(null);
+            String last = getFamilyName()
+                .map(LatexToUnicodeAdapter::format)
+                .orElse(null);
+            String jr = getNameSuffix()
+                .map(LatexToUnicodeAdapter::format)
+                .orElse(null);
+            latexFreeAuthor = new Author(
+                first,
+                givenNameAbbreviated,
+                von,
+                last,
+                jr
+            );
             latexFreeAuthor.latexFreeAuthor = latexFreeAuthor;
         }
         return latexFreeAuthor;

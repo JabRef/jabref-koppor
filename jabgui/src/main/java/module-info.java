@@ -21,7 +21,7 @@ open module org.jabref {
 
     requires afterburner.fx;
     provides com.airhacks.afterburner.views.ResourceLocator
-            with org.jabref.gui.util.JabRefResourceLocator;
+        with org.jabref.gui.util.JabRefResourceLocator;
 
     requires com.dlsc.gemsfx;
     uses com.dlsc.gemsfx.TagsField;
@@ -42,9 +42,9 @@ open module org.jabref {
     uses org.kordamp.ikonli.IkonProvider;
 
     provides org.kordamp.ikonli.IkonHandler
-            with org.jabref.gui.icon.JabRefIkonHandler;
+        with org.jabref.gui.icon.JabRefIkonHandler;
     provides org.kordamp.ikonli.IkonProvider
-            with org.jabref.gui.icon.JabrefIconProvider;
+        with org.jabref.gui.icon.JabrefIconProvider;
 
     requires reactfx;
     // endregion
@@ -58,8 +58,7 @@ open module org.jabref {
     requires org.tinylog.impl;
     // endregion
 
-    provides org.tinylog.writers.Writer
-            with org.jabref.gui.logging.GuiWriter;
+    provides org.tinylog.writers.Writer with org.jabref.gui.logging.GuiWriter;
 
     // Preferences and XML
     requires java.prefs;

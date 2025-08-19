@@ -3,11 +3,11 @@ package org.jabref.gui.walkthrough.effects;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class FullScreenDarken extends BaseWindowEffect {
+
     private @Nullable Rectangle overlay;
     private @Nullable Runnable onClickHandler;
 
@@ -21,7 +21,9 @@ public final class FullScreenDarken extends BaseWindowEffect {
 
     public void attach() {
         if (overlay != null) {
-            throw new IllegalStateException("FullScreenDarken is already attached. Detach it first.");
+            throw new IllegalStateException(
+                "FullScreenDarken is already attached. Detach it first."
+            );
         }
         Rectangle overlay = new Rectangle();
         overlay.getStyleClass().add("walkthrough-darken");
@@ -36,7 +38,9 @@ public final class FullScreenDarken extends BaseWindowEffect {
     @Override
     public void detach() {
         if (overlay == null) {
-            throw new IllegalStateException("FullScreenDarken is not attached.");
+            throw new IllegalStateException(
+                "FullScreenDarken is not attached."
+            );
         }
         super.detach();
         overlay.setVisible(false);

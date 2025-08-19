@@ -6,7 +6,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.importer.IdBasedParserFetcher;
 import org.jabref.logic.importer.ParseException;
@@ -21,10 +23,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
 
 /**
  * A class for fetching DOIs from Medra
@@ -55,30 +53,43 @@ public class Medra implements IdBasedParserFetcher {
 
     private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
         try {
-
             return new BibEntry(convertType(item.getString("type")))
-                    .withField(StandardField.TITLE, item.getString("title"))
-                    .withField(StandardField.AUTHOR, toAuthors(item.optJSONArray("author")))
-                    .withField(StandardField.YEAR,
-                            Optional.ofNullable(item.optJSONObject("issued"))
-                                    .map(array -> array.optJSONArray("date-parts"))
-                                    .map(array -> array.optJSONArray(0))
-                                    .map(array -> array.optInt(0))
-                                    .map(year -> Integer.toString(year)).orElse(""))
-                    .withField(StandardField.DOI, item.getString("DOI"))
-                    .withField(StandardField.PAGES, item.optString("page"))
-                    .withField(StandardField.ISSN, item.optString("ISSN"))
-                    .withField(StandardField.JOURNAL, item.optString("container-title"))
-                    .withField(StandardField.PUBLISHER, item.optString("publisher"))
-                    .withField(StandardField.URL, item.optString("URL"))
-                    .withField(StandardField.VOLUME, item.optString("volume"));
+                .withField(StandardField.TITLE, item.getString("title"))
+                .withField(
+                    StandardField.AUTHOR,
+                    toAuthors(item.optJSONArray("author"))
+                )
+                .withField(
+                    StandardField.YEAR,
+                    Optional.ofNullable(item.optJSONObject("issued"))
+                        .map(array -> array.optJSONArray("date-parts"))
+                        .map(array -> array.optJSONArray(0))
+                        .map(array -> array.optInt(0))
+                        .map(year -> Integer.toString(year))
+                        .orElse("")
+                )
+                .withField(StandardField.DOI, item.getString("DOI"))
+                .withField(StandardField.PAGES, item.optString("page"))
+                .withField(StandardField.ISSN, item.optString("ISSN"))
+                .withField(
+                    StandardField.JOURNAL,
+                    item.optString("container-title")
+                )
+                .withField(StandardField.PUBLISHER, item.optString("publisher"))
+                .withField(StandardField.URL, item.optString("URL"))
+                .withField(StandardField.VOLUME, item.optString("volume"));
         } catch (JSONException exception) {
-            throw new ParseException("mEdRA API JSON format has changed", exception);
+            throw new ParseException(
+                "mEdRA API JSON format has changed",
+                exception
+            );
         }
     }
 
     private EntryType convertType(String type) {
-        return "article-journal".equals(type) ? StandardEntryType.Article : StandardEntryType.Misc;
+        return "article-journal".equals(type)
+            ? StandardEntryType.Article
+            : StandardEntryType.Misc;
     }
 
     private String toAuthors(JSONArray authors) {
@@ -87,12 +98,20 @@ public class Medra implements IdBasedParserFetcher {
         }
         // input: list of {"literal":"A."}
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(author -> author.has("literal") ? // quickly route through the literal string
-                                new Author(author.getString("literal"), "", "", "", "") :
-                                new Author(author.optString("given", ""), "", "", author.optString("family", ""), ""))
-                        .collect(AuthorList.collect())
-                        .getAsFirstLastNamesWithAnd();
+            .mapToObj(authors::getJSONObject)
+            .map(author ->
+                author.has("literal") // quickly route through the literal string
+                    ? new Author(author.getString("literal"), "", "", "", "")
+                    : new Author(
+                        author.optString("given", ""),
+                        "",
+                        "",
+                        author.optString("family", ""),
+                        ""
+                    )
+            )
+            .collect(AuthorList.collect())
+            .getAsFirstLastNamesWithAnd();
     }
 
     @Override
@@ -103,7 +122,8 @@ public class Medra implements IdBasedParserFetcher {
     }
 
     @Override
-    public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
+    public URL getUrlForIdentifier(String identifier)
+        throws URISyntaxException, MalformedURLException {
         return URLUtil.create(API_URL + "/" + identifier);
     }
 

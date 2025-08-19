@@ -1,20 +1,6 @@
 package org.jabref.logic.openoffice.oocsltext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.jabref.logic.openoffice.ReferenceMark;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.openoffice.DocumentAnnotation;
-import org.jabref.model.openoffice.ootext.OOText;
-import org.jabref.model.openoffice.ootext.OOTextIntoOO;
-import org.jabref.model.openoffice.uno.CreationException;
-import org.jabref.model.openoffice.uno.UnoReferenceMark;
+import static org.jabref.logic.openoffice.backend.NamedRangeReferenceMark.safeInsertSpacesBetweenReferenceMarks;
 
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
@@ -32,16 +18,31 @@ import com.sun.star.text.XTextRangeCompare;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
 import io.github.thibaultmeyer.cuid.CUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.jabref.logic.openoffice.ReferenceMark;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.openoffice.DocumentAnnotation;
+import org.jabref.model.openoffice.ootext.OOText;
+import org.jabref.model.openoffice.ootext.OOTextIntoOO;
+import org.jabref.model.openoffice.uno.CreationException;
+import org.jabref.model.openoffice.uno.UnoReferenceMark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.logic.openoffice.backend.NamedRangeReferenceMark.safeInsertSpacesBetweenReferenceMarks;
 
 /**
  * Class for generation, insertion and management of all reference marks in the document.
  */
 public class CSLReferenceMarkManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CSLReferenceMarkManager.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        CSLReferenceMarkManager.class
+    );
 
     private final XTextDocument document;
     private final XMultiServiceFactory factory;
@@ -54,38 +55,66 @@ public class CSLReferenceMarkManager {
 
     public CSLReferenceMarkManager(XTextDocument document) {
         this.document = document;
-        this.factory = UnoRuntime.queryInterface(XMultiServiceFactory.class, document);
-        this.textRangeCompare = UnoRuntime.queryInterface(XTextRangeCompare.class, document.getText());
+        this.factory = UnoRuntime.queryInterface(
+            XMultiServiceFactory.class,
+            document
+        );
+        this.textRangeCompare = UnoRuntime.queryInterface(
+            XTextRangeCompare.class,
+            document.getText()
+        );
         this.isNumberUpdateRequired = false;
     }
 
-    public CSLReferenceMark createReferenceMark(List<BibEntry> entries) throws Exception {
-        List<String> citationKeys = entries.stream()
-                                           .map(entry -> entry.getCitationKey().orElse(CUID.randomCUID2(8).toString()))
-                                           .collect(Collectors.toList());
+    public CSLReferenceMark createReferenceMark(List<BibEntry> entries)
+        throws Exception {
+        List<String> citationKeys = entries
+            .stream()
+            .map(entry ->
+                entry.getCitationKey().orElse(CUID.randomCUID2(8).toString())
+            )
+            .collect(Collectors.toList());
 
-        List<Integer> citationNumbers = citationKeys.stream()
-                                                    .map(this::getCitationNumber)
-                                                    .collect(Collectors.toList());
+        List<Integer> citationNumbers = citationKeys
+            .stream()
+            .map(this::getCitationNumber)
+            .collect(Collectors.toList());
 
-        CSLReferenceMark referenceMark = CSLReferenceMark.of(citationKeys, citationNumbers, factory);
+        CSLReferenceMark referenceMark = CSLReferenceMark.of(
+            citationKeys,
+            citationNumbers,
+            factory
+        );
         marksByName.put(referenceMark.getName(), referenceMark);
         marksInOrder.add(referenceMark);
         return referenceMark;
     }
 
-    public void insertReferenceIntoOO(List<BibEntry> entries, XTextDocument doc, XTextCursor position, OOText ooText, boolean insertSpaceBefore, boolean insertSpaceAfter)
-            throws CreationException, Exception {
+    public void insertReferenceIntoOO(
+        List<BibEntry> entries,
+        XTextDocument doc,
+        XTextCursor position,
+        OOText ooText,
+        boolean insertSpaceBefore,
+        boolean insertSpaceAfter
+    ) throws CreationException, Exception {
         CSLReferenceMark mark = createReferenceMark(entries);
         // Ensure the cursor is at the end of its range
         position.collapseToEnd();
 
         // Insert spaces safely
-        XTextCursor cursor = safeInsertSpacesBetweenReferenceMarks(position.getEnd(), 2);
+        XTextCursor cursor = safeInsertSpacesBetweenReferenceMarks(
+            position.getEnd(),
+            2
+        );
 
         // Cursors before the first and after the last space
-        XTextCursor cursorBefore = cursor.getText().createTextCursorByRange(cursor.getStart());
-        XTextCursor cursorAfter = cursor.getText().createTextCursorByRange(cursor.getEnd());
+        XTextCursor cursorBefore = cursor
+            .getText()
+            .createTextCursorByRange(cursor.getStart());
+        XTextCursor cursorAfter = cursor
+            .getText()
+            .createTextCursorByRange(cursor.getEnd());
 
         cursor.collapseToStart();
         cursor.goRight((short) 1, false);
@@ -105,7 +134,12 @@ public class CSLReferenceMarkManager {
         cursor.gotoRange(endRange, true);
 
         // Create DocumentAnnotation and attach it
-        DocumentAnnotation documentAnnotation = new DocumentAnnotation(doc, mark.getName(), cursor, true);
+        DocumentAnnotation documentAnnotation = new DocumentAnnotation(
+            doc,
+            mark.getName(),
+            cursor,
+            true
+        );
         UnoReferenceMark.create(documentAnnotation);
 
         // Move cursor to the end of the inserted content
@@ -125,25 +159,40 @@ public class CSLReferenceMarkManager {
         position.gotoRange(cursorAfter.getEnd(), false);
     }
 
-    public void readAndUpdateExistingMarks() throws WrappedTargetException, NoSuchElementException {
+    public void readAndUpdateExistingMarks()
+        throws WrappedTargetException, NoSuchElementException {
         marksByName.clear();
         marksInOrder.clear();
         citationKeyToNumber.clear();
 
-        XReferenceMarksSupplier supplier = UnoRuntime.queryInterface(XReferenceMarksSupplier.class, document);
+        XReferenceMarksSupplier supplier = UnoRuntime.queryInterface(
+            XReferenceMarksSupplier.class,
+            document
+        );
         XNameAccess marks = supplier.getReferenceMarks();
 
         for (String name : marks.getElementNames()) {
             String[] parts = name.split(" ");
-            if (parts[0].startsWith(ReferenceMark.PREFIXES[0]) && parts[1].startsWith(ReferenceMark.PREFIXES[1]) && parts.length >= 3) {
-                XNamed named = UnoRuntime.queryInterface(XNamed.class, marks.getByName(name));
+            if (
+                parts[0].startsWith(ReferenceMark.PREFIXES[0])
+                && parts[1].startsWith(ReferenceMark.PREFIXES[1])
+                && parts.length >= 3
+            ) {
+                XNamed named = UnoRuntime.queryInterface(
+                    XNamed.class,
+                    marks.getByName(name)
+                );
 
                 ReferenceMark referenceMark = new ReferenceMark(name);
                 List<String> citationKeys = referenceMark.getCitationKeys();
-                List<Integer> citationNumbers = referenceMark.getCitationNumbers();
+                List<Integer> citationNumbers =
+                    referenceMark.getCitationNumbers();
 
                 if (!citationKeys.isEmpty() && !citationNumbers.isEmpty()) {
-                    CSLReferenceMark mark = new CSLReferenceMark(named, referenceMark);
+                    CSLReferenceMark mark = new CSLReferenceMark(
+                        named,
+                        referenceMark
+                    );
                     marksByName.put(name, mark);
                     marksInOrder.add(mark);
 
@@ -151,10 +200,16 @@ public class CSLReferenceMarkManager {
                         String key = citationKeys.get(i);
                         int number = citationNumbers.get(i);
                         citationKeyToNumber.put(key, number);
-                        highestCitationNumber = Math.max(highestCitationNumber, number);
+                        highestCitationNumber = Math.max(
+                            highestCitationNumber,
+                            number
+                        );
                     }
                 } else {
-                    LOGGER.warn("Cannot parse reference mark - invalid format: {}", name);
+                    LOGGER.warn(
+                        "Cannot parse reference mark - invalid format: {}",
+                        name
+                    );
                 }
             }
         }
@@ -164,16 +219,22 @@ public class CSLReferenceMarkManager {
         if (isNumberUpdateRequired) {
             try {
                 updateAllCitationNumbers();
-            } catch (Exception
-                     | CreationException e) {
+            } catch (Exception | CreationException e) {
                 LOGGER.warn("Error updating citation numbers", e);
             }
         }
     }
 
-    private String getUpdatedReferenceMarkNameWithNewNumbers(String oldName, List<Integer> newNumbers) {
+    private String getUpdatedReferenceMarkNameWithNewNumbers(
+        String oldName,
+        List<Integer> newNumbers
+    ) {
         String[] parts = oldName.split(" ");
-        if (parts[0].startsWith(ReferenceMark.PREFIXES[0]) && parts[1].startsWith(ReferenceMark.PREFIXES[1]) && parts.length >= 3) {
+        if (
+            parts[0].startsWith(ReferenceMark.PREFIXES[0])
+            && parts[1].startsWith(ReferenceMark.PREFIXES[1])
+            && parts.length >= 3
+        ) {
             StringBuilder newName = new StringBuilder();
             for (int i = 0; i < parts.length - 1; i += 2) {
                 // Each iteration of the loop (incrementing by 2) represents one full citation (key + number)
@@ -181,7 +242,9 @@ public class CSLReferenceMarkManager {
                     newName.append(", ");
                 }
                 newName.append(parts[i]).append(" ");
-                newName.append(ReferenceMark.PREFIXES[1]).append(newNumbers.get(i / 2));
+                newName
+                    .append(ReferenceMark.PREFIXES[1])
+                    .append(newNumbers.get(i / 2));
             }
             newName.append(" ").append(parts[parts.length - 1]);
             return newName.toString();
@@ -189,7 +252,8 @@ public class CSLReferenceMarkManager {
         return oldName;
     }
 
-    private void updateAllCitationNumbers() throws Exception, CreationException {
+    private void updateAllCitationNumbers()
+        throws Exception, CreationException {
         sortMarksInOrder();
         Map<String, Integer> newCitationKeyToNumber = new HashMap<>();
         int currentNumber = 1;
@@ -217,7 +281,10 @@ public class CSLReferenceMarkManager {
         citationKeyToNumber = newCitationKeyToNumber;
     }
 
-    private String getUpdatedCitationTextWithNewNumbers(String currentText, List<Integer> newNumbers) {
+    private String getUpdatedCitationTextWithNewNumbers(
+        String currentText,
+        List<Integer> newNumbers
+    ) {
         Pattern pattern = Pattern.compile("(\\D*)(\\d+)(\\D*)");
         Matcher matcher = pattern.matcher(currentText);
         StringBuilder result = new StringBuilder();
@@ -230,7 +297,9 @@ public class CSLReferenceMarkManager {
                 result.append(newNumbers.get(numberIndex));
             } else {
                 // If we've run out of new numbers, increment the last used number
-                result.append(newNumbers.getLast() + (numberIndex - newNumbers.size() + 1));
+                result.append(
+                    newNumbers.getLast() + (numberIndex - newNumbers.size() + 1)
+                );
             }
             numberIndex++;
             lastEnd = matcher.end(2);
@@ -240,29 +309,51 @@ public class CSLReferenceMarkManager {
         return result.toString();
     }
 
-    private void updateMarkAndTextWithNewNumbers(CSLReferenceMark mark, List<Integer> newNumbers) throws Exception, CreationException {
-        String updatedName = getUpdatedReferenceMarkNameWithNewNumbers(mark.getName(), newNumbers);
+    private void updateMarkAndTextWithNewNumbers(
+        CSLReferenceMark mark,
+        List<Integer> newNumbers
+    ) throws Exception, CreationException {
+        String updatedName = getUpdatedReferenceMarkNameWithNewNumbers(
+            mark.getName(),
+            newNumbers
+        );
         String currentText = mark.getTextContent().getAnchor().getString();
-        String updatedText = getUpdatedCitationTextWithNewNumbers(currentText, newNumbers);
+        String updatedText = getUpdatedCitationTextWithNewNumbers(
+            currentText,
+            newNumbers
+        );
 
         updateMarkAndText(mark, updatedText, updatedName);
 
-        XReferenceMarksSupplier supplier = UnoRuntime.queryInterface(XReferenceMarksSupplier.class, document);
+        XReferenceMarksSupplier supplier = UnoRuntime.queryInterface(
+            XReferenceMarksSupplier.class,
+            document
+        );
         XNameAccess marks = supplier.getReferenceMarks();
-        XTextContent newContent = UnoRuntime.queryInterface(XTextContent.class, marks.getByName(updatedName));
+        XTextContent newContent = UnoRuntime.queryInterface(
+            XTextContent.class,
+            marks.getByName(updatedName)
+        );
 
         mark.updateTextContent(newContent);
         mark.updateName(updatedName);
         mark.setCitationNumbers(newNumbers);
     }
 
-    public void updateMarkAndTextWithNewStyle(CSLReferenceMark mark, String newText) throws Exception, CreationException {
+    public void updateMarkAndTextWithNewStyle(
+        CSLReferenceMark mark,
+        String newText
+    ) throws Exception, CreationException {
         String unchangedName = mark.getName();
 
         updateMarkAndText(mark, newText, unchangedName);
     }
 
-    private void updateMarkAndText(CSLReferenceMark mark, String newText, String markName) throws Exception, CreationException {
+    private void updateMarkAndText(
+        CSLReferenceMark mark,
+        String newText,
+        String markName
+    ) throws Exception, CreationException {
         XTextContent oldContent = mark.getTextContent();
         XTextRange range = oldContent.getAnchor();
 
@@ -289,7 +380,12 @@ public class CSLReferenceMarkManager {
             cursor.gotoRange(endRange, true);
 
             // Create and attach DocumentAnnotation
-            DocumentAnnotation documentAnnotation = new DocumentAnnotation(document, markName, cursor, true);
+            DocumentAnnotation documentAnnotation = new DocumentAnnotation(
+                document,
+                markName,
+                cursor,
+                true
+            );
             UnoReferenceMark.create(documentAnnotation);
 
             // Move cursor to the end
@@ -298,7 +394,9 @@ public class CSLReferenceMarkManager {
     }
 
     public int getCitationNumber(String citationKey) {
-        return citationKeyToNumber.computeIfAbsent(citationKey, _ -> ++highestCitationNumber);
+        return citationKeyToNumber.computeIfAbsent(citationKey, _ ->
+            ++highestCitationNumber
+        );
     }
 
     public List<CSLReferenceMark> getMarksInOrder() {
@@ -315,12 +413,19 @@ public class CSLReferenceMarkManager {
     }
 
     private void sortMarksInOrder() {
-        marksInOrder.sort((m1, m2) -> compareTextRanges(m2.getTextContent().getAnchor(), m1.getTextContent().getAnchor()));
+        marksInOrder.sort((m1, m2) ->
+            compareTextRanges(
+                m2.getTextContent().getAnchor(),
+                m1.getTextContent().getAnchor()
+            )
+        );
     }
 
     private int compareTextRanges(XTextRange r1, XTextRange r2) {
         try {
-            return r1 != null && r2 != null ? textRangeCompare.compareRegionStarts(r1, r2) : 0;
+            return r1 != null && r2 != null
+                ? textRangeCompare.compareRegionStarts(r1, r2)
+                : 0;
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Error comparing text ranges: {}", e.getMessage(), e);
             return 0;

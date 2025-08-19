@@ -1,0 +1,41 @@
+name: Fix prettier
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prettier:
+    # enable manual run - and automatic fix in the JabRef organization
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.repository_owner == 'JabRef')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npx prettier --write "**/*.java"
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: "Formatted using pretter-java"

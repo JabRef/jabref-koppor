@@ -21,22 +21,30 @@ public enum AiTemplate {
 
     public String getLocalizedName() {
         return switch (this) {
-            case CHATTING_SYSTEM_MESSAGE ->
-                    Localization.lang("System message for chatting");
-            case CHATTING_USER_MESSAGE ->
-                    Localization.lang("User message for chatting");
-            case SUMMARIZATION_CHUNK_SYSTEM_MESSAGE ->
-                    Localization.lang("System message for summarization of a chunk");
-            case SUMMARIZATION_CHUNK_USER_MESSAGE ->
-                    Localization.lang("User message for summarization of a chunk");
-            case SUMMARIZATION_COMBINE_SYSTEM_MESSAGE ->
-                    Localization.lang("System message for summarization of several chunks");
-            case SUMMARIZATION_COMBINE_USER_MESSAGE ->
-                    Localization.lang("User message for summarization of several chunks");
-            case CITATION_PARSING_SYSTEM_MESSAGE ->
-                    Localization.lang("System message for citation parsing");
-            case CITATION_PARSING_USER_MESSAGE ->
-                    Localization.lang("User message for citation parsing");
+            case CHATTING_SYSTEM_MESSAGE -> Localization.lang(
+                "System message for chatting"
+            );
+            case CHATTING_USER_MESSAGE -> Localization.lang(
+                "User message for chatting"
+            );
+            case SUMMARIZATION_CHUNK_SYSTEM_MESSAGE -> Localization.lang(
+                "System message for summarization of a chunk"
+            );
+            case SUMMARIZATION_CHUNK_USER_MESSAGE -> Localization.lang(
+                "User message for summarization of a chunk"
+            );
+            case SUMMARIZATION_COMBINE_SYSTEM_MESSAGE -> Localization.lang(
+                "System message for summarization of several chunks"
+            );
+            case SUMMARIZATION_COMBINE_USER_MESSAGE -> Localization.lang(
+                "User message for summarization of several chunks"
+            );
+            case CITATION_PARSING_SYSTEM_MESSAGE -> Localization.lang(
+                "System message for citation parsing"
+            );
+            case CITATION_PARSING_USER_MESSAGE -> Localization.lang(
+                "User message for citation parsing"
+            );
         };
     }
 }

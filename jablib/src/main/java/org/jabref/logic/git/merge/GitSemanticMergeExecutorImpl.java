@@ -2,7 +2,6 @@ package org.jabref.logic.git.merge;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.jabref.logic.git.conflicts.SemanticConflictDetector;
 import org.jabref.logic.git.io.GitFileWriter;
 import org.jabref.logic.git.model.MergeResult;
@@ -13,14 +12,24 @@ public class GitSemanticMergeExecutorImpl implements GitSemanticMergeExecutor {
 
     private final ImportFormatPreferences importFormatPreferences;
 
-    public GitSemanticMergeExecutorImpl(ImportFormatPreferences importFormatPreferences) {
+    public GitSemanticMergeExecutorImpl(
+        ImportFormatPreferences importFormatPreferences
+    ) {
         this.importFormatPreferences = importFormatPreferences;
     }
 
     @Override
-    public MergeResult merge(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote, Path bibFilePath) throws IOException {
+    public MergeResult merge(
+        BibDatabaseContext base,
+        BibDatabaseContext local,
+        BibDatabaseContext remote,
+        Path bibFilePath
+    ) throws IOException {
         // 1. extract merge plan from base -> remote
-        MergePlan plan = SemanticConflictDetector.extractMergePlan(base, remote);
+        MergePlan plan = SemanticConflictDetector.extractMergePlan(
+            base,
+            remote
+        );
 
         // 2. apply remote changes to local
         SemanticMerger.applyMergePlan(local, plan);

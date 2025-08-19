@@ -6,10 +6,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.model.entry.types.EntryType;
 
 public class NewEntryPreferences {
+
     private final ObjectProperty<NewEntryDialogTab> latestApproach;
     private final BooleanProperty typesRecommendedExpanded;
     private final BooleanProperty typesOtherExpanded;
@@ -19,22 +19,28 @@ public class NewEntryPreferences {
     private final StringProperty latestIdFetcherName;
     private final StringProperty latestInterpretParserName;
 
-    public NewEntryPreferences(NewEntryDialogTab approach,
-                               boolean expandRecommended,
-                               boolean expandOther,
-                               boolean expandCustom,
-                               EntryType immediateType,
-                               boolean idLookupGuessing,
-                               String idFetcherName,
-                               String interpretParserName) {
+    public NewEntryPreferences(
+        NewEntryDialogTab approach,
+        boolean expandRecommended,
+        boolean expandOther,
+        boolean expandCustom,
+        EntryType immediateType,
+        boolean idLookupGuessing,
+        String idFetcherName,
+        String interpretParserName
+    ) {
         this.latestApproach = new SimpleObjectProperty<>(approach);
-        this.typesRecommendedExpanded = new SimpleBooleanProperty(expandRecommended);
+        this.typesRecommendedExpanded = new SimpleBooleanProperty(
+            expandRecommended
+        );
         this.typesOtherExpanded = new SimpleBooleanProperty(expandOther);
         this.typesCustomExpanded = new SimpleBooleanProperty(expandCustom);
         this.latestImmediateType = new SimpleObjectProperty<>(immediateType);
         this.idLookupGuessing = new SimpleBooleanProperty(idLookupGuessing);
         this.latestIdFetcherName = new SimpleStringProperty(idFetcherName);
-        this.latestInterpretParserName = new SimpleStringProperty(interpretParserName);
+        this.latestInterpretParserName = new SimpleStringProperty(
+            interpretParserName
+        );
     }
 
     public NewEntryDialogTab getLatestApproach() {

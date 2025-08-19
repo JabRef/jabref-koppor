@@ -7,11 +7,8 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.scene.control.Tooltip;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -36,28 +33,33 @@ public class OtherFieldsTab extends FieldsEditorTab {
     private final List<Field> customTabsFieldNames;
     private final BibEntryTypesManager entryTypesManager;
 
-    public OtherFieldsTab(UndoManager undoManager,
-                          UndoAction undoAction,
-                          RedoAction redoAction,
-                          GuiPreferences preferences,
-                          BibEntryTypesManager entryTypesManager,
-                          JournalAbbreviationRepository journalAbbreviationRepository,
-                          StateManager stateManager,
-                          PreviewPanel previewPanel) {
+    public OtherFieldsTab(
+        UndoManager undoManager,
+        UndoAction undoAction,
+        RedoAction redoAction,
+        GuiPreferences preferences,
+        BibEntryTypesManager entryTypesManager,
+        JournalAbbreviationRepository journalAbbreviationRepository,
+        StateManager stateManager,
+        PreviewPanel previewPanel
+    ) {
         super(
-                false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
+            false,
+            undoManager,
+            undoAction,
+            redoAction,
+            preferences,
+            journalAbbreviationRepository,
+            stateManager,
+            previewPanel
         );
-
         this.entryTypesManager = entryTypesManager;
         this.customTabsFieldNames = new ArrayList<>();
-        preferences.getEntryEditorPreferences().getEntryEditorTabs().values().forEach(customTabsFieldNames::addAll);
+        preferences
+            .getEntryEditorPreferences()
+            .getEntryEditorTabs()
+            .values()
+            .forEach(customTabsFieldNames::addAll);
 
         setText(Localization.lang("Other fields"));
         setTooltip(new Tooltip(Localization.lang("Show remaining fields")));
@@ -66,16 +68,23 @@ public class OtherFieldsTab extends FieldsEditorTab {
 
     @Override
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
-        Optional<BibEntryType> entryType = entryTypesManager.enrich(entry.getType(), mode);
+        BibDatabaseMode mode = stateManager
+            .getActiveDatabase()
+            .map(BibDatabaseContext::getMode)
+            .orElse(BibDatabaseMode.BIBLATEX);
+        Optional<BibEntryType> entryType = entryTypesManager.enrich(
+            entry.getType(),
+            mode
+        );
         if (entryType.isPresent()) {
             // Get all required and optional fields configured for the entry
             Set<Field> allKnownFields = entryType.get().getAllFields();
             // Remove all fields being required or optional
-            SequencedSet<Field> otherFields = entry.getFields().stream()
-                                          .filter(field -> !allKnownFields.contains(field))
-                                          .collect(Collectors.toCollection(LinkedHashSet::new));
+            SequencedSet<Field> otherFields = entry
+                .getFields()
+                .stream()
+                .filter(field -> !allKnownFields.contains(field))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
             // The key field is in the required tab, but has a special treatment
             otherFields.remove(InternalField.KEY_FIELD);
             // Remove all fields contained in JabRef's tab "Deprecated"
@@ -84,7 +93,9 @@ public class OtherFieldsTab extends FieldsEditorTab {
             customTabsFieldNames.forEach(otherFields::remove);
             // Remove all user-comment fields (tab org.jabref.gui.entryeditor.CommentsTab)
             otherFields.removeIf(field -> field.equals(StandardField.COMMENT));
-            otherFields.removeIf(field -> field instanceof UserSpecificCommentField);
+            otherFields.removeIf(field ->
+                field instanceof UserSpecificCommentField
+            );
             return otherFields;
         } else {
             // Entry type unknown -> treat all fields as required (thus no other fields)

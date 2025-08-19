@@ -3,6 +3,7 @@ package org.jabref.gui.externalfiles;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntryImportHandlerTracker {
+
     private final AtomicInteger imported = new AtomicInteger(0);
     private final AtomicInteger skipped = new AtomicInteger(0);
 

@@ -2,7 +2,6 @@ package org.jabref.gui.importer;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -12,16 +11,17 @@ import org.jabref.logic.l10n.Localization;
  */
 public class ParserResultWarningDialog {
 
-    private ParserResultWarningDialog() {
-    }
+    private ParserResultWarningDialog() {}
 
     /**
      * Shows a dialog with the warnings from an import or open of a file
      *
      * @param parserResult   - ParserResult for the current import/open
      */
-    public static void showParserResultWarningDialog(final ParserResult parserResult,
-                                                     final DialogService dialogService) {
+    public static void showParserResultWarningDialog(
+        final ParserResult parserResult,
+        final DialogService dialogService
+    ) {
         Objects.requireNonNull(parserResult);
         // Return if no warnings
         if (!parserResult.hasWarnings()) {
@@ -42,10 +42,17 @@ public class ParserResultWarningDialog {
         if (parserResult.getPath().isEmpty()) {
             dialogTitle = Localization.lang("Warnings");
         } else {
-            dialogTitle = Localization.lang("Warnings") + " (" + parserResult.getPath().get().getFileName() + ")";
+            dialogTitle =
+                Localization.lang("Warnings")
+                + " ("
+                + parserResult.getPath().get().getFileName()
+                + ")";
         }
 
         // Show dialog
-        dialogService.showWarningDialogAndWait(dialogTitle, dialogContent.toString());
+        dialogService.showWarningDialogAndWait(
+            dialogTitle,
+            dialogContent.toString()
+        );
     }
 }

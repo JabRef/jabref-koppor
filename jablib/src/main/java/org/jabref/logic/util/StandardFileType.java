@@ -2,12 +2,10 @@ package org.jabref.logic.util;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.jabref.model.util.OptionalUtil;
 
 /// @implNote Enter the extensions in lowercase without a dot! The dot is added implicitly.
 public enum StandardFileType implements FileType {
-
     ANY_FILE("Any", "*"),
 
     AUX("Aux file", "aux"),
@@ -69,9 +67,13 @@ public enum StandardFileType implements FileType {
     public static FileType fromExtensions(String... extensions) {
         List<String> exts = Arrays.asList(extensions);
 
-        return OptionalUtil.orElse(Arrays.stream(StandardFileType.values())
-                                         .filter(field -> field.getExtensions().stream().anyMatch(exts::contains))
-                                         .findAny(),
-                new UnknownFileType(extensions));
+        return OptionalUtil.orElse(
+            Arrays.stream(StandardFileType.values())
+                .filter(field ->
+                    field.getExtensions().stream().anyMatch(exts::contains)
+                )
+                .findAny(),
+            new UnknownFileType(extensions)
+        );
     }
 }

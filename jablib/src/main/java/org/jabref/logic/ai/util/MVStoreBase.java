@@ -1,24 +1,26 @@
 package org.jabref.logic.ai.util;
 
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.jabref.logic.util.NotificationService;
-
-import jakarta.annotation.Nullable;
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.MVStoreException;
+import org.jabref.logic.util.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class MVStoreBase implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MVStoreBase.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        MVStoreBase.class
+    );
 
     protected MVStore mvStore;
 
     public MVStoreBase(Path path, NotificationService dialogService) {
-        @Nullable Path mvStorePath = path;
+        @Nullable
+        Path mvStorePath = path;
 
         try {
             Files.createDirectories(path.getParent());
@@ -30,14 +32,14 @@ public abstract class MVStoreBase implements AutoCloseable {
 
         try {
             this.mvStore = new MVStore.Builder()
-                    .autoCommitDisabled()
-                    .fileName(mvStorePath == null ? null : mvStorePath.toString())
-                    .open();
+                .autoCommitDisabled()
+                .fileName(mvStorePath == null ? null : mvStorePath.toString())
+                .open();
         } catch (MVStoreException e) {
             this.mvStore = new MVStore.Builder()
-                    .autoCommitDisabled()
-                    .fileName(null) // creates an in memory store
-                    .open();
+                .autoCommitDisabled()
+                .fileName(null) // creates an in memory store
+                .open();
             LOGGER.error(errorMessageForOpening(), e);
         }
     }

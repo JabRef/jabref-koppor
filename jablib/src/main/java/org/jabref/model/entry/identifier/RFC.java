@@ -12,8 +12,13 @@ import java.util.regex.Pattern;
  * This class supports both plain RFC IDs (e.g., "rfc7276") and full URLs (e.g., "https://www.rfc-editor.org/rfc/" + rfc****.html).
  */
 public class RFC extends EprintIdentifier {
-    private static final String RFC_URL_REGEX = "(rfc\\d+)|(https?://)?(www\\.)?rfc-editor\\.org/rfc/rfc(?<id>\\d+)(\\.html)?.*";
-    private static final Pattern RFC_URL_MATCH = Pattern.compile(RFC_URL_REGEX, Pattern.CASE_INSENSITIVE);
+
+    private static final String RFC_URL_REGEX =
+        "(rfc\\d+)|(https?://)?(www\\.)?rfc-editor\\.org/rfc/rfc(?<id>\\d+)(\\.html)?.*";
+    private static final Pattern RFC_URL_MATCH = Pattern.compile(
+        RFC_URL_REGEX,
+        Pattern.CASE_INSENSITIVE
+    );
     private final String rfcString;
 
     /**
@@ -60,7 +65,9 @@ public class RFC extends EprintIdentifier {
     @Override
     public Optional<URI> getExternalURI() {
         try {
-            return Optional.of(new URI("https://www.rfc-editor.org/rfc/" + rfcString));
+            return Optional.of(
+                new URI("https://www.rfc-editor.org/rfc/" + rfcString)
+            );
         } catch (URISyntaxException e) {
             return Optional.empty();
         }

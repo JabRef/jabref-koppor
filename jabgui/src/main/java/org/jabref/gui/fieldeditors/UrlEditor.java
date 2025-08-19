@@ -1,16 +1,15 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.function.Supplier;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.EditorMenus;
@@ -24,39 +23,72 @@ import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class UrlEditor extends HBox implements FieldEditorFX {
 
-    @FXML private final UrlEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
+    @FXML
+    private final UrlEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private UndoManager undoManager;
+    @FXML
+    private EditorTextField textField;
 
-    public UrlEditor(Field field,
-                     SuggestionProvider<?> suggestionProvider,
-                     FieldCheckers fieldCheckers,
-                     UndoAction undoAction,
-                     RedoAction redoAction) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private DialogService dialogService;
 
-        this.viewModel = new UrlEditorViewModel(field, suggestionProvider, dialogService, preferences, fieldCheckers, undoManager);
+    @Inject
+    private GuiPreferences preferences;
 
-        establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
 
-        Supplier<List<MenuItem>> contextMenuSupplier = EditorMenus.getCleanupUrlMenu(textField);
-        textField.initContextMenu(contextMenuSupplier, preferences.getKeyBindingRepository());
+    @Inject
+    private UndoManager undoManager;
+
+    public UrlEditor(
+        Field field,
+        SuggestionProvider<?> suggestionProvider,
+        FieldCheckers fieldCheckers,
+        UndoAction undoAction,
+        RedoAction redoAction
+    ) {
+        ViewLoader.view(this).root(this).load();
+
+        this.viewModel = new UrlEditorViewModel(
+            field,
+            suggestionProvider,
+            dialogService,
+            preferences,
+            fieldCheckers,
+            undoManager
+        );
+
+        establishBinding(
+            textField,
+            viewModel.textProperty(),
+            keyBindingRepository,
+            undoAction,
+            redoAction
+        );
+
+        Supplier<List<MenuItem>> contextMenuSupplier =
+            EditorMenus.getCleanupUrlMenu(textField);
+        textField.initContextMenu(
+            contextMenuSupplier,
+            preferences.getKeyBindingRepository()
+        );
 
         // init paste handler for UrlEditor to format pasted url link in textArea
-        textField.setAdditionalPasteActionHandler(() -> textField.setText(new CleanupUrlFormatter().format(new TrimWhitespaceFormatter().format(textField.getText()))));
+        textField.setAdditionalPasteActionHandler(() ->
+            textField.setText(
+                new CleanupUrlFormatter().format(
+                    new TrimWhitespaceFormatter().format(textField.getText())
+                )
+            )
+        );
 
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(
+            viewModel.getFieldValidator().getValidationStatus(),
+            textField
+        );
     }
 
     public UrlEditorViewModel getViewModel() {

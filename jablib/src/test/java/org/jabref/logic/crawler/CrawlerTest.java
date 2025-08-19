@@ -1,14 +1,19 @@
 package org.jabref.logic.crawler;
 
+import static org.jabref.logic.citationkeypattern.CitationKeyGenerator.DEFAULT_UNWANTED_CHARACTERS;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javafx.collections.FXCollections;
-
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
@@ -24,18 +29,10 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.testutils.category.FetcherTest;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.jabref.logic.citationkeypattern.CitationKeyGenerator.DEFAULT_UNWANTED_CHARACTERS;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration test of the components used for SLR support
@@ -43,17 +40,27 @@ import static org.mockito.Mockito.when;
  */
 @FetcherTest
 class CrawlerTest {
+
     @TempDir
     Path tempRepositoryDirectory;
+
     ImportFormatPreferences importFormatPreferences;
     ImporterPreferences importerPreferences;
     SaveConfiguration saveConfiguration;
     BibEntryTypesManager entryTypesManager;
-    SlrGitHandler gitHandler = mock(SlrGitHandler.class, Answers.RETURNS_DEFAULTS);
+    SlrGitHandler gitHandler = mock(
+        SlrGitHandler.class,
+        Answers.RETURNS_DEFAULTS
+    );
     String hashCodeQuantum = String.valueOf("Quantum".hashCode());
-    String hashCodeCloudComputing = String.valueOf("Cloud Computing".hashCode());
+    String hashCodeCloudComputing = String.valueOf(
+        "Cloud Computing".hashCode()
+    );
 
-    CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
+    CliPreferences preferences = mock(
+        CliPreferences.class,
+        Answers.RETURNS_DEEP_STUBS
+    );
 
     /**
      * Set up mocks and copies the study definition file into the test repository
@@ -62,7 +69,8 @@ class CrawlerTest {
     void setUp() throws GitAPIException, URISyntaxException {
         setUpRepository();
 
-        CitationKeyPatternPreferences citationKeyPatternPreferences = new CitationKeyPatternPreferences(
+        CitationKeyPatternPreferences citationKeyPatternPreferences =
+            new CitationKeyPatternPreferences(
                 false,
                 false,
                 false,
@@ -72,60 +80,116 @@ class CrawlerTest {
                 DEFAULT_UNWANTED_CHARACTERS,
                 GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
                 "",
-                ',');
+                ','
+            );
 
-        importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        importFormatPreferences = mock(
+            ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
         importerPreferences = mock(ImporterPreferences.class);
-        saveConfiguration = mock(SaveConfiguration.class, Answers.RETURNS_DEEP_STUBS);
-        when(saveConfiguration.getSaveOrder()).thenReturn(SaveOrder.getDefaultSaveOrder());
-        when(importerPreferences.getApiKeys()).thenReturn(FXCollections.emptyObservableSet());
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        saveConfiguration = mock(
+            SaveConfiguration.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
+        when(saveConfiguration.getSaveOrder()).thenReturn(
+            SaveOrder.getDefaultSaveOrder()
+        );
+        when(importerPreferences.getApiKeys()).thenReturn(
+            FXCollections.emptyObservableSet()
+        );
+        when(
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+        ).thenReturn(',');
 
-        when(preferences.getCitationKeyPatternPreferences()).thenReturn(citationKeyPatternPreferences);
+        when(preferences.getCitationKeyPatternPreferences()).thenReturn(
+            citationKeyPatternPreferences
+        );
 
         entryTypesManager = new BibEntryTypesManager();
     }
 
     private void setUpRepository() throws GitAPIException, URISyntaxException {
         Git git = Git.init()
-                     .setDirectory(tempRepositoryDirectory.toFile())
-                     .call();
+            .setDirectory(tempRepositoryDirectory.toFile())
+            .call();
         setUpTestStudyDefinitionFile();
-        git.add()
-           .addFilepattern(".")
-           .call();
-        git.commit()
-           .setMessage("Initialize")
-           .call();
+        git.add().addFilepattern(".").call();
+        git.commit().setMessage("Initialize").call();
         git.close();
     }
 
     private void setUpTestStudyDefinitionFile() throws URISyntaxException {
-        Path destination = tempRepositoryDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME);
-        URL studyDefinition = this.getClass().getResource(StudyRepository.STUDY_DEFINITION_FILE_NAME);
+        Path destination = tempRepositoryDirectory.resolve(
+            StudyRepository.STUDY_DEFINITION_FILE_NAME
+        );
+        URL studyDefinition = this.getClass().getResource(
+            StudyRepository.STUDY_DEFINITION_FILE_NAME
+        );
         FileUtil.copyFile(Path.of(studyDefinition.toURI()), destination, false);
     }
 
     @Test
-    void whetherAllFilesAreCreated() throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
-        Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(),
-                gitHandler,
-                preferences,
-                entryTypesManager,
-                new DummyFileUpdateMonitor());
+    void whetherAllFilesAreCreated()
+        throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
+        Crawler testCrawler = new Crawler(
+            getPathToStudyDefinitionFile(),
+            gitHandler,
+            preferences,
+            entryTypesManager,
+            new DummyFileUpdateMonitor()
+        );
 
         testCrawler.performCrawl();
 
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
+        assertTrue(
+            Files.exists(
+                Path.of(
+                    tempRepositoryDirectory.toString(),
+                    hashCodeQuantum + " - Quantum"
+                )
+            )
+        );
+        assertTrue(
+            Files.exists(
+                Path.of(
+                    tempRepositoryDirectory.toString(),
+                    hashCodeCloudComputing + " - Cloud Computing"
+                )
+            )
+        );
 
-        List<String> filesToAssert = List.of("ArXiv.bib", "Springer.bib", "result.bib", "Medline_PubMed.bib");
-        filesToAssert.forEach(
-                fileName -> {
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", fileName)));
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", fileName)));
-                });
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), "studyResult.bib")));
+        List<String> filesToAssert = List.of(
+            "ArXiv.bib",
+            "Springer.bib",
+            "result.bib",
+            "Medline_PubMed.bib"
+        );
+        filesToAssert.forEach(fileName -> {
+            assertTrue(
+                Files.exists(
+                    Path.of(
+                        tempRepositoryDirectory.toString(),
+                        hashCodeQuantum + " - Quantum",
+                        fileName
+                    )
+                )
+            );
+            assertTrue(
+                Files.exists(
+                    Path.of(
+                        tempRepositoryDirectory.toString(),
+                        hashCodeCloudComputing + " - Cloud Computing",
+                        fileName
+                    )
+                )
+            );
+        });
+        assertTrue(
+            Files.exists(
+                Path.of(tempRepositoryDirectory.toString(), "studyResult.bib")
+            )
+        );
     }
 
     private Path getPathToStudyDefinitionFile() {

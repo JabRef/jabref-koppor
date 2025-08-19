@@ -4,7 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.util.FileFieldParser;
 import org.jabref.logic.l10n.Localization;
@@ -17,7 +16,10 @@ public class FileChecker implements ValueChecker {
     private final BibDatabaseContext context;
     private final FilePreferences filePreferences;
 
-    public FileChecker(BibDatabaseContext context, FilePreferences filePreferences) {
+    public FileChecker(
+        BibDatabaseContext context,
+        FilePreferences filePreferences
+    ) {
         this.context = context;
         this.filePreferences = filePreferences;
     }
@@ -28,15 +30,19 @@ public class FileChecker implements ValueChecker {
             return Optional.empty();
         }
 
-        List<LinkedFile> linkedFiles = FileFieldParser
-                .parse(value).stream()
-                .filter(file -> !file.isOnlineLink())
-                .toList();
+        List<LinkedFile> linkedFiles = FileFieldParser.parse(value)
+            .stream()
+            .filter(file -> !file.isOnlineLink())
+            .toList();
 
         for (LinkedFile file : linkedFiles) {
             Optional<Path> linkedFile = file.findIn(context, filePreferences);
             if ((linkedFile.isEmpty()) || !Files.exists(linkedFile.get())) {
-                return Optional.of(Localization.lang("link should refer to a correct file path"));
+                return Optional.of(
+                    Localization.lang(
+                        "link should refer to a correct file path"
+                    )
+                );
             }
         }
 

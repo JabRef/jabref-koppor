@@ -2,16 +2,21 @@ package org.jabref.gui.welcome.quicksettings.viewmodel;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
 
 public class LargeLibraryOptimizationDialogViewModel extends AbstractViewModel {
-    private final BooleanProperty disableFulltextIndexingProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty disableCreationDateProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty disableModificationDateProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty disableAutosaveProperty = new SimpleBooleanProperty(true);
-    private final BooleanProperty disableGroupCountProperty = new SimpleBooleanProperty(true);
+
+    private final BooleanProperty disableFulltextIndexingProperty =
+        new SimpleBooleanProperty(true);
+    private final BooleanProperty disableCreationDateProperty =
+        new SimpleBooleanProperty(true);
+    private final BooleanProperty disableModificationDateProperty =
+        new SimpleBooleanProperty(true);
+    private final BooleanProperty disableAutosaveProperty =
+        new SimpleBooleanProperty(true);
+    private final BooleanProperty disableGroupCountProperty =
+        new SimpleBooleanProperty(true);
 
     private final GuiPreferences preferences;
 

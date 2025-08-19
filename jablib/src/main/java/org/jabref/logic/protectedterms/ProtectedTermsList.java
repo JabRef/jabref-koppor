@@ -8,15 +8,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.os.OS;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProtectedTermsList.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ProtectedTermsList.class
+    );
 
     private String description;
     private final List<String> termsList;
@@ -24,14 +24,23 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
     private final boolean internalList;
     private boolean enabled;
 
-    public ProtectedTermsList(String description, List<String> termList, String location, boolean internalList) {
+    public ProtectedTermsList(
+        String description,
+        List<String> termList,
+        String location,
+        boolean internalList
+    ) {
         this.description = Objects.requireNonNull(description);
         this.termsList = Objects.requireNonNull(termList);
         this.location = Objects.requireNonNull(location);
         this.internalList = internalList;
     }
 
-    public ProtectedTermsList(String description, List<String> termList, String location) {
+    public ProtectedTermsList(
+        String description,
+        List<String> termList,
+        String location
+    ) {
         this(description, termList, location, false);
     }
 
@@ -86,8 +95,13 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
 
         Path p = Path.of(location);
         String s = OS.NEWLINE + term;
-        try (BufferedWriter writer = Files.newBufferedWriter(p, StandardCharsets.UTF_8,
-                create ? StandardOpenOption.CREATE : StandardOpenOption.APPEND)) {
+        try (
+            BufferedWriter writer = Files.newBufferedWriter(
+                p,
+                StandardCharsets.UTF_8,
+                create ? StandardOpenOption.CREATE : StandardOpenOption.APPEND
+            )
+        ) {
             writer.write(s);
             termsList.add(term);
         } catch (IOException ioe) {
@@ -102,7 +116,10 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
         if (!(o instanceof ProtectedTermsList otherList)) {
             return false;
         }
-        return (this.location.equals(otherList.location)) && (this.description.equals(otherList.description));
+        return (
+            (this.location.equals(otherList.location))
+            && (this.description.equals(otherList.description))
+        );
     }
 
     @Override

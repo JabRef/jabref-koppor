@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher.citation;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 
@@ -10,7 +9,6 @@ import org.jabref.model.entry.BibEntry;
  * Searches web resources for citing related articles based on a {@link BibEntry}.
  */
 public interface CitationFetcher {
-
     /**
      * Possible search methods
      */
@@ -47,7 +45,8 @@ public interface CitationFetcher {
      * @param entry entry to search citation count field
      * @return returns a {@link Integer} for citation count field (may be empty)
      */
-    Optional<Integer> searchCitationCount(BibEntry entry) throws FetcherException;
+    Optional<Integer> searchCitationCount(BibEntry entry)
+        throws FetcherException;
 
     /**
      * Returns the localized name of this fetcher.

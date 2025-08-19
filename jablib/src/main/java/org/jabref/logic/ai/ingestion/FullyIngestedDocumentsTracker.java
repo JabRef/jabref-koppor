@@ -8,7 +8,10 @@ import java.util.Optional;
  * The class also records the document modification time.
  */
 public interface FullyIngestedDocumentsTracker {
-    void markDocumentAsFullyIngested(String link, long modificationTimeInSeconds);
+    void markDocumentAsFullyIngested(
+        String link,
+        long modificationTimeInSeconds
+    );
 
     Optional<Long> getIngestedDocumentModificationTimeInSeconds(String link);
 

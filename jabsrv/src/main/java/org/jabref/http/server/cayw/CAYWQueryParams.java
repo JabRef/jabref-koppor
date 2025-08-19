@@ -1,11 +1,9 @@
 package org.jabref.http.server.cayw;
 
-import java.util.Optional;
-
-import org.jabref.logic.push.PushApplications;
-
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
+import java.util.Optional;
+import org.jabref.logic.push.PushApplications;
 
 public class CAYWQueryParams {
 
