@@ -21,12 +21,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      # Runs prettier, commits and pushes if anything changed.
-      # See https://github.com/creyD/prettier_action/ for details.
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.6
         with:
-          prettier_options: --write **/*.java
-          prettier_plugins: prettier-plugin-java
-          file_pattern: "*.java"
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'npm'
+
+      - run: npx prettier --write "**/*.java"
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: "Formatted using pretter-java"
