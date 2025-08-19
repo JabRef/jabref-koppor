@@ -29,4 +29,4 @@ jobs:
         with:
           prettier_options: --write **/*.java
           prettier_plugins: prettier-plugin-java
-          file_pattern: *.java
+          file_pattern: "*.java"
