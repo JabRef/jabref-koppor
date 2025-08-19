@@ -8,4 +8,5 @@ public class NotASharedDatabaseException extends Exception {
     public NotASharedDatabaseException() {
         super("Required database is not shared.");
     }
+
 }

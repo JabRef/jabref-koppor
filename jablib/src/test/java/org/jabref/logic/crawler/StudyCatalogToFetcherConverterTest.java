@@ -30,10 +30,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class StudyCatalogToFetcherConverterTest {
+
     SaveConfiguration saveConfiguration;
+
     CliPreferences preferences;
+
     BibEntryTypesManager entryTypesManager;
+
     SlrGitHandler gitHandler;
+
     @TempDir
     Path tempRepositoryDirectory;
 
@@ -54,26 +59,21 @@ class StudyCatalogToFetcherConverterTest {
         Path studyDefinition = tempRepositoryDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME);
         copyTestStudyDefinitionFileIntoDirectory(studyDefinition);
 
-        StudyRepository studyRepository = new StudyRepository(
-                tempRepositoryDirectory,
-                gitHandler,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                entryTypesManager);
+        StudyRepository studyRepository = new StudyRepository(tempRepositoryDirectory, gitHandler, preferences,
+                new DummyFileUpdateMonitor(), entryTypesManager);
         StudyCatalogToFetcherConverter converter = new StudyCatalogToFetcherConverter(
                 studyRepository.getActiveLibraryEntries(),
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
         List<SearchBasedFetcher> result = converter.getActiveFetchers();
 
-        assertEquals(
-                List.of("Springer", "ArXiv", "Medline/PubMed"),
-                result.stream().map(SearchBasedFetcher::getName).collect(Collectors.toList())
-        );
+        assertEquals(List.of("Springer", "ArXiv", "Medline/PubMed"),
+                result.stream().map(SearchBasedFetcher::getName).collect(Collectors.toList()));
     }
 
     private void copyTestStudyDefinitionFileIntoDirectory(Path destination) throws URISyntaxException {
         URL studyDefinition = this.getClass().getResource(StudyRepository.STUDY_DEFINITION_FILE_NAME);
         FileUtil.copyFile(Path.of(studyDefinition.toURI()), destination, false);
     }
+
 }

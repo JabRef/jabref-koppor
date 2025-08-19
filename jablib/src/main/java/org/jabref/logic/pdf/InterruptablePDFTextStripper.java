@@ -8,6 +8,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 public class InterruptablePDFTextStripper extends PDFTextStripper {
+
     private final ReadOnlyBooleanProperty shutdownSignal;
 
     public InterruptablePDFTextStripper(ReadOnlyBooleanProperty shutdownSignal) {
@@ -23,4 +24,5 @@ public class InterruptablePDFTextStripper extends PDFTextStripper {
 
         super.processPage(page);
     }
+
 }

@@ -11,12 +11,16 @@ import org.jabref.model.strings.StringUtil;
  * This class represents the change of type for an entry.
  */
 public class UndoableChangeType extends AbstractUndoableJabRefEdit {
+
     private final EntryType oldType;
+
     private final EntryType newType;
+
     private final BibEntry entry;
 
     public UndoableChangeType(FieldChange change) {
-        this(change.getEntry(), EntryTypeFactory.parse(change.getOldValue()), EntryTypeFactory.parse(change.getNewValue()));
+        this(change.getEntry(), EntryTypeFactory.parse(change.getOldValue()),
+                EntryTypeFactory.parse(change.getNewValue()));
     }
 
     public UndoableChangeType(BibEntry entry, EntryType oldType, EntryType newType) {
@@ -44,4 +48,5 @@ public class UndoableChangeType extends AbstractUndoableJabRefEdit {
         super.redo();
         entry.setType(newType);
     }
+
 }

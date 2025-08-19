@@ -31,53 +31,35 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 public class CffExporter extends Exporter {
-    // Fields that are taken 1:1 from BibTeX to CFF
-    public static final List<String> UNMAPPED_FIELDS = List.of(
-            "abbreviation", "collection-doi", "collection-title", "collection-type", "commit", "copyright",
-            "data-type", "database", "date-accessed", "date-downloaded", "date-published", "department", "end",
-            "entry", "filename", "format", "issue-date", "issue-title", "license-url", "loc-end", "loc-start",
-            "medium", "nihmsid", "number-volumes", "patent-states", "pmcid", "repository-artifact", "repository-code",
-            "scope", "section", "start", "term", "thesis-type", "volume-title", "year-original"
-    );
 
-    public static final Map<Field, String> FIELDS_MAP = Map.ofEntries(
-            Map.entry(StandardField.ABSTRACT, "abstract"),
-            Map.entry(StandardField.DATE, "date-released"),
-            Map.entry(StandardField.DOI, "doi"),
-            Map.entry(StandardField.KEYWORDS, "keywords"),
-            Map.entry(BiblatexSoftwareField.LICENSE, "license"),
-            Map.entry(StandardField.COMMENT, "message"),
-            Map.entry(BiblatexSoftwareField.REPOSITORY, "repository"),
-            Map.entry(StandardField.TITLE, "title"),
-            Map.entry(StandardField.URL, "url"),
-            Map.entry(StandardField.VERSION, "version"),
-            Map.entry(StandardField.EDITION, "edition"),
-            Map.entry(StandardField.ISBN, "isbn"),
-            Map.entry(StandardField.ISSN, "issn"),
-            Map.entry(StandardField.ISSUE, "issue"),
-            Map.entry(StandardField.JOURNAL, "journal"),
-            Map.entry(StandardField.MONTH, "month"),
-            Map.entry(StandardField.NOTE, "notes"),
-            Map.entry(StandardField.NUMBER, "number"),
-            Map.entry(StandardField.PAGES, "pages"),
-            Map.entry(StandardField.PUBSTATE, "status"),
-            Map.entry(StandardField.VOLUME, "volume"),
-            Map.entry(StandardField.YEAR, "year")
-    );
+    // Fields that are taken 1:1 from BibTeX to CFF
+    public static final List<String> UNMAPPED_FIELDS = List.of("abbreviation", "collection-doi", "collection-title",
+            "collection-type", "commit", "copyright", "data-type", "database", "date-accessed", "date-downloaded",
+            "date-published", "department", "end", "entry", "filename", "format", "issue-date", "issue-title",
+            "license-url", "loc-end", "loc-start", "medium", "nihmsid", "number-volumes", "patent-states", "pmcid",
+            "repository-artifact", "repository-code", "scope", "section", "start", "term", "thesis-type",
+            "volume-title", "year-original");
+
+    public static final Map<Field, String> FIELDS_MAP = Map.ofEntries(Map.entry(StandardField.ABSTRACT, "abstract"),
+            Map.entry(StandardField.DATE, "date-released"), Map.entry(StandardField.DOI, "doi"),
+            Map.entry(StandardField.KEYWORDS, "keywords"), Map.entry(BiblatexSoftwareField.LICENSE, "license"),
+            Map.entry(StandardField.COMMENT, "message"), Map.entry(BiblatexSoftwareField.REPOSITORY, "repository"),
+            Map.entry(StandardField.TITLE, "title"), Map.entry(StandardField.URL, "url"),
+            Map.entry(StandardField.VERSION, "version"), Map.entry(StandardField.EDITION, "edition"),
+            Map.entry(StandardField.ISBN, "isbn"), Map.entry(StandardField.ISSN, "issn"),
+            Map.entry(StandardField.ISSUE, "issue"), Map.entry(StandardField.JOURNAL, "journal"),
+            Map.entry(StandardField.MONTH, "month"), Map.entry(StandardField.NOTE, "notes"),
+            Map.entry(StandardField.NUMBER, "number"), Map.entry(StandardField.PAGES, "pages"),
+            Map.entry(StandardField.PUBSTATE, "status"), Map.entry(StandardField.VOLUME, "volume"),
+            Map.entry(StandardField.YEAR, "year"));
 
     public static final Map<EntryType, String> TYPES_MAP = Map.ofEntries(
-        Map.entry(StandardEntryType.Article, "article"),
-        Map.entry(StandardEntryType.Book, "book"),
-        Map.entry(StandardEntryType.Booklet, "pamphlet"),
-        Map.entry(StandardEntryType.Proceedings, "conference"),
-        Map.entry(StandardEntryType.InProceedings, "conference-paper"),
-        Map.entry(StandardEntryType.Misc, "misc"),
-        Map.entry(StandardEntryType.Manual, "manual"),
-        Map.entry(StandardEntryType.Software, "software"),
-        Map.entry(StandardEntryType.Dataset, "dataset"),
-        Map.entry(StandardEntryType.Report, "report"),
-        Map.entry(StandardEntryType.Unpublished, "unpublished")
-    );
+            Map.entry(StandardEntryType.Article, "article"), Map.entry(StandardEntryType.Book, "book"),
+            Map.entry(StandardEntryType.Booklet, "pamphlet"), Map.entry(StandardEntryType.Proceedings, "conference"),
+            Map.entry(StandardEntryType.InProceedings, "conference-paper"), Map.entry(StandardEntryType.Misc, "misc"),
+            Map.entry(StandardEntryType.Manual, "manual"), Map.entry(StandardEntryType.Software, "software"),
+            Map.entry(StandardEntryType.Dataset, "dataset"), Map.entry(StandardEntryType.Report, "report"),
+            Map.entry(StandardEntryType.Unpublished, "unpublished"));
 
     public CffExporter() {
         super("cff", "CFF", StandardFileType.CFF);
@@ -118,8 +100,10 @@ public class CffExporter extends Exporter {
         if (countOfSoftwareAndDataSetEntries == 1) {
             // If there is only one software or dataset entry, use it as the main entry
             entriesToTransform.remove(main);
-        } else {
-            // If there are no software or dataset entries, create a dummy main entry holding the given entries
+        }
+        else {
+            // If there are no software or dataset entries, create a dummy main entry
+            // holding the given entries
             main = new BibEntry(StandardEntryType.Software);
             mainIsDummy = true;
         }
@@ -162,7 +146,8 @@ public class CffExporter extends Exporter {
 
         try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             yaml.dump(cffData, writer);
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             throw new SaveException(ex);
         }
     }
@@ -188,8 +173,7 @@ public class CffExporter extends Exporter {
         fields.remove(StandardField.TITLE);
 
         // Mandatory authors field
-        List<Author> authors = AuthorList.parse(fields.getOrDefault(StandardField.AUTHOR, ""))
-                                         .getAuthors();
+        List<Author> authors = AuthorList.parse(fields.getOrDefault(StandardField.AUTHOR, "")).getAuthors();
         parseAuthors(cffData, authors);
         fields.remove(StandardField.AUTHOR);
 
@@ -216,7 +200,8 @@ public class CffExporter extends Exporter {
         for (Field field : fields.keySet()) {
             if (FIELDS_MAP.containsKey(field)) {
                 cffData.put(FIELDS_MAP.get(field), fields.get(field));
-            } else if (field instanceof UnknownField) {
+            }
+            else if (field instanceof UnknownField) {
                 // Check that field is accepted by CFF format specification
                 if (UNMAPPED_FIELDS.contains(field.getName())) {
                     cffData.put(field.getName(), fields.get(field));
@@ -261,5 +246,5 @@ public class CffExporter extends Exporter {
         parsedDate.getMonth().ifPresent(month -> data.put("month", month.getNumber()));
         parsedDate.getYear().ifPresent(year -> data.put("year", year));
     }
-}
 
+}

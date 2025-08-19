@@ -60,4 +60,5 @@ class CitationEntryTest {
         assertEquals(-1, citationEntry1.compareTo(citationEntry2));
         assertEquals(1, citationEntry2.compareTo(citationEntry1));
     }
+
 }

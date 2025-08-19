@@ -48,30 +48,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Action for the "Save" and "Save as" operations called from BasePanel. This class is also used for save operations
- * when closing a database or quitting the applications.
+ * Action for the "Save" and "Save as" operations called from BasePanel. This class is
+ * also used for save operations when closing a database or quitting the applications.
  * <p>
- * The save operation is loaded off of the GUI thread using {@link BackgroundTask}. Callers can query whether the
- * operation was canceled, or whether it was successful.
+ * The save operation is loaded off of the GUI thread using {@link BackgroundTask}.
+ * Callers can query whether the operation was canceled, or whether it was successful.
  */
 public class SaveDatabaseAction {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveDatabaseAction.class);
 
     private final LibraryTab libraryTab;
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final StateManager stateManager;
 
     public enum SaveDatabaseMode {
+
         SILENT, NORMAL
+
     }
 
-    public SaveDatabaseAction(LibraryTab libraryTab,
-                              DialogService dialogService,
-                              GuiPreferences preferences,
-                              BibEntryTypesManager entryTypesManager,
-                              StateManager stateManager) {
+    public SaveDatabaseAction(LibraryTab libraryTab, DialogService dialogService, GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager, StateManager stateManager) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -99,42 +103,43 @@ public class SaveDatabaseAction {
     }
 
     private SelfContainedSaveOrder getSaveOrder() {
-        return libraryTab.getBibDatabaseContext()
-                .getMetaData().getSaveOrder()
-                .map(so -> {
-                    if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                        // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
-                        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
-                        return new SelfContainedSaveOrder(
-                                SaveOrder.OrderType.SPECIFIED,
-                                sortOrder.stream()
-                                         .filter(col -> col instanceof MainTableColumn<?>)
-                                         .map(column -> ((MainTableColumn<?>) column).getModel())
-                                         .flatMap(model -> model.getSortCriteria().stream())
-                                         .toList());
-                    } else {
-                        return SelfContainedSaveOrder.of(so);
-                    }
-                })
-                .orElse(SaveOrder.getDefaultSaveOrder());
+        return libraryTab.getBibDatabaseContext().getMetaData().getSaveOrder().map(so -> {
+            if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
+                // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does
+                // not have access to preferences
+                List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
+                return new SelfContainedSaveOrder(SaveOrder.OrderType.SPECIFIED,
+                        sortOrder.stream()
+                            .filter(col -> col instanceof MainTableColumn<?>)
+                            .map(column -> ((MainTableColumn<?>) column).getModel())
+                            .flatMap(model -> model.getSortCriteria().stream())
+                            .toList());
+            }
+            else {
+                return SelfContainedSaveOrder.of(so);
+            }
+        }).orElse(SaveOrder.getDefaultSaveOrder());
     }
 
     public void saveSelectedAsPlain() {
         askForSavePath().ifPresent(path -> {
             try {
-                saveDatabase(path, true, StandardCharsets.UTF_8, BibDatabaseWriter.SaveType.PLAIN_BIBTEX, getSaveOrder());
+                saveDatabase(path, true, StandardCharsets.UTF_8, BibDatabaseWriter.SaveType.PLAIN_BIBTEX,
+                        getSaveOrder());
                 preferences.getLastFilesOpenedPreferences().getFileHistory().newFile(path);
                 dialogService.notify(Localization.lang("Saved selected to '%0'.", path.toString()));
-            } catch (SaveException ex) {
+            }
+            catch (SaveException ex) {
                 LOGGER.error("A problem occurred when trying to save the file", ex);
-                dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
+                dialogService.showErrorDialogAndWait(Localization.lang("Save library"),
+                        Localization.lang("Could not save file."), ex);
             }
         });
     }
 
     /**
-     * @param file the new file name to save the database to. This is stored in the database context of the panel upon
-     *             successful save.
+     * @param file the new file name to save the database to. This is stored in the
+     * database context of the panel upon successful save.
      * @return true on successful save
      */
     boolean saveAs(Path file, SaveDatabaseMode mode) {
@@ -144,15 +149,17 @@ public class SaveDatabaseAction {
         if (databasePath.isPresent()) {
             // Close AutosaveManager, BackupManager, and IndexManager for original library
             AutosaveManager.shutdown(context);
-            BackupManager.shutdown(context, this.preferences.getFilePreferences().getBackupDirectory(), preferences.getFilePreferences().shouldCreateBackup());
+            BackupManager.shutdown(context, this.preferences.getFilePreferences().getBackupDirectory(),
+                    preferences.getFilePreferences().shouldCreateBackup());
             libraryTab.closeIndexManger();
         }
 
         // Set new location
         if (context.getLocation() == DatabaseLocation.SHARED) {
-            // Save all properties dependent on the ID. This makes it possible to restore them.
+            // Save all properties dependent on the ID. This makes it possible to restore
+            // them.
             new SharedDatabasePreferences(context.getDatabase().generateSharedDatabaseID())
-                    .putAllDBMSConnectionProperties(context.getDBMSSynchronizer().getConnectionProperties());
+                .putAllDBMSConnectionProperties(context.getDBMSSynchronizer().getConnectionProperties());
         }
 
         boolean saveResult = save(file, mode);
@@ -164,7 +171,8 @@ public class SaveDatabaseAction {
             stateManager.setActiveDatabase(context);
             libraryTab.updateTabTitle(false);
 
-            // Reset (here: uninstall and install again) AutosaveManager, BackupManager and IndexManager for the new file name
+            // Reset (here: uninstall and install again) AutosaveManager, BackupManager
+            // and IndexManager for the new file name
             libraryTab.resetChangeMonitor();
             libraryTab.installAutosaveManagerAndBackupManager();
             libraryTab.createIndexManager();
@@ -175,17 +183,16 @@ public class SaveDatabaseAction {
     }
 
     /**
-     * Asks the user for the path to save to. Stores the directory to the preferences, which is used next time when
-     * opening the dialog.
-     *
+     * Asks the user for the path to save to. Stores the directory to the preferences,
+     * which is used next time when opening the dialog.
      * @return the path set by the user
      */
     private Optional<Path> askForSavePath() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(StandardFileType.BIBTEX_DB)
-                .withDefaultExtension(StandardFileType.BIBTEX_DB)
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
-                .build();
+            .addExtensionFilter(StandardFileType.BIBTEX_DB)
+            .withDefaultExtension(StandardFileType.BIBTEX_DB)
+            .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
+            .build();
         Optional<Path> selectedPath = dialogService.showFileSaveDialog(fileDialogConfiguration);
         selectedPath.ifPresent(path -> preferences.getFilePreferences().setWorkingDirectory(path.getParent()));
         if (selectedPath.isPresent()) {
@@ -193,9 +200,9 @@ public class SaveDatabaseAction {
             // Workaround for linux systems not adding file extension
             if (!savePath.getFileName().toString().toLowerCase().endsWith(".bib")) {
                 savePath = Path.of(savePath + ".bib");
-                if (!Files.notExists(savePath) && !dialogService.showConfirmationDialogAndWait(
-                        Localization.lang("Overwrite file"),
-                        Localization.lang("'%0' exists. Overwrite file?", savePath.getFileName()))) {
+                if (!Files.notExists(savePath)
+                        && !dialogService.showConfirmationDialogAndWait(Localization.lang("Overwrite file"),
+                                Localization.lang("'%0' exists. Overwrite file?", savePath.getFileName()))) {
                     return Optional.empty();
                 }
 
@@ -230,14 +237,15 @@ public class SaveDatabaseAction {
 
         try {
             Charset encoding = libraryTab.getBibDatabaseContext()
-                                         .getMetaData()
-                                         .getEncoding()
-                                         .orElse(StandardCharsets.UTF_8);
+                .getMetaData()
+                .getEncoding()
+                .orElse(StandardCharsets.UTF_8);
 
             // Make sure to remember which encoding we used
             libraryTab.getBibDatabaseContext().getMetaData().setEncoding(encoding, ChangePropagation.DO_NOT_POST_EVENT);
 
-            boolean success = saveDatabase(targetPath, false, encoding, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, getSaveOrder());
+            boolean success = saveDatabase(targetPath, false, encoding,
+                    BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, getSaveOrder());
 
             if (success) {
                 libraryTab.getUndoManager().markUnchanged();
@@ -245,80 +253,91 @@ public class SaveDatabaseAction {
             }
             dialogService.notify(Localization.lang("Library saved"));
             return success;
-        } catch (SaveException ex) {
+        }
+        catch (SaveException ex) {
             LOGGER.error("A problem occurred when trying to save the file {}", targetPath, ex);
-            dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
+            dialogService.showErrorDialogAndWait(Localization.lang("Save library"),
+                    Localization.lang("Could not save file."), ex);
             return false;
-        } finally {
+        }
+        finally {
             // release panel from save status
             libraryTab.setSaving(false);
         }
     }
 
-    private boolean saveDatabase(Path file, boolean selectedOnly, Charset encoding, BibDatabaseWriter.SaveType saveType, SelfContainedSaveOrder saveOrder) throws SaveException {
-        // if this code is adapted, please also adapt org.jabref.logic.autosaveandbackup.BackupManager.performBackup
-        SelfContainedSaveConfiguration saveConfiguration
-                = new SelfContainedSaveConfiguration(saveOrder, false, saveType, preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
+    private boolean saveDatabase(Path file, boolean selectedOnly, Charset encoding, BibDatabaseWriter.SaveType saveType,
+            SelfContainedSaveOrder saveOrder) throws SaveException {
+        // if this code is adapted, please also adapt
+        // org.jabref.logic.autosaveandbackup.BackupManager.performBackup
+        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(saveOrder, false,
+                saveType, preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
         BibDatabaseContext bibDatabaseContext = libraryTab.getBibDatabaseContext();
         synchronized (bibDatabaseContext) {
-            try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding, saveConfiguration.shouldMakeBackup())) {
+            try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding,
+                    saveConfiguration.shouldMakeBackup())) {
                 BibWriter bibWriter = new BibWriter(fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
-                BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
-                        bibWriter,
-                        saveConfiguration,
-                        preferences.getFieldPreferences(),
-                        preferences.getCitationKeyPatternPreferences(),
+                BibDatabaseWriter databaseWriter = new BibDatabaseWriter(bibWriter, saveConfiguration,
+                        preferences.getFieldPreferences(), preferences.getCitationKeyPatternPreferences(),
                         entryTypesManager);
 
                 if (selectedOnly) {
                     databaseWriter.savePartOfDatabase(bibDatabaseContext, libraryTab.getSelectedEntries());
-                } else {
+                }
+                else {
                     databaseWriter.saveDatabase(bibDatabaseContext);
                 }
 
                 libraryTab.registerUndoableChanges(databaseWriter.getSaveActionsFieldChanges());
 
                 if (fileWriter.hasEncodingProblems()) {
-                    saveWithDifferentEncoding(file, selectedOnly, encoding, fileWriter.getEncodingProblems(), saveType, saveOrder);
+                    saveWithDifferentEncoding(file, selectedOnly, encoding, fileWriter.getEncodingProblems(), saveType,
+                            saveOrder);
                 }
-            } catch (UnsupportedCharsetException ex) {
-                throw new SaveException(Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
-            } catch (IOException ex) {
+            }
+            catch (UnsupportedCharsetException ex) {
+                throw new SaveException(
+                        Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
+            }
+            catch (IOException ex) {
                 throw new SaveException("Problems saving: " + ex, ex);
             }
             return true;
         }
     }
 
-    private void saveWithDifferentEncoding(Path file, boolean selectedOnly, Charset encoding, Set<Character> encodingProblems, BibDatabaseWriter.SaveType saveType, SelfContainedSaveOrder saveOrder) throws SaveException {
+    private void saveWithDifferentEncoding(Path file, boolean selectedOnly, Charset encoding,
+            Set<Character> encodingProblems, BibDatabaseWriter.SaveType saveType, SelfContainedSaveOrder saveOrder)
+            throws SaveException {
         DialogPane pane = new DialogPane();
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(
-                new Text(Localization.lang("The chosen encoding '%0' could not encode the following characters:", encoding.displayName())),
-                new Text(encodingProblems.stream().map(Object::toString).collect(Collectors.joining("."))),
-                new Text(Localization.lang("What do you want to do?"))
-        );
+        vbox.getChildren()
+            .addAll(new Text(Localization.lang("The chosen encoding '%0' could not encode the following characters:",
+                    encoding.displayName())),
+                    new Text(encodingProblems.stream().map(Object::toString).collect(Collectors.joining("."))),
+                    new Text(Localization.lang("What do you want to do?")));
         pane.setContent(vbox);
 
-        ButtonType tryDifferentEncoding = new ButtonType(Localization.lang("Try different encoding"), ButtonBar.ButtonData.OTHER);
+        ButtonType tryDifferentEncoding = new ButtonType(Localization.lang("Try different encoding"),
+                ButtonBar.ButtonData.OTHER);
         ButtonType ignore = new ButtonType(Localization.lang("Ignore"), ButtonBar.ButtonData.APPLY);
         boolean saveWithDifferentEncoding = dialogService
-                .showCustomDialogAndWait(Localization.lang("Save library"), pane, ignore, tryDifferentEncoding)
-                .filter(buttonType -> buttonType.equals(tryDifferentEncoding))
-                .isPresent();
+            .showCustomDialogAndWait(Localization.lang("Save library"), pane, ignore, tryDifferentEncoding)
+            .filter(buttonType -> buttonType.equals(tryDifferentEncoding))
+            .isPresent();
         if (saveWithDifferentEncoding) {
-            Optional<Charset> newEncoding = dialogService.showChoiceDialogAndWait(
-                    Localization.lang("Save library"),
-                    Localization.lang("Select new encoding"),
-                    Localization.lang("Save library"),
-                    encoding,
+            Optional<Charset> newEncoding = dialogService.showChoiceDialogAndWait(Localization.lang("Save library"),
+                    Localization.lang("Select new encoding"), Localization.lang("Save library"), encoding,
                     OS.ENCODINGS);
             if (newEncoding.isPresent()) {
                 // Make sure to remember which encoding we used.
-                libraryTab.getBibDatabaseContext().getMetaData().setEncoding(newEncoding.get(), ChangePropagation.DO_NOT_POST_EVENT);
+                libraryTab.getBibDatabaseContext()
+                    .getMetaData()
+                    .setEncoding(newEncoding.get(), ChangePropagation.DO_NOT_POST_EVENT);
 
                 saveDatabase(file, selectedOnly, newEncoding.get(), saveType, saveOrder);
             }
         }
     }
+
 }

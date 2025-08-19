@@ -18,13 +18,14 @@ import com.airhacks.afterburner.views.ViewLoader;
  */
 public class OptionEditor<T> extends HBox implements FieldEditorFX {
 
-    @FXML private final OptionEditorViewModel<T> viewModel;
-    @FXML private ComboBox<T> comboBox;
+    @FXML
+    private final OptionEditorViewModel<T> viewModel;
+
+    @FXML
+    private ComboBox<T> comboBox;
 
     public OptionEditor(OptionEditorViewModel<T> viewModel) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         this.viewModel = viewModel;
 
@@ -53,4 +54,5 @@ public class OptionEditor<T> extends HBox implements FieldEditorFX {
     public Parent getNode() {
         return this;
     }
+
 }

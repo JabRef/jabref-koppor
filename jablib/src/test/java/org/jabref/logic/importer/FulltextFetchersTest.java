@@ -22,13 +22,16 @@ import static org.mockito.Mockito.when;
 class FulltextFetchersTest {
 
     /**
-     * Required for testing the FulltextFetchers class.
-     * That code is not put to the FulltextFetcher class itself, because subclasses of FulltextFetcher should implement the getTrustLevel method.
+     * Required for testing the FulltextFetchers class. That code is not put to the
+     * FulltextFetcher class itself, because subclasses of FulltextFetcher should
+     * implement the getTrustLevel method.
      */
     private interface FulltextFetcherWithTrustLevel extends FulltextFetcher {
+
         default TrustLevel getTrustLevel() {
             return TrustLevel.UNKNOWN;
         }
+
     }
 
     @Test
@@ -59,7 +62,8 @@ class FulltextFetchersTest {
 
     @Test
     void higherTrustLevelWins() throws IOException, FetcherException {
-        // set an (arbitrary) DOI to the test entry to skip side effects inside the "findFullTextPDF" method
+        // set an (arbitrary) DOI to the test entry to skip side effects inside the
+        // "findFullTextPDF" method
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.5220/0007903201120130");
 
         FulltextFetcher finderHigh = mock(FulltextFetcher.class);
@@ -76,4 +80,5 @@ class FulltextFetchersTest {
 
         assertEquals(Optional.of(highUrl), fetchers.findFullTextPDF(entry));
     }
+
 }

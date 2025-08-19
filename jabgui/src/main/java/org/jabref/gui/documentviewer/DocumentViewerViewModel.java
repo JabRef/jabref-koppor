@@ -33,15 +33,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DocumentViewerViewModel extends AbstractViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentViewerViewModel.class);
 
     private final StateManager stateManager;
+
     private final CliPreferences preferences;
+
     private final ObjectProperty<Path> currentDocument = new SimpleObjectProperty<>();
+
     private final ListProperty<LinkedFile> files = new SimpleListProperty<>();
+
     private final BooleanProperty liveMode = new SimpleBooleanProperty(true);
+
     private final IntegerProperty currentPage = new SimpleIntegerProperty();
+
     private final StringProperty highlightText = new SimpleStringProperty();
+
     private final DialogService dialogService;
 
     public DocumentViewerViewModel(StateManager stateManager, CliPreferences preferences, DialogService dialogService) {
@@ -86,18 +94,20 @@ public class DocumentViewerViewModel extends AbstractViewModel {
         if (entries.isEmpty()) {
             files.clear();
             currentDocument.set(null);
-        } else {
+        }
+        else {
             Set<LinkedFile> pdfFiles = entries.stream()
-                                              .map(BibEntry::getFiles)
-                                              .flatMap(List::stream)
-                                              .filter(this::isPdfFile)
-                                              .collect(Collectors.toSet());
+                .map(BibEntry::getFiles)
+                .flatMap(List::stream)
+                .filter(this::isPdfFile)
+                .collect(Collectors.toSet());
 
             if (pdfFiles.isEmpty()) {
                 files.clear();
                 currentDocument.set(null);
                 dialogService.notify(Localization.lang("No PDF files available"));
-            } else {
+            }
+            else {
                 files.setValue(FXCollections.observableArrayList(pdfFiles));
             }
         }
@@ -117,7 +127,8 @@ public class DocumentViewerViewModel extends AbstractViewModel {
         try {
             Path filePath = Path.of(file.getLink());
             return FileUtil.isPDFFile(filePath);
-        } catch (InvalidPathException | SecurityException e) {
+        }
+        catch (InvalidPathException | SecurityException e) {
             return false;
         }
     }
@@ -125,15 +136,13 @@ public class DocumentViewerViewModel extends AbstractViewModel {
     public void switchToFile(LinkedFile file) {
         if (file != null) {
             stateManager.getActiveDatabase()
-                        .flatMap(database -> file.findIn(database, preferences.getFilePreferences()))
-                        .ifPresentOrElse(
-                                this::setCurrentDocument,
-                                () -> {
-                                    currentDocument.set(null);
-                                    LOGGER.warn("Could not find or access file: {}", file.getLink());
-                                }
-                        );
-        } else {
+                .flatMap(database -> file.findIn(database, preferences.getFilePreferences()))
+                .ifPresentOrElse(this::setCurrentDocument, () -> {
+                    currentDocument.set(null);
+                    LOGGER.warn("Could not find or access file: {}", file.getLink());
+                });
+        }
+        else {
             currentDocument.set(null);
         }
     }
@@ -149,4 +158,5 @@ public class DocumentViewerViewModel extends AbstractViewModel {
     public void highlightText(String text) {
         this.highlightText.set(text);
     }
+
 }

@@ -24,26 +24,16 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 
 public class OptionalFieldsTabBase extends FieldsEditorTab {
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final boolean isImportantOptionalFields;
 
-    public OptionalFieldsTabBase(String title,
-                                 boolean isImportantOptionalFields,
-                                 UndoManager undoManager,
-                                 UndoAction undoAction,
-                                 RedoAction redoAction,
-                                 GuiPreferences preferences,
-                                 BibEntryTypesManager entryTypesManager,
-                                 JournalAbbreviationRepository journalAbbreviationRepository,
-                                 StateManager stateManager,
-                                 PreviewPanel previewPanel) {
-        super(true,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
+    public OptionalFieldsTabBase(String title, boolean isImportantOptionalFields, UndoManager undoManager,
+            UndoAction undoAction, RedoAction redoAction, GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager, JournalAbbreviationRepository journalAbbreviationRepository,
+            StateManager stateManager, PreviewPanel previewPanel) {
+        super(true, undoManager, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager,
                 previewPanel);
         this.entryTypesManager = entryTypesManager;
         this.isImportantOptionalFields = isImportantOptionalFields;
@@ -54,18 +44,23 @@ public class OptionalFieldsTabBase extends FieldsEditorTab {
 
     @Override
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
+        BibDatabaseMode mode = stateManager.getActiveDatabase()
+            .map(BibDatabaseContext::getMode)
+            .orElse(BibDatabaseMode.BIBLATEX);
         Optional<BibEntryType> entryType = entryTypesManager.enrich(entry.getType(), mode);
         if (entryType.isPresent()) {
             if (isImportantOptionalFields) {
                 return entryType.get().getImportantOptionalFields();
-            } else {
+            }
+            else {
                 return entryType.get().getDetailOptionalNotDeprecatedFields(mode);
             }
-        } else {
-            // Entry type unknown -> treat all fields as required (thus no optional fields)
+        }
+        else {
+            // Entry type unknown -> treat all fields as required (thus no optional
+            // fields)
             return new LinkedHashSet<>();
         }
     }
+
 }

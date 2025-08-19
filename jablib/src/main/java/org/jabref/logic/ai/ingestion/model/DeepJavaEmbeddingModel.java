@@ -16,10 +16,13 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 
 public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
+
     private final ZooModel<String, float[]> model;
+
     private final Predictor<String, float[]> predictor;
 
-    public DeepJavaEmbeddingModel(Criteria<String, float[]> criteria) throws ModelNotFoundException, MalformedModelException, IOException {
+    public DeepJavaEmbeddingModel(Criteria<String, float[]> criteria)
+            throws ModelNotFoundException, MalformedModelException, IOException {
         this.model = criteria.loadModel();
         this.predictor = model.newPredictor();
     }
@@ -35,14 +38,15 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
             }
 
             return new Response<>(result);
-        } catch (TranslateException e) {
+        }
+        catch (TranslateException e) {
             // The rationale for RuntimeException here:
             // 1. langchain4j error handling is a mess, and it uses RuntimeExceptions
-            //    everywhere. Because this method implements a langchain4j interface,
-            //    we follow the same "practice".
+            // everywhere. Because this method implements a langchain4j interface,
+            // we follow the same "practice".
             // 2. There is no way to encode error information from type system: nor
-            //    in the result type, nor "throws" in method signature. Actually,
-            //    it's possible, but langchain4j doesn't do it.
+            // in the result type, nor "throws" in method signature. Actually,
+            // it's possible, but langchain4j doesn't do it.
 
             throw new RuntimeException(e);
         }
@@ -52,4 +56,5 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
     public void close() {
         this.model.close();
     }
+
 }

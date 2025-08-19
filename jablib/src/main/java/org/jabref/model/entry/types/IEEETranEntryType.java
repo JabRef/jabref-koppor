@@ -5,10 +5,8 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum IEEETranEntryType implements EntryType {
-    IEEEtranBSTCTL("IEEEtranBSTCTL"),
-    Electronic("Electronic"),
-    Patent("Patent"),
-    Periodical("Periodical"),
+
+    IEEEtranBSTCTL("IEEEtranBSTCTL"), Electronic("Electronic"), Patent("Patent"), Periodical("Periodical"),
     Standard("Standard");
 
     private final String displayName;
@@ -19,8 +17,8 @@ public enum IEEETranEntryType implements EntryType {
 
     public static Optional<IEEETranEntryType> fromName(String name) {
         return Arrays.stream(IEEETranEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override
@@ -32,4 +30,5 @@ public enum IEEETranEntryType implements EntryType {
     public String getDisplayName() {
         return displayName;
     }
+
 }

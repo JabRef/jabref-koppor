@@ -8,6 +8,7 @@ import org.jabref.logic.l10n.Localization;
 public class NamedCompound extends CompoundEdit {
 
     private final String name;
+
     private boolean hasEdits;
 
     public NamedCompound(String name) {
@@ -43,4 +44,5 @@ public class NamedCompound extends CompoundEdit {
         }
         return sb.toString();
     }
+
 }

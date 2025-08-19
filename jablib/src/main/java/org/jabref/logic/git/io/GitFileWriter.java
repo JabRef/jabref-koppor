@@ -15,24 +15,23 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 
 public class GitFileWriter {
+
     private static final ConcurrentHashMap<Path, Object> FILELOCKS = new ConcurrentHashMap<>();
 
-    public static void write(Path file, BibDatabaseContext bibDatabaseContext, ImportFormatPreferences importPrefs) throws IOException {
+    public static void write(Path file, BibDatabaseContext bibDatabaseContext, ImportFormatPreferences importPrefs)
+            throws IOException {
         Object lock = FILELOCKS.computeIfAbsent(file.toAbsolutePath().normalize(), key -> new Object());
 
         SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration();
         Charset encoding = bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8);
 
         synchronized (lock) {
-            try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding, saveConfiguration.shouldMakeBackup())) {
+            try (AtomicFileWriter fileWriter = new AtomicFileWriter(file, encoding,
+                    saveConfiguration.shouldMakeBackup())) {
                 BibWriter bibWriter = new BibWriter(fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
-                BibDatabaseWriter writer = new BibDatabaseWriter(
-                        bibWriter,
-                        saveConfiguration,
-                        importPrefs.fieldPreferences(),
-                        importPrefs.citationKeyPatternPreferences(),
-                        new BibEntryTypesManager()
-                );
+                BibDatabaseWriter writer = new BibDatabaseWriter(bibWriter, saveConfiguration,
+                        importPrefs.fieldPreferences(), importPrefs.citationKeyPatternPreferences(),
+                        new BibEntryTypesManager());
                 writer.saveDatabase(bibDatabaseContext);
 
                 if (fileWriter.hasEncodingProblems()) {
@@ -42,4 +41,5 @@ public class GitFileWriter {
             }
         }
     }
+
 }

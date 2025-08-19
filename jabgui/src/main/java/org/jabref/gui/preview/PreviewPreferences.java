@@ -20,20 +20,22 @@ import org.jabref.logic.preview.PreviewLayout;
 public class PreviewPreferences {
 
     private final ObservableList<PreviewLayout> layoutCycle;
+
     private final IntegerProperty layoutCyclePosition;
+
     private final ObjectProperty<TextBasedPreviewLayout> customPreviewLayout;
+
     private final StringProperty defaultCustomPreviewLayout;
+
     private final BooleanProperty showPreviewAsExtraTab;
+
     private final BooleanProperty showPreviewEntryTableTooltip;
+
     private final ObservableList<Path> bstPreviewLayoutPaths;
 
-    public PreviewPreferences(List<PreviewLayout> layoutCycle,
-                              int layoutCyclePosition,
-                              TextBasedPreviewLayout customPreviewLayout,
-                              String defaultCustomPreviewLayout,
-                              boolean showPreviewAsExtraTab,
-                              boolean showPreviewEntryTableTooltip,
-                              List<Path> bstPreviewLayoutPaths) {
+    public PreviewPreferences(List<PreviewLayout> layoutCycle, int layoutCyclePosition,
+            TextBasedPreviewLayout customPreviewLayout, String defaultCustomPreviewLayout,
+            boolean showPreviewAsExtraTab, boolean showPreviewEntryTableTooltip, List<Path> bstPreviewLayoutPaths) {
         this.layoutCycle = FXCollections.observableArrayList(layoutCycle);
         this.layoutCyclePosition = new SimpleIntegerProperty(layoutCyclePosition);
         this.customPreviewLayout = new SimpleObjectProperty<>(customPreviewLayout);
@@ -58,7 +60,8 @@ public class PreviewPreferences {
     public void setLayoutCyclePosition(int position) {
         if (layoutCycle.isEmpty()) {
             this.layoutCyclePosition.setValue(0);
-        } else {
+        }
+        else {
             int previewCyclePosition = position;
             while (previewCyclePosition < 0) {
                 previewCyclePosition += layoutCycle.size();
@@ -68,11 +71,11 @@ public class PreviewPreferences {
     }
 
     public PreviewLayout getSelectedPreviewLayout() {
-        if (layoutCycle.isEmpty()
-                || layoutCyclePosition.getValue() < 0
+        if (layoutCycle.isEmpty() || layoutCyclePosition.getValue() < 0
                 || layoutCyclePosition.getValue() >= layoutCycle.size()) {
             return getCustomPreviewLayout();
-        } else {
+        }
+        else {
             return layoutCycle.get(layoutCyclePosition.getValue());
         }
     }
@@ -124,4 +127,5 @@ public class PreviewPreferences {
     public void setBstPreviewLayoutPaths(List<Path> bstPreviewLayoutPaths) {
         this.bstPreviewLayoutPaths.setAll(bstPreviewLayoutPaths);
     }
+
 }

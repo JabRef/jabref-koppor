@@ -22,22 +22,19 @@ public class VeryShortTitleFormatter extends Formatter {
     public String format(String input) {
         Title title = new Title(input);
 
-        Optional<Word> resultTitle = title.getWords().stream()
-                                          .filter(Predicate.not(
-                                                  Word::isSmallerWord))
-                                          .findFirst();
+        Optional<Word> resultTitle = title.getWords().stream().filter(Predicate.not(Word::isSmallerWord)).findFirst();
 
         return resultTitle.map(Word::toString).orElse("");
     }
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Returns first word of the title ignoring any function words.");
+        return Localization.lang("Returns first word of the title ignoring any function words.");
     }
 
     @Override
     public String getExampleInput() {
         return "A very short title";
     }
+
 }

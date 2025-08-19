@@ -7,10 +7,8 @@ import javax.xml.stream.XMLStreamReader;
 public class StaxParser {
 
     /**
-     * Extracts the XML content inside the first
-     * encountered parent tag, including tag elements,
-     * attributes, namespace, prefix and contained text
-     *
+     * Extracts the XML content inside the first encountered parent tag, including tag
+     * elements, attributes, namespace, prefix and contained text
      * @param reader the stream reader
      * @return Returns the inner XML content
      */
@@ -38,7 +36,8 @@ public class StaxParser {
 
                 // append the start tag
                 content.append(getXMLStartTag(reader, false));
-            } else if (event == XMLStreamConstants.END_ELEMENT) {
+            }
+            else if (event == XMLStreamConstants.END_ELEMENT) {
                 String tagName = reader.getLocalName();
 
                 // append the end tag
@@ -52,15 +51,20 @@ public class StaxParser {
                         break;
                     }
                 }
-            } else if (event == XMLStreamConstants.CHARACTERS) {
+            }
+            else if (event == XMLStreamConstants.CHARACTERS) {
                 content.append(getXMLText(reader));
-            } else if (event == XMLStreamConstants.CDATA) {
+            }
+            else if (event == XMLStreamConstants.CDATA) {
                 content.append(getXMLCData(reader));
-            } else if (event == XMLStreamConstants.COMMENT) {
+            }
+            else if (event == XMLStreamConstants.COMMENT) {
                 content.append(getXMLComment(reader));
-            } else if (event == XMLStreamConstants.PROCESSING_INSTRUCTION) {
+            }
+            else if (event == XMLStreamConstants.PROCESSING_INSTRUCTION) {
                 content.append(getXMLProcessingInstruction(reader));
-            } else if (event == XMLStreamConstants.SPACE || event == XMLStreamConstants.ENTITY_REFERENCE) {
+            }
+            else if (event == XMLStreamConstants.SPACE || event == XMLStreamConstants.ENTITY_REFERENCE) {
                 content.append(getXMLText(reader));
             }
         }
@@ -74,20 +78,24 @@ public class StaxParser {
         String prefix = reader.getPrefix();
 
         startTag.append("<")
-                .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
-                .append(reader.getName().getLocalPart());
+            .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
+            .append(reader.getName().getLocalPart());
 
         String namespaceURI = reader.getNamespaceURI();
         if (addNamespaceURI && namespaceURI != null) {
             startTag.append(" xmlns")
-                    .append(prefix != null && !prefix.isBlank() ? ":" + prefix : "")
-                    .append("=\"")
-                    .append(namespaceURI)
-                    .append("\"");
+                .append(prefix != null && !prefix.isBlank() ? ":" + prefix : "")
+                .append("=\"")
+                .append(namespaceURI)
+                .append("\"");
         }
 
         for (int i = 0; i < reader.getAttributeCount(); i++) {
-            startTag.append(" ").append(reader.getAttributeLocalName(i)).append("=\"").append(reader.getAttributeValue(i)).append("\"");
+            startTag.append(" ")
+                .append(reader.getAttributeLocalName(i))
+                .append("=\"")
+                .append(reader.getAttributeValue(i))
+                .append("\"");
         }
 
         if (reader.isEndElement()) {
@@ -103,9 +111,9 @@ public class StaxParser {
         String prefix = reader.getPrefix();
 
         endTag.append("</")
-              .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
-              .append(reader.getName().getLocalPart())
-              .append(">");
+            .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
+            .append(reader.getName().getLocalPart())
+            .append(">");
 
         return endTag.toString();
     }
@@ -125,4 +133,5 @@ public class StaxParser {
     private static String getXMLText(XMLStreamReader reader) {
         return reader.getText().trim();
     }
+
 }

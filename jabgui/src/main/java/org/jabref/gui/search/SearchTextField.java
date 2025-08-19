@@ -24,16 +24,19 @@ public class SearchTextField {
         textField.setLeft(graphicNode);
 
         textField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            // Other key bindings are handled at org.jabref.gui.keyboard.TextInputKeyBindings
+            // Other key bindings are handled at
+            // org.jabref.gui.keyboard.TextInputKeyBindings
             // We need to handle clear search here to have the code "more clean"
-            // Otherwise, we would have to add a new class for this and handle the case hitting that class in TextInputKeyBindings
+            // Otherwise, we would have to add a new class for this and handle the case
+            // hitting that class in TextInputKeyBindings
 
             if (keyBindingRepository.matches(event, KeyBinding.CLEAR_SEARCH)) {
-                       textField.clear();
-                       event.consume();
+                textField.clear();
+                event.consume();
             }
         });
 
         return textField;
     }
+
 }

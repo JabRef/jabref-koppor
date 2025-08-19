@@ -11,10 +11,13 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldProperty;
 
 public class PersonsNameFieldRowView extends FieldRowView {
+
     private final AuthorList leftEntryNames;
+
     private final AuthorList rightEntryNames;
 
-    public PersonsNameFieldRowView(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory, GuiPreferences preferences, int rowIndex) {
+    public PersonsNameFieldRowView(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry,
+            FieldMergerFactory fieldMergerFactory, GuiPreferences preferences, int rowIndex) {
         super(field, leftEntry, rightEntry, mergedEntry, fieldMergerFactory, preferences, rowIndex);
         assert field.getProperties().contains(FieldProperty.PERSON_NAMES);
 
@@ -29,7 +32,9 @@ public class PersonsNameFieldRowView extends FieldRowView {
     }
 
     private void showPersonsNamesAreTheSameInfo() {
-        InfoButton infoButton = new InfoButton(Localization.lang("The %0s are the same. However, the order of field content differs", viewModel.getField().getName()));
+        InfoButton infoButton = new InfoButton(Localization
+            .lang("The %0s are the same. However, the order of field content differs", viewModel.getField().getName()));
         getFieldNameCell().addSideButton(infoButton);
     }
+
 }

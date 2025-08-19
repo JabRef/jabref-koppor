@@ -24,4 +24,5 @@ public class GuiPushToSublimeText extends PushToSublimeText implements GuiPushTo
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

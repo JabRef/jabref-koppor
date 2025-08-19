@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SqlQueryNode {
+
     private final String cte;
+
     private final List<String> params;
 
     public SqlQueryNode(String cte, List<String> params) {
@@ -24,4 +26,5 @@ public class SqlQueryNode {
     public List<String> params() {
         return params;
     }
+
 }

@@ -22,9 +22,13 @@ public class LSPLauncher {
     private static final Logger LOGGER = LoggerFactory.getLogger(LSPLauncher.class);
 
     private ServerSocket serverSocket;
+
     private ExecutorService threadPool;
+
     private volatile boolean running;
+
     private CliPreferences cliPreferences;
+
     private JournalAbbreviationRepository abbreviationRepository;
 
     public void run(CliPreferences cliPreferences) {
@@ -50,16 +54,19 @@ public class LSPLauncher {
                         Socket socket = serverSocket.accept();
                         LOGGER.info("LSP Client connected.");
                         threadPool.submit(() -> handleClient(socket));
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         if (running) {
                             LOGGER.error("Error during LSP run", e);
-                        } else {
+                        }
+                        else {
                             LOGGER.debug("Error while not running", e);
                         }
                     }
                 }
             });
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error during LSP run", e);
         }
     }
@@ -68,16 +75,19 @@ public class LSPLauncher {
         LSPServer server = new LSPServer(cliPreferences, abbreviationRepository);
         LOGGER.debug("LSP server started.");
         try (socket; // socket should be closed on error
-             InputStream in = socket.getInputStream();
-             OutputStream out = socket.getOutputStream()) {
-            Launcher<LanguageClient> launcher = org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(server, in, out, Executors.newCachedThreadPool(), Function.identity());
+                InputStream in = socket.getInputStream();
+                OutputStream out = socket.getOutputStream()) {
+            Launcher<LanguageClient> launcher = org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(server, in,
+                    out, Executors.newCachedThreadPool(), Function.identity());
             LOGGER.debug("LSP server launched.");
             server.connect(launcher.getRemoteProxy());
             LOGGER.debug("LSP server connected.");
             launcher.startListening().get();
-        } catch (Throwable e) {
+        }
+        catch (Throwable e) {
             LOGGER.error("Error in handleClient", e);
-        } finally {
+        }
+        finally {
             LOGGER.info("LSP Client disconnected.");
         }
     }
@@ -91,9 +101,11 @@ public class LSPLauncher {
             if (threadPool != null && !threadPool.isShutdown()) {
                 threadPool.shutdownNow();
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error during LSP shutdown", e);
         }
         LOGGER.info("LSP Server shutdown.");
     }
+
 }

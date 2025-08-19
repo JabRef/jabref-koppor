@@ -27,13 +27,10 @@ public class BibLatexFormatter implements CAYWFormatter {
     public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
         String command = queryParams.getCommand();
 
-        List<BibEntry> bibEntries = caywEntries.stream()
-                .map(CAYWEntry::bibEntry)
-                .toList();
+        List<BibEntry> bibEntries = caywEntries.stream().map(CAYWEntry::bibEntry).toList();
 
         return "\\%s{%s}".formatted(command,
-                bibEntries.stream()
-                          .map(entry -> entry.getCitationKey().orElse(""))
-                          .collect(Collectors.joining(",")));
+                bibEntries.stream().map(entry -> entry.getCitationKey().orElse("")).collect(Collectors.joining(",")));
     }
+
 }

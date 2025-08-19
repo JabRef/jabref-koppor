@@ -52,19 +52,24 @@ class DownloadLinkedFileActionTest {
     private BibEntry entry;
 
     private final BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
+
     private final DialogService dialogService = mock(DialogService.class);
-    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+
+    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(
+            ExternalApplicationsPreferences.class);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class);
+
     private final GuiPreferences preferences = mock(GuiPreferences.class);
 
     private WireMockServer wireMockServer;
 
     @BeforeEach
     void setUp(@TempDir Path tempFolder) throws IOException {
-        entry = new BibEntry()
-                .withCitationKey("asdf");
+        entry = new BibEntry().withCitationKey("asdf");
 
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+            .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
         when(preferences.getFilePreferences()).thenReturn(filePreferences);
         when(preferences.getXmpPreferences()).thenReturn(mock(XmpPreferences.class));
@@ -76,7 +81,8 @@ class DownloadLinkedFileActionTest {
         if (CookieHandler.getDefault() == null) {
             cookieManager = new CookieManager();
             CookieHandler.setDefault(cookieManager);
-        } else {
+        }
+        else {
             cookieManager = (CookieManager) CookieHandler.getDefault();
         }
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
@@ -101,22 +107,16 @@ class DownloadLinkedFileActionTest {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         when(filePreferences.shouldKeepDownloadUrl()).thenReturn(true);
 
-        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(
-                databaseContext,
-                entry,
-                linkedFile,
-                linkedFile.getLink(),
-                dialogService,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                new CurrentThreadTaskExecutor());
+        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(databaseContext, entry,
+                linkedFile, linkedFile.getLink(), dialogService, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), new CurrentThreadTaskExecutor());
         downloadLinkedFileAction.execute();
 
         assertEquals(List.of(new LinkedFile("", tempFolder.resolve("asdf.pdf"), "PDF", url)), entry.getFiles());
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {true, false})
+    @ValueSource(booleans = { true, false })
     void doesntReplaceSourceURL(boolean keepHtml) throws IOException {
         String url = "http://arxiv.org/pdf/1207.0408v1";
 
@@ -126,15 +126,9 @@ class DownloadLinkedFileActionTest {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         when(filePreferences.shouldKeepDownloadUrl()).thenReturn(true);
 
-        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(
-                databaseContext,
-                entry,
-                linkedFile,
-                linkedFile.getLink(),
-                dialogService,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                new CurrentThreadTaskExecutor());
+        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(databaseContext, entry,
+                linkedFile, linkedFile.getLink(), dialogService, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), new CurrentThreadTaskExecutor());
         downloadLinkedFileAction.execute();
 
         assertEquals(List.of(new LinkedFile("", tempFolder.resolve("asdf.pdf"), "PDF", url)), entry.getFiles());
@@ -143,20 +137,14 @@ class DownloadLinkedFileActionTest {
 
         Path downloadedFile = Path.of(linkedFile.getLink());
 
-        // Verify that re-downloading the file after the first download doesn't modify the entry
+        // Verify that re-downloading the file after the first download doesn't modify the
+        // entry
         Files.delete(downloadedFile);
 
-        DownloadLinkedFileAction downloadLinkedFileAction2 = new DownloadLinkedFileAction(
-                databaseContext,
-                entry,
-                linkedFile,
-                linkedFile.getSourceUrl(),
-                dialogService,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                new CurrentThreadTaskExecutor(),
-                Path.of(linkedFile.getLink()).getFileName().toString(),
-                keepHtml);
+        DownloadLinkedFileAction downloadLinkedFileAction2 = new DownloadLinkedFileAction(databaseContext, entry,
+                linkedFile, linkedFile.getSourceUrl(), dialogService, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), new CurrentThreadTaskExecutor(),
+                Path.of(linkedFile.getLink()).getFileName().toString(), keepHtml);
         downloadLinkedFileAction2.execute();
 
         assertEquals(List.of(new LinkedFile("", tempFolder.resolve("asdf.pdf"), "PDF", url)), entry.getFiles());
@@ -164,16 +152,12 @@ class DownloadLinkedFileActionTest {
 
     @Test
     void keepsHtmlFileLink(@TempDir Path tempFolder) throws MalformedURLException {
-        stubFor(get(urlEqualTo("/html"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/html; charset=utf-8")
-                        .withBody("<html><body><h1>Hi</h1></body></html>")));
+        stubFor(get(urlEqualTo("/html")).willReturn(aResponse().withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody("<html><body><h1>Hi</h1></body></html>")));
 
         stubFor(head(urlEqualTo("/html"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/html; charset=utf-8")));
+            .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html; charset=utf-8")));
 
         LinkedFile linkedFile = new LinkedFile(URLUtil.create("http://localhost:2331/html"), "");
         when(databaseContext.getFirstExistingFileDir(any())).thenReturn(Optional.of(tempFolder));
@@ -184,15 +168,9 @@ class DownloadLinkedFileActionTest {
 
         BibEntry expected = new BibEntry(entry);
 
-        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(
-                databaseContext,
-                entry,
-                linkedFile,
-                linkedFile.getLink(),
-                dialogService,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                new CurrentThreadTaskExecutor());
+        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(databaseContext, entry,
+                linkedFile, linkedFile.getLink(), dialogService, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), new CurrentThreadTaskExecutor());
         downloadLinkedFileAction.execute();
 
         assertEquals(expected, entry);
@@ -200,16 +178,12 @@ class DownloadLinkedFileActionTest {
 
     @Test
     void removesHtmlFileLink(@TempDir Path tempFolder) throws MalformedURLException {
-        stubFor(get(urlEqualTo("/html"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/html; charset=utf-8")
-                        .withBody("<html><body><h1>Hi</h1></body></html>")));
+        stubFor(get(urlEqualTo("/html")).willReturn(aResponse().withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody("<html><body><h1>Hi</h1></body></html>")));
 
         stubFor(head(urlEqualTo("/html"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "text/html; charset=utf-8")));
+            .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html; charset=utf-8")));
 
         LinkedFile linkedFile = new LinkedFile(URLUtil.create("http://localhost:2331/html"), "");
         when(databaseContext.getFirstExistingFileDir(any())).thenReturn(Optional.of(tempFolder));
@@ -218,19 +192,12 @@ class DownloadLinkedFileActionTest {
 
         entry.setFiles(List.of(linkedFile));
 
-        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(
-                databaseContext,
-                entry,
-                linkedFile,
-                linkedFile.getLink(),
-                dialogService,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                new CurrentThreadTaskExecutor(),
-                "",
-                false);
+        DownloadLinkedFileAction downloadLinkedFileAction = new DownloadLinkedFileAction(databaseContext, entry,
+                linkedFile, linkedFile.getLink(), dialogService, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), new CurrentThreadTaskExecutor(), "", false);
         downloadLinkedFileAction.execute();
 
         assertEquals(new BibEntry().withCitationKey("asdf"), entry);
     }
+
 }

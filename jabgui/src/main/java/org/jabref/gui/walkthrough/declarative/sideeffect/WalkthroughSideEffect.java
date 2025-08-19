@@ -10,16 +10,15 @@ import org.jspecify.annotations.NonNull;
 
 /// Walkthrough side effects that can be executed between steps.
 public interface WalkthroughSideEffect {
+
     int DEFAULT_TIMEOUT_MS = 2500;
 
     /// Expected condition that determines when this side effect can be executed.
-    @NonNull
-    ExpectedCondition expectedCondition();
+    @NonNull ExpectedCondition expectedCondition();
 
     /// List of observables that should trigger re-evaluation of the expected
     /// condition.
-    @NonNull
-    default List<Observable> dependencies() {
+    @NonNull default List<Observable> dependencies() {
         return List.of();
     }
 
@@ -36,6 +35,6 @@ public interface WalkthroughSideEffect {
     boolean backward(@NonNull Walkthrough walkthrough);
 
     /// Gets a description of what this side effect does (for logging and debugging).
-    @NonNull
-    String description();
+    @NonNull String description();
+
 }

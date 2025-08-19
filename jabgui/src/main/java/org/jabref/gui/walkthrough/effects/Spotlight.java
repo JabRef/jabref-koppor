@@ -21,13 +21,19 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class Spotlight extends BaseWindowEffect {
+
     private static final Duration TRANSITION_DURATION = Duration.millis(300);
 
     private @Nullable Node node;
+
     private Rectangle backdrop;
+
     private Rectangle hole;
+
     private volatile @Nullable Shape overlayShape;
+
     private @Nullable Runnable onClickHandler;
+
     private @Nullable Timeline transitionAnimation;
 
     /// Ensure the overlay shape is not updated concurrently. Consider a scenario where
@@ -81,14 +87,11 @@ public final class Spotlight extends BaseWindowEffect {
         hole.setWidth(oldBounds.getWidth());
         hole.setHeight(oldBounds.getHeight());
 
-        transitionAnimation = new Timeline(
-                new KeyFrame(TRANSITION_DURATION,
-                        new KeyValue(hole.xProperty(), newBoundsInPane.getMinX(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.yProperty(), newBoundsInPane.getMinY(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.widthProperty(), newBoundsInPane.getWidth(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.heightProperty(), newBoundsInPane.getHeight(), Interpolator.EASE_BOTH)
-                )
-        );
+        transitionAnimation = new Timeline(new KeyFrame(TRANSITION_DURATION,
+                new KeyValue(hole.xProperty(), newBoundsInPane.getMinX(), Interpolator.EASE_BOTH),
+                new KeyValue(hole.yProperty(), newBoundsInPane.getMinY(), Interpolator.EASE_BOTH),
+                new KeyValue(hole.widthProperty(), newBoundsInPane.getWidth(), Interpolator.EASE_BOTH),
+                new KeyValue(hole.heightProperty(), newBoundsInPane.getHeight(), Interpolator.EASE_BOTH)));
 
         ChangeListener<Number> changeListener = (_, _, _) -> updateOverlayShape();
         hole.xProperty().addListener(changeListener);
@@ -179,7 +182,8 @@ public final class Spotlight extends BaseWindowEffect {
         int oldIndex;
         if (overlayShape == null || !pane.getChildren().contains(overlayShape)) {
             oldIndex = pane.getChildren().size();
-        } else {
+        }
+        else {
             oldIndex = this.pane.getChildren().indexOf(overlayShape);
             this.pane.getChildren().remove(oldIndex);
         }
@@ -190,7 +194,8 @@ public final class Spotlight extends BaseWindowEffect {
         if (onClickHandler != null) {
             overlayShape.setOnMouseClicked(this::handleClick);
             overlayShape.setMouseTransparent(false);
-        } else {
+        }
+        else {
             overlayShape.setMouseTransparent(true);
         }
 
@@ -206,4 +211,5 @@ public final class Spotlight extends BaseWindowEffect {
         }
         event.consume();
     }
+
 }

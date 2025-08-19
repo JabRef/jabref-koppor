@@ -13,4 +13,5 @@ class MathSciNetIdTest {
         Optional<MathSciNetId> id = MathSciNetId.parse("3014184\n");
         assertEquals(Optional.of(new MathSciNetId("3014184")), id);
     }
+
 }

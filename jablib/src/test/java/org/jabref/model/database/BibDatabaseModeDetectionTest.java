@@ -71,4 +71,5 @@ class BibDatabaseModeDetectionTest {
 
         assertEquals(BibDatabaseMode.BIBLATEX, BibDatabaseModeDetection.inferMode(new BibDatabase(entries)));
     }
+
 }

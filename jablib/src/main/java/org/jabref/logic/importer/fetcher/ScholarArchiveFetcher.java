@@ -39,9 +39,8 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
     /**
      * Gets the query URL by luceneQuery and pageNumber.
-     *
      * @param luceneQuery the search query
-     * @param pageNumber  the number of the page indexed from 0
+     * @param pageNumber the number of the page indexed from 0
      * @return URL
      */
     @Override
@@ -65,7 +64,6 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
     /**
      * Gets the list of BibEntry by given Json response from scholar archive fetcher API
-     *
      * @return Parser, list of BibEntry
      */
     @Override
@@ -99,18 +97,22 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
             JSONArray abstracts = jsonEntry.getJSONArray("abstracts");
             String foundAbstract = IntStream.range(0, abstracts.length())
-                                            .mapToObj(abstracts::getJSONObject)
-                                            .map(object -> object.optString("body"))
-                                            .findFirst().orElse("");
+                .mapToObj(abstracts::getJSONObject)
+                .map(object -> object.optString("body"))
+                .findFirst()
+                .orElse("");
 
-            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext")).map(fullText -> fullText.optString("access_url")).orElse("");
+            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext"))
+                .map(fullText -> fullText.optString("access_url"))
+                .orElse("");
 
             // publication type
             String type = biblio.optString("release_type");
             entry.setField(StandardField.TYPE, type);
             if (type.toLowerCase().contains("book")) {
                 entryType = StandardEntryType.Book;
-            } else if (type.toLowerCase().contains("article")) {
+            }
+            else if (type.toLowerCase().contains("article")) {
                 entryType = StandardEntryType.Article;
             }
             entry.setType(entryType);
@@ -150,8 +152,10 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
                 entry.setField(StandardField.ISSN, String.join(" ", issnList));
             }
             return entry;
-        } catch (JSONException exception) {
+        }
+        catch (JSONException exception) {
             throw new ParseException("ScholarArchive API JSON format has changed", exception);
         }
     }
+
 }

@@ -24,6 +24,7 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "generate-bib-from-aux", description = "Generate small bib from aux file.")
 class GenerateBibFromAux implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateBibFromAux.class);
 
     @ParentCommand
@@ -43,10 +44,7 @@ class GenerateBibFromAux implements Runnable {
 
     @Override
     public void run() {
-        Optional<ParserResult> pr = ArgumentProcessor.importFile(
-                inputFile,
-                "bibtex",
-                argumentProcessor.cliPreferences,
+        Optional<ParserResult> pr = ArgumentProcessor.importFile(inputFile, "bibtex", argumentProcessor.cliPreferences,
                 sharedOptions.porcelain);
         if (pr.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
@@ -59,7 +57,8 @@ class GenerateBibFromAux implements Runnable {
         }
 
         if (!sharedOptions.porcelain) {
-            System.out.println(Localization.lang("Creating excerpt of from '%0' with '%1'.", inputFile, auxFile.toAbsolutePath()));
+            System.out.println(
+                    Localization.lang("Creating excerpt of from '%0' with '%1'.", inputFile, auxFile.toAbsolutePath()));
         }
 
         AuxParser auxParser = new DefaultAuxParser(pr.get().getDatabase());
@@ -76,20 +75,18 @@ class GenerateBibFromAux implements Runnable {
         }
 
         if (outputFile == null) {
-            System.out.println(subDatabase.getEntries().stream()
-                                          .map(BibEntry::toString)
-                                          .collect(Collectors.joining("\n\n")));
+            System.out
+                .println(subDatabase.getEntries().stream().map(BibEntry::toString).collect(Collectors.joining("\n\n")));
             return;
-        } else {
-            ArgumentProcessor.saveDatabase(
-                    argumentProcessor.cliPreferences,
-                    argumentProcessor.entryTypesManager,
-                    subDatabase,
-                    outputFile);
+        }
+        else {
+            ArgumentProcessor.saveDatabase(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                    subDatabase, outputFile);
         }
 
         if (!sharedOptions.porcelain) {
             System.out.println(Localization.lang("Created library with '%0' entries.", subDatabase.getEntryCount()));
         }
     }
+
 }

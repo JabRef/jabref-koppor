@@ -37,18 +37,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class LinkedFilesSearcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedFilesSearcher.class);
 
     private final FilePreferences filePreferences;
+
     private final BibDatabaseContext databaseContext;
+
     private final SearcherManager searcherManager;
+
     private final MultiFieldQueryParser parser;
 
-    public LinkedFilesSearcher(BibDatabaseContext databaseContext, LuceneIndexer linkedFilesIndexer, FilePreferences filePreferences) {
+    public LinkedFilesSearcher(BibDatabaseContext databaseContext, LuceneIndexer linkedFilesIndexer,
+            FilePreferences filePreferences) {
         this.searcherManager = linkedFilesIndexer.getSearcherManager();
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
-        this.parser = new MultiFieldQueryParser(LinkedFilesConstants.PDF_FIELDS.toArray(new String[0]), LinkedFilesConstants.LINKED_FILES_ANALYZER);
+        this.parser = new MultiFieldQueryParser(LinkedFilesConstants.PDF_FIELDS.toArray(new String[0]),
+                LinkedFilesConstants.LINKED_FILES_ANALYZER);
         parser.setDefaultOperator(QueryParser.Operator.AND);
     }
 
@@ -63,7 +69,8 @@ public final class LinkedFilesSearcher {
         }
 
         EnumSet<SearchFlags> searchFlags = searchQuery.getSearchFlags();
-        boolean shouldSearchInLinkedFiles = searchFlags.contains(SearchFlags.FULLTEXT) && filePreferences.shouldFulltextIndexLinkedFiles();
+        boolean shouldSearchInLinkedFiles = searchFlags.contains(SearchFlags.FULLTEXT)
+                && filePreferences.shouldFulltextIndexLinkedFiles();
         if (!shouldSearchInLinkedFiles) {
             return new SearchResults();
         }
@@ -74,7 +81,8 @@ public final class LinkedFilesSearcher {
             SearchResults searchResults = search(linkedFilesIndexSearcher, luceneQuery.get());
             releaseIndexSearcher(searcherManager, linkedFilesIndexSearcher);
             return searchResults;
-        } catch (IOException | IndexSearcher.TooManyClauses e) {
+        }
+        catch (IOException | IndexSearcher.TooManyClauses e) {
             LOGGER.error("Error during linked files search execution", e);
         }
         return new SearchResults();
@@ -84,7 +92,8 @@ public final class LinkedFilesSearcher {
         String query = SearchQueryConversion.searchToLucene(searchQuery);
         try {
             return Optional.of(parser.parse(query));
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             LOGGER.error("Error during query parsing", e);
             return Optional.empty();
         }
@@ -97,7 +106,8 @@ public final class LinkedFilesSearcher {
         return getSearchResults(topDocs, storedFields, searchQuery);
     }
 
-    private SearchResults getSearchResults(TopDocs topDocs, StoredFields storedFields, Query searchQuery) throws IOException {
+    private SearchResults getSearchResults(TopDocs topDocs, StoredFields storedFields, Query searchQuery)
+            throws IOException {
         SearchResults searchResults = new SearchResults();
         long startTime = System.currentTimeMillis();
 
@@ -111,8 +121,7 @@ public final class LinkedFilesSearcher {
             if (!fileLink.isEmpty()) {
                 List<String> entriesWithFile = linkedFilesMap.get(fileLink);
                 if (entriesWithFile != null && !entriesWithFile.isEmpty()) {
-                    SearchResult searchResult = new SearchResult(
-                            fileLink,
+                    SearchResult searchResult = new SearchResult(fileLink,
                             getFieldContents(document, LinkedFilesConstants.CONTENT),
                             getFieldContents(document, LinkedFilesConstants.ANNOTATIONS),
                             Integer.parseInt(getFieldContents(document, LinkedFilesConstants.PAGE_NUMBER)),
@@ -145,7 +154,9 @@ public final class LinkedFilesSearcher {
         return searcherManager.acquire();
     }
 
-    private static void releaseIndexSearcher(SearcherManager searcherManager, IndexSearcher indexSearcher) throws IOException {
+    private static void releaseIndexSearcher(SearcherManager searcherManager, IndexSearcher indexSearcher)
+            throws IOException {
         searcherManager.release(indexSearcher);
     }
+
 }

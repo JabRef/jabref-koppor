@@ -13,6 +13,7 @@ import org.jooq.lambda.Unchecked;
 import org.jooq.lambda.UncheckedException;
 
 public class SeveralPlainCitationParser {
+
     private final PlainCitationParser parser;
 
     public SeveralPlainCitationParser(PlainCitationParser parser) {
@@ -21,18 +22,19 @@ public class SeveralPlainCitationParser {
 
     public List<BibEntry> parseSeveralPlainCitations(String text) throws FetcherException {
         try {
-            return splitCitations(text)
-                    .map(Unchecked.function(parser::parsePlainCitation))
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.toList());
-        } catch (UncheckedException e) {
+            return splitCitations(text).map(Unchecked.function(parser::parsePlainCitation))
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        }
+        catch (UncheckedException e) {
             throw (FetcherException) e.getCause();
         }
     }
 
     public Stream<String> splitCitations(String text) {
         return Arrays.stream(text.split("\\r\\r+|\\n\\n+|\\r\\n(\\r\\n)+"))
-                     .map(String::trim)
-                     .filter(str -> !str.isBlank());
+            .map(String::trim)
+            .filter(str -> !str.isBlank());
     }
+
 }

@@ -25,26 +25,27 @@ class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @BeforeEach
     void setUp() {
         bibEntryEffectiveJava = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
-                .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
-                .withField(StandardField.YEAR, "2007")
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.ISBN, "9780321356680")
-                .withField(StandardField.PAGES, "256");
+            .withField(StandardField.TITLE,
+                    "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
+            .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
+            .withField(StandardField.YEAR, "2007")
+            .withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(StandardField.ISBN, "9780321356680")
+            .withField(StandardField.PAGES, "256");
 
         bibEntryEffectiveJavaLongISBN = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java")
-                .withField(StandardField.PUBLISHER, "Addison-Wesley")
-                .withField(StandardField.YEAR, "2011")
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.SERIES, "The @Java series")
-                .withField(StandardField.ADDRESS, "Upper Saddle River, NJ [u.a.]")
-                .withField(StandardField.EDITION, "2. ed., rev. and updated for Java SE 6")
-                .withField(StandardField.NOTE, "*Hier auch später erschienene, unveränderte Nachdrucke*")
-                .withField(StandardField.ISBN, "9780321356680")
-                .withField(StandardField.PAGETOTAL, "346")
-                .withField(new UnknownField("ppn_gvk"), "67954951X")
-                .withField(StandardField.SUBTITLE, "[revised and updated for Java SE 6]");
+            .withField(StandardField.TITLE, "Effective Java")
+            .withField(StandardField.PUBLISHER, "Addison-Wesley")
+            .withField(StandardField.YEAR, "2011")
+            .withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(StandardField.SERIES, "The @Java series")
+            .withField(StandardField.ADDRESS, "Upper Saddle River, NJ [u.a.]")
+            .withField(StandardField.EDITION, "2. ed., rev. and updated for Java SE 6")
+            .withField(StandardField.NOTE, "*Hier auch später erschienene, unveränderte Nachdrucke*")
+            .withField(StandardField.ISBN, "9780321356680")
+            .withField(StandardField.PAGETOTAL, "346")
+            .withField(new UnknownField("ppn_gvk"), "67954951X")
+            .withField(StandardField.SUBTITLE, "[revised and updated for Java SE 6]");
 
         fetcher = new GvkFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
@@ -72,21 +73,20 @@ class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @Test
     @Override
     public void authorsAreCorrectlyFormatted() throws FetcherException {
-        BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Repository")
-                .withField(StandardField.SUBTITLE, "Eine Einführung")
-                .withField(StandardField.PUBLISHER, "Walter de Gruyter GmbH")
-                .withField(StandardField.AUTHOR, "Habermann, Hans-Joachim")
-                .withField(StandardField.ISBN, "9783110702125")
-                .withField(StandardField.YEAR, "2020")
-                .withField(StandardField.ADDRESS, "Berlin/München/Boston")
-                .withField(StandardField.EDITION, "1st ed.")
-                .withField(StandardField.EDITOR, "Frank Leymann")
-                .withField(StandardField.NUMBER, "v.8.1")
-                .withField(StandardField.PAGETOTAL, "1296")
-                .withField(StandardField.SERIES, "Handbuch der Informatik Series")
-                .withField(StandardField.NOTE, "Description based on publisher supplied metadata and other sources.")
-                .withField(new UnknownField("ppn_gvk"), "1910493767");
+        BibEntry bibEntry = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "Repository")
+            .withField(StandardField.SUBTITLE, "Eine Einführung")
+            .withField(StandardField.PUBLISHER, "Walter de Gruyter GmbH")
+            .withField(StandardField.AUTHOR, "Habermann, Hans-Joachim")
+            .withField(StandardField.ISBN, "9783110702125")
+            .withField(StandardField.YEAR, "2020")
+            .withField(StandardField.ADDRESS, "Berlin/München/Boston")
+            .withField(StandardField.EDITION, "1st ed.")
+            .withField(StandardField.EDITOR, "Frank Leymann")
+            .withField(StandardField.NUMBER, "v.8.1")
+            .withField(StandardField.PAGETOTAL, "1296")
+            .withField(StandardField.SERIES, "Handbuch der Informatik Series")
+            .withField(StandardField.NOTE, "Description based on publisher supplied metadata and other sources.")
+            .withField(new UnknownField("ppn_gvk"), "1910493767");
 
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("9783110702125");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
@@ -99,11 +99,13 @@ class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
     void isbnNeitherAvailableOnEbookDeNorOrViaOpenLibrary() throws FetcherException {
         // In this test, the ISBN needs to be a valid (syntax+checksum) ISBN number
         // However, the ISBN number must not be assigned to a real book
-       assertEquals(Optional.empty(), fetcher.performSearchById("9785646216541"));
+        assertEquals(Optional.empty(), fetcher.performSearchById("9785646216541"));
     }
 
     @Test
     void eResourceIsbnIsReturnedAsBoook() throws FetcherException {
-        assertEquals(Optional.of(StandardEntryType.Book), fetcher.performSearchById("978-0-8229-4557-4").map(BibEntry::getType));
+        assertEquals(Optional.of(StandardEntryType.Book),
+                fetcher.performSearchById("978-0-8229-4557-4").map(BibEntry::getType));
     }
+
 }

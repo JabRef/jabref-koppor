@@ -17,9 +17,11 @@ import com.google.common.eventbus.Subscribe;
 public class CoarseChangeFilter {
 
     private final BibDatabaseContext context;
+
     private final EventBus eventBus = new EventBus();
 
     private Optional<Field> lastFieldChanged;
+
     private Optional<BibEntry> lastEntryChanged;
 
     public CoarseChangeFilter(BibDatabaseContext bibDatabaseContext) {
@@ -42,7 +44,8 @@ public class CoarseChangeFilter {
             boolean isChangedField = lastFieldChanged.filter(f -> !f.equals(fieldChange.getField())).isPresent();
             boolean isChangedEntry = lastEntryChanged.filter(e -> !e.equals(fieldChange.getBibEntry())).isPresent();
             boolean isEditChanged = !isNewEdit && (isChangedField || isChangedEntry);
-            // Only deltas of 1 when typing in manually, major change means pasting something (more than one character)
+            // Only deltas of 1 when typing in manually, major change means pasting
+            // something (more than one character)
             boolean isMajorChange = fieldChange.getMajorCharacterChange() > 1;
 
             fieldChange.setFilteredOut(!(isEditChanged || isMajorChange));
@@ -51,7 +54,8 @@ public class CoarseChangeFilter {
 
             lastFieldChanged = Optional.of(fieldChange.getField());
             lastEntryChanged = Optional.of(fieldChange.getBibEntry());
-        } else {
+        }
+        else {
             eventBus.post(event);
         }
     }
@@ -68,4 +72,5 @@ public class CoarseChangeFilter {
         context.getDatabase().unregisterListener(this);
         context.getMetaData().unregisterListener(this);
     }
+
 }

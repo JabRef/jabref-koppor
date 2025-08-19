@@ -11,14 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This thread wrapper is required to be able to interrupt the http server, e.g. when JabRef is closing down the http server should shutdown as well.
+ * This thread wrapper is required to be able to interrupt the http server, e.g. when
+ * JabRef is closing down the http server should shutdown as well.
  */
 public class HttpServerThread extends Thread {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerThread.class);
 
     private final Server server;
+
     private final SrvStateManager srvStateManager;
+
     private final URI uri;
 
     private HttpServer httpServer;
@@ -34,7 +37,8 @@ public class HttpServerThread extends Thread {
     public void run() {
         try {
             httpServer = this.server.run(srvStateManager, uri);
-        } catch (ProcessingException e) {
+        }
+        catch (ProcessingException e) {
             LOGGER.error("Failed to start HTTP server thread: {}", e);
         }
     }
@@ -44,7 +48,8 @@ public class HttpServerThread extends Thread {
         LOGGER.debug("Interrupting {}", this.getName());
         if (this.httpServer == null) {
             LOGGER.warn("HttpServer is null, cannot shutdown.");
-        } else {
+        }
+        else {
             this.httpServer.shutdownNow();
         }
         super.interrupt();
@@ -53,4 +58,5 @@ public class HttpServerThread extends Thread {
     public boolean started() {
         return httpServer != null && httpServer.isStarted();
     }
+
 }

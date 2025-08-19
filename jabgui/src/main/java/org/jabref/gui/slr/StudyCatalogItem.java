@@ -13,7 +13,9 @@ import org.jabref.model.study.StudyDatabase;
  * View representation of {@link StudyDatabase}
  */
 public class StudyCatalogItem {
+
     private final StringProperty name;
+
     private final BooleanProperty enabled;
 
     public StudyCatalogItem(String name, boolean enabled) {
@@ -47,10 +49,7 @@ public class StudyCatalogItem {
 
     @Override
     public String toString() {
-        return "StudyCatalogItem{" +
-                "name=" + name.get() +
-                ", enabled=" + enabled.get() +
-                '}';
+        return "StudyCatalogItem{" + "name=" + name.get() + ", enabled=" + enabled.get() + '}';
     }
 
     @Override
@@ -69,4 +68,5 @@ public class StudyCatalogItem {
     public int hashCode() {
         return Objects.hash(getName(), isEnabled());
     }
+
 }

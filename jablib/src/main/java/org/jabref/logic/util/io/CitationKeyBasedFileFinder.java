@@ -35,7 +35,8 @@ class CitationKeyBasedFileFinder implements FileFinder {
     }
 
     @Override
-    public List<Path> findAssociatedFiles(BibEntry entry, List<Path> directories, List<String> extensions) throws IOException {
+    public List<Path> findAssociatedFiles(BibEntry entry, List<Path> directories, List<String> extensions)
+            throws IOException {
         Objects.requireNonNull(directories);
         Objects.requireNonNull(entry);
 
@@ -51,7 +52,8 @@ class CitationKeyBasedFileFinder implements FileFinder {
         if (exactKeyOnly) {
             // LOGGER.debug("Found exact match for key {} in file {}", citeKey, file);
             filteringFunction = (Path p) -> FileUtil.getBaseName(p.getFileName().toString()).equals(citeKey);
-        } else {
+        }
+        else {
             // LOGGER.debug("Found non-exact match for key {} in file {}", citeKey, file);
             filteringFunction = (Path p) -> matches(p.getFileName().toString(), citeKey);
         }
@@ -62,10 +64,13 @@ class CitationKeyBasedFileFinder implements FileFinder {
     }
 
     private boolean matches(String filename, String citeKey) {
-        boolean startsWithKey = filename.startsWith(citeKey) || filename.startsWith(FileNameCleaner.cleanFileName(citeKey));
+        boolean startsWithKey = filename.startsWith(citeKey)
+                || filename.startsWith(FileNameCleaner.cleanFileName(citeKey));
         if (startsWithKey) {
             // The file name starts with the key, that's already a good start
-            // However, we do not want to match "JabRefa" for "JabRef" since this is probably a file belonging to another entry published in the same time / same name
+            // However, we do not want to match "JabRefa" for "JabRef" since this is
+            // probably a file belonging to another entry published in the same time /
+            // same name
             char charAfterKey = filename.charAt(citeKey.length());
             return !CitationKeyGenerator.APPENDIX_CHARACTERS.contains(Character.toString(charAfterKey));
         }
@@ -73,24 +78,31 @@ class CitationKeyBasedFileFinder implements FileFinder {
     }
 
     /**
-     * Returns a list of all files in the given directories which have one of the given extension.
+     * Returns a list of all files in the given directories which have one of the given
+     * extension.
      */
-    private SortedSet<Path> findFilesByExtension(List<Path> directories, Collection<String> extensions, Function<Path, Boolean> filteringFunction) throws IOException {
+    private SortedSet<Path> findFilesByExtension(List<Path> directories, Collection<String> extensions,
+            Function<Path, Boolean> filteringFunction) throws IOException {
         Objects.requireNonNull(extensions, "Extensions must not be null!");
 
-        BiPredicate<Path, BasicFileAttributes> isFileWithCorrectExtension = (path, attributes) -> !Files.isDirectory(path)
-                && extensions.contains(FileUtil.getFileExtension(path).orElse("")) && filteringFunction.apply(path);
+        BiPredicate<Path, BasicFileAttributes> isFileWithCorrectExtension = (path,
+                attributes) -> !Files.isDirectory(path)
+                        && extensions.contains(FileUtil.getFileExtension(path).orElse(""))
+                        && filteringFunction.apply(path);
 
         SortedSet<Path> result = new TreeSet<>();
         for (Path directory : directories) {
             if (Files.exists(directory)) {
-                try (Stream<Path> pathStream = Files.find(directory, Integer.MAX_VALUE, isFileWithCorrectExtension, FileVisitOption.FOLLOW_LINKS)) {
+                try (Stream<Path> pathStream = Files.find(directory, Integer.MAX_VALUE, isFileWithCorrectExtension,
+                        FileVisitOption.FOLLOW_LINKS)) {
                     result.addAll(pathStream.collect(Collectors.toSet()));
-                } catch (UncheckedIOException e) {
+                }
+                catch (UncheckedIOException e) {
                     throw new IOException("Problem in finding files", e);
                 }
             }
         }
         return result;
     }
+
 }

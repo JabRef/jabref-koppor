@@ -24,11 +24,22 @@ import org.jabref.model.entry.field.FieldFactory;
 public class FieldFormatterCleanupsPanelViewModel {
 
     private final BooleanProperty cleanupsDisableProperty = new SimpleBooleanProperty();
-    private final ListProperty<FieldFormatterCleanup> cleanupsListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObjectProperty<SelectionModel<FieldFormatterCleanup>> selectedCleanupProperty = new SimpleObjectProperty<>(new NoSelectionModel<>());
-    private final ListProperty<Field> availableFieldsProperty = new SimpleListProperty<>(new SortedList<>(FXCollections.observableArrayList(FieldFactory.getCommonFields()), Comparator.comparing(Field::getDisplayName)));
+
+    private final ListProperty<FieldFormatterCleanup> cleanupsListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
+    private final ObjectProperty<SelectionModel<FieldFormatterCleanup>> selectedCleanupProperty = new SimpleObjectProperty<>(
+            new NoSelectionModel<>());
+
+    private final ListProperty<Field> availableFieldsProperty = new SimpleListProperty<>(
+            new SortedList<>(FXCollections.observableArrayList(FieldFactory.getCommonFields()),
+                    Comparator.comparing(Field::getDisplayName)));
+
     private final ObjectProperty<Field> selectedFieldProperty = new SimpleObjectProperty<>();
-    private final ListProperty<Formatter> availableFormattersProperty = new SimpleListProperty<>(new SortedList<>(FXCollections.observableArrayList(Formatters.getAll()), Comparator.comparing(Formatter::getName)));
+
+    private final ListProperty<Formatter> availableFormattersProperty = new SimpleListProperty<>(new SortedList<>(
+            FXCollections.observableArrayList(Formatters.getAll()), Comparator.comparing(Formatter::getName)));
+
     private final ObjectProperty<Formatter> selectedFormatterProperty = new SimpleObjectProperty<>();
 
     private final StateManager stateManager;
@@ -41,7 +52,8 @@ public class FieldFormatterCleanupsPanelViewModel {
         stateManager.getActiveDatabase().ifPresent(databaseContext -> {
             if (databaseContext.isBiblatexMode()) {
                 cleanupsListProperty.setAll(FieldFormatterCleanups.RECOMMEND_BIBLATEX_ACTIONS);
-            } else {
+            }
+            else {
                 cleanupsListProperty.setAll(FieldFormatterCleanups.RECOMMEND_BIBTEX_ACTIONS);
             }
         });
@@ -56,8 +68,7 @@ public class FieldFormatterCleanupsPanelViewModel {
             return;
         }
 
-        FieldFormatterCleanup cleanup = new FieldFormatterCleanup(
-                selectedFieldProperty.getValue(),
+        FieldFormatterCleanup cleanup = new FieldFormatterCleanup(selectedFieldProperty.getValue(),
                 selectedFormatterProperty.getValue());
 
         if (cleanupsListProperty.stream().noneMatch(item -> item.equals(cleanup))) {
@@ -96,4 +107,5 @@ public class FieldFormatterCleanupsPanelViewModel {
     public ObjectProperty<Formatter> selectedFormatterProperty() {
         return selectedFormatterProperty;
     }
+
 }

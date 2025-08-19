@@ -17,16 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @FetcherTest
 class ScholarArchiveFetcherTest {
+
     private ScholarArchiveFetcher fetcher;
+
     private BibEntry bibEntry;
 
     @BeforeEach
     void setUp() {
         fetcher = new ScholarArchiveFetcher();
         bibEntry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.TITLE, "BPELscript: A Simplified Script Syntax for WS-BPEL 2.0")
-                .withField(StandardField.AUTHOR, "Marc Bischof and Oliver Kopp and Tammo van Lessen and Frank Leymann ")
-                .withField(StandardField.YEAR, "2009");
+            .withField(StandardField.TITLE, "BPELscript: A Simplified Script Syntax for WS-BPEL 2.0")
+            .withField(StandardField.AUTHOR, "Marc Bischof and Oliver Kopp and Tammo van Lessen and Frank Leymann ")
+            .withField(StandardField.YEAR, "2009");
     }
 
     @Test
@@ -41,7 +43,5 @@ class ScholarArchiveFetcherTest {
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));
         assertTrue(fetchedEntries.contains(bibEntry), "Found the following entries " + fetchedEntries);
     }
+
 }
-
-
-

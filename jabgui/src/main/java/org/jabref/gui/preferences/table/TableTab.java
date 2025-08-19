@@ -29,29 +29,55 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> implements PreferencesTab {
 
-    @FXML private TableView<MainTableColumnModel> columnsList;
-    @FXML private TableColumn<MainTableColumnModel, String> nameColumn;
-    @FXML private TableColumn<MainTableColumnModel, String> actionsColumn;
-    @FXML private ComboBox<MainTableColumnModel> addColumnName;
-    @FXML private CheckBox specialFieldsEnable;
-    @FXML private Button specialFieldsHelp;
-    @FXML private CheckBox extraFileColumnsEnable;
-    @FXML private CheckBox autoResizeColumns;
+    @FXML
+    private TableView<MainTableColumnModel> columnsList;
 
-    @FXML private RadioButton namesNatbib;
-    @FXML private RadioButton nameAsIs;
-    @FXML private RadioButton nameFirstLast;
-    @FXML private RadioButton nameLastFirst;
-    @FXML private RadioButton abbreviationDisabled;
-    @FXML private RadioButton abbreviationEnabled;
-    @FXML private RadioButton abbreviationLastNameOnly;
+    @FXML
+    private TableColumn<MainTableColumnModel, String> nameColumn;
+
+    @FXML
+    private TableColumn<MainTableColumnModel, String> actionsColumn;
+
+    @FXML
+    private ComboBox<MainTableColumnModel> addColumnName;
+
+    @FXML
+    private CheckBox specialFieldsEnable;
+
+    @FXML
+    private Button specialFieldsHelp;
+
+    @FXML
+    private CheckBox extraFileColumnsEnable;
+
+    @FXML
+    private CheckBox autoResizeColumns;
+
+    @FXML
+    private RadioButton namesNatbib;
+
+    @FXML
+    private RadioButton nameAsIs;
+
+    @FXML
+    private RadioButton nameFirstLast;
+
+    @FXML
+    private RadioButton nameLastFirst;
+
+    @FXML
+    private RadioButton abbreviationDisabled;
+
+    @FXML
+    private RadioButton abbreviationEnabled;
+
+    @FXML
+    private RadioButton abbreviationLastNameOnly;
 
     private final ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
 
     public TableTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -66,26 +92,25 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> imple
         setupBindings();
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP_SPECIAL_FIELDS, new HelpAction(HelpFile.SPECIAL_FIELDS, dialogService, preferences.getExternalApplicationsPreferences()), specialFieldsHelp);
+        actionFactory.configureIconButton(StandardActions.HELP_SPECIAL_FIELDS, new HelpAction(HelpFile.SPECIAL_FIELDS,
+                dialogService, preferences.getExternalApplicationsPreferences()), specialFieldsHelp);
     }
 
     private void setupTable() {
         nameColumn.setSortable(false);
         nameColumn.setReorderable(false);
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        new ValueTableCellFactory<MainTableColumnModel, String>()
-                .withText(name -> name)
-                .install(nameColumn);
+        new ValueTableCellFactory<MainTableColumnModel, String>().withText(name -> name).install(nameColumn);
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         new ValueTableCellFactory<MainTableColumnModel, String>()
-                .withGraphic(item -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withTooltip(name -> Localization.lang("Remove column") + " " + name)
-                .withOnMouseClickedEvent(item -> evt ->
-                        viewModel.removeColumn(columnsList.getFocusModel().getFocusedItem()))
-                .install(actionsColumn);
+            .withGraphic(item -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withTooltip(name -> Localization.lang("Remove column") + " " + name)
+            .withOnMouseClickedEvent(
+                    item -> evt -> viewModel.removeColumn(columnsList.getFocusModel().getFocusedItem()))
+            .install(actionsColumn);
 
         viewModel.selectedColumnModelProperty().setValue(columnsList.getSelectionModel());
         columnsList.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -97,9 +122,8 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> imple
 
         columnsList.itemsProperty().bind(viewModel.columnsListProperty());
 
-        new ViewModelListCellFactory<MainTableColumnModel>()
-                .withText(MainTableColumnModel::getDisplayName)
-                .install(addColumnName);
+        new ViewModelListCellFactory<MainTableColumnModel>().withText(MainTableColumnModel::getDisplayName)
+            .install(addColumnName);
         addColumnName.itemsProperty().bind(viewModel.availableColumnsProperty());
         addColumnName.valueProperty().bindBidirectional(viewModel.addColumnProperty());
         addColumnName.setConverter(TableTabViewModel.columnNameStringConverter);
@@ -111,7 +135,8 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> imple
         });
 
         validationVisualizer.setDecoration(new IconValidationDecorator());
-        Platform.runLater(() -> validationVisualizer.initVisualization(viewModel.columnsListValidationStatus(), columnsList));
+        Platform.runLater(
+                () -> validationVisualizer.initVisualization(viewModel.columnsListValidationStatus(), columnsList));
     }
 
     private void setupBindings() {
@@ -147,4 +172,5 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> imple
     public void addColumn() {
         viewModel.insertColumnInList();
     }
+
 }

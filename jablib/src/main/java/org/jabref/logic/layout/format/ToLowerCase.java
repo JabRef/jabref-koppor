@@ -16,4 +16,5 @@ public class ToLowerCase implements LayoutFormatter {
         }
         return fieldText.toLowerCase(Locale.ROOT);
     }
+
 }

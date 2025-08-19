@@ -14,8 +14,11 @@ import javafx.util.Duration;
 import org.jabref.logic.l10n.Localization;
 
 public class TextFlowLimited extends TextFlow {
+
     private boolean isCollapsed = true;
+
     private Hyperlink moreLink = new Hyperlink(Localization.lang("(more)"));
+
     private Rectangle clip = new Rectangle();
 
     public TextFlowLimited(Text... texts) {
@@ -53,7 +56,8 @@ public class TextFlowLimited extends TextFlow {
     protected double computePrefHeight(double width) {
         if (isCollapsed) {
             return 38;
-        } else {
+        }
+        else {
             return super.computePrefHeight(width);
         }
     }
@@ -69,13 +73,16 @@ public class TextFlowLimited extends TextFlow {
             }
             layoutInArea(moreLink, 0, 0, getWidth(), getHeight(), getBaselineOffset(), HPos.RIGHT, VPos.BOTTOM);
 
-            // Clip content if it expands above pref height (no idea why this is needed, but otherwise sometimes the text is still visible)
+            // Clip content if it expands above pref height (no idea why this is needed,
+            // but otherwise sometimes the text is still visible)
             clip.setHeight(computePrefHeight(this.getWidth()));
             clip.setWidth(this.getWidth());
             this.setClip(clip);
-        } else {
+        }
+        else {
             this.getChildren().remove(moreLink);
             this.setClip(null);
         }
     }
+
 }

@@ -46,20 +46,26 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     public static final String NAME = "DOI";
 
     private static final String APS_JOURNAL_ORG_DOI_ID = "1103";
+
     private static final String APS_SUFFIX = "([\\w]+\\.)([\\w]+\\.)([\\w]+)";
+
     private static final Pattern APS_SUFFIX_PATTERN = Pattern.compile(APS_SUFFIX);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DoiFetcher.class);
 
-    // 1000 request per 5 minutes. See https://support.datacite.org/docs/is-there-a-rate-limit-for-making-requests-against-the-datacite-apis
+    // 1000 request per 5 minutes. See
+    // https://support.datacite.org/docs/is-there-a-rate-limit-for-making-requests-against-the-datacite-apis
     private static final RateLimiter DATA_CITE_DCN_RATE_LIMITER = RateLimiter.create(3.33);
 
     /*
-     * By default, it seems that CrossRef DOI Content Negotiation responses are returned by their API pools, more specifically the public one
-     * (by default). See https://www.crossref.org/documentation/retrieve-metadata/content-negotiation/
-     * Experimentally, the rating applied to this pool is defined by response headers "X-Rate-Limit-Interval" and "X-Rate-Limit-Limit", which seems
-     * to default to 50 request / second. However, because of its dynamic nature, this rate could change between API calls, so we need to update it
-     * atomically when that happens (as multiple threads might access it at the same time)
+     * By default, it seems that CrossRef DOI Content Negotiation responses are returned
+     * by their API pools, more specifically the public one (by default). See
+     * https://www.crossref.org/documentation/retrieve-metadata/content-negotiation/
+     * Experimentally, the rating applied to this pool is defined by response headers
+     * "X-Rate-Limit-Interval" and "X-Rate-Limit-Limit", which seems to default to 50
+     * request / second. However, because of its dynamic nature, this rate could change
+     * between API calls, so we need to update it atomically when that happens (as
+     * multiple threads might access it at the same time)
      */
     private static final RateLimiter CROSSREF_DCN_RATE_LIMITER = RateLimiter.create(50.0);
 
@@ -80,8 +86,10 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     }
 
     private void doAPILimiting(String identifier) {
-        // Without a generic API Rate Limiter implemented on the project, use Guava's RateLimiter for avoiding
-        // API throttling when multiple threads are working, specially during DOI Content Negotiations
+        // Without a generic API Rate Limiter implemented on the project, use Guava's
+        // RateLimiter for avoiding
+        // API throttling when multiple threads are working, specially during DOI Content
+        // Negotiations
         Optional<DOI> doi = DOI.parse(identifier);
 
         try {
@@ -90,14 +98,16 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
                 double waitingTime = 0.0;
                 if ("datacite".equalsIgnoreCase(agency.get())) {
                     waitingTime = DATA_CITE_DCN_RATE_LIMITER.acquire();
-                } else if ("crossref".equalsIgnoreCase(agency.get())) {
+                }
+                else if ("crossref".equalsIgnoreCase(agency.get())) {
                     waitingTime = CROSSREF_DCN_RATE_LIMITER.acquire();
                 } // mEDRA does not explicit an API rating
 
                 LOGGER.trace("Thread {}, searching for DOI '{}', waited {} because of API rate limiter",
                         Thread.currentThread().threadId(), identifier, waitingTime);
             }
-        } catch (FetcherException | MalformedURLException e) {
+        }
+        catch (FetcherException | MalformedURLException e) {
             LOGGER.warn("Could not limit DOI API access rate", e);
         }
     }
@@ -107,7 +117,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return performSearchById(identifier);
-            } catch (FetcherException e) {
+            }
+            catch (FetcherException e) {
                 throw new CompletionException(e);
             }
         });
@@ -124,7 +135,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         URL doiURL;
         try {
             doiURL = URLUtil.create(doi.get().getURIAsASCIIString());
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Malformed URL", e);
         }
 
@@ -156,10 +168,12 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
                 updateCrossrefAPIRate(openConnection);
             }
 
-            // Check if the entry is an APS journal and add the article id as the page count if page field is missing
+            // Check if the entry is an APS journal and add the article id as the page
+            // count if page field is missing
             if (fetchedEntry.isPresent() && fetchedEntry.get().hasField(StandardField.DOI)) {
                 BibEntry entry = fetchedEntry.get();
-                if (isAPSJournal(entry, entry.getField(StandardField.DOI).get()) && !entry.hasField(StandardField.PAGES)) {
+                if (isAPSJournal(entry, entry.getField(StandardField.DOI).get())
+                        && !entry.hasField(StandardField.PAGES)) {
                     setPageCountToArticleId(entry, entry.getField(StandardField.DOI).get());
                 }
             }
@@ -168,11 +182,14 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
                 connection.disconnect();
             }
             return fetchedEntry;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException(doiURL, Localization.lang("Connection error"), e);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException(doiURL, "Could not parse BibTeX entry", e);
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             throw new FetcherException(doiURL, "Could not retrieve Registration Agency", e);
         }
     }
@@ -186,7 +203,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     private void updateCrossrefAPIRate(URLConnection existingConnection) {
         try {
             // Assuming this field is given in seconds
-            String xRateLimitInterval = existingConnection.getHeaderField("X-Rate-Limit-Interval").replaceAll("[^\\.0123456789]", "");
+            String xRateLimitInterval = existingConnection.getHeaderField("X-Rate-Limit-Interval")
+                .replaceAll("[^\\.0123456789]", "");
             String xRateLimit = existingConnection.getHeaderField("X-Rate-Limit-Limit");
 
             double newRate = Double.parseDouble(xRateLimit) / Double.parseDouble(xRateLimitInterval);
@@ -197,7 +215,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
                 LOGGER.info("Updated Crossref API rate limit from {} to {}", oldRate, newRate);
                 CROSSREF_DCN_RATE_LIMITER.setRate(newRate);
             }
-        } catch (NullPointerException | IllegalArgumentException e) {
+        }
+        catch (NullPointerException | IllegalArgumentException e) {
             LOGGER.warn("Could not deduce Crossref API's rate limit from response header. API might have changed");
         }
     }
@@ -207,26 +226,27 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         Optional<String> doi = entry.getField(StandardField.DOI);
         if (doi.isPresent()) {
             return OptionalUtil.toList(performSearchById(doi.get()));
-        } else {
+        }
+        else {
             return List.of();
         }
     }
 
     /**
      * Returns registration agency. Optional.empty() if no agency is found.
-     *
      * @param doi the DOI to be searched
      */
     public Optional<String> getAgency(DOI doi) throws FetcherException, MalformedURLException {
         Optional<String> agency = Optional.empty();
         try {
-            URLDownload download = getUrlDownload(URLUtil.create(DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(),
-                    StandardCharsets.UTF_8)));
+            URLDownload download = getUrlDownload(URLUtil
+                .create(DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(), StandardCharsets.UTF_8)));
             JSONObject response = new JSONArray(download.asString()).getJSONObject(0);
             if (response != null) {
                 agency = Optional.ofNullable(response.optString("RA"));
             }
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             LOGGER.error("Cannot parse agency fetcher response to JSON");
             return Optional.empty();
         }
@@ -239,7 +259,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         entry.setField(StandardField.PAGES, articleId);
     }
 
-    // checks if the entry is an APS journal by comparing the organization id and the suffix format
+    // checks if the entry is an APS journal by comparing the organization id and the
+    // suffix format
     private boolean isAPSJournal(BibEntry entry, String doiAsString) {
         if (!entry.getType().equals(StandardEntryType.Article)) {
             return false;
@@ -248,4 +269,5 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         String organizationId = doiAsString.substring(doiAsString.indexOf('.') + 1, doiAsString.indexOf('/'));
         return APS_JOURNAL_ORG_DOI_ID.equals(organizationId) && APS_SUFFIX_PATTERN.matcher(suffix).matches();
     }
+
 }

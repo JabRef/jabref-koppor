@@ -18,11 +18,14 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 @ExtendWith(ApplicationExtension.class)
 class FileHistoryMenuTest {
+
     private static final String BIBTEX_LIBRARY_PATH = "src/test/resources/org/jabref/";
 
     private FileHistoryMenu fileHistoryMenu;
+
     @Mock
     private FileHistory fileHistory;
+
     @Mock
     private DialogService dialogService;
 
@@ -41,4 +44,5 @@ class FileHistoryMenuTest {
         assertTrue(fileHistoryMenu.isDisable());
         assertEquals(0, fileHistory.size());
     }
+
 }

@@ -10,7 +10,9 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
 public class CleanupDialog extends BaseDialog<CleanupPreferences> {
-    public CleanupDialog(BibDatabaseContext databaseContext, CleanupPreferences initialPreset, FilePreferences filePreferences) {
+
+    public CleanupDialog(BibDatabaseContext databaseContext, CleanupPreferences initialPreset,
+            FilePreferences filePreferences) {
         setTitle(Localization.lang("Clean up entries"));
         getDialogPane().setPrefSize(600, 650);
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
@@ -27,9 +29,11 @@ public class CleanupDialog extends BaseDialog<CleanupPreferences> {
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
                 return presetPanel.getCleanupPreset();
-            } else {
+            }
+            else {
                 return null;
             }
         });
     }
+
 }

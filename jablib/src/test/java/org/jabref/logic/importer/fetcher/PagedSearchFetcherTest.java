@@ -33,9 +33,11 @@ public interface PagedSearchFetcherTest {
         assertEquals(20, secondPage.getSize());
 
         for (BibEntry entry : firstPage.getContent()) {
-            assertFalse(secondPage.getContent().contains(entry), "%s contained in %s".formatted(entry, secondPage.getContent()));
+            assertFalse(secondPage.getContent().contains(entry),
+                    "%s contained in %s".formatted(entry, secondPage.getContent()));
         }
     }
 
     PagedSearchBasedFetcher getPagedFetcher();
+
 }

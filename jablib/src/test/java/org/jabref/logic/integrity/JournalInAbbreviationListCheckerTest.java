@@ -16,8 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JournalInAbbreviationListCheckerTest {
 
     private JournalInAbbreviationListChecker checker;
+
     private JournalInAbbreviationListChecker checkerb;
+
     private JournalAbbreviationRepository abbreviationRepository;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -38,18 +41,25 @@ class JournalInAbbreviationListCheckerTest {
     @Test
     void journalDoesNotAcceptNameNotInList() {
         entry.setField(StandardField.JOURNAL, "IEEE Whocares");
-        assertEquals(List.of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNAL)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNAL)),
+                checker.check(entry));
     }
 
     @Test
     void journalTitleDoesNotAcceptRandomInputInTitle() {
         entry.setField(StandardField.JOURNALTITLE, "A journal");
-        assertEquals(List.of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNALTITLE)), checkerb.check(entry));
+        assertEquals(List
+            .of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNALTITLE)),
+                checkerb.check(entry));
     }
 
     @Test
     void journalDoesNotAcceptRandomInputInTitle() {
         entry.setField(StandardField.JOURNAL, "A journal");
-        assertEquals(List.of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNAL)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("journal not found in abbreviation list", entry, StandardField.JOURNAL)),
+                checker.check(entry));
     }
+
 }

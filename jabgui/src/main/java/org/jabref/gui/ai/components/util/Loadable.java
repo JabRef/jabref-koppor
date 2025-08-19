@@ -5,6 +5,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 public class Loadable extends StackPane {
+
     private boolean isInLoadingState = false;
 
     public void setLoading(boolean loading) {
@@ -14,10 +15,12 @@ public class Loadable extends StackPane {
 
         if (loading) {
             getChildren().add(new BorderPane(new ProgressIndicator()));
-        } else {
+        }
+        else {
             getChildren().removeLast();
         }
 
         isInLoadingState = loading;
     }
+
 }

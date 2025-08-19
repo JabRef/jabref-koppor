@@ -47,8 +47,11 @@ import static org.mockito.Mockito.mock;
 public class Benchmarks {
 
     private String bibtexString;
+
     private final BibDatabase database = new BibDatabase();
+
     private String latexConversionString;
+
     private String htmlConversionString;
 
     @Setup
@@ -60,7 +63,8 @@ public class Benchmarks {
             BibEntry entry = new BibEntry();
             entry.setCitationKey("id" + i);
             entry.setField(StandardField.TITLE, "This is my title " + i);
-            entry.setField(StandardField.AUTHOR, "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB" + i);
+            entry.setField(StandardField.AUTHOR,
+                    "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB" + i);
             entry.setField(StandardField.JOURNAL, "Journal Title " + i);
             entry.setField(StandardField.KEYWORDS, "testkeyword");
             entry.setField(StandardField.YEAR, "1" + i);
@@ -78,16 +82,14 @@ public class Benchmarks {
     private StringWriter getOutputWriter() throws IOException {
         StringWriter outputWriter = new StringWriter();
         BibWriter bibWriter = new BibWriter(outputWriter, OS.NEWLINE);
-        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(
+                SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
-        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
 
-        BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
-                bibWriter,
-                saveConfiguration,
-                fieldPreferences,
-                citationKeyPatternPreferences,
-                new BibEntryTypesManager());
+        BibDatabaseWriter databaseWriter = new BibDatabaseWriter(bibWriter, saveConfiguration, fieldPreferences,
+                citationKeyPatternPreferences, new BibEntryTypesManager());
         databaseWriter.savePartOfDatabase(new BibDatabaseContext(database, new MetaData()), database.getEntries());
         return outputWriter;
     }
@@ -141,11 +143,13 @@ public class Benchmarks {
 
     @Benchmark
     public boolean keywordGroupContains() {
-        KeywordGroup group = new WordKeywordGroup("testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "testkeyword", false, ',', false);
+        KeywordGroup group = new WordKeywordGroup("testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                "testkeyword", false, ',', false);
         return group.containsAll(database.getEntries());
     }
 
     public static void main(String[] args) throws IOException {
         Main.main(args);
     }
+
 }

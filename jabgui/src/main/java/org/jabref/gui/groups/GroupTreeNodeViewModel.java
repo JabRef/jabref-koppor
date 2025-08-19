@@ -20,6 +20,7 @@ import org.jabref.model.groups.SearchGroup;
 import org.jabref.model.groups.SmartGroup;
 
 public class GroupTreeNodeViewModel {
+
     private final GroupTreeNode node;
 
     public GroupTreeNodeViewModel(GroupTreeNode node) {
@@ -52,17 +53,12 @@ public class GroupTreeNodeViewModel {
         String shortDescription = "";
         boolean showDynamic = true;
         shortDescription = switch (group) {
-            case SmartGroup smartGroup ->
-                    GroupDescriptions.getShortDescriptionSmartGroup(smartGroup);
-            case ExplicitGroup explicitGroup ->
-                    GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
+            case SmartGroup smartGroup -> GroupDescriptions.getShortDescriptionSmartGroup(smartGroup);
+            case ExplicitGroup explicitGroup -> GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
             case KeywordGroup keywordGroup ->
-                    GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
-            case SearchGroup searchGroup ->
-                    GroupDescriptions.getShortDescription(searchGroup, showDynamic);
-            case null,
-                 default ->
-                    GroupDescriptions.getShortDescriptionAllEntriesGroup();
+                GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
+            case SearchGroup searchGroup -> GroupDescriptions.getShortDescription(searchGroup, showDynamic);
+            case null, default -> GroupDescriptions.getShortDescriptionAllEntriesGroup();
         };
         return "<html>" + shortDescription + "</html>";
     }
@@ -108,13 +104,11 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveUp() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getPreviousSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveDown() {
-        return (getNode().getNextSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getNextSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveLeft() {
@@ -124,8 +118,7 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveRight() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getPreviousSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public void changeEntriesTo(List<BibEntry> entries, UndoManager undoManager) {
@@ -143,7 +136,8 @@ public class GroupTreeNodeViewModel {
             // Sort according to current state of the entries
             if (group.contains(entry)) {
                 toRemove.add(entry);
-            } else {
+            }
+            else {
                 toAdd.add(entry);
             }
         }
@@ -165,7 +159,8 @@ public class GroupTreeNodeViewModel {
                 undoRemove.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesAdd));
             }
             undoManager.addEdit(undoRemove);
-        } else if (!changesAdd.isEmpty()) {
+        }
+        else if (!changesAdd.isEmpty()) {
             undoManager.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesAdd));
         }
     }
@@ -182,9 +177,7 @@ public class GroupTreeNodeViewModel {
         GroupTreeNode newNode = GroupTreeNode.fromGroup(newGroup);
         this.getNode().addChild(newNode);
 
-        UndoableAddOrRemoveGroup undo = new UndoableAddOrRemoveGroup(
-                this,
-                new GroupTreeNodeViewModel(newNode),
+        UndoableAddOrRemoveGroup undo = new UndoableAddOrRemoveGroup(this, new GroupTreeNodeViewModel(newNode),
                 UndoableAddOrRemoveGroup.ADD_NODE);
         undoManager.addEdit(undo);
     }
@@ -199,4 +192,5 @@ public class GroupTreeNodeViewModel {
     public void subscribeToDescendantChanged(Consumer<GroupTreeNodeViewModel> subscriber) {
         getNode().subscribeToDescendantChanged(node -> subscriber.accept(new GroupTreeNodeViewModel(node)));
     }
+
 }

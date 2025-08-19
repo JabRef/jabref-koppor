@@ -6,6 +6,7 @@ import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.glassfish.hk2.api.Factory;
 
 public class PreferencesFactory implements Factory<CliPreferences> {
+
     @Override
     public CliPreferences provide() {
         return JabRefCliPreferences.getInstance();
@@ -14,4 +15,5 @@ public class PreferencesFactory implements Factory<CliPreferences> {
     @Override
     public void dispose(CliPreferences instance) {
     }
+
 }

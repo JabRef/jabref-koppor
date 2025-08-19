@@ -22,9 +22,11 @@ public class AddBracesFormatter extends Formatter {
         Objects.requireNonNull(value);
 
         if ((value.length() >= 2) && (value.charAt(0) != '{') && (value.charAt(value.length() - 1) != '}')) {
-            // Title does not start with { and does not end with }, then this formatter can be applied
+            // Title does not start with { and does not end with }, then this formatter
+            // can be applied
             return "{" + value + "}";
-        } else {
+        }
+        else {
             return value;
         }
     }
@@ -38,4 +40,5 @@ public class AddBracesFormatter extends Formatter {
     public String getExampleInput() {
         return "In CDMA";
     }
+
 }

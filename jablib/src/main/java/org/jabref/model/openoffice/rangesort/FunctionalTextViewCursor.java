@@ -53,9 +53,8 @@ public class FunctionalTextViewCursor {
     /* The view cursor, potentially moved from its original location. */
     private final XTextViewCursor viewCursor;
 
-    private FunctionalTextViewCursor(XTextRange initialPosition,
-                                     XServiceInfo initialSelection,
-                                     XTextViewCursor viewCursor) {
+    private FunctionalTextViewCursor(XTextRange initialPosition, XServiceInfo initialSelection,
+            XTextViewCursor viewCursor) {
         this.initialPosition = initialPosition;
         this.initialSelection = initialSelection;
         this.viewCursor = viewCursor;
@@ -66,8 +65,8 @@ public class FunctionalTextViewCursor {
      *
      * The cursor position may differ from the location provided by the user.
      *
-     * On failure the constructor restores the selection. On success, the caller may want to call
-     * instance.restore() after finished using the cursor.
+     * On failure the constructor restores the selection. On success, the caller may want
+     * to call instance.restore() after finished using the cursor.
      */
     public static OOResult<FunctionalTextViewCursor, String> get(XTextDocument doc) {
         Objects.requireNonNull(doc);
@@ -80,7 +79,8 @@ public class FunctionalTextViewCursor {
                 initialPosition = UnoCursor.createTextCursorByRange(viewCursor);
                 viewCursor.getStart();
                 return OOResult.ok(new FunctionalTextViewCursor(initialPosition, initialSelection, viewCursor));
-            } catch (RuntimeException ex) {
+            }
+            catch (RuntimeException ex) {
                 // bad cursor
                 viewCursor = null;
                 initialPosition = null;
@@ -90,8 +90,9 @@ public class FunctionalTextViewCursor {
         if (initialSelection == null) {
             String errorMessage = "Selection is not available: cannot provide a functional view cursor";
             return OOResult.error(errorMessage);
-        } else if (Arrays.stream(initialSelection.getSupportedServiceNames())
-                         .noneMatch("com.sun.star.text.TextRanges"::equals)) {
+        }
+        else if (Arrays.stream(initialSelection.getSupportedServiceNames())
+            .noneMatch("com.sun.star.text.TextRanges"::equals)) {
             // initialSelection does not support TextRanges.
             // We need to change it (and the viewCursor with it).
             XTextRange newSelection = doc.getText().getStart();
@@ -107,7 +108,8 @@ public class FunctionalTextViewCursor {
 
         try {
             viewCursor.getStart();
-        } catch (RuntimeException ex) {
+        }
+        catch (RuntimeException ex) {
             restore(doc, initialPosition, initialSelection);
             String errorMessage = "The view cursor failed the functionality test";
             return OOResult.error(errorMessage);
@@ -120,9 +122,7 @@ public class FunctionalTextViewCursor {
         return viewCursor;
     }
 
-    private static void restore(XTextDocument doc,
-                                XTextRange initialPosition,
-                                XServiceInfo initialSelection) {
+    private static void restore(XTextDocument doc, XTextRange initialPosition, XServiceInfo initialSelection) {
 
         if (initialPosition != null) {
             XTextViewCursor viewCursor = UnoCursor.getViewCursor(doc).orElse(null);
@@ -136,8 +136,11 @@ public class FunctionalTextViewCursor {
         }
     }
 
-    /* Restore initial state of viewCursor (possibly by restoring selection) if possible. */
+    /*
+     * Restore initial state of viewCursor (possibly by restoring selection) if possible.
+     */
     public void restore(XTextDocument doc) {
         FunctionalTextViewCursor.restore(doc, initialPosition, initialSelection);
     }
+
 }

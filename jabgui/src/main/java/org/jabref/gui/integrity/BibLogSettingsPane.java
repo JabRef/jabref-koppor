@@ -21,15 +21,20 @@ import org.slf4j.LoggerFactory;
 /**
  * Controller for the .blg file settings panel.
  *
- * Binds the path text field to the ViewModel,
- * and handles browse/reset button actions.
+ * Binds the path text field to the ViewModel, and handles browse/reset button actions.
  */
 public class BibLogSettingsPane {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibLogSettingsPane.class);
+
     @FXML
     private TextField pathField;
+
     private BibLogSettingsViewModel viewModel;
-    @Inject private DialogService dialogService;
+
+    @Inject
+    private DialogService dialogService;
+
     private Runnable onBlgPathChanged;
 
     public void initializeViewModel(BibDatabaseContext context, Runnable onBlgPathChanged) throws JabRefException {
@@ -75,14 +80,15 @@ public class BibLogSettingsPane {
     private FileDialogConfiguration createBlgFileDialogConfig() {
         Path initialDir = viewModel.getInitialDirectory();
         FileDialogConfiguration config = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(Localization.lang("BibTeX log files"), StandardFileType.BLG)
-                .withDefaultExtension(Localization.lang("BibTeX log files"), StandardFileType.BLG)
-                .withInitialDirectory(viewModel.getInitialDirectory())
-                .build();
+            .addExtensionFilter(Localization.lang("BibTeX log files"), StandardFileType.BLG)
+            .withDefaultExtension(Localization.lang("BibTeX log files"), StandardFileType.BLG)
+            .withInitialDirectory(viewModel.getInitialDirectory())
+            .build();
         return config;
     }
 
     public boolean wasBlgFileManuallySelected() {
         return viewModel.wasBlgFileManuallySelected();
     }
+
 }

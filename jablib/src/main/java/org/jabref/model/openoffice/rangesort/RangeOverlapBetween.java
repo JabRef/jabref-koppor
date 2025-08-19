@@ -24,11 +24,8 @@ public class RangeOverlapBetween {
      * <p>
      * Returns on first problem found.
      */
-    public static <V extends RangeHolder>
-    List<RangeOverlap<V>> findFirst(XTextDocument doc,
-                                    List<V> fewHolders,
-                                    List<V> manyHolders,
-                                    boolean includeTouching) {
+    public static <V extends RangeHolder> List<RangeOverlap<V>> findFirst(XTextDocument doc, List<V> fewHolders,
+            List<V> manyHolders, boolean includeTouching) {
 
         List<RangeOverlap<V>> result = new ArrayList<>();
 
@@ -37,16 +34,14 @@ public class RangeOverlapBetween {
         }
 
         /*
-         * Cache all we need to know about fewHolders. We are trying to minimize the number of calls
-         * to LO.
+         * Cache all we need to know about fewHolders. We are trying to minimize the
+         * number of calls to LO.
          */
         List<OOTuple3<XText, XTextRangeCompare, V>> fewTuples = new ArrayList<>(fewHolders.size());
 
         for (V aHolder : fewHolders) {
             XText aText = aHolder.getRange().getText();
-            fewTuples.add(new OOTuple3<>(aText,
-                    UnoCast.cast(XTextRangeCompare.class, aText).get(),
-                    aHolder));
+            fewTuples.add(new OOTuple3<>(aText, UnoCast.cast(XTextRangeCompare.class, aText).get(), aHolder));
         }
 
         /*
@@ -78,12 +73,12 @@ public class RangeOverlapBetween {
                 boolean equal = UnoTextRange.compareStartsThenEndsUnsafe(cmp, aRange, bRange) == 0;
                 boolean touching = abEndToStart == 0 || baEndToStart == 0;
 
-                // In case of two equal collapsed ranges there is an ambiguity : TOUCH or EQUAL_RANGE ?
+                // In case of two equal collapsed ranges there is an ambiguity : TOUCH or
+                // EQUAL_RANGE ?
                 //
                 // We return EQUAL_RANGE
                 RangeOverlapKind kind = equal ? RangeOverlapKind.EQUAL_RANGE
-                        : (touching ? RangeOverlapKind.TOUCH
-                        : RangeOverlapKind.OVERLAP);
+                        : (touching ? RangeOverlapKind.TOUCH : RangeOverlapKind.OVERLAP);
 
                 List<V> valuesForOverlappingRanges = new ArrayList<>();
                 valuesForOverlappingRanges.add(aHolder);
@@ -95,4 +90,5 @@ public class RangeOverlapBetween {
         }
         return result;
     }
+
 }

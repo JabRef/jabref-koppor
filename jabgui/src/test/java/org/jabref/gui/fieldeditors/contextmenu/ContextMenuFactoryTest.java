@@ -34,20 +34,29 @@ public class ContextMenuFactoryTest {
     private static boolean toolkitInitialized = false;
 
     private DialogService dialogService;
+
     private GuiPreferences guiPreferences;
+
     private BibDatabaseContext databaseContext;
+
     private ObservableOptionalValue<BibEntry> bibEntry;
+
     private LinkedFilesEditorViewModel viewModel;
+
     private ContextMenuFactory factory;
+
     private ContextMenuFactory.SingleContextCommandFactory singleCommandFactory;
+
     private ContextMenuFactory.MultiContextCommandFactory multiCommandFactory;
 
     @BeforeAll
     public static void initToolkit() {
         if (!toolkitInitialized) {
             try {
-                Platform.startup(() -> { });
-            } catch (IllegalStateException e) {
+                Platform.startup(() -> {
+                });
+            }
+            catch (IllegalStateException e) {
                 // Toolkit already initialized by another thread/test
             }
             toolkitInitialized = true;
@@ -65,21 +74,14 @@ public class ContextMenuFactoryTest {
         bibEntry = EasyBind.wrapNullable(bibEntryProperty);
         bibEntryProperty.set(new BibEntry());
 
-        singleCommandFactory = (action, file) ->
-                new ContextAction(action, file, databaseContext, bibEntry, guiPreferences, viewModel);
+        singleCommandFactory = (action, file) -> new ContextAction(action, file, databaseContext, bibEntry,
+                guiPreferences, viewModel);
 
-        multiCommandFactory = (action, files) ->
-                new MultiContextAction(action, files, databaseContext, bibEntry, guiPreferences, viewModel);
+        multiCommandFactory = (action, files) -> new MultiContextAction(action, files, databaseContext, bibEntry,
+                guiPreferences, viewModel);
 
-        factory = new ContextMenuFactory(
-                dialogService,
-                guiPreferences,
-                databaseContext,
-                bibEntry,
-                viewModel,
-                singleCommandFactory,
-                multiCommandFactory
-        );
+        factory = new ContextMenuFactory(dialogService, guiPreferences, databaseContext, bibEntry, viewModel,
+                singleCommandFactory, multiCommandFactory);
     }
 
     private LinkedFileViewModel mockFileWithLink(String link) {
@@ -132,13 +134,10 @@ public class ContextMenuFactoryTest {
         ObservableList<LinkedFileViewModel> files = FXCollections.observableArrayList(file);
         ContextMenu menu = factory.createForSelection(files);
 
-        menu.getItems().stream()
-                .filter(item -> {
-                    String text = item.getText();
-                    return text != null && text.toLowerCase().contains("remove link");
-                })
-                .findFirst()
-                .ifPresent(item -> item.getOnAction().handle(null));
+        menu.getItems().stream().filter(item -> {
+            String text = item.getText();
+            return text != null && text.toLowerCase().contains("remove link");
+        }).findFirst().ifPresent(item -> item.getOnAction().handle(null));
 
         verify(viewModel).removeFileLink(file);
     }
@@ -151,15 +150,13 @@ public class ContextMenuFactoryTest {
         ObservableList<LinkedFileViewModel> files = FXCollections.observableArrayList(file1, file2);
         ContextMenu menu = factory.createForSelection(files);
 
-        menu.getItems().stream()
-                .filter(item -> {
-                    String text = item.getText();
-                    return text != null && text.toLowerCase().contains("remove links");
-                })
-                .findFirst()
-                .ifPresent(item -> item.getOnAction().handle(null));
+        menu.getItems().stream().filter(item -> {
+            String text = item.getText();
+            return text != null && text.toLowerCase().contains("remove links");
+        }).findFirst().ifPresent(item -> item.getOnAction().handle(null));
 
         verify(viewModel).removeFileLink(file1);
         verify(viewModel).removeFileLink(file2);
     }
+
 }

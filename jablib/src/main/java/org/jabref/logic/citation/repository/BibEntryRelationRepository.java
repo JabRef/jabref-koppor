@@ -23,4 +23,5 @@ public interface BibEntryRelationRepository {
     }
 
     void close();
+
 }

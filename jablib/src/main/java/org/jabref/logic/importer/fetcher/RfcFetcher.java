@@ -22,6 +22,7 @@ import org.apache.hc.core5.net.URIBuilder;
 public class RfcFetcher implements IdBasedParserFetcher {
 
     private final static String DRAFT_PREFIX = "draft";
+
     private final ImportFormatPreferences importFormatPreferences;
 
     public RfcFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -40,7 +41,6 @@ public class RfcFetcher implements IdBasedParserFetcher {
 
     /**
      * Get the URL of the RFC resource according to the given identifier
-     *
      * @param identifier the ID
      * @return the URL of the RFC resource
      */
@@ -60,4 +60,5 @@ public class RfcFetcher implements IdBasedParserFetcher {
     public Parser getParser() {
         return new BibtexParser(importFormatPreferences);
     }
+
 }

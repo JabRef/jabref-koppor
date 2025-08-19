@@ -11,12 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class DocumentReaderTest {
 
     private static Stream<Arguments> getLinesToMerge() {
-        return Stream.of(
-                Arguments.of("Sentences end with periods.", "Sentences end\nwith periods."),
+        return Stream.of(Arguments.of("Sentences end with periods.", "Sentences end\nwith periods."),
                 Arguments.of("Text is usually wrapped with hyphens.", "Text is us-\nually wrapp-\ned with hyphens."),
                 Arguments.of("Longer texts often have both.", "Longer te-\nxts often\nhave both."),
-                Arguments.of("No lines to break here", "No lines to break here")
-        );
+                Arguments.of("No lines to break here", "No lines to break here"));
     }
 
     @ParameterizedTest
@@ -25,4 +23,5 @@ public class DocumentReaderTest {
         String result = DocumentReader.mergeLines(linesToMerge);
         assertEquals(expected, result);
     }
+
 }

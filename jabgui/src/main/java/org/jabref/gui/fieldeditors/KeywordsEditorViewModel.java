@@ -26,14 +26,13 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeywordsEditorViewModel.class);
 
     private final ListProperty<Keyword> keywordListProperty;
+
     private final Character keywordSeparator;
+
     private final SuggestionProvider<?> suggestionProvider;
 
-    public KeywordsEditorViewModel(Field field,
-                                   SuggestionProvider<?> suggestionProvider,
-                                   FieldCheckers fieldCheckers,
-                                   CliPreferences preferences,
-                                   UndoManager undoManager) {
+    public KeywordsEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            CliPreferences preferences, UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
@@ -41,10 +40,7 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
         this.keywordSeparator = preferences.getBibEntryPreferences().getKeywordSeparator();
         this.suggestionProvider = suggestionProvider;
 
-        BindingsHelper.bindContentBidirectional(
-                keywordListProperty,
-                text,
-                this::serializeKeywords,
+        BindingsHelper.bindContentBidirectional(keywordListProperty, text, this::serializeKeywords,
                 this::parseKeywords);
     }
 
@@ -79,12 +75,13 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     }
 
     public List<Keyword> getSuggestions(String request) {
-        List<Keyword> suggestions = suggestionProvider.getPossibleSuggestions().stream()
-                                                      .map(String.class::cast)
-                                                      .filter(keyword -> keyword.toLowerCase().contains(request.toLowerCase()))
-                                                      .map(Keyword::new)
-                                                      .distinct()
-                                                      .collect(Collectors.toList());
+        List<Keyword> suggestions = suggestionProvider.getPossibleSuggestions()
+            .stream()
+            .map(String.class::cast)
+            .filter(keyword -> keyword.toLowerCase().contains(request.toLowerCase()))
+            .map(Keyword::new)
+            .distinct()
+            .collect(Collectors.toList());
 
         Keyword requestedKeyword = new Keyword(request);
         if (!suggestions.contains(requestedKeyword)) {
@@ -97,4 +94,5 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     public Character getKeywordSeparator() {
         return keywordSeparator;
     }
+
 }

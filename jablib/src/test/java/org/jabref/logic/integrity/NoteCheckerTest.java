@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class NoteCheckerTest {
 
     private NoteChecker checker;
+
     private NoteChecker checkerBiblatex;
 
     @BeforeEach
@@ -55,4 +56,5 @@ class NoteCheckerTest {
     void bibLaTexAcceptsFirstLowercaseLetter() {
         assertEquals(Optional.empty(), checkerBiblatex.checkValue("lorem ipsum"));
     }
+
 }

@@ -14,7 +14,9 @@ import org.jabref.model.entry.types.EntryType;
 public class ChangeEntryTypeAction extends SimpleCommand {
 
     private final EntryType type;
+
     private final List<BibEntry> entries;
+
     private final UndoManager undoManager;
 
     public ChangeEntryTypeAction(EntryType type, List<BibEntry> entries, UndoManager undoManager) {
@@ -26,8 +28,8 @@ public class ChangeEntryTypeAction extends SimpleCommand {
     @Override
     public void execute() {
         NamedCompound compound = new NamedCompound(Localization.lang("Change entry type"));
-        entries.forEach(e -> e.setType(type)
-                              .ifPresent(change -> compound.addEdit(new UndoableChangeType(change))));
+        entries.forEach(e -> e.setType(type).ifPresent(change -> compound.addEdit(new UndoableChangeType(change))));
         undoManager.addEdit(compound);
     }
+
 }

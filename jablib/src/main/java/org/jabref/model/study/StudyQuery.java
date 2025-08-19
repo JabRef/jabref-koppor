@@ -1,6 +1,7 @@
 package org.jabref.model.study;
 
 public class StudyQuery {
+
     private String query;
 
     public StudyQuery(String query) {
@@ -42,8 +43,7 @@ public class StudyQuery {
 
     @Override
     public String toString() {
-        return "QueryEntry{" +
-                "query='" + query + '\'' +
-                '}';
+        return "QueryEntry{" + "query='" + query + '\'' + '}';
     }
+
 }

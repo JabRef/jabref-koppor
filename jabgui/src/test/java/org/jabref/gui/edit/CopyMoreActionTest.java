@@ -36,27 +36,35 @@ import static org.mockito.Mockito.when;
 class CopyMoreActionTest {
 
     private final DialogService dialogService = spy(DialogService.class);
+
     private final ClipBoardManager clipBoardManager = mock(ClipBoardManager.class);
+
     private final GuiPreferences preferences = mock(GuiPreferences.class);
+
     private final JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
+
     private final StateManager stateManager = mock(StateManager.class);
+
     private final List<String> titles = new ArrayList<>();
+
     private final List<String> keys = new ArrayList<>();
+
     private final List<String> dois = new ArrayList<>();
 
     private CopyMoreAction copyMoreAction;
+
     private BibEntry entry;
 
     @BeforeEach
     void setUp() {
         String title = "A tale from the trenches";
-        entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.AUTHOR, "Souti Chattopadhyay and Nicholas Nelson and Audrey Au and Natalia Morales and Christopher Sanchez and Rahul Pandita and Anita Sarma")
-                .withField(StandardField.TITLE, title)
-                .withField(StandardField.YEAR, "2020")
-                .withField(StandardField.DOI, "10.1145/3377811.3380330")
-                .withField(StandardField.SUBTITLE, "cognitive biases and software development")
-                .withCitationKey("abc");
+        entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.AUTHOR,
+                "Souti Chattopadhyay and Nicholas Nelson and Audrey Au and Natalia Morales and Christopher Sanchez and Rahul Pandita and Anita Sarma")
+            .withField(StandardField.TITLE, title)
+            .withField(StandardField.YEAR, "2020")
+            .withField(StandardField.DOI, "10.1145/3377811.3380330")
+            .withField(StandardField.SUBTITLE, "cognitive biases and software development")
+            .withCitationKey("abc");
         titles.add(title);
         keys.add("abc");
         dois.add("10.1145/3377811.3380330");
@@ -70,7 +78,8 @@ class CopyMoreActionTest {
     void executeOnFail() {
         when(stateManager.getActiveDatabase()).thenReturn(Optional.empty());
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.emptyObservableList());
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         verify(clipBoardManager, times(0)).setContent(any(String.class));
@@ -86,7 +95,8 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithNoTitles);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         verify(clipBoardManager, times(0)).setContent(any(String.class));
@@ -102,7 +112,8 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(mixedEntries);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedTitles = String.join("\n", titles);
@@ -118,13 +129,14 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithTitles);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_TITLE, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedTitles = String.join("\n", titles);
         verify(clipBoardManager, times(1)).setContent(copiedTitles);
-        verify(dialogService, times(1)).notify(Localization.lang("Copied '%0' to clipboard.",
-                JabRefDialogService.shortenDialogMessage(copiedTitles)));
+        verify(dialogService, times(1)).notify(
+                Localization.lang("Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(copiedTitles)));
     }
 
     @Test
@@ -136,7 +148,8 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithNoKeys);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         verify(clipBoardManager, times(0)).setContent(any(String.class));
@@ -152,13 +165,15 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(mixedEntries);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedKeys = String.join("\n", keys);
         verify(clipBoardManager, times(1)).setContent(copiedKeys);
-        verify(dialogService, times(1)).notify(Localization.lang("Warning: %0 out of %1 entries have undefined citation key.",
-                Integer.toString(mixedEntries.size() - titles.size()), Integer.toString(mixedEntries.size())));
+        verify(dialogService, times(1))
+            .notify(Localization.lang("Warning: %0 out of %1 entries have undefined citation key.",
+                    Integer.toString(mixedEntries.size() - titles.size()), Integer.toString(mixedEntries.size())));
     }
 
     @Test
@@ -168,13 +183,14 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithKeys);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_KEY, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedKeys = String.join("\n", keys);
         verify(clipBoardManager, times(1)).setContent(copiedKeys);
-        verify(dialogService, times(1)).notify(Localization.lang("Copied '%0' to clipboard.",
-                JabRefDialogService.shortenDialogMessage(copiedKeys)));
+        verify(dialogService, times(1)).notify(
+                Localization.lang("Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(copiedKeys)));
     }
 
     @Test
@@ -186,7 +202,8 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithNoDois);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         verify(clipBoardManager, times(0)).setContent(any(String.class));
@@ -202,7 +219,8 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(mixedEntries);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedDois = String.join("\n", dois);
@@ -218,12 +236,14 @@ class CopyMoreActionTest {
 
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         when(stateManager.getSelectedEntries()).thenReturn(entriesWithDois);
-        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager, preferences, abbreviationRepository);
+        copyMoreAction = new CopyMoreAction(StandardActions.COPY_DOI, dialogService, stateManager, clipBoardManager,
+                preferences, abbreviationRepository);
         copyMoreAction.execute();
 
         String copiedDois = String.join("\n", dois);
         verify(clipBoardManager, times(1)).setContent(copiedDois);
-        verify(dialogService, times(1)).notify(Localization.lang("Copied '%0' to clipboard.",
-                JabRefDialogService.shortenDialogMessage(copiedDois)));
+        verify(dialogService, times(1)).notify(
+                Localization.lang("Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(copiedDois)));
     }
+
 }

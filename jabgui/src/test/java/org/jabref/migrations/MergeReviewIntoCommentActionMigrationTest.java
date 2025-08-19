@@ -16,7 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MergeReviewIntoCommentActionMigrationTest {
 
     private MergeReviewIntoCommentMigration action;
+
     private BibEntry entry;
+
     private BibEntry expectedEntry;
 
     @BeforeEach
@@ -93,4 +95,5 @@ class MergeReviewIntoCommentActionMigrationTest {
         entry.setField(StandardField.AUTHOR, "JabRef DEVELOPERS");
         return entry;
     }
+
 }

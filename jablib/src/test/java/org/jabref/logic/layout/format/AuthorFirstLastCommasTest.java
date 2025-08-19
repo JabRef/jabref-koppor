@@ -15,7 +15,8 @@ class AuthorFirstLastCommasTest {
     LayoutFormatter authorFLCFormatter = new AuthorFirstLastCommas();
 
     /**
-     * Test method for {@link org.jabref.logic.layout.format.AuthorFirstLastCommas#format(java.lang.String)}.
+     * Test method for
+     * {@link org.jabref.logic.layout.format.AuthorFirstLastCommas#format(java.lang.String)}.
      */
     @ParameterizedTest
     @MethodSource("formatTests")
@@ -24,14 +25,14 @@ class AuthorFirstLastCommasTest {
     }
 
     private static Stream<Arguments> formatTests() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("Van Something Someone", "Someone, Van Something"),
+        return Stream.of(Arguments.of("", ""), Arguments.of("Van Something Someone", "Someone, Van Something"),
                 Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown"),
-                Arguments.of("John von Neumann, John Smith and Peter Black Brown", "von Neumann, John and Smith, John and Black Brown, Peter"),
-                Arguments.of("John von Neumann, John Smith and Peter Black Brown", "John von Neumann and John Smith and Black Brown, Peter"),
+                Arguments.of("John von Neumann, John Smith and Peter Black Brown",
+                        "von Neumann, John and Smith, John and Black Brown, Peter"),
+                Arguments.of("John von Neumann, John Smith and Peter Black Brown",
+                        "John von Neumann and John Smith and Black Brown, Peter"),
                 Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown"),
-                Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown")
-        );
+                Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown"));
     }
+
 }

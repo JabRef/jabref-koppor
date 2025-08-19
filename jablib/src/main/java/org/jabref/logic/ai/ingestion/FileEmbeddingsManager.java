@@ -16,33 +16,37 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 
 /**
- * This class is responsible for managing the embeddings cache. The cache is saved in a local user directory.
+ * This class is responsible for managing the embeddings cache. The cache is saved in a
+ * local user directory.
  * <p>
- * MVStore is used as an embedded database. It stores the embeddings and what files have been fully ingested.
- * {@link org.jabref.model.entry.LinkedFile} and embeddings are connected with LinkedFile.getLink().
+ * MVStore is used as an embedded database. It stores the embeddings and what files have
+ * been fully ingested. {@link org.jabref.model.entry.LinkedFile} and embeddings are
+ * connected with LinkedFile.getLink().
  * <p>
- * In case an error occurs while opening an MVStore, the class will notify the user of this error and continue
- * with in-memory store (meaning all embeddings will be thrown away on exit).
+ * In case an error occurs while opening an MVStore, the class will notify the user of
+ * this error and continue with in-memory store (meaning all embeddings will be thrown
+ * away on exit).
  * <p>
- * This class also listens for changes of embeddings parameters (in AI "Expert settings" section). In case any of them
- * changes, the embeddings should be invalidated (cleared).
+ * This class also listens for changes of embeddings parameters (in AI "Expert settings"
+ * section). In case any of them changes, the embeddings should be invalidated (cleared).
  */
 public class FileEmbeddingsManager {
+
     public static final String LINK_METADATA_KEY = "link";
 
     private final AiPreferences aiPreferences;
+
     private final ReadOnlyBooleanProperty shutdownSignal;
 
     private final EmbeddingStore<TextSegment> embeddingStore;
+
     private final FullyIngestedDocumentsTracker fullyIngestedDocumentsTracker;
+
     private final LowLevelIngestor lowLevelIngestor;
 
-    public FileEmbeddingsManager(AiPreferences aiPreferences,
-                                 ReadOnlyBooleanProperty shutdownSignal,
-                                 EmbeddingModel embeddingModel,
-                                 EmbeddingStore<TextSegment> embeddingStore,
-                                 FullyIngestedDocumentsTracker fullyIngestedDocumentsTracker
-    ) {
+    public FileEmbeddingsManager(AiPreferences aiPreferences, ReadOnlyBooleanProperty shutdownSignal,
+            EmbeddingModel embeddingModel, EmbeddingStore<TextSegment> embeddingStore,
+            FullyIngestedDocumentsTracker fullyIngestedDocumentsTracker) {
         this.aiPreferences = aiPreferences;
         this.shutdownSignal = shutdownSignal;
         this.embeddingStore = embeddingStore;
@@ -56,7 +60,8 @@ public class FileEmbeddingsManager {
         aiPreferences.addListenerToEmbeddingsParametersChange(embeddingStore::removeAll);
     }
 
-    public void addDocument(String link, Document document, long modificationTimeInSeconds, IntegerProperty workDone, IntegerProperty workMax) throws InterruptedException {
+    public void addDocument(String link, Document document, long modificationTimeInSeconds, IntegerProperty workDone,
+            IntegerProperty workMax) throws InterruptedException {
         document.metadata().put(LINK_METADATA_KEY, link);
         lowLevelIngestor.ingestDocument(document, shutdownSignal, workDone, workMax);
 
@@ -81,4 +86,5 @@ public class FileEmbeddingsManager {
     public void clearEmbeddingsFor(List<LinkedFile> linkedFiles) {
         linkedFiles.stream().map(LinkedFile::getLink).forEach(this::removeDocument);
     }
+
 }

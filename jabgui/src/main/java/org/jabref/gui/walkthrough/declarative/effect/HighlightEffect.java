@@ -1,6 +1,7 @@
 package org.jabref.gui.walkthrough.declarative.effect;
 
 public enum HighlightEffect {
+
     /// See [org.jabref.gui.walkthrough.effects.Spotlight]
     SPOT_LIGHT,
 
@@ -12,4 +13,5 @@ public enum HighlightEffect {
 
     /// No highlight effect is applied.
     NONE
+
 }

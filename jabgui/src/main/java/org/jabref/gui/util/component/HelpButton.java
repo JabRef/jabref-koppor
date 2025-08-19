@@ -11,6 +11,7 @@ import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 public class HelpButton extends Button {
+
     public HelpButton() {
         setGraphic(IconTheme.JabRefIcons.HELP.getGraphicNode());
         getStyleClass().add("icon-button");
@@ -24,11 +25,10 @@ public class HelpButton extends Button {
     }
 
     public void setHelpPage(@NonNull String helpDocumentationUrl) {
-        setOnAction(
-                _ -> new OpenBrowserAction(helpDocumentationUrl,
-                        Injector.instantiateModelOrService(DialogService.class),
-                        Injector.instantiateModelOrService(GuiPreferences.class).getExternalApplicationsPreferences()
-                ).execute()
-        );
+        setOnAction(_ -> new OpenBrowserAction(helpDocumentationUrl,
+                Injector.instantiateModelOrService(DialogService.class),
+                Injector.instantiateModelOrService(GuiPreferences.class).getExternalApplicationsPreferences())
+            .execute());
     }
+
 }

@@ -19,18 +19,20 @@ import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 public class MultiContextAction extends SimpleCommand {
 
     private final StandardActions command;
+
     private final ObservableList<LinkedFileViewModel> selectedFiles;
+
     private final BibDatabaseContext databaseContext;
+
     private final ObservableOptionalValue<BibEntry> bibEntry;
+
     private final GuiPreferences preferences;
+
     private final LinkedFilesEditorViewModel viewModel;
 
-    public MultiContextAction(StandardActions command,
-                              ObservableList<LinkedFileViewModel> selectedFiles,
-                              BibDatabaseContext databaseContext,
-                              ObservableOptionalValue<BibEntry> bibEntry,
-                              GuiPreferences preferences,
-                              LinkedFilesEditorViewModel viewModel) {
+    public MultiContextAction(StandardActions command, ObservableList<LinkedFileViewModel> selectedFiles,
+            BibDatabaseContext databaseContext, ObservableOptionalValue<BibEntry> bibEntry, GuiPreferences preferences,
+            LinkedFilesEditorViewModel viewModel) {
         this.command = command;
         this.selectedFiles = selectedFiles;
         this.databaseContext = databaseContext;
@@ -38,10 +40,7 @@ public class MultiContextAction extends SimpleCommand {
         this.preferences = preferences;
         this.viewModel = viewModel;
 
-        this.executable.bind(Bindings.createBooleanBinding(
-                () -> !selectedFiles.isEmpty(),
-                selectedFiles
-        ));
+        this.executable.bind(Bindings.createBooleanBinding(() -> !selectedFiles.isEmpty(), selectedFiles));
     }
 
     @Override
@@ -51,4 +50,5 @@ public class MultiContextAction extends SimpleCommand {
             new ContextAction(command, linkedFile, databaseContext, bibEntry, preferences, viewModel).execute();
         }
     }
+
 }

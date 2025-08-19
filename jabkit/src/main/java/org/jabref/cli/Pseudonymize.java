@@ -22,9 +22,13 @@ import picocli.CommandLine.ParentCommand;
 
 @Command(name = "pseudonymize", description = "Perform pseudonymization of the library")
 public class Pseudonymize implements Runnable {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(Pseudonymize.class);
+
     private static final String PSEUDO_SUFFIX = ".pseudo";
+
     private static final String BIB_EXTENSION = ".bib";
+
     private static final String CSV_EXTENSION = ".csv";
 
     @ParentCommand
@@ -34,16 +38,16 @@ public class Pseudonymize implements Runnable {
     private ArgumentProcessor.SharedOptions sharedOptions = new ArgumentProcessor.SharedOptions();
 
     @ADR(45)
-    @Option(names = {"--input"}, description = "BibTeX file to be pseudonymized", required = true)
+    @Option(names = { "--input" }, description = "BibTeX file to be pseudonymized", required = true)
     private String inputFile;
 
-    @Option(names = {"--output"}, description = "Output pseudo-bib file")
+    @Option(names = { "--output" }, description = "Output pseudo-bib file")
     private String outputFile;
 
-    @Option(names = {"--key"}, description = "Output pseudo-keys file")
+    @Option(names = { "--key" }, description = "Output pseudo-keys file")
     private String keyFile;
 
-    @Option(names = {"-f", "--force"}, description = "Overwrite output file(s) if any exist(s)")
+    @Option(names = { "-f", "--force" }, description = "Overwrite output file(s) if any exist(s)")
     private boolean force;
 
     @Override
@@ -53,11 +57,8 @@ public class Pseudonymize implements Runnable {
         Path pseudoBibPath = resolveOutputPath(outputFile, inputPath, fileName + PSEUDO_SUFFIX + BIB_EXTENSION);
         Path pseudoKeyPath = resolveOutputPath(keyFile, inputPath, fileName + PSEUDO_SUFFIX + CSV_EXTENSION);
 
-        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(
-                inputFile,
-                "bibtex",
-                argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, "bibtex",
+                argumentProcessor.cliPreferences, sharedOptions.porcelain);
 
         if (parserResult.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
@@ -78,11 +79,8 @@ public class Pseudonymize implements Runnable {
             return;
         }
 
-        ArgumentProcessor.saveDatabaseContext(
-                argumentProcessor.cliPreferences,
-                argumentProcessor.entryTypesManager,
-                result.bibDatabaseContext(),
-                pseudoBibPath);
+        ArgumentProcessor.saveDatabaseContext(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                result.bibDatabaseContext(), pseudoBibPath);
 
         if (!fileOverwriteCheck(pseudoKeyPath)) {
             return;
@@ -91,7 +89,8 @@ public class Pseudonymize implements Runnable {
         try {
             PseudonymizationResultCsvWriter.writeValuesMappingAsCsv(pseudoKeyPath, result);
             System.out.println(Localization.lang("Saved %0.", pseudoKeyPath));
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             LOGGER.error("Unable to save keys for pseudonymized library", ex);
         }
     }
@@ -108,11 +107,13 @@ public class Pseudonymize implements Runnable {
         String fileName = filePath.getFileName().toString();
 
         if (!force) {
-            System.out.println(Localization.lang("File '%0' already exists. Use -f or --force to overwrite.", fileName));
+            System.out
+                .println(Localization.lang("File '%0' already exists. Use -f or --force to overwrite.", fileName));
             return false;
         }
 
         System.out.println(Localization.lang("File '%0' already exists. Overwriting.", fileName));
         return true;
     }
+
 }

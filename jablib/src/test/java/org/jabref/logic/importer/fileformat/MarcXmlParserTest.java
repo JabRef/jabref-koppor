@@ -40,4 +40,5 @@ class MarcXmlParserTest {
         String bibName = FileUtil.getBaseName(fileName) + ".bib";
         doTest(fileName, bibName);
     }
+
 }

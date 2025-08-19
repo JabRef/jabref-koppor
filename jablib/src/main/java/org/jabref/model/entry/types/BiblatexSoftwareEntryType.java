@@ -6,9 +6,7 @@ import java.util.Optional;
 
 public enum BiblatexSoftwareEntryType implements EntryType {
 
-    Dataset("Dataset"),
-    SoftwareVersion("SoftwareVersion"),
-    SoftwareModule("SoftwareModule"),
+    Dataset("Dataset"), SoftwareVersion("SoftwareVersion"), SoftwareModule("SoftwareModule"),
     CodeFragment("CodeFragment");
 
     private final String displayName;
@@ -19,8 +17,8 @@ public enum BiblatexSoftwareEntryType implements EntryType {
 
     public static Optional<BiblatexSoftwareEntryType> fromName(String name) {
         return Arrays.stream(BiblatexSoftwareEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override
@@ -32,4 +30,5 @@ public enum BiblatexSoftwareEntryType implements EntryType {
     public String getDisplayName() {
         return displayName;
     }
+
 }

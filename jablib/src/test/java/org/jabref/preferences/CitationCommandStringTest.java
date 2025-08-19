@@ -19,21 +19,10 @@ class CitationCommandStringTest {
     }
 
     public static Stream<Arguments> from() {
-        return Stream.of(
-                Arguments.of(
-                        new CitationCommandString("\\cite{", ",", "}"),
-                        "\\cite{key1,key2}"
-                ),
-                Arguments.of(
-                        new CitationCommandString("\\cite{", ",", "}"),
-                        "\\cite"
-                ),
+        return Stream.of(Arguments.of(new CitationCommandString("\\cite{", ",", "}"), "\\cite{key1,key2}"),
+                Arguments.of(new CitationCommandString("\\cite{", ",", "}"), "\\cite"),
                 // We could do better, but this is very seldom
-                Arguments.of(
-                        new CitationCommandString("\\cite[key1,key]{", ",", "}"),
-                        "\\cite[key1,key]"
-                )
-        );
+                Arguments.of(new CitationCommandString("\\cite[key1,key]{", ",", "}"), "\\cite[key1,key]"));
     }
 
     @ParameterizedTest
@@ -41,4 +30,5 @@ class CitationCommandStringTest {
     void from(CitationCommandString expected, String input) {
         assertEquals(expected, CitationCommandString.from(input));
     }
+
 }

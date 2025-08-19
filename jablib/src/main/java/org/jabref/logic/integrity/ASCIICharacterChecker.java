@@ -27,4 +27,5 @@ public class ASCIICharacterChecker implements EntryChecker {
         }
         return results;
     }
+
 }

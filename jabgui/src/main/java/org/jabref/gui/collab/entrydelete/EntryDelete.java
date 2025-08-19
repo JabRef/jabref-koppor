@@ -9,14 +9,16 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public final class EntryDelete extends DatabaseChange {
+
     private final BibEntry deletedEntry;
 
-    public EntryDelete(BibEntry deletedEntry, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public EntryDelete(BibEntry deletedEntry, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.deletedEntry = deletedEntry;
         setChangeName(deletedEntry.getCitationKey()
-                           .map(key -> Localization.lang("Deleted entry '%0'", key))
-                           .orElse(Localization.lang("Deleted entry")));
+            .map(key -> Localization.lang("Deleted entry '%0'", key))
+            .orElse(Localization.lang("Deleted entry")));
     }
 
     @Override
@@ -28,4 +30,5 @@ public final class EntryDelete extends DatabaseChange {
     public BibEntry getDeletedEntry() {
         return deletedEntry;
     }
+
 }

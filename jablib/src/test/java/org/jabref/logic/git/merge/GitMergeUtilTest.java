@@ -14,30 +14,34 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GitMergeUtilTest {
+
     @Test
     void replaceEntriesReplacesMatchingByCitationKey() {
-        BibEntry entryA = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("keyA")
-                .withField(StandardField.AUTHOR, "original author A");
+        BibEntry entryA = new BibEntry(StandardEntryType.Article).withCitationKey("keyA")
+            .withField(StandardField.AUTHOR, "original author A");
 
-        BibEntry entryB = new BibEntry(StandardEntryType.Book)
-                .withCitationKey("keyB")
-                .withField(StandardField.AUTHOR, "original author B");
+        BibEntry entryB = new BibEntry(StandardEntryType.Book).withCitationKey("keyB")
+            .withField(StandardField.AUTHOR, "original author B");
 
         BibDatabase originalDatabase = new BibDatabase();
         originalDatabase.insertEntry(entryA);
         originalDatabase.insertEntry(entryB);
         BibDatabaseContext remoteContext = new BibDatabaseContext(originalDatabase, new MetaData());
 
-        BibEntry resolvedA = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("keyA")
-                .withField(StandardField.AUTHOR, "resolved author A");
+        BibEntry resolvedA = new BibEntry(StandardEntryType.Article).withCitationKey("keyA")
+            .withField(StandardField.AUTHOR, "resolved author A");
 
         BibDatabaseContext result = GitMergeUtil.replaceEntries(remoteContext, List.of(resolvedA));
 
         List<BibEntry> finalEntries = result.getDatabase().getEntries();
-        BibEntry resultA = finalEntries.stream().filter(e -> "keyA".equals(e.getCitationKey().orElse(""))).findFirst().orElseThrow();
-        BibEntry resultB = finalEntries.stream().filter(e -> "keyB".equals(e.getCitationKey().orElse(""))).findFirst().orElseThrow();
+        BibEntry resultA = finalEntries.stream()
+            .filter(e -> "keyA".equals(e.getCitationKey().orElse("")))
+            .findFirst()
+            .orElseThrow();
+        BibEntry resultB = finalEntries.stream()
+            .filter(e -> "keyB".equals(e.getCitationKey().orElse("")))
+            .findFirst()
+            .orElseThrow();
 
         assertEquals("resolved author A", resultA.getField(StandardField.AUTHOR).orElse(""));
         assertEquals("original author B", resultB.getField(StandardField.AUTHOR).orElse(""));
@@ -45,18 +49,18 @@ class GitMergeUtilTest {
 
     @Test
     void replaceEntriesIgnoresResolvedWithoutCitationKey() {
-        BibEntry original = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("key1")
-                .withField(StandardField.TITLE, "Original Title");
+        BibEntry original = new BibEntry(StandardEntryType.Article).withCitationKey("key1")
+            .withField(StandardField.TITLE, "Original Title");
 
         BibDatabaseContext remote = new BibDatabaseContext();
         remote.getDatabase().insertEntry(original);
 
         // Resolved entry without citation key (invalid)
-        BibEntry resolved = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "New Title");
+        BibEntry resolved = new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "New Title");
 
         BibDatabaseContext result = GitMergeUtil.replaceEntries(remote, List.of(resolved));
-        assertEquals("Original Title", result.getDatabase().getEntries().getFirst().getField(StandardField.TITLE).orElse(""));
+        assertEquals("Original Title",
+                result.getDatabase().getEntries().getFirst().getField(StandardField.TITLE).orElse(""));
     }
+
 }

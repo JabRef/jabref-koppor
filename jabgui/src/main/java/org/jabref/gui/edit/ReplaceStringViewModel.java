@@ -18,16 +18,25 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 
 public class ReplaceStringViewModel extends AbstractViewModel {
+
     private boolean allFieldReplace;
+
     private String findString;
+
     private String replaceString;
+
     private Set<Field> fields;
+
     private LibraryTab panel;
 
     private StringProperty findStringProperty = new SimpleStringProperty();
+
     private StringProperty replaceStringProperty = new SimpleStringProperty();
+
     private StringProperty fieldStringProperty = new SimpleStringProperty();
+
     private BooleanProperty allFieldReplaceProperty = new SimpleBooleanProperty();
+
     private BooleanProperty selectOnlyProperty = new SimpleBooleanProperty();
 
     public ReplaceStringViewModel(LibraryTab libraryTab) {
@@ -48,7 +57,8 @@ public class ReplaceStringViewModel extends AbstractViewModel {
             for (BibEntry bibEntry : this.panel.getSelectedEntries()) {
                 counter += replaceItem(bibEntry, compound);
             }
-        } else {
+        }
+        else {
             for (BibEntry bibEntry : this.panel.getDatabase().getEntries()) {
                 counter += replaceItem(bibEntry, compound);
             }
@@ -57,8 +67,8 @@ public class ReplaceStringViewModel extends AbstractViewModel {
     }
 
     /**
-     * Does the actual operation on a Bibtex entry based on the settings specified in this same dialog. Returns the
-     * number of occurrences replaced.
+     * Does the actual operation on a Bibtex entry based on the settings specified in this
+     * same dialog. Returns the number of occurrences replaced.
      */
     private int replaceItem(BibEntry entry, NamedCompound compound) {
         int counter = 0;
@@ -66,7 +76,8 @@ public class ReplaceStringViewModel extends AbstractViewModel {
             for (Field field : entry.getFields()) {
                 counter += replaceField(entry, field, compound);
             }
-        } else {
+        }
+        else {
             for (Field espField : fields) {
                 counter += replaceField(entry, espField, compound);
             }
@@ -116,4 +127,5 @@ public class ReplaceStringViewModel extends AbstractViewModel {
     public StringProperty replaceStringProperty() {
         return replaceStringProperty;
     }
+
 }

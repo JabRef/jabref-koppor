@@ -11,17 +11,26 @@ import org.jabref.model.entry.types.StandardEntryType;
 import com.google.gson.annotations.SerializedName;
 
 public class PaperDetails {
+
     private String paperId;
+
     private String title;
+
     private String year;
 
     @SerializedName("abstract")
     private String abstr;
+
     private String url;
+
     private int citationCount;
+
     private int referenceCount;
+
     private List<AuthorResponse> authors;
+
     private List<String> publicationTypes;
+
     private Map<String, String> externalIds;
 
     public String getPaperId() {
@@ -90,34 +99,24 @@ public class PaperDetails {
         }
         if (publicationTypes.contains("Conference")) {
             return "InProceedings";
-        } else if (publicationTypes.contains("JournalArticle")) {
+        }
+        else if (publicationTypes.contains("JournalArticle")) {
             return "Article";
-        } else {
+        }
+        else {
             return switch (publicationTypes.getFirst()) {
-                case "Review" ->
-                        "Misc";
-                case "CaseReport" ->
-                        "Report";
-                case "ClinicalTrial" ->
-                        "Report";
-                case "Dataset" ->
-                        "Dataset";
-                case "Editorial" ->
-                        "Misc";
-                case "LettersAndComments" ->
-                        "Misc";
-                case "MetaAnalysis" ->
-                        "Article";
-                case "News" ->
-                        "Misc";
-                case "Study" ->
-                        "Article";
-                case "Book" ->
-                        "Book";
-                case "BookSection" ->
-                        "InBook";
-                default ->
-                        "Misc";
+                case "Review" -> "Misc";
+                case "CaseReport" -> "Report";
+                case "ClinicalTrial" -> "Report";
+                case "Dataset" -> "Dataset";
+                case "Editorial" -> "Misc";
+                case "LettersAndComments" -> "Misc";
+                case "MetaAnalysis" -> "Article";
+                case "News" -> "Misc";
+                case "Study" -> "Article";
+                case "Book" -> "Book";
+                case "BookSection" -> "InBook";
+                default -> "Misc";
             };
         }
     }
@@ -126,8 +125,10 @@ public class PaperDetails {
         if (externalIds != null) {
             if (externalIds.containsKey("DOI")) {
                 return externalIds.get("DOI");
-            } else if (externalIds.containsKey("ArXiv")) {
-                // Some ArXiv articles don't return the DOI, even though it's easy to obtain from the ArXiv ID
+            }
+            else if (externalIds.containsKey("ArXiv")) {
+                // Some ArXiv articles don't return the DOI, even though it's easy to
+                // obtain from the ArXiv ID
                 return "10.48550/arXiv." + externalIds.get("ArXiv");
             }
         }
@@ -141,9 +142,7 @@ public class PaperDetails {
             bibEntry.setField(StandardField.YEAR, getYear());
         }
 
-        String authors = getAuthors().stream()
-                                     .map(AuthorResponse::getName)
-                                     .collect(Collectors.joining(" and "));
+        String authors = getAuthors().stream().map(AuthorResponse::getName).collect(Collectors.joining(" and "));
         bibEntry.setField(StandardField.AUTHOR, authors);
 
         bibEntry.setType(StandardEntryType.valueOf(getPublicationType()));
@@ -165,12 +164,8 @@ public class PaperDetails {
 
     @Override
     public String toString() {
-        return "PaperDetails{" +
-                "paperId='" + paperId + '\'' +
-                ", title='" + title + '\'' +
-                ", year='" + year + '\'' +
-                ", citationCount=" + citationCount +
-                ", referenceCount=" + referenceCount +
-                '}';
+        return "PaperDetails{" + "paperId='" + paperId + '\'' + ", title='" + title + '\'' + ", year='" + year + '\''
+                + ", citationCount=" + citationCount + ", referenceCount=" + referenceCount + '}';
     }
+
 }

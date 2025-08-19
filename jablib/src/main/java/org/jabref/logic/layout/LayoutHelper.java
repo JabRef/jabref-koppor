@@ -18,44 +18,54 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
  * <code>
  * LayoutHelper helper = new LayoutHelper(...a reader...);
  * Layout layout = helper.getLayoutFromText();
- * </code>
- * </pre>
+ * </code> </pre>
  */
 public class LayoutHelper {
 
     public static final int IS_LAYOUT_TEXT = 1;
+
     public static final int IS_SIMPLE_COMMAND = 2;
+
     public static final int IS_FIELD_START = 3;
+
     public static final int IS_FIELD_END = 4;
+
     public static final int IS_OPTION_FIELD = 5;
+
     public static final int IS_GROUP_START = 6;
+
     public static final int IS_GROUP_END = 7;
+
     public static final int IS_ENCODING_NAME = 8;
+
     public static final int IS_FILENAME = 9;
+
     public static final int IS_FILEPATH = 10;
 
     private static String currentGroup;
 
     private final PushbackReader in;
+
     private final List<StringInt> parsedEntries = new ArrayList<>();
+
     private final List<Path> fileDirForDatabase;
+
     private final LayoutFormatterPreferences preferences;
+
     private final JournalAbbreviationRepository abbreviationRepository;
+
     private boolean endOfFile;
 
-    public LayoutHelper(Reader in,
-                        List<Path> fileDirForDatabase,
-                        LayoutFormatterPreferences preferences,
-                        JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutHelper(Reader in, List<Path> fileDirForDatabase, LayoutFormatterPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository) {
         this.in = new PushbackReader(Objects.requireNonNull(in), 2);
         this.preferences = Objects.requireNonNull(preferences);
         this.abbreviationRepository = abbreviationRepository;
         this.fileDirForDatabase = fileDirForDatabase;
     }
 
-    public LayoutHelper(Reader in,
-                        LayoutFormatterPreferences preferences,
-                        JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutHelper(Reader in, LayoutFormatterPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository) {
         this(in, List.of(), preferences, abbreviationRepository);
     }
 
@@ -103,10 +113,12 @@ public class LayoutHelper {
                         parsedEntries.add(new StringInt(buffer.toString(), field));
                         return;
                     }
-                } else {
+                }
+                else {
                     start = true;
                 }
-            } else {
+            }
+            else {
                 if (buffer == null) {
                     buffer = new StringBuilder(100);
                 }
@@ -136,7 +148,8 @@ public class LayoutHelper {
                 if (buffer != null) {
                     if (option == null) {
                         tmp = buffer.toString();
-                    } else {
+                    }
+                    else {
                         tmp = buffer.toString() + '\n' + option;
                     }
 
@@ -155,15 +168,19 @@ public class LayoutHelper {
                         buffer = null;
                         start = false;
                         doneWithOptions = true;
-                    } else if (c == '}') {
+                    }
+                    else if (c == '}') {
                         // changed section begin - arudert
-                        // bracketed option must be followed by an (optionally empty) parameter
-                        // if empty, the parameter is set to " " (whitespace to avoid that the tokenizer that
+                        // bracketed option must be followed by an (optionally empty)
+                        // parameter
+                        // if empty, the parameter is set to " " (whitespace to avoid that
+                        // the tokenizer that
                         // splits the string later on ignores the empty parameter)
                         String parameter = buffer == null ? " " : buffer.toString();
                         if (option == null) {
                             tmp = parameter;
-                        } else {
+                        }
+                        else {
                             tmp = parameter + '\n' + option;
                         }
 
@@ -175,24 +192,28 @@ public class LayoutHelper {
                     // changed section start - arudert
                     // }
                     // changed section end - arudert
-                } else {
+                }
+                else {
                     start = true;
                 }
-            } else if (c == '"') {
+            }
+            else if (c == '"') {
                 inQuotes = !inQuotes;
 
                 if (buffer == null) {
                     buffer = new StringBuilder(100);
                 }
                 buffer.append('"');
-            } else {
+            }
+            else {
                 if (buffer == null) {
                     buffer = new StringBuilder(100);
                 }
 
                 if (start) {
                     // changed section begin - arudert
-                    // keep the backslash so we know wether this is a fieldname or an ordinary parameter
+                    // keep the backslash so we know wether this is a fieldname or an
+                    // ordinary parameter
                     // if (c != '\\') {
                     buffer.append((char) c);
                     // }
@@ -216,7 +237,8 @@ public class LayoutHelper {
             if (c == -1) {
                 endOfFile = true;
 
-                // Check for null, otherwise a Layout that finishes with a curly brace throws a NPE
+                // Check for null, otherwise a Layout that finishes with a curly brace
+                // throws a NPE
                 if (buffer != null) {
                     parsedEntries.add(new StringInt(buffer.toString(), LayoutHelper.IS_LAYOUT_TEXT));
                 }
@@ -236,7 +258,8 @@ public class LayoutHelper {
                 // To make sure the next character, if it is a backslash,
                 // doesn't get ignored, since "previous" now holds a backslash:
                 escaped = false;
-            } else {
+            }
+            else {
                 if (buffer == null) {
                     buffer = new StringBuilder(100);
                 }
@@ -270,7 +293,8 @@ public class LayoutHelper {
                     StringBuilder lastFive = new StringBuilder(10);
                     if (parsedEntries.isEmpty()) {
                         lastFive.append("unknown");
-                    } else {
+                    }
+                    else {
                         for (StringInt entry : parsedEntries.subList(Math.max(0, parsedEntries.size() - 6),
                                 parsedEntries.size() - 1)) {
                             lastFive.append(entry.s);
@@ -285,44 +309,52 @@ public class LayoutHelper {
                     doBracketedField(LayoutHelper.IS_FIELD_START);
 
                     return;
-                } else if ("begingroup".equalsIgnoreCase(name)) {
+                }
+                else if ("begingroup".equalsIgnoreCase(name)) {
                     // get field name
                     doBracketedField(LayoutHelper.IS_GROUP_START);
                     return;
-                } else if ("format".equalsIgnoreCase(name)) {
+                }
+                else if ("format".equalsIgnoreCase(name)) {
                     if (c == '[') {
                         // get format parameter
                         // get field name
                         doBracketedOptionField();
 
                         return;
-                    } else {
+                    }
+                    else {
                         // get field name
                         doBracketedField(LayoutHelper.IS_OPTION_FIELD);
 
                         return;
                     }
-                } else if ("filename".equalsIgnoreCase(name)) {
+                }
+                else if ("filename".equalsIgnoreCase(name)) {
                     // Print the name of the database BIB file.
                     // This is only supported in begin/end layouts, not in
                     // entry layouts.
                     parsedEntries.add(new StringInt(name, LayoutHelper.IS_FILENAME));
                     return;
-                } else if ("filepath".equalsIgnoreCase(name)) {
+                }
+                else if ("filepath".equalsIgnoreCase(name)) {
                     // Print the full path of the database BIB file.
                     // This is only supported in begin/end layouts, not in
                     // entry layouts.
                     parsedEntries.add(new StringInt(name, LayoutHelper.IS_FILEPATH));
                     return;
-                } else if ("end".equalsIgnoreCase(name)) {
+                }
+                else if ("end".equalsIgnoreCase(name)) {
                     // get field name
                     doBracketedField(LayoutHelper.IS_FIELD_END);
                     return;
-                } else if ("endgroup".equalsIgnoreCase(name)) {
+                }
+                else if ("endgroup".equalsIgnoreCase(name)) {
                     // get field name
                     doBracketedField(LayoutHelper.IS_GROUP_END);
                     return;
-                } else if ("encoding".equalsIgnoreCase(name)) {
+                }
+                else if ("encoding".equalsIgnoreCase(name)) {
                     // Print the name of the current encoding used for export.
                     // This is only supported in begin/end layouts, not in
                     // entry layouts.
@@ -334,7 +366,8 @@ public class LayoutHelper {
                 parsedEntries.add(new StringInt(name, LayoutHelper.IS_SIMPLE_COMMAND));
 
                 return;
-            } else {
+            }
+            else {
                 if (buffer == null) {
                     buffer = new StringBuilder(100);
                 }
@@ -390,4 +423,5 @@ public class LayoutHelper {
     private void unread(int c) throws IOException {
         in.unread(c);
     }
+
 }

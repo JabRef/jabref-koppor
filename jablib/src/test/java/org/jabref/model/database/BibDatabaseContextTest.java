@@ -33,6 +33,7 @@ class BibDatabaseContextTest {
     private Path currentWorkingDir;
 
     private FilePreferences fileDirPrefs;
+
     private ImportFormatPreferences importPrefs;
 
     @BeforeEach
@@ -95,10 +96,8 @@ class BibDatabaseContextTest {
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("../Literature");
         assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+                // first directory originates from the metadata
+                Path.of("/absolute/Literature").toAbsolutePath(), Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -110,10 +109,8 @@ class BibDatabaseContextTest {
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("Literature");
         assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/subdir/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+                // first directory originates from the metadata
+                Path.of("/absolute/subdir/Literature").toAbsolutePath(), Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -174,19 +171,18 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStringCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+                @article{Alice2023,
+                    author = {Alice},
+                    title = {Test Title},
+                    year = {2023}
+                }
+                """;
 
         BibDatabaseContext context = BibDatabaseContext.of(bibContent, importPrefs);
-        BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Alice2023")
-                .withField(StandardField.AUTHOR, "Alice")
-                .withField(StandardField.TITLE, "Test Title")
-                .withField(StandardField.YEAR, "2023");
+        BibEntry expected = new BibEntry(StandardEntryType.Article).withCitationKey("Alice2023")
+            .withField(StandardField.AUTHOR, "Alice")
+            .withField(StandardField.TITLE, "Test Title")
+            .withField(StandardField.YEAR, "2023");
 
         assertEquals(List.of(expected), context.getDatabase().getEntries());
     }
@@ -194,20 +190,19 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStreamCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+                @article{Alice2023,
+                    author = {Alice},
+                    title = {Test Title},
+                    year = {2023}
+                }
+                """;
 
         try (InputStream bibContentStream = new ByteArrayInputStream(bibContent.getBytes(StandardCharsets.UTF_8))) {
             BibDatabaseContext context = BibDatabaseContext.of(bibContentStream, importPrefs);
-            BibEntry expected = new BibEntry(StandardEntryType.Article)
-                    .withCitationKey("Alice2023")
-                    .withField(StandardField.AUTHOR, "Alice")
-                    .withField(StandardField.TITLE, "Test Title")
-                    .withField(StandardField.YEAR, "2023");
+            BibEntry expected = new BibEntry(StandardEntryType.Article).withCitationKey("Alice2023")
+                .withField(StandardField.AUTHOR, "Alice")
+                .withField(StandardField.TITLE, "Test Title")
+                .withField(StandardField.YEAR, "2023");
 
             assertEquals(List.of(expected), context.getDatabase().getEntries());
         }
@@ -228,4 +223,5 @@ class BibDatabaseContextTest {
         assertTrue(context.getDatabase().getEntries().isEmpty());
         assertNotNull(context.getMetaData());
     }
+
 }

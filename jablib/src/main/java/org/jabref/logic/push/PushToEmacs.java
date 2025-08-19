@@ -22,7 +22,8 @@ public class PushToEmacs extends AbstractPushToApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushToEmacs.class);
 
     /**
-     * @param preferences getPushToApplicationPreferences(), getExternalApplicationsPreferences(), and getFilePreferences() are used
+     * @param preferences getPushToApplicationPreferences(),
+     * getExternalApplicationsPreferences(), and getFilePreferences() are used
      */
     public PushToEmacs(NotificationService notificationService, PushToApplicationPreferences preferences) {
         super(notificationService, preferences);
@@ -66,28 +67,24 @@ public class PushToEmacs extends AbstractPushToApplication {
                 // so cmd receives: (insert \"\\cite{Blah2001}\")
                 // so emacs receives: (insert "\cite{Blah2001}")
 
-                com[com.length - 1] = prefix.concat("\""
-                                                    + getCitePrefix().replace("\\", "\\\\")
-                                                    + keyString
-                                                    + getCiteSuffix().replace("\\", "\\\\")
-                                                    + "\"").concat(suffix)
-                                            .replace("\"", "\\\"");
-            } else {
+                com[com.length - 1] = prefix
+                    .concat("\"" + getCitePrefix().replace("\\", "\\\\") + keyString
+                            + getCiteSuffix().replace("\\", "\\\\") + "\"")
+                    .concat(suffix)
+                    .replace("\"", "\\\"");
+            }
+            else {
                 // Linux gnuclient/emacslient escaping:
                 // java string: "(insert \"\\\\cite{Blah2001}\")"
                 // so sh receives: (insert "\\cite{Blah2001}")
                 // so emacs receives: (insert "\cite{Blah2001}")
-                com[com.length - 1] = prefix.concat("\""
-                                                    + getCitePrefix().replace("\\", "\\\\")
-                                                    + keyString
-                                                    + getCiteSuffix().replace("\\", "\\\\")
-                                                    + "\"").concat(suffix);
+                com[com.length - 1] = prefix
+                    .concat("\"" + getCitePrefix().replace("\\", "\\\\") + keyString
+                            + getCiteSuffix().replace("\\", "\\\\") + "\"")
+                    .concat(suffix);
             }
 
-            LOGGER.atDebug()
-                  .setMessage("Executing command {}")
-                  .addArgument(() -> Arrays.toString(com))
-                  .log();
+            LOGGER.atDebug().setMessage("Executing command {}").addArgument(() -> Arrays.toString(com)).log();
 
             final Process p = Runtime.getRuntime().exec(com);
 
@@ -99,7 +96,8 @@ public class PushToEmacs extends AbstractPushToApplication {
                         while ((c = out.read()) != -1) {
                             sb.append((char) c);
                         }
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         LOGGER.warn("Could not read from stderr.", e);
                     }
                     // Error stream has been closed. See if there were any errors:
@@ -107,11 +105,13 @@ public class PushToEmacs extends AbstractPushToApplication {
                         LOGGER.warn("Push to Emacs error: {}", sb);
                         couldNotPush = true;
                     }
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     LOGGER.warn("Error handling std streams", e);
                 }
             });
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Problem pushing to Emacs.", excep);
             couldNotCall = true;
         }
@@ -122,10 +122,12 @@ public class PushToEmacs extends AbstractPushToApplication {
         if (couldNotPush) {
             this.sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not push to a running emacs daemon."));
-        } else if (couldNotCall) {
+        }
+        else if (couldNotCall) {
             this.sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not run the emacs client."));
-        } else {
+        }
+        else {
             super.onOperationCompleted();
         }
     }
@@ -137,6 +139,7 @@ public class PushToEmacs extends AbstractPushToApplication {
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "+%s".formatted(line), fileName.toString()};
+        return new String[] { commandPath, "+%s".formatted(line), fileName.toString() };
     }
+
 }

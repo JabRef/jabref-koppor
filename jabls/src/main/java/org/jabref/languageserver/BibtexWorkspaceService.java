@@ -28,4 +28,5 @@ public class BibtexWorkspaceService implements WorkspaceService {
     public void setClient(LanguageClient client) {
         this.client = client;
     }
+
 }

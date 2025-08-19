@@ -36,21 +36,22 @@ public class FieldFormatterCleanupsTest {
 
     @BeforeEach
     void setUp() {
-        entry = new BibEntry(StandardEntryType.InProceedings)
-                .withCitationKey("6055279")
-                .withField(StandardField.TITLE, "Educational session 1")
-                .withField(StandardField.BOOKTITLE, "Custom Integrated Circuits Conference (CICC), 2011 IEEE")
-                .withField(StandardField.YEAR, "2011")
-                .withField(StandardField.MONTH, "Sept.")
-                .withField(StandardField.PAGES, "1-7")
-                .withField(StandardField.ABSTRACT, "Start of the above-titled section of the conference proceedings record.")
-                .withField(StandardField.DOI, "10.1109/CICC.2011.6055279")
-                .withField(StandardField.ISSN, "0886-5930");
+        entry = new BibEntry(StandardEntryType.InProceedings).withCitationKey("6055279")
+            .withField(StandardField.TITLE, "Educational session 1")
+            .withField(StandardField.BOOKTITLE, "Custom Integrated Circuits Conference (CICC), 2011 IEEE")
+            .withField(StandardField.YEAR, "2011")
+            .withField(StandardField.MONTH, "Sept.")
+            .withField(StandardField.PAGES, "1-7")
+            .withField(StandardField.ABSTRACT,
+                    "Start of the above-titled section of the conference proceedings record.")
+            .withField(StandardField.DOI, "10.1109/CICC.2011.6055279")
+            .withField(StandardField.ISSN, "0886-5930");
     }
 
     @Test
     void checkSimpleUseCase() {
-        FieldFormatterCleanups actions = new FieldFormatterCleanups(true, FieldFormatterCleanups.parse("title[identity]"));
+        FieldFormatterCleanups actions = new FieldFormatterCleanups(true,
+                FieldFormatterCleanups.parse("title[identity]"));
 
         FieldFormatterCleanup identityInTitle = new FieldFormatterCleanup(StandardField.TITLE, new IdentityFormatter());
         assertEquals(List.of(identityInTitle), actions.getConfiguredActions());
@@ -73,7 +74,8 @@ public class FieldFormatterCleanupsTest {
 
     @Test
     void checkLowerCaseSaveAction() {
-        FieldFormatterCleanups actions = new FieldFormatterCleanups(true, FieldFormatterCleanups.parse("title[lower_case]"));
+        FieldFormatterCleanups actions = new FieldFormatterCleanups(true,
+                FieldFormatterCleanups.parse("title[lower_case]"));
 
         FieldFormatterCleanup lowerCaseTitle = new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter());
         assertEquals(List.of(lowerCaseTitle), actions.getConfiguredActions());
@@ -85,7 +87,8 @@ public class FieldFormatterCleanupsTest {
 
     @Test
     void checkTwoSaveActionsForOneField() {
-        FieldFormatterCleanups actions = new FieldFormatterCleanups(true, FieldFormatterCleanups.parse("title[lower_case,identity]"));
+        FieldFormatterCleanups actions = new FieldFormatterCleanups(true,
+                FieldFormatterCleanups.parse("title[lower_case,identity]"));
 
         FieldFormatterCleanup lowerCaseTitle = new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter());
         FieldFormatterCleanup identityInTitle = new FieldFormatterCleanup(StandardField.TITLE, new IdentityFormatter());
@@ -98,12 +101,15 @@ public class FieldFormatterCleanupsTest {
 
     @Test
     void checkThreeSaveActionsForOneField() {
-        FieldFormatterCleanups actions = new FieldFormatterCleanups(true, FieldFormatterCleanups.parse("title[lower_case,identity,normalize_date]"));
+        FieldFormatterCleanups actions = new FieldFormatterCleanups(true,
+                FieldFormatterCleanups.parse("title[lower_case,identity,normalize_date]"));
 
         FieldFormatterCleanup lowerCaseTitle = new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter());
         FieldFormatterCleanup identityInTitle = new FieldFormatterCleanup(StandardField.TITLE, new IdentityFormatter());
-        FieldFormatterCleanup normalizeDatesInTitle = new FieldFormatterCleanup(StandardField.TITLE, new NormalizeDateFormatter());
-        assertEquals(Arrays.asList(lowerCaseTitle, identityInTitle, normalizeDatesInTitle), actions.getConfiguredActions());
+        FieldFormatterCleanup normalizeDatesInTitle = new FieldFormatterCleanup(StandardField.TITLE,
+                new NormalizeDateFormatter());
+        assertEquals(Arrays.asList(lowerCaseTitle, identityInTitle, normalizeDatesInTitle),
+                actions.getConfiguredActions());
 
         actions.applySaveActions(entry);
 
@@ -112,10 +118,12 @@ public class FieldFormatterCleanupsTest {
 
     @Test
     void checkMultipleSaveActions() {
-        FieldFormatterCleanups actions = new FieldFormatterCleanups(true, FieldFormatterCleanups.parse("pages[normalize_page_numbers]title[lower_case]"));
+        FieldFormatterCleanups actions = new FieldFormatterCleanups(true,
+                FieldFormatterCleanups.parse("pages[normalize_page_numbers]title[lower_case]"));
         List<FieldFormatterCleanup> formatterCleanups = actions.getConfiguredActions();
 
-        FieldFormatterCleanup normalizePages = new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter());
+        FieldFormatterCleanup normalizePages = new FieldFormatterCleanup(StandardField.PAGES,
+                new NormalizePagesFormatter());
         FieldFormatterCleanup lowerCaseTitle = new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter());
         assertEquals(Arrays.asList(normalizePages, lowerCaseTitle), formatterCleanups);
 
@@ -131,8 +139,10 @@ public class FieldFormatterCleanupsTest {
                 FieldFormatterCleanups.parse("pages[normalize_page_numbers,normalize_date]title[lower_case]"));
         List<FieldFormatterCleanup> formatterCleanups = actions.getConfiguredActions();
 
-        FieldFormatterCleanup normalizePages = new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter());
-        FieldFormatterCleanup normalizeDatesInPages = new FieldFormatterCleanup(StandardField.PAGES, new NormalizeDateFormatter());
+        FieldFormatterCleanup normalizePages = new FieldFormatterCleanup(StandardField.PAGES,
+                new NormalizePagesFormatter());
+        FieldFormatterCleanup normalizeDatesInPages = new FieldFormatterCleanup(StandardField.PAGES,
+                new NormalizeDateFormatter());
         FieldFormatterCleanup lowerCaseTitle = new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter());
         assertEquals(Arrays.asList(normalizePages, normalizeDatesInPages, lowerCaseTitle), formatterCleanups);
 
@@ -165,7 +175,8 @@ public class FieldFormatterCleanupsTest {
         List<FieldFormatterCleanup> expected = new ArrayList<>(30);
         expected.add(new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()));
         expected.add(new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()));
-        for (Field field : List.of(StandardField.TITLE, StandardField.BOOKTITLE, StandardField.PUBLISHER, StandardField.JOURNAL, StandardField.ABSTRACT)) {
+        for (Field field : List.of(StandardField.TITLE, StandardField.BOOKTITLE, StandardField.PUBLISHER,
+                StandardField.JOURNAL, StandardField.ABSTRACT)) {
             expected.add(new FieldFormatterCleanup(field, new EscapeAmpersandsFormatter()));
             expected.add(new FieldFormatterCleanup(field, new EscapeDollarSignFormatter()));
             expected.add(new FieldFormatterCleanup(field, new EscapeUnderscoresFormatter()));
@@ -180,8 +191,7 @@ public class FieldFormatterCleanupsTest {
         List<FieldFormatterCleanup> fieldFormatterCleanups = FieldFormatterCleanups.parse("""
                 title[latex_cleanup]
                 """);
-        assertEquals(
-                List.of(new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())),
+        assertEquals(List.of(new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -191,10 +201,8 @@ public class FieldFormatterCleanupsTest {
                 title[escapeUnderscores,latex_cleanup]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
-                        new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())
-                ),
+                List.of(new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
+                        new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -204,12 +212,10 @@ public class FieldFormatterCleanupsTest {
                 title[escapeAmpersands,escapeDollarSign,escapeUnderscores,latex_cleanup]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TITLE, new EscapeAmpersandsFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.TITLE, new EscapeAmpersandsFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new EscapeDollarSignFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
-                        new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -220,12 +226,10 @@ public class FieldFormatterCleanupsTest {
                 booktitle[escapeAmpersands,escapeDollarSign]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeAmpersandsFormatter()),
-                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -236,11 +240,9 @@ public class FieldFormatterCleanupsTest {
                 booktitle[escapeAmpersands,escapeDollarSign]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeAmpersandsFormatter()),
-                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -252,13 +254,11 @@ public class FieldFormatterCleanupsTest {
                 booktitle[escapeAmpersands,escapeDollarSign]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeAmpersandsFormatter()),
-                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeDollarSignFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -286,13 +286,11 @@ public class FieldFormatterCleanupsTest {
                 booktitle[escapeAmpersands,escapeUnderscores,latex_cleanup]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeAmpersandsFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeUnderscoresFormatter()),
-                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new LatexCleanupFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new LatexCleanupFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -303,13 +301,11 @@ public class FieldFormatterCleanupsTest {
                 booktitle[escapeAmpersands,latex_cleanup]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TITLE, new EscapeAmpersandsFormatter()),
+                List.of(new FieldFormatterCleanup(StandardField.TITLE, new EscapeAmpersandsFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new EscapeUnderscoresFormatter()),
                         new FieldFormatterCleanup(StandardField.TITLE, new LatexCleanupFormatter()),
                         new FieldFormatterCleanup(StandardField.BOOKTITLE, new EscapeAmpersandsFormatter()),
-                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new LatexCleanupFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.BOOKTITLE, new LatexCleanupFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -322,12 +318,11 @@ public class FieldFormatterCleanupsTest {
                 pages[normalize_page_numbers]
                 """);
         assertEquals(
-                List.of(
-                        new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new IdentityFormatter()),
+                List.of(new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD,
+                        new IdentityFormatter()),
                         new FieldFormatterCleanup(StandardField.DATE, new NormalizeDateFormatter()),
                         new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()),
-                        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter())
-                ),
+                        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter())),
                 fieldFormatterCleanups);
     }
 
@@ -354,10 +349,8 @@ public class FieldFormatterCleanupsTest {
     }
 
     public static Stream<Arguments> formatterFromString() {
-        return Stream.of(
-                Arguments.of(new ReplaceUnicodeLigaturesFormatter(), "replace_unicode_ligatures"),
-                Arguments.of(new LowerCaseFormatter(), "lower_case")
-        );
+        return Stream.of(Arguments.of(new ReplaceUnicodeLigaturesFormatter(), "replace_unicode_ligatures"),
+                Arguments.of(new LowerCaseFormatter(), "lower_case"));
     }
 
     @ParameterizedTest
@@ -365,4 +358,5 @@ public class FieldFormatterCleanupsTest {
     void formatterFromString(Formatter expected, String input) {
         assertEquals(expected, FieldFormatterCleanups.getFormatterFromString(input));
     }
+
 }

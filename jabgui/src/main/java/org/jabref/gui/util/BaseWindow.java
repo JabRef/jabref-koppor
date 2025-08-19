@@ -17,13 +17,14 @@ import com.airhacks.afterburner.injection.Injector;
 /**
  * A base class for non-modal windows of JabRef.
  * <p>
- * You can create a new instance of this class and set the title in the constructor. After that you can call
- * {@link org.jabref.gui.DialogService#showCustomWindow(BaseWindow)} in order to show the window. All the JabRef styles
- * will be applied.
+ * You can create a new instance of this class and set the title in the constructor. After
+ * that you can call {@link org.jabref.gui.DialogService#showCustomWindow(BaseWindow)} in
+ * order to show the window. All the JabRef styles will be applied.
  * <p>
  * See {@link org.jabref.gui.ai.components.aichat.AiChatWindow} for example.
  */
 public class BaseWindow extends Stage {
+
     private final ObservableList<String> stylesheets = FXCollections.observableArrayList();
 
     public BaseWindow() {
@@ -36,7 +37,8 @@ public class BaseWindow extends Stage {
         sceneProperty().addListener((obs, oldValue, newValue) -> {
             newValue.getStylesheets().setAll(stylesheets);
             newValue.setOnKeyPressed(event -> {
-                KeyBindingRepository keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
+                KeyBindingRepository keyBindingRepository = Injector
+                    .instantiateModelOrService(KeyBindingRepository.class);
                 if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.CLOSE, event)) {
                     close();
                     onCloseRequestProperty().get().handle(null);
@@ -48,4 +50,5 @@ public class BaseWindow extends Stage {
     public void applyStylesheets(ObservableList<String> stylesheets) {
         this.stylesheets.setAll(stylesheets);
     }
+
 }

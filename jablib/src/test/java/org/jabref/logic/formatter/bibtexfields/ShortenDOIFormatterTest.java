@@ -31,4 +31,5 @@ class ShortenDOIFormatterTest {
     void shortDoi() {
         assertEquals("10/adc", formatter.format("10/adc"));
     }
+
 }

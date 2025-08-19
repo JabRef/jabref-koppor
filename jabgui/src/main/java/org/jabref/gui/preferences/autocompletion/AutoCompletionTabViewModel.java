@@ -21,12 +21,20 @@ import org.jabref.model.entry.field.FieldFactory;
 public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty enableAutoCompleteProperty = new SimpleBooleanProperty();
-    private final ListProperty<Field> autoCompleteFieldsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<Field> autoCompleteFieldsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final BooleanProperty autoCompleteFirstLastProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autoCompleteLastFirstProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autoCompleteBothProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty firstNameModeAbbreviatedProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty firstNameModeFullProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty firstNameModeBothProperty = new SimpleBooleanProperty();
 
     private final AutoCompletePreferences autoCompletePreferences;
@@ -40,12 +48,15 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
     @Override
     public void setValues() {
         enableAutoCompleteProperty.setValue(autoCompletePreferences.shouldAutoComplete());
-        autoCompleteFieldsProperty.setValue(FXCollections.observableArrayList(autoCompletePreferences.getCompleteFields()));
+        autoCompleteFieldsProperty
+            .setValue(FXCollections.observableArrayList(autoCompletePreferences.getCompleteFields()));
         if (autoCompletePreferences.getNameFormat() == AutoCompletePreferences.NameFormat.FIRST_LAST) {
             autoCompleteFirstLastProperty.setValue(true);
-        } else if (autoCompletePreferences.getNameFormat() == AutoCompletePreferences.NameFormat.LAST_FIRST) {
+        }
+        else if (autoCompletePreferences.getNameFormat() == AutoCompletePreferences.NameFormat.LAST_FIRST) {
             autoCompleteLastFirstProperty.setValue(true);
-        } else {
+        }
+        else {
             autoCompleteBothProperty.setValue(true);
         }
 
@@ -62,24 +73,29 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
 
         if (autoCompleteBothProperty.getValue()) {
             autoCompletePreferences.setNameFormat(AutoCompletePreferences.NameFormat.BOTH);
-        } else if (autoCompleteFirstLastProperty.getValue()) {
+        }
+        else if (autoCompleteFirstLastProperty.getValue()) {
             autoCompletePreferences.setNameFormat(AutoCompletePreferences.NameFormat.FIRST_LAST);
-        } else if (autoCompleteLastFirstProperty.getValue()) {
+        }
+        else if (autoCompleteLastFirstProperty.getValue()) {
             autoCompletePreferences.setNameFormat(AutoCompletePreferences.NameFormat.LAST_FIRST);
         }
 
         if (firstNameModeBothProperty.getValue()) {
             autoCompletePreferences.setFirstNameMode(AutoCompleteFirstNameMode.BOTH);
-        } else if (firstNameModeAbbreviatedProperty.getValue()) {
+        }
+        else if (firstNameModeAbbreviatedProperty.getValue()) {
             autoCompletePreferences.setFirstNameMode(AutoCompleteFirstNameMode.ONLY_ABBREVIATED);
-        } else if (firstNameModeFullProperty.getValue()) {
+        }
+        else if (firstNameModeFullProperty.getValue()) {
             autoCompletePreferences.setFirstNameMode(AutoCompleteFirstNameMode.ONLY_FULL);
         }
 
         if (autoCompletePreferences.shouldAutoComplete() != enableAutoCompleteProperty.getValue()) {
             if (enableAutoCompleteProperty.getValue()) {
                 restartWarnings.add(Localization.lang("Auto complete enabled."));
-            } else {
+            }
+            else {
                 restartWarnings.add(Localization.lang("Auto complete disabled."));
             }
         }
@@ -140,8 +156,10 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
     }
 
     public List<Field> getSuggestions(String request) {
-        return FieldFactory.getAllFieldsWithOutInternal().stream()
-                           .filter(field -> field.getDisplayName().toLowerCase().contains(request.toLowerCase()))
-                           .collect(Collectors.toList());
+        return FieldFactory.getAllFieldsWithOutInternal()
+            .stream()
+            .filter(field -> field.getDisplayName().toLowerCase().contains(request.toLowerCase()))
+            .collect(Collectors.toList());
     }
+
 }

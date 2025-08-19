@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * A merger for the {@link StandardField#GROUPS} field
- * */
+ */
 public class GroupMerger implements FieldMerger {
 
     private final @NonNull BibEntryPreferences bibEntryPreferences;
@@ -26,12 +26,16 @@ public class GroupMerger implements FieldMerger {
 
         if (StringUtil.isBlank(groupsA) && StringUtil.isBlank(groupsB)) {
             return "";
-        } else if (StringUtil.isBlank(groupsA)) {
+        }
+        else if (StringUtil.isBlank(groupsA)) {
             return groupsB;
-        } else if (StringUtil.isBlank(groupsB)) {
+        }
+        else if (StringUtil.isBlank(groupsB)) {
             return groupsA;
-        } else {
+        }
+        else {
             return KeywordList.merge(groupsA, groupsB, delimiter).getAsString(delimiter);
         }
     }
+
 }

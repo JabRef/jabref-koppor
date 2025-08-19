@@ -26,9 +26,13 @@ import com.airhacks.afterburner.injection.Injector;
 public class ParseLatexResultViewModel extends AbstractViewModel {
 
     private final LatexBibEntriesResolverResult resolverResult;
+
     private final BibDatabaseContext databaseContext;
+
     private final ObservableList<ReferenceViewModel> referenceList;
+
     private final ObservableList<Citation> citationList;
+
     private final BooleanProperty importButtonDisabled;
 
     public ParseLatexResultViewModel(LatexBibEntriesResolverResult resolverResult, BibDatabaseContext databaseContext) {
@@ -37,13 +41,17 @@ public class ParseLatexResultViewModel extends AbstractViewModel {
         this.referenceList = FXCollections.observableArrayList();
         this.citationList = FXCollections.observableArrayList();
 
-        Set<String> newEntryKeys = resolverResult.getNewEntries().stream().map(entry -> entry.getCitationKey().orElse("")).collect(Collectors.toSet());
+        Set<String> newEntryKeys = resolverResult.getNewEntries()
+            .stream()
+            .map(entry -> entry.getCitationKey().orElse(""))
+            .collect(Collectors.toSet());
         for (Map.Entry<String, Collection<Citation>> entry : resolverResult.getCitations().asMap().entrySet()) {
             String key = entry.getKey();
             referenceList.add(new ReferenceViewModel(key, newEntryKeys.contains(key), entry.getValue()));
         }
 
-        this.importButtonDisabled = new SimpleBooleanProperty(referenceList.stream().noneMatch(ReferenceViewModel::isHighlighted));
+        this.importButtonDisabled = new SimpleBooleanProperty(
+                referenceList.stream().noneMatch(ReferenceViewModel::isHighlighted));
     }
 
     public ObservableList<ReferenceViewModel> getReferenceList() {
@@ -64,7 +72,8 @@ public class ParseLatexResultViewModel extends AbstractViewModel {
     public void activeReferenceChanged(ReferenceViewModel reference) {
         if (reference == null) {
             citationList.clear();
-        } else {
+        }
+        else {
             citationList.setAll(reference.getCitationList());
         }
     }
@@ -74,8 +83,10 @@ public class ParseLatexResultViewModel extends AbstractViewModel {
      */
     public void importButtonClicked() {
         DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
-        ImportEntriesDialog dialog = new ImportEntriesDialog(databaseContext, BackgroundTask.wrap(() -> new ParserResult(resolverResult.getNewEntries())));
+        ImportEntriesDialog dialog = new ImportEntriesDialog(databaseContext,
+                BackgroundTask.wrap(() -> new ParserResult(resolverResult.getNewEntries())));
         dialog.setTitle(Localization.lang("Import entries from LaTeX files"));
         dialogService.showCustomDialogAndWait(dialog);
     }
+
 }

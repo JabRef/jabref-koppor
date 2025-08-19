@@ -23,6 +23,7 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFlagsToExpressionVisitor.class);
 
     private final boolean isCaseSensitive;
+
     private final boolean isRegularExpression;
 
     public SearchFlagsToExpressionVisitor(EnumSet<SearchFlags> searchFlags) {
@@ -86,10 +87,13 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
 
         if (isRegularExpression) {
             searchFlags.add(REGULAR_EXPRESSION);
-        } else {
-            if (operator == SearchParser.EQUAL || operator == SearchParser.CONTAINS || operator == SearchParser.NEQUAL) {
+        }
+        else {
+            if (operator == SearchParser.EQUAL || operator == SearchParser.CONTAINS
+                    || operator == SearchParser.NEQUAL) {
                 searchFlags.add(INEXACT_MATCH);
-            } else if (operator == SearchParser.EEQUAL || operator == SearchParser.MATCHES) {
+            }
+            else if (operator == SearchParser.EEQUAL || operator == SearchParser.MATCHES) {
                 searchFlags.add(EXACT_MATCH);
             }
         }
@@ -110,9 +114,11 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
 
         if (searchFlags.contains(INEXACT_MATCH)) {
             operator.append("=");
-        } else if (searchFlags.contains(EXACT_MATCH)) {
+        }
+        else if (searchFlags.contains(EXACT_MATCH)) {
             operator.append("==");
-        } else if (searchFlags.contains(REGULAR_EXPRESSION)) {
+        }
+        else if (searchFlags.contains(REGULAR_EXPRESSION)) {
             operator.append("=~");
         }
 
@@ -122,4 +128,5 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
 
         return operator.toString();
     }
+
 }

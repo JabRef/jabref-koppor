@@ -6,14 +6,15 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.strings.StringUtil;
 
 /**
- * This class represents a change in any field value. The relevant
- * information is the BibEntry, the field name, the old and the
- * new value. Old/new values can be null.
+ * This class represents a change in any field value. The relevant information is the
+ * BibEntry, the field name, the old and the new value. Old/new values can be null.
  */
 public class UndoableKeyChange extends AbstractUndoableJabRefEdit {
 
     private final BibEntry entry;
+
     private final String oldValue;
+
     private final String newValue;
 
     public UndoableKeyChange(FieldChange change) {
@@ -44,4 +45,5 @@ public class UndoableKeyChange extends AbstractUndoableJabRefEdit {
         super.redo();
         entry.setCitationKey(newValue);
     }
+
 }

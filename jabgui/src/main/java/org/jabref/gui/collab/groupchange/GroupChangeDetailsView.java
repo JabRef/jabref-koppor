@@ -11,12 +11,16 @@ public final class GroupChangeDetailsView extends DatabaseChangeDetailsView {
         String labelValue;
         if (groupChange.getGroupDiff().getNewGroupRoot() == null) {
             labelValue = groupChange.getName() + '.';
-        } else {
-            labelValue = Localization.lang("%0. Accepting the change replaces the complete groups tree with the externally modified groups tree.", groupChange.getName());
+        }
+        else {
+            labelValue = Localization.lang(
+                    "%0. Accepting the change replaces the complete groups tree with the externally modified groups tree.",
+                    groupChange.getName());
         }
         Label label = new Label(labelValue);
         label.setWrapText(true);
 
         this.setAllAnchorsAndAttachChild(label);
     }
+
 }

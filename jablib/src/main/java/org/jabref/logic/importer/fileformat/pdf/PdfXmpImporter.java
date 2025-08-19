@@ -17,6 +17,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 public class PdfXmpImporter extends PdfImporter {
 
     private final XmpPreferences xmpPreferences;
+
     private final XmpUtilReader xmpUtilReader;
 
     public PdfXmpImporter(XmpPreferences xmpPreferences) {
@@ -42,4 +43,5 @@ public class PdfXmpImporter extends PdfImporter {
     public String getDescription() {
         return Localization.lang("Imports BibTeX data using XMP data of a PDF.");
     }
+
 }

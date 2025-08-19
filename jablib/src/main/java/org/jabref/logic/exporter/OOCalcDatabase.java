@@ -29,12 +29,16 @@ import org.w3c.dom.Text;
 class OOCalcDatabase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OOCalcDatabase.class);
+
     private static final Field REPORT_TYPE_FIELD = new UnknownField("reporttype");
+
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 
     private final List<BibEntry> entries = new ArrayList<>();
-    private final List<Field> toExportFields = Stream.concat(FieldFactory.getStandardFieldsWithCitationKey().stream(), Stream.of(REPORT_TYPE_FIELD))
-                                                     .toList();
+
+    private final List<Field> toExportFields = Stream
+        .concat(FieldFactory.getStandardFieldsWithCitationKey().stream(), Stream.of(REPORT_TYPE_FIELD))
+        .toList();
 
     public OOCalcDatabase(BibDatabase bibtex, List<BibEntry> entries) {
         this.entries.addAll(entries != null ? entries : bibtex.getEntries());
@@ -68,7 +72,8 @@ class OOCalcDatabase {
             for (BibEntry entry : entries) {
                 addEntryRow(entry, table, document);
             }
-        } catch (ParserConfigurationException e) {
+        }
+        catch (ParserConfigurationException e) {
             LOGGER.warn("Exception caught...", e);
         }
         return document;
@@ -80,8 +85,10 @@ class OOCalcDatabase {
         addTableCell(document, row, new GetOpenOfficeType().format(entry.getType().getName()));
         toExportFields.forEach(field -> {
             if (field.equals(StandardField.TITLE)) {
-                addTableCell(document, row, new NonSpaceWhitespaceRemover().format(new RemoveBrackets().format(getField(entry, StandardField.TITLE))));
-            } else {
+                addTableCell(document, row, new NonSpaceWhitespaceRemover()
+                    .format(new RemoveBrackets().format(getField(entry, StandardField.TITLE))));
+            }
+            else {
                 addTableCell(document, row, getField(entry, field));
             }
         });
@@ -150,4 +157,5 @@ class OOCalcDatabase {
 
         table.appendChild(firstRow);
     }
+
 }

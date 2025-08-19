@@ -29,23 +29,38 @@ import org.slf4j.LoggerFactory;
 public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CopyFilesTask.class);
+
     private static final String LOGFILE_PREFIX = "copyFileslog_";
+
     private static final String LOGFILE_EXT = ".log";
+
     private final BibDatabaseContext databaseContext;
+
     private final CliPreferences preferences;
+
     private final Path exportPath;
+
     private final String localizedSuccessMessage = Localization.lang("Copied file successfully");
-    private final String localizedErrorMessage = Localization.lang("Could not copy file") + ": " + Localization.lang("File exists");
+
+    private final String localizedErrorMessage = Localization.lang("Could not copy file") + ": "
+            + Localization.lang("File exists");
+
     private final long totalFilesCount;
+
     private final List<BibEntry> entries;
+
     private final List<CopyFilesResultItemViewModel> results = new ArrayList<>();
+
     private Optional<Path> newPath = Optional.empty();
+
     private int numberSuccessful;
+
     private int totalFilesCounter;
 
     private final BiFunction<Path, Path, Path> resolvePathFilename = (path, file) -> path.resolve(file.getFileName());
 
-    public CopyFilesTask(BibDatabaseContext databaseContext, List<BibEntry> entries, Path path, CliPreferences preferences) {
+    public CopyFilesTask(BibDatabaseContext databaseContext, List<BibEntry> entries, Path path,
+            CliPreferences preferences) {
         this.databaseContext = databaseContext;
         this.preferences = preferences;
         this.entries = entries;
@@ -62,7 +77,8 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
         LocalDateTime currentTime = LocalDateTime.now();
         String currentDate = currentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
 
-        try (BufferedWriter bw = Files.newBufferedWriter(exportPath.resolve(LOGFILE_PREFIX + currentDate + LOGFILE_EXT), StandardCharsets.UTF_8)) {
+        try (BufferedWriter bw = Files.newBufferedWriter(exportPath.resolve(LOGFILE_PREFIX + currentDate + LOGFILE_EXT),
+                StandardCharsets.UTF_8)) {
             for (int i = 0; i < entries.size(); i++) {
                 if (isCancelled()) {
                     break;
@@ -75,7 +91,8 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
                         break;
                     }
 
-                    updateMessage(Localization.lang("Copying file %0 of entry %1", Integer.toString(j + 1), Integer.toString(i + 1)));
+                    updateMessage(Localization.lang("Copying file %0 of entry %1", Integer.toString(j + 1),
+                            Integer.toString(i + 1)));
 
                     LinkedFile fileName = files.get(j);
 
@@ -89,7 +106,8 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
                         updateProgress(totalFilesCounter++, totalFilesCount);
                         try {
                             Thread.sleep(300);
-                        } catch (InterruptedException e) {
+                        }
+                        catch (InterruptedException e) {
                             if (isCancelled()) {
                                 updateMessage("Cancelled");
                                 break;
@@ -100,7 +118,8 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
                             numberSuccessful++;
                             writeLogMessage(newFile, bw, localizedSuccessMessage);
                             addResultToList(newFile, success, localizedSuccessMessage);
-                        } else {
+                        }
+                        else {
                             updateMessage(localizedErrorMessage);
                             writeLogMessage(newFile, bw, localizedErrorMessage);
                             addResultToList(newFile, success, localizedErrorMessage);
@@ -111,8 +130,7 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
             updateMessage(Localization.lang("Finished copying"));
 
             String successMessage = Localization.lang("Copied %0 files of %1 successfully to %2",
-                    Integer.toString(numberSuccessful),
-                    Integer.toString(totalFilesCounter),
+                    Integer.toString(numberSuccessful), Integer.toString(totalFilesCounter),
                     newPath.map(Path::getParent).map(Path::toString).orElse(""));
             updateMessage(successMessage);
             bw.write(successMessage);
@@ -124,7 +142,8 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
         try {
             bw.write(logMessage + ": " + newFile);
             bw.write(OS.NEWLINE);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("error writing log file", e);
         }
     }
@@ -133,4 +152,5 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
         CopyFilesResultItemViewModel result = new CopyFilesResultItemViewModel(newFile, success, logMessage);
         results.add(result);
     }
+
 }

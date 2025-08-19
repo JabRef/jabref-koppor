@@ -68,4 +68,5 @@ class RemotePreferencesTest {
     void isDifferentHttpPortFalse() {
         assertFalse(preferences.isDifferentHttpPort(3000));
     }
+
 }

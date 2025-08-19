@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class NormalizeEnDashesFormatterTest {
 
@@ -19,7 +20,8 @@ class NormalizeEnDashesFormatterTest {
 
     @Test
     void formatExample() {
-        assertEquals("Winery -- A Modeling Tool for TOSCA-based Cloud Applications", formatter.format(formatter.getExampleInput()));
+        assertEquals("Winery -- A Modeling Tool for TOSCA-based Cloud Applications",
+                formatter.format(formatter.getExampleInput()));
     }
 
     @Test
@@ -51,4 +53,5 @@ class NormalizeEnDashesFormatterTest {
     void dashAtTheEndIsKept() {
         assertEquals("Example-", formatter.format("Example-"));
     }
+
 }

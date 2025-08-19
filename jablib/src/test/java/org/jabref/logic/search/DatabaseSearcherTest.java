@@ -31,11 +31,17 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class DatabaseSearcherTest {
+
     private static final TaskExecutor TASK_EXECUTOR = new CurrentThreadTaskExecutor();
+
     private BibDatabaseContext databaseContext;
+
     private final CliPreferences preferences = mock(CliPreferences.class);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class);
+
     private final BibEntryPreferences bibEntryPreferences = mock(BibEntryPreferences.class);
+
     private PostgreServer postgreServer;
 
     @TempDir
@@ -63,11 +69,13 @@ public class DatabaseSearcherTest {
 
     @ParameterizedTest
     @MethodSource
-    void databaseSearcher(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries) throws IOException {
+    void databaseSearcher(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries)
+            throws IOException {
         for (BibEntry entry : entries) {
             databaseContext.getDatabase().insertEntry(entry);
         }
-        List<BibEntry> matches = new DatabaseSearcher(databaseContext, TASK_EXECUTOR, preferences, postgreServer).getMatches(query);
+        List<BibEntry> matches = new DatabaseSearcher(databaseContext, TASK_EXECUTOR, preferences, postgreServer)
+            .getMatches(query);
         assertEquals(expectedMatches, matches);
     }
 
@@ -80,10 +88,10 @@ public class DatabaseSearcherTest {
         BibEntry inCollectionEntry = new BibEntry(StandardEntryType.InCollection);
         inCollectionEntry.setField(StandardField.AUTHOR, "tonho");
 
-        return Stream.of(
-                Arguments.of(List.of(), new SearchQuery("whatever"), List.of()),
+        return Stream.of(Arguments.of(List.of(), new SearchQuery("whatever"), List.of()),
                 Arguments.of(List.of(), new SearchQuery("whatever"), List.of(emptyEntry)),
-                Arguments.of(List.of(), new SearchQuery("whatever"), List.of(emptyEntry, articleEntry, inCollectionEntry)),
+                Arguments.of(List.of(), new SearchQuery("whatever"),
+                        List.of(emptyEntry, articleEntry, inCollectionEntry)),
 
                 // invalid search syntax
                 Arguments.of(List.of(), new SearchQuery("author="), List.of(articleEntry)),
@@ -92,7 +100,8 @@ public class DatabaseSearcherTest {
                 Arguments.of(List.of(), new SearchQuery("title= harrer"), List.of(articleEntry)),
 
                 Arguments.of(List.of(inCollectionEntry), new SearchQuery("tonho"), List.of(inCollectionEntry)),
-                Arguments.of(List.of(inCollectionEntry), new SearchQuery("tonho"), List.of(articleEntry, inCollectionEntry))
-        );
+                Arguments.of(List.of(inCollectionEntry), new SearchQuery("tonho"),
+                        List.of(articleEntry, inCollectionEntry)));
     }
+
 }

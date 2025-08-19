@@ -37,10 +37,13 @@ import org.slf4j.LoggerFactory;
 public class FieldFormatterCleanups {
 
     public static final List<FieldFormatterCleanup> DEFAULT_SAVE_ACTIONS;
+
     public static final List<FieldFormatterCleanup> RECOMMEND_BIBTEX_ACTIONS;
+
     public static final List<FieldFormatterCleanup> RECOMMEND_BIBLATEX_ACTIONS;
 
     public static final String ENABLED = "enabled";
+
     public static final String DISABLED = "disabled";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FieldFormatterCleanups.class);
@@ -48,40 +51,47 @@ public class FieldFormatterCleanups {
     /**
      * This parses the key/list map of fields and clean up actions for the field.
      * <p>
-     * General format for one key/list map: <code>...[...]</code> - <code>field[formatter1,formatter2,...]</code>
-     * Multiple are written as <code>...[...]...[...]...[...]</code>
+     * General format for one key/list map: <code>...[...]</code> -
+     * <code>field[formatter1,formatter2,...]</code> Multiple are written as
+     * <code>...[...]...[...]...[...]</code>
      * <code>field1[formatter1,formatter2,...]field2[formatter3,formatter4,...]</code>
      * <p>
-     * The idea is that characters are field names until <code>[</code> is reached and that formatter lists are terminated by <code>]</code>
+     * The idea is that characters are field names until <code>[</code> is reached and
+     * that formatter lists are terminated by <code>]</code>
      * <p>
-     * Example: <code>pages[normalize_page_numbers]title[escapeAmpersands,escapeDollarSign,escapeUnderscores,latex_cleanup]</code>
+     * Example:
+     * <code>pages[normalize_page_numbers]title[escapeAmpersands,escapeDollarSign,escapeUnderscores,latex_cleanup]</code>
      */
     private static final Pattern FIELD_FORMATTER_CLEANUP_PATTERN = Pattern.compile("([^\\[]+)\\[([^]]+)]");
 
     static {
-        DEFAULT_SAVE_ACTIONS = List.of(
-                new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
+        DEFAULT_SAVE_ACTIONS = List.of(new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
                 new FieldFormatterCleanup(StandardField.DATE, new NormalizeDateFormatter()),
                 new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new ReplaceUnicodeLigaturesFormatter()),
+                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD,
+                        new ReplaceUnicodeLigaturesFormatter()),
                 new FieldFormatterCleanup(StandardField.KEYWORDS, new ConvertMSCCodesFormatter()));
 
         List<FieldFormatterCleanup> recommendedBibtexFormatters = new ArrayList<>(DEFAULT_SAVE_ACTIONS);
         recommendedBibtexFormatters.addAll(List.of(
                 new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new HtmlToLatexFormatter()),
                 new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new UnicodeToLatexFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new OrdinalsToSuperscriptFormatter())));
+                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD,
+                        new OrdinalsToSuperscriptFormatter())));
         RECOMMEND_BIBTEX_ACTIONS = Collections.unmodifiableList(recommendedBibtexFormatters);
 
         List<FieldFormatterCleanup> recommendedBiblatexFormatters = new ArrayList<>(DEFAULT_SAVE_ACTIONS);
-        recommendedBiblatexFormatters.addAll(List.of(
-                new FieldFormatterCleanup(StandardField.TITLE, new HtmlToUnicodeFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new LatexToUnicodeFormatter())));
-        // DO NOT ADD OrdinalsToSuperscriptFormatter here, because this causes issues. See https://github.com/JabRef/jabref/issues/2596.
+        recommendedBiblatexFormatters
+            .addAll(List.of(new FieldFormatterCleanup(StandardField.TITLE, new HtmlToUnicodeFormatter()),
+                    new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD,
+                            new LatexToUnicodeFormatter())));
+        // DO NOT ADD OrdinalsToSuperscriptFormatter here, because this causes issues. See
+        // https://github.com/JabRef/jabref/issues/2596.
         RECOMMEND_BIBLATEX_ACTIONS = Collections.unmodifiableList(recommendedBiblatexFormatters);
     }
 
     private final boolean enabled;
+
     private final List<FieldFormatterCleanup> actions;
 
     public FieldFormatterCleanups(boolean enabled, List<FieldFormatterCleanup> actions) {
@@ -132,7 +142,8 @@ public class FieldFormatterCleanups {
     public List<FieldChange> applySaveActions(BibEntry entry) {
         if (enabled) {
             return applyAllActions(entry);
-        } else {
+        }
+        else {
             return List.of();
         }
     }
@@ -166,25 +177,24 @@ public class FieldFormatterCleanups {
             String fieldString = matcher.group(2);
 
             List<FieldFormatterCleanup> fieldFormatterCleanups = Arrays.stream(fieldString.split(","))
-                                                                       .map(FieldFormatterCleanups::getFormatterFromString)
-                                                                       .map(formatter -> new FieldFormatterCleanup(field, formatter))
-                                                                       .toList();
+                .map(FieldFormatterCleanups::getFormatterFromString)
+                .map(formatter -> new FieldFormatterCleanup(field, formatter))
+                .toList();
             result.addAll(fieldFormatterCleanups);
         }
         return result;
     }
 
     static Formatter getFormatterFromString(String formatterName) {
-        return Formatters
-                .getFormatterForKey(formatterName)
-                .orElseGet(() -> {
-                    if (!"identity".equals(formatterName)) {
-                        // The identity formatter is not listed in the formatters list, but is still valid
-                        // Therefore, we log errors in other cases only
-                        LOGGER.info("Formatter {} not found.", formatterName);
-                    }
-                    return new IdentityFormatter();
-                });
+        return Formatters.getFormatterForKey(formatterName).orElseGet(() -> {
+            if (!"identity".equals(formatterName)) {
+                // The identity formatter is not listed in the formatters list, but is
+                // still valid
+                // Therefore, we log errors in other cases only
+                LOGGER.info("Formatter {} not found.", formatterName);
+            }
+            return new IdentityFormatter();
+        });
     }
 
     @Override
@@ -205,9 +215,7 @@ public class FieldFormatterCleanups {
 
     @Override
     public String toString() {
-        return "FieldFormatterCleanups{" +
-                "enabled=" + enabled + "," +
-                "actions=" + actions +
-                "}";
+        return "FieldFormatterCleanups{" + "enabled=" + enabled + "," + "actions=" + actions + "}";
     }
+
 }

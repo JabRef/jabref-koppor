@@ -7,7 +7,9 @@ import java.util.List;
 public class Page<T> {
 
     private int pageNumber;
+
     private String query;
+
     private Collection<T> content;
 
     public Page(String query, int pageNumber, Collection<T> content) {
@@ -35,4 +37,5 @@ public class Page<T> {
     public int getSize() {
         return content.size();
     }
+
 }

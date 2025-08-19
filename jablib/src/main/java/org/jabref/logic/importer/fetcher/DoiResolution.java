@@ -32,14 +32,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FulltextFetcher implementation that follows the DOI resolution redirects and scans for a full-text PDF URL.
+ * FulltextFetcher implementation that follows the DOI resolution redirects and scans for
+ * a full-text PDF URL.
  *
- * Note that we also have custom fetchers in place.
- * See {@link WebFetchers#getFullTextFetchers(ImportFormatPreferences, ImporterPreferences)}.
+ * Note that we also have custom fetchers in place. See
+ * {@link WebFetchers#getFullTextFetchers(ImportFormatPreferences, ImporterPreferences)}.
  */
 public class DoiResolution implements FulltextFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DoiResolution.class);
+
     private final DOIPreferences doiPreferences;
 
     public DoiResolution(DOIPreferences doiPreferences) {
@@ -62,11 +64,9 @@ public class DoiResolution implements FulltextFetcher {
         String doiLink;
         if (doiPreferences.isUseCustom()) {
             base = URLUtil.create(doiPreferences.getDefaultBaseURI());
-            doiLink = doi.get()
-                         .getExternalURIWithCustomBase(base.toString())
-                         .map(URI::toASCIIString)
-                         .orElse("");
-        } else {
+            doiLink = doi.get().getExternalURIWithCustomBase(base.toString()).map(URI::toASCIIString).orElse("");
+        }
+        else {
             base = DOI.RESOLVER.toURL();
             doiLink = doi.get().getURIAsASCIIString();
         }
@@ -109,7 +109,8 @@ public class DoiResolution implements FulltextFetcher {
                 // ACM uses tokens without PDF inside the link
                 // See https://github.com/lehner/LocalCopy for more scrape ideas
                 // link with "PDF" in title tag
-                if (element.attr("title").toLowerCase(Locale.ENGLISH).contains("pdf") && new URLDownload(href).isPdf()) {
+                if (element.attr("title").toLowerCase(Locale.ENGLISH).contains("pdf")
+                        && new URLDownload(href).isPdf()) {
                     return Optional.of(URLUtil.create(href));
                 }
 
@@ -125,13 +126,15 @@ public class DoiResolution implements FulltextFetcher {
             }
             // return if links are equal
             return findDistinctLinks(links);
-        } catch (UnsupportedMimeTypeException type) {
+        }
+        catch (UnsupportedMimeTypeException type) {
             // this might be the PDF already as we follow redirects
             if (type.getMimeType().startsWith("application/pdf")) {
                 return Optional.of(URLUtil.create(type.getUrl()));
             }
             LOGGER.warn("DoiResolution fetcher failed: ", type);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("DoiResolution fetcher failed: ", e);
         }
 
@@ -139,8 +142,8 @@ public class DoiResolution implements FulltextFetcher {
     }
 
     /**
-     * Scan for {@code <meta name="citation_pdf_url">}.
-     * See https://scholar.google.com/intl/de/scholar/inclusion.html#indexing
+     * Scan for {@code <meta name="citation_pdf_url">}. See
+     * https://scholar.google.com/intl/de/scholar/inclusion.html#indexing
      */
     private Optional<URL> citationMetaTag(Document html) {
         Elements citationPdfUrlElement = html.head().select("meta[name='citation_pdf_url']");
@@ -149,7 +152,8 @@ public class DoiResolution implements FulltextFetcher {
         if (citationPdfUrl.isPresent()) {
             try {
                 return Optional.of(URLUtil.create(citationPdfUrl.get()));
-            } catch (MalformedURLException _) {
+            }
+            catch (MalformedURLException _) {
                 return Optional.empty();
             }
         }
@@ -158,15 +162,14 @@ public class DoiResolution implements FulltextFetcher {
 
     private Optional<URL> findEmbeddedLink(Document html, URL base) {
         Elements embedElement = html.body().select("embed[id='pdf']");
-        Optional<String> pdfUrl = embedElement
-                .stream()
-                .map(e -> e.attr("src")).findFirst();
+        Optional<String> pdfUrl = embedElement.stream().map(e -> e.attr("src")).findFirst();
 
         if (pdfUrl.isPresent()) {
             try {
                 URL url = base.toURI().resolve(pdfUrl.get()).toURL();
                 return Optional.of(url);
-            } catch (MalformedURLException | URISyntaxException _) {
+            }
+            catch (MalformedURLException | URISyntaxException _) {
                 return Optional.empty();
             }
         }
@@ -191,4 +194,5 @@ public class DoiResolution implements FulltextFetcher {
     public TrustLevel getTrustLevel() {
         return TrustLevel.SOURCE;
     }
+
 }

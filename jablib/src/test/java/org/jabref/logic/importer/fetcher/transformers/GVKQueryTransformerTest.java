@@ -41,7 +41,8 @@ class GVKQueryTransformerTest extends InfixTransformerTest<GVKQueryTransformer> 
     @Test
     public void convertYearField() throws QueryNodeParseException {
         String queryString = "year:2018";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         Optional<String> query = getTransformer().transformLuceneQuery(luceneQuery);
 
         Optional<String> expected = Optional.of("pica.erj=2018");
@@ -53,4 +54,5 @@ class GVKQueryTransformerTest extends InfixTransformerTest<GVKQueryTransformer> 
     @Test
     public void convertYearRangeField() {
     }
+
 }

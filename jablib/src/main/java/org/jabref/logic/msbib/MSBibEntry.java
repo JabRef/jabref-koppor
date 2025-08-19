@@ -22,45 +22,78 @@ import org.w3c.dom.NodeList;
 /**
  * MSBib entry representation
  *
- * @see <a href="http://mahbub.wordpress.com/2007/03/24/details-of-microsoft-office-2007-bibliographic-format-compared-to-bibtex/">ms office 2007 bibliography format compared to bibtex</a>
- * @see <a href="http://mahbub.wordpress.com/2007/03/22/deciphering-microsoft-office-2007-bibliography-format/">deciphering ms office 2007 bibliography format</a>
- * @see <a href="http://www.ecma-international.org/publications/standards/Ecma-376.htm">ECMA Standard</a>
+ * @see <a href=
+ * "http://mahbub.wordpress.com/2007/03/24/details-of-microsoft-office-2007-bibliographic-format-compared-to-bibtex/">ms
+ * office 2007 bibliography format compared to bibtex</a>
+ * @see <a href=
+ * "http://mahbub.wordpress.com/2007/03/22/deciphering-microsoft-office-2007-bibliography-format/">deciphering
+ * ms office 2007 bibliography format</a>
+ * @see <a href=
+ * "http://www.ecma-international.org/publications/standards/Ecma-376.htm">ECMA
+ * Standard</a>
  */
 class MSBibEntry {
 
     public Map<String, String> fields = new HashMap<>();
 
     public List<MsBibAuthor> authors;
+
     public List<MsBibAuthor> bookAuthors;
+
     public List<MsBibAuthor> editors;
+
     public List<MsBibAuthor> translators;
+
     public List<MsBibAuthor> producerNames;
+
     public List<MsBibAuthor> composers;
+
     public List<MsBibAuthor> conductors;
+
     public List<MsBibAuthor> performers;
+
     public List<MsBibAuthor> writers;
+
     public List<MsBibAuthor> directors;
+
     public List<MsBibAuthor> compilers;
+
     public List<MsBibAuthor> interviewers;
+
     public List<MsBibAuthor> interviewees;
+
     public List<MsBibAuthor> inventors;
 
     public List<MsBibAuthor> counsels;
 
     public PageNumbers pages;
+
     public String standardNumber;
+
     public String address;
+
     public String conferenceName;
+
     public String thesisType;
+
     public String internetSiteTitle;
+
     public String dateAccessed;
+
     public String publicationTitle;
+
     public String albumTitle;
+
     public String broadcastTitle;
+
     public String year;
+
     public String month;
+
     public String day;
+
     public String number;
+
     public String patentNumber;
 
     public String journalName;
@@ -69,10 +102,12 @@ class MSBibEntry {
 
     /**
      * reduced subset, supports only "CITY , STATE, COUNTRY" <br>
-     *  <b>\b(\w+)\s?[,]?\s?(\w+)\s?[,]?\s?(\w*)\b</b> <br>
-     *  WORD SPACE , SPACE WORD SPACE (Can be zero or more) , SPACE WORD (Can be zero or more) <br>
-     *  Matches both single locations (only city) like Berlin and full locations like Stroudsburg, PA, USA <br>
-     *  tested using http://www.regexpal.com/
+     * <b>\b(\w+)\s?[,]?\s?(\w+)\s?[,]?\s?(\w*)\b</b> <br>
+     * WORD SPACE , SPACE WORD SPACE (Can be zero or more) , SPACE WORD (Can be zero or
+     * more) <br>
+     * Matches both single locations (only city) like Berlin and full locations like
+     * Stroudsburg, PA, USA <br>
+     * tested using http://www.regexpal.com/
      */
     private final Pattern ADDRESS_PATTERN = Pattern.compile("\\b(\\w+)\\s?[,]?\\s?(\\w*)\\s?[,]?\\s?(\\w*)\\b");
 
@@ -159,8 +194,7 @@ class MSBibEntry {
         String yearAccessed = getXmlElementTextContent("YearAccessed", entry);
 
         Optional<Date> parsedDateAcessed = Date.parse(Optional.ofNullable(yearAccessed),
-                Optional.ofNullable(monthAccessed),
-                Optional.ofNullable(dayAccessed));
+                Optional.ofNullable(monthAccessed), Optional.ofNullable(dayAccessed));
 
         parsedDateAcessed.map(Date::getNormalized).ifPresent(date -> dateAccessed = date);
 
@@ -234,7 +268,6 @@ class MSBibEntry {
 
     /**
      * Gets the dom representation for one entry, used for export
-     *
      * @param document XmlDocument
      * @return XmlElement represenation of one entry
      */
@@ -310,16 +343,14 @@ class MSBibEntry {
         }
         Element authorTop = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + entryName);
 
-        Optional<MsBibAuthor> personName = authorsLst.stream()
-                                                     .filter(MsBibAuthor::isCorporate)
-                                                     .findFirst();
+        Optional<MsBibAuthor> personName = authorsLst.stream().filter(MsBibAuthor::isCorporate).findFirst();
         if (personName.isPresent()) {
             MsBibAuthor person = personName.get();
-            Element corporate = document.createElementNS(MSBibDatabase.NAMESPACE,
-                    MSBibDatabase.PREFIX + "Corporate");
+            Element corporate = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + "Corporate");
             corporate.setTextContent(person.getLastName());
             authorTop.appendChild(corporate);
-        } else {
+        }
+        else {
             Element nameList = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + "NameList");
             for (MsBibAuthor name : authorsLst) {
                 Element person = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + "Person");
@@ -340,8 +371,8 @@ class MSBibEntry {
             .ifPresent(yearAccessed -> addField(document, rootNode, "Year" + "Accessed", yearAccessed));
 
         parsedDateAcesseField.flatMap(Date::getMonth)
-                             .map(Month::getFullName)
-                             .ifPresent(monthAcessed -> addField(document, rootNode, "Month" + "Accessed", monthAcessed));
+            .map(Month::getFullName)
+            .ifPresent(monthAcessed -> addField(document, rootNode, "Month" + "Accessed", monthAcessed));
         parsedDateAcesseField.flatMap(Date::getDay)
             .map(Object::toString)
             .ifPresent(dayAccessed -> addField(document, rootNode, "Day" + "Accessed", dayAccessed));
@@ -358,8 +389,10 @@ class MSBibEntry {
             addField(document, parent, "City", matcher.group(1));
             addField(document, parent, "StateProvince", matcher.group(2));
             addField(document, parent, "CountryRegion", matcher.group(3));
-        } else {
+        }
+        else {
             addField(document, parent, "City", addressToSplit);
         }
     }
+
 }

@@ -19,15 +19,18 @@ import static org.mockito.Mockito.mock;
 class DatabaseFileLookupTest {
 
     private BibDatabase database;
+
     private Collection<BibEntry> entries;
 
     private BibEntry entry1;
+
     private BibEntry entry2;
 
     @BeforeEach
     void setUp() throws IOException {
-        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
-                .importDatabase(ImportDataTest.UNLINKED_FILES_TEST_BIB);
+        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                new DummyFileUpdateMonitor())
+            .importDatabase(ImportDataTest.UNLINKED_FILES_TEST_BIB);
         database = result.getDatabase();
         entries = database.getEntries();
 
@@ -45,4 +48,5 @@ class DatabaseFileLookupTest {
         assertNotNull(entry1);
         assertNotNull(entry2);
     }
+
 }

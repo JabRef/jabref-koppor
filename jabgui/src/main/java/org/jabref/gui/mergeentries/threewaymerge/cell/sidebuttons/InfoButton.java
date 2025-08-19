@@ -15,7 +15,9 @@ import org.jabref.gui.icon.JabRefIcon;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class InfoButton extends Button {
+
     private final StringProperty infoMessage = new SimpleStringProperty();
+
     private final ActionFactory actionFactory = new ActionFactory();
 
     private final Action mergeAction = new Action() {
@@ -47,4 +49,5 @@ public class InfoButton extends Button {
             }
         }, this);
     }
+
 }

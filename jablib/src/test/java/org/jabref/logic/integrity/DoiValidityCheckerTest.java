@@ -30,7 +30,8 @@ class DoiValidityCheckerTest {
 
     @Test
     void doiAcceptsValidInputNoMatterTheLengthOfTheDOIName() {
-        assertEquals(Optional.empty(), checker.checkValue("10.1002/(SICI)1097-4571(199205)43:4<284::AID-ASI3>3.0.CO;2-0"));
+        assertEquals(Optional.empty(),
+                checker.checkValue("10.1002/(SICI)1097-4571(199205)43:4<284::AID-ASI3>3.0.CO;2-0"));
     }
 
     @Test
@@ -39,14 +40,16 @@ class DoiValidityCheckerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"11.1000/182", "01.1000/182", "100.1000/182", "110.1000/182", "a10.1000/182", "10a.1000/182"})
+    @ValueSource(
+            strings = { "11.1000/182", "01.1000/182", "100.1000/182", "110.1000/182", "a10.1000/182", "10a.1000/182" })
     void doiDoesNotAcceptInputWithTypoInFirstPart(String s) {
         assertNotEquals(Optional.empty(), checker.checkValue(s));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"10.a1000/182", "10.1000a/182", "10.10a00/182"})
+    @ValueSource(strings = { "10.a1000/182", "10.1000a/182", "10.10a00/182" })
     void doiDoesNotAcceptInputWithTypoInSecondPart(String s) {
         assertNotEquals(Optional.empty(), checker.checkValue(s));
     }
+
 }

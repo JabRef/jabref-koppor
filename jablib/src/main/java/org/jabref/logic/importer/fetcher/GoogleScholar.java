@@ -43,9 +43,11 @@ import org.slf4j.LoggerFactory;
  * Search String infos: https://scholar.google.com/intl/en/scholar/help.html#searching
  */
 public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScholar.class);
 
-    private static final Pattern LINK_TO_BIB_PATTERN = Pattern.compile("(https:\\/\\/scholar.googleusercontent.com\\/scholar.bib[^\"]*)");
+    private static final Pattern LINK_TO_BIB_PATTERN = Pattern
+        .compile("(https:\\/\\/scholar.googleusercontent.com\\/scholar.bib[^\"]*)");
 
     private static final String BASIC_SEARCH_URL = "https://scholar.google.ch/scholar?";
 
@@ -77,7 +79,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             uriBuilder.addParameter("as_occt", "title");
 
             return search(uriBuilder.toString());
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             throw new FetcherException("Building URI failed.", e);
         }
     }
@@ -135,8 +138,9 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
 
         if (needsCaptcha(content)) {
             // TODO: Remove "null"
-            throw new FetcherException(queryURL, "Fetching from Google Scholar failed: Captacha hit." +
-                    Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), null);
+            throw new FetcherException(queryURL, "Fetching from Google Scholar failed: Captacha hit." + Localization
+                .lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."),
+                    null);
         }
 
         Matcher matcher = LINK_TO_BIB_PATTERN.matcher(content);
@@ -153,12 +157,14 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         ParserResult result = parser.parse(Reader.of(downloadedContent));
         if ((result == null) || (result.getDatabase() == null)) {
             throw new FetcherException("Parsing entries from Google Scholar bib file failed.");
-        } else {
+        }
+        else {
             Collection<BibEntry> entries = result.getDatabase().getEntries();
             if (entries.size() != 1) {
                 LOGGER.debug("{} entries found! ({})", entries.size(), link);
                 throw new FetcherException("Parsing entries from Google Scholar bib file failed.");
-            } else {
+            }
+            else {
                 BibEntry entry = entries.iterator().next();
                 return entry;
             }
@@ -173,7 +179,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
                 // append "CF=4" which represents "Citation format bibtex"
                 cookie.setValue(cookie.getValue() + ":CF=4");
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Cookie configuration for Google Scholar failed.", e);
         }
     }
@@ -188,7 +195,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         URIBuilder uriBuilder;
         try {
             uriBuilder = new URIBuilder(BASIC_SEARCH_URL);
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             throw new FetcherException("Building URI failed.", e);
         }
         uriBuilder.addParameter("hl", "en");
@@ -207,19 +215,25 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
                 uriBuilder.addParameter("start", "10");
                 addHitsFromQuery(foundEntries, uriBuilder.toString());
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.info("IOException for URL {}", uriBuilder);
-            // if there are too much requests from the same IP adress google is answering with a 503 and redirecting to a captcha challenge
+            // if there are too much requests from the same IP adress google is answering
+            // with a 503 and redirecting to a captcha challenge
             // The caught IOException looks for example like this:
-            // java.io.IOException: Server returned HTTP response code: 503 for URL: https://ipv4.google.com/sorry/index?continue=https://scholar.google.com/scholar%3Fhl%3Den%26btnG%3DSearch%26q%3Dbpmn&hl=en&q=CGMSBI0NBDkYuqy9wAUiGQDxp4NLQCWbIEY1HjpH5zFJhv4ANPGdWj0
+            // java.io.IOException: Server returned HTTP response code: 503 for URL:
+            // https://ipv4.google.com/sorry/index?continue=https://scholar.google.com/scholar%3Fhl%3Den%26btnG%3DSearch%26q%3Dbpmn&hl=en&q=CGMSBI0NBDkYuqy9wAUiGQDxp4NLQCWbIEY1HjpH5zFJhv4ANPGdWj0
             if (e.getMessage().contains("Server returned HTTP response code: 503 for URL")) {
-                throw new FetcherException("Fetching from Google Scholar failed.",
-                        Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), e);
-            } else {
+                throw new FetcherException("Fetching from Google Scholar failed.", Localization.lang(
+                        "This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."),
+                        e);
+            }
+            else {
                 URL url;
                 try {
                     url = uriBuilder.build().toURL();
-                } catch (URISyntaxException | MalformedURLException ex) {
+                }
+                catch (URISyntaxException | MalformedURLException ex) {
                     throw new FetcherException("Wrong URL syntax", e);
                 }
                 throw new FetcherException(url, "Error while fetching from " + getName(), e);
@@ -227,4 +241,5 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         }
         return new Page<>(transformedQuery, pageNumber, foundEntries);
     }
+
 }

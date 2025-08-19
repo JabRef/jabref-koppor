@@ -72,4 +72,5 @@ public class NoSelectionModel<T> extends MultipleSelectionModel<T> {
     @Override
     public void selectNext() {
     }
+
 }

@@ -16,17 +16,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FilteredListProxy {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FilteredListProxy.class);
+
     private static boolean initialized = false;
+
     private static Method BEGIN_CHANGE_METHOD;
+
     private static Method END_CHANGE_METHOD;
+
     private static Method NEXT_ADD_METHOD;
+
     private static Method NEXT_UPDATE_METHOD;
+
     private static Method NEXT_REMOVE_METHOD;
+
     private static Method REFILTER_METHOD;
+
     private static Method ENSURE_SIZE_METHOD;
+
     private static Method GET_PREDICATE_IMPL_METHOD;
+
     private static Field FILTERED_FIELD;
+
     private static Field SIZE_FIELD;
 
     public static void refilterListReflection(FilteredList<BibEntryTableViewModel> filteredList) {
@@ -35,15 +47,14 @@ public class FilteredListProxy {
                 initReflection();
             }
             REFILTER_METHOD.invoke(filteredList);
-        } catch (IllegalAccessException
-                 | InvocationTargetException
-                 | NoSuchMethodException
-                 | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException e) {
             LOGGER.warn("Could not refilter list", e);
         }
     }
 
-    public static void refilterListReflection(FilteredList<BibEntryTableViewModel> filteredList, int sourceFrom, int sourceTo) {
+    public static void refilterListReflection(FilteredList<BibEntryTableViewModel> filteredList, int sourceFrom,
+            int sourceTo) {
         try {
             if (!initialized) {
                 initReflection();
@@ -56,7 +67,8 @@ public class FilteredListProxy {
             ENSURE_SIZE_METHOD.invoke(filteredList, filteredList.getSource().size());
 
             @SuppressWarnings("unchecked")
-            Predicate<BibEntryTableViewModel> predicateImpl = (Predicate<BibEntryTableViewModel>) GET_PREDICATE_IMPL_METHOD.invoke(filteredList);
+            Predicate<BibEntryTableViewModel> predicateImpl = (Predicate<BibEntryTableViewModel>) GET_PREDICATE_IMPL_METHOD
+                .invoke(filteredList);
             ListIterator<? extends BibEntryTableViewModel> it = filteredList.getSource().listIterator(sourceFrom);
 
             int[] filtered = (int[]) FILTERED_FIELD.get(filteredList);
@@ -67,17 +79,20 @@ public class FilteredListProxy {
                 int pos = Arrays.binarySearch(filtered, 0, size, i);
                 boolean passedBefore = pos >= 0;
                 boolean passedNow = predicateImpl.test(el);
-                /* 1. passed before and now -> nextUpdate
-                 * 2. passed before and not now -> nextRemove
-                 * 3. not passed before and now -> nextAdd
-                 * 4. not passed before and not now -> do nothing */
+                /*
+                 * 1. passed before and now -> nextUpdate 2. passed before and not now ->
+                 * nextRemove 3. not passed before and now -> nextAdd 4. not passed before
+                 * and not now -> do nothing
+                 */
                 if (passedBefore && passedNow) {
                     NEXT_UPDATE_METHOD.invoke(filteredList, pos);
-                } else if (passedBefore) {
+                }
+                else if (passedBefore) {
                     NEXT_REMOVE_METHOD.invoke(filteredList, pos, el);
                     System.arraycopy(filtered, pos + 1, filtered, pos, size - pos - 1);
                     size--;
-                } else if (passedNow) {
+                }
+                else if (passedNow) {
                     int insertionPoint = ~pos;
                     System.arraycopy(filtered, insertionPoint, filtered, insertionPoint + 1, size - insertionPoint);
                     filtered[insertionPoint] = i;
@@ -91,7 +106,8 @@ public class FilteredListProxy {
             SIZE_FIELD.set(filteredList, size);
 
             END_CHANGE_METHOD.invoke(filteredList);
-        } catch (ReflectiveOperationException e) {
+        }
+        catch (ReflectiveOperationException e) {
             LOGGER.warn("Could not refilter list", e);
         }
     }
@@ -125,4 +141,5 @@ public class FilteredListProxy {
 
         initialized = true;
     }
+
 }

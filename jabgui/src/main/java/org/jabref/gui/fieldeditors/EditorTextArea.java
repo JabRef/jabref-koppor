@@ -22,6 +22,7 @@ import org.jabref.gui.keyboard.KeyBindingRepository;
 public class EditorTextArea extends TextArea implements Initializable, ContextMenuAddable {
 
     private final ContextMenu contextMenu = new ContextMenu();
+
     /**
      * Variable that contains user-defined behavior for paste action.
      */
@@ -61,7 +62,6 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
     /**
      * Set pasteActionHandler variable to passed handler
-     *
      * @param handler an instance of PasteActionHandler that describes paste behavior
      */
     public void setPasteActionHandler(Runnable handler) {
@@ -70,7 +70,8 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
     }
 
     /**
-     * Override javafx TextArea method applying TextArea.paste() and pasteActionHandler after
+     * Override javafx TextArea method applying TextArea.paste() and pasteActionHandler
+     * after
      */
     @Override
     public void paste() {
@@ -80,6 +81,7 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
     // Custom event handler for Tab key presses.
     private static class FieldTraversalEventHandler implements EventHandler<KeyEvent> {
+
         @Override
         public void handle(KeyEvent event) {
             if (event.getCode() == KeyCode.TAB && !event.isShiftDown() && !event.isControlDown()) {
@@ -87,15 +89,14 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
                 // Get the current text area
                 Node node = (Node) event.getSource();
-                KeyEvent newEvent = new KeyEvent(node,
-                        event.getTarget(), event.getEventType(),
-                        event.getCharacter(), event.getText(),
-                        event.getCode(), event.isShiftDown(),
-                        true, event.isAltDown(),
+                KeyEvent newEvent = new KeyEvent(node, event.getTarget(), event.getEventType(), event.getCharacter(),
+                        event.getText(), event.getCode(), event.isShiftDown(), true, event.isAltDown(),
                         event.isMetaDown());
 
                 node.fireEvent(newEvent);
             }
         }
+
     }
+
 }

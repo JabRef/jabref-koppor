@@ -24,4 +24,5 @@ public class GuiPushToTeXstudio extends PushToTeXstudio implements GuiPushToAppl
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

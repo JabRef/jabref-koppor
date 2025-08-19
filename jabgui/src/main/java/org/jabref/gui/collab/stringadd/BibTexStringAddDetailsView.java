@@ -12,12 +12,11 @@ public final class BibTexStringAddDetailsView extends DatabaseChangeDetailsView 
         VBox container = new VBox();
         Label header = new Label(Localization.lang("Added string"));
         header.getStyleClass().add("sectionHeader");
-        container.getChildren().addAll(
-                header,
-                new Label(Localization.lang("Label: %0", stringAdd.getAddedString().getName())),
-                new Label(Localization.lang("Content: %0", stringAdd.getAddedString().getContent()))
-        );
+        container.getChildren()
+            .addAll(header, new Label(Localization.lang("Label: %0", stringAdd.getAddedString().getName())),
+                    new Label(Localization.lang("Content: %0", stringAdd.getAddedString().getContent())));
 
         this.setAllAnchorsAndAttachChild(container);
     }
+
 }

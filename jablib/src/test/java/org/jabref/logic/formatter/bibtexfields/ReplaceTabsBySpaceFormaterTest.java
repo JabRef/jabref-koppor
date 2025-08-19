@@ -29,4 +29,5 @@ class ReplaceTabsBySpaceFormaterTest {
     void doNothingIfNoTab() {
         assertEquals("notab", formatter.format("notab"));
     }
+
 }

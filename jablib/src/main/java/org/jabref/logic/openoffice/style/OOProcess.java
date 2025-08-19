@@ -20,40 +20,39 @@ public class OOProcess {
 
     private static Comparator<BibEntry> makeAuthorYearTitleComparator() {
         List<Comparator<BibEntry>> ayt = List.of(new FieldComparator(StandardField.AUTHOR),
-                                                 new FieldComparator(StandardField.YEAR),
-                                                 new FieldComparator(StandardField.TITLE));
+                new FieldComparator(StandardField.YEAR), new FieldComparator(StandardField.TITLE));
         return new FieldComparatorStack<>(ayt);
     }
 
     private static Comparator<BibEntry> makeYearAuthorTitleComparator() {
         List<Comparator<BibEntry>> yat = List.of(new FieldComparator(StandardField.YEAR),
-                                                 new FieldComparator(StandardField.AUTHOR),
-                                                 new FieldComparator(StandardField.TITLE));
+                new FieldComparator(StandardField.AUTHOR), new FieldComparator(StandardField.TITLE));
         return new FieldComparatorStack<>(yat);
     }
 
     /**
-     *  The comparator used to sort within a group of merged
-     *  citations.
+     * The comparator used to sort within a group of merged citations.
      *
-     *  The term used here is "multicite". The option controlling the
-     *  order is "MultiCiteChronological" in style files.
+     * The term used here is "multicite". The option controlling the order is
+     * "MultiCiteChronological" in style files.
      *
-     *  Yes, they are always sorted one way or another.
+     * Yes, they are always sorted one way or another.
      */
     public static Comparator<BibEntry> comparatorForMulticite(JStyle style) {
         if (style.getMultiCiteChronological()) {
             return OOProcess.YEAR_AUTHOR_TITLE_COMPARATOR;
-        } else {
+        }
+        else {
             return OOProcess.AUTHOR_YEAR_TITLE_COMPARATOR;
         }
     }
 
     /**
-     *  Fill citationGroups.bibliography and cgs.citationGroupsUnordered//CitationMarker
-     *  according to style.
+     * Fill citationGroups.bibliography and cgs.citationGroupsUnordered//CitationMarker
+     * according to style.
      */
-    public static void produceCitationMarkers(CitationGroups citationGroups, List<BibDatabase> databases, JStyle style) {
+    public static void produceCitationMarkers(CitationGroups citationGroups, List<BibDatabase> databases,
+            JStyle style) {
         if (!citationGroups.hasGlobalOrder()) {
             throw new IllegalStateException("produceCitationMarkers: globalOrder is misssing in citationGroups");
         }
@@ -64,10 +63,13 @@ public class OOProcess {
         // fill CitationGroup.citationMarker
         if (style.isCitationKeyCiteMarkers()) {
             OOProcessCitationKeyMarkers.produceCitationMarkers(citationGroups, style);
-        } else if (style.isNumberEntries()) {
+        }
+        else if (style.isNumberEntries()) {
             OOProcessNumericMarkers.produceCitationMarkers(citationGroups, style);
-        } else {
+        }
+        else {
             OOProcessAuthorYearMarkers.produceCitationMarkers(citationGroups, style);
         }
     }
+
 }

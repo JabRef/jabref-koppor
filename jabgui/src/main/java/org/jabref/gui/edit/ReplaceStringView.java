@@ -17,12 +17,23 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 public class ReplaceStringView extends BaseDialog<Void> {
 
-    @FXML private RadioButton allReplace;
-    @FXML private CheckBox selectFieldOnly;
-    @FXML private ButtonType replaceButton;
-    @FXML private TextField limitFieldInput;
-    @FXML private TextField findField;
-    @FXML private TextField replaceField;
+    @FXML
+    private RadioButton allReplace;
+
+    @FXML
+    private CheckBox selectFieldOnly;
+
+    @FXML
+    private ButtonType replaceButton;
+
+    @FXML
+    private TextField limitFieldInput;
+
+    @FXML
+    private TextField findField;
+
+    @FXML
+    private TextField replaceField;
 
     private ReplaceStringViewModel viewModel;
 
@@ -33,9 +44,7 @@ public class ReplaceStringView extends BaseDialog<Void> {
 
         viewModel = new ReplaceStringViewModel(libraryTab);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         ControlHelper.setAction(replaceButton, getDialogPane(), event -> buttonReplace());
     }
@@ -61,4 +70,5 @@ public class ReplaceStringView extends BaseDialog<Void> {
         viewModel.replace();
         this.close();
     }
+
 }

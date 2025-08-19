@@ -32,4 +32,5 @@ public abstract class SimpleCommand extends CommandBase {
     public void setExecutable(boolean executable) {
         this.executable.bind(BindingsHelper.constantOf(executable));
     }
+
 }

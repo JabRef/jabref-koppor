@@ -17,9 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EditExistingStudyAction extends SimpleCommand {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EditExistingStudyAction.class);
 
     private final DialogService dialogService;
+
     private final StateManager stateManager;
 
     public EditExistingStudyAction(DialogService dialogService, StateManager stateManager) {
@@ -51,13 +53,17 @@ public class EditExistingStudyAction extends SimpleCommand {
 
         Study study;
         try {
-            study = new StudyYamlParser().parseStudyYamlFile(studyDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
-        } catch (IOException e) {
+            study = new StudyYamlParser()
+                .parseStudyYamlFile(studyDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
+        }
+        catch (IOException e) {
             dialogService.showErrorDialogAndWait(Localization.lang("Error opening file"), e);
             return;
         }
 
-        // When the dialog returns, the study.yml file is updated (or kept unmodified at Cancel)
+        // When the dialog returns, the study.yml file is updated (or kept unmodified at
+        // Cancel)
         dialogService.showCustomDialogAndWait(new ManageStudyDefinitionView(study, studyDirectory));
     }
+
 }

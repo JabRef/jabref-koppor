@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import org.jsoup.HttpStatusException;
 
 public record SimpleHttpResponse(int statusCode, String responseMessage, String responseBody) {
+
     private static final int MAX_RESPONSE_LENGTH = 1024; // 1 KB
 
     public SimpleHttpResponse(int statusCode, String responseMessage, String responseBody) {
@@ -28,18 +29,16 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
 
     @Override
     public String toString() {
-        return "SimpleHttpResponse{" +
-                "statusCode=" + statusCode +
-                ", responseMessage='" + responseMessage + '\'' +
-                ", responseBody='" + responseBody + '\'' +
-                '}';
+        return "SimpleHttpResponse{" + "statusCode=" + statusCode + ", responseMessage='" + responseMessage + '\''
+                + ", responseBody='" + responseBody + '\'' + '}';
     }
 
     private static int getStatusCode(HttpURLConnection connection) {
         int statusCode;
         try {
             statusCode = connection.getResponseCode();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             statusCode = -1;
         }
         return statusCode;
@@ -49,7 +48,8 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
         String responseMessage;
         try {
             responseMessage = connection.getResponseMessage();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             responseMessage = "";
         }
         return responseMessage;
@@ -59,24 +59,25 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
         String responseBody;
         try {
             responseBody = getResponseBody(connection);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             responseBody = "";
         }
         return responseBody;
     }
 
     /**
-     * Truncates the response body to 1 KB if it exceeds that size.
-     * Appends "... (truncated)" to indicate truncation.
-     *
-     * @param responseBody  the original response body
-     * @return  the truncated response body
+     * Truncates the response body to 1 KB if it exceeds that size. Appends "...
+     * (truncated)" to indicate truncation.
+     * @param responseBody the original response body
+     * @return the truncated response body
      */
     private static String truncateResponseBody(String responseBody) {
         byte[] bytes = responseBody.getBytes(StandardCharsets.UTF_8);
         if (bytes.length > MAX_RESPONSE_LENGTH) {
             // Truncate the response body to 1 KB and append "... (truncated)"
-            // Response is in English, thus we append English text - and not localized text
+            // Response is in English, thus we append English text - and not localized
+            // text
             return new String(bytes, 0, MAX_RESPONSE_LENGTH, StandardCharsets.UTF_8) + "... (truncated)";
         }
         // Return the original response body if it's within the 1 KB limit
@@ -84,10 +85,9 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
     }
 
     /**
-     * Reads the response body from the HttpURLConnection and returns it as a string.
-     * This method is used to retrieve the response body from the connection,
-     * which may contain error messages or other information from the server.
-     *
+     * Reads the response body from the HttpURLConnection and returns it as a string. This
+     * method is used to retrieve the response body from the connection, which may contain
+     * error messages or other information from the server.
      * @param connection the HttpURLConnection to read the response body from
      * @return the response body as a string
      * @throws IOException if an I/O error occurs while reading the response body

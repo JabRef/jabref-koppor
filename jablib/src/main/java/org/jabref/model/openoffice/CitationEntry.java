@@ -6,7 +6,9 @@ import java.util.Optional;
 public class CitationEntry implements Comparable<CitationEntry> {
 
     private final String refMarkName;
+
     private final Optional<String> pageInfo;
+
     private final String context;
 
     public CitationEntry(String refMarkName, String context) {
@@ -55,4 +57,5 @@ public class CitationEntry implements Comparable<CitationEntry> {
     public String getContext() {
         return context;
     }
+
 }

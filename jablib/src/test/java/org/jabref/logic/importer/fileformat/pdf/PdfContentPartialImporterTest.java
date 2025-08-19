@@ -34,9 +34,8 @@ class PdfContentPartialImporterTest {
         Path file = Path.of(PdfContentImporter.class.getResource("/pdfs/minimal.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
-        BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "1 ")
-                .withField(StandardField.TITLE, "Hello World");
+        BibEntry expected = new BibEntry(StandardEntryType.InProceedings).withField(StandardField.AUTHOR, "1 ")
+            .withField(StandardField.TITLE, "Hello World");
         assertEquals(List.of(expected), result);
 
         List<BibEntry> resultSecondImport = importer.importDatabase(file).getDatabase().getEntries();
@@ -46,10 +45,11 @@ class PdfContentPartialImporterTest {
     @Test
     void parsingEditorWithoutPagesorSeriesInformation() {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Anke Lüdeling and Merja Kytö (Eds.)")
-                .withField(StandardField.EDITOR, "Anke Lüdeling and Merja Kytö")
-                .withField(StandardField.PUBLISHER, "Springer")
-                .withField(StandardField.TITLE, "Corpus Linguistics – An International Handbook – Lüdeling, Anke, Kytö, Merja (Eds.)");
+            .withField(StandardField.AUTHOR, "Anke Lüdeling and Merja Kytö (Eds.)")
+            .withField(StandardField.EDITOR, "Anke Lüdeling and Merja Kytö")
+            .withField(StandardField.PUBLISHER, "Springer")
+            .withField(StandardField.TITLE,
+                    "Corpus Linguistics – An International Handbook – Lüdeling, Anke, Kytö, Merja (Eds.)");
 
         String firstPageContents = """
                 Corpus Linguistics – An International Handbook – Lüdeling, Anke,
@@ -74,10 +74,11 @@ class PdfContentPartialImporterTest {
 
     @Test
     void parsingWithoutActualDOINumber() {
-        BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Link to record in KAR and http://kar.kent.ac.uk/51043/  and Document Version and UNSPECIFIED  and Master of Research (MRes) thesis and University of Kent")
-                .withField(StandardField.TITLE, "Kent Academic Repository Full text document (pdf) Citation for published version Smith, Lucy Anna (2014) Mortality in the Ornamental Fish Retail Sector: an Analysis of Stock Losses and Stakeholder Opinions. DOI")
-                .withField(StandardField.YEAR, "5104");
+        BibEntry entry = new BibEntry(StandardEntryType.InProceedings).withField(StandardField.AUTHOR,
+                "Link to record in KAR and http://kar.kent.ac.uk/51043/  and Document Version and UNSPECIFIED  and Master of Research (MRes) thesis and University of Kent")
+            .withField(StandardField.TITLE,
+                    "Kent Academic Repository Full text document (pdf) Citation for published version Smith, Lucy Anna (2014) Mortality in the Ornamental Fish Retail Sector: an Analysis of Stock Losses and Stakeholder Opinions. DOI")
+            .withField(StandardField.YEAR, "5104");
 
         String firstPageContents = """
                 Kent Academic Repository Full text document (pdf)
@@ -98,10 +99,11 @@ class PdfContentPartialImporterTest {
     @Test
     void extractDOIFromPage1() {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.DOI, "10.1017/S0007114507795296")
-                .withField(StandardField.AUTHOR, "Review Article")
-                .withField(StandardField.TITLE, "British Journal of Nutrition (2008), 99, 1–11 doi: 10.1017/S0007114507795296 q The Authors")
-                .withField(StandardField.YEAR, "2008");
+            .withField(StandardField.DOI, "10.1017/S0007114507795296")
+            .withField(StandardField.AUTHOR, "Review Article")
+            .withField(StandardField.TITLE,
+                    "British Journal of Nutrition (2008), 99, 1–11 doi: 10.1017/S0007114507795296 q The Authors")
+            .withField(StandardField.YEAR, "2008");
 
         String firstPageContent = """
                 British Journal of Nutrition (2008), 99, 1–11 doi: 10.1017/S0007114507795296
@@ -131,11 +133,12 @@ class PdfContentPartialImporterTest {
     @Test
     void extractArXivFromPage() {
         BibEntry entry = new BibEntry(StandardEntryType.TechReport)
-                .withField(StandardField.AUTHOR, "Filippo Riccaa and Alessandro Marchettob and Andrea Stoccoc")
-                .withField(StandardField.TITLE, "A Multi-Year Grey Literature Review on AI-assisted Test Automation")
-                .withField(StandardField.EPRINT, "2408.06224v1")
-                .withField(StandardField.EPRINTTYPE, "arXiv")
-                .withField(StandardField.KEYWORDS, "Test Automation Artificial Intelligence AI-assisted Test Automation Grey Literature Automated Test Generation Self-Healing Test Scripts");
+            .withField(StandardField.AUTHOR, "Filippo Riccaa and Alessandro Marchettob and Andrea Stoccoc")
+            .withField(StandardField.TITLE, "A Multi-Year Grey Literature Review on AI-assisted Test Automation")
+            .withField(StandardField.EPRINT, "2408.06224v1")
+            .withField(StandardField.EPRINTTYPE, "arXiv")
+            .withField(StandardField.KEYWORDS,
+                    "Test Automation Artificial Intelligence AI-assisted Test Automation Grey Literature Automated Test Generation Self-Healing Test Scripts");
 
         // This is from https://arxiv.org/abs/2408.06224
         String firstPageContent = """
@@ -176,19 +179,29 @@ class PdfContentPartialImporterTest {
 
     private static Stream<Arguments> providePdfData() {
         return Stream.of(
-                Arguments.of("Fundamentals of Distributed Computing: A Practical Tour of Vector Clock Systems", "/pdfs/PdfContentImporter/Baldoni2002.pdf"),
+                Arguments.of("Fundamentals of Distributed Computing: A Practical Tour of Vector Clock Systems",
+                        "/pdfs/PdfContentImporter/Baldoni2002.pdf"),
                 Arguments.of("JabRef Example for Reference Parsing", "/pdfs/IEEE/ieee-paper-cover.pdf"),
-                Arguments.of("On How We Can Teach – Exploring New Ways in Professional Software Development for Students", "/pdfs/PdfContentImporter/Kriha2018.pdf"),
+                Arguments.of(
+                        "On How We Can Teach – Exploring New Ways in Professional Software Development for Students",
+                        "/pdfs/PdfContentImporter/Kriha2018.pdf"),
                 Arguments.of("JabRef Example for Reference Parsing", "/pdfs/IEEE/ieee-paper.pdf"),
                 Arguments.of("Paper Title", "/org/jabref/logic/importer/util/LNCS-minimal.pdf"),
                 Arguments.of("Is Oil the future?", "/pdfs/example-scientificThesisTemplate.pdf"),
                 Arguments.of("Thesis Title", "/pdfs/thesis-example.pdf"),
-                Arguments.of("Recovering Trace Links Between Software Documentation And Code", "/pdfs/PdfContentImporter/Keim2024.pdf"),
-                Arguments.of("On the impact of service-oriented patterns on software evolvability: a controlled experiment and metric-based analysis", "/pdfs/PdfContentImporter/Bogner2019.pdf"),
+                Arguments.of("Recovering Trace Links Between Software Documentation And Code",
+                        "/pdfs/PdfContentImporter/Keim2024.pdf"),
+                Arguments.of(
+                        "On the impact of service-oriented patterns on software evolvability: a controlled experiment and metric-based analysis",
+                        "/pdfs/PdfContentImporter/Bogner2019.pdf"),
                 Arguments.of("Pandemic programming", "/pdfs/PdfContentImporter/Ralph2020.pdf"),
-                Arguments.of("Do RESTful API design rules have an impact on the understandability of Web APIs?", "/pdfs/PdfContentImporter/Bogner2023.pdf"),
-                Arguments.of("Adopting microservices and DevOps in the cyber-physical systems domain: A rapid review and case study", "/pdfs/PdfContentImporter/Fritzsch2022.pdf"),
-                Arguments.of("OPIUM: Optimal Package Install/Uninstall Manager", "/pdfs/PdfContentImporter/Tucker2007.pdf")
-        );
+                Arguments.of("Do RESTful API design rules have an impact on the understandability of Web APIs?",
+                        "/pdfs/PdfContentImporter/Bogner2023.pdf"),
+                Arguments.of(
+                        "Adopting microservices and DevOps in the cyber-physical systems domain: A rapid review and case study",
+                        "/pdfs/PdfContentImporter/Fritzsch2022.pdf"),
+                Arguments.of("OPIUM: Optimal Package Install/Uninstall Manager",
+                        "/pdfs/PdfContentImporter/Tucker2007.pdf"));
     }
+
 }

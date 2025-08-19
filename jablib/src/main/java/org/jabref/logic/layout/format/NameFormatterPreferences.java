@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 public class NameFormatterPreferences {
 
     private final ObservableList<String> nameFormatterKey;
+
     private final ObservableList<String> nameFormatterValue;
 
     public NameFormatterPreferences(List<String> nameFormatterKey, List<String> nameFormatterValue) {
@@ -32,4 +33,5 @@ public class NameFormatterPreferences {
         nameFormatterValue.clear();
         nameFormatterValue.addAll(list);
     }
+
 }

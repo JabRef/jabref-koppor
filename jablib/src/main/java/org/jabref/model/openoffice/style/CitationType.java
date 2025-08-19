@@ -5,9 +5,7 @@ package org.jabref.model.openoffice.style;
  */
 public enum CitationType {
 
-    AUTHORYEAR_PAR,
-    AUTHORYEAR_INTEXT,
-    INVISIBLE_CIT;
+    AUTHORYEAR_PAR, AUTHORYEAR_INTEXT, INVISIBLE_CIT;
 
     public boolean inParenthesis() {
         return switch (this) {
@@ -19,6 +17,5 @@ public enum CitationType {
     public boolean withText() {
         return this != INVISIBLE_CIT;
     }
+
 }
-
-

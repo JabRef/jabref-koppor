@@ -16,18 +16,17 @@ import org.jabref.logic.l10n.Localization;
 import com.google.common.eventbus.Subscribe;
 
 /**
- * Class that has similar logic to {@link AiPrivacyNoticeGuardedComponent}. It extends from it, so that means,
- * if a component needs embedding model, then it should also be guarded with accepting AI privacy policy.
+ * Class that has similar logic to {@link AiPrivacyNoticeGuardedComponent}. It extends
+ * from it, so that means, if a component needs embedding model, then it should also be
+ * guarded with accepting AI privacy policy.
  */
 public abstract class EmbeddingModelGuardedComponent extends AiPrivacyNoticeGuardedComponent {
+
     private final AiService aiService;
 
-    public EmbeddingModelGuardedComponent(AiService aiService,
-                                          AiPreferences aiPreferences,
-                                          ExternalApplicationsPreferences externalApplicationsPreferences,
-                                          DialogService dialogService,
-                                          AdaptVisibleTabs adaptVisibleTabs
-    ) {
+    public EmbeddingModelGuardedComponent(AiService aiService, AiPreferences aiPreferences,
+            ExternalApplicationsPreferences externalApplicationsPreferences, DialogService dialogService,
+            AdaptVisibleTabs adaptVisibleTabs) {
         super(aiPreferences, externalApplicationsPreferences, dialogService, adaptVisibleTabs);
 
         this.aiService = aiService;
@@ -42,29 +41,26 @@ public abstract class EmbeddingModelGuardedComponent extends AiPrivacyNoticeGuar
         if (!aiService.getEmbeddingModel().isPresent()) {
             if (aiService.getEmbeddingModel().hadErrorWhileBuildingModel()) {
                 return showErrorWhileBuildingEmbeddingModel();
-            } else {
+            }
+            else {
                 return showBuildingEmbeddingModel();
             }
-        } else {
+        }
+        else {
             return showEmbeddingModelGuardedContent();
         }
     }
 
     private Node showErrorWhileBuildingEmbeddingModel() {
-        return ErrorStateComponent.withTextAreaAndButton(
-                Localization.lang("Unable to chat"),
+        return ErrorStateComponent.withTextAreaAndButton(Localization.lang("Unable to chat"),
                 Localization.lang("An error occurred while building the embedding model"),
-                aiService.getEmbeddingModel().getErrorWhileBuildingModel(),
-                Localization.lang("Rebuild"),
-                () -> aiService.getEmbeddingModel().startRebuildingTask()
-        );
+                aiService.getEmbeddingModel().getErrorWhileBuildingModel(), Localization.lang("Rebuild"),
+                () -> aiService.getEmbeddingModel().startRebuildingTask());
     }
 
     public Node showBuildingEmbeddingModel() {
-        return ErrorStateComponent.withSpinner(
-                Localization.lang("Downloading..."),
-                Localization.lang("Downloading embedding model... Afterward, you will be able to chat with your files.")
-        );
+        return ErrorStateComponent.withSpinner(Localization.lang("Downloading..."), Localization
+            .lang("Downloading embedding model... Afterward, you will be able to chat with your files."));
     }
 
     @Subscribe
@@ -76,4 +72,5 @@ public abstract class EmbeddingModelGuardedComponent extends AiPrivacyNoticeGuar
     public void listen(JabRefEmbeddingModel.EmbeddingModelBuildingErrorEvent event) {
         UiTaskExecutor.runInJavaFXThread(EmbeddingModelGuardedComponent.this::rebuildUi);
     }
+
 }

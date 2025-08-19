@@ -28,17 +28,29 @@ import com.tobiasdiez.easybind.Subscription;
 import org.reactfx.util.TriConsumer;
 
 public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S>, TreeTableRow<S>> {
+
     private BiConsumer<S, ? super MouseEvent> onMouseClickedEvent;
+
     private BiConsumer<S, ? super MouseEvent> onMousePressedEvent;
+
     private Consumer<TreeTableRow<S>> toCustomInitializer;
+
     private Function<S, ContextMenu> contextMenuFactory;
+
     private TriConsumer<TreeTableRow<S>, S, ? super MouseEvent> toOnDragDetected;
+
     private TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragDropped;
+
     private BiConsumer<S, ? super DragEvent> toOnDragEntered;
+
     private TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragExited;
+
     private TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragOver;
+
     private TriConsumer<TreeTableRow<S>, S, ? super MouseDragEvent> toOnMouseDragEntered;
+
     private final Map<EventType<? extends Event>, BiConsumer<S, ? super Event>> eventFilters = new HashMap<>();
+
     private final Map<PseudoClass, Callback<TreeTableRow<S>, ObservableValue<Boolean>>> pseudoClasses = new HashMap<>();
 
     public ViewModelTreeTableRowFactory<S> withOnMouseClickedEvent(BiConsumer<S, ? super MouseEvent> event) {
@@ -61,7 +73,8 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
         return this;
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnDragDetected(TriConsumer<TreeTableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
+    public ViewModelTreeTableRowFactory<S> setOnDragDetected(
+            TriConsumer<TreeTableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
         this.toOnDragDetected = toOnDragDetected;
         return this;
     }
@@ -71,7 +84,8 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
         return this;
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnDragDropped(TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragDropped) {
+    public ViewModelTreeTableRowFactory<S> setOnDragDropped(
+            TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragDropped) {
         this.toOnDragDropped = toOnDragDropped;
         return this;
     }
@@ -85,16 +99,19 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
         return this;
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnMouseDragEntered(TriConsumer<TreeTableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
+    public ViewModelTreeTableRowFactory<S> setOnMouseDragEntered(
+            TriConsumer<TreeTableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
         this.toOnMouseDragEntered = toOnDragEntered;
         return this;
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnMouseDragEntered(BiConsumer<S, ? super MouseDragEvent> toOnDragEntered) {
+    public ViewModelTreeTableRowFactory<S> setOnMouseDragEntered(
+            BiConsumer<S, ? super MouseDragEvent> toOnDragEntered) {
         return setOnMouseDragEntered((row, viewModel, event) -> toOnDragEntered.accept(viewModel, event));
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnDragExited(TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragExited) {
+    public ViewModelTreeTableRowFactory<S> setOnDragExited(
+            TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragExited) {
         this.toOnDragExited = toOnDragExited;
         return this;
     }
@@ -103,7 +120,8 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
         return setOnDragExited((row, viewModel, event) -> toOnDragExited.accept(viewModel, event));
     }
 
-    public ViewModelTreeTableRowFactory<S> setOnDragOver(TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragOver) {
+    public ViewModelTreeTableRowFactory<S> setOnDragOver(
+            TriConsumer<TreeTableRow<S>, S, ? super DragEvent> toOnDragOver) {
         this.toOnDragOver = toOnDragOver;
         return this;
     }
@@ -112,12 +130,14 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
         return setOnDragOver((row, viewModel, event) -> toOnDragOver.accept(viewModel, event));
     }
 
-    public ViewModelTreeTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass, Callback<TreeTableRow<S>, ObservableValue<Boolean>> toCondition) {
+    public ViewModelTreeTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass,
+            Callback<TreeTableRow<S>, ObservableValue<Boolean>> toCondition) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
 
-    public ViewModelTreeTableRowFactory<S> withEventFilter(EventType<? extends Event> event, BiConsumer<S, ? super Event> toCondition) {
+    public ViewModelTreeTableRowFactory<S> withEventFilter(EventType<? extends Event> event,
+            BiConsumer<S, ? super Event> toCondition) {
         this.eventFilters.putIfAbsent(event, toCondition);
         return this;
     }
@@ -151,7 +171,8 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
 
                     // Activate context menu if user presses the "context menu" key
                     treeTableView.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-                        boolean rowFocused = !isEmpty() && treeTableView.getFocusModel().getFocusedIndex() == getIndex();
+                        boolean rowFocused = !isEmpty()
+                                && treeTableView.getFocusModel().getFocusedIndex() == getIndex();
                         if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
                             // Get center of focused cell
                             Bounds anchorBounds = getBoundsInParent();
@@ -204,15 +225,15 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
                         addEventFilter(eventFilter.getKey(), event -> eventFilter.getValue().accept(getItem(), event));
                     }
 
-                    for (Map.Entry<PseudoClass, Callback<TreeTableRow<S>, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses.entrySet()) {
+                    for (Map.Entry<PseudoClass, Callback<TreeTableRow<S>, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses
+                        .entrySet()) {
                         ObservableValue<Boolean> condition = pseudoClassWithCondition.getValue().call(this);
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                pseudoClassWithCondition.getKey(),
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, pseudoClassWithCondition.getKey(),
                                 condition));
                     }
                 }
             }
         };
     }
+
 }

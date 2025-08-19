@@ -14,6 +14,7 @@ import org.jabref.model.groups.WordKeywordGroup;
  * Specifies how metadata is read and written.
  */
 public class MetadataSerializationConfiguration {
+
     /**
      * Character used for quoting in the string representation.
      */
@@ -25,7 +26,8 @@ public class MetadataSerializationConfiguration {
     public static final String GROUP_TYPE_SUFFIX = ":";
 
     /**
-     * For separating units (e.g. name and hierarchic context) in the string representation
+     * For separating units (e.g. name and hierarchic context) in the string
+     * representation
      */
     public static final String GROUP_UNIT_SEPARATOR = ";";
 
@@ -40,7 +42,8 @@ public class MetadataSerializationConfiguration {
     public static final String ALL_ENTRIES_GROUP_ID = "AllEntriesGroup:";
 
     /**
-     * Old identifier for {@link ExplicitGroup} (explicitly contained a list of {@link org.jabref.model.entry.BibEntry}).
+     * Old identifier for {@link ExplicitGroup} (explicitly contained a list of
+     * {@link org.jabref.model.entry.BibEntry}).
      */
     public static final String LEGACY_EXPLICIT_GROUP_ID = "ExplicitGroup:";
 
@@ -76,4 +79,5 @@ public class MetadataSerializationConfiguration {
 
     private MetadataSerializationConfiguration() {
     }
+
 }

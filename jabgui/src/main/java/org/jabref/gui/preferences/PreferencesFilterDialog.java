@@ -25,26 +25,41 @@ import com.tobiasdiez.easybind.EasyBind;
 public class PreferencesFilterDialog extends BaseDialog<Void> {
 
     private final PreferencesFilter preferencesFilter;
+
     private final ObservableList<PreferencesFilter.PreferenceOption> preferenceOptions;
+
     private final FilteredList<PreferencesFilter.PreferenceOption> filteredOptions;
 
-    @FXML private TableView<PreferencesFilter.PreferenceOption> table;
-    @FXML private TableColumn<PreferencesFilter.PreferenceOption, PreferencesFilter.PreferenceType> columnType;
-    @FXML private TableColumn<PreferencesFilter.PreferenceOption, String> columnKey;
-    @FXML private TableColumn<PreferencesFilter.PreferenceOption, Object> columnValue;
-    @FXML private TableColumn<PreferencesFilter.PreferenceOption, Object> columnDefaultValue;
-    @FXML private CheckBox showOnlyDeviatingPreferenceOptions;
-    @FXML private Label count;
-    @FXML private TextField searchField;
+    @FXML
+    private TableView<PreferencesFilter.PreferenceOption> table;
+
+    @FXML
+    private TableColumn<PreferencesFilter.PreferenceOption, PreferencesFilter.PreferenceType> columnType;
+
+    @FXML
+    private TableColumn<PreferencesFilter.PreferenceOption, String> columnKey;
+
+    @FXML
+    private TableColumn<PreferencesFilter.PreferenceOption, Object> columnValue;
+
+    @FXML
+    private TableColumn<PreferencesFilter.PreferenceOption, Object> columnDefaultValue;
+
+    @FXML
+    private CheckBox showOnlyDeviatingPreferenceOptions;
+
+    @FXML
+    private Label count;
+
+    @FXML
+    private TextField searchField;
 
     public PreferencesFilterDialog(PreferencesFilter preferencesFilter) {
         this.preferencesFilter = Objects.requireNonNull(preferencesFilter);
         this.preferenceOptions = FXCollections.observableArrayList();
         this.filteredOptions = new FilteredList<>(this.preferenceOptions);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         this.setTitle(Localization.lang("Preferences"));
     }
@@ -62,7 +77,8 @@ public class PreferencesFilterDialog extends BaseDialog<Void> {
         columnType.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getType()));
         columnKey.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
         columnValue.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getValue()));
-        columnDefaultValue.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getDefaultValue().orElse("")));
+        columnDefaultValue
+            .setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getDefaultValue().orElse("")));
         table.setItems(filteredOptions);
         count.textProperty().bind(Bindings.size(table.getItems()).asString("(%d)"));
         updateModel();
@@ -71,8 +87,10 @@ public class PreferencesFilterDialog extends BaseDialog<Void> {
     private void updateModel() {
         if (showOnlyDeviatingPreferenceOptions.isSelected()) {
             preferenceOptions.setAll(preferencesFilter.getDeviatingPreferences());
-        } else {
+        }
+        else {
             preferenceOptions.setAll(preferencesFilter.getPreferenceOptions());
         }
     }
+
 }

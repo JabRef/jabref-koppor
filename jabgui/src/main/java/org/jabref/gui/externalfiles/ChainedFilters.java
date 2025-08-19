@@ -18,7 +18,8 @@ public record ChainedFilters(List<DirectoryStream.Filter<Path>> filters) impleme
         return filters.stream().allMatch(filter -> {
             try {
                 return filter.accept(entry);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Could not apply filter", e);
                 return true;
             }

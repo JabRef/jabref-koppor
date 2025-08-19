@@ -33,4 +33,5 @@ public class FallbackExceptionHandler implements Thread.UncaughtExceptionHandler
             this.onException.accept(exception, thread);
         }
     }
+
 }

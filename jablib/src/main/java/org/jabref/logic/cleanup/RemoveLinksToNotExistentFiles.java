@@ -14,7 +14,9 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.OptionalUtil;
 
 public class RemoveLinksToNotExistentFiles implements CleanupJob {
+
     private final BibDatabaseContext databaseContext;
+
     private final FilePreferences filePreferences;
 
     public RemoveLinksToNotExistentFiles(BibDatabaseContext databaseContext, FilePreferences filePreferences) {
@@ -30,12 +32,14 @@ public class RemoveLinksToNotExistentFiles implements CleanupJob {
         for (LinkedFile file : files) {
             if (file.isOnlineLink()) {
                 cleanedUpFiles.add(file);
-            } else {
+            }
+            else {
                 Optional<Path> oldFile = file.findIn(databaseContext, filePreferences);
 
                 if (oldFile.isEmpty()) {
                     changed = true;
-                } else {
+                }
+                else {
                     cleanedUpFiles.add(file);
                 }
             }
@@ -48,4 +52,5 @@ public class RemoveLinksToNotExistentFiles implements CleanupJob {
 
         return List.of();
     }
+
 }

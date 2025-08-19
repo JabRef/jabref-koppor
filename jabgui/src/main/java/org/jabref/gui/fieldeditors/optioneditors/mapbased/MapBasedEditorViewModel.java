@@ -22,7 +22,8 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MapBasedEditorViewModel.class);
 
-    public MapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public MapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
     }
 
@@ -35,7 +36,8 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
             public String toString(T object) {
                 if (object == null) {
                     return null;
-                } else {
+                }
+                else {
                     // if the object is not found we simply return itself as string
                     return getItemMap().inverse().getOrDefault(object, object.toString());
                 }
@@ -45,14 +47,16 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
             public T fromString(String string) {
                 if (string == null) {
                     return null;
-                } else {
+                }
+                else {
                     return getItemMap().getOrDefault(string, getValueFromString(string));
                 }
             }
         };
     }
 
-    /// Converts a String value to the Type T. If the type cannot be directly cast to T, this method must be overridden in a subclass
+    /// Converts a String value to the Type T. If the type cannot be directly cast to T,
+    /// this method must be overridden in a subclass
     ///
     /// @param string The input value to convert
     /// @return The value or null if the value could not be cast
@@ -60,7 +64,8 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
     protected T getValueFromString(String string) {
         try {
             return (T) string;
-        } catch (ClassCastException ex) {
+        }
+        catch (ClassCastException ex) {
             LOGGER.error("Could not cast string to type {}", string.getClass(), ex);
         }
         return null;
@@ -70,4 +75,5 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
     public Collection<T> getItems() {
         return getItemMap().values();
     }
+
 }

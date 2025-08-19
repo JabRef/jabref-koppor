@@ -8,6 +8,7 @@ import org.jabref.model.entry.BibEntry;
 import org.apache.lucene.search.SearcherManager;
 
 public interface LuceneIndexer {
+
     void updateOnStart(BackgroundTask<?> task);
 
     void addToIndex(Collection<BibEntry> entries, BackgroundTask<?> task);
@@ -25,4 +26,5 @@ public interface LuceneIndexer {
     void close();
 
     void closeAndWait();
+
 }

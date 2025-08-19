@@ -17,11 +17,15 @@ import org.jabref.model.entry.identifier.DOI;
 public class CopyDoiUrlAction extends SimpleCommand {
 
     private final TextField component;
+
     private final StandardActions action;
+
     private final DialogService dialogService;
+
     private final ClipBoardManager clipBoardManager;
 
-    public CopyDoiUrlAction(TextField component, StandardActions action, DialogService dialogService, ClipBoardManager clipBoardManager) {
+    public CopyDoiUrlAction(TextField component, StandardActions action, DialogService dialogService,
+            ClipBoardManager clipBoardManager) {
         this.component = component;
         this.action = action;
         this.dialogService = dialogService;
@@ -34,7 +38,8 @@ public class CopyDoiUrlAction extends SimpleCommand {
 
         if (action == StandardActions.COPY_DOI_URL) {
             copy(DOI.parse(identifier).map(DOI::getURIAsASCIIString), identifier);
-        } else {
+        }
+        else {
             copy(DOI.parse(identifier).map(DOI::asString), identifier);
         }
     }
@@ -43,8 +48,10 @@ public class CopyDoiUrlAction extends SimpleCommand {
         if (urlOptional.isPresent()) {
             clipBoardManager.setContent(urlOptional.get());
             dialogService.notify(Localization.lang("The link has been copied to the clipboard."));
-        } else {
+        }
+        else {
             dialogService.notify(Localization.lang("Invalid DOI: '%0'.", identifier));
         }
     }
+
 }

@@ -4,7 +4,8 @@ import org.jabref.logic.layout.ParamLayoutFormatter;
 
 /**
  * Formatter that outputs a sequence number for the current entry. The sequence number is
- * tied to the entry's position in the order, not to the number of calls to this formatter.
+ * tied to the entry's position in the order, not to the number of calls to this
+ * formatter.
  */
 public class Number implements ParamLayoutFormatter {
 
@@ -19,4 +20,5 @@ public class Number implements ParamLayoutFormatter {
     public String format(String fieldText) {
         return String.valueOf(serialExportNumber);
     }
+
 }

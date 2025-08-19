@@ -21,13 +21,20 @@ import org.jabref.gui.undo.NamedCompound;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabaseContext;
 
-public sealed abstract class DatabaseChange permits EntryAdd, EntryChange, EntryDelete, GroupChange, MetadataChange, PreambleChange, BibTexStringAdd, BibTexStringChange, BibTexStringDelete, BibTexStringRename {
+public sealed abstract class DatabaseChange permits EntryAdd, EntryChange, EntryDelete, GroupChange, MetadataChange,
+        PreambleChange, BibTexStringAdd, BibTexStringChange, BibTexStringDelete, BibTexStringRename {
+
     protected final BibDatabaseContext databaseContext;
-    protected final OptionalObjectProperty<DatabaseChangeResolver> externalChangeResolver = OptionalObjectProperty.empty();
+
+    protected final OptionalObjectProperty<DatabaseChangeResolver> externalChangeResolver = OptionalObjectProperty
+        .empty();
+
     private final BooleanProperty accepted = new SimpleBooleanProperty();
+
     private final StringProperty name = new SimpleStringProperty();
 
-    protected DatabaseChange(BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    protected DatabaseChange(BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         this.databaseContext = databaseContext;
         setChangeName("Unnamed Change!");
 
@@ -68,4 +75,5 @@ public sealed abstract class DatabaseChange permits EntryAdd, EntryChange, Entry
     }
 
     public abstract void applyChange(NamedCompound undoEdit);
+
 }

@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 
 @AllowedToUseAwt("Requires java.awt.datatransfer.Clipboard")
 public class ClipBoardManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ClipBoardManager.class);
 
     private static Clipboard clipboard;
+
     private static java.awt.datatransfer.Clipboard primary;
 
     public ClipBoardManager() {
@@ -44,24 +46,29 @@ public class ClipBoardManager {
     }
 
     /**
-     * Add X11 clipboard support to a text input control. It is necessary to call this method in every input where you
-     * want to use it: {@code ClipBoardManager.addX11Support(TextInputControl input);}.
-     *
-     * @param input the TextInputControl (e.g., TextField, TextArea, and children) where adding this functionality.
-     * @see <a href="https://www.uninformativ.de/blog/postings/2017-04-02/0/POSTING-en.html">Short summary for X11
-     * clipboards</a>
-     * @see <a href="https://unix.stackexchange.com/questions/139191/whats-the-difference-between-primary-selection-and-clipboard-buffer/139193#139193">Longer
+     * Add X11 clipboard support to a text input control. It is necessary to call this
+     * method in every input where you want to use it:
+     * {@code ClipBoardManager.addX11Support(TextInputControl input);}.
+     * @param input the TextInputControl (e.g., TextField, TextArea, and children) where
+     * adding this functionality.
+     * @see <a href=
+     * "https://www.uninformativ.de/blog/postings/2017-04-02/0/POSTING-en.html">Short
+     * summary for X11 clipboards</a>
+     * @see <a href=
+     * "https://unix.stackexchange.com/questions/139191/whats-the-difference-between-primary-selection-and-clipboard-buffer/139193#139193">Longer
      * text over clipboards</a>
      */
     public static void addX11Support(TextInputControl input) {
-        input.selectedTextProperty().addListener(
-                // using InvalidationListener because of https://bugs.openjdk.java.net/browse/JDK-8176270
-                observable -> Platform.runLater(() -> {
-                    String newValue = input.getSelectedText();
-                    if (!newValue.isEmpty() && (primary != null)) {
-                        primary.setContents(new StringSelection(newValue), null);
-                    }
-                }));
+        input.selectedTextProperty()
+            .addListener(
+                    // using InvalidationListener because of
+                    // https://bugs.openjdk.java.net/browse/JDK-8176270
+                    observable -> Platform.runLater(() -> {
+                        String newValue = input.getSelectedText();
+                        if (!newValue.isEmpty() && (primary != null)) {
+                            primary.setContents(new StringSelection(newValue), null);
+                        }
+                    }));
         input.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.MIDDLE) {
                 input.insertText(input.getCaretPosition(), getContentsPrimary());
@@ -71,7 +78,6 @@ public class ClipBoardManager {
 
     /**
      * Get the String residing on the system clipboard.
-     *
      * @return any text found on the Clipboard; if none found, return an empty String.
      */
     public static String getContents() {
@@ -96,8 +102,8 @@ public class ClipBoardManager {
 
     /**
      * Get the String residing on the primary clipboard (if it exists).
-     *
-     * @return any text found on the primary Clipboard; if none found, try with the system clipboard.
+     * @return any text found on the primary Clipboard; if none found, try with the system
+     * clipboard.
      */
     public static String getContentsPrimary() {
         if (primary != null) {
@@ -105,7 +111,8 @@ public class ClipBoardManager {
             if ((contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 try {
                     return (String) contents.getTransferData(DataFlavor.stringFlavor);
-                } catch (UnsupportedFlavorException | IOException e) {
+                }
+                catch (UnsupportedFlavorException | IOException e) {
                     LOGGER.warn("", e);
                 }
             }
@@ -115,8 +122,8 @@ public class ClipBoardManager {
 
     /**
      * Puts content onto the system clipboard.
-     *
-     * @param content the ClipboardContent to set as current value of the system clipboard.
+     * @param content the ClipboardContent to set as current value of the system
+     * clipboard.
      */
     public void setContent(ClipboardContent content) {
         clipboard.setContent(content);
@@ -125,8 +132,8 @@ public class ClipBoardManager {
 
     /**
      * Puts content onto the primary clipboard (if it exists).
-     *
-     * @param content the ClipboardContent to set as current value of the primary clipboard.
+     * @param content the ClipboardContent to set as current value of the primary
+     * clipboard.
      */
     public void setPrimaryClipboardContent(ClipboardContent content) {
         if (primary != null) {
@@ -154,9 +161,11 @@ public class ClipBoardManager {
         setContent(serializedEntries);
     }
 
-    public void setContent(List<BibEntry> entries, BibEntryTypesManager entryTypesManager, List<BibtexString> stringConstants) throws IOException {
+    public void setContent(List<BibEntry> entries, BibEntryTypesManager entryTypesManager,
+            List<BibtexString> stringConstants) throws IOException {
         StringBuilder builder = new StringBuilder();
-        stringConstants.forEach(strConst -> builder.append(strConst.getParsedSerialization() == null ? "" : strConst.getParsedSerialization()));
+        stringConstants.forEach(strConst -> builder
+            .append(strConst.getParsedSerialization() == null ? "" : strConst.getParsedSerialization()));
         String serializedEntries = serializeEntries(entries, entryTypesManager);
         builder.append(serializedEntries);
         setContent(builder.toString());
@@ -164,10 +173,15 @@ public class ClipBoardManager {
 
     private String serializeEntries(List<BibEntry> entries, BibEntryTypesManager entryTypesManager) throws IOException {
         CliPreferences preferences = Injector.instantiateModelOrService(CliPreferences.class);
-        // BibEntry is not Java serializable. Thus, we need to do the serialization manually
-        // At reading of the clipboard in JabRef, we parse the plain string in all cases, so we don't need to flag we put BibEntries here
-        // Furthermore, storing a string also enables other applications to work with the data
-        BibEntryWriter writer = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
+        // BibEntry is not Java serializable. Thus, we need to do the serialization
+        // manually
+        // At reading of the clipboard in JabRef, we parse the plain string in all cases,
+        // so we don't need to flag we put BibEntries here
+        // Furthermore, storing a string also enables other applications to work with the
+        // data
+        BibEntryWriter writer = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()),
+                entryTypesManager);
         return writer.serializeAll(entries, BibDatabaseMode.BIBTEX);
     }
+
 }

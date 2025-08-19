@@ -11,43 +11,26 @@ import org.jabref.model.entry.KeywordList;
 
 public enum SpecialField implements Field {
 
-    PRINTED("printed",
-            SpecialFieldValue.PRINTED
-    ),
+    PRINTED("printed", SpecialFieldValue.PRINTED),
 
-    PRIORITY("priority",
-            SpecialFieldValue.CLEAR_PRIORITY,
-            SpecialFieldValue.PRIORITY_HIGH,
-            SpecialFieldValue.PRIORITY_MEDIUM,
-            SpecialFieldValue.PRIORITY_LOW
-    ),
+    PRIORITY("priority", SpecialFieldValue.CLEAR_PRIORITY, SpecialFieldValue.PRIORITY_HIGH,
+            SpecialFieldValue.PRIORITY_MEDIUM, SpecialFieldValue.PRIORITY_LOW),
 
-    QUALITY("qualityassured",
-            SpecialFieldValue.QUALITY_ASSURED
-    ),
+    QUALITY("qualityassured", SpecialFieldValue.QUALITY_ASSURED),
 
-    RANKING("ranking",
-            SpecialFieldValue.CLEAR_RANK,
-            SpecialFieldValue.RANK_1,
-            SpecialFieldValue.RANK_2,
-            SpecialFieldValue.RANK_3,
-            SpecialFieldValue.RANK_4,
-            SpecialFieldValue.RANK_5
-    ),
+    RANKING("ranking", SpecialFieldValue.CLEAR_RANK, SpecialFieldValue.RANK_1, SpecialFieldValue.RANK_2,
+            SpecialFieldValue.RANK_3, SpecialFieldValue.RANK_4, SpecialFieldValue.RANK_5),
 
-    READ_STATUS("readstatus",
-            SpecialFieldValue.CLEAR_READ_STATUS,
-            SpecialFieldValue.READ,
-            SpecialFieldValue.SKIMMED
-    ),
+    READ_STATUS("readstatus", SpecialFieldValue.CLEAR_READ_STATUS, SpecialFieldValue.READ, SpecialFieldValue.SKIMMED),
 
-    RELEVANCE("relevance",
-            SpecialFieldValue.RELEVANT
-    );
+    RELEVANCE("relevance", SpecialFieldValue.RELEVANT);
 
     private final List<SpecialFieldValue> values;
+
     private final KeywordList keywords;
+
     private final HashMap<String, SpecialFieldValue> map;
+
     private final String fieldName;
 
     SpecialField(String fieldName, SpecialFieldValue... values) {
@@ -71,9 +54,7 @@ public enum SpecialField implements Field {
     }
 
     public static Optional<SpecialField> fromName(String name) {
-        return Arrays.stream(SpecialField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+        return Arrays.stream(SpecialField.values()).filter(field -> field.getName().equalsIgnoreCase(name)).findAny();
     }
 
     public boolean isSingleValueField() {
@@ -98,4 +79,5 @@ public enum SpecialField implements Field {
     public boolean isStandardField() {
         return false;
     }
+
 }

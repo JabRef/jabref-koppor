@@ -21,7 +21,8 @@ import com.tobiasdiez.easybind.EasyBind;
 
 public class EprintIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<EprintIdentifier> {
 
-    // The following listener will be wrapped in a weak reference change listener, thus it will be garbage collected
+    // The following listener will be wrapped in a weak reference change listener, thus it
+    // will be garbage collected
     // automatically once this object is disposed.
     // https://en.wikipedia.org/wiki/Lapsed_listener_problem
     private MapChangeListener<Field, String> eprintTypeFieldListener = change -> {
@@ -31,19 +32,19 @@ public class EprintIdentifierEditorViewModel extends BaseIdentifierEditorViewMod
         }
     };
 
-    public EprintIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
-                                           FieldCheckers fieldCheckers,
-                                           DialogService dialogService,
-                                           TaskExecutor taskExecutor,
-                                           GuiPreferences preferences,
-                                           UndoManager undoManager) {
-        super(StandardField.EPRINT, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager);
+    public EprintIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            DialogService dialogService, TaskExecutor taskExecutor, GuiPreferences preferences,
+            UndoManager undoManager) {
+        super(StandardField.EPRINT, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences,
+                undoManager);
         configure(false, false, false);
         EasyBind.subscribe(identifier, newIdentifier -> newIdentifier.ifPresent(id -> {
-            // TODO: We already have a common superclass between ArXivIdentifier and ARK. This could be refactored further.
+            // TODO: We already have a common superclass between ArXivIdentifier and ARK.
+            // This could be refactored further.
             if (id instanceof ArXivIdentifier) {
                 configure(true, false, false);
-            } else if (id instanceof ARK) {
+            }
+            else if (id instanceof ARK) {
                 configure(false, false, false);
             }
         }));
@@ -52,9 +53,13 @@ public class EprintIdentifierEditorViewModel extends BaseIdentifierEditorViewMod
     @Override
     public void bindToEntry(BibEntry entry) {
         super.bindToEntry(entry);
-        // Unlike other identifiers (they only depend on their own field value), eprint  depends on eprinttype thus
-        // its identity changes whenever the eprinttype field changes .e.g. If eprinttype equals 'arxiv' then the eprint identity
-        // will be of type ArXivIdentifier and if it equals 'ark' then it switches to type ARK.
+        // Unlike other identifiers (they only depend on their own field value), eprint
+        // depends on eprinttype thus
+        // its identity changes whenever the eprinttype field changes .e.g. If eprinttype
+        // equals 'arxiv' then the eprint identity
+        // will be of type ArXivIdentifier and if it equals 'ark' then it switches to type
+        // ARK.
         entry.getFieldsObservable().addListener(new WeakMapChangeListener<>(eprintTypeFieldListener));
     }
+
 }

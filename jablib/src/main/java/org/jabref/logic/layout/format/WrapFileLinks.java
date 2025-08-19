@@ -86,12 +86,19 @@ import org.jabref.model.entry.LinkedFile;
 public class WrapFileLinks extends AbstractParamLayoutFormatter {
 
     private static final int STRING = 0;
+
     private static final int ITERATION_COUNT = 1;
+
     private static final int FILE_PATH = 2;
+
     private static final int FILE_TYPE = 3;
+
     private static final int FILE_EXTENSION = 4;
+
     private static final int FILE_DESCRIPTION = 5;
+
     private static final int RELATIVE_FILE_PATH = 6;
+
     // Define which escape sequences give what results:
     private static final Map<Character, Integer> ESCAPE_SEQ = new HashMap<>();
 
@@ -105,9 +112,13 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
     }
 
     private final Map<String, String> replacements = new HashMap<>();
+
     private final List<Path> fileDirectories;
+
     private final String mainFileDirectory;
+
     private String fileType;
+
     private List<FormatEntry> format;
 
     public WrapFileLinks(List<Path> fileDirectories, String mainFileDirectory) {
@@ -116,11 +127,10 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
     }
 
     /**
-     * Parse a format string and return a list of FormatEntry objects. The format
-     * string is basically marked up with "\i" marking that the iteration number should
-     * be inserted, and with "\p" marking that the file path of the current iteration
-     * should be inserted, plus additional markers.
-     *
+     * Parse a format string and return a list of FormatEntry objects. The format string
+     * is basically marked up with "\i" marking that the iteration number should be
+     * inserted, and with "\p" marking that the file path of the current iteration should
+     * be inserted, plus additional markers.
      * @param format The marked-up string.
      * @return the resulting format entries.
      */
@@ -136,7 +146,8 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
                 if (c == '\\') {
                     // Escaped backslash: means that we add a backslash:
                     sb.append('\\');
-                } else if (WrapFileLinks.ESCAPE_SEQ.containsKey(c)) {
+                }
+                else if (WrapFileLinks.ESCAPE_SEQ.containsKey(c)) {
                     // Ok, we have the code. Add the previous string (if any) and
                     // the entry indicated by the escape sequence:
                     if (!sb.isEmpty()) {
@@ -145,21 +156,25 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
                         sb = new StringBuilder();
                     }
                     l.add(new FormatEntry(WrapFileLinks.ESCAPE_SEQ.get(c)));
-                } else {
+                }
+                else {
                     // Unknown escape sequence.
                     sb.append('\\');
                     sb.append(c);
                 }
-            } else {
+            }
+            else {
                 // Check if we are at the start of an escape sequence:
                 if (c == '\\') {
                     escaped = true;
-                } else {
+                }
+                else {
                     sb.append(c);
                 }
             }
         }
-        // Finished scanning the string. If we collected text at the end, add an entry for it:
+        // Finished scanning the string. If we collected text at the end, add an entry for
+        // it:
         if (!sb.isEmpty()) {
             l.add(new FormatEntry(sb.toString()));
         }
@@ -207,13 +222,14 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
                             List<Path> dirs;
                             if (fileDirectories.isEmpty()) {
                                 dirs = List.of(Path.of(mainFileDirectory));
-                            } else {
+                            }
+                            else {
                                 dirs = fileDirectories;
                             }
 
                             String pathString = flEntry.findIn(dirs)
-                                                       .map(path -> path.toAbsolutePath().toString())
-                                                       .orElse(flEntry.getLink());
+                                .map(path -> path.toAbsolutePath().toString())
+                                .orElse(flEntry.getLink());
 
                             sb.append(replaceStrings(pathString));
                             break;
@@ -222,14 +238,15 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
                             /*
                              * Stumbled over this while investigating
                              *
-                             * https://sourceforge.net/tracker/index.php?func=detail&aid=1469903&group_id=92314&atid=600306
+                             * https://sourceforge.net/tracker/index.php?func=detail&aid=
+                             * 1469903&group_id=92314&atid=600306
                              */
                             sb.append(replaceStrings(flEntry.getLink())); // f.toURI().toString();
 
                             break;
                         case FILE_EXTENSION:
                             FileUtil.getFileExtension(flEntry.getLink())
-                                      .ifPresent(extension -> sb.append(replaceStrings(extension)));
+                                .ifPresent(extension -> sb.append(replaceStrings(extension)));
                             break;
                         case FILE_TYPE:
                             sb.append(replaceStrings(flEntry.getFileType()));
@@ -262,13 +279,14 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
      * This class defines the building blocks of a parsed format strings. Each FormatEntry
      * represents either a literal string or a piece of information pertaining to the file
      * link to be exported or to the iteration through a series of file links. For literal
-     * strings this class encapsulates the literal itself, while for other types of information,
-     * only a type code is provided, and the subclass needs to fill in the proper information
-     * based on the file link to be exported or the iteration status.
+     * strings this class encapsulates the literal itself, while for other types of
+     * information, only a type code is provided, and the subclass needs to fill in the
+     * proper information based on the file link to be exported or the iteration status.
      */
     static class FormatEntry {
 
         private final int type;
+
         private String string;
 
         public FormatEntry(int type) {
@@ -287,5 +305,7 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
         public String getString() {
             return string;
         }
+
     }
+
 }

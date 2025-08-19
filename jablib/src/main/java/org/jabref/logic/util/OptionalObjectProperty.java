@@ -22,8 +22,8 @@ public class OptionalObjectProperty<T> extends SimpleObjectProperty<Optional<T>>
     }
 
     /**
-     * Returns a new ObservableValue that holds the value held by this
-     * ObservableValue, or {@code other} when this ObservableValue is empty.
+     * Returns a new ObservableValue that holds the value held by this ObservableValue, or
+     * {@code other} when this ObservableValue is empty.
      */
     public ObjectBinding<T> orElseOpt(T other) {
         return new PreboundBinding<>(this) {
@@ -42,4 +42,5 @@ public class OptionalObjectProperty<T> extends SimpleObjectProperty<Optional<T>>
             }
         });
     }
+
 }

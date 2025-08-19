@@ -8,4 +8,5 @@ public class FormatPagesForXML implements LayoutFormatter {
     public String format(String field) {
         return field.replace("--", "&#x2013;");
     }
+
 }

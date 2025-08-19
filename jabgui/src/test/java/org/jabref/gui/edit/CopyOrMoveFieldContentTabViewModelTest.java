@@ -16,8 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 class CopyOrMoveFieldContentTabViewModelTest {
+
     CopyOrMoveFieldContentTabViewModel copyOrMoveFieldContentTabViewModel;
+
     BibEntry entryA;
+
     BibEntry entryB;
 
     BibDatabase bibDatabase;
@@ -26,12 +29,10 @@ class CopyOrMoveFieldContentTabViewModelTest {
 
     @BeforeEach
     void setup() {
-        entryA = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.YEAR, "2015")
-                .withField(StandardField.DATE, "2014");
+        entryA = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.YEAR, "2015")
+            .withField(StandardField.DATE, "2014");
 
-        entryB = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.DATE, "1998");
+        entryB = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.DATE, "1998");
         bibDatabase = new BibDatabase();
         copyOrMoveFieldContentTabViewModel = newTwoFieldsViewModel(entryA, entryB);
     }
@@ -45,9 +46,11 @@ class CopyOrMoveFieldContentTabViewModelTest {
         copyOrMoveFieldContentTabViewModel.overwriteFieldContentProperty().set(true);
         copyOrMoveFieldContentTabViewModel.copyValue();
 
-        assertEquals(Optional.of("2015"), entryA.getField(StandardField.DATE), "YEAR field is not copied correctly to the DATE field");
+        assertEquals(Optional.of("2015"), entryA.getField(StandardField.DATE),
+                "YEAR field is not copied correctly to the DATE field");
         assertEquals(Optional.of("2015"), entryA.getField(StandardField.YEAR), "YEAR field should not have changed");
-        assertEquals(Optional.of("1998"), entryB.getField(StandardField.DATE), "DATE field should not have changed because the YEAR field is blank e.g it doesn't exist");
+        assertEquals(Optional.of("1998"), entryB.getField(StandardField.DATE),
+                "DATE field should not have changed because the YEAR field is blank e.g it doesn't exist");
     }
 
     @Test
@@ -71,8 +74,8 @@ class CopyOrMoveFieldContentTabViewModelTest {
         copyOrMoveFieldContentTabViewModel.swapValues();
 
         assertEquals(List.of(Optional.of("2014"), Optional.of("2015")),
-                     List.of(entryA.getField(StandardField.YEAR), entryA.getField(StandardField.DATE)),
-                     "YEAR and DATE values didn't swap");
+                List.of(entryA.getField(StandardField.YEAR), entryA.getField(StandardField.DATE)),
+                "YEAR and DATE values didn't swap");
     }
 
     @Test
@@ -102,4 +105,5 @@ class CopyOrMoveFieldContentTabViewModelTest {
     private CopyOrMoveFieldContentTabViewModel newTwoFieldsViewModel(BibEntry... selectedEntries) {
         return new CopyOrMoveFieldContentTabViewModel(List.of(selectedEntries), bibDatabase, stateManager);
     }
+
 }

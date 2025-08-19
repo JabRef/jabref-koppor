@@ -27,14 +27,14 @@ public class SlrGitHandler extends GitHandler {
 
     /**
      * Initialize the handler for the given repository
-     *
      * @param repositoryPath The root of the initialized git repository
      */
     public SlrGitHandler(Path repositoryPath) {
         super(repositoryPath);
     }
 
-    public void appendLatestSearchResultsOntoCurrentBranch(String patchMessage, String searchBranchName) throws IOException, GitAPIException {
+    public void appendLatestSearchResultsOntoCurrentBranch(String patchMessage, String searchBranchName)
+            throws IOException, GitAPIException {
         // Calculate and apply new search results to work branch
         String patch = calculatePatchOfNewSearchResults(searchBranchName);
         Map<Path, String> result = parsePatchForAddedEntries(patch);
@@ -45,9 +45,9 @@ public class SlrGitHandler extends GitHandler {
 
     /**
      * Calculates the diff between the HEAD and the previous commit of the sourceBranch.
-     *
      * @param sourceBranch The name of the branch that is the target of the calculation
-     * @return Returns the patch (diff) between the head of the sourceBranch and its previous commit HEAD^1
+     * @return Returns the patch (diff) between the head of the sourceBranch and its
+     * previous commit HEAD^1
      */
     String calculatePatchOfNewSearchResults(String sourceBranch) throws IOException, GitAPIException {
         try (Git git = Git.open(this.repositoryPathAsFile)) {
@@ -83,17 +83,18 @@ public class SlrGitHandler extends GitHandler {
     }
 
     /**
-     * Applies the provided patch on the current branch
-     * Ignores any changes made to the study definition file.
-     * The reason for this is that the study definition file cannot be patched the same way as the bib files, as the
-     * order of fields in the yml file matters.
-     *
+     * Applies the provided patch on the current branch Ignores any changes made to the
+     * study definition file. The reason for this is that the study definition file cannot
+     * be patched the same way as the bib files, as the order of fields in the yml file
+     * matters.
      * @param patch the patch (diff) as a string
-     * @return Returns a map where each file has its path as a key and the string contains the hunk of new results
+     * @return Returns a map where each file has its path as a key and the string contains
+     * the hunk of new results
      */
     Map<Path, String> parsePatchForAddedEntries(String patch) throws IOException, GitAPIException {
         String[] tokens = patch.split("\n");
-        // Tracks for each file the related diff. Represents each file by its relative path
+        // Tracks for each file the related diff. Represents each file by its relative
+        // path
         Map<Path, String> diffsPerFile = new HashMap<>();
         boolean content = false;
         StringJoiner joiner = null;
@@ -101,13 +102,15 @@ public class SlrGitHandler extends GitHandler {
         for (String currentToken : tokens) {
             // Begin of a new diff
             if (currentToken.startsWith("diff --git a/")) {
-                // If the diff is related to a different file, save the diff for the previous file
+                // If the diff is related to a different file, save the diff for the
+                // previous file
                 if (!(relativePath == null || joiner == null)) {
                     if (!relativePath.contains(StudyRepository.STUDY_DEFINITION_FILE_NAME)) {
                         diffsPerFile.put(Path.of(repositoryPath.toString(), relativePath), joiner.toString());
                     }
                 }
-                // Find the relative path of the file that is related with the current diff
+                // Find the relative path of the file that is related with the current
+                // diff
                 relativePath = currentToken.substring(13, currentToken.indexOf(" b/"));
                 content = false;
                 joiner = new StringJoiner("\n");
@@ -134,8 +137,9 @@ public class SlrGitHandler extends GitHandler {
     }
 
     /**
-     * Applies for each file (specified as keys), the calculated patch (specified as the value)
-     * The patch is inserted between the encoding and the contents of the bib files.
+     * Applies for each file (specified as keys), the calculated patch (specified as the
+     * value) The patch is inserted between the encoding and the contents of the bib
+     * files.
      */
     void applyPatch(Map<Path, String> patch) {
         patch.keySet().forEach(path -> {
@@ -149,9 +153,11 @@ public class SlrGitHandler extends GitHandler {
                     currentContent = currentContent.substring(endOfEncoding + 2);
                 }
                 Files.writeString(path, prefix + patch.get(path) + currentContent, StandardCharsets.UTF_8);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Could not apply patch.");
             }
         });
     }
+
 }

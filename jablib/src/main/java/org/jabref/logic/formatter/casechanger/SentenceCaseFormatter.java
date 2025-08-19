@@ -19,30 +19,32 @@ public class SentenceCaseFormatter extends Formatter {
     }
 
     /**
-     * Converts the first character of the first word of the given string to upper case (and the remaining characters of the first word to lower case) and changes other words to lower case, but does not change anything if word starts with "{"
+     * Converts the first character of the first word of the given string to upper case
+     * (and the remaining characters of the first word to lower case) and changes other
+     * words to lower case, but does not change anything if word starts with "{"
      */
     @Override
     public String format(String input) {
         return StringUtil.getStringAsSentences(input)
-                .stream()
-                .map(new LowerCaseFormatter()::format)
-                .map(Title::new)
-                .map(title -> {
-                    title.getFirstWord().ifPresent(Word::toUpperFirst);
-                    return title;
-                })
-                .map(Object::toString)
-                .collect(Collectors.joining(" "));
+            .stream()
+            .map(new LowerCaseFormatter()::format)
+            .map(Title::new)
+            .map(title -> {
+                title.getFirstWord().ifPresent(Word::toUpperFirst);
+                return title;
+            })
+            .map(Object::toString)
+            .collect(Collectors.joining(" "));
     }
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Capitalize the first word, changes other words to lower case.");
+        return Localization.lang("Capitalize the first word, changes other words to lower case.");
     }
 
     @Override
     public String getExampleInput() {
         return "i have {Aa} DREAM";
     }
+
 }

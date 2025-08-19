@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GroupMergerTest {
 
     GroupMerger groupMerger;
+
     Character delimiter;
 
     @BeforeEach
@@ -24,40 +25,21 @@ class GroupMergerTest {
     }
 
     private static Stream<Arguments> mergeShouldMergeGroupsCorrectly() {
-        return Stream.of(
-                Arguments.of(',', "a", "b", "a, b"),
-                Arguments.of(',', "a", "", "a"),
-                Arguments.of(',', "", "", ""),
-                Arguments.of(',', "", "b", "b"),
-                Arguments.of(',', "a, b", "c", "a, b, c"),
-                Arguments.of(',', "a, b, c", "c", "a, b, c"),
-                Arguments.of(',', "a, b", "c, d", "a, b, c, d"),
-                Arguments.of(',', "a, b, c", "b, z", "a, b, c, z"),
-                Arguments.of(';', "a", "b", "a; b"),
-                Arguments.of(';', "a", "", "a"),
-                Arguments.of(';', "", "", ""),
-                Arguments.of(';', "", "b", "b"),
-                Arguments.of(';', "a; b", "c", "a; b; c"),
-                Arguments.of(';', "a; b; c", "c", "a; b; c"),
-                Arguments.of(';', "a; b", "c; d", "a; b; c; d"),
-                Arguments.of(';', "a; b; c", "b; z", "a; b; c; z"),
-                Arguments.of('|', "a", "b", "a| b"),
-                Arguments.of('|', "a", "", "a"),
-                Arguments.of('|', "", "", ""),
-                Arguments.of('|', "", "b", "b"),
-                Arguments.of('|', "a| b", "c", "a| b| c"),
-                Arguments.of('|', "a| b| c", "c", "a| b| c"),
-                Arguments.of('|', "a| b", "c| d", "a| b| c| d"),
-                Arguments.of('|', "a| b| c", "b| z", "a| b| c| z"),
-                Arguments.of('.', "a", "b", "a. b"),
-                Arguments.of('.', "a", "", "a"),
-                Arguments.of('.', "", "", ""),
-                Arguments.of('.', "", "b", "b"),
-                Arguments.of('.', "a. b", "c", "a. b. c"),
-                Arguments.of('.', "a. b. c", "c", "a. b. c"),
-                Arguments.of('.', "a. b", "c. d", "a. b. c. d"),
-                Arguments.of('.', "a. b. c", "b. z", "a. b. c. z")
-        );
+        return Stream.of(Arguments.of(',', "a", "b", "a, b"), Arguments.of(',', "a", "", "a"),
+                Arguments.of(',', "", "", ""), Arguments.of(',', "", "b", "b"),
+                Arguments.of(',', "a, b", "c", "a, b, c"), Arguments.of(',', "a, b, c", "c", "a, b, c"),
+                Arguments.of(',', "a, b", "c, d", "a, b, c, d"), Arguments.of(',', "a, b, c", "b, z", "a, b, c, z"),
+                Arguments.of(';', "a", "b", "a; b"), Arguments.of(';', "a", "", "a"), Arguments.of(';', "", "", ""),
+                Arguments.of(';', "", "b", "b"), Arguments.of(';', "a; b", "c", "a; b; c"),
+                Arguments.of(';', "a; b; c", "c", "a; b; c"), Arguments.of(';', "a; b", "c; d", "a; b; c; d"),
+                Arguments.of(';', "a; b; c", "b; z", "a; b; c; z"), Arguments.of('|', "a", "b", "a| b"),
+                Arguments.of('|', "a", "", "a"), Arguments.of('|', "", "", ""), Arguments.of('|', "", "b", "b"),
+                Arguments.of('|', "a| b", "c", "a| b| c"), Arguments.of('|', "a| b| c", "c", "a| b| c"),
+                Arguments.of('|', "a| b", "c| d", "a| b| c| d"), Arguments.of('|', "a| b| c", "b| z", "a| b| c| z"),
+                Arguments.of('.', "a", "b", "a. b"), Arguments.of('.', "a", "", "a"), Arguments.of('.', "", "", ""),
+                Arguments.of('.', "", "b", "b"), Arguments.of('.', "a. b", "c", "a. b. c"),
+                Arguments.of('.', "a. b. c", "c", "a. b. c"), Arguments.of('.', "a. b", "c. d", "a. b. c. d"),
+                Arguments.of('.', "a. b. c", "b. z", "a. b. c. z"));
     }
 
     @ParameterizedTest
@@ -67,4 +49,5 @@ class GroupMergerTest {
         setup();
         assertEquals(expected, groupMerger.merge(groupsA, groupsB));
     }
+
 }

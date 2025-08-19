@@ -22,7 +22,8 @@ public class BaseDialog<T> extends Dialog<T> {
             KeyBindingRepository keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
             if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.CLOSE, event)) {
                 close();
-            } else if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.DEFAULT_DIALOG_ACTION, event)) {
+            }
+            else if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.DEFAULT_DIALOG_ACTION, event)) {
                 getDefaultButton().ifPresent(Button::fire);
             }
 
@@ -44,14 +45,16 @@ public class BaseDialog<T> extends Dialog<T> {
     }
 
     private ButtonType getDefaultButtonType() {
-        return getDialogPane().getButtonTypes().stream()
-                              .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
-                              .findFirst()
-                              .orElse(ButtonType.OK);
+        return getDialogPane().getButtonTypes()
+            .stream()
+            .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
+            .findFirst()
+            .orElse(ButtonType.OK);
     }
 
     private void setDialogIcon(Image image) {
         Stage dialogWindow = (Stage) getDialogPane().getScene().getWindow();
         dialogWindow.getIcons().add(image);
     }
+
 }

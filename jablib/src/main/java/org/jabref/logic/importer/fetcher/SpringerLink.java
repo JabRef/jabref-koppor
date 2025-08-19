@@ -27,11 +27,13 @@ import org.slf4j.LoggerFactory;
  * Uses Springer API, see <a href="https://dev.springer.com">https://dev.springer.com</a>
  */
 public class SpringerLink implements FulltextFetcher, CustomizableKeyFetcher {
+
     public static final String FETCHER_NAME = "Springer";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringerLink.class);
 
     private static final String API_URL = "https://api.springer.com/meta/v1/json";
+
     private static final String CONTENT_HOST = "link.springer.com";
 
     private final ImporterPreferences importerPreferences;
@@ -53,19 +55,22 @@ public class SpringerLink implements FulltextFetcher, CustomizableKeyFetcher {
         // Available in catalog?
         try {
             HttpResponse<JsonNode> jsonResponse = Unirest.get(API_URL)
-                                                         .queryString("api_key", importerPreferences.getApiKey(getName()).orElse(""))
-                                                         .queryString("q", "doi:%s".formatted(doi.get().asString()))
-                                                         .asJson();
+                .queryString("api_key", importerPreferences.getApiKey(getName()).orElse(""))
+                .queryString("q", "doi:%s".formatted(doi.get().asString()))
+                .asJson();
             if (jsonResponse.getBody() != null) {
                 JSONObject json = jsonResponse.getBody().getObject();
                 int results = json.getJSONArray("result").getJSONObject(0).getInt("total");
 
                 if (results > 0) {
                     LOGGER.info("Fulltext PDF found @ Springer.");
-                    return Optional.of(new URI("http", null, CONTENT_HOST, -1, "/content/pdf/%s.pdf".formatted(doi.get().asString()), null, null).toURL());
+                    return Optional.of(new URI("http", null, CONTENT_HOST, -1,
+                            "/content/pdf/%s.pdf".formatted(doi.get().asString()), null, null)
+                        .toURL());
                 }
             }
-        } catch (UnirestException | URISyntaxException e) {
+        }
+        catch (UnirestException | URISyntaxException e) {
             LOGGER.warn("SpringerLink API request failed", e);
         }
         return Optional.empty();
@@ -80,4 +85,5 @@ public class SpringerLink implements FulltextFetcher, CustomizableKeyFetcher {
     public String getName() {
         return FETCHER_NAME;
     }
+
 }

@@ -61,4 +61,5 @@ class DBMSTypeTest {
     void getDefaultPortForPostgresHasCorrectValue() {
         assertEquals(5432, DBMSType.POSTGRESQL.getDefaultPort());
     }
+
 }

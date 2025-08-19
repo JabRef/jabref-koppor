@@ -15,10 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This group matches entries by a complex search pattern, which might include conditions about the values of
- * multiple fields.
+ * This group matches entries by a complex search pattern, which might include conditions
+ * about the values of multiple fields.
  */
 public class SearchGroup extends AbstractGroup {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchGroup.class);
 
     @ADR(38)
@@ -26,14 +27,15 @@ public class SearchGroup extends AbstractGroup {
 
     private SearchQuery searchQuery;
 
-    public SearchGroup(String name, GroupHierarchyType context, String searchExpression, EnumSet<SearchFlags> searchFlags) {
+    public SearchGroup(String name, GroupHierarchyType context, String searchExpression,
+            EnumSet<SearchFlags> searchFlags) {
         super(name, context);
         this.searchQuery = new SearchQuery(searchExpression, searchFlags);
     }
 
     /**
-     * Used by {@link org.jabref.gui.importer.actions.SearchGroupsMigrationAction} to update the search expression.
-     * <em>Do not use otherwise</em>.
+     * Used by {@link org.jabref.gui.importer.actions.SearchGroupsMigrationAction} to
+     * update the search expression. <em>Do not use otherwise</em>.
      */
     public void setSearchExpression(String searchExpression) {
         LOGGER.debug("Setting search expression {}", searchExpression);
@@ -60,7 +62,8 @@ public class SearchGroup extends AbstractGroup {
     public void updateMatches(BibEntry entry, boolean matched) {
         if (matched) {
             matchedEntries.add(entry.getId());
-        } else {
+        }
+        else {
             matchedEntries.remove(entry.getId());
         }
     }
@@ -74,9 +77,9 @@ public class SearchGroup extends AbstractGroup {
             return false;
         }
         return Objects.equals(getName(), other.getName())
-               && Objects.equals(getHierarchicalContext(), other.getHierarchicalContext())
-               && Objects.equals(getSearchExpression(), other.getSearchExpression())
-               && Objects.equals(getSearchFlags(), other.getSearchFlags());
+                && Objects.equals(getHierarchicalContext(), other.getHierarchicalContext())
+                && Objects.equals(getSearchExpression(), other.getSearchExpression())
+                && Objects.equals(getSearchFlags(), other.getSearchFlags());
     }
 
     @Override
@@ -88,17 +91,21 @@ public class SearchGroup extends AbstractGroup {
     public AbstractGroup deepCopy() {
         try {
             return new SearchGroup(getName(), getHierarchicalContext(), getSearchExpression(), getSearchFlags());
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             // this should never happen, because the constructor obviously
             // succeeded in creating _this_ instance!
-            LOGGER.error("Internal error in SearchGroup.deepCopy(). " + "Please report this on https://github.com/JabRef/jabref/issues", t);
+            LOGGER.error("Internal error in SearchGroup.deepCopy(). "
+                    + "Please report this on https://github.com/JabRef/jabref/issues", t);
             return null;
         }
     }
 
     @Override
     public String toString() {
-        return "SearchGroup [query=" + searchQuery + ", name=" + name + ", searchFlags=" + getSearchFlags() + ",  context=" + context + ", color=" + color + ", isExpanded=" + isExpanded + ", description=" + description + ", iconName=" + iconName + "]";
+        return "SearchGroup [query=" + searchQuery + ", name=" + name + ", searchFlags=" + getSearchFlags()
+                + ",  context=" + context + ", color=" + color + ", isExpanded=" + isExpanded + ", description="
+                + description + ", iconName=" + iconName + "]";
     }
 
     @Override
@@ -110,4 +117,5 @@ public class SearchGroup extends AbstractGroup {
     public int hashCode() {
         return Objects.hash(getName(), getHierarchicalContext(), getSearchExpression(), getSearchFlags());
     }
+
 }

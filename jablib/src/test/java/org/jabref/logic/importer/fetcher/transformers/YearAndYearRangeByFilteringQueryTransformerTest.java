@@ -9,16 +9,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class YearAndYearRangeByFilteringQueryTransformerTest<T extends YearAndYearRangeByFilteringQueryTransformer> extends YearRangeByFilteringQueryTransformerTest<T> {
+public abstract class YearAndYearRangeByFilteringQueryTransformerTest<T extends YearAndYearRangeByFilteringQueryTransformer>
+        extends YearRangeByFilteringQueryTransformerTest<T> {
+
     @Override
     @Test
     public void convertYearField() throws QueryNodeParseException {
         YearAndYearRangeByFilteringQueryTransformer transformer = getTransformer();
         String queryString = "year:2021";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         Optional<String> query = transformer.transformLuceneQuery(luceneQuery);
         assertEquals(Optional.empty(), query);
         assertEquals(Optional.of(2021), transformer.getStartYear());
         assertEquals(Optional.of(2021), transformer.getEndYear());
     }
+
 }

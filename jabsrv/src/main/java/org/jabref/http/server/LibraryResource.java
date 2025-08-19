@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 @Path("libraries/{id}")
 public class LibraryResource {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LibraryResource.class);
 
     @Inject
@@ -58,7 +59,6 @@ public class LibraryResource {
 
     /**
      * At http://localhost:23119/libraries/{id}
-     *
      * @param id The specified library
      * @return specified library in JSON format
      * @throws IOException
@@ -68,20 +68,24 @@ public class LibraryResource {
     public String getJson(@PathParam("id") String id) throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
         BibEntryTypesManager entryTypesManager = Injector.instantiateModelOrService(BibEntryTypesManager.class);
-        List<BibEntryDTO> list = databaseContext.getDatabase().getEntries().stream()
-                                                .peek(bibEntry -> bibEntry.getSharedBibEntryData().setSharedID(Objects.hash(bibEntry)))
-                                                .map(entry -> new BibEntryDTO(entry, databaseContext.getMode(), preferences.getFieldPreferences(), entryTypesManager))
-                                                .toList();
+        List<BibEntryDTO> list = databaseContext.getDatabase()
+            .getEntries()
+            .stream()
+            .peek(bibEntry -> bibEntry.getSharedBibEntryData().setSharedID(Objects.hash(bibEntry)))
+            .map(entry -> new BibEntryDTO(entry, databaseContext.getMode(), preferences.getFieldPreferences(),
+                    entryTypesManager))
+            .toList();
         return gson.toJson(list);
     }
 
     /**
-     * At http://localhost:23119/libraries/{id}/map <br><br>
+     * At http://localhost:23119/libraries/{id}/map <br>
+     * <br>
      *
      * Looks for the .jmp file in the directory of the given library ({id}.bib file).
-     *
      * @param id The given library
-     * @return A JSON String containing the mindmap data. If no {id}.jmp file was found, returns the standard mindmap
+     * @return A JSON String containing the mindmap data. If no {id}.jmp file was found,
+     * returns the standard mindmap
      * @throws IOException
      */
     @GET
@@ -92,7 +96,8 @@ public class LibraryResource {
         java.nio.file.Path jabMapPath;
         if (isDemo) {
             jabMapPath = getJabMapDemoPath();
-        } else {
+        }
+        else {
             jabMapPath = getJabMapPath(id);
         }
         // if no file is found, return the default mindmap
@@ -122,12 +127,11 @@ public class LibraryResource {
     }
 
     /**
-     * At http://localhost:23119/libraries/{id}/map <br><br>
+     * At http://localhost:23119/libraries/{id}/map <br>
+     * <br>
      *
      * Saves the mindmap next to its associated library.
-     *
      * @param id The given library
-     *
      * @throws IOException
      */
     @PUT
@@ -138,7 +142,8 @@ public class LibraryResource {
         java.nio.file.Path targetPath;
         if (isDemo) {
             targetPath = getJabMapDemoPath();
-        } else {
+        }
+        else {
             targetPath = getJabMapPath(id);
         }
         Files.writeString(targetPath, fileContent);
@@ -164,23 +169,25 @@ public class LibraryResource {
             };
 
             return Response.ok(stream)
-                           // org.glassfish.jersey.media would be required for a "nice" Java to create ContentDisposition; we avoid this
-                           .header("Content-Disposition", "attachment; filename=\"Chocolate.bib\"")
-                           .build();
+                // org.glassfish.jersey.media would be required for a "nice" Java to
+                // create ContentDisposition; we avoid this
+                .header("Content-Disposition", "attachment; filename=\"Chocolate.bib\"")
+                .build();
         }
 
         java.nio.file.Path library = ServerUtils.getLibraryPath(id, filesToServe, srvStateManager);
         String libraryAsString;
         try {
             libraryAsString = Files.readString(library);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not read library {}", library, e);
             throw new InternalServerErrorException("Could not read library " + library, e);
         }
         return Response.ok()
-                       .header("Content-Disposition", "attachment; filename=\"" + library.getFileName() + "\"")
-                       .entity(libraryAsString)
-                       .build();
+            .header("Content-Disposition", "attachment; filename=\"" + library.getFileName() + "\"")
+            .entity(libraryAsString)
+            .build();
     }
 
     private java.nio.file.Path getJabMapPath(String id) {
@@ -199,14 +206,16 @@ public class LibraryResource {
      * @param id - also "demo" for the Chocolate.bib file
      */
     private BibDatabaseContext getDatabaseContext(String id) throws IOException {
-        return ServerUtils.getBibDatabaseContext(id, filesToServe, srvStateManager, preferences.getImportFormatPreferences());
+        return ServerUtils.getBibDatabaseContext(id, filesToServe, srvStateManager,
+                preferences.getImportFormatPreferences());
     }
 
     /**
-     * At http://localhost:23119/libraries/{id}/entries/{entryId} <br><br>
+     * At http://localhost:23119/libraries/{id}/entries/{entryId} <br>
+     * <br>
      *
-     * Combines attributes of a given BibEntry into a basic entry preview for as plain text.
-     *
+     * Combines attributes of a given BibEntry into a basic entry preview for as plain
+     * text.
      * @param id The name of the library
      * @param entryId The CitationKey of the BibEntry
      * @return a basic entry preview as plain text
@@ -216,7 +225,8 @@ public class LibraryResource {
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
-    public String getPlainRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
+    public String getPlainRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId)
+            throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
         List<BibEntry> entriesByCitationKey = databaseContext.getDatabase().getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
@@ -226,7 +236,8 @@ public class LibraryResource {
             LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
         }
 
-        // TODO: Currently, the preview preferences are in GUI package, which is not accessible here.
+        // TODO: Currently, the preview preferences are in GUI package, which is not
+        // accessible here.
         // build the preview
         BibEntry entry = entriesByCitationKey.getFirst();
 
@@ -238,24 +249,20 @@ public class LibraryResource {
         String pages = entry.getField(StandardField.PAGES).orElse("(N/A)");
         String releaseDate = entry.getField(StandardField.DATE).orElse("(N/A)");
 
-        // the only difference to the HTML version of this method is the format of the output:
-        String preview =
-                "Author: " + author
-                        + "\nTitle: " + title
-                        + "\nJournal: " + journal
-                        + "\nVolume: " + volume
-                        + "\nNumber: " + number
-                        + "\nPages: " + pages
-                        + "\nReleased on: " + releaseDate;
+        // the only difference to the HTML version of this method is the format of the
+        // output:
+        String preview = "Author: " + author + "\nTitle: " + title + "\nJournal: " + journal + "\nVolume: " + volume
+                + "\nNumber: " + number + "\nPages: " + pages + "\nReleased on: " + releaseDate;
 
         return preview;
     }
 
     /**
-     * At http://localhost:23119/libraries/{id}/entries/{entryId} <br><br>
+     * At http://localhost:23119/libraries/{id}/entries/{entryId} <br>
+     * <br>
      *
-     * Combines attributes of a given BibEntry into a basic entry preview for as HTML text.
-     *
+     * Combines attributes of a given BibEntry into a basic entry preview for as HTML
+     * text.
      * @param id The name of the library
      * @param entryId The CitationKey of the BibEntry
      * @return a basic entry preview as HTML text
@@ -264,7 +271,8 @@ public class LibraryResource {
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_HTML + ";charset=UTF-8")
-    public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
+    public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId)
+            throws IOException {
         List<BibEntry> entriesByCitationKey = getDatabaseContext(id).getDatabase().getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
             throw new NotFoundException("Entry with citation key '" + entryId + "' not found in library " + id);
@@ -273,7 +281,8 @@ public class LibraryResource {
             LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
         }
 
-        // TODO: Currently, the preview preferences are in GUI package, which is not accessible here.
+        // TODO: Currently, the preview preferences are in GUI package, which is not
+        // accessible here.
         // build the preview
         BibEntry entry = entriesByCitationKey.getFirst();
 
@@ -285,24 +294,22 @@ public class LibraryResource {
         String pages = entry.getField(StandardField.PAGES).orElse("(N/A)");
         String releaseDate = entry.getField(StandardField.DATE).orElse("(N/A)");
 
-        // the only difference to the plain text version of this method is the format of the output:
-        String preview =
-                "<strong>Author:</strong> " + author + "<br>" +
-                        "<strong>Title:</strong> " + title + "<br>" +
-                        "<strong>Journal:</strong> " + journal + "<br>" +
-                        "<strong>Volume:</strong> " + volume + "<br>" +
-                        "<strong>Number:</strong> " + number + "<br>" +
-                        "<strong>Pages:</strong> " + pages + "<br>" +
-                        "<strong>Released on:</strong> " + releaseDate;
+        // the only difference to the plain text version of this method is the format of
+        // the output:
+        String preview = "<strong>Author:</strong> " + author + "<br>" + "<strong>Title:</strong> " + title + "<br>"
+                + "<strong>Journal:</strong> " + journal + "<br>" + "<strong>Volume:</strong> " + volume + "<br>"
+                + "<strong>Number:</strong> " + number + "<br>" + "<strong>Pages:</strong> " + pages + "<br>"
+                + "<strong>Released on:</strong> " + releaseDate;
 
         return preview;
     }
 
     /**
-     * At http://localhost:23119/libraries/{id}/entries/pdffiles <br><br>
+     * At http://localhost:23119/libraries/{id}/entries/pdffiles <br>
+     * <br>
      *
-     * Loops through all entries in the specified library and adds attached files of type "PDF" to
-     * a list and JSON serialises it.
+     * Loops through all entries in the specified library and adds attached files of type
+     * "PDF" to a list and JSON serialises it.
      */
     @GET
     @Path("entries/pdffiles")
@@ -335,9 +342,11 @@ public class LibraryResource {
     }
 
     /**
-     * @return a stream to the Chocolate.bib file in the classpath (is null only if the file was moved or there are issues with the classpath)
+     * @return a stream to the Chocolate.bib file in the classpath (is null only if the
+     * file was moved or there are issues with the classpath)
      */
     private @Nullable InputStream getChocolateBibAsStream() {
         return BibDatabase.class.getResourceAsStream("/Chocolate.bib");
     }
+
 }

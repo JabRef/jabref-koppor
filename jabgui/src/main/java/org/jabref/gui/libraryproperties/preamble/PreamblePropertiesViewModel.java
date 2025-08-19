@@ -10,9 +10,11 @@ import org.jabref.gui.undo.UndoablePreambleChange;
 import org.jabref.model.database.BibDatabaseContext;
 
 public class PreamblePropertiesViewModel implements PropertiesTabViewModel {
+
     private final StringProperty preambleProperty = new SimpleStringProperty("");
 
     private final BibDatabaseContext databaseContext;
+
     private final UndoManager undoManager;
 
     PreamblePropertiesViewModel(BibDatabaseContext databaseContext, UndoManager undoManager) {
@@ -29,7 +31,8 @@ public class PreamblePropertiesViewModel implements PropertiesTabViewModel {
     public void storeSettings() {
         String newPreamble = preambleProperty.getValue();
         if (!databaseContext.getDatabase().getPreamble().orElse("").equals(newPreamble)) {
-            undoManager.addEdit(new UndoablePreambleChange(databaseContext.getDatabase(), databaseContext.getDatabase().getPreamble().orElse(null), newPreamble));
+            undoManager.addEdit(new UndoablePreambleChange(databaseContext.getDatabase(),
+                    databaseContext.getDatabase().getPreamble().orElse(null), newPreamble));
             databaseContext.getDatabase().setPreamble(newPreamble);
         }
     }
@@ -37,4 +40,5 @@ public class PreamblePropertiesViewModel implements PropertiesTabViewModel {
     public StringProperty preambleProperty() {
         return this.preambleProperty;
     }
+
 }

@@ -23,12 +23,16 @@ import com.airhacks.afterburner.views.ViewLoader;
 import com.dlsc.gemsfx.ExpandingTextArea;
 
 public class ChatPromptComponent extends HBox {
-    // If current message that user is typing in prompt is non-existent, new, or empty, then we use
+
+    // If current message that user is typing in prompt is non-existent, new, or empty,
+    // then we use
     // this value in currentUserMessageScroll.
     private static final int NEW_NON_EXISTENT_MESSAGE = -1;
 
     private final ObjectProperty<Consumer<String>> sendCallback = new SimpleObjectProperty<>();
+
     private final ObjectProperty<Consumer<String>> retryCallback = new SimpleObjectProperty<>();
+
     private final ObjectProperty<Runnable> cancelCallback = new SimpleObjectProperty<>();
 
     private final ListProperty<String> history = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -38,17 +42,19 @@ public class ChatPromptComponent extends HBox {
     // Whenever user edits the prompt, this value is reset to NEW_NON_EXISTENT_MESSAGE.
     private final IntegerProperty currentUserMessageScroll = new SimpleIntegerProperty(NEW_NON_EXISTENT_MESSAGE);
 
-    // If the current content of the prompt is a history message, then this property is true.
+    // If the current content of the prompt is a history message, then this property is
+    // true.
     // If user begins to edit or type a new text, then this property is false.
     private final BooleanProperty showingHistoryMessage = new SimpleBooleanProperty(false);
 
-    @FXML private ExpandingTextArea userPromptTextArea;
-    @FXML private Button submitButton;
+    @FXML
+    private ExpandingTextArea userPromptTextArea;
+
+    @FXML
+    private Button submitButton;
 
     public ChatPromptComponent() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         history.addListener((observable, oldValue, newValue) -> {
             currentUserMessageScroll.set(NEW_NON_EXISTENT_MESSAGE);
@@ -82,26 +88,34 @@ public class ChatPromptComponent extends HBox {
                     currentUserMessageScroll.set(currentUserMessageScroll.get() - 1);
 
                     // There could be two effects after setting the properties:
-                    // 1) User scrolls to a recent message, then we should properly update the prompt text.
-                    // 2) Scroll is set to -1 (which is NEW_NON_EXISTENT_MESSAGE) and we should clear the prompt text.
-                    // On the second event currentUserMessageScroll will be set to -1 and showingHistoryMessage
+                    // 1) User scrolls to a recent message, then we should properly update
+                    // the prompt text.
+                    // 2) Scroll is set to -1 (which is NEW_NON_EXISTENT_MESSAGE) and we
+                    // should clear the prompt text.
+                    // On the second event currentUserMessageScroll will be set to -1 and
+                    // showingHistoryMessage
                     // will be true (this is important).
                 }
-            } else if (keyEvent.getCode() == KeyCode.UP) {
+            }
+            else if (keyEvent.getCode() == KeyCode.UP) {
                 // [impl->req~ai.chat.new-message-based-on-previous~1]
-                if ((currentUserMessageScroll.get() < history.get().size() - 1) && (userPromptTextArea.getText().isEmpty() || showingHistoryMessage.get())) {
+                if ((currentUserMessageScroll.get() < history.get().size() - 1)
+                        && (userPromptTextArea.getText().isEmpty() || showingHistoryMessage.get())) {
                     // 1. We should not go up the maximum number of user messages.
                     // 2. We can scroll history only on two conditions:
-                    //    1) The prompt is empty.
-                    //    2) User has already been scrolling the history.
+                    // 1) The prompt is empty.
+                    // 2) User has already been scrolling the history.
                     showingHistoryMessage.set(true);
                     currentUserMessageScroll.set(currentUserMessageScroll.get() + 1);
                 }
-            } else {
+            }
+            else {
                 // Cursor left/right should not stop history scrolling
                 if (keyEvent.getCode() != KeyCode.RIGHT && keyEvent.getCode() != KeyCode.LEFT) {
-                    // It is okay to go back and forth in the prompt while showing a history message.
-                    // But if user begins doing something else, we should not track the history and reset
+                    // It is okay to go back and forth in the prompt while showing a
+                    // history message.
+                    // But if user begins doing something else, we should not track the
+                    // history and reset
                     // all the properties.
                     showingHistoryMessage.set(false);
                     currentUserMessageScroll.set(NEW_NON_EXISTENT_MESSAGE);
@@ -110,7 +124,8 @@ public class ChatPromptComponent extends HBox {
                 if (keyEvent.getCode() == KeyCode.ENTER) {
                     if (keyEvent.isControlDown()) {
                         userPromptTextArea.appendText("\n");
-                    } else {
+                    }
+                    else {
                         onSendMessage();
                     }
                 }
@@ -123,19 +138,28 @@ public class ChatPromptComponent extends HBox {
             // 2) or to a new history entry.
             if (newValue.intValue() != NEW_NON_EXISTENT_MESSAGE && showingHistoryMessage.get()) {
                 if (userPromptTextArea.getCaretPosition() == 0 || !userPromptTextArea.getText().contains("\n")) {
-                    // If there are new lines in the prompt, then it is ambiguous whether the user tries to scroll up or down in history or editing lines in the current prompt.
-                    // The easy way to get rid of this ambiguity is to disallow scrolling when there are new lines in the prompt.
-                    // But the exception to this situation is when the caret position is at the beginning of the prompt.
-                    history.get().stream()
-                            .skip(newValue.intValue())
-                            .findFirst()
-                            .ifPresent(message -> userPromptTextArea.setText(message));
+                    // If there are new lines in the prompt, then it is ambiguous whether
+                    // the user tries to scroll up or down in history or editing lines in
+                    // the current prompt.
+                    // The easy way to get rid of this ambiguity is to disallow scrolling
+                    // when there are new lines in the prompt.
+                    // But the exception to this situation is when the caret position is
+                    // at the beginning of the prompt.
+                    history.get()
+                        .stream()
+                        .skip(newValue.intValue())
+                        .findFirst()
+                        .ifPresent(message -> userPromptTextArea.setText(message));
                 }
-            } else {
-                // When currentUserMessageScroll is set to NEW_NON_EXISTENT_MESSAGE, then we should:
-                // 1) either clear the prompt, if user scrolls down the most recent history entry.
+            }
+            else {
+                // When currentUserMessageScroll is set to NEW_NON_EXISTENT_MESSAGE, then
+                // we should:
+                // 1) either clear the prompt, if user scrolls down the most recent
+                // history entry.
                 // 2) do nothing, if user starts to edit the history entry.
-                // We distinguish these two cases by checking showingHistoryMessage, which is true for -1 message, and false for others.
+                // We distinguish these two cases by checking showingHistoryMessage, which
+                // is true for -1 message, and false for others.
                 if (showingHistoryMessage.get()) {
                     userPromptTextArea.setText("");
                 }
@@ -178,7 +202,8 @@ public class ChatPromptComponent extends HBox {
     }
 
     public void requestPromptFocus() {
-        // TODO: Check what would happen when programmer calls requestPromptFocus() while the component is in error state.
+        // TODO: Check what would happen when programmer calls requestPromptFocus() while
+        // the component is in error state.
         Platform.runLater(() -> userPromptTextArea.requestFocus());
     }
 
@@ -191,4 +216,5 @@ public class ChatPromptComponent extends HBox {
             sendCallback.get().accept(userPrompt);
         }
     }
+
 }

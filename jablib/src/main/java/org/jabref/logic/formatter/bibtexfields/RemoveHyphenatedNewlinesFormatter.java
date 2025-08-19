@@ -10,6 +10,7 @@ import org.jabref.logic.l10n.Localization;
  * Removes all hyphenated line breaks in the string.
  */
 public class RemoveHyphenatedNewlinesFormatter extends Formatter {
+
     private static final Pattern HYPHENATED_WORDS = Pattern.compile("-\\R");
 
     @Override
@@ -39,4 +40,5 @@ public class RemoveHyphenatedNewlinesFormatter extends Formatter {
     public String getExampleInput() {
         return "Gimme shel-\nter";
     }
+
 }

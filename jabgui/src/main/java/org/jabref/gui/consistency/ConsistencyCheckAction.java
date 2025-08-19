@@ -23,18 +23,20 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class ConsistencyCheckAction extends SimpleCommand {
 
     Supplier<LibraryTab> tabSupplier;
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final UiTaskExecutor taskExecutor;
 
-    public ConsistencyCheckAction(Supplier<LibraryTab> tabSupplier,
-                                  DialogService dialogService,
-                                  StateManager stateManager,
-                                  GuiPreferences preferences,
-                                  BibEntryTypesManager entryTypesManager,
-                                  UiTaskExecutor taskExecutor) {
+    public ConsistencyCheckAction(Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+            StateManager stateManager, GuiPreferences preferences, BibEntryTypesManager entryTypesManager,
+            UiTaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -58,28 +60,28 @@ public class ConsistencyCheckAction extends SimpleCommand {
                 List<BibEntry> entries = databaseContext.get().getEntries();
 
                 BibliographyConsistencyCheck consistencyCheck = new BibliographyConsistencyCheck();
-                return consistencyCheck.check(entries, (count, total) ->
-                        UiTaskExecutor.runInJavaFXThread(() -> {
-                            updateProgress(count, total);
-                            updateMessage(Localization.lang("%0/%1 entry types", count + 1, total));
-                        }));
+                return consistencyCheck.check(entries, (count, total) -> UiTaskExecutor.runInJavaFXThread(() -> {
+                    updateProgress(count, total);
+                    updateMessage(Localization.lang("%0/%1 entry types", count + 1, total));
+                }));
             }
         };
 
-        task.setOnFailed(_ -> dialogService.showErrorDialogAndWait(Localization.lang("Consistency check failed."), task.getException()));
+        task.setOnFailed(_ -> dialogService.showErrorDialogAndWait(Localization.lang("Consistency check failed."),
+                task.getException()));
         task.setOnSucceeded(_ -> {
             if (task.getValue().entryTypeToResultMap().isEmpty()) {
                 dialogService.notify(Localization.lang("No problems found."));
-            } else {
-                dialogService.showCustomDialogAndWait(
-                        new ConsistencyCheckDialog(tabSupplier.get(), dialogService, preferences, entryTypesManager, task.getValue()));
+            }
+            else {
+                dialogService.showCustomDialogAndWait(new ConsistencyCheckDialog(tabSupplier.get(), dialogService,
+                        preferences, entryTypesManager, task.getValue()));
             }
         });
         taskExecutor.execute(task);
 
-        dialogService.showProgressDialogAndWait(
-                Localization.lang("Check consistency"),
-                Localization.lang("Checking consistency..."),
-                task);
+        dialogService.showProgressDialogAndWait(Localization.lang("Check consistency"),
+                Localization.lang("Checking consistency..."), task);
     }
+
 }

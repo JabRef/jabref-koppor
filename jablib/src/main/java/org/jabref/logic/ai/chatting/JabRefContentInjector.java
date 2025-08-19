@@ -18,7 +18,9 @@ import dev.langchain4j.rag.content.injector.ContentInjector;
 import static org.jabref.logic.ai.ingestion.FileEmbeddingsManager.LINK_METADATA_KEY;
 
 public class JabRefContentInjector implements ContentInjector {
-    public static final PromptTemplate DEFAULT_PROMPT_TEMPLATE = PromptTemplate.from("{{userMessage}}\n\nAnswer using the following information:\n{{contents}}");
+
+    public static final PromptTemplate DEFAULT_PROMPT_TEMPLATE = PromptTemplate
+        .from("{{userMessage}}\n\nAnswer using the following information:\n{{contents}}");
 
     private final BibDatabaseContext bibDatabaseContext;
 
@@ -45,20 +47,22 @@ public class JabRefContentInjector implements ContentInjector {
             return text;
         }
 
-        String keys = findEntriesByLink(link)
-                .filter(entry -> entry.getCitationKey().isPresent())
-                .map(entry -> "@" + entry.getCitationKey().get())
-                .collect(Collectors.joining(", "));
+        String keys = findEntriesByLink(link).filter(entry -> entry.getCitationKey().isPresent())
+            .map(entry -> "@" + entry.getCitationKey().get())
+            .collect(Collectors.joining(", "));
 
         if (keys.isEmpty()) {
             return text;
-        } else {
+        }
+        else {
             return keys + ":\n" + text;
         }
     }
 
     private Stream<BibEntry> findEntriesByLink(String link) {
-        return bibDatabaseContext.getEntries().stream().filter(entry -> entry.getFiles().stream().anyMatch(file -> file.getLink().equals(link)));
+        return bibDatabaseContext.getEntries()
+            .stream()
+            .filter(entry -> entry.getFiles().stream().anyMatch(file -> file.getLink().equals(link)));
     }
 
     private String applyPrompt(String userMessage, String contents) {
@@ -69,4 +73,5 @@ public class JabRefContentInjector implements ContentInjector {
 
         return DEFAULT_PROMPT_TEMPLATE.apply(variables).text();
     }
+
 }

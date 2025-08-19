@@ -15,20 +15,27 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 /**
- * Mapping between Msbib and biblatex All Fields: <a href = "https://msdn.microsoft.com/de-de/library/office/documentformat.openxml.bibliography">List
+ * Mapping between Msbib and biblatex All Fields: <a href =
+ * "https://msdn.microsoft.com/de-de/library/office/documentformat.openxml.bibliography">List
  * of all MSBib fields</a>
  */
 public class MSBibMapping {
 
     private static final String BIBTEX_PREFIX = "BIBTEX_";
+
     private static final String MSBIB_PREFIX = "msbib-";
+
     private static final BiMap<String, Integer> LANG_TO_LCID = HashBiMap.create();
+
     private static final BiMap<Field, String> BIBLATEX_TO_MS_BIB = HashBiMap.create();
+
     private static final Map<String, EntryType> MSBIB_ENTRYTYPE_MAPPING;
+
     private static final Map<EntryType, MSBibEntryType> BIB_ENTRYTYPE_MAPPING = new HashMap<>();
 
     static {
-        // see https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a
+        // see
+        // https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a
         LANG_TO_LCID.put("basque", 1609);
         LANG_TO_LCID.put("bulgarian", 1026);
         LANG_TO_LCID.put("catalan", 1027);
@@ -121,19 +128,15 @@ public class MSBibMapping {
     }
 
     static {
-        MSBIB_ENTRYTYPE_MAPPING = Map.of(
-                "Book", StandardEntryType.Book,
-                "BookSection", StandardEntryType.Book,
-                "JournalArticle", StandardEntryType.Article,
-                "ArticleInAPeriodical", IEEETranEntryType.Periodical,
-                "ConferenceProceedings", StandardEntryType.InProceedings,
-                "Report", StandardEntryType.TechReport,
-                "Patent", IEEETranEntryType.Patent,
-                "InternetSite", StandardEntryType.Online);
+        MSBIB_ENTRYTYPE_MAPPING = Map.of("Book", StandardEntryType.Book, "BookSection", StandardEntryType.Book,
+                "JournalArticle", StandardEntryType.Article, "ArticleInAPeriodical", IEEETranEntryType.Periodical,
+                "ConferenceProceedings", StandardEntryType.InProceedings, "Report", StandardEntryType.TechReport,
+                "Patent", IEEETranEntryType.Patent, "InternetSite", StandardEntryType.Online);
     }
 
     static {
-        // We need to add the entries "manually", because Map.of does not allow that many entries
+        // We need to add the entries "manually", because Map.of does not allow that many
+        // entries
         BIB_ENTRYTYPE_MAPPING.put(StandardEntryType.Book, MSBibEntryType.Book);
         BIB_ENTRYTYPE_MAPPING.put(StandardEntryType.InBook, MSBibEntryType.BookSection);
         BIB_ENTRYTYPE_MAPPING.put(StandardEntryType.Booklet, MSBibEntryType.BookSection);
@@ -166,8 +169,8 @@ public class MSBibMapping {
     }
 
     /**
-     * <a href="http://www.microsoft.com/globaldev/reference/lcid-all.mspx">All LCID codes</a>
-     *
+     * <a href="http://www.microsoft.com/globaldev/reference/lcid-all.mspx">All LCID
+     * codes</a>
      * @param language The language to transform
      * @return 1033 (american english) as default. LCID otherwise.
      */
@@ -176,9 +179,9 @@ public class MSBibMapping {
     }
 
     /**
-     * <a href="http://www.microsoft.com/globaldev/reference/lcid-all.mspx">All LCID codes</a>
-     *
-     * @param  LCID The LCID to transform
+     * <a href="http://www.microsoft.com/globaldev/reference/lcid-all.mspx">All LCID
+     * codes</a>
+     * @param LCID The LCID to transform
      * @return "english" as default. Corresponding language from BiMap otherwise.
      */
     public static String getLanguage(int LCID) {
@@ -192,4 +195,5 @@ public class MSBibMapping {
     public static Field getBibTeXField(String msbibFieldName) {
         return BIBLATEX_TO_MS_BIB.inverse().get(msbibFieldName);
     }
+
 }

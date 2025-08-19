@@ -10,8 +10,11 @@ import org.jabref.gui.preferences.PreferenceTabViewModel;
 public class GroupsTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty groupViewModeIntersectionProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty groupViewModeUnionProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autoAssignGroupProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty displayGroupCountProperty = new SimpleBooleanProperty();
 
     private final GroupsPreferences groupsPreferences;
@@ -25,7 +28,8 @@ public class GroupsTabViewModel implements PreferenceTabViewModel {
         if (groupsPreferences.getGroupViewMode().contains(GroupViewMode.INTERSECTION)) {
             groupViewModeIntersectionProperty.setValue(true);
             groupViewModeUnionProperty.setValue(false);
-        } else {
+        }
+        else {
             groupViewModeIntersectionProperty.setValue(false);
             groupViewModeUnionProperty.setValue(true);
         }
@@ -55,4 +59,5 @@ public class GroupsTabViewModel implements PreferenceTabViewModel {
     public BooleanProperty displayGroupCount() {
         return displayGroupCountProperty;
     }
+
 }

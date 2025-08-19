@@ -19,7 +19,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 
 public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
-    public MetadataChangeDetailsView(MetadataChange metadataChange, GlobalCitationKeyPatterns globalCitationKeyPatterns) {
+    public MetadataChangeDetailsView(MetadataChange metadataChange,
+            GlobalCitationKeyPatterns globalCitationKeyPatterns) {
         VBox container = new VBox(15);
 
         Label header = new Label(Localization.lang("The following metadata changed:"));
@@ -27,7 +28,8 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
         container.getChildren().add(header);
 
         // Add views for each detected difference
-        for (MetaDataDiff.Difference diff : metadataChange.getMetaDataDiff().getDifferences(globalCitationKeyPatterns)) {
+        for (MetaDataDiff.Difference diff : metadataChange.getMetaDataDiff()
+            .getDifferences(globalCitationKeyPatterns)) {
             addDifferenceView(container, diff, metadataChange);
         }
 
@@ -35,9 +37,8 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
     }
 
     /**
-     * Adds a view for a specific metadata difference to the container.
-     * Default view if not a group diff.
-     *
+     * Adds a view for a specific metadata difference to the container. Default view if
+     * not a group diff.
      * @param container The parent container to add the difference view to
      * @param diff The metadata difference to display
      * @param metadataChange The metadata change object containing all changes
@@ -50,14 +51,14 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
         // Show appropriate view based on difference type
         if (diff.differenceType() == MetaDataDiff.DifferenceType.GROUPS) {
             container.getChildren().add(createGroupDiffSplitPane(metadataChange));
-        } else {
+        }
+        else {
             container.getChildren().add(createDefaultDiffScrollPane(diff));
         }
     }
 
     /**
      * Creates a scroll pane showing simple text differences.
-     *
      * @param diff The difference to display
      * @return Configured ScrollPane showing the difference
      */
@@ -75,7 +76,6 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     /**
      * Creates a split pane showing differences in groups tree structure.
-     *
      * @param metadataChange The metadata change containing groups differences
      * @return Configured SplitPane showing groups differences
      */
@@ -89,11 +89,8 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
         jabrefTextArea.replaceText(jabRefContent);
         diskTextArea.replaceText(diskContent);
 
-        SplitDiffHighlighter highlighter = new SplitDiffHighlighter(
-                jabrefTextArea,
-                diskTextArea,
-                DiffHighlighter.BasicDiffMethod.CHARS
-        );
+        SplitDiffHighlighter highlighter = new SplitDiffHighlighter(jabrefTextArea, diskTextArea,
+                DiffHighlighter.BasicDiffMethod.CHARS);
         highlighter.highlight();
 
         ScrollPane leftScrollPane = createScrollPane(jabrefTextArea);
@@ -122,7 +119,6 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     /**
      * Creates a configured scroll pane for a text area.
-     *
      * @param textArea The text area to wrap in a scroll pane
      * @return Configured ScrollPane
      */
@@ -138,7 +134,6 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     /**
      * Creates a configured text area for displaying diff content.
-     *
      * @return Configured StyleClassedTextArea
      */
     private StyleClassedTextArea createConfiguredTextArea() {
@@ -151,19 +146,15 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     /**
      * Extracts the groups tree content from metadata as a string.
-     *
      * @param metadata The metadata containing groups
      * @return String representation of groups tree, or empty string if no groups
      */
     private String getMetadataGroupsContent(MetaData metadata) {
-        return metadata.getGroups()
-                       .map(this::convertGroupTreeToString)
-                       .orElse("");
+        return metadata.getGroups().map(this::convertGroupTreeToString).orElse("");
     }
 
     /**
      * Converts a group tree to a string representation with indentation.
-     *
      * @param node The root node of the group tree
      * @return String representation of the group tree
      */
@@ -175,15 +166,12 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     /**
      * Recursively appends a group tree node to the string builder.
-     *
      * @param node The current node to append
      * @param builder The string builder to append to
      * @param level The current depth level in the tree (for indentation)
      */
     private void appendGroupTreeNode(GroupTreeNode node, StringBuilder builder, int level) {
-        builder.append("|  ".repeat(level))
-          .append(node.getName())
-          .append("\n");
+        builder.append("|  ".repeat(level)).append(node.getName()).append("\n");
 
         for (GroupTreeNode child : node.getChildren()) {
             appendGroupTreeNode(child, builder, level + 1);
@@ -192,30 +180,19 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     private String getDifferenceString(MetaDataDiff.DifferenceType changeType) {
         return switch (changeType) {
-            case PROTECTED ->
-                    Localization.lang("Library protection");
-            case GROUPS ->
-                    Localization.lang("Modified groups tree");
-            case ENCODING ->
-                    Localization.lang("Library encoding");
-            case SAVE_SORT_ORDER ->
-                    Localization.lang("Save sort order");
-            case KEY_PATTERNS ->
-                    Localization.lang("Key patterns");
-            case USER_FILE_DIRECTORY ->
-                    Localization.lang("User-specific file directory");
-            case LATEX_FILE_DIRECTORY ->
-                    Localization.lang("LaTeX file directory");
-            case DEFAULT_KEY_PATTERN ->
-                    Localization.lang("Default pattern");
-            case SAVE_ACTIONS ->
-                    Localization.lang("Save actions");
-            case MODE ->
-                    Localization.lang("Library mode");
-            case LIBRARY_SPECIFIC_FILE_DIRECTORY ->
-                    Localization.lang("Library-specific file directory");
-            case CONTENT_SELECTOR ->
-                    Localization.lang("Content selectors");
+            case PROTECTED -> Localization.lang("Library protection");
+            case GROUPS -> Localization.lang("Modified groups tree");
+            case ENCODING -> Localization.lang("Library encoding");
+            case SAVE_SORT_ORDER -> Localization.lang("Save sort order");
+            case KEY_PATTERNS -> Localization.lang("Key patterns");
+            case USER_FILE_DIRECTORY -> Localization.lang("User-specific file directory");
+            case LATEX_FILE_DIRECTORY -> Localization.lang("LaTeX file directory");
+            case DEFAULT_KEY_PATTERN -> Localization.lang("Default pattern");
+            case SAVE_ACTIONS -> Localization.lang("Save actions");
+            case MODE -> Localization.lang("Library mode");
+            case LIBRARY_SPECIFIC_FILE_DIRECTORY -> Localization.lang("Library-specific file directory");
+            case CONTENT_SELECTOR -> Localization.lang("Content selectors");
         };
     }
+
 }

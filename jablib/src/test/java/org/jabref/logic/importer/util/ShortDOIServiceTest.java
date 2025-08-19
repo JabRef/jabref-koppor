@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ShortDOIServiceTest {
 
     private final DOI doi = new DOI("10.1109/ACCESS.2013.2260813");
+
     private final DOI notExistingDoi = new DOI("10.1109/ACCESS.2013.226081400");
 
     private ShortDOIService sut;
@@ -33,4 +34,5 @@ class ShortDOIServiceTest {
     void shouldThrowExceptionWhenDOIWasNotFound() throws ShortDOIServiceException {
         assertThrows(ShortDOIServiceException.class, () -> sut.getShortDOI(notExistingDoi));
     }
+
 }

@@ -6,4 +6,5 @@ public class ReplaceStrategy implements AutoCompletionStrategy {
     public AutoCompletionInput analyze(String input) {
         return new AutoCompletionInput("", input);
     }
+
 }

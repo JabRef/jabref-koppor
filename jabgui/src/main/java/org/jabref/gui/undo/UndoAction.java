@@ -18,11 +18,15 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
  * @implNote See also {@link RedoAction}
  */
 public class UndoAction extends SimpleCommand {
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private final DialogService dialogService;
+
     private final CountingUndoManager undoManager;
 
-    public UndoAction(Supplier<LibraryTab> tabSupplier, CountingUndoManager undoManager, DialogService dialogService, StateManager stateManager) {
+    public UndoAction(Supplier<LibraryTab> tabSupplier, CountingUndoManager undoManager, DialogService dialogService,
+            StateManager stateManager) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.undoManager = undoManager;
@@ -37,12 +41,15 @@ public class UndoAction extends SimpleCommand {
             if (undoManager.canUndo()) {
                 undoManager.undo();
                 dialogService.notify(Localization.lang("Undo"));
-            } else {
+            }
+            else {
                 throw new CannotUndoException();
             }
-        } catch (CannotUndoException ex) {
+        }
+        catch (CannotUndoException ex) {
             dialogService.notify(Localization.lang("Nothing to undo") + '.');
         }
         libraryTab.markChangedOrUnChanged();
     }
+
 }

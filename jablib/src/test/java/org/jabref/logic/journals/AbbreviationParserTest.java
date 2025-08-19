@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AbbreviationParserTest {
 
     private Path csvFile;
+
     private final AbbreviationParser parser = new AbbreviationParser();
 
     private final Abbreviation abbreviation = new Abbreviation("Long Name", "L.N.", "L.N.");
@@ -45,4 +46,5 @@ class AbbreviationParserTest {
         parser.readJournalListFromFile(csvFile);
         assertEquals(Set.of(abbreviation), parser.getAbbreviations());
     }
+
 }

@@ -19,25 +19,47 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import com.airhacks.afterburner.injection.Injector;
 import com.airhacks.afterburner.views.ViewLoader;
 
-public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKeyPatternTabViewModel> implements PreferencesTab {
+public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKeyPatternTabViewModel>
+        implements PreferencesTab {
 
-    @FXML private CheckBox overwriteAllow;
-    @FXML private CheckBox overwriteWarning;
-    @FXML private CheckBox generateOnSave;
-    @FXML private CheckBox generateNewKeyOnImport;
-    @FXML private RadioButton letterStartA;
-    @FXML private RadioButton letterStartB;
-    @FXML private RadioButton letterAlwaysAdd;
-    @FXML private TextField keyPatternRegex;
-    @FXML private TextField keyPatternReplacement;
-    @FXML private TextField unwantedCharacters;
-    @FXML private Button keyPatternHelp;
-    @FXML private CitationKeyPatternsPanel bibtexKeyPatternTable;
+    @FXML
+    private CheckBox overwriteAllow;
+
+    @FXML
+    private CheckBox overwriteWarning;
+
+    @FXML
+    private CheckBox generateOnSave;
+
+    @FXML
+    private CheckBox generateNewKeyOnImport;
+
+    @FXML
+    private RadioButton letterStartA;
+
+    @FXML
+    private RadioButton letterStartB;
+
+    @FXML
+    private RadioButton letterAlwaysAdd;
+
+    @FXML
+    private TextField keyPatternRegex;
+
+    @FXML
+    private TextField keyPatternReplacement;
+
+    @FXML
+    private TextField unwantedCharacters;
+
+    @FXML
+    private Button keyPatternHelp;
+
+    @FXML
+    private CitationKeyPatternsPanel bibtexKeyPatternTable;
 
     public CitationKeyPatternTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -46,7 +68,8 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
     }
 
     public void initialize() {
-        this.viewModel = new CitationKeyPatternTabViewModel(preferences.getCitationKeyPatternPreferences(), preferences.getImporterPreferences());
+        this.viewModel = new CitationKeyPatternTabViewModel(preferences.getCitationKeyPatternPreferences(),
+                preferences.getImporterPreferences());
 
         overwriteAllow.selectedProperty().bindBidirectional(viewModel.overwriteAllowProperty());
         overwriteWarning.selectedProperty().bindBidirectional(viewModel.overwriteWarningProperty());
@@ -63,7 +86,10 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
         bibtexKeyPatternTable.defaultKeyPatternProperty().bindBidirectional(viewModel.defaultKeyPatternProperty());
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP_KEY_PATTERNS, new HelpAction(HelpFile.CITATION_KEY_PATTERN, dialogService, preferences.getExternalApplicationsPreferences()), keyPatternHelp);
+        actionFactory.configureIconButton(StandardActions.HELP_KEY_PATTERNS,
+                new HelpAction(HelpFile.CITATION_KEY_PATTERN, dialogService,
+                        preferences.getExternalApplicationsPreferences()),
+                keyPatternHelp);
     }
 
     @Override
@@ -84,4 +110,5 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
     public void resetAllKeyPatterns() {
         bibtexKeyPatternTable.resetAll();
     }
+
 }

@@ -15,9 +15,13 @@ import org.jabref.model.database.BibDatabaseContext;
 
 public class KeyPatternPropertiesViewModel implements PropertiesTabViewModel {
 
-    // The list and the default properties are being overwritten by the bound properties of the tableView, but to
-    // prevent an NPE on storing the preferences before lazy-loading of the setValues, they need to be initialized.
-    private final ListProperty<CitationKeyPatternsPanelItemModel> patternListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    // The list and the default properties are being overwritten by the bound properties
+    // of the tableView, but to
+    // prevent an NPE on storing the preferences before lazy-loading of the setValues,
+    // they need to be initialized.
+    private final ListProperty<CitationKeyPatternsPanelItemModel> patternListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty = new SimpleObjectProperty<>(
             new CitationKeyPatternsPanelItemModel(new CitationKeyPatternsPanelViewModel.DefaultEntryType(), ""));
 
@@ -37,7 +41,8 @@ public class KeyPatternPropertiesViewModel implements PropertiesTabViewModel {
 
     @Override
     public void storeSettings() {
-        DatabaseCitationKeyPatterns newKeyPattern = new DatabaseCitationKeyPatterns(preferences.getCitationKeyPatternPreferences().getKeyPatterns());
+        DatabaseCitationKeyPatterns newKeyPattern = new DatabaseCitationKeyPatterns(
+                preferences.getCitationKeyPatternPreferences().getKeyPatterns());
 
         patternListProperty.forEach(item -> {
             String patternString = item.getPattern();
@@ -49,7 +54,8 @@ public class KeyPatternPropertiesViewModel implements PropertiesTabViewModel {
         });
 
         if (!defaultKeyPatternProperty.getValue().getPattern().trim().isEmpty()) {
-            // we do not trim the value at the assignment to enable users to have spaces at the beginning and
+            // we do not trim the value at the assignment to enable users to have spaces
+            // at the beginning and
             // at the end of the pattern
             newKeyPattern.setDefaultValue(defaultKeyPatternProperty.getValue().getPattern());
         }
@@ -64,4 +70,5 @@ public class KeyPatternPropertiesViewModel implements PropertiesTabViewModel {
     public ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty() {
         return defaultKeyPatternProperty;
     }
+
 }

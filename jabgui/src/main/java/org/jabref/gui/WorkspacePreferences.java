@@ -15,31 +15,35 @@ import org.jabref.gui.theme.Theme;
 import org.jabref.logic.l10n.Language;
 
 public class WorkspacePreferences {
+
     private final ObjectProperty<Language> language;
+
     private final BooleanProperty shouldOverrideDefaultFontSize;
+
     private final IntegerProperty mainFontSize;
+
     private final IntegerProperty defaultFontSize;
+
     private final ObjectProperty<Theme> theme;
+
     private final BooleanProperty themeSyncOs;
+
     private final BooleanProperty shouldOpenLastEdited;
+
     private final BooleanProperty showAdvancedHints;
+
     private final BooleanProperty warnAboutDuplicatesInInspection;
+
     private final BooleanProperty confirmDelete;
+
     private final BooleanProperty confirmHideTabBar;
+
     private final ObservableList<String> selectedSlrCatalogs;
 
-    public WorkspacePreferences(Language language,
-                                boolean shouldOverrideDefaultFontSize,
-                                int mainFontSize,
-                                int defaultFontSize,
-                                Theme theme,
-                                boolean themeSyncOs,
-                                boolean shouldOpenLastEdited,
-                                boolean showAdvancedHints,
-                                boolean warnAboutDuplicatesInInspection,
-                                boolean confirmDelete,
-                                boolean confirmHideTabBar,
-                                List<String> selectedSlrCatalogs) {
+    public WorkspacePreferences(Language language, boolean shouldOverrideDefaultFontSize, int mainFontSize,
+            int defaultFontSize, Theme theme, boolean themeSyncOs, boolean shouldOpenLastEdited,
+            boolean showAdvancedHints, boolean warnAboutDuplicatesInInspection, boolean confirmDelete,
+            boolean confirmHideTabBar, List<String> selectedSlrCatalogs) {
         this.language = new SimpleObjectProperty<>(language);
         this.shouldOverrideDefaultFontSize = new SimpleBooleanProperty(shouldOverrideDefaultFontSize);
         this.mainFontSize = new SimpleIntegerProperty(mainFontSize);
@@ -185,4 +189,5 @@ public class WorkspacePreferences {
     public void setSelectedSlrCatalogs(List<String> catalogs) {
         selectedSlrCatalogs.setAll(catalogs);
     }
+
 }

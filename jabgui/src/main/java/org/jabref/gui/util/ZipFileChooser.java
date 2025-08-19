@@ -28,7 +28,6 @@ public class ZipFileChooser extends BaseDialog<Path> {
 
     /**
      * New ZIP file chooser.
-     *
      * @param zipFile ZIP-Fle to choose from, must be readable
      */
     public ZipFileChooser(FileSystem zipFile) throws IOException {
@@ -44,11 +43,11 @@ public class ZipFileChooser extends BaseDialog<Path> {
         nameColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().toString()));
         modifiedColumn.setCellValueFactory(data -> {
             try {
-                return new ReadOnlyStringWrapper(
-                        ZonedDateTime.ofInstant(Files.getLastModifiedTime(data.getValue()).toInstant(),
-                                ZoneId.systemDefault())
-                                     .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
-            } catch (IOException e) {
+                return new ReadOnlyStringWrapper(ZonedDateTime
+                    .ofInstant(Files.getLastModifiedTime(data.getValue()).toInstant(), ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+            }
+            catch (IOException e) {
                 // Ignore
                 return new ReadOnlyStringWrapper("");
             }
@@ -56,7 +55,8 @@ public class ZipFileChooser extends BaseDialog<Path> {
         sizeColumn.setCellValueFactory(data -> {
             try {
                 return new ReadOnlyLongWrapper(Files.size(data.getValue()));
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 // Ignore
                 return new ReadOnlyLongWrapper(0);
             }
@@ -65,15 +65,13 @@ public class ZipFileChooser extends BaseDialog<Path> {
 
         getDialogPane().setContent(table);
 
-        getDialogPane().getButtonTypes().setAll(
-                ButtonType.OK,
-                ButtonType.CANCEL
-        );
+        getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
                 return table.getSelectionModel().getSelectedItem();
-            } else {
+            }
+            else {
                 return null;
             }
         });
@@ -81,7 +79,6 @@ public class ZipFileChooser extends BaseDialog<Path> {
 
     /**
      * Entries that can be selected with this dialog.
-     *
      * @param zipFile ZIP-File
      * @return entries that can be selected
      */
@@ -89,8 +86,7 @@ public class ZipFileChooser extends BaseDialog<Path> {
         Path rootDir = zipFile.getRootDirectories().iterator().next();
 
         return FXCollections.observableArrayList(
-                Files.walk(rootDir)
-                     .filter(file -> file.endsWith(".class"))
-                     .collect(Collectors.toList()));
+                Files.walk(rootDir).filter(file -> file.endsWith(".class")).collect(Collectors.toList()));
     }
+
 }

@@ -37,4 +37,5 @@ public class NormalizeNamesFormatter extends Formatter {
     public String getExampleInput() {
         return "Albert Einstein and Alan Turing";
     }
+
 }

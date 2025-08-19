@@ -19,14 +19,17 @@ import javafx.util.StringConverter;
 import com.tobiasdiez.easybind.Subscription;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 
-public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
+public class ViewModelTextFieldTableCellVisualizationFactory<S, T>
+        implements Callback<TableColumn<S, T>, TableCell<S, T>> {
 
     private static final PseudoClass INVALID_PSEUDO_CLASS = PseudoClass.getPseudoClass("invalid");
 
     private Function<S, ValidationStatus> validationStatusProperty;
+
     private StringConverter<T> stringConverter;
 
-    public ViewModelTextFieldTableCellVisualizationFactory<S, T> withValidation(Function<S, ValidationStatus> validationStatusProperty) {
+    public ViewModelTextFieldTableCellVisualizationFactory<S, T> withValidation(
+            Function<S, ValidationStatus> validationStatusProperty) {
         this.validationStatusProperty = validationStatusProperty;
         return this;
     }
@@ -45,7 +48,8 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Ca
             public void startEdit() {
                 super.startEdit();
 
-                // The textfield is lazily created and not already present when a TableCell is created.
+                // The textfield is lazily created and not already present when a
+                // TableCell is created.
                 lookupTextField().ifPresent(textField -> Platform.runLater(() -> {
                     textField.requestFocus();
                     textField.selectAll();
@@ -53,18 +57,19 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Ca
             }
 
             /**
-             * As 'textfield' is a private member of TextFieldTableCell we need need to get to it through the backdoor.
-             *
+             * As 'textfield' is a private member of TextFieldTableCell we need need to
+             * get to it through the backdoor.
              * @return The TextField containing the editable content of the TableCell
              */
             private Optional<TextField> lookupTextField() {
                 if (getGraphic() instanceof TextField textField) {
                     return Optional.of(textField);
-                } else {
-                    // Could be an HBox with some graphic and a TextField if a graphic is specified for the TableCell
-                    if (getGraphic() instanceof HBox hbox
-                        && hbox.getChildren().size() > 1
-                        && hbox.getChildren().get(1) instanceof TextField textField) {
+                }
+                else {
+                    // Could be an HBox with some graphic and a TextField if a graphic is
+                    // specified for the TableCell
+                    if (getGraphic() instanceof HBox hbox && hbox.getChildren().size() > 1
+                            && hbox.getChildren().get(1) instanceof TextField textField) {
                         return Optional.of(textField);
                     }
 
@@ -85,20 +90,20 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Ca
                     setOnMouseClicked(null);
                     setTooltip(null);
                     pseudoClassStateChanged(INVALID_PSEUDO_CLASS, false);
-                } else {
+                }
+                else {
                     S viewModel = getTableRow().getItem();
                     if (validationStatusProperty != null) {
                         validationStatusProperty.apply(viewModel)
-                                                .getHighestMessage()
-                                                .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
+                            .getHighestMessage()
+                            .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
 
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                INVALID_PSEUDO_CLASS,
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, INVALID_PSEUDO_CLASS,
                                 validationStatusProperty.apply(viewModel).validProperty().not()));
                     }
                 }
             }
         };
     }
+
 }

@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class TruncateFormatterTest {
+
     private final String TITLE = "A Title";
 
     @Test
@@ -52,4 +54,5 @@ class TruncateFormatterTest {
         TruncateFormatter formatter = new TruncateFormatter(9999);
         assertThrows(NullPointerException.class, () -> formatter.format(null));
     }
+
 }

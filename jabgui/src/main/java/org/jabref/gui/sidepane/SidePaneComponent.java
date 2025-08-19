@@ -15,19 +15,21 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.logic.l10n.Localization;
 
 public class SidePaneComponent extends BorderPane {
+
     private final SidePaneType sidePaneType;
+
     private final SimpleCommand closeCommand;
+
     private final SimpleCommand moveUpCommand;
+
     private final SimpleCommand moveDownCommand;
+
     private final SidePaneContentFactory contentFactory;
 
     private HBox buttonContainer;
 
-    public SidePaneComponent(SidePaneType sidePaneType,
-                             SimpleCommand closeCommand,
-                             SimpleCommand moveUpCommand,
-                             SimpleCommand moveDownCommand,
-                             SidePaneContentFactory contentFactory) {
+    public SidePaneComponent(SidePaneType sidePaneType, SimpleCommand closeCommand, SimpleCommand moveUpCommand,
+            SimpleCommand moveDownCommand, SidePaneContentFactory contentFactory) {
         this.sidePaneType = sidePaneType;
         this.closeCommand = closeCommand;
         this.moveUpCommand = moveUpCommand;
@@ -81,4 +83,5 @@ public class SidePaneComponent extends BorderPane {
             }
         }
     }
+
 }

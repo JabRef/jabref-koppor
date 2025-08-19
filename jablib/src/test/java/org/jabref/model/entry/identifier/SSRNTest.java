@@ -15,19 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SSRNTest {
+
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 // Basic string
-                Arguments.of(false, "4904445"),
-                Arguments.of(false, "  4904445   "),
+                Arguments.of(false, "4904445"), Arguments.of(false, "  4904445   "),
 
                 // URLs
                 Arguments.of(true, "https://ssrn.com/abstract=4904445"),
                 Arguments.of(true, "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4904445"),
                 Arguments.of(true, "  https://ssrn.com/abstract=4904445    "),
                 Arguments.of(true, "  https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4904445     "),
-                Arguments.of(true, "http://ssrn.com/abstract=4904445")
-        );
+                Arguments.of(true, "http://ssrn.com/abstract=4904445"));
     }
 
     /**
@@ -43,14 +42,16 @@ public class SSRNTest {
         if (findInText) {
             assertTrue(parsed.isPresent());
             assertEquals("4904445", parsed.get().asString());
-        } else {
+        }
+        else {
             assertTrue(parsed.isEmpty());
         }
     }
 
     @Test
     public void findInText() {
-        Optional<SSRN> parsed = SSRN.parse("The example paper (https://ssrn.com/abstract=4904445) should be found within this text");
+        Optional<SSRN> parsed = SSRN
+            .parse("The example paper (https://ssrn.com/abstract=4904445) should be found within this text");
         assertTrue(parsed.isPresent());
         assertEquals("4904445", parsed.get().asString());
     }
@@ -66,4 +67,5 @@ public class SSRNTest {
         URI uri = URLUtil.createUri("https://ssrn.com/abstract=123456");
         assertEquals(Optional.of(uri), ssrnIdentifier.getExternalURI());
     }
+
 }

@@ -23,17 +23,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fetcher to generate the Bibtex entry from an ISBN.
- * The default fetcher is the {@link OpenLibraryIsbnFetcher}.
- * If the entry is not found in the {@link OpenLibraryIsbnFetcher}.
- * Alternative fetcher can be specified with the {@link IsbnFetcher#addRetryFetcher(AbstractIsbnFetcher)} method.
+ * Fetcher to generate the Bibtex entry from an ISBN. The default fetcher is the
+ * {@link OpenLibraryIsbnFetcher}. If the entry is not found in the
+ * {@link OpenLibraryIsbnFetcher}. Alternative fetcher can be specified with the
+ * {@link IsbnFetcher#addRetryFetcher(AbstractIsbnFetcher)} method.
  */
 public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IsbnFetcher.class);
+
     private static final Pattern NEWLINE_SPACE_PATTERN = Pattern.compile("\\n|\\r\\n|\\s");
+
     protected final ImportFormatPreferences importFormatPreferences;
+
     private final List<AbstractIsbnFetcher> retryIsbnFetcher;
+
     private final GvkFetcher gvkIsbnFetcher;
 
     public IsbnFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -66,13 +70,16 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
             if (isbn.isPresent()) {
                 bibEntry = gvkIsbnFetcher.performSearchById(isbn.get().asString());
             }
-        } catch (FetcherException ex) {
+        }
+        catch (FetcherException ex) {
             LOGGER.debug("Got a fetcher exception for IBSN search", ex);
             if (retryIsbnFetcher.isEmpty()) {
                 throw ex;
             }
-        } finally {
-            // do not move the iterator in the loop as this would always return a new one and thus create and endless loop
+        }
+        finally {
+            // do not move the iterator in the loop as this would always return a new one
+            // and thus create and endless loop
             Iterator<AbstractIsbnFetcher> iterator = retryIsbnFetcher.iterator();
             while (bibEntry.isEmpty() && iterator.hasNext()) {
                 LOGGER.debug("Trying using the alternate ISBN fetchers to find an entry.");
@@ -95,7 +102,8 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
         Optional<String> isbn = entry.getField(StandardField.ISBN);
         if (isbn.isPresent()) {
             return OptionalUtil.toList(performSearchById(isbn.get()));
-        } else {
+        }
+        else {
             return List.of();
         }
     }
@@ -109,4 +117,5 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
     private String removeNewlinesAndSpacesFromIdentifier(String identifier) {
         return NEWLINE_SPACE_PATTERN.matcher(identifier).replaceAll("");
     }
+
 }

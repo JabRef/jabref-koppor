@@ -45,12 +45,17 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class MarkdownTextFlow extends SelectableTextFlow {
+
     private static final String BULLET_LIST_PATTERN = "^\\s*[-*•]\\s+$";
+
     private static final String NUMBERED_LIST_PATTERN = "^\\s*\\d+\\.\\s+$";
+
     private static final String UNICODE_BULLET = "\u2022";
+
     private static final String BLOCKQUOTE_MARKER = "> ";
 
     private final Parser parser;
+
     private final HtmlRenderer htmlRenderer;
 
     public MarkdownTextFlow(Pane parent) {
@@ -96,12 +101,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         }
 
         MarkdownAwareHyperlink hyperlink = new MarkdownAwareHyperlink(text, astNode);
-        hyperlink.setOnAction(_ -> new OpenBrowserAction(
-                url,
-                Injector.instantiateModelOrService(DialogService.class),
-                Injector.instantiateModelOrService(GuiPreferences.class)
-                        .getExternalApplicationsPreferences()).execute()
-        );
+        hyperlink.setOnAction(_ -> new OpenBrowserAction(url, Injector.instantiateModelOrService(DialogService.class),
+                Injector.instantiateModelOrService(GuiPreferences.class).getExternalApplicationsPreferences())
+            .execute());
 
         if (styleClasses != null) {
             for (String styleClass : styleClasses) {
@@ -135,11 +137,13 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 renderedText = mat.getText();
                 astNode = mat.astNode;
                 markdownText = getMarkdownRepresentation(astNode, renderedText);
-            } else if (fxNode instanceof MarkdownAwareHyperlink mah) {
+            }
+            else if (fxNode instanceof MarkdownAwareHyperlink mah) {
                 renderedText = mah.getText();
                 astNode = mah.astNode;
                 markdownText = getMarkdownRepresentation(astNode, renderedText);
-            } else {
+            }
+            else {
                 continue;
             }
 
@@ -160,7 +164,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
                 if (startInSegment == 0 && endInSegment == renderedText.length()) {
                     result.add(markdownText);
-                } else {
+                }
+                else {
                     String partialText = renderedText.substring(startInSegment, endInSegment);
                     if (astNode instanceof DelimitedNode delimitedNode) {
                         // e.g., select "llo" inside "*hello*" would return "*llo*"
@@ -184,65 +189,79 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     private String getMarkdownRepresentation(Node astNode, String renderedText) {
         if ("\n".equals(renderedText) || "\n\n".equals(renderedText)) {
             return renderedText;
-        } else if (astNode instanceof Heading heading) {
+        }
+        else if (astNode instanceof Heading heading) {
             return "#".repeat(heading.getLevel()) + " " + heading.getText().toString().trim();
-        } else if (astNode instanceof Code) {
+        }
+        else if (astNode instanceof Code) {
             return "`" + astNode.getChildChars() + "`";
-        } else if (astNode instanceof Emphasis) {
+        }
+        else if (astNode instanceof Emphasis) {
             return "*" + astNode.getChildChars() + "*";
-        } else if (astNode instanceof StrongEmphasis) {
+        }
+        else if (astNode instanceof StrongEmphasis) {
             return "**" + astNode.getChildChars() + "**";
-        } else if (astNode instanceof Link link) {
+        }
+        else if (astNode instanceof Link link) {
             String linkText = link.getText().toString();
             String url = link.getUrl().toString();
             String title = link.getTitle().toString();
             if (title.isEmpty()) {
                 return "[" + linkText + "](" + url + ")";
-            } else {
+            }
+            else {
                 return "[" + linkText + "](" + url + " \"" + title + "\")";
             }
-        } else if (astNode instanceof LinkRef linkRef) {
+        }
+        else if (astNode instanceof LinkRef linkRef) {
             String linkText = linkRef.getText().toString();
             String reference = linkRef.getReference().toString();
             return "[" + linkText + "][" + reference + "]";
-        } else if (astNode instanceof FencedCodeBlock fencedCodeBlock) {
+        }
+        else if (astNode instanceof FencedCodeBlock fencedCodeBlock) {
             String info = fencedCodeBlock.getInfo().toString();
             String openingFence = fencedCodeBlock.getOpeningFence().toString();
             String closingFence = fencedCodeBlock.getClosingFence().toString();
             // NOTE: Hack. Flexmark always add \n at beginning, \n\n at end.
             String content = fencedCodeBlock.getContentChars().toString();
             return openingFence + info + content.substring(0, content.length() - 1) + closingFence;
-        } else if (astNode instanceof IndentedCodeBlock) {
+        }
+        else if (astNode instanceof IndentedCodeBlock) {
             return astNode.getChars().toString();
-        } else if (astNode instanceof BlockQuote) {
+        }
+        else if (astNode instanceof BlockQuote) {
             return renderedText;
-        } else if (renderedText.matches(BULLET_LIST_PATTERN)) {
+        }
+        else if (renderedText.matches(BULLET_LIST_PATTERN)) {
             return renderedText.replace(UNICODE_BULLET, "-");
-        } else if (renderedText.matches(NUMBERED_LIST_PATTERN)) {
+        }
+        else if (renderedText.matches(NUMBERED_LIST_PATTERN)) {
             return renderedText;
-        } else {
+        }
+        else {
             return renderedText;
         }
     }
 
     private class MarkdownRenderer {
+
         private final NodeVisitor visitor;
+
         private final Deque<Integer> orderedListCounters = new ArrayDeque<>();
+
         private int listIndentationLevel = 0;
+
         private boolean isFirstBlockElement = true;
+
         private Node previousBlock = null;
 
         MarkdownRenderer() {
-            visitor = new NodeVisitor(
-                    new VisitHandler<>(Document.class, this::visit),
-                    new VisitHandler<>(Heading.class, this::visit),
-                    new VisitHandler<>(Paragraph.class, this::visit),
+            visitor = new NodeVisitor(new VisitHandler<>(Document.class, this::visit),
+                    new VisitHandler<>(Heading.class, this::visit), new VisitHandler<>(Paragraph.class, this::visit),
                     new VisitHandler<>(com.vladsch.flexmark.ast.Text.class, this::visit),
                     new VisitHandler<>(Emphasis.class, this::visit),
-                    new VisitHandler<>(StrongEmphasis.class, this::visit),
-                    new VisitHandler<>(Code.class, this::visit),
-                    new VisitHandler<>(Link.class, this::visit),
-                    new VisitHandler<>(FencedCodeBlock.class, this::visit),
+                    new VisitHandler<>(StrongEmphasis.class, this::visit), new VisitHandler<>(Code.class, this::visit),
+                    new VisitHandler<>(Link.class, this::visit), new VisitHandler<>(FencedCodeBlock.class, this::visit),
                     new VisitHandler<>(IndentedCodeBlock.class, this::visit),
                     new VisitHandler<>(BulletList.class, this::visit),
                     new VisitHandler<>(OrderedList.class, this::visit),
@@ -250,8 +269,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                     new VisitHandler<>(OrderedListItem.class, this::visit),
                     new VisitHandler<>(BlockQuote.class, this::visit),
                     new VisitHandler<>(HtmlInline.class, this::visit),
-                    new VisitHandler<>(HtmlBlock.class, this::visit)
-            );
+                    new VisitHandler<>(HtmlBlock.class, this::visit));
         }
 
         void render(Node node) {
@@ -276,7 +294,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
             if (!isInListItem) {
                 addNewlinesBetweenBlocks(paragraph);
-            } else if (paragraph.getPrevious() instanceof Paragraph) {
+            }
+            else if (paragraph.getPrevious() instanceof Paragraph) {
                 addTextNode("\n", paragraph);
             }
 
@@ -315,11 +334,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             addNewlinesBetweenBlocks(codeBlock);
             String content = codeBlock.getContentChars().toString();
             /*
-             * NOTE: Flexmark always append \n at the beginning and \n\n at the end.
-             * For example, ```java
-             * public class HelloWorld { ... }
-             * ``` -> contains content `\npublic class HelloWorld { ... }\n\n`
-             * Therefore, we need to remove the first and last characters.
+             * NOTE: Flexmark always append \n at the beginning and \n\n at the end. For
+             * example, ```java public class HelloWorld { ... } ``` -> contains content
+             * `\npublic class HelloWorld { ... }\n\n` Therefore, we need to remove the
+             * first and last characters.
              */
             String processedContent = content;
             if (content.length() >= 3 && content.startsWith("\n") && content.endsWith("\n\n")) {
@@ -332,7 +350,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         private void visit(IndentedCodeBlock codeBlock) {
             addNewlinesBetweenBlocks(codeBlock);
             String content = codeBlock.getContentChars().toString();
-            // NOTE: Similar to FencedCodeBlock, Flexmark always appends \n at the beginning and \n\n at the end.
+            // NOTE: Similar to FencedCodeBlock, Flexmark always appends \n at the
+            // beginning and \n\n at the end.
             String processedContent = content;
             if (content.length() >= 3 && content.startsWith("\n") && content.endsWith("\n\n")) {
                 processedContent = content.substring(1, content.length() - 2);
@@ -406,7 +425,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             for (Node child : quote.getChildren()) {
                 if (child instanceof Paragraph) {
                     processQuoteParagraph(quote, child);
-                } else {
+                }
+                else {
                     addTextNode(BLOCKQUOTE_MARKER, quote, "markdown-blockquote-marker");
                     visitor.visit(child);
                 }
@@ -458,20 +478,25 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
             if (previousBlock instanceof Heading || currentBlock instanceof Heading) {
                 newlineCount = 2;
-            } else if (previousBlock instanceof Paragraph) {
+            }
+            else if (previousBlock instanceof Paragraph) {
                 newlineCount = 2;
-            } else if (currentBlock instanceof ListBlock && listIndentationLevel == 0) {
+            }
+            else if (currentBlock instanceof ListBlock && listIndentationLevel == 0) {
                 newlineCount = 2;
-            } else if (previousBlock instanceof FencedCodeBlock || previousBlock instanceof IndentedCodeBlock ||
-                    currentBlock instanceof FencedCodeBlock || currentBlock instanceof IndentedCodeBlock) {
+            }
+            else if (previousBlock instanceof FencedCodeBlock || previousBlock instanceof IndentedCodeBlock
+                    || currentBlock instanceof FencedCodeBlock || currentBlock instanceof IndentedCodeBlock) {
                 newlineCount = 2;
             }
 
             addTextNode("\n".repeat(newlineCount), currentBlock);
         }
+
     }
 
     private static class MarkdownAwareText extends Text {
+
         private final Node astNode;
 
         public MarkdownAwareText(String text, Node astNode) {
@@ -479,9 +504,11 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             this.astNode = astNode;
             setUserData(astNode);
         }
+
     }
 
     private static class MarkdownAwareHyperlink extends Hyperlink {
+
         private final Node astNode;
 
         public MarkdownAwareHyperlink(String text, Node astNode) {
@@ -489,5 +516,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             this.astNode = astNode;
             setUserData(astNode);
         }
+
     }
+
 }

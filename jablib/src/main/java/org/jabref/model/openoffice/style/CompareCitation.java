@@ -25,6 +25,5 @@ public class CompareCitation implements Comparator<ComparableCitation> {
         }
         return res;
     }
+
 }
-
-

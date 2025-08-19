@@ -7,6 +7,7 @@ import org.jabref.gui.actions.SimpleCommand;
 public class ShowPreferencesAction extends SimpleCommand {
 
     private final LibraryTabContainer tabContainer;
+
     private final Class<? extends PreferencesTab> preferencesTabToSelectClass;
 
     private final DialogService dialogService;
@@ -15,7 +16,8 @@ public class ShowPreferencesAction extends SimpleCommand {
         this(tabContainer, null, dialogService);
     }
 
-    public ShowPreferencesAction(LibraryTabContainer tabContainer, Class<? extends PreferencesTab> preferencesTabToSelectClass, DialogService dialogService) {
+    public ShowPreferencesAction(LibraryTabContainer tabContainer,
+            Class<? extends PreferencesTab> preferencesTabToSelectClass, DialogService dialogService) {
         this.tabContainer = tabContainer;
         this.preferencesTabToSelectClass = preferencesTabToSelectClass;
         this.dialogService = dialogService;
@@ -26,4 +28,5 @@ public class ShowPreferencesAction extends SimpleCommand {
         dialogService.showCustomDialogAndWait(new PreferencesDialogView(preferencesTabToSelectClass));
         tabContainer.refresh();
     }
+
 }

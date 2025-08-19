@@ -38,4 +38,5 @@ class CopacImporterTest {
         List<BibEntry> entries = importer.importDatabase(path).getDatabase().getEntries();
         assertEquals(List.of(), entries);
     }
+
 }

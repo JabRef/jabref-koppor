@@ -21,21 +21,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughReverter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughReverter.class);
 
     private final Walkthrough walkthrough;
+
     private final Window fallbackWindow;
+
     private final SideEffectExecutor sideEffectExecutor;
 
     private @Nullable ChangeListener<Boolean> windowShowingListener;
+
     private @Nullable ChangeListener<Boolean> nodeVisibleListener;
 
     private @Nullable Window resolvedWindow;
+
     private @Nullable Node resolvedNode;
 
-    public WalkthroughReverter(@NonNull Walkthrough walkthrough,
-                               @NonNull Window fallbackWindow,
-                               @NonNull SideEffectExecutor sideEffectExecutor) {
+    public WalkthroughReverter(@NonNull Walkthrough walkthrough, @NonNull Window fallbackWindow,
+            @NonNull SideEffectExecutor sideEffectExecutor) {
         this.walkthrough = walkthrough;
         this.fallbackWindow = fallbackWindow;
         this.sideEffectExecutor = sideEffectExecutor;
@@ -58,7 +62,8 @@ public class WalkthroughReverter {
         if (this.resolvedNode != null) {
             nodeVisibleListener = (_, wasVisible, isVisible) -> {
                 if (wasVisible && !isVisible) {
-                    LOGGER.debug("Node for step '{}' is no longer visible. Reverting.", walkthrough.getCurrentStep().title());
+                    LOGGER.debug("Node for step '{}' is no longer visible. Reverting.",
+                            walkthrough.getCurrentStep().title());
                     findAndUndo();
                 }
             };
@@ -105,8 +110,8 @@ public class WalkthroughReverter {
                 continue;
             }
             Window activeWindow = window.orElse(fallbackWindow);
-            if (activeWindow.getScene() != null &&
-                    (previousStep.nodeResolver().isEmpty() || previousStep.nodeResolver().get().resolve(activeWindow.getScene()).isPresent())) {
+            if (activeWindow.getScene() != null && (previousStep.nodeResolver().isEmpty()
+                    || previousStep.nodeResolver().get().resolve(activeWindow.getScene()).isPresent())) {
                 LOGGER.info("Reverting to step {} from step {}", i, from);
                 walkthrough.goToStep(i);
                 return;
@@ -132,4 +137,5 @@ public class WalkthroughReverter {
             undo(i);
         }
     }
+
 }

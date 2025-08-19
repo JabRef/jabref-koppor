@@ -41,40 +41,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IndexManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexManager.class);
 
     private final TaskExecutor taskExecutor;
+
     private final BibDatabaseContext databaseContext;
+
     private final BooleanProperty shouldIndexLinkedFiles;
+
     private final ChangeListener<Boolean> preferencesListener;
+
     private final BibFieldsIndexer bibFieldsIndexer;
+
     private final LuceneIndexer linkedFilesIndexer;
+
     private final BibFieldsSearcher bibFieldsSearcher;
+
     private final LinkedFilesSearcher linkedFilesSearcher;
 
-    public IndexManager(BibDatabaseContext databaseContext,
-                        TaskExecutor executor,
-                        CliPreferences preferences,
-                        PostgreServer postgreServer) {
+    public IndexManager(BibDatabaseContext databaseContext, TaskExecutor executor, CliPreferences preferences,
+            PostgreServer postgreServer) {
         this.taskExecutor = executor;
         this.databaseContext = databaseContext;
         this.shouldIndexLinkedFiles = preferences.getFilePreferences().fulltextIndexLinkedFilesProperty();
         this.preferencesListener = (_, _, newValue) -> bindToPreferences(newValue);
         this.shouldIndexLinkedFiles.addListener(preferencesListener);
 
-        bibFieldsIndexer = new BibFieldsIndexer(preferences.getBibEntryPreferences(), databaseContext, postgreServer.getConnection());
+        bibFieldsIndexer = new BibFieldsIndexer(preferences.getBibEntryPreferences(), databaseContext,
+                postgreServer.getConnection());
 
         LuceneIndexer indexer;
         try {
             indexer = new DefaultLinkedFilesIndexer(databaseContext, preferences.getFilePreferences());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.debug("Error initializing linked files index - using read only index");
             indexer = new ReadOnlyLinkedFilesIndexer(databaseContext);
         }
         linkedFilesIndexer = indexer;
 
         this.bibFieldsSearcher = new BibFieldsSearcher(postgreServer.getConnection(), bibFieldsIndexer.getTable());
-        this.linkedFilesSearcher = new LinkedFilesSearcher(databaseContext, linkedFilesIndexer, preferences.getFilePreferences());
+        this.linkedFilesSearcher = new LinkedFilesSearcher(databaseContext, linkedFilesIndexer,
+                preferences.getFilePreferences());
         updateOnStart();
     }
 
@@ -87,7 +96,8 @@ public class IndexManager {
                     return null;
                 }
             }.executeWith(taskExecutor);
-        } else {
+        }
+        else {
             linkedFilesIndexer.removeAllFromIndex();
         }
     }
@@ -100,8 +110,8 @@ public class IndexManager {
                 return null;
             }
         }.willBeRecoveredAutomatically(true)
-         .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
-         .executeWith(taskExecutor);
+            .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -122,7 +132,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(entries)))
-         .executeWith(taskExecutor);
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -143,7 +153,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexRemovedEvent(entries)))
-         .executeWith(taskExecutor);
+            .executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get()) {
             new BackgroundTask<>() {
@@ -163,8 +173,8 @@ public class IndexManager {
                 bibFieldsIndexer.updateEntry(event.getBibEntry(), event.getField());
                 return null;
             }
-        }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(List.of(event.getBibEntry()))))
-         .executeWith(taskExecutor);
+        }.onFinished(() -> this.databaseContext.getDatabase()
+            .postEvent(new IndexAddedOrUpdatedEvent(List.of(event.getBibEntry())))).executeWith(taskExecutor);
 
         if (shouldIndexLinkedFiles.get() && event.getField().equals(StandardField.FILE)) {
             new BackgroundTask<>() {
@@ -217,7 +227,8 @@ public class IndexManager {
         for (Future<SearchResults> future : futures) {
             try {
                 searchResults.mergeSearchResults(future.get());
-            } catch (InterruptedException | ExecutionException e) {
+            }
+            catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Error while searching", e);
             }
         }
@@ -226,7 +237,8 @@ public class IndexManager {
     }
 
     /**
-     * @implNote No need to check for full-text searches as this method only used by the search groups
+     * @implNote No need to check for full-text searches as this method only used by the
+     * search groups
      */
     public boolean isEntryMatched(BibEntry entry, SearchQuery query) {
         return bibFieldsSearcher.isMatched(entry, query);
@@ -238,7 +250,8 @@ public class IndexManager {
 
         try {
             Files.createDirectories(currentIndexPath);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not create index directory {}", appData, e);
         }
 
@@ -247,14 +260,13 @@ public class IndexManager {
                 if (Files.isDirectory(path) && !path.toString().endsWith("ssl") && path.toString().contains("lucene")
                         && !path.equals(currentIndexPath)) {
                     LOGGER.info("Deleting out-of-date fulltext search index at {}.", path);
-                    Files.walk(path)
-                         .sorted(Comparator.reverseOrder())
-                         .map(Path::toFile)
-                         .forEach(File::delete);
+                    Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not access app-directory at {}", appData, e);
         }
     }
+
 }

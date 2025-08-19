@@ -21,14 +21,13 @@ public class UnoTextSection {
     /**
      * @return An XNameAccess to find sections by name.
      */
-    public static XNameAccess getNameAccess(XTextDocument doc)
-            throws
-            NoDocumentException {
+    public static XNameAccess getNameAccess(XTextDocument doc) throws NoDocumentException {
 
         XTextSectionsSupplier supplier = UnoCast.cast(XTextSectionsSupplier.class, doc).get();
         try {
             return supplier.getTextSections();
-        } catch (DisposedException ex) {
+        }
+        catch (DisposedException ex) {
             throw new NoDocumentException("UnoTextSection.getNameAccess failed with" + ex);
         }
     }
@@ -37,27 +36,23 @@ public class UnoTextSection {
      * Get an XTextSection by name.
      */
     public static Optional<XTextSection> getByName(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
+            throws WrappedTargetException, NoDocumentException {
         XNameAccess nameAccess = getNameAccess(doc);
         try {
             return Optional.ofNullable((XTextSection) ((Any) nameAccess.getByName(name)).getObject());
-        } catch (NoSuchElementException ex) {
+        }
+        catch (NoSuchElementException ex) {
             return Optional.empty();
         }
     }
 
     /**
      * Get the XTextRange covering to the named section.
-     *
      * @param name The name of the section to find.
      * @return The XTextRange for the section, or Optional.empty().
      */
     public static Optional<XTextRange> getAnchor(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
+            throws WrappedTargetException, NoDocumentException {
 
         XNameAccess nameAccess = getNameAccess(doc);
         return UnoNameAccess.getTextContentByName(nameAccess, name).map(XTextContent::getAnchor);
@@ -65,13 +60,12 @@ public class UnoTextSection {
 
     /**
      * Create a text section with the provided name and insert it at the provided cursor.
-     * If an XTextSection by that name already exists, LibreOffice (6.4.6.2) creates a section with a name different from what we requested, in "Section {number}" format
+     * If an XTextSection by that name already exists, LibreOffice (6.4.6.2) creates a
+     * section with a name different from what we requested, in "Section {number}" format
      */
-    public static XNamed create(DocumentAnnotation documentAnnotation)
-            throws
-            CreationException {
+    public static XNamed create(DocumentAnnotation documentAnnotation) throws CreationException {
 
         return UnoNamed.insertNamedTextContent("com.sun.star.text.TextSection", documentAnnotation);
     }
-}
 
+}

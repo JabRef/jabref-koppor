@@ -15,71 +15,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SearchQueryFlagsConversionTest {
 
     private static Stream<Arguments> searchConversion() {
-        return Stream.of(
-                createTestCases(
-                        "Term",
-                        "Term",
-                        "Term",
-                        "Term",
-                        "Term"
-                ),
+        return Stream.of(createTestCases("Term", "Term", "Term", "Term", "Term"),
 
-                createTestCases(
-                        "title = Term",
-                        "title = Term",
-                        "title =! Term",
-                        "title =~ Term",
-                        "title =~! Term"
-                ),
-                createTestCases(
-                        "title == Term",
-                        "title == Term",
-                        "title ==! Term",
-                        "title =~ Term",
-                        "title =~! Term"
-                ),
+                createTestCases("title = Term", "title = Term", "title =! Term", "title =~ Term", "title =~! Term"),
+                createTestCases("title == Term", "title == Term", "title ==! Term", "title =~ Term", "title =~! Term"),
 
-                createTestCases(
-                        "title != Term",
-                        "title != Term",
-                        "title !=! Term",
-                        "title !=~ Term",
-                        "title !=~! Term"
-                ),
+                createTestCases("title != Term", "title != Term", "title !=! Term", "title !=~ Term",
+                        "title !=~! Term"),
 
-                createTestCases(
-                        "title = Tem AND author = Alex",
-                        "title = Tem AND author = Alex",
-                        "title =! Tem AND author =! Alex",
-                        "title =~ Tem AND author =~ Alex",
-                        "title =~! Tem AND author =~! Alex"
-                ),
+                createTestCases("title = Tem AND author = Alex", "title = Tem AND author = Alex",
+                        "title =! Tem AND author =! Alex", "title =~ Tem AND author =~ Alex",
+                        "title =~! Tem AND author =~! Alex"),
 
-                createTestCases(
-                        "(title = Tem) AND (author = Alex)",
-                        "(title = Tem) AND (author = Alex)",
-                        "(title =! Tem) AND (author =! Alex)",
-                        "(title =~ Tem) AND (author =~ Alex)",
-                        "(title =~! Tem) AND (author =~! Alex)"
-                ),
+                createTestCases("(title = Tem) AND (author = Alex)", "(title = Tem) AND (author = Alex)",
+                        "(title =! Tem) AND (author =! Alex)", "(title =~ Tem) AND (author =~ Alex)",
+                        "(title =~! Tem) AND (author =~! Alex)"),
 
-                createTestCases(
-                        "(title = \"Tem\" AND author != Alex) OR term",
+                createTestCases("(title = \"Tem\" AND author != Alex) OR term",
                         "(title = \"Tem\" AND author != Alex) OR term",
                         "(title =! \"Tem\" AND author !=! Alex) OR term",
                         "(title =~ \"Tem\" AND author !=~ Alex) OR term",
-                        "(title =~! \"Tem\" AND author !=~! Alex) OR term"
-                )
-        ).flatMap(stream -> stream);
+                        "(title =~! \"Tem\" AND author !=~! Alex) OR term"))
+            .flatMap(stream -> stream);
     }
 
-    private static Stream<Arguments> createTestCases(String searchExpression, String noneExpected, String caseSensitiveExpected, String regexExpected, String bothExpected) {
-        return Stream.of(
-                Arguments.of(noneExpected, searchExpression, EnumSet.noneOf(SearchFlags.class)),
+    private static Stream<Arguments> createTestCases(String searchExpression, String noneExpected,
+            String caseSensitiveExpected, String regexExpected, String bothExpected) {
+        return Stream.of(Arguments.of(noneExpected, searchExpression, EnumSet.noneOf(SearchFlags.class)),
                 Arguments.of(caseSensitiveExpected, searchExpression, EnumSet.of(SearchFlags.CASE_SENSITIVE)),
                 Arguments.of(regexExpected, searchExpression, EnumSet.of(SearchFlags.REGULAR_EXPRESSION)),
-                Arguments.of(bothExpected, searchExpression, EnumSet.of(SearchFlags.CASE_SENSITIVE, SearchFlags.REGULAR_EXPRESSION))
-        );
+                Arguments.of(bothExpected, searchExpression,
+                        EnumSet.of(SearchFlags.CASE_SENSITIVE, SearchFlags.REGULAR_EXPRESSION)));
     }
 
     @ParameterizedTest
@@ -88,4 +54,5 @@ class SearchQueryFlagsConversionTest {
         String result = SearchQueryConversion.flagsToSearchExpression(new SearchQuery(searchExpression, flags));
         assertEquals(expected, result);
     }
+
 }

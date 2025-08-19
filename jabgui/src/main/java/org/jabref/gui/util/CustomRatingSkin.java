@@ -8,6 +8,7 @@ import impl.org.controlsfx.skin.RatingSkin;
 import org.controlsfx.control.Rating;
 
 public class CustomRatingSkin extends RatingSkin {
+
     public CustomRatingSkin(Rating control) {
         super(control);
 
@@ -18,4 +19,5 @@ public class CustomRatingSkin extends RatingSkin {
     protected Node createButtonNode() {
         return IconTheme.JabRefIcons.RANKING.getGraphicNode();
     }
+
 }

@@ -48,4 +48,5 @@ class IfPluralTest {
         a.setArgument("Eds.");
         assertEquals("", a.format("Bob Bruce and Jolly Jumper"));
     }
+
 }

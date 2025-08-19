@@ -7,23 +7,29 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.FilePreferences;
 
 /**
- * This class defines a type of external files that can be linked to from JabRef.
- * The class contains enough information to provide an icon, a standard extension
- * and a link to which application handles files of this type.
+ * This class defines a type of external files that can be linked to from JabRef. The
+ * class contains enough information to provide an icon, a standard extension and a link
+ * to which application handles files of this type.
  *
- * TODO: Move to model (and then adapt {@link org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel#fromFile(java.nio.file.Path, java.util.List, FilePreferences)}).
+ * TODO: Move to model (and then adapt
+ * {@link org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel#fromFile(java.nio.file.Path, java.util.List, FilePreferences)}).
  */
 public class CustomExternalFileType implements ExternalFileType {
 
     private String name;
+
     private String extension;
+
     private String openWith;
+
     private String iconName;
+
     private String mimeType;
+
     private JabRefIcon icon;
 
-    public CustomExternalFileType(String name, String extension, String mimeType,
-                                  String openWith, String iconName, JabRefIcon icon) {
+    public CustomExternalFileType(String name, String extension, String mimeType, String openWith, String iconName,
+            JabRefIcon icon) {
         this.name = name;
         this.extension = extension;
         this.mimeType = mimeType;
@@ -34,20 +40,21 @@ public class CustomExternalFileType implements ExternalFileType {
     }
 
     public CustomExternalFileType(ExternalFileType type) {
-        this(type.getName(), type.getExtension(), type.getMimeType(), type.getOpenWithApplication(), "", type.getIcon());
+        this(type.getName(), type.getExtension(), type.getMimeType(), type.getOpenWithApplication(), "",
+                type.getIcon());
     }
 
     /**
-     * Construct an ExternalFileType from a String array. This is used when
-     * reading file type definitions from Preferences, where the available data types are
-     * limited. We assume that the array contains the same values as the main constructor,
-     * in the same order.
-     *
+     * Construct an ExternalFileType from a String array. This is used when reading file
+     * type definitions from Preferences, where the available data types are limited. We
+     * assume that the array contains the same values as the main constructor, in the same
+     * order.
      * @param val arguments.
      */
     public static ExternalFileType buildFromArgs(String[] val) {
         if ((val == null) || (val.length < 4) || (val.length > 5)) {
-            throw new IllegalArgumentException("Cannot construct ExternalFileType without four elements in String[] argument.");
+            throw new IllegalArgumentException(
+                    "Cannot construct ExternalFileType without four elements in String[] argument.");
         }
         String name = val[0];
         String extension = val[1];
@@ -60,7 +67,8 @@ public class CustomExternalFileType implements ExternalFileType {
             mimeType = "";
             openWith = val[2];
             iconName = val[3];
-        } else {
+        }
+        else {
             // When mime type is included, the array length should be 5:
             mimeType = val[2];
             openWith = val[3];
@@ -128,7 +136,6 @@ public class CustomExternalFileType implements ExternalFileType {
 
     /**
      * Get the string associated with this file type's icon.
-     *
      * @return The icon name.
      */
     public String getIconName() {
@@ -137,7 +144,6 @@ public class CustomExternalFileType implements ExternalFileType {
 
     /**
      * Set the string associated with this file type's icon.
-     *
      * @param name The icon name to use.
      */
     public void setIconName(String name) {
@@ -171,7 +177,6 @@ public class CustomExternalFileType implements ExternalFileType {
     /**
      * We define two file type objects as equal if their name, extension, openWith and
      * iconName are equal.
-     *
      * @param object The file type to compare with.
      * @return true if the file types are equal.
      */
@@ -182,9 +187,11 @@ public class CustomExternalFileType implements ExternalFileType {
         }
 
         if (object instanceof CustomExternalFileType other) {
-            return Objects.equals(name, other.name) && Objects.equals(extension, other.extension) &&
-                    Objects.equals(mimeType, other.mimeType) && Objects.equals(openWith, other.openWith) && Objects.equals(iconName, other.iconName);
+            return Objects.equals(name, other.name) && Objects.equals(extension, other.extension)
+                    && Objects.equals(mimeType, other.mimeType) && Objects.equals(openWith, other.openWith)
+                    && Objects.equals(iconName, other.iconName);
         }
         return false;
     }
+
 }

@@ -14,4 +14,5 @@ public class DatabaseCitationKeyPatterns extends AbstractCitationKeyPatterns {
     public CitationKeyPattern getLastLevelCitationKeyPattern(EntryType entryType) {
         return globalCitationKeyPattern.getValue(entryType);
     }
+
 }

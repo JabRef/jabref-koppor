@@ -9,10 +9,13 @@ import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 
 public class ReplaceStringAction extends SimpleCommand {
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private final DialogService dialogService;
 
-    public ReplaceStringAction(Supplier<LibraryTab> tabSupplier, StateManager stateManager, DialogService dialogService) {
+    public ReplaceStringAction(Supplier<LibraryTab> tabSupplier, StateManager stateManager,
+            DialogService dialogService) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.executable.bind(ActionHelper.needsDatabase(stateManager));
@@ -22,4 +25,5 @@ public class ReplaceStringAction extends SimpleCommand {
     public void execute() {
         dialogService.showCustomDialogAndWait(new ReplaceStringView(tabSupplier.get()));
     }
+
 }

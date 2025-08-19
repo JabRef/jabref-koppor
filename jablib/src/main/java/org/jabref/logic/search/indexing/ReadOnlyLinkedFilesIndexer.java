@@ -16,15 +16,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReadOnlyLinkedFilesIndexer implements LuceneIndexer {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ReadOnlyLinkedFilesIndexer.class);
+
     private Directory indexDirectory;
+
     private SearcherManager searcherManager;
 
     public ReadOnlyLinkedFilesIndexer(BibDatabaseContext databaseContext) {
         try {
             indexDirectory = FSDirectory.open(databaseContext.getFulltextIndexPath());
             searcherManager = new SearcherManager(indexDirectory, null);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error initializing read only linked files index", e);
         }
     }
@@ -72,8 +76,10 @@ public class ReadOnlyLinkedFilesIndexer implements LuceneIndexer {
         try {
             searcherManager.close();
             indexDirectory.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error closing index", e);
         }
     }
+
 }

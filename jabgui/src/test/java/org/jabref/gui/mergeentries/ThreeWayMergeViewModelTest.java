@@ -22,23 +22,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ThreeWayMergeViewModelTest {
 
     ThreeWayMergeViewModel viewModel;
+
     BibEntry leftEntry;
+
     BibEntry rightEntry;
+
     List<Field> visibleFields;
 
     @BeforeEach
     void setup() {
         leftEntry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Erik G. Larsson and Oscar Gustafsson")
-                .withField(StandardField.TITLE, "The Impact of Dynamic Voltage and Frequency Scaling on Multicore {DSP} Algorithm Design [Exploratory {DSP]}")
-                .withField(StandardField.NUMBER, "1")
-                .withField(new UnknownField("custom"), "1.2.3");
+            .withField(StandardField.AUTHOR, "Erik G. Larsson and Oscar Gustafsson")
+            .withField(StandardField.TITLE,
+                    "The Impact of Dynamic Voltage and Frequency Scaling on Multicore {DSP} Algorithm Design [Exploratory {DSP]}")
+            .withField(StandardField.NUMBER, "1")
+            .withField(new UnknownField("custom"), "1.2.3");
 
         rightEntry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Henrik Ohlsson and Oscar Gustafsson and Lars Wanhammar")
-                .withField(StandardField.TITLE, "Arithmetic transformations for increased maximal sample rate of bit-parallel bireciprocal lattice wave digital filters")
-                .withField(StandardField.BOOKTITLE, "Proceedings of the 2001 International Symposium on Circuits and Systems, {ISCAS} 2001, Sydney, Australia, May 6-9, 2001")
-                .withField(StandardField.NUMBER, "2");
+            .withField(StandardField.AUTHOR, "Henrik Ohlsson and Oscar Gustafsson and Lars Wanhammar")
+            .withField(StandardField.TITLE,
+                    "Arithmetic transformations for increased maximal sample rate of bit-parallel bireciprocal lattice wave digital filters")
+            .withField(StandardField.BOOKTITLE,
+                    "Proceedings of the 2001 International Symposium on Circuits and Systems, {ISCAS} 2001, Sydney, Australia, May 6-9, 2001")
+            .withField(StandardField.NUMBER, "2");
         viewModel = new ThreeWayMergeViewModel(leftEntry, rightEntry, "left", "right");
         visibleFields = viewModel.getVisibleFields();
     }
@@ -62,7 +68,8 @@ class ThreeWayMergeViewModelTest {
     @Test
     void getVisibleFieldsShouldContainAllNonInternalFieldsInRightAndLeftEntry() {
         assertTrue(visibleFields.containsAll(leftEntry.getFields().stream().filter(this::isNotInternalField).toList()));
-        assertTrue(visibleFields.containsAll(rightEntry.getFields().stream().filter(this::isNotInternalField).toList()));
+        assertTrue(
+                visibleFields.containsAll(rightEntry.getFields().stream().filter(this::isNotInternalField).toList()));
     }
 
     @Test
@@ -73,4 +80,5 @@ class ThreeWayMergeViewModelTest {
     private boolean isNotInternalField(Field field) {
         return !FieldFactory.isInternalField(field);
     }
+
 }

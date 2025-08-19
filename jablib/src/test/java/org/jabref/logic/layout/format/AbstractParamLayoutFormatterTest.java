@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AbstractParamLayoutFormatterTest {
+
     static class ParseArgumentTester extends AbstractParamLayoutFormatter {
+
         public static List<String> callParseArgument(String arg) {
             return parseArgument(arg);
         }
@@ -22,22 +24,21 @@ public class AbstractParamLayoutFormatterTest {
         @Override
         public void setArgument(String arg) {
         }
+
     }
 
     @Test
     void simpleArguments() {
         String input = "arg1,arg2,arg3";
         List<String> result = ParseArgumentTester.callParseArgument(input);
-        assertEquals(List.of("arg1", "arg2", "arg3"), result,
-            "Simple arguments should be split correctly by commas");
+        assertEquals(List.of("arg1", "arg2", "arg3"), result, "Simple arguments should be split correctly by commas");
     }
 
     @Test
     void escapedCommas() {
         String input = "arg1\\,arg2,arg3";
         List<String> result = ParseArgumentTester.callParseArgument(input);
-        assertEquals(List.of("arg1,arg2", "arg3"), result,
-                "Escaped commas should be treated as literal commas");
+        assertEquals(List.of("arg1,arg2", "arg3"), result, "Escaped commas should be treated as literal commas");
     }
 
     @Test
@@ -58,8 +59,7 @@ public class AbstractParamLayoutFormatterTest {
     void singleArgument() {
         String input = "singleArg";
         List<String> result = ParseArgumentTester.callParseArgument(input);
-        assertEquals(List.of("singleArg"), result,
-                "Single argument should return a list with the argument itself");
+        assertEquals(List.of("singleArg"), result, "Single argument should return a list with the argument itself");
     }
 
     @Test
@@ -85,4 +85,5 @@ public class AbstractParamLayoutFormatterTest {
         assertEquals(List.of("arg1", "arg2,withComma", "arg3\nnewline", "arg4\\backslash"), result,
                 "Mixed cases should be parsed correctly");
     }
+
 }

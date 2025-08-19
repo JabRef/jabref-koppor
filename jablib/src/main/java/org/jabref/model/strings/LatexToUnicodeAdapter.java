@@ -9,7 +9,8 @@ import fastparse.Parsed;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Adapter class for the latex2unicode lib. This is an alternative to our LatexToUnicode class
+ * Adapter class for the latex2unicode lib. This is an alternative to our LatexToUnicode
+ * class
  */
 public class LatexToUnicodeAdapter {
 
@@ -21,9 +22,9 @@ public class LatexToUnicodeAdapter {
 
     /**
      * Attempts to resolve all LaTeX in the String.
-     *
      * @param inField a String containing LaTeX
-     * @return a String with LaTeX resolved into Unicode, or the original String if the LaTeX could not be parsed
+     * @return a String with LaTeX resolved into Unicode, or the original String if the
+     * LaTeX could not be parsed
      */
     public static String format(@NonNull String inField) {
         return parse(inField).orElse(Normalizer.normalize(inField, Normalizer.Form.NFC));
@@ -31,9 +32,9 @@ public class LatexToUnicodeAdapter {
 
     /**
      * Attempts to resolve all LaTeX in the String.
-     *
      * @param inField a String containing LaTeX
-     * @return an {@code Optional<String>} with LaTeX resolved into Unicode or {@code empty} on failure.
+     * @return an {@code Optional<String>} with LaTeX resolved into Unicode or
+     * {@code empty} on failure.
      */
     public static Optional<String> parse(@NonNull String inField) {
         String toFormat = UNDERSCORE_MATCHER.matcher(inField).replaceAll(REPLACEMENT_CHAR);
@@ -45,4 +46,5 @@ public class LatexToUnicodeAdapter {
         }
         return Optional.empty();
     }
+
 }

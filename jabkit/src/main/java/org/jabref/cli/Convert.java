@@ -28,6 +28,7 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "convert", description = "Convert between bibliography formats.")
 public class Convert implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Convert.class);
 
     @ParentCommand
@@ -36,21 +37,22 @@ public class Convert implements Runnable {
     @Mixin
     private ArgumentProcessor.SharedOptions sharedOptions = new ArgumentProcessor.SharedOptions();
 
-    @Option(names = {"--input"}, description = "Input file", required = true)
+    @Option(names = { "--input" }, description = "Input file", required = true)
     private String inputFile;
 
-    @Option(names = {"--input-format"}, description = "Input format")
+    @Option(names = { "--input-format" }, description = "Input format")
     private String inputFormat;
 
-    @Option(names = {"--output"}, description = "Output file")
+    @Option(names = { "--output" }, description = "Output file")
     private Path outputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format")
+    @Option(names = { "--output-format" }, description = "Output format")
     private String outputFormat = "bibtex";
 
     @Override
     public void run() {
-        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, inputFormat, argumentProcessor.cliPreferences, sharedOptions.porcelain);
+        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, inputFormat,
+                argumentProcessor.cliPreferences, sharedOptions.porcelain);
         if (parserResult.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
             return;
@@ -79,11 +81,8 @@ public class Convert implements Runnable {
         }
 
         if ("bibtex".equalsIgnoreCase(format)) {
-            ArgumentProcessor.saveDatabase(
-                    argumentProcessor.cliPreferences,
-                    argumentProcessor.entryTypesManager,
-                    parserResult.getDatabase(),
-                    outputFile);
+            ArgumentProcessor.saveDatabase(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                    parserResult.getDatabase(), outputFile);
             return;
         }
 
@@ -91,7 +90,7 @@ public class Convert implements Runnable {
         BibDatabaseContext databaseContext = parserResult.getDatabaseContext();
         databaseContext.setDatabasePath(path);
         List<Path> fileDirForDatabase = databaseContext
-                .getFileDirectories(argumentProcessor.cliPreferences.getFilePreferences());
+            .getFileDirectories(argumentProcessor.cliPreferences.getFilePreferences());
 
         ExporterFactory exporterFactory = ExporterFactory.create(argumentProcessor.cliPreferences);
         Optional<Exporter> exporter = exporterFactory.getExporterByName(format);
@@ -101,17 +100,14 @@ public class Convert implements Runnable {
         }
 
         try {
-            exporter.get().export(
-                    parserResult.getDatabaseContext(),
-                    outputFile,
-                    parserResult.getDatabaseContext().getDatabase().getEntries(),
-                    fileDirForDatabase,
-                    Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
-        } catch (IOException
-                | SaveException
-                | ParserConfigurationException
-                | TransformerException ex) {
+            exporter.get()
+                .export(parserResult.getDatabaseContext(), outputFile,
+                        parserResult.getDatabaseContext().getDatabase().getEntries(), fileDirForDatabase,
+                        Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
+        }
+        catch (IOException | SaveException | ParserConfigurationException | TransformerException ex) {
             LOGGER.error("Could not export file '{}'.", outputFile, ex);
         }
     }
+
 }

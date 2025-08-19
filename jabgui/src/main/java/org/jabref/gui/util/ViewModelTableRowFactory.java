@@ -26,21 +26,31 @@ import org.jabref.model.strings.StringUtil;
 import org.reactfx.util.TriConsumer;
 
 /**
- * Constructs a {@link TreeTableCell} based on the view model of the row and a bunch of specified converter methods.
+ * Constructs a {@link TreeTableCell} based on the view model of the row and a bunch of
+ * specified converter methods.
  *
  * @param <S> view model
  */
 public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, TableRow<S>> {
 
     private BiConsumer<S, ? super MouseEvent> onMouseClickedEvent;
+
     private Function<S, ContextMenu> contextMenuFactory;
+
     private TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected;
+
     private TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped;
+
     private BiConsumer<S, ? super DragEvent> toOnDragEntered;
+
     private TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragExited;
+
     private TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragOver;
+
     private TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnMouseDragEntered;
+
     private Callback<S, String> toTooltip;
+
     private final Map<PseudoClass, Callback<S, ObservableValue<Boolean>>> pseudoClasses = new HashMap<>();
 
     public ViewModelTableRowFactory<S> withOnMouseClickedEvent(BiConsumer<S, ? super MouseEvent> onMouseClickedEvent) {
@@ -53,7 +63,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDetected(TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
+    public ViewModelTableRowFactory<S> setOnDragDetected(
+            TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
         this.toOnDragDetected = toOnDragDetected;
         return this;
     }
@@ -63,7 +74,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDropped(TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped) {
+    public ViewModelTableRowFactory<S> setOnDragDropped(
+            TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped) {
         this.toOnDragDropped = toOnDragDropped;
         return this;
     }
@@ -77,7 +89,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnMouseDragEntered(TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
+    public ViewModelTableRowFactory<S> setOnMouseDragEntered(
+            TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
         this.toOnMouseDragEntered = toOnDragEntered;
         return this;
     }
@@ -109,7 +122,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass, Callback<S, ObservableValue<Boolean>> toCondition) {
+    public ViewModelTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass,
+            Callback<S, ObservableValue<Boolean>> toCondition) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
@@ -123,9 +137,10 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
 
                 if (empty || getItem() == null) {
                     pseudoClasses.forEach((pseudoClass, toCondition) -> pseudoClassStateChanged(pseudoClass, false));
-                } else {
-                    pseudoClasses.forEach((pseudoClass, toCondition) ->
-                            pseudoClassStateChanged(pseudoClass, toCondition.call(getItem()).getValue()));
+                }
+                else {
+                    pseudoClasses.forEach((pseudoClass, toCondition) -> pseudoClassStateChanged(pseudoClass,
+                            toCondition.call(getItem()).getValue()));
                 }
             }
         };
@@ -222,4 +237,5 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
     public void install(TableView<S> table) {
         table.setRowFactory(this);
     }
+
 }

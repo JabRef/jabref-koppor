@@ -23,15 +23,27 @@ import jakarta.inject.Inject;
 public class ParseLatexResultView extends BaseDialog<Void> {
 
     private final LatexBibEntriesResolverResult resolverResult;
+
     private final BibDatabaseContext databaseContext;
+
     private final Path basePath;
-    @FXML private ListView<ReferenceViewModel> referenceListView;
-    @FXML private CitationsDisplay citationsDisplay;
-    @FXML private ButtonType importButtonType;
-    @Inject private ThemeManager themeManager;
+
+    @FXML
+    private ListView<ReferenceViewModel> referenceListView;
+
+    @FXML
+    private CitationsDisplay citationsDisplay;
+
+    @FXML
+    private ButtonType importButtonType;
+
+    @Inject
+    private ThemeManager themeManager;
+
     private ParseLatexResultViewModel viewModel;
 
-    public ParseLatexResultView(LatexBibEntriesResolverResult resolverResult, BibDatabaseContext databaseContext, Path basePath) {
+    public ParseLatexResultView(LatexBibEntriesResolverResult resolverResult, BibDatabaseContext databaseContext,
+            Path basePath) {
         this.resolverResult = resolverResult;
         this.databaseContext = databaseContext;
         this.basePath = basePath;
@@ -56,15 +68,13 @@ public class ParseLatexResultView extends BaseDialog<Void> {
 
         referenceListView.setItems(viewModel.getReferenceList());
         referenceListView.getSelectionModel().selectFirst();
-        new ViewModelListCellFactory<ReferenceViewModel>()
-                .withGraphic(reference -> {
-                    Text referenceText = new Text(reference.getDisplayText());
-                    if (reference.isHighlighted()) {
-                        referenceText.setStyle("-fx-fill: -fx-accent");
-                    }
-                    return referenceText;
-                })
-                .install(referenceListView);
+        new ViewModelListCellFactory<ReferenceViewModel>().withGraphic(reference -> {
+            Text referenceText = new Text(reference.getDisplayText());
+            if (reference.isHighlighted()) {
+                referenceText.setStyle("-fx-fill: -fx-accent");
+            }
+            return referenceText;
+        }).install(referenceListView);
 
         EasyBind.subscribe(referenceListView.getSelectionModel().selectedItemProperty(),
                 viewModel::activeReferenceChanged);
@@ -72,4 +82,5 @@ public class ParseLatexResultView extends BaseDialog<Void> {
         citationsDisplay.basePathProperty().set(basePath);
         citationsDisplay.setItems(viewModel.getCitationListByReference());
     }
+
 }

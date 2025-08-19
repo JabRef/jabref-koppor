@@ -15,6 +15,7 @@ import org.jabref.model.strings.StringUtil;
 public class FileChecker implements ValueChecker {
 
     private final BibDatabaseContext context;
+
     private final FilePreferences filePreferences;
 
     public FileChecker(BibDatabaseContext context, FilePreferences filePreferences) {
@@ -28,10 +29,10 @@ public class FileChecker implements ValueChecker {
             return Optional.empty();
         }
 
-        List<LinkedFile> linkedFiles = FileFieldParser
-                .parse(value).stream()
-                .filter(file -> !file.isOnlineLink())
-                .toList();
+        List<LinkedFile> linkedFiles = FileFieldParser.parse(value)
+            .stream()
+            .filter(file -> !file.isOnlineLink())
+            .toList();
 
         for (LinkedFile file : linkedFiles) {
             Optional<Path> linkedFile = file.findIn(context, filePreferences);
@@ -42,4 +43,5 @@ public class FileChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

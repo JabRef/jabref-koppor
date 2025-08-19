@@ -18,14 +18,14 @@ import org.jabref.model.entry.types.EntryType;
 public class FieldViewModel {
 
     private final StringProperty displayName = new SimpleStringProperty("");
+
     private final BooleanProperty required = new SimpleBooleanProperty();
+
     private final BooleanProperty multiline = new SimpleBooleanProperty();
+
     private final ObjectProperty<FieldPriority> priorityProperty = new SimpleObjectProperty<>();
 
-    public FieldViewModel(Field field,
-                          Mandatory required,
-                          FieldPriority priorityProperty,
-                          boolean multiline) {
+    public FieldViewModel(Field field, Mandatory required, FieldPriority priorityProperty, boolean multiline) {
         this.displayName.setValue(field.getDisplayName());
         this.required.setValue(required == Mandatory.REQUIRED);
         this.priorityProperty.setValue(priorityProperty);
@@ -58,7 +58,8 @@ public class FieldViewModel {
 
     public Field toField(EntryType type) {
         // If the field name is known by JabRef, JabRef's casing will win.
-        // If the field is not known by JabRef (UnknownField), the new casing will be taken.
+        // If the field is not known by JabRef (UnknownField), the new casing will be
+        // taken.
         Field field = FieldFactory.parseField(type, displayName.getValue());
         if (multiline.getValue()) {
             field.getProperties().add(FieldProperty.MULTILINE_TEXT);
@@ -76,8 +77,8 @@ public class FieldViewModel {
     }
 
     public enum Mandatory {
-        REQUIRED(Localization.lang("Required")),
-        OPTIONAL(Localization.lang("Optional"));
+
+        REQUIRED(Localization.lang("Required")), OPTIONAL(Localization.lang("Optional"));
 
         private final String name;
 
@@ -88,5 +89,7 @@ public class FieldViewModel {
         public String getDisplayName() {
             return name;
         }
+
     }
+
 }

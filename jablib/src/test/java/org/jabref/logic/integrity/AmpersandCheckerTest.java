@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AmpersandCheckerTest {
 
     private final AmpersandChecker checker = new AmpersandChecker();
+
     private final BibEntry entry = new BibEntry();
 
     @ParameterizedTest
@@ -26,8 +27,7 @@ class AmpersandCheckerTest {
     }
 
     private static Stream<Arguments> provideAcceptedInputs() {
-        return Stream.of(
-                Arguments.of(StandardField.TITLE, "No ampersand at all"),
+        return Stream.of(Arguments.of(StandardField.TITLE, "No ampersand at all"),
                 Arguments.of(StandardField.FOREWORD, "Properly escaped \\&"),
                 Arguments.of(StandardField.AUTHOR, "\\& Multiple properly escaped \\&"),
                 Arguments.of(StandardField.BOOKTITLE, "\\\\\\& With multiple backslashes"),
@@ -36,8 +36,7 @@ class AmpersandCheckerTest {
 
                 // Verbatim fields
                 Arguments.of(StandardField.FILE, "one & another.pdf"),
-                Arguments.of(StandardField.URL, "https://example.org?key=value&key2=value2")
-        );
+                Arguments.of(StandardField.URL, "https://example.org?key=value&key2=value2"));
     }
 
     @ParameterizedTest
@@ -48,17 +47,18 @@ class AmpersandCheckerTest {
     }
 
     private static Stream<Arguments> provideUnacceptedInputs() {
-        return Stream.of(
-                Arguments.of("Found 1 unescaped '&'", StandardField.SUBTITLE, "A single &"),
+        return Stream.of(Arguments.of("Found 1 unescaped '&'", StandardField.SUBTITLE, "A single &"),
                 Arguments.of("Found 2 unescaped '&'", StandardField.ABSTRACT, "Multiple \\\\& not properly & escaped"),
                 Arguments.of("Found 1 unescaped '&'", StandardField.AUTHOR, "To many backslashes \\\\&"),
-                Arguments.of("Found 2 unescaped '&'", StandardField.LABEL, "\\\\\\\\& Multiple times \\\\& multiple backslashes"),
+                Arguments.of("Found 2 unescaped '&'", StandardField.LABEL,
+                        "\\\\\\\\& Multiple times \\\\& multiple backslashes"),
 
                 // entryWithEscapedAndUnescapedAmpersand
                 Arguments.of("Found 1 unescaped '&'", StandardField.TITLE, "Jack \\& Jill & more"),
 
                 // entryWithMultipleEscapedAndUnescapedAmpersands
-                Arguments.of("Found 4 unescaped '&'", StandardField.AFTERWORD, "May the force be with you & live long \\\\& prosper \\& to infinity \\\\\\& beyond & assemble \\\\\\\\& excelsior!")
-        );
+                Arguments.of("Found 4 unescaped '&'", StandardField.AFTERWORD,
+                        "May the force be with you & live long \\\\& prosper \\& to infinity \\\\\\& beyond & assemble \\\\\\\\& excelsior!"));
     }
+
 }

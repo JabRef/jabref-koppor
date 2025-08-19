@@ -8,8 +8,10 @@ import org.jabref.model.entry.BibEntry;
 ///
 /// TODO: Implement CLI conflict resolution or integrate external merge tool.
 public class CliGitConflictResolverStrategy implements GitConflictResolverStrategy {
+
     @Override
     public List<BibEntry> resolveConflicts(List<ThreeWayEntryConflict> conflicts) {
         return List.of();
     }
+
 }

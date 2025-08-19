@@ -27,12 +27,13 @@ import static org.mockito.Mockito.when;
 class GuiPreferencesMigrationsTest {
 
     private JabRefGuiPreferences preferences;
+
     private Preferences mainPrefsNode;
 
-    private final String[] oldStylePatterns = new String[]{"\\bibtexkey",
-            "\\bibtexkey\\begin{title} - \\format[RemoveBrackets]{\\title}\\end{title}"};
-    private final String[] newStylePatterns = new String[]{"[citationkey]",
-            "[citationkey] - [title]"};
+    private final String[] oldStylePatterns = new String[] { "\\bibtexkey",
+            "\\bibtexkey\\begin{title} - \\format[RemoveBrackets]{\\title}\\end{title}" };
+
+    private final String[] newStylePatterns = new String[] { "[citationkey]", "[citationkey] - [title]" };
 
     @BeforeEach
     void setUp() {
@@ -101,7 +102,8 @@ class GuiPreferencesMigrationsTest {
 
     @Test
     void upgradeColumnPreferencesAlreadyMigrated() {
-        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle",
+                "citationkey", "printed");
         List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
 
         when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(columnNames);
@@ -115,11 +117,15 @@ class GuiPreferencesMigrationsTest {
 
     @Test
     void upgradeColumnPreferencesFromWithoutTypes() {
-        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle",
+                "citationkey", "printed");
         List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
-        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype", "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey", "special:printed");
+        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype",
+                "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey",
+                "special:printed");
         List<String> updatedWidths = Arrays.asList("28", "28", "28", "75", "300", "470", "60", "130", "100", "30");
-        List<String> newSortTypes = Arrays.asList("ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING");
+        List<String> newSortTypes = Arrays.asList("ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING",
+                "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING");
 
         when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(columnNames);
         when(preferences.getStringList(JabRefGuiPreferences.COLUMN_WIDTHS)).thenReturn(columnWidths);
@@ -133,10 +139,12 @@ class GuiPreferencesMigrationsTest {
 
     @Test
     void changeColumnPreferencesVariableNamesFor51() {
-        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle",
+                "citationkey", "printed");
         List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
 
-        // The variable names have to be hardcoded, because they have changed between 5.0 and 5.1
+        // The variable names have to be hardcoded, because they have changed between 5.0
+        // and 5.1
         when(preferences.getStringList("columnNames")).thenReturn(columnNames);
         when(preferences.getStringList("columnWidths")).thenReturn(columnWidths);
         when(preferences.getStringList("mainTableColumnSortTypes")).thenReturn(columnNames);
@@ -157,10 +165,12 @@ class GuiPreferencesMigrationsTest {
 
     @Test
     void changeColumnPreferencesVariableNamesBackwardsCompatibility() {
-        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle",
+                "citationkey", "printed");
         List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
 
-        // The variable names have to be hardcoded, because they have changed between 5.0 and 5.1
+        // The variable names have to be hardcoded, because they have changed between 5.0
+        // and 5.1
         when(preferences.getStringList("columnNames")).thenReturn(columnNames);
         when(preferences.getStringList("columnWidths")).thenReturn(columnWidths);
         when(preferences.getStringList("mainTableColumnSortTypes")).thenReturn(columnNames);
@@ -181,8 +191,11 @@ class GuiPreferencesMigrationsTest {
 
     @Test
     void restoreColumnVariablesForBackwardCompatibility() {
-        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype", "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey", "special:printed");
-        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype",
+                "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey",
+                "special:printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle",
+                "citationkey", "printed");
         List<String> columnWidths = Arrays.asList("100", "100", "100", "100", "100", "100", "100");
 
         when(preferences.getStringList("columnNames")).thenReturn(updatedNames);
@@ -205,7 +218,8 @@ class GuiPreferencesMigrationsTest {
         final String V5_9_FETCHER_CUSTOM_KEYS = "fetcherCustomKeys";
         final Keyring keyring = mock(Keyring.class);
 
-        when(preferences.getStringList(V5_9_FETCHER_CUSTOM_KEY_NAMES)).thenReturn(List.of("FetcherA", "FetcherB", "FetcherC"));
+        when(preferences.getStringList(V5_9_FETCHER_CUSTOM_KEY_NAMES))
+            .thenReturn(List.of("FetcherA", "FetcherB", "FetcherC"));
         when(preferences.getStringList(V5_9_FETCHER_CUSTOM_KEYS)).thenReturn(List.of("KeyA", "KeyB", "KeyC"));
         when(preferences.getInternalPreferences().getUserAndHost()).thenReturn("user-host");
 
@@ -230,4 +244,5 @@ class GuiPreferencesMigrationsTest {
         PreferencesMigrations.upgradeResolveBibTeXStringsFields(preferences);
         verify(preferences).put(JabRefCliPreferences.RESOLVE_STRINGS_FOR_FIELDS, expectedValue);
     }
+
 }

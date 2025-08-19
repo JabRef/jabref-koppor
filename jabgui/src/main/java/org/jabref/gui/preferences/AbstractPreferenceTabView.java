@@ -10,11 +10,17 @@ import org.jabref.logic.util.TaskExecutor;
 
 import jakarta.inject.Inject;
 
-public abstract class AbstractPreferenceTabView<T extends PreferenceTabViewModel> extends VBox implements PreferencesTab {
+public abstract class AbstractPreferenceTabView<T extends PreferenceTabViewModel> extends VBox
+        implements PreferencesTab {
 
-    @Inject protected TaskExecutor taskExecutor;
-    @Inject protected DialogService dialogService;
-    @Inject protected GuiPreferences preferences;
+    @Inject
+    protected TaskExecutor taskExecutor;
+
+    @Inject
+    protected DialogService dialogService;
+
+    @Inject
+    protected GuiPreferences preferences;
 
     protected T viewModel;
 
@@ -42,4 +48,5 @@ public abstract class AbstractPreferenceTabView<T extends PreferenceTabViewModel
     public List<String> getRestartWarnings() {
         return viewModel.getRestartWarnings();
     }
+
 }

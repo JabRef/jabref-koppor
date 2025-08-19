@@ -18,7 +18,9 @@ public class DiffHighlighting {
         List<String> baseStringSplit = Arrays.asList(baseString.split(separator));
         List<String> modifiedStringSplit = Arrays.asList(modifiedString.split(separator));
         List<AbstractDelta<String>> deltaList = DiffUtils.diff(baseStringSplit, modifiedStringSplit).getDeltas();
-        List<Text> result = baseStringSplit.stream().map(text -> forUnchanged(text + separator)).collect(Collectors.toList());
+        List<Text> result = baseStringSplit.stream()
+            .map(text -> forUnchanged(text + separator))
+            .collect(Collectors.toList());
         for (AbstractDelta<String> delta : deltaList.reversed()) {
             int startPos = delta.getSource().getPosition();
             List<String> lines = delta.getSource().getLines();
@@ -29,7 +31,8 @@ public class DiffHighlighting {
                         result.set(startPos + offset, forRemoved(line + separator));
                         offset++;
                     }
-                    result.set(startPos + offset - 1, forRemoved(baseStringSplit.get((startPos + offset) - 1) + separator));
+                    result.set(startPos + offset - 1,
+                            forRemoved(baseStringSplit.get((startPos + offset) - 1) + separator));
                     result.add(startPos + offset, forAdded(String.join(separator, delta.getTarget().getLines())));
                     break;
                 case DELETE:
@@ -39,7 +42,8 @@ public class DiffHighlighting {
                     }
                     break;
                 case INSERT:
-                    result.add(delta.getSource().getPosition(), forAdded(String.join(separator, delta.getTarget().getLines())));
+                    result.add(delta.getSource().getPosition(),
+                            forAdded(String.join(separator, delta.getTarget().getLines())));
                     break;
                 default:
                     break;
@@ -71,4 +75,5 @@ public class DiffHighlighting {
         node.getStyleClass().add("text-removed");
         return node;
     }
+
 }

@@ -17,8 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.mock;
 
 class EditFieldContentTabViewModelTest {
+
     EditFieldContentViewModel editFieldContentViewModel;
+
     BibEntry entryA;
+
     BibEntry entryB;
 
     BibDatabase bibDatabase;
@@ -27,13 +30,11 @@ class EditFieldContentTabViewModelTest {
 
     @BeforeEach
     void setup() {
-        entryA = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.YEAR, "2015")
-                .withField(StandardField.DATE, "2014");
+        entryA = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.YEAR, "2015")
+            .withField(StandardField.DATE, "2014");
 
-        entryB = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.DATE, "1998")
-                .withField(StandardField.YEAR, "");
+        entryB = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.DATE, "1998")
+            .withField(StandardField.YEAR, "");
 
         bibDatabase = new BibDatabase();
         editFieldContentViewModel = new EditFieldContentViewModel(bibDatabase, List.of(entryA, entryB), stateManager);
@@ -115,4 +116,5 @@ class EditFieldContentTabViewModelTest {
     void getSelectedFieldShouldHaveADefaultValue() {
         assertNotEquals(null, editFieldContentViewModel.getSelectedField());
     }
+
 }

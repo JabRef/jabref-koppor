@@ -47,23 +47,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultLinkedFilesIndexer implements LuceneIndexer {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLinkedFilesIndexer.class);
+
     private static final DocumentReader DOCUMENT_READER = new DocumentReader();
+
     private static int NUMBER_OF_UNSAVED_LIBRARIES = 1;
 
     private final BibDatabaseContext databaseContext;
+
     private final FilePreferences filePreferences;
+
     private final String libraryName;
+
     private final Directory indexDirectory;
+
     private final IndexWriter indexWriter;
+
     private final SearcherManager searcherManager;
+
     private Path indexDirectoryPath;
+
     private Map<String, Long> indexedFiles;
 
-    public DefaultLinkedFilesIndexer(BibDatabaseContext databaseContext, FilePreferences filePreferences) throws IOException {
+    public DefaultLinkedFilesIndexer(BibDatabaseContext databaseContext, FilePreferences filePreferences)
+            throws IOException {
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
-        this.libraryName = databaseContext.getDatabasePath().map(path -> path.getFileName().toString()).orElse("untitled");
+        this.libraryName = databaseContext.getDatabasePath()
+            .map(path -> path.getFileName().toString())
+            .orElse("untitled");
         this.indexedFiles = new ConcurrentHashMap<>();
 
         indexDirectoryPath = databaseContext.getFulltextIndexPath();
@@ -90,8 +103,10 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             if (!currentFiles.containsKey(fileLink)) {
                 LOGGER.debug("File {} has been removed from the library. Will be removed from the index", fileLink);
                 filesToRemove.add(fileLink);
-            } else if (currentFiles.get(fileLink).getKey() > modification) {
-                LOGGER.debug("File {} has been modified since last indexing. Will be removed from the index.", fileLink);
+            }
+            else if (currentFiles.get(fileLink).getKey() > modification) {
+                LOGGER.debug("File {} has been modified since last indexing. Will be removed from the index.",
+                        fileLink);
                 filesToRemove.add(fileLink);
             }
         }
@@ -143,9 +158,11 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 return;
             }
             addToIndex(entry.getKey(), entry.getValue().getKey(), entry.getValue().getValue());
-            task.setTitle(Localization.lang("Indexing files for %1 | %2 of %0 file(s) indexed.", linkedFiles.size(), libraryName, i));
+            task.setTitle(Localization.lang("Indexing files for %1 | %2 of %0 file(s) indexed.", linkedFiles.size(),
+                    libraryName, i));
             task.updateProgress(i, linkedFiles.size());
-            task.updateMessage(Localization.lang("Indexing %0", FileUtil.shortenFileName(entry.getValue().getValue().getFileName().toString(), 68)));
+            task.updateMessage(Localization.lang("Indexing %0",
+                    FileUtil.shortenFileName(entry.getValue().getValue().getFileName().toString(), 68)));
             task.showToUser(true);
             i++;
         }
@@ -158,7 +175,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
         try {
             indexWriter.addDocuments(pages);
             indexedFiles.put(fileLink, modifiedTime);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not add the document {} to the index.", fileLink, e);
         }
     }
@@ -177,16 +195,14 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             }
         }
 
-        Set<String> filesToRemove = linkedFiles.stream()
-                                               .filter(link -> {
-                                                   Set<BibEntry> entriesLinkedToFile = currentFiles.get(link);
-                                                   if (entriesLinkedToFile != null) {
-                                                       entriesLinkedToFile.removeAll(entriesToRemove);
-                                                       return entriesLinkedToFile.isEmpty();
-                                                   }
-                                                   return true;
-                                               })
-                                               .collect(Collectors.toSet());
+        Set<String> filesToRemove = linkedFiles.stream().filter(link -> {
+            Set<BibEntry> entriesLinkedToFile = currentFiles.get(link);
+            if (entriesLinkedToFile != null) {
+                entriesLinkedToFile.removeAll(entriesToRemove);
+                return entriesLinkedToFile.isEmpty();
+            }
+            return true;
+        }).collect(Collectors.toSet());
         removeFromIndex(filesToRemove);
     }
 
@@ -196,7 +212,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 LOGGER.debug("Removing file {} from index.", fileLink);
                 indexWriter.deleteDocuments(new Term(LinkedFilesConstants.PATH.toString(), fileLink));
                 indexedFiles.remove(fileLink);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.warn("Could not remove linked file {} from index.", fileLink, e);
             }
         }
@@ -223,7 +240,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             indexWriter.deleteAll();
             indexedFiles.clear();
             LOGGER.debug("Removed all linked files");
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error removing all linked files from index", e);
         }
     }
@@ -252,7 +270,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 }
             }
             searcherManager.release(searcher);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error getting linked files from index", e);
         }
         return linkedFiles;
@@ -278,13 +297,15 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
         }
         Optional<Path> resolvedPath = linkedFile.findIn(databaseContext, filePreferences);
         if (resolvedPath.isEmpty()) {
-            LOGGER.debug("Could not resolve path of linked file {}. The file will not be indexed.", linkedFile.getLink());
+            LOGGER.debug("Could not resolve path of linked file {}. The file will not be indexed.",
+                    linkedFile.getLink());
             return null;
         }
         try {
             long fsModifiedTime = Files.getLastModifiedTime(resolvedPath.get()).to(TimeUnit.SECONDS);
             return new Pair<>(fsModifiedTime, resolvedPath.get());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not check the modification time of file {}.", linkedFile.getLink(), e);
             return null;
         }
@@ -296,14 +317,16 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             try {
                 LOGGER.debug("Forcing merge deletes");
                 indexWriter.forceMergeDeletes(true);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.warn("Could not force merge deletes.", e);
             }
         }
         try {
             LOGGER.debug("Forcing merge segments to 1 segment");
             indexWriter.forceMerge(1, true);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not force merge segments.", e);
         }
     }
@@ -335,8 +358,10 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 LOGGER.debug("Deleting unsaved index directory");
                 FileUtils.deleteDirectory(indexDirectoryPath.toFile());
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error while closing linked files index", e);
         }
     }
+
 }

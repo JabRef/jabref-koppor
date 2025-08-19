@@ -23,7 +23,9 @@ public class CompositeIdFetcher {
     }
 
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-        // All identifiers listed here should also be appear at {@link org.jabref.gui.mergeentries.FetchAndMergeEntry.SUPPORTED_FIELDS} and vice versa.
+        // All identifiers listed here should also be appear at {@link
+        // org.jabref.gui.mergeentries.FetchAndMergeEntry.SUPPORTED_FIELDS} and vice
+        // versa.
 
         Optional<DOI> doi = DOI.findInText(identifier);
         if (doi.isPresent()) {
@@ -36,15 +38,18 @@ public class CompositeIdFetcher {
         Optional<ISBN> isbn = ISBN.parse(identifier);
         if (isbn.isPresent()) {
             return new IsbnFetcher(importFormatPreferences)
-                    // .addRetryFetcher(new EbookDeIsbnFetcher(importFormatPreferences))
-                    // .addRetryFetcher(new DoiToBibtexConverterComIsbnFetcher(importFormatPreferences))
-                    .performSearchById(isbn.get().asString());
+                // .addRetryFetcher(new EbookDeIsbnFetcher(importFormatPreferences))
+                // .addRetryFetcher(new
+                // DoiToBibtexConverterComIsbnFetcher(importFormatPreferences))
+                .performSearchById(isbn.get().asString());
         }
-        /* TODO: IACR is currently disabled, because it needs to be reworked: https://github.com/JabRef/jabref/issues/8876
-        Optional<IacrEprint> iacrEprint = IacrEprint.parse(identifier);
-        if (iacrEprint.isPresent()) {
-            return new IacrEprintFetcher(importFormatPreferences).performSearchById(iacrEprint.get().getNormalized());
-        }*/
+        /*
+         * TODO: IACR is currently disabled, because it needs to be reworked:
+         * https://github.com/JabRef/jabref/issues/8876 Optional<IacrEprint> iacrEprint =
+         * IacrEprint.parse(identifier); if (iacrEprint.isPresent()) { return new
+         * IacrEprintFetcher(importFormatPreferences).performSearchById(iacrEprint.get().
+         * getNormalized()); }
+         */
 
         Optional<SSRN> ssrn = SSRN.parse(identifier);
         if (ssrn.isPresent()) {
@@ -66,4 +71,5 @@ public class CompositeIdFetcher {
     public static boolean containsValidId(String identifier) {
         return Identifier.from(identifier).isPresent();
     }
+
 }

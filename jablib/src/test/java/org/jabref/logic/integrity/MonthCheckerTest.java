@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class MonthCheckerTest {
 
     private MonthChecker checker;
+
     private MonthChecker checkerBiblatex;
 
     @BeforeEach
@@ -80,4 +81,5 @@ class MonthCheckerTest {
     void bibLaTexAcceptsInteger() {
         assertEquals(Optional.empty(), checkerBiblatex.checkValue("10"));
     }
+
 }

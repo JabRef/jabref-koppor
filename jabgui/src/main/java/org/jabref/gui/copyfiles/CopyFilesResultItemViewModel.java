@@ -13,7 +13,9 @@ import org.jabref.gui.icon.JabRefIcon;
 public class CopyFilesResultItemViewModel {
 
     private final StringProperty file = new SimpleStringProperty("");
+
     private final ObjectProperty<JabRefIcon> icon = new SimpleObjectProperty<>(IconTheme.JabRefIcons.WARNING);
+
     private final StringProperty message = new SimpleStringProperty("");
 
     public CopyFilesResultItemViewModel(Path file, boolean success, String message) {
@@ -40,4 +42,5 @@ public class CopyFilesResultItemViewModel {
     public String toString() {
         return "CopyFilesResultItemViewModel [file=" + file.get() + ", message=" + message.get() + "]";
     }
+
 }

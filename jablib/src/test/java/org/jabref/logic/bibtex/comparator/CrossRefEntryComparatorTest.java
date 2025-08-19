@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CrossRefEntryComparatorTest {
+
     private CrossRefEntryComparator comparator;
 
     @BeforeEach
@@ -53,4 +54,5 @@ class CrossRefEntryComparatorTest {
         BibEntry e2 = new BibEntry();
         assertEquals(-1, comparator.compare(e1, e2));
     }
+
 }

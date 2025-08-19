@@ -18,7 +18,8 @@ public class GuiPushToEmacs extends PushToEmacs implements GuiPushToApplication 
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
+    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
         return new GuiPushToEmacsSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
     }
 
@@ -31,4 +32,5 @@ public class GuiPushToEmacs extends PushToEmacs implements GuiPushToApplication 
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

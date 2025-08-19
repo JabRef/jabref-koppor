@@ -19,8 +19,7 @@ class RisMonthTest {
     }
 
     @ParameterizedTest(name = "input={0}, formattedStr={1}")
-    @CsvSource({
-            "jan, 01", // jan
+    @CsvSource({ "jan, 01", // jan
             "feb, 02", // feb
             "mar, 03", // mar
             "apr, 04", // apr
@@ -42,4 +41,5 @@ class RisMonthTest {
     void invalidMonth() {
         assertEquals("abcd", new RisMonth().format("abcd"));
     }
+
 }

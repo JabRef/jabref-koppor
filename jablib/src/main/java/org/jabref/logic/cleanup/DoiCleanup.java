@@ -17,7 +17,8 @@ import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.DOI;
 
 /**
- * Formats the DOI (e.g. removes http part) and also infers DOIs from the note, url, eprint or ee fields.
+ * Formats the DOI (e.g. removes http part) and also infers DOIs from the note, url,
+ * eprint or ee fields.
  */
 public class DoiCleanup implements CleanupJob {
 
@@ -52,12 +53,15 @@ public class DoiCleanup implements CleanupJob {
 
                 // Doi field seems to contain Doi -> cleanup note, url, ee field
                 for (Field field : FIELDS) {
-                    entry.getField(field).flatMap(DOI::parse)
-                         .ifPresent(unused -> removeFieldValue(entry, field, changes));
+                    entry.getField(field)
+                        .flatMap(DOI::parse)
+                        .ifPresent(unused -> removeFieldValue(entry, field, changes));
                 }
             }
-        } else {
-            // As the Doi field is empty we now check if note, url, or ee field contains a Doi
+        }
+        else {
+            // As the Doi field is empty we now check if note, url, or ee field contains a
+            // Doi
             for (Field field : FIELDS) {
                 Optional<String> fieldContentOpt = entry.getField(field);
 
@@ -72,11 +76,11 @@ public class DoiCleanup implements CleanupJob {
 
                 if (StandardField.EPRINT == field) {
                     fieldContentOpt.flatMap(ArXivIdentifier::parse)
-                                   .flatMap(ArXivIdentifier::inferDOI)
-                                   .ifPresent(inferredDoi -> {
-                                       Optional<FieldChange> change = entry.setField(StandardField.DOI, inferredDoi.asString());
-                                       change.ifPresent(changes::add);
-                                   });
+                        .flatMap(ArXivIdentifier::inferDOI)
+                        .ifPresent(inferredDoi -> {
+                            Optional<FieldChange> change = entry.setField(StandardField.DOI, inferredDoi.asString());
+                            change.ifPresent(changes::add);
+                        });
                 }
             }
         }
@@ -87,4 +91,5 @@ public class DoiCleanup implements CleanupJob {
         CleanupJob eraser = new FieldFormatterCleanup(field, new ClearFormatter());
         changes.addAll(eraser.cleanup(entry));
     }
+
 }

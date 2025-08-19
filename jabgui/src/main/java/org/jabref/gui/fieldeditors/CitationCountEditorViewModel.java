@@ -22,24 +22,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CitationCountEditorViewModel extends AbstractEditorViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CitationCountEditorViewModel.class);
 
     protected final BooleanProperty fetchCitationCountInProgress = new SimpleBooleanProperty(false);
+
     private final TaskExecutor taskExecutor;
+
     private final DialogService dialogService;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
+
     private final SearchCitationsRelationsService searchCitationsRelationsService;
-    public CitationCountEditorViewModel(
-            Field field,
-            SuggestionProvider<?> suggestionProvider,
-            FieldCheckers fieldCheckers,
-            TaskExecutor taskExecutor,
-            DialogService dialogService,
-            UndoManager undoManager,
-            StateManager stateManager,
-            GuiPreferences preferences,
+
+    public CitationCountEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers, TaskExecutor taskExecutor, DialogService dialogService,
+            UndoManager undoManager, StateManager stateManager, GuiPreferences preferences,
             SearchCitationsRelationsService searchCitationsRelationsService) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.taskExecutor = taskExecutor;
@@ -61,14 +63,18 @@ public class CitationCountEditorViewModel extends AbstractEditorViewModel {
     public void getCitationCount() {
         Optional<String> fieldContent = entry.getField(field);
         BackgroundTask.wrap(() -> searchCitationsRelationsService.getCitationCount(this.entry, fieldContent))
-                      .onRunning(() -> fetchCitationCountInProgress.setValue(true))
-                      .onFinished(() -> fetchCitationCountInProgress.setValue(false))
-                      .onFailure(e -> {
-                          dialogService.notify(Localization.lang("Error occurred when getting citation count, please try again or check the identifier.\n\n%0", e.getLocalizedMessage()));
-                          LOGGER.error("Error while fetching citation count", e);
-                      })
-                      .onSuccess(identifier -> {
-                          entry.setField(field, String.valueOf(identifier));
-                      }).executeWith(taskExecutor);
+            .onRunning(() -> fetchCitationCountInProgress.setValue(true))
+            .onFinished(() -> fetchCitationCountInProgress.setValue(false))
+            .onFailure(e -> {
+                dialogService.notify(Localization.lang(
+                        "Error occurred when getting citation count, please try again or check the identifier.\n\n%0",
+                        e.getLocalizedMessage()));
+                LOGGER.error("Error while fetching citation count", e);
+            })
+            .onSuccess(identifier -> {
+                entry.setField(field, String.valueOf(identifier));
+            })
+            .executeWith(taskExecutor);
     }
+
 }

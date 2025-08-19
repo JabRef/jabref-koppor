@@ -7,11 +7,15 @@ import java.util.Optional;
  * Enumerates all supported database systems (DBMS) by JabRef.
  */
 public enum DBMSType {
+
     POSTGRESQL("PostgreSQL", "org.postgresql.Driver", "jdbc:postgresql://%s:%d/%s", 5432);
 
     private final String type;
+
     private final String driverPath;
+
     private final String urlPattern;
+
     private final int defaultPort;
 
     DBMSType(String type, String driverPath, String urlPattern, int defaultPort) {
@@ -50,4 +54,5 @@ public enum DBMSType {
     public int getDefaultPort() {
         return this.defaultPort;
     }
+
 }

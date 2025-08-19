@@ -38,12 +38,15 @@ import org.slf4j.LoggerFactory;
  * @see <a href="https://dev.springernature.com/">API documentation</a> for more details
  */
 public class SpringerFetcher implements PagedSearchBasedParserFetcher, CustomizableKeyFetcher {
+
     public static final String FETCHER_NAME = "Springer";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringerFetcher.class);
 
     private static final String API_URL = "https://api.springernature.com/meta/v1/json";
-    // Springer query using the parameter 'q=doi:10.1007/s11276-008-0131-4s=1' will respond faster
+
+    // Springer query using the parameter 'q=doi:10.1007/s11276-008-0131-4s=1' will
+    // respond faster
     private static final String TEST_URL_WITHOUT_API_KEY = "https://api.springernature.com/meta/v1/json?q=doi:10.1007/s11276-008-0131-4s=1&p=1&api_key=";
 
     private final ImporterPreferences importerPreferences;
@@ -53,15 +56,16 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
     }
 
     /**
-     * Convert a JSONObject obtained from <a href="http://api.springer.com/metadata/json">http://api.springer.com/metadata/json</a> to a BibEntry
-     *
+     * Convert a JSONObject obtained from <a href=
+     * "http://api.springer.com/metadata/json">http://api.springer.com/metadata/json</a>
+     * to a BibEntry
      * @param springerJsonEntry the JSONObject from search results
      * @return the converted BibEntry
      */
     public static BibEntry parseSpringerJSONtoBibtex(JSONObject springerJsonEntry) {
         // Fields that are directly accessible at the top level Json object
-        Field[] singleFieldStrings = {StandardField.ISSN, StandardField.VOLUME, StandardField.ABSTRACT, StandardField.DOI, StandardField.TITLE, StandardField.NUMBER,
-                StandardField.PUBLISHER};
+        Field[] singleFieldStrings = { StandardField.ISSN, StandardField.VOLUME, StandardField.ABSTRACT,
+                StandardField.DOI, StandardField.TITLE, StandardField.NUMBER, StandardField.PUBLISHER };
 
         BibEntry entry = new BibEntry();
         Field nametype;
@@ -72,7 +76,8 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
             // Probably article
             entry.setType(StandardEntryType.Article);
             nametype = StandardField.JOURNAL;
-        } else {
+        }
+        else {
             // Probably book chapter or from proceeding, go for book chapter
             entry.setType(StandardEntryType.InCollection);
             nametype = StandardField.BOOKTITLE;
@@ -86,12 +91,14 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
             for (int i = 0; i < authors.length(); i++) {
                 if (authors.getJSONObject(i).has("creator")) {
                     authorList.add(authors.getJSONObject(i).getString("creator"));
-                } else {
+                }
+                else {
                     LOGGER.info("Empty author name.");
                 }
             }
             entry.setField(StandardField.AUTHOR, String.join(" and ", authorList));
-        } else {
+        }
+        else {
             LOGGER.info("No author found.");
         }
 
@@ -110,7 +117,8 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
             if (springerJsonEntry.has("endingPage") && !springerJsonEntry.getString("endingPage").isEmpty()) {
                 entry.setField(StandardField.PAGES,
                         springerJsonEntry.getString("startingPage") + "--" + springerJsonEntry.getString("endingPage"));
-            } else {
+            }
+            else {
                 entry.setField(StandardField.PAGES, springerJsonEntry.getString("startingPage"));
             }
         }
@@ -125,13 +133,15 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
             JSONArray urls = springerJsonEntry.optJSONArray("url");
             if (urls == null) {
                 entry.setField(StandardField.URL, springerJsonEntry.optString("url"));
-            } else {
+            }
+            else {
                 urls.forEach(data -> {
                     JSONObject url = (JSONObject) data;
                     if ("pdf".equalsIgnoreCase(url.optString("format"))) {
                         try {
                             entry.addFile(new LinkedFile(URLUtil.create(url.optString("value")), "PDF"));
-                        } catch (MalformedURLException e) {
+                        }
+                        catch (MalformedURLException e) {
                             LOGGER.info("Malformed URL: {}", url.optString("value"));
                         }
                     }
@@ -176,17 +186,23 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
 
     /**
      * Gets the query URL
-     *
      * @param luceneQuery the search query
-     * @param pageNumber  the number of the page indexed from 0
+     * @param pageNumber the number of the page indexed from 0
      * @return URL
      */
     @Override
     public URL getURLForQuery(QueryNode luceneQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(API_URL);
-        uriBuilder.addParameter("q", new SpringerQueryTransformer().transformLuceneQuery(luceneQuery).orElse("")); // Search query
-        importerPreferences.getApiKey(getName()).ifPresent(key -> uriBuilder.addParameter("api_key", key)); // API key
-        uriBuilder.addParameter("s", String.valueOf(getPageSize() * pageNumber + 1)); // Start entry, starts indexing at 1
+        uriBuilder.addParameter("q", new SpringerQueryTransformer().transformLuceneQuery(luceneQuery).orElse("")); // Search
+                                                                                                                   // query
+        importerPreferences.getApiKey(getName()).ifPresent(key -> uriBuilder.addParameter("api_key", key)); // API
+                                                                                                            // key
+        uriBuilder.addParameter("s", String.valueOf(getPageSize() * pageNumber + 1)); // Start
+                                                                                      // entry,
+                                                                                      // starts
+                                                                                      // indexing
+                                                                                      // at
+                                                                                      // 1
         uriBuilder.addParameter("p", String.valueOf(getPageSize())); // Page size
         return uriBuilder.build().toURL();
     }
@@ -196,7 +212,8 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
         complexSearchQuery.getAuthors().forEach(author -> searchTerms.add("name:" + author));
         complexSearchQuery.getTitlePhrases().forEach(title -> searchTerms.add("title:" + title));
         complexSearchQuery.getJournal().ifPresent(journal -> searchTerms.add("journal:" + journal));
-        // Since Springer API does not support year range search, we ignore formYear and toYear and use "singleYear" only
+        // Since Springer API does not support year range search, we ignore formYear and
+        // toYear and use "singleYear" only
         complexSearchQuery.getSingleYear().ifPresent(year -> searchTerms.add("date:" + year + "*"));
         searchTerms.addAll(complexSearchQuery.getDefaultFieldPhrases());
         return String.join(" AND ", searchTerms);
@@ -205,7 +222,8 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream)).lines()
+                .collect(Collectors.joining(OS.NEWLINE));
             JSONObject jsonObject = new JSONObject(response);
 
             List<BibEntry> entries = new ArrayList<>();
@@ -221,4 +239,5 @@ public class SpringerFetcher implements PagedSearchBasedParserFetcher, Customiza
             return entries;
         };
     }
+
 }

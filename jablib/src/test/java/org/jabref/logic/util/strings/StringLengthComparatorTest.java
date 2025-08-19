@@ -25,25 +25,17 @@ class StringLengthComparatorTest {
     }
 
     private static Stream<Arguments> tests() {
-        return Stream.of(
-                Arguments.of(-1, "AAA", "AA"),
-                Arguments.of(0, "AA", "AA"),
-                Arguments.of(1, "AA", "AAA"),
+        return Stream.of(Arguments.of(-1, "AAA", "AA"), Arguments.of(0, "AA", "AA"), Arguments.of(1, "AA", "AAA"),
 
                 // empty strings
-                Arguments.of(-1, "A", ""),
-                Arguments.of(0, "", ""),
-                Arguments.of(1, "", "A"),
+                Arguments.of(-1, "A", ""), Arguments.of(0, "", ""), Arguments.of(1, "", "A"),
 
                 // backslash
-                Arguments.of(-1, "\\\\", "A"),
-                Arguments.of(0, "\\", "A"),
-                Arguments.of(0, "\\", "\\"),
-                Arguments.of(0, "A", "\\"),
-                Arguments.of(1, "A", "\\\\"),
+                Arguments.of(-1, "\\\\", "A"), Arguments.of(0, "\\", "A"), Arguments.of(0, "\\", "\\"),
+                Arguments.of(0, "A", "\\"), Arguments.of(1, "A", "\\\\"),
 
                 // empty string + backslash
-                Arguments.of(-1, "\\", ""),
-                Arguments.of(1, "", "\\"));
+                Arguments.of(-1, "\\", ""), Arguments.of(1, "", "\\"));
     }
+
 }

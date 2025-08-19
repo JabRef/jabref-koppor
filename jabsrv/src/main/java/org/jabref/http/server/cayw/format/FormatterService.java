@@ -11,6 +11,7 @@ import org.jvnet.hk2.annotations.Service;
 public class FormatterService {
 
     private static final String DEFAULT_FORMATTER = "biblatex";
+
     private final Map<String, CAYWFormatter> formatters;
 
     public FormatterService() {
@@ -26,4 +27,5 @@ public class FormatterService {
     public CAYWFormatter getFormatter(CAYWQueryParams queryParams) {
         return formatters.getOrDefault(queryParams.getFormat().toLowerCase(), formatters.get(DEFAULT_FORMATTER));
     }
+
 }

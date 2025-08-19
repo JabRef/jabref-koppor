@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class MrDLibImporterTest {
 
     private MrDLibImporter importer;
+
     private BufferedReader input;
 
     @BeforeEach
@@ -33,8 +34,7 @@ class MrDLibImporterTest {
 
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
 
-        assertEquals("2006",
-                resultList.getFirst().getFieldLatexFree(StandardField.YEAR).get());
+        assertEquals("2006", resultList.getFirst().getFieldLatexFree(StandardField.YEAR).get());
     }
 
     @Test
@@ -43,7 +43,8 @@ class MrDLibImporterTest {
 
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
 
-        assertEquals("The protection of rural lands with the spatial development strategy on the case of Hrastnik commune",
+        assertEquals(
+                "The protection of rural lands with the spatial development strategy on the case of Hrastnik commune",
                 resultList.getFirst().getFieldLatexFree(StandardField.TITLE).get());
     }
 
@@ -55,4 +56,5 @@ class MrDLibImporterTest {
 
         assertSame(5, resultList.size());
     }
+
 }

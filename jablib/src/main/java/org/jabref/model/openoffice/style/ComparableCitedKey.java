@@ -12,5 +12,5 @@ public interface ComparableCitedKey {
     String getCitationKey();
 
     Optional<BibEntry> getBibEntry();
-}
 
+}

@@ -41,7 +41,8 @@ public class FileHistory extends ModifiableObservableListBase<Path> {
     }
 
     /**
-     * Adds the file to the top of the list. If it already is in the list, it is merely moved to the top.
+     * Adds the file to the top of the list. If it already is in the list, it is merely
+     * moved to the top.
      */
     public void newFile(Path file) {
         removeItem(file);
@@ -58,4 +59,5 @@ public class FileHistory extends ModifiableObservableListBase<Path> {
     public static FileHistory of(List<Path> list) {
         return new FileHistory(new ArrayList<>(list));
     }
+
 }

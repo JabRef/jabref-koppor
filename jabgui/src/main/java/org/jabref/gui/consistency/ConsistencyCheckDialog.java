@@ -37,25 +37,32 @@ import jakarta.inject.Inject;
 
 public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
-    @FXML private TableView<ConsistencyMessage> tableView;
-    @FXML private ComboBox<String> entryTypeCombo;
+    @FXML
+    private TableView<ConsistencyMessage> tableView;
 
-    @Inject private StateManager stateManager;
-    @Inject private EntryEditor entryEditor;
+    @FXML
+    private ComboBox<String> entryTypeCombo;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private EntryEditor entryEditor;
 
     private final LibraryTab libraryTab;
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final BibliographyConsistencyCheck.Result result;
 
     private ConsistencyCheckDialogViewModel viewModel;
 
-    public ConsistencyCheckDialog(LibraryTab libraryTab,
-                                  DialogService dialogService,
-                                  GuiPreferences preferences,
-                                  BibEntryTypesManager entryTypesManager,
-                                  BibliographyConsistencyCheck.Result result) {
+    public ConsistencyCheckDialog(LibraryTab libraryTab, DialogService dialogService, GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager, BibliographyConsistencyCheck.Result result) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -65,9 +72,7 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
         this.setTitle(Localization.lang("Check consistency"));
         this.initModality(Modality.NONE);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
     }
 
     public ConsistencyCheckDialogViewModel getViewModel() {
@@ -83,14 +88,12 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
         EasyBind.listen(entryTypeCombo.getEditor().textProperty(), observable -> entryTypeCombo.commitValue());
         entryTypeCombo.getSelectionModel().selectFirst();
 
-        FilteredList<ConsistencyMessage> filteredData = new FilteredList<>(viewModel.getTableData(), message ->
-                message.message().getFirst().equals(viewModel.selectedEntryTypeProperty().get())
-        );
+        FilteredList<ConsistencyMessage> filteredData = new FilteredList<>(viewModel.getTableData(),
+                message -> message.message().getFirst().equals(viewModel.selectedEntryTypeProperty().get()));
 
-        viewModel.selectedEntryTypeProperty().addListener((_, _, newValue) ->
-                filteredData.setPredicate(message ->
-                        message.message().getFirst().equals(newValue)
-        ));
+        viewModel.selectedEntryTypeProperty()
+            .addListener((_, _, newValue) -> filteredData
+                .setPredicate(message -> message.message().getFirst().equals(newValue)));
 
         tableView.setItems(filteredData);
 
@@ -120,13 +123,10 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
                     }
 
                     ConsistencySymbol.fromText(item)
-                                     .ifPresentOrElse(
-                                             symbol -> setGraphic(symbol.getIcon().getGraphicNode()),
-                                             () -> {
-                                                 setGraphic(null);
-                                                 setText(item);
-                                             }
-                                     );
+                        .ifPresentOrElse(symbol -> setGraphic(symbol.getIcon().getGraphicNode()), () -> {
+                            setGraphic(null);
+                            setText(item);
+                        });
 
                     this.setOnMouseClicked(_ -> {
                         if (!isEmpty()) {
@@ -135,7 +135,8 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
                             ConsistencyMessage message = getTableRow().getItem();
                             String cellValue = getTableColumn().getCellObservableValue(getIndex()).getValue();
                             Field field = FieldFactory.parseField(clickedColumn.getText());
-                            boolean isUnsetField = cellValue.equals(ConsistencySymbol.UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY.getText());
+                            boolean isUnsetField = cellValue
+                                .equals(ConsistencySymbol.UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY.getText());
 
                             if (field.isStandardField()) {
                                 stateManager.getEditorShowing().setValue(true);
@@ -143,9 +144,11 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
                                     libraryTab.clearAndSelect(message.bibEntry());
                                     entryEditor.setFocusToField(field);
                                 });
-                            } else if (!message.bibEntry().hasField(field) && isUnsetField) {
+                            }
+                            else if (!message.bibEntry().hasField(field) && isUnsetField) {
                                 libraryTab.showAndEdit(message.bibEntry());
-                            } else {
+                            }
+                            else {
                                 stateManager.getEditorShowing().setValue(true);
                                 Platform.runLater(() -> {
                                     libraryTab.clearAndSelect(message.bibEntry());
@@ -160,31 +163,26 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
             tableView.getColumns().add(tableColumn);
         }
 
-        EnumSet<ConsistencySymbol> targetSymbols = EnumSet.of(
-                ConsistencySymbol.OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
+        EnumSet<ConsistencySymbol> targetSymbols = EnumSet.of(ConsistencySymbol.OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                 ConsistencySymbol.REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                 ConsistencySymbol.UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
-                ConsistencySymbol.UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY
-        );
+                ConsistencySymbol.UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY);
 
-        targetSymbols.stream()
-            .map(ConsistencySymbol::getText)
-            .forEach(this::removeColumnWithUniformValue);
+        targetSymbols.stream().map(ConsistencySymbol::getText).forEach(this::removeColumnWithUniformValue);
 
-        Arrays.stream(SpecialField.values())
-              .map(SpecialField::getDisplayName)
-              .forEach(this::removeColumnByTitle);
+        Arrays.stream(SpecialField.values()).map(SpecialField::getDisplayName).forEach(this::removeColumnByTitle);
     }
 
     private void removeColumnWithUniformValue(String symbol) {
-        List<TableColumn<ConsistencyMessage, ?>> columnToRemove = tableView.getColumns().stream()
-                                                                           .filter(column -> {
-                                                                               Set<String> values = tableView.getItems().stream()
-                                                                                                             .map(item -> Optional.ofNullable(column.getCellObservableValue(item).getValue()).map(Object::toString).orElse(""))
-                                                                                                             .collect(Collectors.toSet());
-                                                                               return values.size() == 1 && values.contains(symbol);
-                                                                           })
-                                                                           .toList();
+        List<TableColumn<ConsistencyMessage, ?>> columnToRemove = tableView.getColumns().stream().filter(column -> {
+            Set<String> values = tableView.getItems()
+                .stream()
+                .map(item -> Optional.ofNullable(column.getCellObservableValue(item).getValue())
+                    .map(Object::toString)
+                    .orElse(""))
+                .collect(Collectors.toSet());
+            return values.size() == 1 && values.contains(symbol);
+        }).toList();
         tableView.getColumns().removeAll(columnToRemove);
     }
 
@@ -207,4 +205,5 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
         ConsistencySymbolsDialog consistencySymbolsDialog = new ConsistencySymbolsDialog();
         dialogService.showCustomDialog(consistencySymbolsDialog);
     }
+
 }

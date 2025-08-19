@@ -10,6 +10,7 @@ import org.jabref.logic.l10n.Localization;
 public class GuiPushToApplicationAction implements Action {
 
     private final String displayName;
+
     private final JabRefIcon applicationIcon;
 
     public GuiPushToApplicationAction(String displayName, JabRefIcon applicationIcon) {
@@ -31,4 +32,5 @@ public class GuiPushToApplicationAction implements Action {
     public Optional<KeyBinding> getKeyBinding() {
         return Optional.of(KeyBinding.PUSH_TO_APPLICATION);
     }
+
 }

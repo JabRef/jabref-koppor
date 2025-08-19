@@ -19,12 +19,14 @@ public class PushToWinEdt extends AbstractPushToApplication {
 
     @Override
     protected String[] getCommandLine(String keyString) {
-        return new String[] {commandPath,
-                "\"[InsText('" + getCitePrefix() + keyString.replace("'", "''") + getCiteSuffix() + "');]\""};
+        return new String[] { commandPath,
+                "\"[InsText('" + getCitePrefix() + keyString.replace("'", "''") + getCiteSuffix() + "');]\"" };
     }
 
     @Override
     public String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "\"[Open(|%s|);SelLine(%s,%s);]\"".formatted(fileName.toString(), line, column)};
+        return new String[] { commandPath,
+                "\"[Open(|%s|);SelLine(%s,%s);]\"".formatted(fileName.toString(), line, column) };
     }
+
 }

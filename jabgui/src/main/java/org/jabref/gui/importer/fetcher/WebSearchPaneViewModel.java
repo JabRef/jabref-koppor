@@ -40,13 +40,20 @@ import static org.jabref.logic.importer.fetcher.transformers.AbstractQueryTransf
 public class WebSearchPaneViewModel {
 
     private final ObjectProperty<SearchBasedFetcher> selectedFetcher = new SimpleObjectProperty<>();
-    private final ListProperty<SearchBasedFetcher> fetchers = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<SearchBasedFetcher> fetchers = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final StringProperty query = new SimpleStringProperty();
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
 
     private final Validator searchQueryValidator;
+
     private final SyntaxParser parser = new StandardSyntaxParser();
 
     public WebSearchPaneViewModel(GuiPreferences preferences, DialogService dialogService, StateManager stateManager) {
@@ -54,8 +61,7 @@ public class WebSearchPaneViewModel {
         this.stateManager = stateManager;
         this.preferences = preferences;
 
-        fetchers.setAll(WebFetchers.getSearchBasedFetchers(
-                preferences.getImportFormatPreferences(),
+        fetchers.setAll(WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(),
                 preferences.getImporterPreferences()));
 
         // Choose last-selected fetcher as default
@@ -63,7 +69,8 @@ public class WebSearchPaneViewModel {
         int defaultFetcherIndex = sidePanePreferences.getWebSearchFetcherSelected();
         if ((defaultFetcherIndex <= 0) || (defaultFetcherIndex >= fetchers.size())) {
             selectedFetcherProperty().setValue(fetchers.getFirst());
-        } else {
+        }
+        else {
             selectedFetcherProperty().setValue(fetchers.get(defaultFetcherIndex));
         }
         EasyBind.subscribe(selectedFetcherProperty(), newFetcher -> {
@@ -71,34 +78,37 @@ public class WebSearchPaneViewModel {
             sidePanePreferences.setWebSearchFetcherSelected(newIndex);
         });
 
-        searchQueryValidator = new FunctionBasedValidator<>(
-                query,
-                queryText -> {
-                    if (StringUtil.isBlank(queryText)) {
-                        // in case user did not enter something, it is treated as valid (to avoid UI WTFs)
-                        return null;
-                    }
+        searchQueryValidator = new FunctionBasedValidator<>(query, queryText -> {
+            if (StringUtil.isBlank(queryText)) {
+                // in case user did not enter something, it is treated as valid (to avoid
+                // UI WTFs)
+                return null;
+            }
 
-                    if (CompositeIdFetcher.containsValidId(queryText)) {
-                        // in case the query contains any ID, it is treated as valid
-                        return null;
-                    }
+            if (CompositeIdFetcher.containsValidId(queryText)) {
+                // in case the query contains any ID, it is treated as valid
+                return null;
+            }
 
-                    try {
-                        parser.parse(queryText, NO_EXPLICIT_FIELD);
-                        return null;
-                    } catch (ParseException e) {
-                        String element = e.currentToken.image;
-                        int position = e.currentToken.beginColumn;
-                        if (element == null) {
-                            return ValidationMessage.error(Localization.lang("Invalid query. Check position %0.", position));
-                        } else {
-                            return ValidationMessage.error(Localization.lang("Invalid query element '%0' at position %1", element, position));
-                        }
-                    } catch (QueryNodeParseException e) {
-                        return ValidationMessage.error("");
-                    }
-                });
+            try {
+                parser.parse(queryText, NO_EXPLICIT_FIELD);
+                return null;
+            }
+            catch (ParseException e) {
+                String element = e.currentToken.image;
+                int position = e.currentToken.beginColumn;
+                if (element == null) {
+                    return ValidationMessage.error(Localization.lang("Invalid query. Check position %0.", position));
+                }
+                else {
+                    return ValidationMessage
+                        .error(Localization.lang("Invalid query element '%0' at position %1", element, position));
+                }
+            }
+            catch (QueryNodeParseException e) {
+                return ValidationMessage.error("");
+            }
+        });
     }
 
     public ObservableList<SearchBasedFetcher> getFetchers() {
@@ -151,15 +161,18 @@ public class WebSearchPaneViewModel {
 
         if (CompositeIdFetcher.containsValidId(query)) {
             CompositeIdFetcher compositeIdFetcher = new CompositeIdFetcher(preferences.getImportFormatPreferences());
-            parserResultCallable = () -> new ParserResult(OptionalUtil.toList(compositeIdFetcher.performSearchById(query)));
+            parserResultCallable = () -> new ParserResult(
+                    OptionalUtil.toList(compositeIdFetcher.performSearchById(query)));
             fetcherName = Localization.lang("Identifier-based Web Search");
-        } else {
-            // Exceptions are handled below at "task.onFailure(dialogService::showErrorDialogAndWait)"
+        }
+        else {
+            // Exceptions are handled below at
+            // "task.onFailure(dialogService::showErrorDialogAndWait)"
             parserResultCallable = () -> new ParserResult(activeFetcher.performSearch(query));
         }
 
         BackgroundTask<ParserResult> task = BackgroundTask.wrap(parserResultCallable)
-                                                          .withInitialMessage(Localization.lang("Processing \"%0\"...", query));
+            .withInitialMessage(Localization.lang("Processing \"%0\"...", query));
         task.onFailure(dialogService::showErrorDialogAndWait);
 
         ImportEntriesDialog dialog = new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task);
@@ -170,4 +183,5 @@ public class WebSearchPaneViewModel {
     public ValidationStatus queryValidationStatus() {
         return searchQueryValidator.getValidationStatus();
     }
+
 }

@@ -14,18 +14,20 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class RebuildFulltextSearchIndexAction extends SimpleCommand {
 
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private boolean shouldContinue = true;
 
-    public RebuildFulltextSearchIndexAction(StateManager stateManager,
-                                            Supplier<LibraryTab> tabSupplier,
-                                            DialogService dialogService,
-                                            CliPreferences preferences) {
+    public RebuildFulltextSearchIndexAction(StateManager stateManager, Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService, CliPreferences preferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.tabSupplier = tabSupplier;
-        this.executable.bind(needsDatabase(stateManager).and(preferences.getFilePreferences().fulltextIndexLinkedFilesProperty()));
+        this.executable
+            .bind(needsDatabase(stateManager).and(preferences.getFilePreferences().fulltextIndexLinkedFilesProperty()));
     }
 
     @Override
@@ -55,4 +57,5 @@ public class RebuildFulltextSearchIndexAction extends SimpleCommand {
         }
         tabSupplier.get().getIndexManager().rebuildFullTextIndex();
     }
+
 }

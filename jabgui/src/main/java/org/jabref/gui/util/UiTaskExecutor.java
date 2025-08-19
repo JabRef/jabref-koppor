@@ -27,24 +27,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A very simple implementation of the {@link TaskExecutor} interface.
- * Every submitted task is invoked in a separate thread.
+ * A very simple implementation of the {@link TaskExecutor} interface. Every submitted
+ * task is invoked in a separate thread.
  * <p>
- * In case something does not interact well with JavaFX, you can use the {@link HeadlessExecutorService}
+ * In case something does not interact well with JavaFX, you can use the
+ * {@link HeadlessExecutorService}
  */
 public class UiTaskExecutor implements TaskExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UiTaskExecutor.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
+
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(2);
+
     private final WeakHashMap<DelayTaskThrottler, Void> throttlers = new WeakHashMap<>();
 
     public static <V> V runInJavaFXThread(Callable<V> callable) {
         if (Platform.isFxApplicationThread()) {
             try {
                 return callable.call();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Problem executing call", e);
                 return null;
             }
@@ -56,15 +60,16 @@ public class UiTaskExecutor implements TaskExecutor {
 
         try {
             return task.get();
-        } catch (InterruptedException | ExecutionException e) {
+        }
+        catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Problem running in fx thread", e);
             return null;
         }
     }
 
     /**
-     * Runs the specified {@link Runnable} on the JavaFX application thread and waits for completion.
-     *
+     * Runs the specified {@link Runnable} on the JavaFX application thread and waits for
+     * completion.
      * @param action the {@link Runnable} to run
      * @throws NullPointerException if {@code action} is {@code null}
      */
@@ -82,14 +87,16 @@ public class UiTaskExecutor implements TaskExecutor {
         Platform.runLater(() -> {
             try {
                 action.run();
-            } finally {
+            }
+            finally {
                 doneLatch.countDown();
             }
         });
 
         try {
             doneLatch.await();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             LOGGER.error("Problem running action on JavaFX thread", e);
         }
     }
@@ -99,13 +106,13 @@ public class UiTaskExecutor implements TaskExecutor {
     }
 
     /**
-     * This will convert the given {@link BackgroundTask} to a JavaFX {@link Task}
-     * The JavaFX task executes the call method a background thread and the onFailed onSucceed on the FX UI thread
-     *
+     * This will convert the given {@link BackgroundTask} to a JavaFX {@link Task} The
+     * JavaFX task executes the call method a background thread and the onFailed onSucceed
+     * on the FX UI thread
      * @param task the BackgroundTask to run
      * @param <V> The background task type
-     *
-     * @return Future of a JavaFX Task which will execute the call method a background thread
+     * @return Future of a JavaFX Task which will execute the call method a background
+     * thread
      */
     @Override
     public <V> Future<V> execute(BackgroundTask<V> task) {
@@ -116,7 +123,8 @@ public class UiTaskExecutor implements TaskExecutor {
             if (showToUser) {
                 if (stateManager != null) {
                     runInJavaFXThread(() -> stateManager.addBackgroundTask(task, javafxTask));
-                } else {
+                }
+                else {
                     LOGGER.info("Background task visible without GUI");
                 }
             }
@@ -125,10 +133,9 @@ public class UiTaskExecutor implements TaskExecutor {
     }
 
     /**
-     * Runs the given task and returns a Future representing that task. Usually, you want to use the other method {@link
-     * #execute(BackgroundTask)}.
-     *
-     * @param <V>  type of return value of the task
+     * Runs the given task and returns a Future representing that task. Usually, you want
+     * to use the other method {@link #execute(BackgroundTask)}.
+     * @param <V> type of return value of the task
      * @param task the task to run
      */
     public <V> Future<V> execute(Task<V> task) {
@@ -163,9 +170,9 @@ public class UiTaskExecutor implements TaskExecutor {
     }
 
     /**
-     * Generates a wrapper with a JavaFX {@link Task} for our BackgroundTask monitoring the progress based on the data given from the task.
-     * <code>call</code> is routed to the given task object.
-     *
+     * Generates a wrapper with a JavaFX {@link Task} for our BackgroundTask monitoring
+     * the progress based on the data given from the task. <code>call</code> is routed to
+     * the given task object.
      * @param task the BackgroundTask to wrap
      * @return a new Javafx Task object
      */
@@ -174,7 +181,8 @@ public class UiTaskExecutor implements TaskExecutor {
             {
                 this.updateMessage(task.messageProperty().get());
                 this.updateTitle(task.titleProperty().get());
-                BindingsHelper.subscribeFuture(task.progressProperty(), progress -> updateProgress(progress.workDone(), progress.max()));
+                BindingsHelper.subscribeFuture(task.progressProperty(),
+                        progress -> updateProgress(progress.workDone(), progress.max()));
                 BindingsHelper.subscribeFuture(task.messageProperty(), this::updateMessage);
                 BindingsHelper.subscribeFuture(task.titleProperty(), this::updateTitle);
                 BindingsHelper.subscribeFuture(task.isCancelledProperty(), cancelled -> {
@@ -187,7 +195,8 @@ public class UiTaskExecutor implements TaskExecutor {
 
             @Override
             protected V call() throws Exception {
-                // this requires that background task call is public as it's in another package
+                // this requires that background task call is public as it's in another
+                // package
                 return task.call();
             }
         };
@@ -216,8 +225,10 @@ public class UiTaskExecutor implements TaskExecutor {
         LOGGER.warn("Converting throwable to Exception", throwable);
         if (throwable instanceof Exception exception) {
             return exception;
-        } else {
+        }
+        else {
             return new Exception(throwable);
         }
     }
+
 }

@@ -28,16 +28,28 @@ import org.slf4j.LoggerFactory;
  * This class is responsible for getting the recommendations from Mr. DLib
  */
 public class MrDLibFetcher implements EntryBasedFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MrDLibFetcher.class);
+
     private static final String NAME = "MDL_FETCHER";
+
     private static final String MDL_JABREF_PARTNER_ID = "1";
+
     private static final String MDL_URL = "api.mr-dlib.org";
-    private static final String DEFAULT_MRDLIB_ERROR_MESSAGE = Localization.lang("Error while fetching recommendations from Mr.DLib.");
+
+    private static final String DEFAULT_MRDLIB_ERROR_MESSAGE = Localization
+        .lang("Error while fetching recommendations from Mr.DLib.");
+
     private final String LANGUAGE;
+
     private final Version VERSION;
+
     private String heading;
+
     private String description;
+
     private String recommendationSetId;
+
     private final MrDlibPreferences preferences;
 
     public MrDLibFetcher(String language, Version version, MrDlibPreferences preferences) {
@@ -62,7 +74,8 @@ public class MrDLibFetcher implements EntryBasedFetcher {
         URL url;
         try {
             url = constructQuery(title.get());
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Invalid URL", e);
         }
 
@@ -75,13 +88,15 @@ public class MrDLibFetcher implements EntryBasedFetcher {
                 heading = importer.getRecommendationsHeading();
                 description = importer.getRecommendationsDescription();
                 recommendationSetId = importer.getRecommendationSetId();
-            } else {
+            }
+            else {
                 // For displaying An ErrorMessage
                 description = DEFAULT_MRDLIB_ERROR_MESSAGE;
                 BibDatabase errorBibDataBase = new BibDatabase();
                 parserResult = new ParserResult(errorBibDataBase);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error while fetching", e);
             throw new FetcherException(url, e);
         }
@@ -98,7 +113,6 @@ public class MrDLibFetcher implements EntryBasedFetcher {
 
     /**
      * Contact the server with the title of the selected item
-     *
      * @return Returns the server response. This is an XML document as a String.
      */
     private String makeServerRequest(URL url) throws FetcherException {
@@ -112,9 +126,10 @@ public class MrDLibFetcher implements EntryBasedFetcher {
     }
 
     /**
-     * Constructs the query based on title of the BibEntry. Adds statistical stuff to the url.
-     *
-     * @param queryWithTitle the query holds the title of the selected entry. Used to make a query to the MDL Server
+     * Constructs the query based on title of the BibEntry. Adds statistical stuff to the
+     * url.
+     * @param queryWithTitle the query holds the title of the selected entry. Used to make
+     * a query to the MDL Server
      * @return the string used to make the query at mdl server
      */
     private URL constructQuery(String queryWithTitle) throws URISyntaxException, MalformedURLException {
@@ -142,4 +157,5 @@ public class MrDLibFetcher implements EntryBasedFetcher {
         LOGGER.trace("Request: {}", uri.toString());
         return uri.toURL();
     }
+
 }

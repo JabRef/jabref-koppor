@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 class DBLPFetcherTest {
 
     private DBLPFetcher dblpFetcher;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -49,7 +50,9 @@ class DBLPFetcherTest {
 
     @Test
     void findSingleEntry() throws FetcherException {
-        // In Lucene curly brackets are used for range queries, therefore they have to be escaped using "". See https://lucene.apache.org/core/5_4_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html
+        // In Lucene curly brackets are used for range queries, therefore they have to be
+        // escaped using "". See
+        // https://lucene.apache.org/core/5_4_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html
         String query = "Process Engine Benchmarking with Betsy in the Context of \"{ISO/IEC}\" Quality Standards";
         List<BibEntry> result = dblpFetcher.performSearch(query);
 
@@ -58,7 +61,10 @@ class DBLPFetcherTest {
 
     @Test
     void findSingleEntryUsingComplexOperators() throws FetcherException {
-        String query = "geiger harrer betsy$ softw.trends"; // -wirtz Negative operators do no longer work,  see issue https://github.com/JabRef/jabref/issues/2890
+        String query = "geiger harrer betsy$ softw.trends"; // -wirtz Negative operators
+                                                            // do no longer work, see
+                                                            // issue
+                                                            // https://github.com/JabRef/jabref/issues/2890
         List<BibEntry> result = dblpFetcher.performSearch(query);
 
         assertEquals(List.of(entry), result);
@@ -68,4 +74,5 @@ class DBLPFetcherTest {
     void findNothing() throws FetcherException {
         assertEquals(List.of(), dblpFetcher.performSearch(""));
     }
+
 }

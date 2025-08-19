@@ -12,6 +12,7 @@ import org.jabref.gui.walkthrough.declarative.richtext.WalkthroughRichTextBlock;
 
 /// Walkthrough steps that display visible UI elements.
 public sealed interface VisibleComponent extends WalkthroughStep permits PanelStep, TooltipStep {
+
     /// Content blocks to display
     List<WalkthroughRichTextBlock> content();
 
@@ -54,4 +55,5 @@ public sealed interface VisibleComponent extends WalkthroughStep permits PanelSt
 
     /// Position of the quit button.
     QuitButtonPosition quitButtonPosition();
+
 }

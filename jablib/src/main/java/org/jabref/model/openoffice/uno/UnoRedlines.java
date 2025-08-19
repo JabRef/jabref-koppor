@@ -16,9 +16,7 @@ import com.sun.star.text.XTextDocument;
  */
 public class UnoRedlines {
 
-    public static boolean getRecordChanges(XTextDocument doc)
-            throws
-            WrappedTargetException {
+    public static boolean getRecordChanges(XTextDocument doc) throws WrappedTargetException {
 
         // https://wiki.openoffice.org/wiki/Documentation/DevGuide/Text/Settings
         // "Properties of com.sun.star.text.TextDocument"
@@ -27,7 +25,8 @@ public class UnoRedlines {
 
         try {
             return (boolean) propertySet.getPropertyValue("RecordChanges");
-        } catch (UnknownPropertyException ex) {
+        }
+        catch (UnknownPropertyException ex) {
             throw new java.lang.IllegalStateException("Caught UnknownPropertyException on 'RecordChanges'");
         }
     }
@@ -45,17 +44,20 @@ public class UnoRedlines {
         XEnumeration enumeration = enumerationAccess.createEnumeration();
         if (enumeration == null) {
             return 0;
-        } else {
+        }
+        else {
             int count = 0;
             while (enumeration.hasMoreElements()) {
                 try {
                     enumeration.nextElement();
                     count++;
-                } catch (NoSuchElementException | WrappedTargetException ex) {
+                }
+                catch (NoSuchElementException | WrappedTargetException ex) {
                     break;
                 }
             }
             return count;
         }
     }
+
 }

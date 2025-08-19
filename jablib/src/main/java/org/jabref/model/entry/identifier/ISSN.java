@@ -12,6 +12,7 @@ import org.jabref.model.entry.field.StandardField;
 public class ISSN implements Identifier {
 
     private static final Pattern ISSN_PATTERN = Pattern.compile("^\\d{4}-\\d{3}[\\dxX]$");
+
     private static final Pattern ISSN_PATTERN_NODASH = Pattern.compile("^(\\d{4})(\\d{3}[\\dxX])$");
 
     private final String issnString;
@@ -39,7 +40,8 @@ public class ISSN implements Identifier {
     }
 
     public boolean isValidChecksum() {
-        // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Serial_Number
+        // Check that the control digit is correct, see e.g.
+        // https://en.wikipedia.org/wiki/International_Standard_Serial_Number
         int sum = 0;
         for (int pos = 0; pos <= 7; pos++) {
             char c = issnString.charAt(pos);
@@ -68,4 +70,5 @@ public class ISSN implements Identifier {
     public Optional<URI> getExternalURI() {
         return Optional.empty();
     }
+
 }

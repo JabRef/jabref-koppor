@@ -27,4 +27,5 @@ abstract class StringSuggestionProvider extends SuggestionProvider<String> {
 
     @Override
     public abstract Stream<String> getSource();
+
 }

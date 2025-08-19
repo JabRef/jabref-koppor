@@ -32,16 +32,15 @@ import org.jabref.model.entry.field.Field;
 public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> {
 
     private final BibDatabaseContext database;
+
     private final CellFactory cellFactory;
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
 
-    public LinkedIdentifierColumn(MainTableColumnModel model,
-                                  CellFactory cellFactory,
-                                  BibDatabaseContext database,
-                                  DialogService dialogService,
-                                  GuiPreferences preferences,
-                                  StateManager stateManager) {
+    public LinkedIdentifierColumn(MainTableColumnModel model, CellFactory cellFactory, BibDatabaseContext database,
+            DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
         super(model);
         this.database = database;
         this.cellFactory = cellFactory;
@@ -56,31 +55,37 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
         this.setResizable(false);
         this.setCellValueFactory(cellData -> cellData.getValue().getLinkedIdentifiers());
         new ValueTableCellFactory<BibEntryTableViewModel, Map<Field, String>>()
-                .withGraphic(this::createIdentifierGraphic)
-                .withTooltip(this::createIdentifierTooltip)
-                .withMenu(this::createIdentifierMenu)
-                .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
-                    // If we only have one identifer, open directly
-                    if ((linkedFiles.size() == 1) && (event.getButton() == MouseButton.PRIMARY)) {
-                       new OpenUrlAction(dialogService, stateManager, preferences).execute();
-                    }
-                })
-                .install(this);
+            .withGraphic(this::createIdentifierGraphic)
+            .withTooltip(this::createIdentifierTooltip)
+            .withMenu(this::createIdentifierMenu)
+            .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
+                // If we only have one identifer, open directly
+                if ((linkedFiles.size() == 1) && (event.getButton() == MouseButton.PRIMARY)) {
+                    new OpenUrlAction(dialogService, stateManager, preferences).execute();
+                }
+            })
+            .install(this);
     }
 
     private Node createIdentifierGraphic(Map<Field, String> values) {
         if (values.size() > 1) {
             return IconTheme.JabRefIcons.LINK_VARIANT.getGraphicNode();
-        } else if (values.size() == 1) {
+        }
+        else if (values.size() == 1) {
             return IconTheme.JabRefIcons.LINK.getGraphicNode();
-        } else {
+        }
+        else {
             return null;
         }
     }
 
     private String createIdentifierTooltip(Map<Field, String> values) {
         StringBuilder identifiers = new StringBuilder();
-        values.keySet().forEach(field -> identifiers.append(field.getDisplayName()).append(": ").append(values.get(field)).append("\n"));
+        values.keySet()
+            .forEach(field -> identifiers.append(field.getDisplayName())
+                .append(": ")
+                .append(values.get(field))
+                .append("\n"));
         return identifiers.toString();
     }
 
@@ -92,13 +97,15 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
         }
 
         values.keySet().forEach(field -> {
-            MenuItem menuItem = new MenuItem(field.getDisplayName() + ": " +
-                    ControlHelper.truncateString(values.get(field), -1, "...", ControlHelper.EllipsisPosition.CENTER),
+            MenuItem menuItem = new MenuItem(field.getDisplayName() + ": "
+                    + ControlHelper.truncateString(values.get(field), -1, "...", ControlHelper.EllipsisPosition.CENTER),
                     cellFactory.getTableIcon(field));
             menuItem.setOnAction(event -> {
                 try {
-                    NativeDesktop.openExternalViewer(database, preferences, values.get(field), field, dialogService, entry.getEntry());
-                } catch (IOException e) {
+                    NativeDesktop.openExternalViewer(database, preferences, values.get(field), field, dialogService,
+                            entry.getEntry());
+                }
+                catch (IOException e) {
                     dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);
                 }
                 event.consume();
@@ -108,4 +115,5 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
 
         return contextMenu;
     }
+
 }

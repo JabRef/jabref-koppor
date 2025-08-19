@@ -11,14 +11,18 @@ import javafx.scene.layout.VBox;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class ErrorStateComponent extends BorderPane {
-    @FXML private Label titleText;
-    @FXML private Label contentText;
-    @FXML private VBox contentsVBox;
+
+    @FXML
+    private Label titleText;
+
+    @FXML
+    private Label contentText;
+
+    @FXML
+    private VBox contentsVBox;
 
     public ErrorStateComponent(String title, String content) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         setTitle(title);
         setContent(content);
@@ -44,7 +48,8 @@ public class ErrorStateComponent extends BorderPane {
         return errorStateComponent;
     }
 
-    public static ErrorStateComponent withTextAreaAndButton(String title, String content, String textAreaContent, String buttonText, Runnable onClick) {
+    public static ErrorStateComponent withTextAreaAndButton(String title, String content, String textAreaContent,
+            String buttonText, Runnable onClick) {
         ErrorStateComponent errorStateComponent = ErrorStateComponent.withTextArea(title, content, textAreaContent);
 
         Button button = new Button(buttonText);
@@ -70,4 +75,5 @@ public class ErrorStateComponent extends BorderPane {
     public void setContent(String content) {
         contentText.setText(content);
     }
+
 }

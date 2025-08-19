@@ -8,8 +8,11 @@ public class MsBibAuthor {
     private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER = new RemoveEnclosingBracesFormatter();
 
     private String firstName;
+
     private String middleName;
+
     private final Author author;
+
     private boolean isCorporate;
 
     public MsBibAuthor(Author author) {
@@ -62,4 +65,5 @@ public class MsBibAuthor {
     public boolean isCorporate() {
         return isCorporate;
     }
+
 }

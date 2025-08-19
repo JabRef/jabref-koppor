@@ -57,7 +57,8 @@ public class PushToSublimeText extends AbstractPushToApplication {
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
@@ -73,14 +74,19 @@ public class PushToSublimeText extends AbstractPushToApplication {
 
         if (OS.WINDOWS) {
             // TODO we might need to escape the inner double quotes with """ """
-            return new String[] {"cmd.exe", "/c", "\"" + commandPath + "\"" + "--command \"insert {\\\"characters\\\": \"\\" + getCitePrefix() + keyString + getCiteSuffix() + "\"}\""};
-        } else {
-            return new String[] {"sh", "-c", "\"" + commandPath + "\"" + " --command 'insert {\"characters\": \"" + citeCommand + keyString + getCiteSuffix() + "\"}'"};
+            return new String[] { "cmd.exe", "/c",
+                    "\"" + commandPath + "\"" + "--command \"insert {\\\"characters\\\": \"\\" + getCitePrefix()
+                            + keyString + getCiteSuffix() + "\"}\"" };
+        }
+        else {
+            return new String[] { "sh", "-c", "\"" + commandPath + "\"" + " --command 'insert {\"characters\": \""
+                    + citeCommand + keyString + getCiteSuffix() + "\"}'" };
         }
     }
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "%s:%s:%s".formatted(fileName.toString(), line, column)};
+        return new String[] { commandPath, "%s:%s:%s".formatted(fileName.toString(), line, column) };
     }
+
 }

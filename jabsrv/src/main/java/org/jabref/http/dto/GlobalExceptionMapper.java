@@ -20,4 +20,5 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
         LOGGER.error("Unhandled exception on server", exception);
         return Response.serverError().entity("Internal Server Error").build();
     }
+
 }

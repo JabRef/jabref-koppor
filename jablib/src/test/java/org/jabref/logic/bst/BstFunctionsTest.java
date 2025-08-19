@@ -22,14 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * For additional tests see for
  * <ul>
- * <li> purify: {@link org.jabref.logic.bst.util.BstPurifierTest}</li>
- * <li> width: {@link org.jabref.logic.bst.util.BstWidthCalculatorTest}</li>
- * <li> format.name: {@link org.jabref.logic.bst.util.BstNameFormatterTest}</li>
- * <li> change.case: {@link org.jabref.logic.bst.util.BstCaseChangersTest}</li>
- * <li> prefix: {@link org.jabref.logic.bst.util.BstTextPrefixerTest}</li>
+ * <li>purify: {@link org.jabref.logic.bst.util.BstPurifierTest}</li>
+ * <li>width: {@link org.jabref.logic.bst.util.BstWidthCalculatorTest}</li>
+ * <li>format.name: {@link org.jabref.logic.bst.util.BstNameFormatterTest}</li>
+ * <li>change.case: {@link org.jabref.logic.bst.util.BstCaseChangersTest}</li>
+ * <li>prefix: {@link org.jabref.logic.bst.util.BstTextPrefixerTest}</li>
  * </ul>
  */
 class BstFunctionsTest {
+
     @Test
     void compareFunctions() throws RecognitionException {
         BstVM vm = new BstVM("""
@@ -135,18 +136,16 @@ class BstFunctionsTest {
                 FUNCTION { test } { title missing$ cite$ }
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test")
-                        .withField(StandardField.AUTHOR, "No title"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Article).withCitationKey("test")
+                    .withField(StandardField.AUTHOR, "No title"));
 
         vm.render(testEntries);
 
-        assertEquals("test", vm.getStack().pop());      // cite
-        assertEquals(BstVM.TRUE, vm.getStack().pop());          // missing title
-        assertEquals("canh05", vm.getStack().pop());    // cite
-        assertEquals(BstVM.FALSE, vm.getStack().pop());         // missing title
+        assertEquals("test", vm.getStack().pop()); // cite
+        assertEquals(BstVM.TRUE, vm.getStack().pop()); // missing title
+        assertEquals("canh05", vm.getStack().pop()); // cite
+        assertEquals(BstVM.FALSE, vm.getStack().pop()); // missing title
         assertEquals(0, vm.getStack().size());
     }
 
@@ -198,17 +197,11 @@ class BstFunctionsTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "d, abcd, -1, 1",
-            "cd, abcd, -1, 2",
-            "bcd, abcd, -1, 3",
-            "c, abcd, -2, 1",
-            "abc, abcd, -2, 100",
-            "abc, abcd, -2, 2147483647",
-            "b, abcd, -3, 1",
-            "a, abcd, -4, 1",
-            "'', abcd, -5, 1",                    // invalid number -5
-            "'', abcd, -2147483647, 2147483647",  // invalid number
+    @CsvSource({ "d, abcd, -1, 1", "cd, abcd, -1, 2", "bcd, abcd, -1, 3", "c, abcd, -2, 1", "abc, abcd, -2, 100",
+            "abc, abcd, -2, 2147483647", "b, abcd, -3, 1", "a, abcd, -4, 1", "'', abcd, -5, 1", // invalid
+                                                                                                // number
+                                                                                                // -5
+            "'', abcd, -2147483647, 2147483647", // invalid number
     })
     void substringPlain(String expected, String full, Integer start, Integer length) {
         BstVMContext bstVMContext = new BstVMContext(List.of(), new BibDatabase(), Path.of("404.bst"));
@@ -249,10 +242,11 @@ class BstFunctionsTest {
 
     @Test
     void formatNameStatic() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                FUNCTION { format }{ "Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin" #1 "{vv~}{ll}{, jj}{, f}?" format.name$ }
-                EXECUTE { format }
-                """);
+        BstVM vm = new BstVM(
+                """
+                        FUNCTION { format }{ "Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin" #1 "{vv~}{ll}{, jj}{, f}?" format.name$ }
+                        EXECUTE { format }
+                        """);
         List<BibEntry> v = List.of();
 
         vm.render(v);
@@ -272,11 +266,10 @@ class BstFunctionsTest {
                 FUNCTION { format }{ author #2 "{vv~}{ll}{, jj}{, f}?" format.name$ }
                 ITERATE { format }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Book)
-                        .withCitationKey("test")
-                        .withField(StandardField.AUTHOR, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Book).withCitationKey("test")
+                    .withField(StandardField.AUTHOR,
+                            "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin"));
 
         vm.render(testEntries);
 
@@ -287,23 +280,24 @@ class BstFunctionsTest {
 
     @Test
     void changeCase() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                STRINGS { title }
-                READ
-                FUNCTION { format.title } {
-                    duplicate$ empty$
-                        { pop$ "" }
-                        { "t" change.case$ }
-                    if$
-                }
-                FUNCTION { test } {
-                    "hello world" "u" change.case$ format.title
-                    "Hello World" format.title
-                    "" format.title
-                    "{A}{D}/{C}ycle: {I}{B}{M}'s {F}ramework for {A}pplication {D}evelopment and {C}ase" "u" change.case$ format.title
-                }
-                EXECUTE { test }
-                """);
+        BstVM vm = new BstVM(
+                """
+                        STRINGS { title }
+                        READ
+                        FUNCTION { format.title } {
+                            duplicate$ empty$
+                                { pop$ "" }
+                                { "t" change.case$ }
+                            if$
+                        }
+                        FUNCTION { test } {
+                            "hello world" "u" change.case$ format.title
+                            "Hello World" format.title
+                            "" format.title
+                            "{A}{D}/{C}ycle: {I}{B}{M}'s {F}ramework for {A}pplication {D}evelopment and {C}ase" "u" change.case$ format.title
+                        }
+                        EXECUTE { test }
+                        """);
 
         vm.render(List.of());
 
@@ -394,8 +388,7 @@ class BstFunctionsTest {
                 FUNCTION { test } { type$ }
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.Article).withCitationKey("a"),
+        List<BibEntry> testEntries = List.of(new BibEntry(StandardEntryType.Article).withCitationKey("a"),
                 new BibEntry(StandardEntryType.Book).withCitationKey("b"),
                 new BibEntry(StandardEntryType.Misc).withCitationKey("c"),
                 new BibEntry(StandardEntryType.InProceedings).withCitationKey("d"));
@@ -421,17 +414,13 @@ class BstFunctionsTest {
                 FUNCTION { book }{ "Book called on " title * }
                 ITERATE { call.type$ }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Book)
-                        .withCitationKey("test")
-                        .withField(StandardField.TITLE, "Test"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Book).withCitationKey("test").withField(StandardField.TITLE, "Test"));
 
         vm.render(testEntries);
 
         assertEquals("Book called on Test", vm.getStack().pop());
-        assertEquals(
-                "InProceedings called on Effective work practices for floss development: A model and propositions",
+        assertEquals("InProceedings called on Effective work practices for floss development: A model and propositions",
                 vm.getStack().pop());
         assertEquals(0, vm.getStack().size());
     }
@@ -682,4 +671,5 @@ class BstFunctionsTest {
 
         assertEquals("A Preamble\nhello\"quoted\"", result);
     }
+
 }

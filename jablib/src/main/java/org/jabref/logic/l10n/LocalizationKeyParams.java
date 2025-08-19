@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 public class LocalizationKeyParams {
 
     private final LocalizationKey key;
+
     private final List<String> params;
 
     public LocalizationKeyParams(String key, String... params) {
@@ -27,4 +28,5 @@ public class LocalizationKeyParams {
 
         return translation;
     }
+
 }

@@ -4,7 +4,8 @@ import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 
 /**
- * Converts all characters of the given string to upper case, but does not change words starting with "{"
+ * Converts all characters of the given string to upper case, but does not change words
+ * starting with "{"
  */
 public class UpperCaseFormatter extends Formatter {
 
@@ -29,12 +30,12 @@ public class UpperCaseFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "CHANGES ALL LETTERS TO UPPER CASE.");
+        return Localization.lang("CHANGES ALL LETTERS TO UPPER CASE.");
     }
 
     @Override
     public String getExampleInput() {
         return "Kde {Amarok}";
     }
+
 }

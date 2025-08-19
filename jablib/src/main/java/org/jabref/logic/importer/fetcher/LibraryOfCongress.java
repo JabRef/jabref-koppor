@@ -37,4 +37,5 @@ public class LibraryOfCongress implements IdBasedParserFetcher {
     public Parser getParser() {
         return new ModsImporter(this.importFormatPreferences);
     }
+
 }

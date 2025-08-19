@@ -20,6 +20,7 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "generate-citation-keys", description = "Generate citation keys for entries in a .bib file.")
 public class GenerateCitationKeys implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateCitationKeys.class);
 
     @ParentCommand
@@ -36,11 +37,8 @@ public class GenerateCitationKeys implements Runnable {
 
     @Override
     public void run() {
-        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(
-                inputFile,
-                "bibtex",
-                argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, "bibtex",
+                argumentProcessor.cliPreferences, sharedOptions.porcelain);
         if (parserResult.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
             return;
@@ -57,23 +55,20 @@ public class GenerateCitationKeys implements Runnable {
             System.out.println(Localization.lang("Regenerating citation keys according to metadata."));
         }
 
-        CitationKeyGenerator keyGenerator = new CitationKeyGenerator(
-                databaseContext,
+        CitationKeyGenerator keyGenerator = new CitationKeyGenerator(databaseContext,
                 argumentProcessor.cliPreferences.getCitationKeyPatternPreferences());
         for (BibEntry entry : databaseContext.getEntries()) {
             keyGenerator.generateAndSetKey(entry);
         }
 
         if (outputFile != null) {
-            ArgumentProcessor.saveDatabase(
-                    argumentProcessor.cliPreferences,
-                    argumentProcessor.entryTypesManager,
-                    parserResult.get().getDatabase(),
-                    outputFile);
-        } else {
-            System.out.println(databaseContext.getEntries().stream()
-                                              .map(BibEntry::toString)
-                                              .collect(Collectors.joining("\n\n")));
+            ArgumentProcessor.saveDatabase(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                    parserResult.get().getDatabase(), outputFile);
+        }
+        else {
+            System.out.println(
+                    databaseContext.getEntries().stream().map(BibEntry::toString).collect(Collectors.joining("\n\n")));
         }
     }
+
 }

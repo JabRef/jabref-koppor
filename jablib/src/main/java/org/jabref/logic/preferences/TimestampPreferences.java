@@ -10,15 +10,20 @@ import javafx.beans.property.SimpleBooleanProperty;
 import org.jabref.model.entry.field.Field;
 
 public class TimestampPreferences {
+
     private final BooleanProperty addCreationDate;
+
     private final BooleanProperty addModificationDate;
 
     // These are old preferences. They are used for migration only.
     private final boolean updateTimestamp;
+
     private final Field timestampField;
+
     private final String timestampFormat;
 
-    public TimestampPreferences(boolean addCreationDate, boolean modifyTimestamp, boolean updateTimestamp, Field timestampField, String timestampFormat) {
+    public TimestampPreferences(boolean addCreationDate, boolean modifyTimestamp, boolean updateTimestamp,
+            Field timestampField, String timestampFormat) {
         this.addCreationDate = new SimpleBooleanProperty(addCreationDate);
         this.addModificationDate = new SimpleBooleanProperty(modifyTimestamp);
         this.updateTimestamp = updateTimestamp;
@@ -75,4 +80,5 @@ public class TimestampPreferences {
     public String getTimestampFormat() {
         return timestampFormat;
     }
+
 }

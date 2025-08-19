@@ -51,7 +51,10 @@ class LocalizationTest {
     @Test
     void newLineIsAvailableAndKeptUnescaped() {
         Localization.setLanguage(Language.ENGLISH);
-        assertEquals("Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>", Localization.lang("Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>"));
+        assertEquals(
+                "Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>",
+                Localization.lang(
+                        "Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>"));
     }
 
     @Test
@@ -73,7 +76,9 @@ class LocalizationTest {
 
     @Test
     void placeholderIsKeptWhenNoParameter() {
-        // This behavior is required when %0 should be transformed to a hyperlink in the UI.
+        // This behavior is required when %0 should be transformed to a hyperlink in the
+        // UI.
         assertEquals("Groups %0", Localization.lang("Groups %0"));
     }
+
 }

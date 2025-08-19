@@ -96,8 +96,8 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext, final Path file,
-                       List<BibEntry> entries) throws IOException {
+    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries)
+            throws IOException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(entries);
         if (!entries.isEmpty()) { // Only export if entries exists
@@ -114,7 +114,8 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
             Transformer trans = TransformerFactory.newInstance().newTransformer();
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
             trans.transform(source, result);
-        } catch (TransformerException | IOException e) {
+        }
+        catch (TransformerException | IOException e) {
             throw new Error(e);
         }
     }
@@ -129,8 +130,10 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
     private static void addFromResource(String resource, OutputStream out) {
         try (InputStream in = OpenDocumentSpreadsheetCreator.class.getResourceAsStream(resource)) {
             in.transferTo(out);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Cannot get resource", e);
         }
     }
+
 }

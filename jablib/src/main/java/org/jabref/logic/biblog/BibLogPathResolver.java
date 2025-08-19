@@ -43,10 +43,8 @@ public class BibLogPathResolver {
             return Optional.empty();
         }
 
-        return databasePath.map(path ->
-                path.resolveSibling(
-                        path.getFileName().toString().replaceFirst("\\.bib$", ".blg")
-                )
-        );
+        return databasePath
+            .map(path -> path.resolveSibling(path.getFileName().toString().replaceFirst("\\.bib$", ".blg")));
     }
+
 }

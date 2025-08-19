@@ -17,4 +17,5 @@ class BuildInfoTest {
         BuildInfo buildInfo = new BuildInfo("/org/jabref/util/build.properties");
         assertEquals("42", buildInfo.version.getFullVersion());
     }
+
 }

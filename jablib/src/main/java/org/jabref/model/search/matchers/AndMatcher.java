@@ -9,7 +9,7 @@ public class AndMatcher extends MatcherSet {
 
     @Override
     public boolean isMatch(BibEntry entry) {
-        return matchers.stream()
-                       .allMatch(rule -> rule.isMatch(entry));
+        return matchers.stream().allMatch(rule -> rule.isMatch(entry));
     }
+
 }

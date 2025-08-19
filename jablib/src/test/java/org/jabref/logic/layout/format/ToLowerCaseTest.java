@@ -24,14 +24,10 @@ class ToLowerCaseTest {
     }
 
     private static Stream<Arguments> provideArguments() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("abcd efg", "abcd efg"),
-                Arguments.of("abcd efg", "ABCD EFG"),
-                Arguments.of("abcd efg", "abCD eFg"),
-                Arguments.of("abcd123efg", "abCD123eFg"),
-                Arguments.of("hello!*#", "Hello!*#"),
-                Arguments.of("123*%&456", "123*%&456")
-        );
+        return Stream.of(Arguments.of("", ""), Arguments.of("abcd efg", "abcd efg"),
+                Arguments.of("abcd efg", "ABCD EFG"), Arguments.of("abcd efg", "abCD eFg"),
+                Arguments.of("abcd123efg", "abCD123eFg"), Arguments.of("hello!*#", "Hello!*#"),
+                Arguments.of("123*%&456", "123*%&456"));
     }
+
 }

@@ -7,11 +7,13 @@ public enum BackupFileType implements FileType {
     // Used at BackupManager
     BACKUP("Backup", "bak"),
 
-    // Used when writing the .bib file. See {@link org.jabref.logic.exporter.AtomicFileWriter}
+    // Used when writing the .bib file. See {@link
+    // org.jabref.logic.exporter.AtomicFileWriter}
     // Used for copying the .bib away before overwriting on save.
     SAVE("AutoSaveFile", "sav");
 
     private final List<String> extensions;
+
     private final String name;
 
     BackupFileType(String name, String extension) {
@@ -28,4 +30,5 @@ public enum BackupFileType implements FileType {
     public String getName() {
         return this.name;
     }
+
 }

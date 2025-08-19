@@ -42,4 +42,5 @@ class LatexCleanupFormatterTest {
     void formatExample() {
         assertEquals("{VLSI DSP}", formatter.format(formatter.getExampleInput()));
     }
+
 }

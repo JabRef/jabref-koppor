@@ -18,21 +18,26 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class WalkthroughHighlighter {
+
     private final Map<Window, Spotlight> backdropHighlights = new HashMap<>();
+
     private final Map<Window, Ping> pulseIndicators = new HashMap<>();
+
     private final Map<Window, FullScreenDarken> fullScreenDarkens = new HashMap<>();
 
     private final Map<Window, EffectState> currentEffects = new HashMap<>();
+
     private @Nullable Runnable onBackgroundClickHandler;
 
     /// Applies the specified highlight configuration.
     ///
-    /// @param config         The highlight configuration to apply. Default to
-    ///                       BackdropHighlight on the primary windows if null.
-    /// @param scene          The primary scene to apply the highlight to.
+    /// @param config The highlight configuration to apply. Default to
+    /// BackdropHighlight on the primary windows if null.
+    /// @param scene The primary scene to apply the highlight to.
     /// @param fallbackTarget The fallback target node to use if no highlight
-    ///                       configuration is provided.
-    public void applyHighlight(@Nullable WalkthroughEffect config, @NonNull Scene scene, @Nullable Node fallbackTarget) {
+    /// configuration is provided.
+    public void applyHighlight(@Nullable WalkthroughEffect config, @NonNull Scene scene,
+            @Nullable Node fallbackTarget) {
         Map<Window, EffectState> newEffects = computeNewEffects(config, scene, fallbackTarget);
 
         Map<Window, EffectState> toUpdate = new HashMap<>();
@@ -54,8 +59,8 @@ public class WalkthroughHighlighter {
     /// Sets a handler to be called when the user clicks on backdrop or darkened areas.
     ///
     /// @param handler The handler to call when the background is clicked. If null, no
-    ///                action will be taken on background clicks. Usually used to
-    ///                support quit walkthrough on clicking the effects.
+    /// action will be taken on background clicks. Usually used to
+    /// support quit walkthrough on clicking the effects.
     public void setOnBackgroundClick(@Nullable Runnable handler) {
         this.onBackgroundClickHandler = handler;
     }
@@ -93,29 +98,27 @@ public class WalkthroughHighlighter {
         currentEffects.clear();
     }
 
-    private Map<Window, EffectState> computeNewEffects(@Nullable WalkthroughEffect config, @NonNull Scene fallbackWindow, @Nullable Node fallbackTarget) {
+    private Map<Window, EffectState> computeNewEffects(@Nullable WalkthroughEffect config,
+            @NonNull Scene fallbackWindow, @Nullable Node fallbackTarget) {
         Map<Window, EffectState> newEffects = new HashMap<>();
 
         if (config == null) {
             if (fallbackTarget != null) {
-                newEffects.put(fallbackWindow.getWindow(),
-                        new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget));
+                newEffects.put(fallbackWindow.getWindow(), new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget));
             }
             return newEffects;
         }
 
         if (config.windowEffects().isEmpty() && config.fallbackEffect().isPresent()) {
-            newEffects.put(fallbackWindow.getWindow(),
-                    new EffectState(config.fallbackEffect().get(), fallbackTarget));
+            newEffects.put(fallbackWindow.getWindow(), new EffectState(config.fallbackEffect().get(), fallbackTarget));
             return newEffects;
         }
 
         config.windowEffects().forEach(effect -> {
             Window window = effect.windowResolver().flatMap(WindowResolver::resolve).orElse(fallbackWindow.getWindow());
-            Node targetNode = effect
-                    .targetNodeResolver()
-                    .flatMap(resolver -> resolver.resolve(window.getScene() != null ? window.getScene() : fallbackWindow))
-                    .orElse(fallbackTarget);
+            Node targetNode = effect.targetNodeResolver()
+                .flatMap(resolver -> resolver.resolve(window.getScene() != null ? window.getScene() : fallbackWindow))
+                .orElse(fallbackTarget);
 
             if (targetNode != null || effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN) {
                 newEffects.put(window, new EffectState(effect.effect(), targetNode));
@@ -125,18 +128,17 @@ public class WalkthroughHighlighter {
         return newEffects;
     }
 
-    private void diffEffects(Map<Window, EffectState> current,
-                             Map<Window, EffectState> desired,
-                             Map<Window, EffectState> toUpdate,
-                             Map<Window, EffectState> toCreate,
-                             Map<Window, EffectState> toRemove) {
+    private void diffEffects(Map<Window, EffectState> current, Map<Window, EffectState> desired,
+            Map<Window, EffectState> toUpdate, Map<Window, EffectState> toCreate, Map<Window, EffectState> toRemove) {
         current.forEach((window, currentState) -> {
             EffectState desiredState = desired.get(window);
             if (desiredState == null) {
                 toRemove.put(window, currentState);
-            } else if (currentState.canTransitionTo(desiredState)) {
+            }
+            else if (currentState.canTransitionTo(desiredState)) {
                 toUpdate.put(window, desiredState);
-            } else {
+            }
+            else {
                 toRemove.put(window, currentState);
                 toCreate.put(window, desiredState);
             }
@@ -224,4 +226,5 @@ public class WalkthroughHighlighter {
             return effect == other.effect;
         }
     }
+
 }

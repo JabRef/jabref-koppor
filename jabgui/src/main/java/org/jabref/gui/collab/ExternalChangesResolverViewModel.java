@@ -25,8 +25,9 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
     private final ObservableList<DatabaseChange> visibleChanges = FXCollections.observableArrayList();
 
     /**
-     * Because visible changes list will be bound to the UI, certain changes can be removed. This list is used to keep
-     * track of changes even when they're removed from the UI.
+     * Because visible changes list will be bound to the UI, certain changes can be
+     * removed. This list is used to keep track of changes even when they're removed from
+     * the UI.
      */
     private final ObservableList<DatabaseChange> changes = FXCollections.observableArrayList();
 
@@ -51,9 +52,13 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
         this.undoManager = undoManager;
 
         areAllChangesResolved = Bindings.createBooleanBinding(visibleChanges::isEmpty, visibleChanges);
-        areAllChangesAccepted = Bindings.createBooleanBinding(() -> changes.stream().allMatch(DatabaseChange::isAccepted));
-        areAllChangesDenied = Bindings.createBooleanBinding(() -> changes.stream().noneMatch(DatabaseChange::isAccepted));
-        canAskUserToResolveChange = Bindings.createBooleanBinding(() -> selectedChange.isNotNull().get() && selectedChange.get().getExternalChangeResolver().isPresent(), selectedChange);
+        areAllChangesAccepted = Bindings
+            .createBooleanBinding(() -> changes.stream().allMatch(DatabaseChange::isAccepted));
+        areAllChangesDenied = Bindings
+            .createBooleanBinding(() -> changes.stream().noneMatch(DatabaseChange::isAccepted));
+        canAskUserToResolveChange = Bindings.createBooleanBinding(
+                () -> selectedChange.isNotNull().get() && selectedChange.get().getExternalChangeResolver().isPresent(),
+                selectedChange);
     }
 
     public ObservableList<DatabaseChange> getVisibleChanges() {
@@ -117,4 +122,5 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
             getVisibleChanges().remove(oldChange);
         });
     }
+
 }

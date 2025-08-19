@@ -29,15 +29,18 @@ import static org.mockito.Mockito.when;
 
 class AutoSetFileLinksUtilTest {
 
-    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(
+            ExternalApplicationsPreferences.class);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class);
+
     private final AutoLinkPreferences autoLinkPrefs = new AutoLinkPreferences(
-            AutoLinkPreferences.CitationKeyDependency.START,
-            "",
-            false,
-            ';');
+            AutoLinkPreferences.CitationKeyDependency.START, "", false, ';');
+
     private final BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
+
     private final BibEntry entry = new BibEntry(StandardEntryType.Article);
+
     private Path path = null;
 
     @BeforeEach
@@ -46,14 +49,15 @@ class AutoSetFileLinksUtilTest {
         Files.createFile(path);
         entry.setCitationKey("CiteKey");
         when(externalApplicationsPreferences.getExternalFileTypes())
-                .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+            .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
     }
 
     @Test
     void findAssociatedNotLinkedFilesSuccess() throws IOException {
         when(databaseContext.getFileDirectories(any())).thenReturn(List.of(path.getParent()));
         List<LinkedFile> expected = List.of(new LinkedFile("", Path.of("CiteKey.pdf"), "PDF"));
-        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences,
+                filePreferences, autoLinkPrefs);
         List<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
         assertEquals(expected, actual);
     }
@@ -61,7 +65,8 @@ class AutoSetFileLinksUtilTest {
     @Test
     void findAssociatedNotLinkedFilesForEmptySearchDir() throws IOException {
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(false);
-        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences,
+                filePreferences, autoLinkPrefs);
         List<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
         assertEquals(List.of(), actual);
     }
@@ -84,18 +89,13 @@ class AutoSetFileLinksUtilTest {
         BibDatabaseContext context = mock(BibDatabaseContext.class);
         when(context.getFileDirectories(filePreferences)).thenReturn(List.of(directory));
 
-        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(
-                context,
-                externalApplicationsPreferences,
-                filePreferences,
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(context, externalApplicationsPreferences, filePreferences,
                 autoLinkPrefs);
 
         List<LinkedFile> matches = util.findAssociatedNotLinkedFiles(entry);
 
         assertEquals(1, matches.size());
-        assertEquals(
-                FileUtil.relativize(newPath, List.of(directory)),
-                Path.of(matches.getFirst().getLink())
-        );
+        assertEquals(FileUtil.relativize(newPath, List.of(directory)), Path.of(matches.getFirst().getLink()));
     }
+
 }

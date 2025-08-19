@@ -10,9 +10,8 @@ public class BibtexStringComparator implements Comparator<BibtexString> {
     private final boolean considerRefs;
 
     /**
-     * @param considerRefs Indicates whether the strings should be
-     *                     sorted according to internal references in addition to
-     *                     alphabetical sorting.
+     * @param considerRefs Indicates whether the strings should be sorted according to
+     * internal references in addition to alphabetical sorting.
      */
     public BibtexStringComparator(boolean considerRefs) {
         this.considerRefs = considerRefs;
@@ -41,7 +40,8 @@ public class BibtexStringComparator implements Comparator<BibtexString> {
             if (res < 0) {
                 pre = s1;
                 post = s2;
-            } else {
+            }
+            else {
                 pre = s2;
                 post = s1;
             }
@@ -59,4 +59,5 @@ public class BibtexStringComparator implements Comparator<BibtexString> {
 
         return res;
     }
+
 }

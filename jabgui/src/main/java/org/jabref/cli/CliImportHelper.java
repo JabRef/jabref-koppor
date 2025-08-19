@@ -22,16 +22,14 @@ import org.slf4j.LoggerFactory;
 /// @deprecated used by the browser extension only
 @Deprecated
 public class CliImportHelper {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CliImportHelper.class);
 
     /**
      * Reads URIs as input
-     *
      * @param location URL or file path to import
      */
-    public static Optional<ParserResult> importFile(String location,
-                                             CliPreferences cliPreferences,
-                                             boolean porcelain) {
+    public static Optional<ParserResult> importFile(String location, CliPreferences cliPreferences, boolean porcelain) {
         LOGGER.debug("Importing file from locaiton {}", location);
         String[] data = location.split(",");
 
@@ -41,15 +39,18 @@ public class CliImportHelper {
             // Download web resource to temporary file
             try {
                 file = new URLDownload(address).toTemporaryFile();
-            } catch (FetcherException |
-                    MalformedURLException e) {
-                System.err.println(Localization.lang("Problem downloading from %0: %1", address, e.getLocalizedMessage()));
+            }
+            catch (FetcherException | MalformedURLException e) {
+                System.err
+                    .println(Localization.lang("Problem downloading from %0: %1", address, e.getLocalizedMessage()));
                 return Optional.empty();
             }
-        } else {
+        }
+        else {
             if (OS.WINDOWS) {
                 file = Path.of(address);
-            } else {
+            }
+            else {
                 file = Path.of(address.replace("~", System.getProperty("user.home")));
             }
         }
@@ -63,25 +64,22 @@ public class CliImportHelper {
         return importResult;
     }
 
-   public static Optional<ParserResult> importFile(Path file,
-                                             CliPreferences cliPreferences,
-                                             boolean porcelain) {
+    public static Optional<ParserResult> importFile(Path file, CliPreferences cliPreferences, boolean porcelain) {
         try {
-            ImportFormatReader importFormatReader = new ImportFormatReader(
-                    cliPreferences.getImporterPreferences(),
-                    cliPreferences.getImportFormatPreferences(),
-                    cliPreferences.getCitationKeyPatternPreferences(),
-                    new DummyFileUpdateMonitor()
-            );
+            ImportFormatReader importFormatReader = new ImportFormatReader(cliPreferences.getImporterPreferences(),
+                    cliPreferences.getImportFormatPreferences(), cliPreferences.getCitationKeyPatternPreferences(),
+                    new DummyFileUpdateMonitor());
 
             if (!porcelain) {
                 System.out.println(Localization.lang("Importing %0", file));
             }
             ParserResult result = importFormatReader.importFromFile("bibtex", file);
             return Optional.of(result);
-        } catch (ImportException ex) {
+        }
+        catch (ImportException ex) {
             LOGGER.error("Error opening file '{}'", file, ex);
             return Optional.empty();
         }
     }
+
 }

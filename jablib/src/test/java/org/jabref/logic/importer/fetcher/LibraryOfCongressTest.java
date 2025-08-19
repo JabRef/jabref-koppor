@@ -35,20 +35,19 @@ class LibraryOfCongressTest {
 
     @Test
     void performSearchById() throws FetcherException {
-        BibEntry expected = new BibEntry()
-                .withField(StandardField.ADDRESS, "mau, Burlington, MA")
-                .withField(StandardField.AUTHOR, "West, Matthew")
-                .withField(StandardField.DATE, "2011")
-                .withField(StandardField.ISBN, "0123751063 (pbk.)")
-                .withField(new UnknownField("issuance"), "monographic")
-                .withField(StandardField.KEYWORDS, "Database design, Data structures (Computer science)")
-                .withField(StandardField.LANGUAGE, "eng")
-                .withField(new UnknownField("lccn"), "2010045158")
-                .withField(StandardField.NOTE, "Matthew West., Includes index.")
-                .withField(new UnknownField("oclc"), "ocn665135773")
-                .withField(new UnknownField("source"), "aacr")
-                .withField(StandardField.TITLE, "Developing high quality data models")
-                .withField(StandardField.YEAR, "2011");
+        BibEntry expected = new BibEntry().withField(StandardField.ADDRESS, "mau, Burlington, MA")
+            .withField(StandardField.AUTHOR, "West, Matthew")
+            .withField(StandardField.DATE, "2011")
+            .withField(StandardField.ISBN, "0123751063 (pbk.)")
+            .withField(new UnknownField("issuance"), "monographic")
+            .withField(StandardField.KEYWORDS, "Database design, Data structures (Computer science)")
+            .withField(StandardField.LANGUAGE, "eng")
+            .withField(new UnknownField("lccn"), "2010045158")
+            .withField(StandardField.NOTE, "Matthew West., Includes index.")
+            .withField(new UnknownField("oclc"), "ocn665135773")
+            .withField(new UnknownField("source"), "aacr")
+            .withField(StandardField.TITLE, "Developing high quality data models")
+            .withField(StandardField.YEAR, "2011");
 
         assertEquals(Optional.of(expected), fetcher.performSearchById("2010045158"));
     }
@@ -62,4 +61,5 @@ class LibraryOfCongressTest {
     void performSearchByInvalidId() {
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById("xxx"));
     }
+
 }

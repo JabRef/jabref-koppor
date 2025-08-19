@@ -20,32 +20,48 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldProperty;
 
 public class ThreeWayMergeView extends VBox {
+
     public static final int GRID_COLUMN_MIN_WIDTH = 250;
 
     public static final String LEFT_DEFAULT_HEADER = Localization.lang("Left Entry");
+
     public static final String RIGHT_DEFAULT_HEADER = Localization.lang("Right Entry");
 
     private final ColumnConstraints fieldNameColumnConstraints = new ColumnConstraints(150);
-    private final ColumnConstraints leftEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256, Double.MAX_VALUE);
-    private final ColumnConstraints rightEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256, Double.MAX_VALUE);
-    private final ColumnConstraints mergedEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256, Double.MAX_VALUE);
+
+    private final ColumnConstraints leftEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256,
+            Double.MAX_VALUE);
+
+    private final ColumnConstraints rightEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256,
+            Double.MAX_VALUE);
+
+    private final ColumnConstraints mergedEntryColumnConstraints = new ColumnConstraints(GRID_COLUMN_MIN_WIDTH, 256,
+            Double.MAX_VALUE);
+
     private final ThreeWayMergeToolbar toolbar;
+
     private final ThreeWayMergeHeaderView headerView;
+
     private final ScrollPane scrollPane;
+
     private final GridPane mergeGridPane;
 
     private final ThreeWayMergeViewModel viewModel;
+
     private final List<FieldRowView> fieldRows = new ArrayList<>();
 
     private final GuiPreferences preferences;
 
     private final FieldMergerFactory fieldMergerFactory;
+
     private final String keywordSeparator;
 
-    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, String leftHeader, String rightHeader, GuiPreferences preferences) {
+    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, String leftHeader, String rightHeader,
+            GuiPreferences preferences) {
         this.preferences = preferences;
 
-        viewModel = new ThreeWayMergeViewModel(new BibEntry(leftEntry), new BibEntry(rightEntry), leftHeader, rightHeader);
+        viewModel = new ThreeWayMergeViewModel(new BibEntry(leftEntry), new BibEntry(rightEntry), leftHeader,
+                rightHeader);
         this.fieldMergerFactory = new FieldMergerFactory(preferences.getBibEntryPreferences());
         this.keywordSeparator = preferences.getBibEntryPreferences().getKeywordSeparator().toString();
 
@@ -91,7 +107,8 @@ public class ThreeWayMergeView extends VBox {
                 if (row.hasEqualLeftAndRightValues()) {
                     row.hide();
                 }
-            } else {
+            }
+            else {
                 row.show();
             }
         }
@@ -100,22 +117,25 @@ public class ThreeWayMergeView extends VBox {
     private void updateDiff() {
         if (toolbar.shouldShowDiffs()) {
             for (FieldRowView row : fieldRows) {
-                if ("Groups".equals(row.getFieldNameCell().getText()) && (row.getLeftValueCell().getText().contains(keywordSeparator) || row.getRightValueCell().getText().contains(keywordSeparator))) {
+                if ("Groups".equals(row.getFieldNameCell().getText())
+                        && (row.getLeftValueCell().getText().contains(keywordSeparator)
+                                || row.getRightValueCell().getText().contains(keywordSeparator))) {
                     row.showDiff(new ShowDiffConfig(toolbar.getDiffView(), new GroupDiffMode(keywordSeparator)));
-                } else {
+                }
+                else {
                     row.showDiff(new ShowDiffConfig(toolbar.getDiffView(), toolbar.getDiffHighlightingMethod()));
                 }
             }
-        } else {
+        }
+        else {
             fieldRows.forEach(FieldRowView::hideDiff);
         }
     }
 
     private void initializeHeaderView() {
-        headerView.getColumnConstraints().addAll(fieldNameColumnConstraints,
-                                                 leftEntryColumnConstraints,
-                                                 rightEntryColumnConstraints,
-                                                 mergedEntryColumnConstraints);
+        headerView.getColumnConstraints()
+            .addAll(fieldNameColumnConstraints, leftEntryColumnConstraints, rightEntryColumnConstraints,
+                    mergedEntryColumnConstraints);
     }
 
     private void initializeScrollPane() {
@@ -132,7 +152,9 @@ public class ThreeWayMergeView extends VBox {
     }
 
     private void initializeMergeGridPane() {
-        mergeGridPane.getColumnConstraints().addAll(fieldNameColumnConstraints, leftEntryColumnConstraints, rightEntryColumnConstraints, mergedEntryColumnConstraints);
+        mergeGridPane.getColumnConstraints()
+            .addAll(fieldNameColumnConstraints, leftEntryColumnConstraints, rightEntryColumnConstraints,
+                    mergedEntryColumnConstraints);
 
         for (int fieldIndex = 0; fieldIndex < viewModel.numberOfVisibleFields(); fieldIndex++) {
             addRow(fieldIndex);
@@ -150,9 +172,12 @@ public class ThreeWayMergeView extends VBox {
 
         FieldRowView fieldRow;
         if (field.getProperties().contains(FieldProperty.PERSON_NAMES)) {
-            fieldRow = new PersonsNameFieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(), fieldMergerFactory, preferences, fieldIndex);
-        } else {
-            fieldRow = new FieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(), fieldMergerFactory, preferences, fieldIndex);
+            fieldRow = new PersonsNameFieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(),
+                    fieldMergerFactory, preferences, fieldIndex);
+        }
+        else {
+            fieldRow = new FieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(), fieldMergerFactory,
+                    preferences, fieldIndex);
         }
 
         fieldRows.add(fieldIndex, fieldRow);
@@ -206,4 +231,5 @@ public class ThreeWayMergeView extends VBox {
             row.autoSelectBetterValue();
         }
     }
+
 }

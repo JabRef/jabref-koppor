@@ -17,10 +17,7 @@ class NormalizeWhitespaceFormatterTest {
 
     @BeforeEach
     void setUp() {
-        parser = new NormalizeWhitespaceFormatter(new FieldPreferences(
-                false,
-                List.of(),
-                List.of()));
+        parser = new NormalizeWhitespaceFormatter(new FieldPreferences(false, List.of(), List.of()));
     }
 
     @Test
@@ -28,7 +25,8 @@ class NormalizeWhitespaceFormatterTest {
         String original = "I\r\nunify\nline\rbreaks.";
         String processed = parser.format(new StringBuilder(original), StandardField.ABSTRACT);
 
-        // Normalization is done at org.jabref.logic.exporter.BibWriter, so no need to normalize here
+        // Normalization is done at org.jabref.logic.exporter.BibWriter, so no need to
+        // normalize here
         assertEquals(original, processed);
     }
 
@@ -54,4 +52,5 @@ class NormalizeWhitespaceFormatterTest {
         assertEquals(expected, abstrakt);
         assertEquals(expected, any);
     }
+
 }

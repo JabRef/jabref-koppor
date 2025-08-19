@@ -15,14 +15,9 @@ public class LibraryPropertiesViewModel {
     private final List<PropertiesTab> propertiesTabs;
 
     public LibraryPropertiesViewModel(BibDatabaseContext databaseContext) {
-        propertiesTabs = List.of(
-                new GeneralPropertiesView(databaseContext),
-                new SavingPropertiesView(databaseContext),
-                new KeyPatternPropertiesView(databaseContext),
-                new ConstantsPropertiesView(databaseContext),
-                new ContentSelectorView(databaseContext),
-                new PreamblePropertiesView(databaseContext)
-        );
+        propertiesTabs = List.of(new GeneralPropertiesView(databaseContext), new SavingPropertiesView(databaseContext),
+                new KeyPatternPropertiesView(databaseContext), new ConstantsPropertiesView(databaseContext),
+                new ContentSelectorView(databaseContext), new PreamblePropertiesView(databaseContext));
     }
 
     public void setValues() {
@@ -40,7 +35,7 @@ public class LibraryPropertiesViewModel {
     public boolean validateAllSettings() {
         for (PropertiesTab propertiesTab : propertiesTabs) {
             if (!propertiesTab.validateSettings()) {
-              return false;
+                return false;
             }
         }
         return true;
@@ -49,4 +44,5 @@ public class LibraryPropertiesViewModel {
     public List<PropertiesTab> getPropertiesTabs() {
         return propertiesTabs;
     }
+
 }

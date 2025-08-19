@@ -18,33 +18,41 @@ import jakarta.inject.Inject;
 
 public class AboutDialogView extends BaseDialog<Void> {
 
-    @FXML private ButtonType copyVersionButton;
-    @FXML private TextArea textAreaVersions;
+    @FXML
+    private ButtonType copyVersionButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private BuildInfo buildInfo;
-    @Inject private ThemeManager themeManager;
+    @FXML
+    private TextArea textAreaVersions;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
+
+    @Inject
+    private BuildInfo buildInfo;
+
+    @Inject
+    private ThemeManager themeManager;
 
     private AboutDialogViewModel viewModel;
 
     public AboutDialogView() {
         this.setTitle(Localization.lang("About JabRef"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         ControlHelper.setAction(copyVersionButton, getDialogPane(), ignored -> copyVersionToClipboard());
 
-        getDialogPane()
-                .sceneProperty()
-                .addListener((_, ignored, newScene) -> {
-                    if (newScene != null) {
-                        themeManager.updateFontStyle(newScene);
-                    }
-                });
+        getDialogPane().sceneProperty().addListener((_, ignored, newScene) -> {
+            if (newScene != null) {
+                themeManager.updateFontStyle(newScene);
+            }
+        });
     }
 
     public AboutDialogViewModel getViewModel() {
@@ -102,4 +110,5 @@ public class AboutDialogView extends BaseDialog<Void> {
     public void openPrivacyPolicy() {
         viewModel.openPrivacyPolicy();
     }
+
 }

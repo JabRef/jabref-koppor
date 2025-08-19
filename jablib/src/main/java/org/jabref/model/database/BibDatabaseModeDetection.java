@@ -14,12 +14,11 @@ public class BibDatabaseModeDetection {
     /**
      * Tries to infer the database type by examining a BibDatabase database.
      *
-     * All checks are based on the case-insensitive comparison of entry tag names.
-     * Only standard BibTex and Biblatex entry types are considered in the decision process.
+     * All checks are based on the case-insensitive comparison of entry tag names. Only
+     * standard BibTex and Biblatex entry types are considered in the decision process.
      *
-     * 1. Check if any of the entries is a type exclusive to Biblatex
-     * 2. Otherwise return BibTex
-     *
+     * 1. Check if any of the entries is a type exclusive to Biblatex 2. Otherwise return
+     * BibTex
      * @param database a BibDatabase database
      * @return the inferred database type
      */
@@ -28,8 +27,10 @@ public class BibDatabaseModeDetection {
 
         if (entryTypes.anyMatch(EntryTypeFactory::isExclusiveBiblatex)) {
             return BibDatabaseMode.BIBLATEX;
-        } else {
+        }
+        else {
             return BibDatabaseMode.BIBTEX;
         }
     }
+
 }

@@ -15,18 +15,21 @@ import org.jabref.model.entry.field.Field;
 public class AutoCompletePreferences {
 
     public enum NameFormat {
+
         LAST_FIRST, FIRST_LAST, BOTH
+
     }
 
     private final BooleanProperty shouldAutoComplete;
+
     private final ObjectProperty<AutoCompleteFirstNameMode> firstNameMode;
+
     private final ObjectProperty<NameFormat> nameFormat;
+
     private final ObservableSet<Field> completeFields;
 
-    public AutoCompletePreferences(boolean shouldAutoComplete,
-                                   AutoCompleteFirstNameMode firstNameMode,
-                                   NameFormat nameFormat,
-                                   Set<Field> completeFields) {
+    public AutoCompletePreferences(boolean shouldAutoComplete, AutoCompleteFirstNameMode firstNameMode,
+            NameFormat nameFormat, Set<Field> completeFields) {
         this.shouldAutoComplete = new SimpleBooleanProperty(shouldAutoComplete);
         this.firstNameMode = new SimpleObjectProperty<>(firstNameMode);
         this.nameFormat = new SimpleObjectProperty<>(nameFormat);
@@ -74,10 +77,10 @@ public class AutoCompletePreferences {
 
     /**
      * Returns the list of fields for which autocomplete is enabled
-     *
      * @return List of field names
      */
     public ObservableSet<Field> getCompleteFields() {
         return completeFields;
     }
+
 }

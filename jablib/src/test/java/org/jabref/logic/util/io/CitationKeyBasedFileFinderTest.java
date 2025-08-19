@@ -19,10 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class CitationKeyBasedFileFinderTest {
 
     private BibEntry entry;
+
     private Path rootDir;
+
     private Path graphicsDir;
+
     private Path pdfsDir;
+
     private Path jpgFile;
+
     private Path pdfFile;
 
     @BeforeEach
@@ -108,7 +113,8 @@ class CitationKeyBasedFileFinderTest {
         Path testFile = Files.createFile(pdfsDir.resolve("_test_file.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(false);
 
-        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
+        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir),
+                List.of("pdf"));
 
         assertEquals(List.of(testFile), results);
     }
@@ -121,8 +127,10 @@ class CitationKeyBasedFileFinderTest {
         Path testFile = Files.createFile(pdfsDir.resolve("test_test__test_.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(true);
 
-        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
+        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir),
+                List.of("pdf"));
 
         assertNotEquals(List.of(testFile), results);
     }
+
 }

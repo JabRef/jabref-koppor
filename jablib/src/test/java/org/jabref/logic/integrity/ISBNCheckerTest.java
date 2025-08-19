@@ -44,10 +44,9 @@ class ISBNCheckerTest {
     }
 
     private static Stream<Arguments> provideBoundaryArgumentsForISBN13() {
-        return Stream.of(
-                Arguments.of(Optional.empty(), "978-0-306-40615-7"),
+        return Stream.of(Arguments.of(Optional.empty(), "978-0-306-40615-7"),
                 Arguments.of(Optional.of(Localization.lang("incorrect control digit")), "978-0-306-40615-2"),
-                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7")
-        );
+                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7"));
     }
+
 }

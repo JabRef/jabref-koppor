@@ -30,21 +30,30 @@ import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 public class MSBibExportFormatFilesTest {
 
     private static Path resourceDir;
+
     public BibDatabaseContext databaseContext;
+
     public Charset charset;
+
     private Path exportedFile;
+
     private MSBibExporter exporter;
+
     private BibtexImporter testImporter;
 
     static Stream<String> fileNames() throws IOException, URISyntaxException {
-        // we have to point it to one existing file, otherwise it will return the default class path
-        resourceDir = Path.of(MSBibExportFormatFilesTest.class.getResource("MsBibExportFormatTest1.bib").toURI()).getParent();
+        // we have to point it to one existing file, otherwise it will return the default
+        // class path
+        resourceDir = Path.of(MSBibExportFormatFilesTest.class.getResource("MsBibExportFormatTest1.bib").toURI())
+            .getParent();
         try (Stream<Path> stream = Files.list(resourceDir)) {
             return stream.map(n -> n.getFileName().toString())
-                         .filter(n -> n.endsWith(".bib"))
-                         .filter(n -> n.startsWith("MsBib"))
-                         // mapping required, because we get "source already consumed or closed" otherwise
-                         .toList().stream();
+                .filter(n -> n.endsWith(".bib"))
+                .filter(n -> n.startsWith("MsBib"))
+                // mapping required, because we get "source already consumed or closed"
+                // otherwise
+                .toList()
+                .stream();
         }
     }
 
@@ -55,7 +64,8 @@ public class MSBibExportFormatFilesTest {
         exporter = new MSBibExporter();
         Path path = testFolder.resolve("ARandomlyNamedFile.tmp");
         exportedFile = Files.createFile(path);
-        testImporter = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
+        testImporter = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                new DummyFileUpdateMonitor());
     }
 
     @ParameterizedTest(name = "{index} file={0}")
@@ -74,12 +84,14 @@ public class MSBibExportFormatFilesTest {
         String expected = String.join("\n", Files.readAllLines(expectedFile));
         String actual = String.join("\n", Files.readAllLines(exportedFile));
 
-        // The order of the XML elements changes from Windows to Travis environment somehow
+        // The order of the XML elements changes from Windows to Travis environment
+        // somehow
         // The order does not really matter, so we ignore it.
         // Source: https://stackoverflow.com/a/16540679/873282
-        assertThat(expected, isSimilarTo(actual)
-                .ignoreWhitespace()
-                .normalizeWhitespace()
-                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
+        assertThat(expected,
+                isSimilarTo(actual).ignoreWhitespace()
+                    .normalizeWhitespace()
+                    .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
     }
+
 }

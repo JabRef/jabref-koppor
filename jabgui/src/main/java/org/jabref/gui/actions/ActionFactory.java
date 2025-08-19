@@ -38,7 +38,8 @@ public class ActionFactory {
     }
 
     /**
-     * For some reason the graphic is not set correctly by the {@link ActionUtils} class, so we have to fix this by hand
+     * For some reason the graphic is not set correctly by the {@link ActionUtils} class,
+     * so we have to fix this by hand
      */
     private static void setGraphic(MenuItem node, Action action) {
         node.graphicProperty().unbind();
@@ -46,29 +47,31 @@ public class ActionFactory {
     }
 
     /*
-     * Returns MenuItemContainer node associated with this menu item
-     * which can contain:
-     *   1. label node of type Label for displaying menu item text,
-     *   2. right node of type Label for displaying accelerator text,
-     *      or an arrow if it's a Menu,
-     *   3. graphic node for displaying menu item icon, and
-     *   4. left node for displaying either radio button or check box.
+     * Returns MenuItemContainer node associated with this menu item which can contain: 1.
+     * label node of type Label for displaying menu item text, 2. right node of type Label
+     * for displaying accelerator text, or an arrow if it's a Menu, 3. graphic node for
+     * displaying menu item icon, and 4. left node for displaying either radio button or
+     * check box.
      *
-     * This is basically rewritten impl_styleableGetNode() which
-     * should not be used since it's marked as deprecated.
+     * This is basically rewritten impl_styleableGetNode() which should not be used since
+     * it's marked as deprecated.
      */
     private static Label getAssociatedNode(MenuItem menuItem) {
-        ContextMenuContent.MenuItemContainer container = (ContextMenuContent.MenuItemContainer) menuItem.getStyleableNode();
+        ContextMenuContent.MenuItemContainer container = (ContextMenuContent.MenuItemContainer) menuItem
+            .getStyleableNode();
 
         if (container == null) {
             return null;
-        } else {
+        }
+        else {
             // We have to use reflection to get the associated label
             try {
                 Method getLabel = ContextMenuContent.MenuItemContainer.class.getDeclaredMethod("getLabel");
                 getLabel.setAccessible(true);
                 return (Label) getLabel.invoke(container);
-            } catch (InaccessibleObjectException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            }
+            catch (InaccessibleObjectException | IllegalAccessException | InvocationTargetException
+                    | NoSuchMethodException e) {
                 LOGGER.warn("Could not get label of menu item", e);
             }
         }
@@ -84,20 +87,18 @@ public class ActionFactory {
 
     private static void enableTooltips(Command command, MenuItem menuItem) {
         if (command instanceof SimpleCommand simpleCommand) {
-            EasyBind.subscribe(
-                    simpleCommand.statusMessageProperty(),
-                    message -> {
-                        Label label = getAssociatedNode(menuItem);
-                        if (label != null) {
-                            label.setMouseTransparent(false);
-                            if (StringUtil.isBlank(message)) {
-                                label.setTooltip(null);
-                            } else {
-                                label.setTooltip(new Tooltip(message));
-                            }
-                        }
+            EasyBind.subscribe(simpleCommand.statusMessageProperty(), message -> {
+                Label label = getAssociatedNode(menuItem);
+                if (label != null) {
+                    label.setMouseTransparent(false);
+                    if (StringUtil.isBlank(message)) {
+                        label.setTooltip(null);
                     }
-            );
+                    else {
+                        label.setTooltip(new Tooltip(message));
+                    }
+                }
+            });
         }
     }
 
@@ -117,7 +118,8 @@ public class ActionFactory {
     }
 
     public CheckMenuItem createCheckMenuItem(Action action, Command command, boolean selected) {
-        CheckMenuItem checkMenuItem = ActionUtils.createCheckMenuItem(new JabRefAction(action, command, keyBindingRepository));
+        CheckMenuItem checkMenuItem = ActionUtils
+            .createCheckMenuItem(new JabRefAction(action, command, keyBindingRepository));
         checkMenuItem.setSelected(selected);
         setGraphic(checkMenuItem, action);
 
@@ -125,7 +127,8 @@ public class ActionFactory {
     }
 
     public CheckMenuItem createCheckMenuItem(Action action, Command command, BooleanExpression selectedBinding) {
-        CheckMenuItem checkMenuItem = ActionUtils.createCheckMenuItem(new JabRefAction(action, command, keyBindingRepository));
+        CheckMenuItem checkMenuItem = ActionUtils
+            .createCheckMenuItem(new JabRefAction(action, command, keyBindingRepository));
         EasyBind.subscribe(selectedBinding, checkMenuItem::setSelected);
         setGraphic(checkMenuItem, action);
 
@@ -147,7 +150,8 @@ public class ActionFactory {
     }
 
     public Button createIconButton(Action action, Command command) {
-        Button button = ActionUtils.createButton(new JabRefAction(action, command, keyBindingRepository), ActionUtils.ActionTextBehavior.HIDE);
+        Button button = ActionUtils.createButton(new JabRefAction(action, command, keyBindingRepository),
+                ActionUtils.ActionTextBehavior.HIDE);
 
         button.getStyleClass().setAll("icon-button");
 
@@ -163,9 +167,7 @@ public class ActionFactory {
 
     public ButtonBase configureIconButton(Action action, Command command, ButtonBase button) {
         ActionUtils.unconfigureButton(button);
-        ActionUtils.configureButton(
-                new JabRefAction(action, command, keyBindingRepository),
-                button,
+        ActionUtils.configureButton(new JabRefAction(action, command, keyBindingRepository), button,
                 ActionUtils.ActionTextBehavior.HIDE);
 
         button.getStyleClass().add("icon-button");
@@ -177,4 +179,5 @@ public class ActionFactory {
 
         return button;
     }
+
 }

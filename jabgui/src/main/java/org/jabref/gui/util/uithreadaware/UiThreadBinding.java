@@ -6,7 +6,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 
 /**
- * This class can be used to wrap a {@link Binding} inside it. When wrapped, any Listener listening for updates to the wrapped {@link Binding} (for example because of a binding to it) is ensured to be notified on the JavaFX Application Thread. It should be used to implement bindings where updates come in from a background thread but should be reflected in the UI where it is necessary that changes to the UI are performed on the JavaFX Application thread.
+ * This class can be used to wrap a {@link Binding} inside it. When wrapped, any Listener
+ * listening for updates to the wrapped {@link Binding} (for example because of a binding
+ * to it) is ensured to be notified on the JavaFX Application Thread. It should be used to
+ * implement bindings where updates come in from a background thread but should be
+ * reflected in the UI where it is necessary that changes to the UI are performed on the
+ * JavaFX Application thread.
  */
 public class UiThreadBinding<T> implements Binding<T> {
 
@@ -60,4 +65,5 @@ public class UiThreadBinding<T> implements Binding<T> {
     public void dispose() {
         delegate.dispose();
     }
+
 }

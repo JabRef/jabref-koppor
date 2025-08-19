@@ -38,20 +38,25 @@ public class EscapeAmpersandsFormatter extends Formatter {
                 if (!inCommandOption) {
                     commandName.append(c);
                 }
-            } else if (Character.isWhitespace(c) && (inCommand || inCommandOption)) {
+            }
+            else if (Character.isWhitespace(c) && (inCommand || inCommandOption)) {
                 // Whitespace
-            } else if (inCommandName) {
+            }
+            else if (inCommandName) {
                 // This means the command name is ended.
                 // Perhaps the beginning of an argument:
                 if (c == '[') {
                     inCommandOption = true;
-                } else if (inCommandOption && (c == ']')) {
+                }
+                else if (inCommandOption && (c == ']')) {
                     // Or the end of an argument:
                     inCommandOption = false;
-                } else if (!inCommandOption && (c == '{')) {
+                }
+                else if (!inCommandOption && (c == '{')) {
                     inCommandName = false;
                     inCommand = true;
-                } else {
+                }
+                else {
                     // Or simply the end of this command alltogether:
                     commandName.delete(0, commandName.length());
                     inCommandName = false;
@@ -75,7 +80,8 @@ public class EscapeAmpersandsFormatter extends Formatter {
             if ((c == '&') && !escape && !(inCommand && "url".contentEquals(commandName))
                     && (nestedEnvironments == 0)) {
                 result.append("\\&");
-            } else {
+            }
+            else {
                 result.append(c);
             }
             escape = c == '\\';
@@ -92,4 +98,5 @@ public class EscapeAmpersandsFormatter extends Formatter {
     public String getExampleInput() {
         return "Text & with &ampersands";
     }
+
 }

@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class FieldFactoryTest {
+
     @Test
     void orFieldsTwoTerms() {
         assertEquals("Aaa/Bbb", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb")));
@@ -20,7 +21,8 @@ class FieldFactoryTest {
 
     @Test
     void orFieldsThreeTerms() {
-        assertEquals("Aaa/Bbb/Ccc", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb"), new UnknownField("ccc")));
+        assertEquals("Aaa/Bbb/Ccc", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb"),
+                new UnknownField("ccc")));
     }
 
     private static Stream<Arguments> fieldsWithoutFieldProperties() {
@@ -30,8 +32,7 @@ class FieldFactoryTest {
                 Arguments.of(new UserSpecificCommentField("other-user-id"), "comment-other-user-id"),
                 // unknown field
                 Arguments.of(new UnknownField("cased", "cAsEd"), "cAsEd"),
-                Arguments.of(new UnknownField("rights", "rights"), "UnknownField{name='rights'}")
-        );
+                Arguments.of(new UnknownField("rights", "rights"), "UnknownField{name='rights'}"));
     }
 
     @ParameterizedTest
@@ -49,4 +50,5 @@ class FieldFactoryTest {
     void doesParseApaFieldWithEntryType() {
         assertEquals(BiblatexApaField.ARTICLE, FieldFactory.parseField(BiblatexApaEntryType.Constitution, "article"));
     }
+
 }

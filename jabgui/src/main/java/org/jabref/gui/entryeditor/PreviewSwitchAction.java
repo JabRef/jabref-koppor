@@ -8,9 +8,14 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class PreviewSwitchAction extends SimpleCommand {
 
-    public enum Direction { PREVIOUS, NEXT }
+    public enum Direction {
+
+        PREVIOUS, NEXT
+
+    }
 
     private final PreviewControls previewControls;
+
     private final Direction direction;
 
     public PreviewSwitchAction(Direction direction, PreviewControls previewControls, StateManager stateManager) {
@@ -24,8 +29,10 @@ public class PreviewSwitchAction extends SimpleCommand {
     public void execute() {
         if (direction == Direction.NEXT) {
             previewControls.nextPreviewStyle();
-        } else {
+        }
+        else {
             previewControls.previousPreviewStyle();
         }
     }
+
 }

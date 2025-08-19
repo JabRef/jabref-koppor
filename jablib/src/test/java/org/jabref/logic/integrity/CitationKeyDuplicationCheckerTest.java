@@ -17,8 +17,8 @@ class CitationKeyDuplicationCheckerTest {
     @Test
     void emptyCitationKey() {
         BibEntry entry = new BibEntry().withField(InternalField.KEY_FIELD, "")
-                                       .withField(StandardField.AUTHOR, "Knuth")
-                                       .withField(StandardField.YEAR, "2014");
+            .withField(StandardField.AUTHOR, "Knuth")
+            .withField(StandardField.YEAR, "2014");
         BibDatabase bibDatabase = new BibDatabase(List.of(entry));
         CitationKeyDuplicationChecker checker = new CitationKeyDuplicationChecker(bibDatabase);
 
@@ -29,16 +29,17 @@ class CitationKeyDuplicationCheckerTest {
     @Test
     void hasDuplicateCitationKey() {
         BibEntry entry = new BibEntry().withField(InternalField.KEY_FIELD, "Knuth2014")
-                                       .withField(StandardField.AUTHOR, "Knuth")
-                                       .withField(StandardField.YEAR, "2014");
+            .withField(StandardField.AUTHOR, "Knuth")
+            .withField(StandardField.YEAR, "2014");
         BibEntry entry2 = new BibEntry().withField(InternalField.KEY_FIELD, "Knuth2014")
-                                        .withField(StandardField.AUTHOR, "Knuth")
-                                        .withField(StandardField.YEAR, "2014");
+            .withField(StandardField.AUTHOR, "Knuth")
+            .withField(StandardField.YEAR, "2014");
         BibDatabase bibDatabase = new BibDatabase(List.of(entry, entry2));
         CitationKeyDuplicationChecker checker = new CitationKeyDuplicationChecker(bibDatabase);
 
-        List<IntegrityMessage> expected = List.of(
-                new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, StandardField.KEY));
+        List<IntegrityMessage> expected = List
+            .of(new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, StandardField.KEY));
         assertEquals(expected, checker.check(entry));
     }
+
 }

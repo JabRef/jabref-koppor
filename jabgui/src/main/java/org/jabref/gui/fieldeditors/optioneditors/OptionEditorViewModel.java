@@ -13,7 +13,8 @@ import org.jabref.model.entry.field.Field;
 
 public abstract class OptionEditorViewModel<T> extends AbstractEditorViewModel {
 
-    public OptionEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public OptionEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
     }
 
@@ -28,7 +29,9 @@ public abstract class OptionEditorViewModel<T> extends AbstractEditorViewModel {
     public abstract Collection<T> getItems();
 
     /**
-     * Used for filling the ComboBox for selecting a value. Needs to return something meaningful for each item in {@link #getItems()}
+     * Used for filling the ComboBox for selecting a value. Needs to return something
+     * meaningful for each item in {@link #getItems()}
      */
     public abstract String convertToDisplayText(T object);
+
 }

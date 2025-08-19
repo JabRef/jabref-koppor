@@ -35,4 +35,5 @@ public class IdentityFormatter extends Formatter {
     public String getExampleInput() {
         return "JabRef";
     }
+
 }

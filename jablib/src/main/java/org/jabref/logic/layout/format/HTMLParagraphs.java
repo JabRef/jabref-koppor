@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.jabref.logic.layout.LayoutFormatter;
 
 /**
- * Will interpret two consecutive newlines as the start of a new paragraph and thus
- * wrap the paragraph in HTML-p-tags.
+ * Will interpret two consecutive newlines as the start of a new paragraph and thus wrap
+ * the paragraph in HTML-p-tags.
  */
 public class HTMLParagraphs implements LayoutFormatter {
 
@@ -41,4 +41,5 @@ public class HTMLParagraphs implements LayoutFormatter {
 
         return s.toString();
     }
+
 }

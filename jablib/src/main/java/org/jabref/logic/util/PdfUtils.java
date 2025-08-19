@@ -7,6 +7,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 public class PdfUtils {
+
     public static String getFirstPageContents(PDDocument document) throws IOException {
         PDFTextStripper stripper = new PDFTextStripper();
 
@@ -19,4 +20,5 @@ public class PdfUtils {
 
         return writer.toString();
     }
+
 }

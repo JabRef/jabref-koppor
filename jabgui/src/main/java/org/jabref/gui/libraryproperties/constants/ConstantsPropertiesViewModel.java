@@ -28,32 +28,36 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
 
     private static final String NEW_STRING_LABEL = "NewString"; // must not contain spaces
 
-    private final ListProperty<ConstantsItemModel> stringsListProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<ConstantsItemModel> stringsListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
 
     private final BooleanProperty validProperty = new SimpleBooleanProperty();
 
     private final BibDatabaseContext databaseContext;
 
     private final DialogService dialogService;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    public ConstantsPropertiesViewModel(BibDatabaseContext databaseContext, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public ConstantsPropertiesViewModel(BibDatabaseContext databaseContext, DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences) {
         this.databaseContext = databaseContext;
         this.dialogService = dialogService;
         this.externalApplicationsPreferences = externalApplicationsPreferences;
 
-        ObservableList<ObservableValue<Boolean>> allValidProperty =
-                EasyBind.map(stringsListProperty, ConstantsItemModel::combinedValidationValidProperty);
+        ObservableList<ObservableValue<Boolean>> allValidProperty = EasyBind.map(stringsListProperty,
+                ConstantsItemModel::combinedValidationValidProperty);
         validProperty.bind(EasyBind.combine(allValidProperty, stream -> stream.allMatch(valid -> valid)));
     }
 
     @Override
     public void setValues() {
-        stringsListProperty.addAll(databaseContext.getDatabase().getStringValues().stream()
-                                                  .sorted(new BibtexStringComparator(false))
-                                                  .map(this::convertFromBibTexString)
-                                                  .toList());
+        stringsListProperty.addAll(databaseContext.getDatabase()
+            .getStringValues()
+            .stream()
+            .sorted(new BibtexStringComparator(false))
+            .map(this::convertFromBibTexString)
+            .toList());
     }
 
     public void addNewString() {
@@ -64,7 +68,8 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
                 i++;
             }
             newItem = new ConstantsItemModel(NEW_STRING_LABEL + i, "");
-        } else {
+        }
+        else {
             newItem = new ConstantsItemModel(NEW_STRING_LABEL, "");
         }
 
@@ -86,9 +91,7 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
 
     @Override
     public void storeSettings() {
-        List<BibtexString> strings = stringsListProperty.stream()
-                                                        .map(this::fromBibtexStringViewModel)
-                                                        .toList();
+        List<BibtexString> strings = stringsListProperty.stream().map(this::fromBibtexStringViewModel).toList();
         databaseContext.getDatabase().setStrings(strings);
     }
 
@@ -99,9 +102,7 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     }
 
     public Optional<ConstantsItemModel> labelAlreadyExists(String label) {
-        return stringsListProperty.stream()
-                                  .filter(item -> item.labelProperty().getValue().equals(label))
-                                  .findFirst();
+        return stringsListProperty.stream().filter(item -> item.labelProperty().getValue().equals(label)).findFirst();
     }
 
     public void openHelpPage() {
@@ -115,4 +116,5 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     public BooleanProperty validProperty() {
         return validProperty;
     }
+
 }

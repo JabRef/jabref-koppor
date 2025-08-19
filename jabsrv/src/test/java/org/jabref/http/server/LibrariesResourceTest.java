@@ -32,7 +32,8 @@ class LibrariesResourceTest extends ServerTest {
 
     @Test
     void twoTestLibraries() {
-        EnumSet<TestBibFile> availableLibraries = EnumSet.of(TestBibFile.GENERAL_SERVER_TEST, TestBibFile.CHOCOLATE_BIB);
+        EnumSet<TestBibFile> availableLibraries = EnumSet.of(TestBibFile.GENERAL_SERVER_TEST,
+                TestBibFile.CHOCOLATE_BIB);
         setAvailableLibraries(availableLibraries);
 
         String expected = """
@@ -43,4 +44,5 @@ class LibrariesResourceTest extends ServerTest {
                 ]""".formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.CHOCOLATE_BIB.id, "demo");
         assertEquals(expected, target("/libraries").request().get(String.class));
     }
+
 }

@@ -14,18 +14,20 @@ import org.jspecify.annotations.NonNull;
 public class OpenSingleExternalFileAction extends SimpleCommand {
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final BibEntry entry;
+
     private final LinkedFile linkedFile;
+
     private final TaskExecutor taskExecutor;
+
     private final StateManager stateManager;
 
-    public OpenSingleExternalFileAction(@NonNull DialogService dialogService,
-                                        @NonNull GuiPreferences preferences,
-                                        @NonNull BibEntry entry,
-                                        @NonNull LinkedFile linkedFile,
-                                        @NonNull TaskExecutor taskExecutor,
-                                        @NonNull StateManager stateManager) {
+    public OpenSingleExternalFileAction(@NonNull DialogService dialogService, @NonNull GuiPreferences preferences,
+            @NonNull BibEntry entry, @NonNull LinkedFile linkedFile, @NonNull TaskExecutor taskExecutor,
+            @NonNull StateManager stateManager) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.entry = entry;
@@ -39,8 +41,9 @@ public class OpenSingleExternalFileAction extends SimpleCommand {
     @Override
     public void execute() {
         stateManager.getActiveDatabase()
-                    .ifPresent(databaseContext -> new LinkedFileViewModel(
-                            linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences)
-                            .open());
+            .ifPresent(databaseContext -> new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor,
+                    dialogService, preferences)
+                .open());
     }
+
 }

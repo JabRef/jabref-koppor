@@ -9,7 +9,8 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 /**
- * Used for displaying a rendered entry in the UI. Due to historical reasons, "rendering" is called "layout".
+ * Used for displaying a rendered entry in the UI. Due to historical reasons, "rendering"
+ * is called "layout".
  */
 public sealed interface PreviewLayout permits BstPreviewLayout, CitationStylePreviewLayout, TextBasedPreviewLayout {
 
@@ -24,4 +25,5 @@ public sealed interface PreviewLayout permits BstPreviewLayout, CitationStylePre
     default boolean containsCaseIndependent(String searchTerm) {
         return this.getDisplayName().toLowerCase(Locale.ROOT).contains(searchTerm.toLowerCase(Locale.ROOT));
     }
+
 }

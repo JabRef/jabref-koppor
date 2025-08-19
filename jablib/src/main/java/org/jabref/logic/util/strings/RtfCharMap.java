@@ -74,7 +74,7 @@ public class RtfCharMap {
         // (#215).
         // Omitting this, because it is a mathematical symbol.
         put("O", "\\u216O"); // "Oslash"
-        //  RTFCHARS.put("O", "\\'d8");
+        // RTFCHARS.put("O", "\\'d8");
         put("o", "\\'f8");
 
         put("'Y", "\\u221Y"); // "Yacute"
@@ -86,7 +86,7 @@ public class RtfCharMap {
 
         put("~a", "\\u227a"); // "atilde"
         put("aa", "\\u229a"); // "aring"
-        //  RTFCHARS.put("ae", "{\\uc2\\u230ae}"); // "aelig" \\u230e6
+        // RTFCHARS.put("ae", "{\\uc2\\u230ae}"); // "aelig" \\u230e6
         put("ae", "{\\u230ae}"); // "aelig" \\u230e6
 
         put("cc", "\\u231c"); // "ccedil"
@@ -265,4 +265,5 @@ public class RtfCharMap {
     public String get(String key) {
         return rtfMap.get(key);
     }
+
 }

@@ -23,4 +23,5 @@ public class ParseLatexAction extends SimpleCommand {
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(NullPointerException::new);
         dialogService.showCustomDialogAndWait(new ParseLatexDialogView(database));
     }
+
 }

@@ -37,88 +37,132 @@ import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import de.saxsys.mvvmfx.utils.validation.Validator;
 
 public class AiTabViewModel implements PreferenceTabViewModel {
+
     private final Locale oldLocale;
 
     private final BooleanProperty enableAi = new SimpleBooleanProperty();
+
     private final BooleanProperty autoGenerateEmbeddings = new SimpleBooleanProperty();
+
     private final BooleanProperty disableAutoGenerateEmbeddings = new SimpleBooleanProperty();
+
     private final BooleanProperty autoGenerateSummaries = new SimpleBooleanProperty();
+
     private final BooleanProperty disableAutoGenerateSummaries = new SimpleBooleanProperty();
 
-    private final ListProperty<AiProvider> aiProvidersList =
-            new SimpleListProperty<>(FXCollections.observableArrayList(AiProvider.values()));
+    private final ListProperty<AiProvider> aiProvidersList = new SimpleListProperty<>(
+            FXCollections.observableArrayList(AiProvider.values()));
+
     private final ObjectProperty<AiProvider> selectedAiProvider = new SimpleObjectProperty<>();
 
-    private final ListProperty<String> chatModelsList =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<String> chatModelsList = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final StringProperty currentChatModel = new SimpleStringProperty();
 
     private final StringProperty openAiChatModel = new SimpleStringProperty();
+
     private final StringProperty mistralAiChatModel = new SimpleStringProperty();
+
     private final StringProperty geminiChatModel = new SimpleStringProperty();
+
     private final StringProperty huggingFaceChatModel = new SimpleStringProperty();
+
     private final StringProperty gpt4AllChatModel = new SimpleStringProperty();
 
     private final StringProperty currentApiKey = new SimpleStringProperty();
 
     private final StringProperty openAiApiKey = new SimpleStringProperty();
+
     private final StringProperty mistralAiApiKey = new SimpleStringProperty();
+
     private final StringProperty geminiAiApiKey = new SimpleStringProperty();
+
     private final StringProperty huggingFaceApiKey = new SimpleStringProperty();
+
     private final StringProperty gpt4AllApiKey = new SimpleStringProperty();
 
     private final BooleanProperty customizeExpertSettings = new SimpleBooleanProperty();
 
-    private final ListProperty<EmbeddingModel> embeddingModelsList =
-            new SimpleListProperty<>(FXCollections.observableArrayList(EmbeddingModel.values()));
+    private final ListProperty<EmbeddingModel> embeddingModelsList = new SimpleListProperty<>(
+            FXCollections.observableArrayList(EmbeddingModel.values()));
+
     private final ObjectProperty<EmbeddingModel> selectedEmbeddingModel = new SimpleObjectProperty<>();
 
     private final StringProperty currentApiBaseUrl = new SimpleStringProperty();
-    private final BooleanProperty disableApiBaseUrl = new SimpleBooleanProperty(true); // {@link HuggingFaceChatModel} and {@link GoogleAiGeminiChatModel} doesn't support setting API base URL
+
+    private final BooleanProperty disableApiBaseUrl = new SimpleBooleanProperty(true); // {@link
+                                                                                       // HuggingFaceChatModel}
+                                                                                       // and
+                                                                                       // {@link
+                                                                                       // GoogleAiGeminiChatModel}
+                                                                                       // doesn't
+                                                                                       // support
+                                                                                       // setting
+                                                                                       // API
+                                                                                       // base
+                                                                                       // URL
 
     private final StringProperty openAiApiBaseUrl = new SimpleStringProperty();
+
     private final StringProperty mistralAiApiBaseUrl = new SimpleStringProperty();
+
     private final StringProperty geminiApiBaseUrl = new SimpleStringProperty();
+
     private final StringProperty huggingFaceApiBaseUrl = new SimpleStringProperty();
+
     private final StringProperty gpt4AllApiBaseUrl = new SimpleStringProperty();
 
-    private final Map<AiTemplate, StringProperty> templateSources = Map.of(
-            AiTemplate.CHATTING_SYSTEM_MESSAGE, new SimpleStringProperty(),
-            AiTemplate.CHATTING_USER_MESSAGE, new SimpleStringProperty(),
+    private final Map<AiTemplate, StringProperty> templateSources = Map.of(AiTemplate.CHATTING_SYSTEM_MESSAGE,
+            new SimpleStringProperty(), AiTemplate.CHATTING_USER_MESSAGE, new SimpleStringProperty(),
             AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE, new SimpleStringProperty(),
             AiTemplate.SUMMARIZATION_CHUNK_USER_MESSAGE, new SimpleStringProperty(),
             AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE, new SimpleStringProperty(),
             AiTemplate.SUMMARIZATION_COMBINE_USER_MESSAGE, new SimpleStringProperty(),
             AiTemplate.CITATION_PARSING_SYSTEM_MESSAGE, new SimpleStringProperty(),
-            AiTemplate.CITATION_PARSING_USER_MESSAGE, new SimpleStringProperty()
-    );
+            AiTemplate.CITATION_PARSING_USER_MESSAGE, new SimpleStringProperty());
 
     private final OptionalObjectProperty<AiTemplate> selectedTemplate = OptionalObjectProperty.empty();
 
     private final StringProperty temperature = new SimpleStringProperty();
+
     private final IntegerProperty contextWindowSize = new SimpleIntegerProperty();
+
     private final IntegerProperty documentSplitterChunkSize = new SimpleIntegerProperty();
+
     private final IntegerProperty documentSplitterOverlapSize = new SimpleIntegerProperty();
+
     private final IntegerProperty ragMaxResultsCount = new SimpleIntegerProperty();
+
     private final StringProperty ragMinScore = new SimpleStringProperty();
 
     private final BooleanProperty disableBasicSettings = new SimpleBooleanProperty(true);
+
     private final BooleanProperty disableExpertSettings = new SimpleBooleanProperty(true);
 
     private final AiPreferences aiPreferences;
 
     private final Validator apiKeyValidator;
+
     private final Validator chatModelValidator;
+
     private final Validator apiBaseUrlValidator;
+
     private final Validator embeddingModelValidator;
+
     private final Validator temperatureTypeValidator;
+
     private final Validator temperatureRangeValidator;
+
     private final Validator contextWindowSizeValidator;
+
     private final Validator documentSplitterChunkSizeValidator;
+
     private final Validator documentSplitterOverlapSizeValidator;
+
     private final Validator ragMaxResultsCountValidator;
+
     private final Validator ragMinScoreTypeValidator;
+
     private final Validator ragMinScoreRangeValidator;
 
     public AiTabViewModel(CliPreferences preferences) {
@@ -131,18 +175,20 @@ public class AiTabViewModel implements PreferenceTabViewModel {
             disableExpertSettings.set(!newValue || !customizeExpertSettings.get());
         });
 
-        this.customizeExpertSettings.addListener((_, _, newValue) ->
-            disableExpertSettings.set(!newValue || !enableAi.get())
-        );
+        this.customizeExpertSettings
+            .addListener((_, _, newValue) -> disableExpertSettings.set(!newValue || !enableAi.get()));
 
         this.selectedAiProvider.addListener((_, oldValue, newValue) -> {
             List<String> models = AiDefaultPreferences.getAvailableModels(newValue);
 
             disableApiBaseUrl.set(newValue == AiProvider.HUGGING_FACE || newValue == AiProvider.GEMINI);
 
-            // When we setAll on Hugging Face, models are empty, and currentChatModel become null.
-            // It becomes null because currentChatModel is bound to combobox, and this combobox becomes empty.
-            // For some reason, custom edited value in the combobox will be erased, so we need to store the old value.
+            // When we setAll on Hugging Face, models are empty, and currentChatModel
+            // become null.
+            // It becomes null because currentChatModel is bound to combobox, and this
+            // combobox becomes empty.
+            // For some reason, custom edited value in the combobox will be erased, so we
+            // need to store the old value.
             String oldChatModel = currentChatModel.get();
             chatModelsList.setAll(models);
 
@@ -168,7 +214,7 @@ public class AiTabViewModel implements PreferenceTabViewModel {
                         huggingFaceApiKey.set(currentApiKey.get());
                         huggingFaceApiBaseUrl.set(currentApiBaseUrl.get());
                     }
-                    case GPT4ALL-> {
+                    case GPT4ALL -> {
                         gpt4AllChatModel.set(oldChatModel);
                         gpt4AllApiKey.set(currentApiKey.get());
                         gpt4AllApiBaseUrl.set(currentApiBaseUrl.get());
@@ -241,64 +287,50 @@ public class AiTabViewModel implements PreferenceTabViewModel {
             }
         });
 
-        this.apiKeyValidator = new FunctionBasedValidator<>(
-                currentApiKey,
-                token -> !StringUtil.isBlank(token),
+        this.apiKeyValidator = new FunctionBasedValidator<>(currentApiKey, token -> !StringUtil.isBlank(token),
                 ValidationMessage.error(Localization.lang("An API key has to be provided")));
 
-        this.chatModelValidator = new FunctionBasedValidator<>(
-                currentChatModel,
+        this.chatModelValidator = new FunctionBasedValidator<>(currentChatModel,
                 chatModel -> !StringUtil.isBlank(chatModel),
                 ValidationMessage.error(Localization.lang("Chat model has to be provided")));
 
-        this.apiBaseUrlValidator = new FunctionBasedValidator<>(
-                currentApiBaseUrl,
-                token -> !StringUtil.isBlank(token),
+        this.apiBaseUrlValidator = new FunctionBasedValidator<>(currentApiBaseUrl, token -> !StringUtil.isBlank(token),
                 ValidationMessage.error(Localization.lang("API base URL has to be provided")));
 
-        this.embeddingModelValidator = new FunctionBasedValidator<>(
-                selectedEmbeddingModel,
-                Objects::nonNull,
+        this.embeddingModelValidator = new FunctionBasedValidator<>(selectedEmbeddingModel, Objects::nonNull,
                 ValidationMessage.error(Localization.lang("Embedding model has to be provided")));
 
-        this.temperatureTypeValidator = new FunctionBasedValidator<>(
-                temperature,
+        this.temperatureTypeValidator = new FunctionBasedValidator<>(temperature,
                 temp -> LocalizedNumbers.stringToDouble(temp).isPresent(),
                 ValidationMessage.error(Localization.lang("Temperature must be a number")));
 
-        // Source: https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature
-        this.temperatureRangeValidator = new FunctionBasedValidator<>(
-                temperature,
+        // Source:
+        // https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature
+        this.temperatureRangeValidator = new FunctionBasedValidator<>(temperature,
                 temp -> LocalizedNumbers.stringToDouble(temp).map(t -> t >= 0 && t <= 2).orElse(false),
                 ValidationMessage.error(Localization.lang("Temperature must be between 0 and 2")));
 
-        this.contextWindowSizeValidator = new FunctionBasedValidator<>(
-                contextWindowSize,
-                size -> size.intValue() > 0,
+        this.contextWindowSizeValidator = new FunctionBasedValidator<>(contextWindowSize, size -> size.intValue() > 0,
                 ValidationMessage.error(Localization.lang("Context window size must be greater than 0")));
 
-        this.documentSplitterChunkSizeValidator = new FunctionBasedValidator<>(
-                documentSplitterChunkSize,
+        this.documentSplitterChunkSizeValidator = new FunctionBasedValidator<>(documentSplitterChunkSize,
                 size -> size.intValue() > 0,
                 ValidationMessage.error(Localization.lang("Document splitter chunk size must be greater than 0")));
 
-        this.documentSplitterOverlapSizeValidator = new FunctionBasedValidator<>(
-                documentSplitterOverlapSize,
+        this.documentSplitterOverlapSizeValidator = new FunctionBasedValidator<>(documentSplitterOverlapSize,
                 size -> size.intValue() > 0 && size.intValue() < documentSplitterChunkSize.get(),
-                ValidationMessage.error(Localization.lang("Document splitter overlap size must be greater than 0 and less than chunk size")));
+                ValidationMessage.error(Localization
+                    .lang("Document splitter overlap size must be greater than 0 and less than chunk size")));
 
-        this.ragMaxResultsCountValidator = new FunctionBasedValidator<>(
-                ragMaxResultsCount,
+        this.ragMaxResultsCountValidator = new FunctionBasedValidator<>(ragMaxResultsCount,
                 count -> count.intValue() > 0,
                 ValidationMessage.error(Localization.lang("RAG max results count must be greater than 0")));
 
-        this.ragMinScoreTypeValidator = new FunctionBasedValidator<>(
-                ragMinScore,
+        this.ragMinScoreTypeValidator = new FunctionBasedValidator<>(ragMinScore,
                 minScore -> LocalizedNumbers.stringToDouble(minScore).isPresent(),
                 ValidationMessage.error(Localization.lang("RAG minimum score must be a number")));
 
-        this.ragMinScoreRangeValidator = new FunctionBasedValidator<>(
-                ragMinScore,
+        this.ragMinScoreRangeValidator = new FunctionBasedValidator<>(ragMinScore,
                 minScore -> LocalizedNumbers.stringToDouble(minScore).map(s -> s > 0 && s < 1).orElse(false),
                 ValidationMessage.error(Localization.lang("RAG minimum score must be greater than 0 and less than 1")));
     }
@@ -333,8 +365,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
 
         selectedEmbeddingModel.setValue(aiPreferences.getEmbeddingModel());
 
-        Arrays.stream(AiTemplate.values()).forEach(template ->
-                templateSources.get(template).set(aiPreferences.getTemplate(template)));
+        Arrays.stream(AiTemplate.values())
+            .forEach(template -> templateSources.get(template).set(aiPreferences.getTemplate(template)));
 
         temperature.setValue(LocalizedNumbers.doubleToString(aiPreferences.getTemperature()));
         contextWindowSize.setValue(aiPreferences.getContextWindowSize());
@@ -359,10 +391,14 @@ public class AiTabViewModel implements PreferenceTabViewModel {
         aiPreferences.setGpt4AllChatModel(gpt4AllChatModel.get() == null ? "" : gpt4AllChatModel.get());
 
         aiPreferences.storeAiApiKeyInKeyring(AiProvider.OPEN_AI, openAiApiKey.get() == null ? "" : openAiApiKey.get());
-        aiPreferences.storeAiApiKeyInKeyring(AiProvider.MISTRAL_AI, mistralAiApiKey.get() == null ? "" : mistralAiApiKey.get());
-        aiPreferences.storeAiApiKeyInKeyring(AiProvider.GEMINI, geminiAiApiKey.get() == null ? "" : geminiAiApiKey.get());
-        aiPreferences.storeAiApiKeyInKeyring(AiProvider.HUGGING_FACE, huggingFaceApiKey.get() == null ? "" : huggingFaceApiKey.get());
-        aiPreferences.storeAiApiKeyInKeyring(AiProvider.GPT4ALL, gpt4AllApiKey.get() == null ? "" : gpt4AllApiKey.get());
+        aiPreferences.storeAiApiKeyInKeyring(AiProvider.MISTRAL_AI,
+                mistralAiApiKey.get() == null ? "" : mistralAiApiKey.get());
+        aiPreferences.storeAiApiKeyInKeyring(AiProvider.GEMINI,
+                geminiAiApiKey.get() == null ? "" : geminiAiApiKey.get());
+        aiPreferences.storeAiApiKeyInKeyring(AiProvider.HUGGING_FACE,
+                huggingFaceApiKey.get() == null ? "" : huggingFaceApiKey.get());
+        aiPreferences.storeAiApiKeyInKeyring(AiProvider.GPT4ALL,
+                gpt4AllApiKey.get() == null ? "" : gpt4AllApiKey.get());
         // We notify in all cases without a real check if something was changed
         aiPreferences.apiKeyUpdated();
 
@@ -376,10 +412,11 @@ public class AiTabViewModel implements PreferenceTabViewModel {
         aiPreferences.setHuggingFaceApiBaseUrl(huggingFaceApiBaseUrl.get() == null ? "" : huggingFaceApiBaseUrl.get());
         aiPreferences.setGpt4AllApiBaseUrl(gpt4AllApiBaseUrl.get() == null ? "" : gpt4AllApiBaseUrl.get());
 
-        Arrays.stream(AiTemplate.values()).forEach(template ->
-                aiPreferences.setTemplate(template, templateSources.get(template).get()));
+        Arrays.stream(AiTemplate.values())
+            .forEach(template -> aiPreferences.setTemplate(template, templateSources.get(template).get()));
 
-        // We already check the correctness of temperature and RAG minimum score in validators, so we don't need to check it here.
+        // We already check the correctness of temperature and RAG minimum score in
+        // validators, so we don't need to check it here.
         aiPreferences.setTemperature(LocalizedNumbers.stringToDouble(oldLocale, temperature.get()).get());
         aiPreferences.setContextWindowSize(contextWindowSize.get());
         aiPreferences.setDocumentSplitterChunkSize(documentSplitterChunkSize.get());
@@ -392,7 +429,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
         String resetApiBaseUrl = selectedAiProvider.get().getApiUrl();
         currentApiBaseUrl.set(resetApiBaseUrl);
 
-        contextWindowSize.set(AiDefaultPreferences.getContextWindowSize(selectedAiProvider.get(), currentChatModel.get()));
+        contextWindowSize
+            .set(AiDefaultPreferences.getContextWindowSize(selectedAiProvider.get(), currentChatModel.get()));
 
         temperature.set(LocalizedNumbers.doubleToString(AiDefaultPreferences.TEMPERATURE));
         documentSplitterChunkSize.set(AiDefaultPreferences.DOCUMENT_SPLITTER_CHUNK_SIZE);
@@ -402,8 +440,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
     }
 
     public void resetTemplates() {
-        Arrays.stream(AiTemplate.values()).forEach(template ->
-                templateSources.get(template).set(AiDefaultPreferences.TEMPLATES.get(template)));
+        Arrays.stream(AiTemplate.values())
+            .forEach(template -> templateSources.get(template).set(AiDefaultPreferences.TEMPLATES.get(template)));
     }
 
     public void resetCurrentTemplate() {
@@ -418,7 +456,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
         if (enableAi.get()) {
             if (customizeExpertSettings.get()) {
                 return validateBasicSettings() && validateExpertSettings();
-            } else {
+            }
+            else {
                 return validateBasicSettings();
             }
         }
@@ -427,27 +466,19 @@ public class AiTabViewModel implements PreferenceTabViewModel {
     }
 
     public boolean validateBasicSettings() {
-        List<Validator> validators = List.of(
-                chatModelValidator
-                // apiKeyValidator -- skipped, it will generate warning, but the preferences should be able to save.
+        List<Validator> validators = List.of(chatModelValidator
+        // apiKeyValidator -- skipped, it will generate warning, but the preferences
+        // should be able to save.
         );
 
         return validators.stream().map(Validator::getValidationStatus).allMatch(ValidationStatus::isValid);
     }
 
     public boolean validateExpertSettings() {
-        List<Validator> validators = List.of(
-                apiBaseUrlValidator,
-                embeddingModelValidator,
-                temperatureTypeValidator,
-                temperatureRangeValidator,
-                contextWindowSizeValidator,
-                documentSplitterChunkSizeValidator,
-                documentSplitterOverlapSizeValidator,
-                ragMaxResultsCountValidator,
-                ragMinScoreTypeValidator,
-                ragMinScoreRangeValidator
-        );
+        List<Validator> validators = List.of(apiBaseUrlValidator, embeddingModelValidator, temperatureTypeValidator,
+                temperatureRangeValidator, contextWindowSizeValidator, documentSplitterChunkSizeValidator,
+                documentSplitterOverlapSizeValidator, ragMaxResultsCountValidator, ragMinScoreTypeValidator,
+                ragMinScoreRangeValidator);
 
         return validators.stream().map(Validator::getValidationStatus).allMatch(ValidationStatus::isValid);
     }
@@ -599,4 +630,5 @@ public class AiTabViewModel implements PreferenceTabViewModel {
     public ValidationStatus getRagMinScoreRangeValidationStatus() {
         return ragMinScoreRangeValidator.getValidationStatus();
     }
+
 }

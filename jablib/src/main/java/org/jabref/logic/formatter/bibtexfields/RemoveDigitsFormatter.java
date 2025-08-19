@@ -36,4 +36,5 @@ public class RemoveDigitsFormatter extends Formatter {
     public String getExampleInput() {
         return "In 012 CDMA";
     }
+
 }

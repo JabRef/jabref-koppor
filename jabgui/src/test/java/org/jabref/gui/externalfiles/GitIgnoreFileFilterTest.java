@@ -48,4 +48,5 @@ class GitIgnoreFileFilterTest {
         GitIgnoreFileFilter gitIgnoreFileFilter = new GitIgnoreFileFilter(dir);
         assertFalse(gitIgnoreFileFilter.accept(dir.resolve("test.png")));
     }
+
 }

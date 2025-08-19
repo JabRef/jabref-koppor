@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 class ClipBoardManagerTest {
 
     private BibEntryTypesManager entryTypesManager;
+
     private ClipBoardManager clipBoardManager;
 
     @BeforeEach
@@ -93,8 +94,8 @@ class ClipBoardManagerTest {
     @DisplayName("Check that the ClipBoardManager can handle a bibentry with string constants correctly from the clipboard")
     void copyStringBibEntryWithStringConstants() throws IOException {
         // Arrange
-        String expected = "@String{grl = \"Geophys. Res. Lett.\"}@Article{,\n" + " author = {Claudepierre, S. G.},\n" +
-                " journal = {grl},\n" + "}";
+        String expected = "@String{grl = \"Geophys. Res. Lett.\"}@Article{,\n" + " author = {Claudepierre, S. G.},\n"
+                + " journal = {grl},\n" + "}";
         // create BibEntry
         BibEntry bibEntry = new BibEntry();
         // construct an entry
@@ -127,4 +128,5 @@ class ClipBoardManagerTest {
 
         assertEquals(expected, actual);
     }
+
 }

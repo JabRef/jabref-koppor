@@ -54,4 +54,5 @@ public class JabRefSrvStateManager implements SrvStateManager {
             }
         };
     }
+
 }

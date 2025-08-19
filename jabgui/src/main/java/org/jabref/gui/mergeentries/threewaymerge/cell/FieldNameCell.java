@@ -9,8 +9,11 @@ import javafx.scene.layout.Priority;
  * A readonly cell used to display the name of some field.
  */
 public class FieldNameCell extends ThreeWayMergeCell {
+
     public static final String DEFAULT_STYLE_CLASS = "field-name";
+
     protected final HBox actionLayout = new HBox();
+
     private final Label label = new Label();
 
     private final HBox labelBox = new HBox(label);
@@ -36,4 +39,5 @@ public class FieldNameCell extends ThreeWayMergeCell {
         actionLayout.getChildren().clear();
         actionLayout.getChildren().setAll(sideButton);
     }
+
 }

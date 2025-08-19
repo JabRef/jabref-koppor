@@ -45,4 +45,5 @@ class MatcherSetsTest {
         NotMatcher matcher = new NotMatcher(new MockSearchMatcher(false));
         assertTrue(matcher.isMatch(new BibEntry()));
     }
+
 }

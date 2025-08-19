@@ -31,23 +31,17 @@ class TimeStampToModificationDateTest {
 
     public static Stream<Arguments> standardFieldToModificationDate() {
         return Stream.of(
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2018-09-10T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2018-09-10")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-24T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-24")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-31T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-31")
-                )
-        );
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2018-09-10T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2018-09-10")),
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-24T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-24")),
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-31T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-31")));
     }
 
     /**
-     * Tests migration to field "modificationdate" if the users uses the default ISO yyyy-mm-dd format and the standard timestamp field
+     * Tests migration to field "modificationdate" if the users uses the default ISO
+     * yyyy-mm-dd format and the standard timestamp field
      */
     @ParameterizedTest
     @MethodSource("standardFieldToModificationDate")
@@ -60,23 +54,17 @@ class TimeStampToModificationDateTest {
 
     public static Stream<Arguments> customFieldToModificationDate() {
         return Stream.of(
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2018-09-10T00:00:00"),
-                        new BibEntry().withField(customTimeStampField, "2018-09-10")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-24T00:00:00"),
-                        new BibEntry().withField(customTimeStampField, "2020-12-24")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-31T00:00:00"),
-                        new BibEntry().withField(customTimeStampField, "2020-12-31")
-                )
-        );
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2018-09-10T00:00:00"),
+                        new BibEntry().withField(customTimeStampField, "2018-09-10")),
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-24T00:00:00"),
+                        new BibEntry().withField(customTimeStampField, "2020-12-24")),
+                Arguments.of(new BibEntry().withField(StandardField.MODIFICATIONDATE, "2020-12-31T00:00:00"),
+                        new BibEntry().withField(customTimeStampField, "2020-12-31")));
     }
 
     /**
-     * Tests migration to field "modificationdate" if the users uses the default ISO yyyy-mm-dd format and a custom timestamp field
+     * Tests migration to field "modificationdate" if the users uses the default ISO
+     * yyyy-mm-dd format and a custom timestamp field
      */
     @ParameterizedTest
     @MethodSource("customFieldToModificationDate")
@@ -86,4 +74,5 @@ class TimeStampToModificationDateTest {
         migrator.cleanup(input);
         assertEquals(expected, input);
     }
+
 }

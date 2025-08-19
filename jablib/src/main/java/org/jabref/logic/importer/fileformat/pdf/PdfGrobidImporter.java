@@ -18,6 +18,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 public class PdfGrobidImporter extends PdfImporter {
 
     private final GrobidService grobidService;
+
     private final ImportFormatPreferences importFormatPreferences;
 
     public PdfGrobidImporter(ImportFormatPreferences importFormatPreferences) {
@@ -43,4 +44,5 @@ public class PdfGrobidImporter extends PdfImporter {
     public String getDescription() {
         return Localization.lang("Imports BibTeX data of a PDF using Grobid.");
     }
+
 }

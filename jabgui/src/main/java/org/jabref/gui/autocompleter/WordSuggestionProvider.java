@@ -12,6 +12,7 @@ import org.jabref.model.entry.field.Field;
 public class WordSuggestionProvider extends StringSuggestionProvider {
 
     private final Field field;
+
     private final BibDatabase database;
 
     public WordSuggestionProvider(Field field, BibDatabase database) {
@@ -21,8 +22,7 @@ public class WordSuggestionProvider extends StringSuggestionProvider {
 
     @Override
     public Stream<String> getSource() {
-        return database.getEntries()
-                       .parallelStream()
-                       .flatMap(entry -> entry.getFieldAsWords(field).stream());
+        return database.getEntries().parallelStream().flatMap(entry -> entry.getFieldAsWords(field).stream());
     }
+
 }

@@ -15,11 +15,15 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 
 public class MergeTwoEntriesAction extends SimpleCommand {
+
     private final EntriesMergeResult entriesMergeResult;
+
     private final StateManager stateManager;
+
     private final UndoManager undoManager;
 
-    public MergeTwoEntriesAction(EntriesMergeResult entriesMergeResult, StateManager stateManager, UndoManager undoManager) {
+    public MergeTwoEntriesAction(EntriesMergeResult entriesMergeResult, StateManager stateManager,
+            UndoManager undoManager) {
         this.entriesMergeResult = entriesMergeResult;
         this.stateManager = stateManager;
         this.undoManager = undoManager;
@@ -32,16 +36,19 @@ public class MergeTwoEntriesAction extends SimpleCommand {
         }
 
         BibDatabase database = stateManager.getActiveDatabase().get().getDatabase();
-        List<BibEntry> entriesToRemove = Arrays.asList(entriesMergeResult.originalLeftEntry(), entriesMergeResult.originalRightEntry());
+        List<BibEntry> entriesToRemove = Arrays.asList(entriesMergeResult.originalLeftEntry(),
+                entriesMergeResult.originalRightEntry());
 
         database.insertEntry(entriesMergeResult.mergedEntry());
         database.removeEntries(entriesToRemove);
 
         NamedCompound ce = new NamedCompound(Localization.lang("Merge entries"));
-        ce.addEdit(new UndoableInsertEntries(stateManager.getActiveDatabase().get().getDatabase(), entriesMergeResult.mergedEntry()));
+        ce.addEdit(new UndoableInsertEntries(stateManager.getActiveDatabase().get().getDatabase(),
+                entriesMergeResult.mergedEntry()));
         ce.addEdit(new UndoableRemoveEntries(database, entriesToRemove));
         ce.end();
 
         undoManager.addEdit(ce);
     }
+
 }

@@ -52,33 +52,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Writes a .bib file following the BibTeX / BibLaTeX format using the provided {@link BibWriter}
+ * Writes a .bib file following the BibTeX / BibLaTeX format using the provided
+ * {@link BibWriter}
  * <p>
  * The opposite class is {@link org.jabref.logic.importer.fileformat.BibtexImporter}
  */
 public class BibDatabaseWriter {
-    public enum SaveType { WITH_JABREF_META_DATA, PLAIN_BIBTEX }
+
+    public enum SaveType {
+
+        WITH_JABREF_META_DATA, PLAIN_BIBTEX
+
+    }
 
     public static final String DATABASE_ID_PREFIX = "DBID:";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibDatabaseWriter.class);
-    private static final Pattern REFERENCE_PATTERN = Pattern.compile("(#[A-Za-z]+#)"); // Used to detect string references in strings
+
+    private static final Pattern REFERENCE_PATTERN = Pattern.compile("(#[A-Za-z]+#)"); // Used
+                                                                                       // to
+                                                                                       // detect
+                                                                                       // string
+                                                                                       // references
+                                                                                       // in
+                                                                                       // strings
+
     private static final String COMMENT_PREFIX = "@Comment";
+
     private static final String PREAMBLE_PREFIX = "@Preamble";
 
     private static final String STRING_PREFIX = "@String";
 
     protected final BibWriter bibWriter;
+
     protected final SelfContainedSaveConfiguration saveConfiguration;
+
     protected final CitationKeyPatternPreferences keyPatternPreferences;
+
     protected final List<FieldChange> saveActionsFieldChanges = new ArrayList<>();
+
     protected final BibEntryTypesManager entryTypesManager;
+
     protected final FieldPreferences fieldPreferences;
 
-    public BibDatabaseWriter(BibWriter bibWriter,
-                             SelfContainedSaveConfiguration saveConfiguration,
-                             FieldPreferences fieldPreferences,
-                             CitationKeyPatternPreferences keyPatternPreferences,
-                             BibEntryTypesManager entryTypesManager) {
+    public BibDatabaseWriter(BibWriter bibWriter, SelfContainedSaveConfiguration saveConfiguration,
+            FieldPreferences fieldPreferences, CitationKeyPatternPreferences keyPatternPreferences,
+            BibEntryTypesManager entryTypesManager) {
         this.bibWriter = Objects.requireNonNull(bibWriter);
         this.saveConfiguration = saveConfiguration;
         this.keyPatternPreferences = keyPatternPreferences;
@@ -87,20 +106,15 @@ public class BibDatabaseWriter {
         assert saveConfiguration.getSaveOrder().getOrderType() != SaveOrder.OrderType.TABLE;
     }
 
-    public BibDatabaseWriter(Writer writer,
-                                String newline,
-                                SelfContainedSaveConfiguration saveConfiguration,
-                                FieldPreferences fieldPreferences,
-                                CitationKeyPatternPreferences citationKeyPatternPreferences,
-                                BibEntryTypesManager entryTypesManager) {
-        this(new BibWriter(writer, newline),
-                saveConfiguration,
-                fieldPreferences,
-                citationKeyPatternPreferences,
+    public BibDatabaseWriter(Writer writer, String newline, SelfContainedSaveConfiguration saveConfiguration,
+            FieldPreferences fieldPreferences, CitationKeyPatternPreferences citationKeyPatternPreferences,
+            BibEntryTypesManager entryTypesManager) {
+        this(new BibWriter(writer, newline), saveConfiguration, fieldPreferences, citationKeyPatternPreferences,
                 entryTypesManager);
     }
 
-    private static List<FieldChange> applySaveActions(List<BibEntry> toChange, MetaData metaData, FieldPreferences fieldPreferences) {
+    private static List<FieldChange> applySaveActions(List<BibEntry> toChange, MetaData metaData,
+            FieldPreferences fieldPreferences) {
         List<FieldChange> changes = new ArrayList<>();
 
         Optional<FieldFormatterCleanups> saveActions = metaData.getSaveActions();
@@ -112,10 +126,12 @@ public class BibDatabaseWriter {
         });
 
         // Trim and normalize all white spaces
-        FieldFormatterCleanup trimWhiteSpaces = new FieldFormatterCleanup(InternalField.INTERNAL_ALL_FIELD, new TrimWhitespaceFormatter());
+        FieldFormatterCleanup trimWhiteSpaces = new FieldFormatterCleanup(InternalField.INTERNAL_ALL_FIELD,
+                new TrimWhitespaceFormatter());
         NormalizeWhitespacesCleanup normalizeWhitespacesCleanup = new NormalizeWhitespacesCleanup(fieldPreferences);
         for (BibEntry entry : toChange) {
-            // Only apply the trimming if the entry itself has other changes (e.g., by the user or by save actions)
+            // Only apply the trimming if the entry itself has other changes (e.g., by the
+            // user or by save actions)
             if (entry.hasChanged()) {
                 changes.addAll(trimWhiteSpaces.cleanup(entry));
                 changes.addAll(normalizeWhitespacesCleanup.cleanup(entry));
@@ -125,25 +141,30 @@ public class BibDatabaseWriter {
         return changes;
     }
 
-    public static List<FieldChange> applySaveActions(BibEntry entry, MetaData metaData, FieldPreferences fieldPreferences) {
+    public static List<FieldChange> applySaveActions(BibEntry entry, MetaData metaData,
+            FieldPreferences fieldPreferences) {
         return applySaveActions(List.of(entry), metaData, fieldPreferences);
     }
 
     private static List<Comparator<BibEntry>> getSaveComparators(SaveOrder saveOrder) {
         List<Comparator<BibEntry>> comparators = new ArrayList<>();
 
-        // Take care, using CrossRefEntry-Comparator, that referred entries occur after referring
-        // ones. This is a necessary requirement for BibTeX to be able to resolve referenced entries correctly.
+        // Take care, using CrossRefEntry-Comparator, that referred entries occur after
+        // referring
+        // ones. This is a necessary requirement for BibTeX to be able to resolve
+        // referenced entries correctly.
         comparators.add(new CrossRefEntryComparator());
 
         if (saveOrder.getOrderType() == SaveOrder.OrderType.ORIGINAL) {
             // entries will be sorted based on their internal IDs
             comparators.add(new IdComparator());
-        } else {
+        }
+        else {
             // use configured sorting strategy
-            List<FieldComparator> fieldComparators = saveOrder.getSortCriteria().stream()
-                                                              .map(FieldComparator::new)
-                                                              .toList();
+            List<FieldComparator> fieldComparators = saveOrder.getSortCriteria()
+                .stream()
+                .map(FieldComparator::new)
+                .toList();
             comparators.addAll(fieldComparators);
             comparators.add(new FieldComparator(InternalField.KEY_FIELD));
         }
@@ -152,9 +173,10 @@ public class BibDatabaseWriter {
     }
 
     /**
-     * We have begun to use getSortedEntries() for both database save operations and non-database save operations. In a
-     * non-database save operation (such as the exportDatabase call), we do not wish to use the global preference of
-     * saving in standard order.
+     * We have begun to use getSortedEntries() for both database save operations and
+     * non-database save operations. In a non-database save operation (such as the
+     * exportDatabase call), we do not wish to use the global preference of saving in
+     * standard order.
      */
     public static List<BibEntry> getSortedEntries(List<BibEntry> entriesToSort, SelfContainedSaveOrder saveOrder) {
         Objects.requireNonNull(entriesToSort);
@@ -176,17 +198,18 @@ public class BibDatabaseWriter {
      * Saves the complete database.
      */
     public void saveDatabase(BibDatabaseContext bibDatabaseContext) throws IOException {
-        List<BibEntry> entries = bibDatabaseContext.getDatabase().getEntries()
-                                                .stream()
-                                                .filter(entry -> !entry.isEmpty())
-                                                .toList();
+        List<BibEntry> entries = bibDatabaseContext.getDatabase()
+            .getEntries()
+            .stream()
+            .filter(entry -> !entry.isEmpty())
+            .toList();
         savePartOfDatabase(bibDatabaseContext, entries);
     }
 
     /**
      * Saves the database, including only the specified entries.
-     *
-     * @param entries A list of entries to save. The list itself is not modified in this code
+     * @param entries A list of entries to save. The list itself is not modified in this
+     * code
      */
     public void savePartOfDatabase(BibDatabaseContext bibDatabaseContext, List<BibEntry> entries) throws IOException {
         Optional<String> sharedDatabaseIDOptional = bibDatabaseContext.getDatabase().getSharedDatabaseID();
@@ -209,16 +232,19 @@ public class BibDatabaseWriter {
         // Write database entries.
         List<BibEntry> sortedEntries = getSortedEntries(entries, saveConfiguration.getSelfContainedSaveOrder());
 
-        // FIXME: "Clean" architecture violation: We modify the entries here, which should not happen during a write
-        //        The cleanup should be done before the write operation
-        List<FieldChange> saveActionChanges = applySaveActions(sortedEntries, bibDatabaseContext.getMetaData(), fieldPreferences);
+        // FIXME: "Clean" architecture violation: We modify the entries here, which should
+        // not happen during a write
+        // The cleanup should be done before the write operation
+        List<FieldChange> saveActionChanges = applySaveActions(sortedEntries, bibDatabaseContext.getMetaData(),
+                fieldPreferences);
         saveActionsFieldChanges.addAll(saveActionChanges);
         if (keyPatternPreferences.shouldGenerateCiteKeysBeforeSaving()) {
             List<FieldChange> keyChanges = generateCitationKeys(bibDatabaseContext, sortedEntries);
             saveActionsFieldChanges.addAll(keyChanges);
         }
 
-        // Map to collect entry type definitions that we must save along with entries using them.
+        // Map to collect entry type definitions that we must save along with entries
+        // using them.
         SortedSet<BibEntryType> typesToWrite = new TreeSet<>();
 
         for (BibEntry entry : sortedEntries) {
@@ -227,7 +253,8 @@ public class BibDatabaseWriter {
             // types (*not* all customized standard types) must be written.
             if (entryTypesManager.isCustomType(entry.getType(), bibDatabaseContext.getMode())) {
                 // If user-defined entry type, then add it
-                // Otherwise (enrich returns empty optional) it is a completely unknown entry type, so ignore it
+                // Otherwise (enrich returns empty optional) it is a completely unknown
+                // entry type, so ignore it
                 entryTypesManager.enrich(entry.getType(), bibDatabaseContext.getMode()).ifPresent(typesToWrite::add);
             }
 
@@ -248,10 +275,11 @@ public class BibDatabaseWriter {
 
     protected void writeProlog(BibDatabaseContext bibDatabaseContext, Charset encoding) throws IOException {
         // We write the encoding if
-        //   - it is provided (!= null)
-        //   - explicitly set in the .bib file OR not equal to UTF_8
+        // - it is provided (!= null)
+        // - explicitly set in the .bib file OR not equal to UTF_8
         // Otherwise, we do not write anything and return
-        if ((encoding == null) || (!bibDatabaseContext.getMetaData().getEncodingExplicitlySupplied() && (encoding.equals(StandardCharsets.UTF_8)))) {
+        if ((encoding == null) || (!bibDatabaseContext.getMetaData().getEncodingExplicitlySupplied()
+                && (encoding.equals(StandardCharsets.UTF_8)))) {
             return;
         }
 
@@ -313,17 +341,16 @@ public class BibDatabaseWriter {
     }
 
     /**
-     * Write all strings in alphabetical order, modified to produce a safe (for BibTeX) order of the strings if they
-     * reference each other.
-     *
+     * Write all strings in alphabetical order, modified to produce a safe (for BibTeX)
+     * order of the strings if they reference each other.
      * @param database The database whose strings we should write.
      */
     private void writeStrings(BibDatabase database) throws IOException {
         List<BibtexString> strings = database.getStringKeySet()
-                                             .stream()
-                                             .map(database::getString)
-                                             .sorted(new BibtexStringComparator(true))
-                                             .toList();
+            .stream()
+            .map(database::getString)
+            .sorted(new BibtexStringComparator(true))
+            .toList();
         // First, make a Map of all entries:
         Map<String, BibtexString> remaining = new HashMap<>();
         int maxKeyLength = 0;
@@ -345,11 +372,14 @@ public class BibDatabaseWriter {
 
     protected void writeString(BibtexString bibtexString, Map<String, BibtexString> remaining, int maxKeyLength)
             throws IOException {
-        // First remove this from the "remaining" list so it can't cause problem with circular refs:
+        // First remove this from the "remaining" list so it can't cause problem with
+        // circular refs:
         remaining.remove(bibtexString.getName());
 
-        // Then we go through the string looking for references to other strings. If we find references
-        // to strings that we will write, but still haven't, we write those before proceeding. This ensures
+        // Then we go through the string looking for references to other strings. If we
+        // find references
+        // to strings that we will write, but still haven't, we write those before
+        // proceeding. This ensures
         // that the string order will be acceptable for BibTeX.
         String content = bibtexString.getContent();
         Matcher m;
@@ -359,7 +389,8 @@ public class BibDatabaseWriter {
             content = content.substring(restIndex);
             String label = foundLabel.substring(1, foundLabel.length() - 1);
 
-            // If the label we found exists as a key in the "remaining" Map, we go on and write it now:
+            // If the label we found exists as a key in the "remaining" Map, we go on and
+            // write it now:
             if (remaining.containsKey(label)) {
                 BibtexString referred = remaining.get(label);
                 writeString(referred, remaining, maxKeyLength);
@@ -383,16 +414,18 @@ public class BibDatabaseWriter {
             bibWriter.writeLine(userComments);
         }
 
-        bibWriter.write(STRING_PREFIX + "{" + bibtexString.getName() + StringUtil
-                .repeatSpaces(maxKeyLength - bibtexString.getName().length()) + " = ");
+        bibWriter.write(STRING_PREFIX + "{" + bibtexString.getName()
+                + StringUtil.repeatSpaces(maxKeyLength - bibtexString.getName().length()) + " = ");
         if (bibtexString.getContent().isEmpty()) {
             bibWriter.write("{}");
-        } else {
+        }
+        else {
             try {
-                String formatted = new FieldWriter(fieldPreferences)
-                        .write(InternalField.BIBTEX_STRING, bibtexString.getContent());
+                String formatted = new FieldWriter(fieldPreferences).write(InternalField.BIBTEX_STRING,
+                        bibtexString.getContent());
                 bibWriter.write(formatted);
-            } catch (InvalidFieldValueException ex) {
+            }
+            catch (InvalidFieldValueException ex) {
                 throw new IOException(ex);
             }
         }
@@ -428,4 +461,5 @@ public class BibDatabaseWriter {
         }
         return changes;
     }
+
 }

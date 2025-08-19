@@ -38,8 +38,11 @@ import org.jsoup.nodes.Element;
 public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, IdBasedParserFetcher {
 
     private static final String HOST = "https://www.jstor.org";
+
     private static final String SEARCH_HOST = HOST + "/open/search";
+
     private static final String CITE_HOST = HOST + "/citation/text/";
+
     private static final String URL_QUERY_REGEX = "(?<=\\?).*";
 
     private final ImportFormatPreferences importFormatPreferences;
@@ -76,8 +79,8 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     public Parser getParser() {
         return inputStream -> {
             BibtexParser parser = new BibtexParser(importFormatPreferences);
-            String text = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines().collect(Collectors.joining());
+            String text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines()
+                .collect(Collectors.joining());
 
             // does the input stream contain bibtex ?
             if (text.startsWith("@")) {
@@ -98,7 +101,8 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
                     stringBuilder.append(data);
                 }
                 entries = new ArrayList<>(parser.parseEntries(stringBuilder.toString()));
-            } catch (IOException | FetcherException e) {
+            }
+            catch (IOException | FetcherException e) {
                 throw new ParseException("Could not download data from jstor.org", e);
             }
             return entries;
@@ -133,4 +137,5 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     public TrustLevel getTrustLevel() {
         return TrustLevel.META_SEARCH;
     }
+
 }

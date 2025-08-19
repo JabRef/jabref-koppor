@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class CSLUpdateBibliography {
 
     private static final String BIBLIOGRAPHY_SECTION_NAME = "JR_bib";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CSLUpdateBibliography.class);
 
     public Optional<XTextRange> getBibliographyRange(XTextDocument doc)
@@ -38,13 +39,10 @@ public class CSLUpdateBibliography {
     /**
      * Rebuilds the bibliography using CSL.
      */
-    public void rebuildCSLBibliography(XTextDocument doc,
-                                       CSLCitationOOAdapter cslCitationOOAdapter,
-                                       List<BibEntry> entries,
-                                       CitationStyle citationStyle,
-                                       BibDatabaseContext bibDatabaseContext,
-                                       BibEntryTypesManager bibEntryTypesManager)
-            throws WrappedTargetException, NoDocumentException, CreationException, NoSuchElementException, PropertyVetoException, UnknownPropertyException {
+    public void rebuildCSLBibliography(XTextDocument doc, CSLCitationOOAdapter cslCitationOOAdapter,
+            List<BibEntry> entries, CitationStyle citationStyle, BibDatabaseContext bibDatabaseContext,
+            BibEntryTypesManager bibEntryTypesManager) throws WrappedTargetException, NoDocumentException,
+            CreationException, NoSuchElementException, PropertyVetoException, UnknownPropertyException {
         LOGGER.debug("Starting to rebuild CSL bibliography");
 
         // Ensure the bibliography section exists
@@ -52,17 +50,18 @@ public class CSLUpdateBibliography {
         if (sectionRange.isEmpty()) {
             LOGGER.debug("Bibliography section not found. Creating new section.");
             createCSLBibTextSection(doc);
-        } else {
+        }
+        else {
             LOGGER.debug("Bibliography section found. Clearing content.");
             clearCSLBibTextSectionContent(doc);
         }
 
-        populateCSLBibTextSection(doc, cslCitationOOAdapter, entries, citationStyle, bibDatabaseContext, bibEntryTypesManager);
+        populateCSLBibTextSection(doc, cslCitationOOAdapter, entries, citationStyle, bibDatabaseContext,
+                bibEntryTypesManager);
         LOGGER.debug("Finished rebuilding CSL bibliography");
     }
 
-    private void createCSLBibTextSection(XTextDocument doc)
-            throws CreationException {
+    private void createCSLBibTextSection(XTextDocument doc) throws CreationException {
         LOGGER.debug("Creating new CSL bibliography section");
         XTextCursor textCursor = doc.getText().createTextCursor();
         textCursor.gotoEnd(false);
@@ -71,25 +70,22 @@ public class CSLUpdateBibliography {
         LOGGER.debug("CSL bibliography section created");
     }
 
-    private void clearCSLBibTextSectionContent(XTextDocument doc)
-            throws NoDocumentException, WrappedTargetException {
+    private void clearCSLBibTextSectionContent(XTextDocument doc) throws NoDocumentException, WrappedTargetException {
         LOGGER.debug("Clearing CSL bibliography section content");
         Optional<XTextRange> sectionRange = getBibliographyRange(doc);
         if (sectionRange.isPresent()) {
             XTextCursor cursor = doc.getText().createTextCursorByRange(sectionRange.get());
             cursor.setString("");
             LOGGER.debug("CSL bibliography section content cleared");
-        } else {
+        }
+        else {
             LOGGER.warn("Failed to clear CSL bibliography section: section not found");
         }
     }
 
-    private void populateCSLBibTextSection(XTextDocument doc,
-                                           CSLCitationOOAdapter cslCitationOOAdapter,
-                                           List<BibEntry> entries,
-                                           CitationStyle citationStyle,
-                                           BibDatabaseContext bibDatabaseContext,
-                                           BibEntryTypesManager bibEntryTypesManager)
+    private void populateCSLBibTextSection(XTextDocument doc, CSLCitationOOAdapter cslCitationOOAdapter,
+            List<BibEntry> entries, CitationStyle citationStyle, BibDatabaseContext bibDatabaseContext,
+            BibEntryTypesManager bibEntryTypesManager)
             throws WrappedTargetException, NoDocumentException, CreationException {
         LOGGER.debug("Populating CSL bibliography section");
 
@@ -101,8 +97,10 @@ public class CSLUpdateBibliography {
 
         XTextCursor cursor = doc.getText().createTextCursorByRange(sectionRange.get());
 
-        cslCitationOOAdapter.insertBibliography(cursor, citationStyle, entries, bibDatabaseContext, bibEntryTypesManager);
+        cslCitationOOAdapter.insertBibliography(cursor, citationStyle, entries, bibDatabaseContext,
+                bibEntryTypesManager);
 
         LOGGER.debug("CSL bibliography section population completed");
     }
+
 }

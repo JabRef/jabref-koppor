@@ -23,34 +23,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This task generates embeddings for several {@link LinkedFile} (typically used for groups).
- * It will check if embeddings were already generated.
- * And it also will store the embeddings.
+ * This task generates embeddings for several {@link LinkedFile} (typically used for
+ * groups). It will check if embeddings were already generated. And it also will store the
+ * embeddings.
  */
 public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateEmbeddingsForSeveralTask.class);
 
     private final StringProperty groupName;
+
     private final List<ProcessingInfo<LinkedFile, Void>> linkedFiles;
+
     private final FileEmbeddingsManager fileEmbeddingsManager;
+
     private final BibDatabaseContext bibDatabaseContext;
+
     private final FilePreferences filePreferences;
+
     private final TaskExecutor taskExecutor;
+
     private final ReadOnlyBooleanProperty shutdownSignal;
 
     private final ProgressCounter progressCounter = new ProgressCounter();
 
     private String currentFile = "";
 
-    public GenerateEmbeddingsForSeveralTask(
-            StringProperty groupName,
-            List<ProcessingInfo<LinkedFile, Void>> linkedFiles,
-            FileEmbeddingsManager fileEmbeddingsManager,
-            BibDatabaseContext bibDatabaseContext,
-            FilePreferences filePreferences,
-            TaskExecutor taskExecutor,
-            ReadOnlyBooleanProperty shutdownSignal
-    ) {
+    public GenerateEmbeddingsForSeveralTask(StringProperty groupName,
+            List<ProcessingInfo<LinkedFile, Void>> linkedFiles, FileEmbeddingsManager fileEmbeddingsManager,
+            BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences, TaskExecutor taskExecutor,
+            ReadOnlyBooleanProperty shutdownSignal) {
         this.groupName = groupName;
         this.linkedFiles = linkedFiles;
         this.fileEmbeddingsManager = fileEmbeddingsManager;
@@ -65,7 +67,8 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
     private void configure(StringProperty name) {
         showToUser(true);
         titleProperty().set(Localization.lang("Generating embeddings for %0", name.get()));
-        name.addListener((o, oldValue, newValue) -> titleProperty().set(Localization.lang("Generating embeddings for %0", newValue)));
+        name.addListener((o, oldValue, newValue) -> titleProperty()
+            .set(Localization.lang("Generating embeddings for %0", newValue)));
 
         progressCounter.increaseWorkMax(linkedFiles.size());
         progressCounter.listenToAllProperties(this::updateProgress);
@@ -78,26 +81,16 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
 
         List<Pair<? extends Future<?>, String>> futures = new ArrayList<>();
 
-        linkedFiles
-                .stream()
-                .map(processingInfo -> {
-                    processingInfo.setState(ProcessingState.PROCESSING);
-                    return new Pair<>(
-                            new GenerateEmbeddingsTask(
-                                    processingInfo.getObject(),
-                                    fileEmbeddingsManager,
-                                    bibDatabaseContext,
-                                    filePreferences,
-                                    shutdownSignal
-                            )
-                                    .showToUser(false)
-                                    .onSuccess(v -> processingInfo.setState(ProcessingState.SUCCESS))
-                                    .onFailure(processingInfo::setException)
-                                    .onFinished(() -> progressCounter.increaseWorkDone(1))
-                                    .executeWith(taskExecutor),
-                            processingInfo.getObject().getLink());
-                })
-                .forEach(futures::add);
+        linkedFiles.stream().map(processingInfo -> {
+            processingInfo.setState(ProcessingState.PROCESSING);
+            return new Pair<>(new GenerateEmbeddingsTask(processingInfo.getObject(), fileEmbeddingsManager,
+                    bibDatabaseContext, filePreferences, shutdownSignal)
+                .showToUser(false)
+                .onSuccess(v -> processingInfo.setState(ProcessingState.SUCCESS))
+                .onFailure(processingInfo::setException)
+                .onFinished(() -> progressCounter.increaseWorkDone(1))
+                .executeWith(taskExecutor), processingInfo.getObject().getLink());
+        }).forEach(futures::add);
 
         for (Pair<? extends Future<?>, String> pair : futures) {
             currentFile = pair.getValue();
@@ -113,4 +106,5 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
         updateProgress(progressCounter.getWorkDone(), progressCounter.getWorkMax());
         updateMessage(progressCounter.getMessage() + " - " + currentFile + ", ...");
     }
+
 }

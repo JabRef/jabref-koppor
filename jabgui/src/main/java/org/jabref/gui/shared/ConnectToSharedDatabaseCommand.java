@@ -10,6 +10,7 @@ import org.jabref.gui.actions.SimpleCommand;
 public class ConnectToSharedDatabaseCommand extends SimpleCommand {
 
     private final LibraryTabContainer tabContainer;
+
     private final DialogService dialogService;
 
     public ConnectToSharedDatabaseCommand(LibraryTabContainer tabContainer, DialogService dialogService) {
@@ -21,4 +22,5 @@ public class ConnectToSharedDatabaseCommand extends SimpleCommand {
     public void execute() {
         dialogService.showCustomDialogAndWait(new SharedDatabaseLoginDialogView(tabContainer));
     }
+
 }

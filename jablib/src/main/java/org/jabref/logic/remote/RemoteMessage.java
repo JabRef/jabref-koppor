@@ -1,12 +1,14 @@
 package org.jabref.logic.remote;
 
 public enum RemoteMessage {
+
     /**
      * Send command line arguments. The message content is of type {@code String[]}.
      */
     SEND_COMMAND_LINE_ARGUMENTS,
     /**
-     * As a response to {@link #PING}. The message content is an identifier of type {@code String}.
+     * As a response to {@link #PING}. The message content is an identifier of type
+     * {@code String}.
      */
     PONG,
     /**
@@ -18,7 +20,9 @@ public enum RemoteMessage {
      */
     PING,
     /**
-     * Request the running instance to focus its window when a second instance tries to execute. No message content.
+     * Request the running instance to focus its window when a second instance tries to
+     * execute. No message content.
      */
     FOCUS
+
 }

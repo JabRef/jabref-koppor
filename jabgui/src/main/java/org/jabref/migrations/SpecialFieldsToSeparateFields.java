@@ -15,17 +15,20 @@ import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.SpecialFieldValue;
 
 public class SpecialFieldsToSeparateFields implements PostOpenMigration {
+
     private final KeywordList possibleKeywordsToMigrate;
+
     private final Character keywordDelimiter;
+
     private final Map<String, SpecialField> migrationTable = getMigrationTable();
 
     public SpecialFieldsToSeparateFields(Character keywordDelimiter) {
         List<SpecialFieldValue> specialFieldValues = Arrays.asList(SpecialFieldValue.values());
         possibleKeywordsToMigrate = new KeywordList(specialFieldValues.stream()
-                                                                      .map(SpecialFieldValue::getKeyword)
-                                                                      .filter(Optional::isPresent)
-                                                                      .map(Optional::get)
-                                                                      .collect(Collectors.toList()));
+            .map(SpecialFieldValue::getKeyword)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList()));
         this.keywordDelimiter = keywordDelimiter;
     }
 
@@ -45,7 +48,8 @@ public class SpecialFieldsToSeparateFields implements PostOpenMigration {
     }
 
     /**
-     * Mapping of special field values (contained in the keywords) to their corresponding special field
+     * Mapping of special field values (contained in the keywords) to their corresponding
+     * special field
      */
     private Map<String, SpecialField> getMigrationTable() {
         Map<String, SpecialField> map = new HashMap<>();
@@ -70,4 +74,5 @@ public class SpecialFieldsToSeparateFields implements PostOpenMigration {
 
         return map;
     }
+
 }

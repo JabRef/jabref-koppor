@@ -5,14 +5,17 @@ import java.util.Objects;
 
 /**
  * The class provides functionality for managing journal abbreviations.
- * <a href="https://docs.jabref.org/advanced/journalabbreviations">JabRef Journal Abbreviations Documentation</a>
+ * <a href="https://docs.jabref.org/advanced/journalabbreviations">JabRef Journal
+ * Abbreviations Documentation</a>
  */
 public class Abbreviation implements Comparable<Abbreviation>, Serializable {
 
     private static final long serialVersionUID = 1;
 
     private transient String name;
+
     private final String abbreviation;
+
     private transient String dotlessAbbreviation;
 
     // Is the empty string if not available
@@ -23,14 +26,13 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
     }
 
     public Abbreviation(String name, String abbreviation, String shortestUniqueAbbreviation) {
-        this(name,
-                abbreviation,
-                // "L. N." becomes "L  N ", we need to remove the double spaces inbetween
-                abbreviation.replace(".", " ").replace("  ", " ").trim(),
-                shortestUniqueAbbreviation.trim());
+        this(name, abbreviation,
+                // "L. N." becomes "L N ", we need to remove the double spaces inbetween
+                abbreviation.replace(".", " ").replace("  ", " ").trim(), shortestUniqueAbbreviation.trim());
     }
 
-    private Abbreviation(String name, String abbreviation, String dotlessAbbreviation, String shortestUniqueAbbreviation) {
+    private Abbreviation(String name, String abbreviation, String dotlessAbbreviation,
+            String shortestUniqueAbbreviation) {
         this.name = name.intern();
         this.abbreviation = abbreviation.intern();
         this.dotlessAbbreviation = dotlessAbbreviation.intern();
@@ -79,23 +81,25 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
         String currentTrimmed = current.trim();
 
         if (getDotlessAbbreviation().equals(currentTrimmed)) {
-            return getShortestUniqueAbbreviation().equals(getAbbreviation()) ? getName() : getShortestUniqueAbbreviation();
-        } else if (getShortestUniqueAbbreviation().equals(currentTrimmed) && !getShortestUniqueAbbreviation().equals(getAbbreviation())) {
+            return getShortestUniqueAbbreviation().equals(getAbbreviation()) ? getName()
+                    : getShortestUniqueAbbreviation();
+        }
+        else if (getShortestUniqueAbbreviation().equals(currentTrimmed)
+                && !getShortestUniqueAbbreviation().equals(getAbbreviation())) {
             return getName();
-        } else if (getName().equals(currentTrimmed)) {
+        }
+        else if (getName().equals(currentTrimmed)) {
             return getAbbreviation();
-        } else {
+        }
+        else {
             return getDotlessAbbreviation();
         }
     }
 
     @Override
     public String toString() {
-        return "Abbreviation{name=%s, abbreviation=%s, dotlessAbbreviation=%s, shortestUniqueAbbreviation=%s}".formatted(
-                this.name,
-                this.abbreviation,
-                this.dotlessAbbreviation,
-                this.shortestUniqueAbbreviation);
+        return "Abbreviation{name=%s, abbreviation=%s, dotlessAbbreviation=%s, shortestUniqueAbbreviation=%s}"
+            .formatted(this.name, this.abbreviation, this.dotlessAbbreviation, this.shortestUniqueAbbreviation);
     }
 
     @Override
@@ -107,11 +111,13 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
             return false;
         }
         Abbreviation that = (Abbreviation) o;
-        return getName().equals(that.getName()) && getAbbreviation().equals(that.getAbbreviation()) && getShortestUniqueAbbreviation().equals(that.getShortestUniqueAbbreviation());
+        return getName().equals(that.getName()) && getAbbreviation().equals(that.getAbbreviation())
+                && getShortestUniqueAbbreviation().equals(that.getShortestUniqueAbbreviation());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getAbbreviation(), getShortestUniqueAbbreviation());
     }
+
 }

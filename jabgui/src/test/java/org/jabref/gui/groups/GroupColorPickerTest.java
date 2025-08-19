@@ -14,25 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GroupColorPickerTest {
 
     static Stream<Arguments> generateColor() {
-        return Stream.of(
-                Arguments.of(
-                        Color.hsb(180, 1.0, 1.0),
-                        List.of(Color.hsb(0, 1.0, 1.0))
-                ),
-                Arguments.of(
-                        Color.hsb(270, 1.0, 1.0),
-                        List.of(
-                                Color.hsb(0, 1.0, 1.0),
-                                Color.hsb(180, 1.0, 1.0))
-                ),
-                Arguments.of(
-                        Color.hsb(270, 1.0, 1.0),
-                        List.of(
-                                Color.hsb(0, 1.0, 1.0),
-                                Color.hsb(90, 1.0, 1.0),
-                                Color.hsb(180, 1.0, 1.0))
-                )
-        );
+        return Stream.of(Arguments.of(Color.hsb(180, 1.0, 1.0), List.of(Color.hsb(0, 1.0, 1.0))),
+                Arguments.of(Color.hsb(270, 1.0, 1.0), List.of(Color.hsb(0, 1.0, 1.0), Color.hsb(180, 1.0, 1.0))),
+                Arguments.of(Color.hsb(270, 1.0, 1.0),
+                        List.of(Color.hsb(0, 1.0, 1.0), Color.hsb(90, 1.0, 1.0), Color.hsb(180, 1.0, 1.0))));
     }
 
     private static String colorToHsb(Color color) {
@@ -43,7 +28,7 @@ class GroupColorPickerTest {
     @MethodSource
     void generateColor(Color expected, List<Color> subgroupColors) {
         Color result = GroupColorPicker.generateColor(subgroupColors);
-        assertEquals(expected, result,
-                "%s != %s".formatted(colorToHsb(expected), colorToHsb(result)));
+        assertEquals(expected, result, "%s != %s".formatted(colorToHsb(expected), colorToHsb(result)));
     }
+
 }

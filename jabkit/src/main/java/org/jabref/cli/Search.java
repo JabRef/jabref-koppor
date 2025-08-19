@@ -35,6 +35,7 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "search", description = "Search in a library.")
 class Search implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
     @ParentCommand
@@ -43,25 +44,22 @@ class Search implements Runnable {
     @Mixin
     private ArgumentProcessor.SharedOptions sharedOptions = new ArgumentProcessor.SharedOptions();
 
-    @Option(names = {"--query"}, description = "Search query", required = true)
+    @Option(names = { "--query" }, description = "Search query", required = true)
     private String query;
 
-    @Option(names = {"--input"}, description = "Input BibTeX file", required = true)
+    @Option(names = { "--input" }, description = "Input BibTeX file", required = true)
     private String inputFile;
 
-    @Option(names = {"--output"}, description = "Output file")
+    @Option(names = { "--output" }, description = "Output file")
     private Path outputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format: bib, txt, etc.")
+    @Option(names = { "--output-format" }, description = "Output format: bib, txt, etc.")
     private String outputFormat = "bibtex";
 
     @Override
     public void run() {
-        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(
-                inputFile,
-                "bibtex",
-                argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, "bibtex",
+                argumentProcessor.cliPreferences, sharedOptions.porcelain);
         if (parserResult.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
             return;
@@ -82,13 +80,11 @@ class Search implements Runnable {
         List<BibEntry> matches;
         try {
             // extract current thread task executor from indexManager
-            matches = new DatabaseSearcher(
-                    databaseContext,
-                    new CurrentThreadTaskExecutor(),
-                    argumentProcessor.cliPreferences,
-                    postgreServer
-            ).getMatches(searchQuery);
-        } catch (IOException ex) {
+            matches = new DatabaseSearcher(databaseContext, new CurrentThreadTaskExecutor(),
+                    argumentProcessor.cliPreferences, postgreServer)
+                .getMatches(searchQuery);
+        }
+        catch (IOException ex) {
             LOGGER.error("Error occurred when searching", ex);
             return;
         }
@@ -102,13 +98,11 @@ class Search implements Runnable {
         if ("bibtex".equals(outputFormat)) {
             // output a bib file as default or if
             // provided exportFormat is "bib"
-            ArgumentProcessor.saveDatabase(
-                    argumentProcessor.cliPreferences,
-                    argumentProcessor.entryTypesManager,
-                    new BibDatabase(matches),
-                    outputFile);
+            ArgumentProcessor.saveDatabase(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                    new BibDatabase(matches), outputFile);
             LOGGER.debug("Finished export");
-        } else {
+        }
+        else {
             // export new database
             ExporterFactory exporterFactory = ExporterFactory.create(argumentProcessor.cliPreferences);
             Optional<Exporter> exporter = exporterFactory.getExporterByName(outputFormat);
@@ -121,18 +115,14 @@ class Search implements Runnable {
             // We have an TemplateExporter instance:
             try {
                 System.out.println(Localization.lang("Exporting %0", outputFile.toAbsolutePath().toString()));
-                exporter.get().export(
-                        databaseContext,
-                        outputFile,
-                        matches,
-                        List.of(),
-                        Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
-            } catch (IOException
-                     | SaveException
-                     | ParserConfigurationException
-                     | TransformerException ex) {
+                exporter.get()
+                    .export(databaseContext, outputFile, matches, List.of(),
+                            Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
+            }
+            catch (IOException | SaveException | ParserConfigurationException | TransformerException ex) {
                 LOGGER.error("Could not export file '{}}'", outputFile.toAbsolutePath(), ex);
             }
         }
     }
+
 }

@@ -32,20 +32,48 @@ import org.controlsfx.control.CheckTreeView;
 public class ParseLatexDialogView extends BaseDialog<Void> {
 
     private final BibDatabaseContext databaseContext;
+
     private final ControlsFxVisualizer validationVisualizer;
-    @FXML private TextField latexDirectoryField;
-    @FXML private Button browseButton;
-    @FXML private Button searchButton;
-    @FXML private ProgressIndicator progressIndicator;
-    @FXML private CheckTreeView<FileNodeViewModel> fileTreeView;
-    @FXML private Button selectAllButton;
-    @FXML private Button unselectAllButton;
-    @FXML private ButtonType parseButtonType;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private CliPreferences preferences;
-    @Inject private FileUpdateMonitor fileMonitor;
-    @Inject private ThemeManager themeManager;
+
+    @FXML
+    private TextField latexDirectoryField;
+
+    @FXML
+    private Button browseButton;
+
+    @FXML
+    private Button searchButton;
+
+    @FXML
+    private ProgressIndicator progressIndicator;
+
+    @FXML
+    private CheckTreeView<FileNodeViewModel> fileTreeView;
+
+    @FXML
+    private Button selectAllButton;
+
+    @FXML
+    private Button unselectAllButton;
+
+    @FXML
+    private ButtonType parseButtonType;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private CliPreferences preferences;
+
+    @Inject
+    private FileUpdateMonitor fileMonitor;
+
+    @Inject
+    private ThemeManager themeManager;
+
     private ParseLatexDialogViewModel viewModel;
 
     public ParseLatexDialogView(BibDatabaseContext databaseContext) {
@@ -58,24 +86,25 @@ public class ParseLatexDialogView extends BaseDialog<Void> {
 
         ControlHelper.setAction(parseButtonType, getDialogPane(), event -> viewModel.parseButtonClicked());
         Button parseButton = (Button) getDialogPane().lookupButton(parseButtonType);
-        parseButton.disableProperty().bind(viewModel.noFilesFoundProperty().or(
-                Bindings.isEmpty(viewModel.getCheckedFileList())));
+        parseButton.disableProperty()
+            .bind(viewModel.noFilesFoundProperty().or(Bindings.isEmpty(viewModel.getCheckedFileList())));
 
         themeManager.updateFontStyle(getDialogPane().getScene());
     }
 
     @FXML
     private void initialize() {
-        viewModel = new ParseLatexDialogViewModel(databaseContext, dialogService, taskExecutor, preferences, fileMonitor);
+        viewModel = new ParseLatexDialogViewModel(databaseContext, dialogService, taskExecutor, preferences,
+                fileMonitor);
 
         fileTreeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         fileTreeView.showRootProperty().bindBidirectional(viewModel.successfulSearchProperty());
-        fileTreeView.rootProperty().bind(EasyBind.map(viewModel.rootProperty(), fileNode ->
-                new RecursiveTreeItem<>(fileNode, FileNodeViewModel::getChildren)));
+        fileTreeView.rootProperty()
+            .bind(EasyBind.map(viewModel.rootProperty(),
+                    fileNode -> new RecursiveTreeItem<>(fileNode, FileNodeViewModel::getChildren)));
 
-        new ViewModelTreeCellFactory<FileNodeViewModel>()
-                .withText(FileNodeViewModel::getDisplayText)
-                .install(fileTreeView);
+        new ViewModelTreeCellFactory<FileNodeViewModel>().withText(FileNodeViewModel::getDisplayText)
+            .install(fileTreeView);
 
         EasyBind.subscribe(fileTreeView.rootProperty(), root -> {
             ((CheckBoxTreeItem<FileNodeViewModel>) root).setSelected(true);
@@ -112,4 +141,5 @@ public class ParseLatexDialogView extends BaseDialog<Void> {
     private void unselectAll() {
         fileTreeView.getCheckModel().clearChecks();
     }
+
 }

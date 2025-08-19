@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(ApplicationExtension.class)
 public class GlobalSearchBarTest {
+
     private HBox hBox;
 
     private StateManager stateManager;
@@ -58,14 +59,8 @@ public class GlobalSearchBarTest {
         stateManager.setActiveDatabase(new BibDatabaseContext());
 
         // Instantiate GlobalSearchBar class, so the change listener is registered
-        GlobalSearchBar searchBar = new GlobalSearchBar(
-                mock(LibraryTabContainer.class),
-                stateManager,
-                preferences,
-                mock(CountingUndoManager.class),
-                mock(DialogService.class),
-                SearchType.NORMAL_SEARCH
-        );
+        GlobalSearchBar searchBar = new GlobalSearchBar(mock(LibraryTabContainer.class), stateManager, preferences,
+                mock(CountingUndoManager.class), mock(DialogService.class), SearchType.NORMAL_SEARCH);
 
         hBox = new HBox(searchBar);
 
@@ -90,7 +85,8 @@ public class GlobalSearchBarTest {
             assertTrue(stateManager.getWholeSearchHistory().isEmpty());
         }
 
-        // Set the focus to another node to trigger the listener and finally record the query.
+        // Set the focus to another node to trigger the listener and finally record the
+        // query.
         UiTaskExecutor.runAndWaitInJavaFXThread(hBox::requestFocus);
         List<String> lastSearchHistory = stateManager.getWholeSearchHistory().stream().toList();
 
@@ -111,4 +107,5 @@ public class GlobalSearchBarTest {
 
         assertEquals(List.of(), lastSearchHistory);
     }
+
 }

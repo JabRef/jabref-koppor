@@ -42,8 +42,11 @@ class FileUtilTest {
     static Path bibTempDir;
 
     private final Path nonExistingTestPath = Path.of("nonExistingTestPath");
+
     private Path existingTestFile;
+
     private Path otherExistingTestFile;
+
     private Path rootDir;
 
     @BeforeEach
@@ -54,23 +57,23 @@ class FileUtilTest {
 
         existingTestFile = subDir.resolve("existingTestFile.txt");
         Files.createFile(existingTestFile);
-        Files.write(existingTestFile, "existingTestFile.txt".getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        Files.write(existingTestFile, "existingTestFile.txt".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND);
 
         otherExistingTestFile = subDir.resolve("otherExistingTestFile.txt");
         Files.createFile(otherExistingTestFile);
-        Files.write(otherExistingTestFile, "otherExistingTestFile.txt".getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+        Files.write(otherExistingTestFile, "otherExistingTestFile.txt".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.APPEND);
     }
 
     @Test
     void extensionBakAddedCorrectly() {
-        assertEquals(Path.of("demo.bib.bak"),
-                FileUtil.addExtension(Path.of("demo.bib"), ".bak"));
+        assertEquals(Path.of("demo.bib.bak"), FileUtil.addExtension(Path.of("demo.bib"), ".bak"));
     }
 
     @Test
     void extensionBakAddedCorrectlyToAFileContainedInTmpDirectory() {
-        assertEquals(Path.of("tmp", "demo.bib.bak"),
-                FileUtil.addExtension(Path.of("tmp", "demo.bib"), ".bak"));
+        assertEquals(Path.of("tmp", "demo.bib.bak"), FileUtil.addExtension(Path.of("tmp", "demo.bib"), ".bak"));
     }
 
     @Test
@@ -80,8 +83,7 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234 - mytitle",
-                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
+        assertEquals("1234 - mytitle", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
     }
 
     @Test
@@ -91,8 +93,7 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234 - mytitle",
-                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
+        assertEquals("1234 - mytitle", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
     }
 
     @Test
@@ -102,8 +103,7 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234",
-                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
+        assertEquals("1234", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern));
     }
 
     @Test
@@ -156,9 +156,8 @@ class FileUtilTest {
     @Test
     void getLinkedFileNameRemovesLatexCommands() {
         String pattern = "[citationkey] - [fulltitle]";
-        BibEntry entry = new BibEntry()
-                .withCitationKey("BrayBuildingCommunity")
-                .withField(StandardField.TITLE, "Building \\mkbibquote{Community}");
+        BibEntry entry = new BibEntry().withCitationKey("BrayBuildingCommunity")
+            .withField(StandardField.TITLE, "Building \\mkbibquote{Community}");
         String expected = "BrayBuildingCommunity - Building Community";
         String result = FileUtil.createFileNameFromPattern(null, entry, pattern);
         assertEquals(expected, result);
@@ -222,16 +221,10 @@ class FileUtilTest {
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathSubstrings() {
-       List<String> paths = List.of("C:/uniquefile.bib",
-               "C:/downloads/filename.bib",
-               "C:/mypaper/bib/filename.bib",
-               "C:/external/mypaper/bib/filename.bib",
-               "");
-        List<String> uniqPath = List.of("uniquefile.bib",
-              "downloads/filename.bib",
-              "C:/mypaper/bib/filename.bib",
-              "external/mypaper/bib/filename.bib",
-              "");
+        List<String> paths = List.of("C:/uniquefile.bib", "C:/downloads/filename.bib", "C:/mypaper/bib/filename.bib",
+                "C:/external/mypaper/bib/filename.bib", "");
+        List<String> uniqPath = List.of("uniquefile.bib", "downloads/filename.bib", "C:/mypaper/bib/filename.bib",
+                "external/mypaper/bib/filename.bib", "");
 
         List<String> result = FileUtil.uniquePathSubstrings(paths);
         assertEquals(uniqPath, result);
@@ -241,14 +234,16 @@ class FileUtilTest {
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathFragmentWithSameSuffix() {
         List<String> dirs = List.of("/users/jabref/bibliography.bib", "/users/jabref/koppor-bibliograsphy.bib");
-        assertEquals(Optional.of("bibliography.bib"), FileUtil.getUniquePathFragment(dirs, Path.of("/users/jabref/bibliography.bib")));
+        assertEquals(Optional.of("bibliography.bib"),
+                FileUtil.getUniquePathFragment(dirs, Path.of("/users/jabref/bibliography.bib")));
     }
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathFragmentWithSameSuffixAndLongerName() {
         List<String> paths = List.of("/users/jabref/bibliography.bib", "/users/jabref/koppor-bibliography.bib");
-        assertEquals(Optional.of("koppor-bibliography.bib"), FileUtil.getUniquePathFragment(paths, Path.of("/users/jabref/koppor-bibliography.bib")));
+        assertEquals(Optional.of("koppor-bibliography.bib"),
+                FileUtil.getUniquePathFragment(paths, Path.of("/users/jabref/koppor-bibliography.bib")));
     }
 
     @Test
@@ -298,7 +293,8 @@ class FileUtilTest {
         Path temp = subDir.resolve("existingTestFile.txt");
         Files.createFile(temp);
         FileUtil.copyFile(existingTestFile, temp, true);
-        assertEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8), Files.readAllLines(temp, StandardCharsets.UTF_8));
+        assertEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8),
+                Files.readAllLines(temp, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -308,7 +304,8 @@ class FileUtilTest {
         Path temp = subDir.resolve("existingTestFile.txt");
         Files.createFile(temp);
         FileUtil.copyFile(existingTestFile, temp, false);
-        assertNotEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8), Files.readAllLines(temp, StandardCharsets.UTF_8));
+        assertNotEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8),
+                Files.readAllLines(temp, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -323,14 +320,19 @@ class FileUtilTest {
 
     @Test
     void validFilenameShouldBeMaximum255Chars() {
-        String longestValidFilename = Stream.generate(() -> String.valueOf('1')).limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH - 4).collect(Collectors.joining()) + ".pdf";
-        String longerFilename = Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining()) + ".pdf";
+        String longestValidFilename = Stream.generate(() -> String.valueOf('1'))
+            .limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH - 4)
+            .collect(Collectors.joining()) + ".pdf";
+        String longerFilename = Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining())
+                + ".pdf";
         assertEquals(longestValidFilename, FileUtil.getValidFileName(longerFilename));
     }
 
     @Test
     void invalidFilenameWithoutExtension() {
-        String longestValidFilename = Stream.generate(() -> String.valueOf('1')).limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH).collect(Collectors.joining());
+        String longestValidFilename = Stream.generate(() -> String.valueOf('1'))
+            .limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH)
+            .collect(Collectors.joining());
         String longerFilename = Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining());
         assertEquals(longestValidFilename, FileUtil.getValidFileName(longerFilename));
     }
@@ -378,7 +380,8 @@ class FileUtilTest {
 
     @Test
     void findInListOfPath() {
-        // due to the added workaround for old JabRef behavior as both path starts with the same name they are considered equal
+        // due to the added workaround for old JabRef behavior as both path starts with
+        // the same name they are considered equal
         List<Path> paths = List.of(existingTestFile, otherExistingTestFile, rootDir);
         List<Path> resultPaths = List.of(existingTestFile);
         List<Path> result = FileUtil.findListOfFiles("existingTestFile.txt", paths);
@@ -404,7 +407,7 @@ class FileUtilTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"*", "?", ">", "\""})
+    @ValueSource(strings = { "*", "?", ">", "\"" })
     void fileNameIllegal(String fileName) {
         Path path = Path.of("/");
         assertEquals(Optional.empty(), FileUtil.find(fileName, path));
@@ -443,13 +446,15 @@ class FileUtilTest {
         String fileName = "c:\\temp.pdf";
         if (OS.WINDOWS) {
             assertFalse(FileUtil.detectBadFileName(fileName));
-        } else {
+        }
+        else {
             assertTrue(FileUtil.detectBadFileName(fileName));
         }
     }
 
     /**
-     * @implNote Tests inspired by {@link org.jabref.model.database.BibDatabaseContextTest#getFileDirectoriesWithRelativeMetadata}
+     * @implNote Tests inspired by
+     * {@link org.jabref.model.database.BibDatabaseContextTest#getFileDirectoriesWithRelativeMetadata}
      */
     public static Stream<Arguments> relativize() {
         Path bibPath = bibTempDir.resolve("bibliography.bib");
@@ -470,34 +475,32 @@ class FileUtilTest {
         BibEntry source2 = new BibEntry().withFiles(List.of(new LinkedFile(testPdf)));
         BibEntry target2 = new BibEntry().withFiles(List.of(new LinkedFile(bibTempDir.relativize(testPdf))));
 
-        return Stream.of(
-                Arguments.of(List.of(target1), List.of(source1), database, fileDirPrefs),
-                Arguments.of(List.of(target2), List.of(source2), database, fileDirPrefs)
-        );
+        return Stream.of(Arguments.of(List.of(target1), List.of(source1), database, fileDirPrefs),
+                Arguments.of(List.of(target2), List.of(source2), database, fileDirPrefs));
     }
 
     @ParameterizedTest
     @MethodSource
-    void relativize(List<BibEntry> expected, List<BibEntry> entries, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
+    void relativize(List<BibEntry> expected, List<BibEntry> entries, BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         List<BibEntry> actual = FileUtil.relativize(entries, databaseContext, filePreferences);
         assertEquals(expected, actual);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/mnt/tmp/test.pdf"})
+    @ValueSource(strings = { "/mnt/tmp/test.pdf" })
     void legalPaths(String fileName) {
         assertFalse(FileUtil.detectBadFileName(fileName));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"te{}mp.pdf"})
+    @ValueSource(strings = { "te{}mp.pdf" })
     void illegalPaths(String fileName) {
         assertTrue(FileUtil.detectBadFileName(fileName));
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "''                             ,                                     ,   ",
+    @CsvSource({ "''                             ,                                     ,   ",
             "''                             ,                                     , -3",
             "''                             ,                                     ,  0",
             "''                             ,                                     ,  3",
@@ -513,9 +516,9 @@ class FileUtilTest {
             "lo...                          , longfilename.extremelylongextension ,  5",
             "longfil...                     , longfilename.extremelylongextension , 10",
             "longfilename.extr...           , longfilename.extremelylongextension , 20",
-            "lo...me.extremelylongextension , longfilename.extremelylongextension , 30",
-    })
+            "lo...me.extremelylongextension , longfilename.extremelylongextension , 30", })
     void shortenFileName(String expected, String fileName, Integer maxLength) {
         assertEquals(expected, FileUtil.shortenFileName(fileName, maxLength));
     }
+
 }

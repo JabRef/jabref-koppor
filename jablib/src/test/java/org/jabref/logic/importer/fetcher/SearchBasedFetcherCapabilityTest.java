@@ -24,10 +24,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Defines the set of capability tests that each tests a given search capability, e.g. author based search.
- * The idea is to code the capabilities of a fetcher into Java code.
- * This way, a) the capabilities of a fetcher are checked automatically (because they can change from time-to-time by the provider)
- * and b) the queries sent to the fetchers can be debugged directly without a route through to some fetcher code.
+ * Defines the set of capability tests that each tests a given search capability, e.g.
+ * author based search. The idea is to code the capabilities of a fetcher into Java code.
+ * This way, a) the capabilities of a fetcher are checked automatically (because they can
+ * change from time-to-time by the provider) and b) the queries sent to the fetchers can
+ * be debugged directly without a route through to some fetcher code.
  */
 interface SearchBasedFetcherCapabilityTest {
 
@@ -63,11 +64,11 @@ interface SearchBasedFetcherCapabilityTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         ImportCleanup.targeting(BibDatabaseMode.BIBTEX, fieldPreferences).doPostCleanup(result);
         List<String> differentYearsInResult = result.stream()
-                                                    .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
-                                                    .filter(Optional::isPresent)
-                                                    .map(Optional::get)
-                                                    .distinct()
-                                                    .collect(Collectors.toList());
+            .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .distinct()
+            .collect(Collectors.toList());
 
         assertEquals(List.of(getTestYear().toString()), differentYearsInResult);
     }
@@ -86,11 +87,11 @@ interface SearchBasedFetcherCapabilityTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         ImportCleanup.targeting(BibDatabaseMode.BIBTEX, fieldPreferences).doPostCleanup(result);
         List<String> differentYearsInResult = result.stream()
-                                                    .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
-                                                    .filter(Optional::isPresent)
-                                                    .map(Optional::get)
-                                                    .distinct()
-                                                    .toList();
+            .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .distinct()
+            .toList();
         assertFalse(result.isEmpty());
         assertTrue(yearsInYearRange.containsAll(differentYearsInResult));
     }
@@ -98,8 +99,9 @@ interface SearchBasedFetcherCapabilityTest {
     /**
      * Test whether the library API supports journal based search.
      *
-     * WARNING: the error while merging information from user-assigned DOI (more specifically, "10.1016/j.geomphys.2012.09.009")
-     * is related to a failed read by the Bibtex Parser (title is formatted in a weird way)
+     * WARNING: the error while merging information from user-assigned DOI (more
+     * specifically, "10.1016/j.geomphys.2012.09.009") is related to a failed read by the
+     * Bibtex Parser (title is formatted in a weird way)
      */
     @Test
     default void supportsJournalSearch() throws FetcherException {
@@ -125,4 +127,5 @@ interface SearchBasedFetcherCapabilityTest {
     default Integer getTestYear() {
         return 2016;
     }
+
 }

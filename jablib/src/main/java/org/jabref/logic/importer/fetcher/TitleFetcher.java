@@ -46,4 +46,5 @@ public class TitleFetcher implements IdBasedFetcher {
         DoiFetcher doiFetcher = new DoiFetcher(this.preferences);
         return doiFetcher.performSearchById(doi.get().asString());
     }
+
 }

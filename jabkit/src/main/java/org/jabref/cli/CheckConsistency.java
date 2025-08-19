@@ -26,6 +26,7 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "check-consistency", description = "Check consistency of the library.")
 class CheckConsistency implements Callable<Integer> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckConsistency.class);
 
     @ParentCommand
@@ -34,19 +35,16 @@ class CheckConsistency implements Callable<Integer> {
     @Mixin
     private ArgumentProcessor.SharedOptions sharedOptions = new ArgumentProcessor.SharedOptions();
 
-    @Option(names = {"--input"}, description = "Input BibTeX file", required = true)
+    @Option(names = { "--input" }, description = "Input BibTeX file", required = true)
     private String inputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format: txt or csv", defaultValue = "txt")
+    @Option(names = { "--output-format" }, description = "Output format: txt or csv", defaultValue = "txt")
     private String outputFormat;
 
     @Override
     public Integer call() {
-        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(
-                inputFile,
-                "bibtex",
-                argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        Optional<ParserResult> parserResult = ArgumentProcessor.importFile(inputFile, "bibtex",
+                argumentProcessor.cliPreferences, sharedOptions.porcelain);
         if (parserResult.isEmpty()) {
             System.out.println(Localization.lang("Unable to open file '%0'.", inputFile));
             return 2;
@@ -80,26 +78,20 @@ class CheckConsistency implements Callable<Integer> {
         BibliographyConsistencyCheckResultWriter checkResultWriter;
 
         if ("txt".equalsIgnoreCase(outputFormat)) {
-            checkResultWriter = new BibliographyConsistencyCheckResultTxtWriter(
-                    result,
-                    writer,
-                    sharedOptions.porcelain,
-                    argumentProcessor.entryTypesManager,
-                    databaseContext.getMode());
-        } else {
-            checkResultWriter = new BibliographyConsistencyCheckResultCsvWriter(
-                    result,
-                    writer,
-                    sharedOptions.porcelain,
-                    argumentProcessor.entryTypesManager,
-                    databaseContext.getMode());
+            checkResultWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, sharedOptions.porcelain,
+                    argumentProcessor.entryTypesManager, databaseContext.getMode());
+        }
+        else {
+            checkResultWriter = new BibliographyConsistencyCheckResultCsvWriter(result, writer, sharedOptions.porcelain,
+                    argumentProcessor.entryTypesManager, databaseContext.getMode());
         }
 
         // System.out should not be closed, therefore no try-with-resources
         try {
             checkResultWriter.writeFindings();
             writer.flush();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error writing results", e);
             return 2;
         }
@@ -113,4 +105,5 @@ class CheckConsistency implements Callable<Integer> {
         }
         return 0;
     }
+
 }

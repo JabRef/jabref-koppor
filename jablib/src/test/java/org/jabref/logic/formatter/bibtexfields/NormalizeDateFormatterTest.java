@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class NormalizeDateFormatterTest {
 
@@ -136,4 +137,5 @@ class NormalizeDateFormatterTest {
     void formatExample() {
         assertEquals("2003-11-29", formatter.format(formatter.getExampleInput()));
     }
+
 }

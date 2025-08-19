@@ -10,14 +10,14 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 
 public class PreviewTab extends TabWithPreviewPanel {
+
     public static final String NAME = "Preview";
 
     private final GuiPreferences preferences;
+
     private final SplitPane splitPane;
 
-    public PreviewTab(GuiPreferences preferences,
-                      StateManager stateManager,
-                      PreviewPanel previewPanel) {
+    public PreviewTab(GuiPreferences preferences, StateManager stateManager, PreviewPanel previewPanel) {
         super(stateManager, previewPanel);
         this.preferences = preferences;
 
@@ -38,4 +38,5 @@ public class PreviewTab extends TabWithPreviewPanel {
         this.splitPane.getItems().clear();
         this.splitPane.getItems().add(previewPanel);
     }
+
 }

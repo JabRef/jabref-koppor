@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class PrefixTree<D> {
+
     /**
-     * Wildcard character used to match any character in the prefix tree.
-     * For example, WILD_CARD + WILD_CARD + WILD_CARD + "Hello World" -> would match .{,3}Hello World in this prefix tree
+     * Wildcard character used to match any character in the prefix tree. For example,
+     * WILD_CARD + WILD_CARD + WILD_CARD + "Hello World" -> would match .{,3}Hello World
+     * in this prefix tree
      */
     public static final int WILD_CARD = '*';
+
     private final Node<D> root;
 
     public PrefixTree() {
@@ -23,7 +26,7 @@ public class PrefixTree<D> {
         StringBuilder normalized = new StringBuilder();
         boolean lastWasWildcard = false;
 
-        for (int i = 0; i < key.length(); ) {
+        for (int i = 0; i < key.length();) {
             int codepoint = key.codePointAt(i);
             int charCount = Character.charCount(codepoint);
 
@@ -32,7 +35,8 @@ public class PrefixTree<D> {
                     normalized.appendCodePoint(codepoint);
                     lastWasWildcard = true;
                 }
-            } else {
+            }
+            else {
                 normalized.appendCodePoint(codepoint);
                 lastWasWildcard = false;
             }
@@ -83,7 +87,9 @@ public class PrefixTree<D> {
     }
 
     private static class Node<D> {
+
         private final Map<Integer, Node<D>> children;
+
         private final List<D> data;
 
         public Node() {
@@ -93,12 +99,14 @@ public class PrefixTree<D> {
 
         public void insert(String key, List<D> data) {
             Node<D> current = this;
-            for (int i = 0; i < key.length(); ) {
+            for (int i = 0; i < key.length();) {
                 int codepoint = key.codePointAt(i);
                 i += Character.charCount(codepoint);
                 current = current.children.computeIfAbsent(codepoint, _ -> new Node<>());
             }
             current.data.addAll(data);
         }
+
     }
+
 }

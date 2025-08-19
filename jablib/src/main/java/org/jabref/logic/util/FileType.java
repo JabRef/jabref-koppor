@@ -8,12 +8,11 @@ import java.util.stream.Collectors;
 public interface FileType {
 
     default List<String> getExtensionsWithAsteriskAndDot() {
-        return getExtensions().stream()
-                              .map(extension -> "*." + extension)
-                              .collect(Collectors.toList());
+        return getExtensions().stream().map(extension -> "*." + extension).collect(Collectors.toList());
     }
 
     List<String> getExtensions();
 
     String getName();
+
 }

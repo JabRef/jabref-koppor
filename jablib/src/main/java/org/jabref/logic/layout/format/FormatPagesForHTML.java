@@ -8,4 +8,5 @@ public class FormatPagesForHTML implements LayoutFormatter {
     public String format(String field) {
         return field.replace("--", "-");
     }
+
 }

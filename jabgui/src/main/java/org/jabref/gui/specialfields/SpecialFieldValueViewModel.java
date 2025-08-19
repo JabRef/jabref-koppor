@@ -71,4 +71,5 @@ public class SpecialFieldValueViewModel {
             case RELEVANT -> StandardActions.RELEVANT;
         };
     }
+
 }

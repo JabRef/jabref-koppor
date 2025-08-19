@@ -27,10 +27,15 @@ import static org.mockito.Mockito.when;
 
 // @FetcherTest("Downloads a PDF file")
 class LinkedFilesEditorViewModelTest {
+
     private LinkedFilesEditorViewModel viewModel;
+
     private final GuiPreferences preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class, Answers.RETURNS_DEEP_STUBS);
+
     private final BibDatabaseContext bibDatabaseContext = mock(BibDatabaseContext.class);
+
     private final UndoManager undoManager = mock(UndoManager.class);
 
     @Test
@@ -40,14 +45,16 @@ class LinkedFilesEditorViewModelTest {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         when(bibDatabaseContext.getFirstExistingFileDir(any())).thenReturn(Optional.of(tempDir));
 
-        viewModel = new LinkedFilesEditorViewModel(StandardField.FILE, new EmptySuggestionProvider(), mock(DialogService.class), bibDatabaseContext,
-                           new CurrentThreadTaskExecutor(), mock(FieldCheckers.class), preferences, undoManager);
+        viewModel = new LinkedFilesEditorViewModel(StandardField.FILE, new EmptySuggestionProvider(),
+                mock(DialogService.class), bibDatabaseContext, new CurrentThreadTaskExecutor(),
+                mock(FieldCheckers.class), preferences, undoManager);
 
         BibEntry entry = new BibEntry().withCitationKey("test")
             .withField(StandardField.URL, "https://ceur-ws.org/Vol-847/paper6.pdf");
-                viewModel.entry = entry;
+        viewModel.entry = entry;
         viewModel.fetchFulltext();
 
         assertTrue(Files.exists(tempDir.resolve("test.pdf")));
     }
+
 }

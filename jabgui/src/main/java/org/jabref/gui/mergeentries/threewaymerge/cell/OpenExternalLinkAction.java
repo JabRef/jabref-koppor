@@ -12,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A command for opening DOIs and URLs. This was created primarily for simplifying {@link FieldValueCell}.
+ * A command for opening DOIs and URLs. This was created primarily for simplifying
+ * {@link FieldValueCell}.
  */
 public class OpenExternalLinkAction extends SimpleCommand {
+
     private final Logger LOGGER = LoggerFactory.getLogger(OpenExternalLinkAction.class);
 
     private final ExternalApplicationsPreferences externalApplicationPreferences;
@@ -31,19 +33,18 @@ public class OpenExternalLinkAction extends SimpleCommand {
         try {
             if (DOI.isValid(urlOrDoi)) {
                 NativeDesktop.openBrowser(
-                        DOI.parse(urlOrDoi)
-                           .flatMap(DOI::getExternalURI)
-                           .map(URI::toString)
-                           .orElse(""),
+                        DOI.parse(urlOrDoi).flatMap(DOI::getExternalURI).map(URI::toString).orElse(""),
                         externalApplicationPreferences
 
                 );
-            } else {
-                NativeDesktop.openBrowser(urlOrDoi, externalApplicationPreferences
-        );
             }
-        } catch (IOException e) {
+            else {
+                NativeDesktop.openBrowser(urlOrDoi, externalApplicationPreferences);
+            }
+        }
+        catch (IOException e) {
             LOGGER.warn("Cannot open the given external link '{}'", urlOrDoi, e);
         }
     }
+
 }

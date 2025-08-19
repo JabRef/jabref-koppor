@@ -24,13 +24,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Microsoft Word bibliography.
- * The class is uesed both for import and export
- * See http://www.ecma-international.org/publications/standards/Ecma-376.htm
+ * Microsoft Word bibliography. The class is uesed both for import and export See
+ * http://www.ecma-international.org/publications/standards/Ecma-376.htm
  */
 public class MSBibDatabase {
 
     public static final String NAMESPACE = "http://schemas.openxmlformats.org/officeDocument/2006/bibliography";
+
     public static final String PREFIX = "b:";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MSBibDatabase.class);
@@ -49,18 +49,18 @@ public class MSBibDatabase {
     }
 
     /**
-     * Creates a new {@link MSBibDatabase} for <b>export</b>.
-     * Directly converts the given entries.
-     *
+     * Creates a new {@link MSBibDatabase} for <b>export</b>. Directly converts the given
+     * entries.
      * @param database The bib database
-     * @param entries  List of {@link BibEntry}
+     * @param entries List of {@link BibEntry}
      */
     public MSBibDatabase(BibDatabase database, List<BibEntry> entries) {
         this();
         List<BibEntry> resolvedEntries;
         if (entries == null) {
             resolvedEntries = database.resolveForStrings(database.getEntries(), false);
-        } else {
+        }
+        else {
             resolvedEntries = database.resolveForStrings(entries, false);
         }
         setEntriesForExport(resolvedEntries);
@@ -68,7 +68,6 @@ public class MSBibDatabase {
 
     /**
      * Imports entries from an office XML file
-     *
      * @return List of {@link BibEntry}
      */
     public List<BibEntry> importEntriesFromXml(BufferedReader reader) {
@@ -77,7 +76,8 @@ public class MSBibDatabase {
         try {
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             inputDocument = documentBuilder.parse(new InputSource(reader));
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+        }
+        catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.warn("Could not parse document", e);
             return List.of();
         }
@@ -125,9 +125,11 @@ public class MSBibDatabase {
                 rootNode.appendChild(node);
             }
             document.appendChild(rootNode);
-        } catch (ParserConfigurationException e) {
+        }
+        catch (ParserConfigurationException e) {
             LOGGER.warn("Could not build XML document", e);
         }
         return document;
     }
+
 }

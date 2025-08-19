@@ -20,11 +20,15 @@ import org.slf4j.LoggerFactory;
  * Manages the loading of CitationStyles from both internal resources and external files.
  */
 public class CSLStyleLoader {
+
     public static final String DEFAULT_STYLE = "ieee.csl";
 
     private static final String STYLES_ROOT = "/csl-styles";
+
     private static final String CATALOG_PATH = "/citation-style-catalog.json";
+
     private static final List<CitationStyle> INTERNAL_STYLES = new ArrayList<>();
+
     private static final List<CitationStyle> EXTERNAL_STYLES = new ArrayList<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSLStyleLoader.class);
@@ -46,14 +50,15 @@ public class CSLStyleLoader {
     }
 
     /**
-     * Returns the default citation style which is currently set to {@link CSLStyleLoader#DEFAULT_STYLE}.
+     * Returns the default citation style which is currently set to
+     * {@link CSLStyleLoader#DEFAULT_STYLE}.
      */
     public static CitationStyle getDefaultStyle() {
         return INTERNAL_STYLES.stream()
-                              .filter(style -> DEFAULT_STYLE.equals(style.getFilePath()))
-                              .findFirst()
-                              .orElseGet(() -> CSLStyleUtils.createCitationStyleFromFile(DEFAULT_STYLE)
-                                                            .orElse(new CitationStyle("", "Empty", false, false, false, "", true)));
+            .filter(style -> DEFAULT_STYLE.equals(style.getFilePath()))
+            .findFirst()
+            .orElseGet(() -> CSLStyleUtils.createCitationStyleFromFile(DEFAULT_STYLE)
+                .orElse(new CitationStyle("", "Empty", false, false, false, "", true)));
     }
 
     /**
@@ -69,9 +74,8 @@ public class CSLStyleLoader {
             }
 
             ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, Object>> styleInfoList = mapper.readValue(is,
-                    new TypeReference<>() {
-                    });
+            List<Map<String, Object>> styleInfoList = mapper.readValue(is, new TypeReference<>() {
+            });
 
             if (!styleInfoList.isEmpty()) {
                 int styleCount = styleInfoList.size();
@@ -82,24 +86,30 @@ public class CSLStyleLoader {
                     boolean hasBibliography = (boolean) info.get("hasBibliography");
                     boolean usesHangingIndent = (boolean) info.get("usesHangingIndent");
 
-                    // We use these metadata and just load the content instead of re-parsing for them
-                    // These are located in the resources directly; therefore it is enough to use the class itself for loading
+                    // We use these metadata and just load the content instead of
+                    // re-parsing for them
+                    // These are located in the resources directly; therefore it is enough
+                    // to use the class itself for loading
                     try (InputStream styleStream = CSLStyleLoader.class.getResourceAsStream(STYLES_ROOT + "/" + path)) {
                         if (styleStream != null) {
                             String source = new String(styleStream.readAllBytes());
-                            CitationStyle style = new CitationStyle(path, title, isNumeric, hasBibliography, usesHangingIndent, source, true);
+                            CitationStyle style = new CitationStyle(path, title, isNumeric, hasBibliography,
+                                    usesHangingIndent, source, true);
                             INTERNAL_STYLES.add(style);
                         }
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         LOGGER.error("Error loading style file: {}", path, e);
                         styleCount--;
                     }
                 }
                 LOGGER.info("Loaded {} CSL styles", styleCount);
-            } else {
+            }
+            else {
                 LOGGER.error("Citation style catalog is empty");
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error loading citation style catalog", e);
         }
     }
@@ -119,7 +129,6 @@ public class CSLStyleLoader {
 
     /**
      * Adds a new external CSL style if it's valid.
-     *
      * @return Optional containing the added CitationStyle if valid, empty otherwise
      */
     public Optional<CitationStyle> addStyleIfValid(String stylePath) {
@@ -141,15 +150,12 @@ public class CSLStyleLoader {
      * Stores the current list of external styles to preferences.
      */
     private void storeExternalStyles() {
-        List<String> stylePaths = EXTERNAL_STYLES.stream()
-                                                 .map(CitationStyle::getPath)
-                                                 .toList();
+        List<String> stylePaths = EXTERNAL_STYLES.stream().map(CitationStyle::getPath).toList();
         openOfficePreferences.setExternalCslStyles(stylePaths);
     }
 
     /**
      * Removes a style from the external styles list.
-     *
      * @return true if the style was removed, false otherwise
      */
     public boolean removeStyle(CitationStyle style) {
@@ -168,4 +174,5 @@ public class CSLStyleLoader {
         }
         return List.copyOf(INTERNAL_STYLES);
     }
+
 }

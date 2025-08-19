@@ -59,4 +59,5 @@ public class GroupColorPicker {
     private static Color generateSubGroupColor(Color baseColor) {
         return baseColor.deriveColor(0.0, 1.0, .9, 1.0);
     }
+
 }

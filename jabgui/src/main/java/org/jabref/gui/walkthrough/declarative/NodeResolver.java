@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 /// Resolves nodes from a Scene
 @FunctionalInterface
 public interface NodeResolver {
+
     /// Resolves a node from the given scene.
     ///
     /// @param scene the scene to search in
@@ -50,12 +51,15 @@ public interface NodeResolver {
     /// @param glyph the graphic of the button
     /// @return a resolver that finds the button by graphic
     static NodeResolver buttonWithGraphic(IconTheme.JabRefIcons glyph) {
-        return scene -> scene.getRoot().lookupAll(".button").stream()
-                             .filter(node -> node instanceof Button button
-                                     && Optional.ofNullable(findNode(button.getGraphic(), JabRefIconView.class::isInstance))
-                                                .map(JabRefIconView.class::cast).filter(icon -> icon.getGlyph() == glyph)
-                                                .isPresent())
-                             .findFirst();
+        return scene -> scene.getRoot()
+            .lookupAll(".button")
+            .stream()
+            .filter(node -> node instanceof Button button
+                    && Optional.ofNullable(findNode(button.getGraphic(), JabRefIconView.class::isInstance))
+                        .map(JabRefIconView.class::cast)
+                        .filter(icon -> icon.getGlyph() == glyph)
+                        .isPresent())
+            .findFirst();
     }
 
     /// Creates a resolver that finds a node by a predicate.
@@ -76,19 +80,21 @@ public interface NodeResolver {
 
     /// Creates a resolver that finds a node by selector first, then predicate.
     ///
-    /// @param selector    the style class to match
+    /// @param selector the style class to match
     /// @param textMatcher predicate to match text content in LabeledText children
     /// @return a resolver that finds the node by style class and text content
     static NodeResolver selectorWithText(@NonNull String selector, @NonNull Predicate<String> textMatcher) {
-        return scene -> scene.getRoot().lookupAll(selector).stream().filter(
-                node -> textMatcher.test(node.toString()) || node.lookupAll(".text").stream().anyMatch(child -> {
-                            if (child instanceof LabeledText text) {
-                                String textContent = text.getText();
-                                return textContent != null && textMatcher.test(textContent);
-                            }
-                            return false;
-                        }
-                )).findFirst();
+        return scene -> scene.getRoot()
+            .lookupAll(selector)
+            .stream()
+            .filter(node -> textMatcher.test(node.toString()) || node.lookupAll(".text").stream().anyMatch(child -> {
+                if (child instanceof LabeledText text) {
+                    String textContent = text.getText();
+                    return textContent != null && textMatcher.test(textContent);
+                }
+                return false;
+            }))
+            .findFirst();
     }
 
     /// Creates a resolver that finds a menu item by its language key.
@@ -105,21 +111,20 @@ public interface NodeResolver {
                 return Optional.empty();
             }
 
-            return menu.getItems().stream()
-                       .filter(item -> Optional
-                               .ofNullable(item.getText())
-                               .map(str -> str.contains(Localization.lang(key)))
-                               .orElse(false))
-                       .flatMap(item -> Stream
-                               .iterate(item.getGraphic(), Objects::nonNull, Node::getParent)
-                               .filter(node -> node.getStyleClass().contains("menu-item"))
-                               .findFirst().stream()
-                       ).findFirst();
+            return menu.getItems()
+                .stream()
+                .filter(item -> Optional.ofNullable(item.getText())
+                    .map(str -> str.contains(Localization.lang(key)))
+                    .orElse(false))
+                .flatMap(item -> Stream.iterate(item.getGraphic(), Objects::nonNull, Node::getParent)
+                    .filter(node -> node.getStyleClass().contains("menu-item"))
+                    .findFirst()
+                    .stream())
+                .findFirst();
         };
     }
 
-    @Nullable
-    private static Node findNodeByAction(@NonNull Scene scene, @NonNull StandardActions action) {
+    @Nullable private static Node findNodeByAction(@NonNull Scene scene, @NonNull StandardActions action) {
         return findNode(scene.getRoot(), node -> {
             if (node instanceof Button button) {
                 if (button.getTooltip() != null) {
@@ -145,8 +150,7 @@ public interface NodeResolver {
         });
     }
 
-    @Nullable
-    private static Node findNode(@NonNull Node root, @NonNull Predicate<Node> predicate) {
+    @Nullable private static Node findNode(@NonNull Node root, @NonNull Predicate<Node> predicate) {
         if (predicate.test(root)) {
             return root;
         }
@@ -162,4 +166,5 @@ public interface NodeResolver {
 
         return null;
     }
+
 }

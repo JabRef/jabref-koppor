@@ -18,17 +18,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for handling Citation Style Language (CSL) files.
- * Contains shared functionality used by both runtime ({@link CSLStyleLoader}) and build-time ({@link org.jabref.generators.CitationStyleCatalogGenerator}) components.
+ * Utility class for handling Citation Style Language (CSL) files. Contains shared
+ * functionality used by both runtime ({@link CSLStyleLoader}) and build-time
+ * ({@link org.jabref.generators.CitationStyleCatalogGenerator}) components.
  */
 public final class CSLStyleUtils {
+
     private static final String STYLES_ROOT = "/csl-styles";
+
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSLStyleUtils.class);
 
     /**
-     * Style information record (title, numeric nature, has bibliography specification, bibliography uses hanging indent) for a citation style.
+     * Style information record (title, numeric nature, has bibliography specification,
+     * bibliography uses hanging indent) for a citation style.
      */
     public record StyleInfo(String title, boolean isNumericStyle, boolean hasBibliography, boolean usesHangingIndent) {
     }
@@ -50,7 +54,6 @@ public final class CSLStyleUtils {
 
     /**
      * Creates a CitationStyle from a file path.
-     *
      * @param styleFile Path to the CSL file
      * @return Optional containing the CitationStyle if valid, empty otherwise
      */
@@ -65,7 +68,8 @@ public final class CSLStyleUtils {
         if (filePath.isAbsolute() && Files.exists(filePath)) {
             try (InputStream inputStream = Files.newInputStream(filePath)) {
                 return createCitationStyleFromSource(inputStream, styleFile, false);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Error reading source file", e);
                 return Optional.empty();
             }
@@ -79,7 +83,8 @@ public final class CSLStyleUtils {
                 return Optional.empty();
             }
             return createCitationStyleFromSource(inputStream, styleFile, true);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error reading source file", e);
         }
         return Optional.empty();
@@ -87,23 +92,18 @@ public final class CSLStyleUtils {
 
     /**
      * Creates a CitationStyle from the input stream.
-     *
      * @return Optional containing the CitationStyle if valid, empty otherwise
      */
-    private static Optional<CitationStyle> createCitationStyleFromSource(InputStream source, String filename, boolean isInternal) {
+    private static Optional<CitationStyle> createCitationStyleFromSource(InputStream source, String filename,
+            boolean isInternal) {
         try {
             String content = new String(source.readAllBytes());
 
             Optional<StyleInfo> styleInfo = parseStyleInfo(filename, content);
-            return styleInfo.map(info -> new CitationStyle(
-                    filename,
-                    info.title(),
-                    info.isNumericStyle(),
-                    info.hasBibliography(),
-                    info.usesHangingIndent(),
-                    content,
-                    isInternal));
-        } catch (IOException e) {
+            return styleInfo.map(info -> new CitationStyle(filename, info.title(), info.isNumericStyle(),
+                    info.hasBibliography(), info.usesHangingIndent(), content, isInternal));
+        }
+        catch (IOException e) {
             LOGGER.error("Error while parsing source", e);
             return Optional.empty();
         }
@@ -111,7 +111,6 @@ public final class CSLStyleUtils {
 
     /**
      * Parses the style information from a style content using StAX.
-     *
      * @param filename The filename of the style (for logging)
      * @param content The XML content of the style
      * @return Optional containing the StyleInfo if valid, empty otherwise
@@ -153,7 +152,8 @@ public final class CSLStyleUtils {
                             }
                         }
                     }
-                } else if (event == XMLStreamConstants.END_ELEMENT) {
+                }
+                else if (event == XMLStreamConstants.END_ELEMENT) {
                     if ("info".equals(reader.getLocalName())) {
                         inInfo = false;
                     }
@@ -162,13 +162,16 @@ public final class CSLStyleUtils {
 
             if (hasCitation && title != null) {
                 return Optional.of(new StyleInfo(title, isNumericStyle, hasBibliography, usesHangingIndent));
-            } else {
+            }
+            else {
                 LOGGER.debug("No valid title or citation found for file {}", filename);
                 return Optional.empty();
             }
-        } catch (XMLStreamException e) {
+        }
+        catch (XMLStreamException e) {
             LOGGER.error("Error parsing XML for file {}: {}", filename, e.getMessage(), e);
             return Optional.empty();
         }
     }
+
 }

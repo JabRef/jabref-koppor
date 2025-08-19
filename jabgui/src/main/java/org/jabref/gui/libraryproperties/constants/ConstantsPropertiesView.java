@@ -22,23 +22,34 @@ import org.jabref.model.database.BibDatabaseContext;
 import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
-public class ConstantsPropertiesView extends AbstractPropertiesTabView<ConstantsPropertiesViewModel> implements PropertiesTab {
+public class ConstantsPropertiesView extends AbstractPropertiesTabView<ConstantsPropertiesViewModel>
+        implements PropertiesTab {
 
-    @FXML private TableView<ConstantsItemModel> stringsList;
-    @FXML private TableColumn<ConstantsItemModel, String> labelColumn;
-    @FXML private TableColumn<ConstantsItemModel, String> contentColumn;
-    @FXML private TableColumn<ConstantsItemModel, String> actionsColumn;
-    @FXML private Button addStringButton;
+    @FXML
+    private TableView<ConstantsItemModel> stringsList;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
+    @FXML
+    private TableColumn<ConstantsItemModel, String> labelColumn;
+
+    @FXML
+    private TableColumn<ConstantsItemModel, String> contentColumn;
+
+    @FXML
+    private TableColumn<ConstantsItemModel, String> actionsColumn;
+
+    @FXML
+    private Button addStringButton;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
 
     public ConstantsPropertiesView(BibDatabaseContext databaseContext) {
         this.databaseContext = databaseContext;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -47,7 +58,8 @@ public class ConstantsPropertiesView extends AbstractPropertiesTabView<Constants
     }
 
     public void initialize() {
-        this.viewModel = new ConstantsPropertiesViewModel(databaseContext, dialogService, preferences.getExternalApplicationsPreferences());
+        this.viewModel = new ConstantsPropertiesViewModel(databaseContext, dialogService,
+                preferences.getExternalApplicationsPreferences());
 
         addStringButton.setTooltip(new Tooltip(Localization.lang("New string")));
 
@@ -56,26 +68,26 @@ public class ConstantsPropertiesView extends AbstractPropertiesTabView<Constants
 
         labelColumn.setCellValueFactory(cellData -> cellData.getValue().labelProperty());
         new ViewModelTextFieldTableCellVisualizationFactory<ConstantsItemModel, String>()
-                .withValidation(ConstantsItemModel::labelValidation)
-                .install(labelColumn, new DefaultStringConverter());
+            .withValidation(ConstantsItemModel::labelValidation)
+            .install(labelColumn, new DefaultStringConverter());
         labelColumn.setOnEditCommit((TableColumn.CellEditEvent<ConstantsItemModel, String> cellEvent) -> {
 
             TableView<ConstantsItemModel> tableView = cellEvent.getTableView();
-            ConstantsItemModel cellItem = tableView.getItems()
-                                                   .get(cellEvent.getTablePosition().getRow());
+            ConstantsItemModel cellItem = tableView.getItems().get(cellEvent.getTablePosition().getRow());
 
             Optional<ConstantsItemModel> existingItem = viewModel.labelAlreadyExists(cellEvent.getNewValue());
 
             if (existingItem.isPresent() && !existingItem.get().equals(cellItem)) {
-                dialogService.showErrorDialogAndWait(Localization.lang(
-                        "A string with the label '%0' already exists.",
-                        cellEvent.getNewValue()));
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("A string with the label '%0' already exists.", cellEvent.getNewValue()));
                 cellItem.setLabel(cellEvent.getOldValue());
-            } else {
+            }
+            else {
                 cellItem.setLabel(cellEvent.getNewValue());
             }
 
-            // Resort the entries based on the keys and set the focus to the newly-created entry
+            // Resort the entries based on the keys and set the focus to the newly-created
+            // entry
             viewModel.resortStrings();
             TableView.TableViewSelectionModel<ConstantsItemModel> selectionModel = tableView.getSelectionModel();
             selectionModel.select(cellItem);
@@ -88,20 +100,19 @@ public class ConstantsPropertiesView extends AbstractPropertiesTabView<Constants
         contentColumn.setReorderable(false);
         contentColumn.setCellValueFactory(cellData -> cellData.getValue().contentProperty());
         new ViewModelTextFieldTableCellVisualizationFactory<ConstantsItemModel, String>()
-                .withValidation(ConstantsItemModel::contentValidation)
-                .install(contentColumn, new DefaultStringConverter());
-        contentColumn.setOnEditCommit((TableColumn.CellEditEvent<ConstantsItemModel, String> cell) ->
-                cell.getRowValue().setContent(cell.getNewValue()));
+            .withValidation(ConstantsItemModel::contentValidation)
+            .install(contentColumn, new DefaultStringConverter());
+        contentColumn.setOnEditCommit((TableColumn.CellEditEvent<ConstantsItemModel, String> cell) -> cell.getRowValue()
+            .setContent(cell.getNewValue()));
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setCellValueFactory(cellData -> cellData.getValue().labelProperty());
         new ValueTableCellFactory<ConstantsItemModel, String>()
-                .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withTooltip(label -> Localization.lang("Remove string %0", label))
-                .withOnMouseClickedEvent(_ -> _ ->
-                        viewModel.removeString(stringsList.getFocusModel().getFocusedItem()))
-                .install(actionsColumn);
+            .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withTooltip(label -> Localization.lang("Remove string %0", label))
+            .withOnMouseClickedEvent(_ -> _ -> viewModel.removeString(stringsList.getFocusModel().getFocusedItem()))
+            .install(actionsColumn);
 
         stringsList.itemsProperty().bindBidirectional(viewModel.stringsListProperty());
         stringsList.setEditable(true);
@@ -117,4 +128,5 @@ public class ConstantsPropertiesView extends AbstractPropertiesTabView<Constants
     private void openHelp() {
         viewModel.openHelpPage();
     }
+
 }

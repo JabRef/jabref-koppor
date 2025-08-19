@@ -25,14 +25,17 @@ public class EntryLinkChecker implements EntryChecker {
         List<IntegrityMessage> result = new ArrayList<>();
         for (Entry<Field, String> field : entry.getFieldMap().entrySet()) {
             Set<FieldProperty> properties = field.getKey().getProperties();
-            if (properties.contains(FieldProperty.MULTIPLE_ENTRY_LINK) || properties.contains(FieldProperty.SINGLE_ENTRY_LINK)) {
-                entry.getEntryLinkList(field.getKey(), database).stream()
-                     .filter(parsedEntryLink -> parsedEntryLink.getLinkedEntry().isEmpty())
-                     .forEach(parsedEntryLink -> result.add(new IntegrityMessage(
-                             Localization.lang("Referenced citation key '%0' does not exist", parsedEntryLink.getKey()),
-                             entry, field.getKey())));
+            if (properties.contains(FieldProperty.MULTIPLE_ENTRY_LINK)
+                    || properties.contains(FieldProperty.SINGLE_ENTRY_LINK)) {
+                entry.getEntryLinkList(field.getKey(), database)
+                    .stream()
+                    .filter(parsedEntryLink -> parsedEntryLink.getLinkedEntry().isEmpty())
+                    .forEach(parsedEntryLink -> result.add(new IntegrityMessage(
+                            Localization.lang("Referenced citation key '%0' does not exist", parsedEntryLink.getKey()),
+                            entry, field.getKey())));
             }
         }
         return result;
     }
+
 }

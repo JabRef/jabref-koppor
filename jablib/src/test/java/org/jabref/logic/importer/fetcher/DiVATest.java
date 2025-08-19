@@ -47,7 +47,8 @@ class DiVATest {
         entry.setField(StandardField.TITLE, "Lower bounds for constant multiplication problems");
         entry.setField(StandardField.VOLUME, "54");
         entry.setField(StandardField.YEAR, "2007");
-        entry.setField(StandardField.ABSTRACT, "Lower bounds for problems related to realizing multiplication by constants with shifts, adders, and subtracters are presented. These lower bounds are straightforwardly calculated and have applications in proving the optimality of solutions obtained by heuristics. ");
+        entry.setField(StandardField.ABSTRACT,
+                "Lower bounds for problems related to realizing multiplication by constants with shifts, adders, and subtracters are presented. These lower bounds are straightforwardly calculated and have applications in proving the optimality of solutions obtained by heuristics. ");
         entry.setField(StandardField.DOI, "10.1109/TCSII.2007.903212");
 
         assertEquals(Optional.of(entry), fetcher.performSearchById("diva2:260746"));
@@ -67,4 +68,5 @@ class DiVATest {
     void emptyId() throws FetcherException {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
+
 }

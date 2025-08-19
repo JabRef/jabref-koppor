@@ -10,12 +10,13 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 public class DisabledOnCIServerWindowsCondition implements ExecutionCondition {
 
-    private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult.enabled("Running not on Windows or not on CI server");
+    private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult
+        .enabled("Running not on Windows or not on CI server");
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
         Optional<DisabledOnCIServerWindows> annotation = context.getElement()
-                                                                .flatMap(el -> AnnotationSupport.findAnnotation(el, DisabledOnCIServerWindows.class));
+            .flatMap(el -> AnnotationSupport.findAnnotation(el, DisabledOnCIServerWindows.class));
 
         if (annotation.isEmpty()) {
             return ENABLED;
@@ -33,4 +34,5 @@ public class DisabledOnCIServerWindowsCondition implements ExecutionCondition {
 
         return ConditionEvaluationResult.disabled(annotation.get().value());
     }
+
 }

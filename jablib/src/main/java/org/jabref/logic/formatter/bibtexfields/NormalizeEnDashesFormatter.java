@@ -29,4 +29,5 @@ public class NormalizeEnDashesFormatter extends Formatter {
     public String getExampleInput() {
         return "Winery - A Modeling Tool for TOSCA-based Cloud Applications";
     }
+
 }

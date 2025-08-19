@@ -13,15 +13,17 @@ public class UnoNameAccess {
     }
 
     /**
-     * @return null if name not found, or if the result does not support the XTextContent interface.
+     * @return null if name not found, or if the result does not support the XTextContent
+     * interface.
      */
     public static Optional<XTextContent> getTextContentByName(XNameAccess nameAccess, String name)
-            throws
-            WrappedTargetException {
+            throws WrappedTargetException {
         try {
             return UnoCast.cast(XTextContent.class, nameAccess.getByName(name));
-        } catch (NoSuchElementException ex) {
+        }
+        catch (NoSuchElementException ex) {
             return Optional.empty();
         }
     }
+
 }

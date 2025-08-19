@@ -7,7 +7,8 @@ import org.jabref.logic.layout.LayoutFormatter;
  * LayoutFormatter that removes the space between abbreviated First names
  * </p>
  * <p>
- * What out that this regular expression might also remove other spaces that fit the pattern.
+ * What out that this regular expression might also remove other spaces that fit the
+ * pattern.
  * </p>
  * <p>
  * Example: J. R. R. Tolkien becomes J.R.R. Tolkien.
@@ -19,8 +20,8 @@ import org.jabref.logic.layout.LayoutFormatter;
 public class NoSpaceBetweenAbbreviations implements LayoutFormatter {
 
     /*
-     * Match '.' followed by spaces followed by uppercase char followed by '.'
-     * but don't include the last dot into the capturing group.
+     * Match '.' followed by spaces followed by uppercase char followed by '.' but don't
+     * include the last dot into the capturing group.
      *
      * Replace the match by removing the spaces.
      *
@@ -30,4 +31,5 @@ public class NoSpaceBetweenAbbreviations implements LayoutFormatter {
     public String format(String fieldText) {
         return fieldText.replaceAll("\\.\\s+(\\p{Lu})(?=\\.)", "\\.$1");
     }
+
 }

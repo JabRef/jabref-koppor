@@ -6,6 +6,7 @@ import org.jabref.gui.actions.SimpleCommand;
 public class AboutAction extends SimpleCommand {
 
     private final AboutDialogView aboutDialogView;
+
     private final DialogService dialogService;
 
     public AboutAction(final DialogService dialogService) {
@@ -17,4 +18,5 @@ public class AboutAction extends SimpleCommand {
     public void execute() {
         dialogService.showCustomDialog(aboutDialogView);
     }
+
 }

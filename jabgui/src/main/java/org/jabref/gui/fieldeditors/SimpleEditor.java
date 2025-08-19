@@ -21,37 +21,39 @@ import org.jabref.model.entry.field.Field;
 public class SimpleEditor extends HBox implements FieldEditorFX {
 
     private final SimpleEditorViewModel viewModel;
+
     private final TextInputControl textInput;
+
     private final boolean isMultiLine;
 
-    public SimpleEditor(final Field field,
-                        final SuggestionProvider<?> suggestionProvider,
-                        final FieldCheckers fieldCheckers,
-                        final GuiPreferences preferences,
-                        final boolean isMultiLine,
-                        final UndoManager undoManager,
-                        UndoAction undoAction,
-                        RedoAction redoAction) {
+    public SimpleEditor(final Field field, final SuggestionProvider<?> suggestionProvider,
+            final FieldCheckers fieldCheckers, final GuiPreferences preferences, final boolean isMultiLine,
+            final UndoManager undoManager, UndoAction undoAction, RedoAction redoAction) {
         this.viewModel = new SimpleEditorViewModel(field, suggestionProvider, fieldCheckers, undoManager);
         this.isMultiLine = isMultiLine;
 
         textInput = createTextInputControl();
         HBox.setHgrow(textInput, Priority.ALWAYS);
 
-        establishBinding(textInput, viewModel.textProperty(), preferences.getKeyBindingRepository(), undoAction, redoAction);
+        establishBinding(textInput, viewModel.textProperty(), preferences.getKeyBindingRepository(), undoAction,
+                redoAction);
 
-        ((ContextMenuAddable) textInput).initContextMenu(new DefaultMenu(textInput), preferences.getKeyBindingRepository());
+        ((ContextMenuAddable) textInput).initContextMenu(new DefaultMenu(textInput),
+                preferences.getKeyBindingRepository());
         this.getChildren().add(textInput);
 
         if (!isMultiLine) {
-            AutoCompletionTextInputBinding<?> autoCompleter = AutoCompletionTextInputBinding.autoComplete(textInput, viewModel::complete, viewModel.getAutoCompletionStrategy());
+            AutoCompletionTextInputBinding<?> autoCompleter = AutoCompletionTextInputBinding.autoComplete(textInput,
+                    viewModel::complete, viewModel.getAutoCompletionStrategy());
             if (suggestionProvider instanceof ContentSelectorSuggestionProvider) {
-                // If content selector values are present, then we want to show the auto complete suggestions immediately on focus
+                // If content selector values are present, then we want to show the auto
+                // complete suggestions immediately on focus
                 autoCompleter.setShowOnFocus(true);
             }
         }
 
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textInput);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textInput);
     }
 
     protected TextInputControl createTextInputControl() {
@@ -76,4 +78,5 @@ public class SimpleEditor extends HBox implements FieldEditorFX {
     protected TextInputControl getTextInput() {
         return textInput;
     }
+
 }

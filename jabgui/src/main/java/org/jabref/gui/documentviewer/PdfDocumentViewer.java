@@ -27,8 +27,11 @@ public class PdfDocumentViewer extends StackPane {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfDocumentViewer.class);
 
     private final PDFView pdfView;
+
     private final IntegerProperty currentPage = new SimpleIntegerProperty(0);
+
     private final StringProperty highlightText = new SimpleStringProperty("");
+
     private final Label placeholderLabel;
 
     public PdfDocumentViewer() {
@@ -67,17 +70,21 @@ public class PdfDocumentViewer extends StackPane {
                 pdfView.setVisible(true);
                 placeholderLabel.setVisible(false);
                 LOGGER.debug("Successfully loaded PDF document: {}", document);
-            } catch (IOException | PDFView.Document.DocumentProcessingException e) {
+            }
+            catch (IOException | PDFView.Document.DocumentProcessingException e) {
                 LOGGER.error("Could not load PDF document {}", document, e);
                 pdfView.setVisible(false);
-                placeholderLabel.setText(Localization.lang("Could not load PDF: %0", document.getFileName().toString()));
+                placeholderLabel
+                    .setText(Localization.lang("Could not load PDF: %0", document.getFileName().toString()));
                 placeholderLabel.setVisible(true);
             }
-        } else {
+        }
+        else {
             LOGGER.debug("No document provided to viewer, showing placeholder");
             pdfView.setVisible(false);
             placeholderLabel.setText(Localization.lang("No PDF available for preview"));
             placeholderLabel.setVisible(true);
         }
     }
+
 }

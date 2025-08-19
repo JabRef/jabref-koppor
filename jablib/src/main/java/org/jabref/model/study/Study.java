@@ -12,14 +12,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * This class represents a scientific study.
  *
- * This class defines all aspects of a scientific study relevant to the application. It is a proxy for the file based study definition.
+ * This class defines all aspects of a scientific study relevant to the application. It is
+ * a proxy for the file based study definition.
  *
  * The file is parsed using by {@link StudyYamlParser}
  */
-@JsonPropertyOrder({"authors", "title", "research-questions", "queries", "databases"})
+@JsonPropertyOrder({ "authors", "title", "research-questions", "queries", "databases" })
 // The user might add arbitrary content to the YAML
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Study {
+
     private List<String> authors;
 
     private String title;
@@ -31,7 +33,8 @@ public class Study {
 
     private List<StudyDatabase> databases;
 
-    public Study(List<String> authors, String title, List<String> researchQuestions, List<StudyQuery> queryEntries, List<StudyDatabase> databases) {
+    public Study(List<String> authors, String title, List<String> researchQuestions, List<StudyQuery> queryEntries,
+            List<StudyDatabase> databases) {
         this.authors = authors;
         this.title = title;
         this.researchQuestions = researchQuestions;
@@ -87,13 +90,8 @@ public class Study {
 
     @Override
     public String toString() {
-        return "Study{" +
-                "authors=" + authors +
-                ", studyName='" + title + '\'' +
-                ", researchQuestions=" + researchQuestions +
-                ", queries=" + queries +
-                ", libraries=" + databases +
-                '}';
+        return "Study{" + "authors=" + authors + ", studyName='" + title + '\'' + ", researchQuestions="
+                + researchQuestions + ", queries=" + queries + ", libraries=" + databases + '}';
     }
 
     @Override
@@ -107,16 +105,14 @@ public class Study {
 
         Study otherStudy = (Study) other;
 
-        return Objects.equals(authors, otherStudy.authors) &&
-                Objects.equals(title, otherStudy.title) &&
-                Objects.equals(researchQuestions, otherStudy.researchQuestions) &&
-                Objects.equals(queries, otherStudy.queries) &&
-                Objects.equals(databases, otherStudy.databases);
+        return Objects.equals(authors, otherStudy.authors) && Objects.equals(title, otherStudy.title)
+                && Objects.equals(researchQuestions, otherStudy.researchQuestions)
+                && Objects.equals(queries, otherStudy.queries) && Objects.equals(databases, otherStudy.databases);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(authors, title, researchQuestions, queries, databases);
     }
-}
 
+}

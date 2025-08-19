@@ -12,4 +12,5 @@ public class OrMatcher extends MatcherSet {
     public boolean isMatch(BibEntry entry) {
         return ListUtil.anyMatch(matchers, rule -> rule.isMatch(entry));
     }
+
 }

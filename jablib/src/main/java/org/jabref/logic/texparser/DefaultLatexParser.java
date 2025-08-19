@@ -24,30 +24,35 @@ import org.slf4j.LoggerFactory;
 public class DefaultLatexParser implements LatexParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLatexParser.class);
+
     private static final String TEX_EXT = ".tex";
+
     private static final String BIB_EXT = ".bib";
 
     /**
-     * It is allowed to add new cite commands for pattern matching. Some valid examples: "citep", "[cC]ite", and
-     * "[cC]ite(author|title|year|t|p)?".
+     * It is allowed to add new cite commands for pattern matching. Some valid examples:
+     * "citep", "[cC]ite", and "[cC]ite(author|title|year|t|p)?".
      */
     private static final String[] CITE_COMMANDS = {
             "[cC]ite(alt|alp|author|authorfull|date|num|p|t|text|title|url|year|yearpar)?",
             "([aA]|[aA]uto|fnote|foot|footfull|full|no|[nN]ote|[pP]aren|[pP]note|[tT]ext|[sS]mart|super)cite([s*]?)",
-            "footcitetext", "(block|text)cquote"
-    };
+            "footcitetext", "(block|text)cquote" };
+
     private static final String CITE_GROUP = "key";
-    private static final Pattern CITE_PATTERN = Pattern.compile(
-            "\\\\(%s)\\*?(?:\\[(?:[^\\]]*)\\]){0,2}\\{(?<%s>[^\\}]*)\\}(?:\\{[^\\}]*\\})?".formatted(
-                    String.join("|", CITE_COMMANDS), CITE_GROUP));
+
+    private static final Pattern CITE_PATTERN = Pattern
+        .compile("\\\\(%s)\\*?(?:\\[(?:[^\\]]*)\\]){0,2}\\{(?<%s>[^\\}]*)\\}(?:\\{[^\\}]*\\})?"
+            .formatted(String.join("|", CITE_COMMANDS), CITE_GROUP));
 
     private static final String BIBLIOGRAPHY_GROUP = "bib";
-    private static final Pattern BIBLIOGRAPHY_PATTERN = Pattern.compile(
-            "\\\\(?:bibliography|addbibresource)\\{(?<%s>[^\\}]*)\\}".formatted(BIBLIOGRAPHY_GROUP));
+
+    private static final Pattern BIBLIOGRAPHY_PATTERN = Pattern
+        .compile("\\\\(?:bibliography|addbibresource)\\{(?<%s>[^\\}]*)\\}".formatted(BIBLIOGRAPHY_GROUP));
 
     private static final String INCLUDE_GROUP = "file";
-    private static final Pattern INCLUDE_PATTERN = Pattern.compile(
-            "\\\\(?:include|input)\\{(?<%s>[^\\}]*)\\}".formatted(INCLUDE_GROUP));
+
+    private static final Pattern INCLUDE_PATTERN = Pattern
+        .compile("\\\\(?:include|input)\\{(?<%s>[^\\}]*)\\}".formatted(INCLUDE_GROUP));
 
     @Override
     public LatexParserResult parse(String citeString) {
@@ -67,8 +72,8 @@ public class DefaultLatexParser implements LatexParser {
         LatexParserResult latexParserResult = new LatexParserResult(latexFile);
 
         try (InputStream inputStream = Files.newInputStream(latexFile);
-             Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             LineNumberReader lineNumberReader = new LineNumberReader(reader)) {
+                Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                LineNumberReader lineNumberReader = new LineNumberReader(reader)) {
             for (String line = lineNumberReader.readLine(); line != null; line = lineNumberReader.readLine()) {
                 // Skip comments and blank lines.
                 if (line.trim().isEmpty() || line.trim().charAt(0) == '%') {
@@ -78,11 +83,13 @@ public class DefaultLatexParser implements LatexParser {
                 matchBibFile(latexFile, line, latexParserResult);
                 matchNestedFile(latexFile, line, latexParserResult);
             }
-        } catch (ClosedChannelException e) {
+        }
+        catch (ClosedChannelException e) {
             // User changed the underlying LaTeX file
             // We ignore this error and just continue with parsing
             LOGGER.info("Parsing has been interrupted");
-        } catch (IOException | UncheckedIOException e) {
+        }
+        catch (IOException | UncheckedIOException e) {
             // Some weired error during reading
             // We ignore this error and just continue with parsing
             LOGGER.info("Error while parsing file {}", latexFile, e);
@@ -120,10 +127,9 @@ public class DefaultLatexParser implements LatexParser {
         while (bibliographyMatch.find()) {
             for (String bibString : bibliographyMatch.group(BIBLIOGRAPHY_GROUP).split(",")) {
                 bibString = bibString.trim();
-                Path bibFile = file.getParent().resolve(
-                        bibString.endsWith(BIB_EXT)
-                                ? bibString
-                                : "%s%s".formatted(bibString, BIB_EXT)).normalize();
+                Path bibFile = file.getParent()
+                    .resolve(bibString.endsWith(BIB_EXT) ? bibString : "%s%s".formatted(bibString, BIB_EXT))
+                    .normalize();
 
                 if (Files.exists(bibFile)) {
                     latexParserResult.addBibFile(bibFile);
@@ -140,8 +146,7 @@ public class DefaultLatexParser implements LatexParser {
 
         while (includeMatch.find()) {
             String filenamePassedToInclude = includeMatch.group(INCLUDE_GROUP);
-            String texFileName = filenamePassedToInclude.endsWith(TEX_EXT)
-                    ? filenamePassedToInclude
+            String texFileName = filenamePassedToInclude.endsWith(TEX_EXT) ? filenamePassedToInclude
                     : "%s%s".formatted(filenamePassedToInclude, TEX_EXT);
             Path nestedFile = texFile.getParent().resolve(texFileName).normalize();
             if (Files.exists(nestedFile)) {
@@ -149,4 +154,5 @@ public class DefaultLatexParser implements LatexParser {
             }
         }
     }
+
 }

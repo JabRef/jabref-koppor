@@ -16,6 +16,7 @@ import org.eclipse.jgit.transport.URIish;
 import org.jspecify.annotations.NonNull;
 
 public final class GitInitService {
+
     public static void initRepoAndSetRemote(@NonNull Path bibPath, @NonNull String remoteUrl) throws JabRefException {
         Path expectedRoot = bibPath.toAbsolutePath().getParent();
         if (expectedRoot == null) {
@@ -24,9 +25,8 @@ public final class GitInitService {
 
         Optional<Path> outerRoot = GitHandler.findRepositoryRoot(expectedRoot);
         if (outerRoot.isPresent() && !outerRoot.get().equals(expectedRoot)) {
-            throw new JabRefException(
-                    Localization.lang("This library is inside another Git repository\nTo sync this library independently, move it into its own folder (one library per repo) and try again.")
-            );
+            throw new JabRefException(Localization.lang(
+                    "This library is inside another Git repository\nTo sync this library independently, move it into its own folder (one library per repo) and try again."));
         }
 
         GitHandlerRegistry gitHandlerRegistry = new GitHandlerRegistry();
@@ -39,17 +39,12 @@ public final class GitInitService {
             boolean hasOrigin = config.getSubsections("remote").contains("origin");
 
             if (!hasOrigin) {
-                git.remoteAdd()
-                   .setName("origin")
-                   .setUri(new URIish(remoteUrl))
-                   .call();
-            } else {
+                git.remoteAdd().setName("origin").setUri(new URIish(remoteUrl)).call();
+            }
+            else {
                 String current = config.getString("remote", "origin", "url");
                 if (!remoteUrl.equals(current)) {
-                    git.remoteSetUrl()
-                       .setRemoteName("origin")
-                       .setRemoteUri(new URIish(remoteUrl))
-                       .call();
+                    git.remoteSetUrl().setRemoteName("origin").setRemoteUri(new URIish(remoteUrl)).call();
                 }
             }
 
@@ -57,8 +52,10 @@ public final class GitInitService {
             config.setString("branch", branch, "remote", "origin");
             config.setString("branch", branch, "merge", "refs/heads/" + branch);
             config.save();
-        } catch (URISyntaxException | IOException | GitAPIException e) {
+        }
+        catch (URISyntaxException | IOException | GitAPIException e) {
             throw new JabRefException("Failed to initialize repository or set remote", e);
         }
     }
+
 }

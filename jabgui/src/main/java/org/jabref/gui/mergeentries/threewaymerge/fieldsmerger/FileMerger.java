@@ -10,17 +10,21 @@ import org.jabref.model.strings.StringUtil;
 
 /**
  * A merger for the {@link StandardField#FILE} field
- * */
+ */
 public class FileMerger implements FieldMerger {
+
     @Override
     public String merge(String filesA, String filesB) {
         if (StringUtil.isBlank(filesA + filesB)) {
             return "";
-        } else if (StringUtil.isBlank(filesA)) {
+        }
+        else if (StringUtil.isBlank(filesA)) {
             return filesB;
-        } else if (StringUtil.isBlank(filesB)) {
+        }
+        else if (StringUtil.isBlank(filesB)) {
             return filesA;
-        } else {
+        }
+        else {
             List<LinkedFile> linkedFilesA = FileFieldParser.parse(filesA);
             List<LinkedFile> linkedFilesB = FileFieldParser.parse(filesB);
 
@@ -28,4 +32,5 @@ public class FileMerger implements FieldMerger {
             return FileFieldWriter.getStringRepresentation(linkedFilesA);
         }
     }
+
 }

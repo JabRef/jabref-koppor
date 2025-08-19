@@ -38,19 +38,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration test of the components used for SLR support
- * Marked as FetcherTest as it calls fetcher
+ * Integration test of the components used for SLR support Marked as FetcherTest as it
+ * calls fetcher
  */
 @FetcherTest
 class CrawlerTest {
+
     @TempDir
     Path tempRepositoryDirectory;
+
     ImportFormatPreferences importFormatPreferences;
+
     ImporterPreferences importerPreferences;
+
     SaveConfiguration saveConfiguration;
+
     BibEntryTypesManager entryTypesManager;
+
     SlrGitHandler gitHandler = mock(SlrGitHandler.class, Answers.RETURNS_DEFAULTS);
+
     String hashCodeQuantum = String.valueOf("Quantum".hashCode());
+
     String hashCodeCloudComputing = String.valueOf("Cloud Computing".hashCode());
 
     CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -62,17 +70,9 @@ class CrawlerTest {
     void setUp() throws GitAPIException, URISyntaxException {
         setUpRepository();
 
-        CitationKeyPatternPreferences citationKeyPatternPreferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
-                "",
-                ',');
+        CitationKeyPatternPreferences citationKeyPatternPreferences = new CitationKeyPatternPreferences(false, false,
+                false, CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A, "", "", DEFAULT_UNWANTED_CHARACTERS,
+                GlobalCitationKeyPatterns.fromPattern("[auth][year]"), "", ',');
 
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         importerPreferences = mock(ImporterPreferences.class);
@@ -87,16 +87,10 @@ class CrawlerTest {
     }
 
     private void setUpRepository() throws GitAPIException, URISyntaxException {
-        Git git = Git.init()
-                     .setDirectory(tempRepositoryDirectory.toFile())
-                     .call();
+        Git git = Git.init().setDirectory(tempRepositoryDirectory.toFile()).call();
         setUpTestStudyDefinitionFile();
-        git.add()
-           .addFilepattern(".")
-           .call();
-        git.commit()
-           .setMessage("Initialize")
-           .call();
+        git.add().addFilepattern(".").call();
+        git.commit().setMessage("Initialize").call();
         git.close();
     }
 
@@ -107,28 +101,29 @@ class CrawlerTest {
     }
 
     @Test
-    void whetherAllFilesAreCreated() throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
-        Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(),
-                gitHandler,
-                preferences,
-                entryTypesManager,
+    void whetherAllFilesAreCreated()
+            throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
+        Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(), gitHandler, preferences, entryTypesManager,
                 new DummyFileUpdateMonitor());
 
         testCrawler.performCrawl();
 
         assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
+        assertTrue(Files
+            .exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
 
         List<String> filesToAssert = List.of("ArXiv.bib", "Springer.bib", "result.bib", "Medline_PubMed.bib");
-        filesToAssert.forEach(
-                fileName -> {
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", fileName)));
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", fileName)));
-                });
+        filesToAssert.forEach(fileName -> {
+            assertTrue(Files
+                .exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", fileName)));
+            assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                    hashCodeCloudComputing + " - Cloud Computing", fileName)));
+        });
         assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), "studyResult.bib")));
     }
 
     private Path getPathToStudyDefinitionFile() {
         return tempRepositoryDirectory;
     }
+
 }

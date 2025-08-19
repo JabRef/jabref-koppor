@@ -24,53 +24,39 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
 public class SidePane extends VBox {
+
     private final SidePaneViewModel viewModel;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
 
     // These bindings need to be stored, otherwise they are garbage collected
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<SidePaneType, BooleanBinding> visibleBindings = new HashMap<>();
 
-    public SidePane(LibraryTabContainer tabContainer,
-                    GuiPreferences preferences,
-                    JournalAbbreviationRepository abbreviationRepository,
-                    TaskExecutor taskExecutor,
-                    DialogService dialogService,
-                    AiService aiService,
-                    StateManager stateManager,
-                    AdaptVisibleTabs adaptVisibleTabs,
-                    FileUpdateMonitor fileUpdateMonitor,
-                    BibEntryTypesManager entryTypesManager,
-                    ClipBoardManager clipBoardManager,
-                    UndoManager undoManager) {
+    public SidePane(LibraryTabContainer tabContainer, GuiPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository, TaskExecutor taskExecutor,
+            DialogService dialogService, AiService aiService, StateManager stateManager,
+            AdaptVisibleTabs adaptVisibleTabs, FileUpdateMonitor fileUpdateMonitor,
+            BibEntryTypesManager entryTypesManager, ClipBoardManager clipBoardManager, UndoManager undoManager) {
         this.stateManager = stateManager;
         this.preferences = preferences;
-        this.viewModel = new SidePaneViewModel(
-                tabContainer,
-                preferences,
-                abbreviationRepository,
-                stateManager,
-                taskExecutor,
-                adaptVisibleTabs,
-                dialogService,
-                aiService,
-                fileUpdateMonitor,
-                entryTypesManager,
-                clipBoardManager,
-                undoManager);
+        this.viewModel = new SidePaneViewModel(tabContainer, preferences, abbreviationRepository, stateManager,
+                taskExecutor, adaptVisibleTabs, dialogService, aiService, fileUpdateMonitor, entryTypesManager,
+                clipBoardManager, undoManager);
 
         stateManager.getVisibleSidePaneComponents().addListener((ListChangeListener<SidePaneType>) c -> updateView());
         updateView();
     }
 
-     private void updateView() {
+    private void updateView() {
         getChildren().clear();
-         for (SidePaneType type : stateManager.getVisibleSidePaneComponents()) {
-             SidePaneComponent view = viewModel.getSidePaneComponent(type);
-             getChildren().add(view);
-         }
-     }
+        for (SidePaneType type : stateManager.getVisibleSidePaneComponents()) {
+            SidePaneComponent view = viewModel.getSidePaneComponent(type);
+            getChildren().add(view);
+        }
+    }
 
     public BooleanBinding paneVisibleBinding(SidePaneType pane) {
         BooleanBinding visibility = Bindings.createBooleanBinding(
@@ -87,4 +73,5 @@ public class SidePane extends VBox {
     public SidePaneComponent getSidePaneComponent(SidePaneType type) {
         return viewModel.getSidePaneComponent(type);
     }
+
 }

@@ -20,13 +20,11 @@ class NameFormatterTest {
         assertEquals("JoeDoe and MaryJ",
                 l.format("Joe Doe and Mary Jane", "1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more"));
 
-        assertEquals("Doe, Joe and Jane, M. and Kamp, J.~A.",
-                l.format("Joe Doe and Mary Jane and John Arthur van Kamp",
-                        "1@*@{ll}, {ff}@@*@1@{ll}, {ff}@2..-1@ and {ll}, {f}."));
+        assertEquals("Doe, Joe and Jane, M. and Kamp, J.~A.", l.format("Joe Doe and Mary Jane and John Arthur van Kamp",
+                "1@*@{ll}, {ff}@@*@1@{ll}, {ff}@2..-1@ and {ll}, {f}."));
 
-        assertEquals("Doe Joe and Jane, M. and Kamp, J.~A.",
-                l.format("Joe Doe and Mary Jane and John Arthur van Kamp",
-                        "1@*@{ll}, {ff}@@*@1@{ll} {ff}@2..-1@ and {ll}, {f}."));
+        assertEquals("Doe Joe and Jane, M. and Kamp, J.~A.", l.format("Joe Doe and Mary Jane and John Arthur van Kamp",
+                "1@*@{ll}, {ff}@@*@1@{ll} {ff}@2..-1@ and {ll}, {f}."));
     }
 
     @Test
@@ -53,7 +51,8 @@ class NameFormatterTest {
                 a.format("John von Neumann and John Smith and Black Brown, Peter", formatString));
 
         // Four names
-        assertEquals("von Neumann John, Smith, John, Vandekamp, Mary~Ann and Black~Brown, Peter", a.format(
-                "von Neumann, John and Smith, John and Vandekamp, Mary Ann and Black Brown, Peter", formatString));
+        assertEquals("von Neumann John, Smith, John, Vandekamp, Mary~Ann and Black~Brown, Peter", a
+            .format("von Neumann, John and Smith, John and Vandekamp, Mary Ann and Black Brown, Peter", formatString));
     }
+
 }

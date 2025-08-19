@@ -28,43 +28,51 @@ import jakarta.inject.Inject;
 // TODO: Document why this is not an IdentifierEditor like ISBN and EPrint
 //       If there is no reason, then integrate it in IdentifierEditor
 public class ISSNEditor extends HBox implements FieldEditorFX {
-    @FXML private ISSNEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
-    @FXML private Button fetchInformationByIdentifierButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private UndoManager undoManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private StateManager stateManager;
+    @FXML
+    private ISSNEditorViewModel viewModel;
+
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button journalInfoButton;
+
+    @FXML
+    private Button fetchInformationByIdentifierButton;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private StateManager stateManager;
 
     private Optional<BibEntry> entry = Optional.empty();
 
-    public ISSNEditor(Field field,
-                      SuggestionProvider<?> suggestionProvider,
-                      FieldCheckers fieldCheckers,
-                      UndoAction undoAction,
-                      RedoAction redoAction) {
+    public ISSNEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoAction undoAction, RedoAction redoAction) {
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
-        this.viewModel = new ISSNEditorViewModel(
-                field,
-                suggestionProvider,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager,
-                stateManager,
-                preferences);
+        this.viewModel = new ISSNEditorViewModel(field, suggestionProvider, fieldCheckers, taskExecutor, dialogService,
+                undoManager, stateManager, preferences);
 
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
         textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textField);
     }
 
     public ISSNEditorViewModel getViewModel() {
@@ -98,4 +106,5 @@ public class ISSNEditor extends HBox implements FieldEditorFX {
             viewModel.showJournalInfo(journalInfoButton);
         }
     }
+
 }

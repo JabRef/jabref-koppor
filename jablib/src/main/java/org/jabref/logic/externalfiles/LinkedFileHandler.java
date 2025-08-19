@@ -22,15 +22,15 @@ public class LinkedFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedFileHandler.class);
 
     private final BibDatabaseContext databaseContext;
+
     private final FilePreferences filePreferences;
+
     private final BibEntry entry;
 
     private final LinkedFile linkedFile;
 
-    public LinkedFileHandler(LinkedFile linkedFile,
-                             BibEntry entry,
-                             BibDatabaseContext databaseContext,
-                             FilePreferences filePreferences) {
+    public LinkedFileHandler(LinkedFile linkedFile, BibEntry entry, BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this.linkedFile = linkedFile;
         this.entry = entry;
         this.databaseContext = Objects.requireNonNull(databaseContext);
@@ -42,9 +42,11 @@ public class LinkedFileHandler {
     }
 
     /**
-     * @return true if the file was copied/moved or the same file exists in the target directory
+     * @return true if the file was copied/moved or the same file exists in the target
+     * directory
      */
-    public boolean copyOrMoveToDefaultDirectory(boolean shouldMove, boolean shouldRenameToFilenamePattern) throws IOException {
+    public boolean copyOrMoveToDefaultDirectory(boolean shouldMove, boolean shouldRenameToFilenamePattern)
+            throws IOException {
         Optional<Path> databaseFileDirectoryOpt = databaseContext.getFirstExistingFileDir(filePreferences);
         if (databaseFileDirectoryOpt.isEmpty()) {
             LOGGER.warn("No existing file directory found");
@@ -61,9 +63,7 @@ public class LinkedFileHandler {
 
         String targetDirectoryName = "";
         if (!filePreferences.getFileDirectoryPattern().isEmpty()) {
-            targetDirectoryName = FileUtil.createDirNameFromPattern(
-                    databaseContext.getDatabase(),
-                    entry,
+            targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry,
                     filePreferences.getFileDirectoryPattern());
         }
 
@@ -78,20 +78,23 @@ public class LinkedFileHandler {
                 if (shouldMove && !Files.isSameFile(sourcePath, getTargetPathResult.path)) {
                     Files.delete(sourcePath);
                 }
-                linkedFile.setLink(FileUtil.relativize(getTargetPathResult.path(), databaseContext, filePreferences).toString());
+                linkedFile.setLink(
+                        FileUtil.relativize(getTargetPathResult.path(), databaseContext, filePreferences).toString());
                 return true;
             }
         }
         if (!shouldRenameToFilenamePattern || (getTargetPathResult.renamed && !entry.getFiles().isEmpty())) {
             // Either we do not rename to pattern - or UX feature:
-            // UX feature: If user adds a file to the entry and JabRef could only add it when renaming to the suggested pattern,
-            //             JabRef should keep the original file name
+            // UX feature: If user adds a file to the entry and JabRef could only add it
+            // when renaming to the suggested pattern,
+            // JabRef should keep the original file name
             getTargetPathResult = getTargetPath(sourcePath, targetDirectory, false);
             if (getTargetPathResult.exists) {
                 if (shouldMove && !Files.isSameFile(sourcePath, getTargetPathResult.path)) {
                     Files.delete(sourcePath);
                 }
-                linkedFile.setLink(FileUtil.relativize(getTargetPathResult.path(), databaseContext, filePreferences).toString());
+                linkedFile.setLink(
+                        FileUtil.relativize(getTargetPathResult.path(), databaseContext, filePreferences).toString());
                 return true;
             }
         }
@@ -99,7 +102,8 @@ public class LinkedFileHandler {
         assert !Files.exists(getTargetPathResult.path);
         if (shouldMove) {
             Files.move(sourcePath, getTargetPathResult.path);
-        } else {
+        }
+        else {
             Files.copy(sourcePath, getTargetPathResult.path);
         }
         assert Files.exists(getTargetPathResult.path);
@@ -116,11 +120,13 @@ public class LinkedFileHandler {
     private record GetTargetPathResult(boolean exists, boolean renamed, Path path) {
     }
 
-    private GetTargetPathResult getTargetPath(Path sourcePath, Path targetDirectory, boolean useSuggestedName) throws IOException {
+    private GetTargetPathResult getTargetPath(Path sourcePath, Path targetDirectory, boolean useSuggestedName)
+            throws IOException {
         Path suggestedFileName;
         if (useSuggestedName) {
             suggestedFileName = Path.of(getSuggestedFileName(FileUtil.getFileExtension(sourcePath).orElse("")));
-        } else {
+        }
+        else {
             suggestedFileName = sourcePath.getFileName();
         }
 
@@ -129,7 +135,9 @@ public class LinkedFileHandler {
         if (Files.exists(targetPath)) {
             if (Files.mismatch(sourcePath, targetPath) == -1) {
                 // In case of source == target, we pretend, we have success
-                LOGGER.debug("The file {} would have been copied/moved to {}. However, there exists already a file with that name so we do nothing.", sourcePath, targetPath);
+                LOGGER.debug(
+                        "The file {} would have been copied/moved to {}. However, there exists already a file with that name so we do nothing.",
+                        sourcePath, targetPath);
                 return new GetTargetPathResult(true, false, targetPath);
             }
             Integer count = 1;
@@ -139,12 +147,17 @@ public class LinkedFileHandler {
                 exists = Files.exists(targetPath);
                 if (exists && Files.mismatch(sourcePath, targetPath) == -1) {
                     // In case of source == target, we pretend, we have success
-                    LOGGER.debug("The file {} would have been copied/moved to {}. However, there exists already a file with that name so we do nothing.", sourcePath, targetPath);
+                    LOGGER.debug(
+                            "The file {} would have been copied/moved to {}. However, there exists already a file with that name so we do nothing.",
+                            sourcePath, targetPath);
                     return new GetTargetPathResult(true, true, targetPath);
                 }
                 count++;
-            } while (exists);
-            LOGGER.debug("The file {} existed in the target path somehow (but with different content). Chose new name {}.", sourcePath, targetPath);
+            }
+            while (exists);
+            LOGGER.debug(
+                    "The file {} existed in the target path somehow (but with different content). Chose new name {}.",
+                    sourcePath, targetPath);
             renamed = true;
         }
         return new GetTargetPathResult(false, renamed, targetPath);
@@ -167,7 +180,8 @@ public class LinkedFileHandler {
         Path newPath;
         if (newExtension.isPresent() || (oldExtension.isEmpty() && newExtension.isEmpty())) {
             newPath = oldPath.resolveSibling(targetFileName);
-        } else {
+        }
+        else {
             assert oldExtension.isPresent() && newExtension.isEmpty();
             newPath = oldPath.resolveSibling(targetFileName + "." + oldExtension.get());
         }
@@ -176,10 +190,13 @@ public class LinkedFileHandler {
         boolean pathsDifferOnlyByCase = newPath.toString().equalsIgnoreCase(expandedOldFilePath)
                 && !newPath.toString().equals(expandedOldFilePath);
 
-        // Since Files.exists is sometimes not case-sensitive, the check pathsDifferOnlyByCase ensures that we
+        // Since Files.exists is sometimes not case-sensitive, the check
+        // pathsDifferOnlyByCase ensures that we
         // nonetheless rename files to a new name which just differs by case.
         if (Files.exists(newPath) && !pathsDifferOnlyByCase && !overwriteExistingFile) {
-            LOGGER.debug("The file {} would have been moved to {}. However, there exists already a file with that name so we do nothing.", oldPath, newPath);
+            LOGGER.debug(
+                    "The file {} would have been moved to {}. However, there exists already a file with that name so we do nothing.",
+                    oldPath, newPath);
             return false;
         }
 
@@ -187,7 +204,8 @@ public class LinkedFileHandler {
             Files.createDirectories(newPath.getParent());
             LOGGER.debug("Overwriting existing file {}", newPath);
             Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
-        } else {
+        }
+        else {
             Files.createDirectories(newPath.getParent());
             Files.move(oldPath, newPath);
         }
@@ -207,10 +225,13 @@ public class LinkedFileHandler {
 
     /**
      * @param extension The extension of the file. If empty, no extension is added.
-     * @return A filename based on the pattern specified in the preferences and valid for the file system.
+     * @return A filename based on the pattern specified in the preferences and valid for
+     * the file system.
      */
     public String getSuggestedFileName(String extension) {
-        String targetFileName = FileUtil.createFileNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileNamePattern()).trim();
+        String targetFileName = FileUtil
+            .createFileNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileNamePattern())
+            .trim();
         if ((targetFileName.isEmpty() || "-".equals(targetFileName)) && linkedFile.isOnlineLink()) {
             String oldFileName = linkedFile.getLink();
             int lastSlashIndex = oldFileName.lastIndexOf('/');
@@ -237,25 +258,30 @@ public class LinkedFileHandler {
     }
 
     /**
-     * Check to see if a file already exists in the target directory.  Search is not case sensitive.
-     *
-     * @return First identified path that matches an existing file.  This name can be used in subsequent calls to
-     * override the existing file.
+     * Check to see if a file already exists in the target directory. Search is not case
+     * sensitive.
+     * @return First identified path that matches an existing file. This name can be used
+     * in subsequent calls to override the existing file.
      */
     public Optional<Path> findExistingFile(LinkedFile linkedFile, BibEntry entry, String targetFileName) {
-        // The .get() is legal without check because the method will always return a value.
+        // The .get() is legal without check because the method will always return a
+        // value.
         Path targetFilePath = linkedFile.findIn(databaseContext, filePreferences)
-                                     .get().getParent().resolve(targetFileName);
+            .get()
+            .getParent()
+            .resolve(targetFileName);
         Path oldFilePath = linkedFile.findIn(databaseContext, filePreferences).get();
         // Check if file already exists in directory with different case.
         // This is necessary because other entries may have such a file.
         Optional<Path> matchedByDiffCase = Optional.empty();
         try (Stream<Path> stream = Files.list(oldFilePath.getParent())) {
             matchedByDiffCase = stream.filter(name -> name.toString().equalsIgnoreCase(targetFilePath.toString()))
-                                      .findFirst();
-        } catch (IOException e) {
+                .findFirst();
+        }
+        catch (IOException e) {
             LOGGER.error("Could not get the list of files in target directory", e);
         }
         return matchedByDiffCase;
     }
+
 }

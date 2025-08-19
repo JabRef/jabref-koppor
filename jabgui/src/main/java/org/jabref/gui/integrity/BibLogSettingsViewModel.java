@@ -26,12 +26,19 @@ import org.jabref.model.metadata.MetaData;
 /// 2. Wraps .blg warnings as IntegrityMessages.
 /// 3. Supports file browsing and reset actions.
 public class BibLogSettingsViewModel extends AbstractViewModel {
+
     private final ObservableList<IntegrityMessage> blgWarnings = FXCollections.observableArrayList();
+
     private final StringProperty path = new SimpleStringProperty("");
+
     private final MetaData metaData;
+
     private final Optional<Path> bibPath;
+
     private final String user;
+
     private Optional<Path> lastResolvedBlgPath = Optional.empty();
+
     private boolean userManuallySelectedBlgFile = false;
 
     public BibLogSettingsViewModel(MetaData metaData, Optional<Path> bibPath) {
@@ -39,22 +46,21 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         this.bibPath = bibPath;
         this.user = System.getProperty("user.name");
 
-        BibLogPathResolver.resolve(metaData, bibPath, user)
-                          .ifPresent(resolvedPath -> {
-                              this.path.set(resolvedPath.toString());
-                              if (metaData.getBlgFilePath(user).isEmpty()) {
-                                  metaData.setBlgFilePath(user, resolvedPath);
-                                  this.lastResolvedBlgPath = Optional.of(resolvedPath);
-                              }
-                          });
+        BibLogPathResolver.resolve(metaData, bibPath, user).ifPresent(resolvedPath -> {
+            this.path.set(resolvedPath.toString());
+            if (metaData.getBlgFilePath(user).isEmpty()) {
+                metaData.setBlgFilePath(user, resolvedPath);
+                this.lastResolvedBlgPath = Optional.of(resolvedPath);
+            }
+        });
     }
 
     /**
      * Parses the .blg file (if it exists) into the observable list.
-     *
-     * @param databaseContext the current database context used to resolve citation keys in warnings.
-     * @return An Optional containing the list of integrity messages if the file exists and can be parsed,
-     *         or an empty Optional if the file does not exist.
+     * @param databaseContext the current database context used to resolve citation keys
+     * in warnings.
+     * @return An Optional containing the list of integrity messages if the file exists
+     * and can be parsed, or an empty Optional if the file does not exist.
      * @throws JabRefException if the .blg file cannot be parsed or read
      */
     public Optional<List<IntegrityMessage>> getBlgWarnings(BibDatabaseContext databaseContext) throws JabRefException {
@@ -70,16 +76,15 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         try {
             BibtexLogParser parser = new BibtexLogParser();
             List<BibWarning> warnings = parser.parseBiblog(path);
-            List<IntegrityMessage> newWarnings = BibWarningToIntegrityMessageConverter.convert(warnings, databaseContext);
+            List<IntegrityMessage> newWarnings = BibWarningToIntegrityMessageConverter.convert(warnings,
+                    databaseContext);
             blgWarnings.setAll(newWarnings);
             return Optional.of(newWarnings);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             blgWarnings.clear();
-            throw new JabRefException(
-                    "Failed to parse .blg file",
-                    Localization.lang("Could not read BibTeX log file. Please check the file path and try again."),
-                    e
-            );
+            throw new JabRefException("Failed to parse .blg file",
+                    Localization.lang("Could not read BibTeX log file. Please check the file path and try again."), e);
         }
     }
 
@@ -114,16 +119,16 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getResolvedBlgPath() {
-        return BibLogPathResolver.resolve(metaData, bibPath, user)
-                                 .filter(Files::exists);
+        return BibLogPathResolver.resolve(metaData, bibPath, user).filter(Files::exists);
     }
 
     public Path getInitialDirectory() {
         return bibPath.flatMap(path -> Optional.ofNullable(path.getParent()))
-                      .orElse(Path.of(System.getProperty("user.home")));
+            .orElse(Path.of(System.getProperty("user.home")));
     }
 
     public boolean wasBlgFileManuallySelected() {
         return userManuallySelectedBlgFile;
     }
+
 }

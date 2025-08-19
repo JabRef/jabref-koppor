@@ -18,4 +18,5 @@ public class CSLType implements LayoutFormatter {
             default -> "no-type";
         };
     }
+
 }

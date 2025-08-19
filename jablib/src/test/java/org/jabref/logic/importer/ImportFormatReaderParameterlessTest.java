@@ -20,14 +20,17 @@ import static org.mockito.Mockito.when;
 class ImportFormatReaderParameterlessTest {
 
     private ImportFormatReader reader;
+
     private final FileUpdateMonitor fileMonitor = new DummyFileUpdateMonitor();
 
     @BeforeEach
     void setUp() {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        reader = new ImportFormatReader(importerPreferences, importFormatPreferences, mock(CitationKeyPatternPreferences.class), fileMonitor);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
+        reader = new ImportFormatReader(importerPreferences, importFormatPreferences,
+                mock(CitationKeyPatternPreferences.class), fileMonitor);
     }
 
     @Test
@@ -50,4 +53,5 @@ class ImportFormatReaderParameterlessTest {
     void importFromFileWithUnknownFormatThrowsException() {
         assertThrows(ImportException.class, () -> reader.importFromFile("someunknownformat", Path.of("somepath")));
     }
+
 }

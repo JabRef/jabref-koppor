@@ -10,8 +10,7 @@ class StringSimilarityTest {
     private StringSimilarity similarityChecker = new StringSimilarity();
 
     @ParameterizedTest(name = "a={0}, b={1}, result={2}")
-    @CsvSource({
-            "'', '', true", // same empty strings
+    @CsvSource({ "'', '', true", // same empty strings
             "a, a, true", // same one-letter strings
             "a, '', true", // one string is empty and similarity < threshold (4)
             "'', a, true", // one string is empty and similarity < threshold (4)
@@ -27,4 +26,5 @@ class StringSimilarityTest {
     void stringSimilarity(String a, String b, String expectedResult) {
         assertEquals(Boolean.valueOf(expectedResult), similarityChecker.isSimilar(a, b));
     }
+
 }

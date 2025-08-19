@@ -17,14 +17,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BibWarningToIntegrityMessageConverterTest {
+
     @Test
     void convertsWarningsToIntegrityMessagesTest() {
-        BibEntry firstEntry = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Scholey_2013")
-                .withField(StandardField.AUTHOR, "Scholey");
-        BibEntry secondEntry = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Tan_2021")
-                .withField(StandardField.AUTHOR, "Tan");
+        BibEntry firstEntry = new BibEntry(StandardEntryType.Article).withCitationKey("Scholey_2013")
+            .withField(StandardField.AUTHOR, "Scholey");
+        BibEntry secondEntry = new BibEntry(StandardEntryType.Article).withCitationKey("Tan_2021")
+            .withField(StandardField.AUTHOR, "Tan");
         BibDatabase database = new BibDatabase();
         database.insertEntry(firstEntry);
         database.insertEntry(secondEntry);
@@ -33,14 +32,12 @@ public class BibWarningToIntegrityMessageConverterTest {
 
         List<BibWarning> warnings = List.of(
                 new BibWarning(SeverityType.WARNING, "empty journal", "journal", "Scholey_2013"),
-                new BibWarning(SeverityType.WARNING, "empty year", "year", "Tan_2021")
-        );
+                new BibWarning(SeverityType.WARNING, "empty year", "year", "Tan_2021"));
         List<IntegrityMessage> actualMessages = BibWarningToIntegrityMessageConverter.convert(warnings, context);
 
         List<IntegrityMessage> expectedMessages = List.of(
                 new IntegrityMessage("empty journal", firstEntry, FieldFactory.parseField("journal")),
-                new IntegrityMessage("empty year", secondEntry, FieldFactory.parseField("year"))
-        );
+                new IntegrityMessage("empty year", secondEntry, FieldFactory.parseField("year")));
 
         assertEquals(expectedMessages, actualMessages);
     }
@@ -51,8 +48,7 @@ public class BibWarningToIntegrityMessageConverterTest {
     @Test
     void skipsWarningsForMissingEntries() {
         // Arrange: only one entry
-        BibEntry scholey = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Scholey_2013");
+        BibEntry scholey = new BibEntry(StandardEntryType.Article).withCitationKey("Scholey_2013");
 
         BibDatabase database = new BibDatabase();
         database.insertEntry(scholey);
@@ -60,18 +56,16 @@ public class BibWarningToIntegrityMessageConverterTest {
 
         List<BibWarning> warnings = List.of(
                 new BibWarning(SeverityType.WARNING, "empty journal", "journal", "Scholey_2013"),
-                new BibWarning(SeverityType.WARNING, "empty year", "year", "NonExistent_9999") // should be skipped
+                new BibWarning(SeverityType.WARNING, "empty year", "year", "NonExistent_9999") // should
+                                                                                               // be
+                                                                                               // skipped
         );
 
         List<IntegrityMessage> messages = BibWarningToIntegrityMessageConverter.convert(warnings, context);
 
-        List<IntegrityMessage> expectedMessages = List.of(
-                new IntegrityMessage(
-                        "empty journal",
-                        scholey,
-                        FieldFactory.parseField("journal")
-                )
-        );
+        List<IntegrityMessage> expectedMessages = List
+            .of(new IntegrityMessage("empty journal", scholey, FieldFactory.parseField("journal")));
         assertEquals(expectedMessages, messages);
     }
+
 }

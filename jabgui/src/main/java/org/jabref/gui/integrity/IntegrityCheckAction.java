@@ -25,18 +25,20 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class IntegrityCheckAction extends SimpleCommand {
 
     private final UiTaskExecutor taskExecutor;
+
     private final DialogService dialogService;
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
+
     private final JournalAbbreviationRepository abbreviationRepository;
 
-    public IntegrityCheckAction(Supplier<LibraryTab> tabSupplier,
-                                GuiPreferences preferences,
-                                DialogService dialogService,
-                                StateManager stateManager,
-                                UiTaskExecutor taskExecutor,
-                                JournalAbbreviationRepository abbreviationRepository) {
+    public IntegrityCheckAction(Supplier<LibraryTab> tabSupplier, GuiPreferences preferences,
+            DialogService dialogService, StateManager stateManager, UiTaskExecutor taskExecutor,
+            JournalAbbreviationRepository abbreviationRepository) {
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
@@ -48,11 +50,10 @@ public class IntegrityCheckAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        IntegrityCheck check = new IntegrityCheck(database,
-                preferences.getFilePreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                abbreviationRepository,
+        BibDatabaseContext database = stateManager.getActiveDatabase()
+            .orElseThrow(() -> new NullPointerException("Database null"));
+        IntegrityCheck check = new IntegrityCheck(database, preferences.getFilePreferences(),
+                preferences.getCitationKeyPatternPreferences(), abbreviationRepository,
                 preferences.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex());
 
         Task<List<IntegrityMessage>> task = new Task<>() {
@@ -76,16 +77,17 @@ public class IntegrityCheckAction extends SimpleCommand {
             List<IntegrityMessage> messages = task.getValue();
             if (messages.isEmpty()) {
                 dialogService.notify(Localization.lang("No problems found."));
-            } else {
-                dialogService.showCustomDialogAndWait(new IntegrityCheckDialog(messages, tabSupplier.get(), dialogService));
+            }
+            else {
+                dialogService
+                    .showCustomDialogAndWait(new IntegrityCheckDialog(messages, tabSupplier.get(), dialogService));
             }
         });
         task.setOnFailed(event -> dialogService.showErrorDialogAndWait("Integrity check failed.", task.getException()));
 
-        dialogService.showProgressDialog(
-                Localization.lang("Checking integrity..."),
-                Localization.lang("Waiting for the check to finish..."),
-                task);
+        dialogService.showProgressDialog(Localization.lang("Checking integrity..."),
+                Localization.lang("Waiting for the check to finish..."), task);
         taskExecutor.execute(task);
     }
+
 }

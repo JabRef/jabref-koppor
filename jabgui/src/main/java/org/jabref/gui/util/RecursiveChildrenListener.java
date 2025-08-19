@@ -15,10 +15,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class RecursiveChildrenListener {
+
     private final InvalidationListener listener;
+
     private @Nullable ChangeListener<Parent> sceneRootListener;
+
     private @Nullable Scene attachedScene;
+
     private @Nullable Parent attachedRoot;
+
     private final @NonNull Map<Parent, ListChangeListener<Node>> childListeners = new HashMap<>();
 
     /// Creates a new RecursiveChildrenListener that will recursively monitor changes in
@@ -127,4 +132,5 @@ public class RecursiveChildrenListener {
             }
         }
     }
+
 }

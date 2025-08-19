@@ -31,14 +31,11 @@ class FileLinkTest {
     }
 
     private static Stream<Arguments> provideFileLinks() {
-        return Stream.of(
-                Arguments.of("", "", ""),
-                Arguments.of("", null, ""),
-                Arguments.of("test.pdf", "test.pdf", ""),
+        return Stream.of(Arguments.of("", "", ""), Arguments.of("", null, ""), Arguments.of("test.pdf", "test.pdf", ""),
                 Arguments.of("test.pdf", "paper:test.pdf:PDF", ""),
                 Arguments.of("test.pdf", "paper:test.pdf:PDF;presentation:pres.ppt:PPT", ""),
                 Arguments.of("pres.ppt", "paper:test.pdf:PDF;presentation:pres.ppt:PPT", "ppt"),
-                Arguments.of("", "paper:test.pdf:PDF;presentation:pres.ppt:PPT", "doc")
-        );
+                Arguments.of("", "paper:test.pdf:PDF;presentation:pres.ppt:PPT", "doc"));
     }
+
 }

@@ -27,18 +27,28 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty resolveStringsProperty = new SimpleBooleanProperty();
 
-    private final ListProperty<Field> resolvableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<Field> nonWrappableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> resolvableTagsFieldProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
+    private final ListProperty<Field> nonWrappableTagsFieldProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
 
     private final BooleanProperty markOwnerProperty = new SimpleBooleanProperty();
+
     private final StringProperty markOwnerNameProperty = new SimpleStringProperty("");
+
     private final BooleanProperty markOwnerOverwriteProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty addCreationDateProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty addModificationDateProperty = new SimpleBooleanProperty();
 
     private final FieldPreferences fieldPreferences;
+
     private final BibEntryPreferences bibEntryPreferences;
+
     private final OwnerPreferences ownerPreferences;
+
     private final TimestampPreferences timestampPreferences;
 
     public EntryTabViewModel(CliPreferences preferences) {
@@ -54,7 +64,8 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
         resolveStringsProperty.setValue(fieldPreferences.shouldResolveStrings());
         resolvableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getResolvableFields()));
-        nonWrappableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getNonWrappableFields()));
+        nonWrappableTagsFieldProperty
+            .setValue(FXCollections.observableArrayList(fieldPreferences.getNonWrappableFields()));
 
         markOwnerProperty.setValue(ownerPreferences.isUseOwner());
         markOwnerNameProperty.setValue(ownerPreferences.getDefaultOwner());
@@ -134,9 +145,10 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
     }
 
     public List<Field> getSuggestions(String request) {
-        List<Field> suggestions = FieldFactory.getAllFieldsWithOutInternal().stream()
-                                              .filter(field -> field.getDisplayName().toLowerCase().contains(request.toLowerCase()))
-                                              .collect(Collectors.toList());
+        List<Field> suggestions = FieldFactory.getAllFieldsWithOutInternal()
+            .stream()
+            .filter(field -> field.getDisplayName().toLowerCase().contains(request.toLowerCase()))
+            .collect(Collectors.toList());
 
         Field requestedField = FieldFactory.parseField(request.trim());
         if (!suggestions.contains(requestedField)) {
@@ -145,4 +157,5 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
         return suggestions;
     }
+
 }

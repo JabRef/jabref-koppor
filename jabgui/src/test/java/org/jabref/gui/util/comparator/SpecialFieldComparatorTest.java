@@ -13,11 +13,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SpecialFieldComparatorTest {
 
     private SpecialFieldComparator comparator;
+
     private final SpecialFieldValue value1 = SpecialFieldValue.PRIORITY_HIGH;
+
     private final SpecialFieldValue value2 = SpecialFieldValue.PRIORITY_LOW;
+
     private final SpecialFieldValue value3 = SpecialFieldValue.READ;
+
     private final Optional<SpecialFieldValueViewModel> prio1 = Optional.of(new SpecialFieldValueViewModel(value1));
+
     private final Optional<SpecialFieldValueViewModel> prio3 = Optional.of(new SpecialFieldValueViewModel(value2));
+
     private final Optional<SpecialFieldValueViewModel> read = Optional.of(new SpecialFieldValueViewModel(value3));
 
     @BeforeEach
@@ -59,4 +65,5 @@ class SpecialFieldComparatorTest {
     void compareTwoInputsWithSecondEmpty() {
         assertEquals(-1, comparator.compare(prio1, Optional.empty()));
     }
+
 }

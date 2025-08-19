@@ -25,15 +25,12 @@ class WrapContentTest {
     }
 
     private static Stream<Arguments> provideContent() {
-        return Stream.of(
-                Arguments.of("<Bob>", "Bob", "<,>"),
-                Arguments.of("Bob:", "Bob", ",:"),
+        return Stream.of(Arguments.of("<Bob>", "Bob", "<,>"), Arguments.of("Bob:", "Bob", ",:"),
                 Arguments.of("Content: Bob", "Bob", "Content: ,"),
                 Arguments.of("Name,Field,Bob,Author", "Bob", "Name\\,Field\\,,\\,Author"),
-                Arguments.of(null, null, "Eds.,Ed."),
-                Arguments.of("", "", "Eds.,Ed."),
+                Arguments.of(null, null, "Eds.,Ed."), Arguments.of("", "", "Eds.,Ed."),
                 Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", ""),
-                Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", "Eds.")
-        );
+                Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", "Eds."));
     }
+
 }

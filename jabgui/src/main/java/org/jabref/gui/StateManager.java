@@ -34,13 +34,13 @@ import com.tobiasdiez.easybind.EasyBinding;
  * This class manages the GUI-state of JabRef, including:
  *
  * <ul>
- *   <li>currently selected database</li>
- *   <li>currently selected group</li>
- *   <li>active search</li>
- *   <li>active number of search results</li>
- *   <li>focus owner</li>
- *   <li>dialog window sizes/positions</li>
- *   <li>opened AI chat window (controlled by {@link org.jabref.logic.ai.AiService})</li>
+ * <li>currently selected database</li>
+ * <li>currently selected group</li>
+ * <li>active search</li>
+ * <li>active number of search results</li>
+ * <li>focus owner</li>
+ * <li>dialog window sizes/positions</li>
+ * <li>opened AI chat window (controlled by {@link org.jabref.logic.ai.AiService})</li>
  * </ul>
  */
 public interface StateManager extends SrvStateManager {
@@ -108,4 +108,5 @@ public interface StateManager extends SrvStateManager {
     void setActiveWalkthrough(Walkthrough walkthrough);
 
     Optional<Walkthrough> getActiveWalkthrough();
+
 }

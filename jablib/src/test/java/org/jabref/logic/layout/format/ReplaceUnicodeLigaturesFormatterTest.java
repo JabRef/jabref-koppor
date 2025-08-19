@@ -35,4 +35,5 @@ class ReplaceUnicodeLigaturesFormatterTest {
     void sampleInput() {
         assertEquals("AEneas", formatter.format("Æneas"));
     }
+
 }

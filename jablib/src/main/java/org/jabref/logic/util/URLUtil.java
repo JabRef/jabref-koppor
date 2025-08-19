@@ -24,17 +24,16 @@ public class URLUtil {
     public static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE);
 
     private static final String URL_EXP = "^(https?|ftp)://.+";
+
     // Detect Google search URL
     private static final String GOOGLE_SEARCH_EXP = "^https?://(?:www\\.)?google\\.[\\.a-z]+?/url.*";
 
     /**
      * Cleans URLs returned by Google search.
-     * <h4>Example</h4>
-     * <pre>{@code
+     * <h4>Example</h4> <pre>{@code
      * If you copy links from search results from Google, all links will be enriched with search meta data, e.g.
      * https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&&url=http%3A%2F%2Fwww.inrg.csie.ntu.edu.tw%2Falgorithm2014%2Fhomework%2FWagner-74.pdf&ei=DifeVYHkDYWqU5W0j6gD&usg=AFQjCNFl638rl5KVta1jIMWLyb4CPSZidg&sig2=0hSSMw9XZXL3HJWwEcJtOg
      * }</pre>
-     *
      * @param url the Google search URL string
      * @return the cleaned Google URL or @code{url} if no search URL was detected
      */
@@ -69,7 +68,8 @@ public class URLUtil {
                 }
             }
             return url;
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             return url;
         }
     }
@@ -84,17 +84,18 @@ public class URLUtil {
         try {
             create(url);
             return true;
-        } catch (MalformedURLException | IllegalArgumentException e) {
+        }
+        catch (MalformedURLException | IllegalArgumentException e) {
             return false;
         }
     }
 
     /**
      * Creates a {@link URL} object from the given string URL.
-     *
      * @param url the URL string to be converted into a {@link URL}.
      * @return the {@link URL} object created from the string URL.
-     * @throws MalformedURLException if the URL is malformed and cannot be converted to a {@link URL}.
+     * @throws MalformedURLException if the URL is malformed and cannot be converted to a
+     * {@link URL}.
      */
     public static URL create(String url) throws MalformedURLException {
         if (url == null || url.trim().isEmpty()) {
@@ -109,36 +110,39 @@ public class URLUtil {
                 throw new MalformedURLException("URI must include both scheme and host: " + url);
             }
             return parsedUri.toURL();
-        } catch (URISyntaxException | IllegalArgumentException e) {
+        }
+        catch (URISyntaxException | IllegalArgumentException e) {
             throw new MalformedURLException("Invalid URI: " + url + " | " + e.getMessage());
         }
     }
 
     /**
-     * Creates a {@link URI} object from the given string URL.
-     * This method attempts to convert the given URL string into a {@link URI} object.
-     * The pipe character ('|') is replaced with its percent-encoded equivalent ("%7C") because the pipe character
-     * is only a valid character according to RFC3986. However, JDK's URI implementation is implementing RFC2396 and RFC2732, but not RFC3986.
-     *
+     * Creates a {@link URI} object from the given string URL. This method attempts to
+     * convert the given URL string into a {@link URI} object. The pipe character ('|') is
+     * replaced with its percent-encoded equivalent ("%7C") because the pipe character is
+     * only a valid character according to RFC3986. However, JDK's URI implementation is
+     * implementing RFC2396 and RFC2732, but not RFC3986.
      * @param url the URL string to be converted into a {@link URI}.
      * @return the {@link URI} object created from the string URL.
-     * @throws IllegalArgumentException if the string URL is not a valid URI or if the URI format is incorrect.
-     * @throws URISyntaxException       if the string URL has an invalid syntax and cannot be converted into a {@link URI}.
+     * @throws IllegalArgumentException if the string URL is not a valid URI or if the URI
+     * format is incorrect.
+     * @throws URISyntaxException if the string URL has an invalid syntax and cannot be
+     * converted into a {@link URI}.
      */
     public static URI createUri(String url) {
         try {
             // Replace '|' character with its percent-encoded representation '%7C'.
             String urlFormat = url.replace("|", "%7C");
             return new URI(urlFormat);
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
-     * Extracts the filename from a URL.
-     * If the URL doesn't have a filename (ends with '/'), returns a default name.
-     *
+     * Extracts the filename from a URL. If the URL doesn't have a filename (ends with
+     * '/'), returns a default name.
      * @param url the URL string to extract the filename from
      * @return the extracted filename or a default name if none found
      */
@@ -149,4 +153,5 @@ public class URLUtil {
         }
         return FileUtil.getValidFileName(fileName);
     }
+
 }

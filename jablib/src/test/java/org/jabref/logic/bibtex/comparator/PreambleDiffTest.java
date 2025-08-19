@@ -15,8 +15,11 @@ import static org.mockito.Mockito.when;
 class PreambleDiffTest {
 
     private final BibDatabaseContext originalDataBaseContext = mock(BibDatabaseContext.class);
+
     private final BibDatabaseContext newDataBaseContext = mock(BibDatabaseContext.class);
+
     private final BibDatabase originalDataBase = mock(BibDatabase.class);
+
     private final BibDatabase newDataBase = mock(BibDatabase.class);
 
     @BeforeEach
@@ -42,4 +45,5 @@ class PreambleDiffTest {
         Optional<PreambleDiff> result = PreambleDiff.compare(originalDataBaseContext, newDataBaseContext);
         assertEquals(expected, result);
     }
+
 }

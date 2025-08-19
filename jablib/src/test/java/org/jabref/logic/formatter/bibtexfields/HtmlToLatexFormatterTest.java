@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class HtmlToLatexFormatterTest {
 
@@ -24,7 +25,10 @@ class HtmlToLatexFormatterTest {
 
     @Test
     void formatIeeeHtml() {
-        assertEquals("Towards situation-aware adaptive workflows: SitOPT --- A general purpose situation-aware workflow management system", formatter.format("Towards situation-aware adaptive workflows: SitOPT &amp;#x2014; A general purpose situation-aware workflow management system"));
+        assertEquals(
+                "Towards situation-aware adaptive workflows: SitOPT --- A general purpose situation-aware workflow management system",
+                formatter.format(
+                        "Towards situation-aware adaptive workflows: SitOPT &amp;#x2014; A general purpose situation-aware workflow management system"));
     }
 
     @Test
@@ -73,4 +77,5 @@ class HtmlToLatexFormatterTest {
     void formatExample() {
         assertEquals("JabRef", formatter.format(formatter.getExampleInput()));
     }
+
 }

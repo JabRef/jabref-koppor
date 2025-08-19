@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class DefaultAutoCompleterTest {
 
     private WordSuggestionProvider autoCompleter;
+
     private BibDatabase database;
 
     @BeforeEach
@@ -147,4 +148,5 @@ class DefaultAutoCompleterTest {
         Collection<String> result = autoCompleter.provideSuggestions(getRequest("lue"));
         assertEquals(List.of("value"), result);
     }
+
 }

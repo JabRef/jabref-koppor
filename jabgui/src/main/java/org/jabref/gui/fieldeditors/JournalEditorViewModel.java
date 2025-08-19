@@ -13,18 +13,16 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.StringUtil;
 
 public class JournalEditorViewModel extends AbstractEditorViewModel {
+
     private final JournalAbbreviationRepository journalAbbreviationRepository;
+
     private final TaskExecutor taskExecutor;
+
     private final DialogService dialogService;
 
-    public JournalEditorViewModel(
-            Field field,
-            SuggestionProvider<?> suggestionProvider,
-            JournalAbbreviationRepository journalAbbreviationRepository,
-            FieldCheckers fieldCheckers,
-            TaskExecutor taskExecutor,
-            DialogService dialogService,
-            UndoManager undoManager) {
+    public JournalEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
+            JournalAbbreviationRepository journalAbbreviationRepository, FieldCheckers fieldCheckers,
+            TaskExecutor taskExecutor, DialogService dialogService, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.journalAbbreviationRepository = journalAbbreviationRepository;
         this.taskExecutor = taskExecutor;
@@ -42,11 +40,13 @@ public class JournalEditorViewModel extends AbstractEditorViewModel {
         journalAbbreviationRepository.getNextAbbreviation(name).ifPresent(nextAbbreviation -> {
             text.set(nextAbbreviation);
             // TODO: Add undo
-            // panel.getUndoManager().addEdit(new UndoableFieldChange(entry, editor.getName(), text, nextAbbreviation));
+            // panel.getUndoManager().addEdit(new UndoableFieldChange(entry,
+            // editor.getName(), text, nextAbbreviation));
         });
     }
 
     public void showJournalInfo(Button journalInfoButton) {
         PopOverUtil.showJournalInfo(journalInfoButton, entry, dialogService, taskExecutor);
     }
+
 }

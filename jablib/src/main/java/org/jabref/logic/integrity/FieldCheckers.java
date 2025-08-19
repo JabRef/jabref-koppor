@@ -20,11 +20,13 @@ public class FieldCheckers {
     private final Multimap<Field, ValueChecker> fieldChecker;
 
     public FieldCheckers(BibDatabaseContext databaseContext, FilePreferences filePreferences,
-                         JournalAbbreviationRepository abbreviationRepository, boolean allowIntegerEdition) {
+            JournalAbbreviationRepository abbreviationRepository, boolean allowIntegerEdition) {
         fieldChecker = getAllMap(databaseContext, filePreferences, abbreviationRepository, allowIntegerEdition);
     }
 
-    private static Multimap<Field, ValueChecker> getAllMap(BibDatabaseContext databaseContext, FilePreferences filePreferences, JournalAbbreviationRepository abbreviationRepository, boolean allowIntegerEdition) {
+    private static Multimap<Field, ValueChecker> getAllMap(BibDatabaseContext databaseContext,
+            FilePreferences filePreferences, JournalAbbreviationRepository abbreviationRepository,
+            boolean allowIntegerEdition) {
         ArrayListMultimap<Field, ValueChecker> fieldCheckers = ArrayListMultimap.create(50, 10);
 
         for (Field field : FieldFactory.getPersonNameFields()) {
@@ -62,15 +64,14 @@ public class FieldCheckers {
     }
 
     public List<FieldChecker> getAll() {
-        return fieldChecker
-                .entries()
-                .stream()
-                .map(pair -> new FieldChecker(pair.getKey(), pair.getValue()))
-                .collect(Collectors.toList());
+        return fieldChecker.entries()
+            .stream()
+            .map(pair -> new FieldChecker(pair.getKey(), pair.getValue()))
+            .collect(Collectors.toList());
     }
 
     public Collection<ValueChecker> getForField(Field field) {
-        return fieldChecker
-                .get(field);
+        return fieldChecker.get(field);
     }
+
 }

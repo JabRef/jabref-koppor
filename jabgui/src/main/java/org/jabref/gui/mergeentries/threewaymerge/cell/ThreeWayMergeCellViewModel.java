@@ -10,8 +10,11 @@ import com.tobiasdiez.easybind.EasyBind;
 import static org.jabref.gui.mergeentries.threewaymerge.cell.ThreeWayMergeCell.HEADER_ROW;
 
 public class ThreeWayMergeCellViewModel {
+
     private final StringProperty text = new SimpleStringProperty();
+
     private final BooleanProperty odd = new SimpleBooleanProperty(ThreeWayMergeCell.class, "odd");
+
     private final BooleanProperty even = new SimpleBooleanProperty(ThreeWayMergeCell.class, "even");
 
     public ThreeWayMergeCellViewModel(String text, int rowIndex) {
@@ -19,7 +22,8 @@ public class ThreeWayMergeCellViewModel {
         if (rowIndex != HEADER_ROW) {
             if (rowIndex % 2 == 1) {
                 odd.setValue(true);
-            } else {
+            }
+            else {
                 even.setValue(true);
             }
         }
@@ -64,4 +68,5 @@ public class ThreeWayMergeCellViewModel {
     public void setEven(boolean even) {
         this.even.set(even);
     }
+
 }

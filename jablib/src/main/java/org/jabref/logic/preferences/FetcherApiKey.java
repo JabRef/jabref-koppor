@@ -6,8 +6,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class FetcherApiKey {
+
     private final StringProperty name;
+
     private final BooleanProperty use;
+
     private final StringProperty key;
 
     public FetcherApiKey(String name, boolean use, String key) {
@@ -47,4 +50,5 @@ public class FetcherApiKey {
     public void setKey(String key) {
         this.key.setValue(key);
     }
+
 }

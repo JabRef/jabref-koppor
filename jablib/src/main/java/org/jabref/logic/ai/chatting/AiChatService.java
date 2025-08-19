@@ -15,18 +15,19 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 
 public class AiChatService {
+
     private final AiPreferences aiPreferences;
+
     private final ChatModel chatLanguageModel;
+
     private final EmbeddingModel embeddingModel;
+
     private final EmbeddingStore<TextSegment> embeddingStore;
+
     private final AiTemplatesService aiTemplatesService;
 
-    public AiChatService(AiPreferences aiPreferences,
-                       ChatModel chatLanguageModel,
-                       EmbeddingModel embeddingModel,
-                       EmbeddingStore<TextSegment> embeddingStore,
-                       AiTemplatesService aiTemplatesService
-    ) {
+    public AiChatService(AiPreferences aiPreferences, ChatModel chatLanguageModel, EmbeddingModel embeddingModel,
+            EmbeddingStore<TextSegment> embeddingStore, AiTemplatesService aiTemplatesService) {
         this.aiPreferences = aiPreferences;
         this.chatLanguageModel = chatLanguageModel;
         this.embeddingModel = embeddingModel;
@@ -34,22 +35,10 @@ public class AiChatService {
         this.aiTemplatesService = aiTemplatesService;
     }
 
-    public AiChatLogic makeChat(
-            StringProperty name,
-            ObservableList<ChatMessage> chatHistory,
-            ObservableList<BibEntry> entries,
-            BibDatabaseContext bibDatabaseContext
-    ) {
-        return new AiChatLogic(
-                aiPreferences,
-                chatLanguageModel,
-                embeddingModel,
-                embeddingStore,
-                aiTemplatesService,
-                name,
-                chatHistory,
-                entries,
-                bibDatabaseContext
-        );
+    public AiChatLogic makeChat(StringProperty name, ObservableList<ChatMessage> chatHistory,
+            ObservableList<BibEntry> entries, BibDatabaseContext bibDatabaseContext) {
+        return new AiChatLogic(aiPreferences, chatLanguageModel, embeddingModel, embeddingStore, aiTemplatesService,
+                name, chatHistory, entries, bibDatabaseContext);
     }
+
 }

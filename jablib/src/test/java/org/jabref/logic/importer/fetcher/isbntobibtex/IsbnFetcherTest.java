@@ -24,23 +24,24 @@ import static org.mockito.Mockito.mock;
 class IsbnFetcherTest {
 
     private IsbnFetcher fetcher;
+
     private BibEntry bibEntry;
 
     @BeforeEach
     void setUp() {
         fetcher = new IsbnFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
-        bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.TITLE, "Effective Java")
-                .withField(StandardField.PUBLISHER, "Addison-Wesley")
-                .withField(StandardField.YEAR, "2018")
-                .withField(StandardField.ISBN, "9780134685991")
-                .withField(StandardField.NOTE, "Titelzusätze auf dem Umschlag: \"Updated for Java 9. Best practices for ... the Java platform\"")
-                .withField(StandardField.PAGETOTAL, "392")
-                .withField(new UnknownField("ppn_gvk"), "100121840X")
-                .withField(StandardField.EDITION, "Third edition")
-                .withField(StandardField.ADDRESS, "Boston");
+        bibEntry = new BibEntry(StandardEntryType.Book).withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(StandardField.TITLE, "Effective Java")
+            .withField(StandardField.PUBLISHER, "Addison-Wesley")
+            .withField(StandardField.YEAR, "2018")
+            .withField(StandardField.ISBN, "9780134685991")
+            .withField(StandardField.NOTE,
+                    "Titelzusätze auf dem Umschlag: \"Updated for Java 9. Best practices for ... the Java platform\"")
+            .withField(StandardField.PAGETOTAL, "392")
+            .withField(new UnknownField("ppn_gvk"), "100121840X")
+            .withField(StandardField.EDITION, "Third edition")
+            .withField(StandardField.ADDRESS, "Boston");
     }
 
     @Test
@@ -90,12 +91,14 @@ class IsbnFetcherTest {
     }
 
     /**
-     * This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
-     * not available on ebook.de. The fetcher should something as it falls back to OttoBib
+     * This test searches for a valid ISBN. See
+     * https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is not
+     * available on ebook.de. The fetcher should something as it falls back to OttoBib
      */
     @Test
     void searchForIsbnAvailableAtOttoBibButNonOnEbookDe() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("3728128155");
         assertNotEquals(Optional.empty(), fetchedEntry);
     }
+
 }

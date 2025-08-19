@@ -45,16 +45,22 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
 
     /**
      * Gets the query URL
-     *
      * @param luceneQuery the search query
-     * @param pageNumber  the number of the page indexed from 0
+     * @param pageNumber the number of the page indexed from 0
      * @return URL
      */
     @Override
     public URL getURLForQuery(QueryNode luceneQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(API_URL);
-        uriBuilder.addParameter("q", new LOBIDQueryTransformer().transformLuceneQuery(luceneQuery).orElse("")); // search query
-        uriBuilder.addParameter("from", String.valueOf(getPageSize() * pageNumber)); // from entry number, starts indexing at 0
+        uriBuilder.addParameter("q", new LOBIDQueryTransformer().transformLuceneQuery(luceneQuery).orElse("")); // search
+                                                                                                                // query
+        uriBuilder.addParameter("from", String.valueOf(getPageSize() * pageNumber)); // from
+                                                                                     // entry
+                                                                                     // number,
+                                                                                     // starts
+                                                                                     // indexing
+                                                                                     // at
+                                                                                     // 0
         uriBuilder.addParameter("size", String.valueOf(getPageSize()));
         uriBuilder.addParameter("format", "json");
         return uriBuilder.build().toURL();
@@ -73,7 +79,8 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream)).lines()
+                .collect(Collectors.joining(OS.NEWLINE));
             JSONObject jsonObject = new JSONObject(response);
 
             List<BibEntry> entries = new ArrayList<>();
@@ -100,9 +107,9 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
         String types = "";
         if (typeArray != null) {
             List<String> typeList = IntStream.range(0, typeArray.length())
-                                             .mapToObj(typeArray::optString)
-                                             .filter(type -> !type.isEmpty())
-                                             .toList();
+                .mapToObj(typeArray::optString)
+                .filter(type -> !type.isEmpty())
+                .toList();
             types = String.join(", ", typeList);
             entry.setField(StandardField.TYPE, types);
         }
@@ -110,7 +117,8 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
         if (types.toLowerCase().contains("book")) {
             entryType = StandardEntryType.Book;
             nametype = StandardField.BOOKTITLE;
-        } else if (types.toLowerCase().contains("article")) {
+        }
+        else if (types.toLowerCase().contains("article")) {
             entryType = StandardEntryType.Article;
         }
         entry.setType(entryType);
@@ -145,14 +153,14 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
 
         // publication
         Optional.ofNullable(jsonEntry.optJSONArray("publication"))
-                .map(array -> array.getJSONObject(0))
-                .ifPresent(publication -> {
-                    entry.setField(StandardField.PUBLISHER, getFirstArrayElement(publication, "publishedBy"));
-                    entry.setField(StandardField.LOCATION, getFirstArrayElement(publication, "location"));
-                    String date = publication.optString("startDate");
-                    entry.setField(StandardField.DATE, date);
-                    entry.setField(StandardField.YEAR, date);
-                });
+            .map(array -> array.getJSONObject(0))
+            .ifPresent(publication -> {
+                entry.setField(StandardField.PUBLISHER, getFirstArrayElement(publication, "publishedBy"));
+                entry.setField(StandardField.LOCATION, getFirstArrayElement(publication, "location"));
+                String date = publication.optString("startDate");
+                entry.setField(StandardField.DATE, date);
+                entry.setField(StandardField.YEAR, date);
+            });
 
         // url
         JSONObject describedBy = jsonEntry.optJSONObject("describedBy");
@@ -164,10 +172,10 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
         JSONArray languageArray = jsonEntry.optJSONArray("language");
         if (languageArray != null) {
             List<String> languageList = IntStream.range(0, languageArray.length())
-                                                 .mapToObj(languageArray::getJSONObject)
-                                                 .filter(Objects::nonNull)
-                                                 .map(language -> language.optString("label"))
-                                                 .toList();
+                .mapToObj(languageArray::getJSONObject)
+                .filter(Objects::nonNull)
+                .map(language -> language.optString("label"))
+                .toList();
             entry.setField(StandardField.LANGUAGE, String.join(" and ", languageList));
         }
 
@@ -175,9 +183,9 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
         JSONArray keywordArray = jsonEntry.optJSONArray("subjectslabels");
         if (keywordArray != null) {
             List<String> keywordList = IntStream.range(0, keywordArray.length())
-                                             .mapToObj(keywordArray::optString)
-                                             .filter(keyword -> !keyword.isEmpty())
-                                             .toList();
+                .mapToObj(keywordArray::optString)
+                .filter(keyword -> !keyword.isEmpty())
+                .toList();
             entry.setField(StandardField.KEYWORDS, String.join(", ", keywordList));
         }
 
@@ -186,21 +194,20 @@ public class LOBIDFetcher implements PagedSearchBasedParserFetcher, IdBasedParse
 
     private static List<String> getAuthorNames(JSONArray authors) {
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(author -> author.optJSONObject("agent"))
-                        .filter(Objects::nonNull)
-                        .map(agent -> agent.optString("label"))
-                        .toList();
+            .mapToObj(authors::getJSONObject)
+            .map(author -> author.optJSONObject("agent"))
+            .filter(Objects::nonNull)
+            .map(agent -> agent.optString("label"))
+            .toList();
     }
 
     private static String getFirstArrayElement(JSONObject jsonEntry, String key) {
-        return Optional.ofNullable(jsonEntry.optJSONArray(key))
-                       .map(array -> array.getString(0))
-                       .orElse("");
+        return Optional.ofNullable(jsonEntry.optJSONArray(key)).map(array -> array.getString(0)).orElse("");
     }
 
     @Override
     public String getName() {
         return FETCHER_NAME;
     }
+
 }

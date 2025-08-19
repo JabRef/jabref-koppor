@@ -19,12 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class DiffHighlightingTest {
 
     public static void assertEquals(List<Text> expected, List<Text> actual) {
-        // Need to compare string values since Texts with the same string are not considered equal
+        // Need to compare string values since Texts with the same string are not
+        // considered equal
         Assertions.assertEquals(expected.toString(), actual.toString());
 
         // Moreover, make sure that style classes are correct
-        List<String> expectedStyles = expected.stream().map(text -> text.getStyleClass().toString()).collect(Collectors.toList());
-        List<String> actualStyles = actual.stream().map(text -> text.getStyleClass().toString()).collect(Collectors.toList());
+        List<String> expectedStyles = expected.stream()
+            .map(text -> text.getStyleClass().toString())
+            .collect(Collectors.toList());
+        List<String> actualStyles = actual.stream()
+            .map(text -> text.getStyleClass().toString())
+            .collect(Collectors.toList());
         Assertions.assertEquals(expectedStyles, actualStyles);
     }
 
@@ -41,57 +46,38 @@ class DiffHighlightingTest {
     @Test
     void generateDiffHighlightingNoDiff() {
         assertEquals(
-                Arrays.asList(
-                        DiffHighlighting.forUnchanged("f"),
-                        DiffHighlighting.forUnchanged("o"),
-                        DiffHighlighting.forUnchanged("o")
-                ),
+                Arrays.asList(DiffHighlighting.forUnchanged("f"), DiffHighlighting.forUnchanged("o"),
+                        DiffHighlighting.forUnchanged("o")),
                 DiffHighlighting.generateDiffHighlighting("foo", "foo", ""));
     }
 
     @Test
     void generateDiffHighlightingSingleWordAddTextWordDiff() {
-        assertEquals(
-                Arrays.asList(
-                        DiffHighlighting.forRemoved("foo "),
-                        DiffHighlighting.forAdded("foobar")
-                ),
+        assertEquals(Arrays.asList(DiffHighlighting.forRemoved("foo "), DiffHighlighting.forAdded("foobar")),
                 DiffHighlighting.generateDiffHighlighting("foo", "foobar", " "));
     }
 
     @Test
     void generateDiffHighlightingSingleWordAddTextCharacterDiff() {
         assertEquals(
-                Arrays.asList(
-                        DiffHighlighting.forUnchanged("f"),
-                        DiffHighlighting.forUnchanged("o"),
-                        DiffHighlighting.forUnchanged("o"),
-                        DiffHighlighting.forAdded("bar")
-                ),
+                Arrays.asList(DiffHighlighting.forUnchanged("f"), DiffHighlighting.forUnchanged("o"),
+                        DiffHighlighting.forUnchanged("o"), DiffHighlighting.forAdded("bar")),
                 DiffHighlighting.generateDiffHighlighting("foo", "foobar", ""));
     }
 
     @Test
     void generateDiffHighlightingSingleWordDeleteTextWordDiff() {
-        assertEquals(
-                Arrays.asList(
-                        DiffHighlighting.forRemoved("foobar "),
-                        DiffHighlighting.forAdded("foo")
-                ),
+        assertEquals(Arrays.asList(DiffHighlighting.forRemoved("foobar "), DiffHighlighting.forAdded("foo")),
                 DiffHighlighting.generateDiffHighlighting("foobar", "foo", " "));
     }
 
     @Test
     void generateDiffHighlightingSingleWordDeleteTextCharacterDiff() {
         assertEquals(
-                Arrays.asList(
-                        DiffHighlighting.forUnchanged("f"),
-                        DiffHighlighting.forUnchanged("o"),
-                        DiffHighlighting.forUnchanged("o"),
-                        DiffHighlighting.forRemoved("b"),
-                        DiffHighlighting.forRemoved("a"),
-                        DiffHighlighting.forRemoved("r")
-                ),
+                Arrays.asList(DiffHighlighting.forUnchanged("f"), DiffHighlighting.forUnchanged("o"),
+                        DiffHighlighting.forUnchanged("o"), DiffHighlighting.forRemoved("b"),
+                        DiffHighlighting.forRemoved("a"), DiffHighlighting.forRemoved("r")),
                 DiffHighlighting.generateDiffHighlighting("foobar", "foo", ""));
     }
+
 }

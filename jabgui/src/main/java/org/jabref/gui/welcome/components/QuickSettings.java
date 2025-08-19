@@ -18,15 +18,21 @@ import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
 public class QuickSettings extends VBox {
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private ThemeManager themeManager;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private ThemeManager themeManager;
 
     public QuickSettings() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -46,7 +52,8 @@ public class QuickSettings extends VBox {
 
     @FXML
     private void showPushApplicationConfigurationDialog() {
-        dialogService.showCustomDialogAndWait(new PushApplicationDialog(preferences, dialogService, taskExecutor, themeManager));
+        dialogService
+            .showCustomDialogAndWait(new PushApplicationDialog(preferences, dialogService, taskExecutor, themeManager));
     }
 
     @FXML
@@ -58,4 +65,5 @@ public class QuickSettings extends VBox {
     private void showEntryTableConfigurationDialog() {
         dialogService.showCustomDialogAndWait(new EntryTableConfigurationDialog(preferences, themeManager));
     }
+
 }

@@ -6,5 +6,7 @@ import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 
 public interface PlainCitationParser {
+
     Optional<BibEntry> parsePlainCitation(String text) throws FetcherException;
+
 }

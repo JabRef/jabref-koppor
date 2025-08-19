@@ -15,20 +15,19 @@ import org.slf4j.LoggerFactory;
 /**
  * From Bibtex:
  *
- * "The |built_in| function {\.{format.name\$}} pops the
- * top three literals (they are a string, an integer, and a string
- * literal, in that order). The last string literal represents a
- * name list (each name corresponding to a person), the integer
- * literal specifies which name to pick from this list, and the
- * first string literal specifies how to format this name, as
- * described in the \BibTeX\ documentation. Finally, this function
- * pushes the formatted name. If any of the types is incorrect, it
- * complains and pushes the null string."
+ * "The |built_in| function {\.{format.name\$}} pops the top three literals (they are a
+ * string, an integer, and a string literal, in that order). The last string literal
+ * represents a name list (each name corresponding to a person), the integer literal
+ * specifies which name to pick from this list, and the first string literal specifies how
+ * to format this name, as described in the \BibTeX\ documentation. Finally, this function
+ * pushes the formatted name. If any of the types is incorrect, it complains and pushes
+ * the null string."
  *
  * Sounds easy - is a nightmare... X-(
  *
  */
 public class BstNameFormatter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BstNameFormatter.class);
 
     private BstNameFormatter() {
@@ -36,10 +35,9 @@ public class BstNameFormatter {
 
     /**
      * Formats the nth author of the author name list by a given format string
-     *
      * @param authorsNameList The string from an author field
-     * @param whichName       index of the list, starting with 1
-     * @param formatString    TODO
+     * @param whichName index of the list, starting with 1
+     * @param formatString TODO
      */
     public static String formatName(String authorsNameList, int whichName, String formatString) {
         AuthorList al = AuthorList.parse(authorsNameList);
@@ -81,8 +79,11 @@ public class BstNameFormatter {
                     }
                     if ((braceLevel == 1) && Character.isLetter(c[i])) {
                         if ("fvlj".indexOf(c[i]) == -1) {
-                            LOGGER.warn("Format string in format.name$ may only contain fvlj on brace level 1 in group {}: {}", group, format);
-                        } else {
+                            LOGGER.warn(
+                                    "Format string in format.name$ may only contain fvlj on brace level 1 in group {}: {}",
+                                    group, format);
+                        }
+                        else {
                             level1Chars.append(c[i]);
                         }
                     }
@@ -96,7 +97,9 @@ public class BstNameFormatter {
                 }
 
                 if (control.length() > 2) {
-                    LOGGER.warn("Format string in format.name$ may only be one or two character long on brace level 1 in group {}: {}", group, format);
+                    LOGGER.warn(
+                            "Format string in format.name$ may only be one or two character long on brace level 1 in group {}: {}",
+                            group, format);
                 }
 
                 char type = control.charAt(0);
@@ -106,8 +109,7 @@ public class BstNameFormatter {
                     case 'v' -> author.getNamePrefix();
                     case 'l' -> author.getFamilyName();
                     case 'j' -> author.getNameSuffix();
-                    default ->
-                            throw new BstVMException("Internal error");
+                    default -> throw new BstVMException("Internal error");
                 };
 
                 if (tokenS.isEmpty()) {
@@ -121,8 +123,11 @@ public class BstNameFormatter {
                 if (control.length() == 2) {
                     if (control.charAt(1) == control.charAt(0)) {
                         abbreviateThatIsSingleLetter = false;
-                    } else {
-                        LOGGER.warn("Format string in format.name$ may only contain one type of vlfj on brace level 1 in group {}: {}", group, format);
+                    }
+                    else {
+                        LOGGER.warn(
+                                "Format string in format.name$ may only contain one type of vlfj on brace level 1 in group {}: {}",
+                                group, format);
                     }
                 }
 
@@ -156,8 +161,9 @@ public class BstNameFormatter {
                             if (abbreviateThatIsSingleLetter) {
                                 String[] dashes = token.split("-");
 
-                                token = Arrays.stream(dashes).map(BstNameFormatter::getFirstCharOfString)
-                                              .collect(Collectors.joining(".-"));
+                                token = Arrays.stream(dashes)
+                                    .map(BstNameFormatter::getFirstCharOfString)
+                                    .collect(Collectors.joining(".-"));
                             }
 
                             // Output token
@@ -169,45 +175,56 @@ public class BstNameFormatter {
                                     if (abbreviateThatIsSingleLetter) {
                                         sb.append('.');
                                     }
-                                    // No clue what this means (What the hell are tokens anyway???
-                                    // if (lex_class[name_sep_char[cur_token]] = sep_char) then
-                                    //    append_ex_buf_char_and_check (name_sep_char[cur_token])
-                                    if ((k == (tokens.length - 2)) || (BstNameFormatter.numberOfChars(sb.substring(groupStart, sb.length()), 3) < 3)) {
+                                    // No clue what this means (What the hell are tokens
+                                    // anyway???
+                                    // if (lex_class[name_sep_char[cur_token]] = sep_char)
+                                    // then
+                                    // append_ex_buf_char_and_check
+                                    // (name_sep_char[cur_token])
+                                    if ((k == (tokens.length - 2)) || (BstNameFormatter
+                                        .numberOfChars(sb.substring(groupStart, sb.length()), 3) < 3)) {
                                         sb.append('~');
-                                    } else {
+                                    }
+                                    else {
                                         sb.append(' ');
                                     }
-                                } else {
+                                }
+                                else {
                                     sb.append(interToken);
                                 }
                             }
                         }
-                    } else if (d[j] == '}') {
+                    }
+                    else if (d[j] == '}') {
                         bLevel--;
                         if (bLevel > 0) {
                             sb.append('}');
                         }
-                    } else if (d[j] == '{') {
+                    }
+                    else if (d[j] == '{') {
                         bLevel++;
                         sb.append('{');
-                    } else {
+                    }
+                    else {
                         sb.append(d[j]);
                     }
                 }
                 if (!sb.isEmpty()) {
                     boolean noDisTie = false;
-                    if ((sb.charAt(sb.length() - 1) == '~') &&
-                            ((BstNameFormatter.numberOfChars(sb.substring(groupStart, sb.length()), 4) >= 4) ||
-                                    ((sb.length() > 1) && (noDisTie = sb.charAt(sb.length() - 2) == '~')))) {
+                    if ((sb.charAt(sb.length() - 1) == '~')
+                            && ((BstNameFormatter.numberOfChars(sb.substring(groupStart, sb.length()), 4) >= 4)
+                                    || ((sb.length() > 1) && (noDisTie = sb.charAt(sb.length() - 2) == '~')))) {
                         sb.deleteCharAt(sb.length() - 1);
                         if (!noDisTie) {
                             sb.append(' ');
                         }
                     }
                 }
-            } else if (c[i] == '}') {
+            }
+            else if (c[i] == '}') {
                 LOGGER.warn("Unmatched brace in format string: {}", format);
-            } else {
+            }
+            else {
                 sb.append(c[i]); // verbatim
             }
             i++;
@@ -232,7 +249,8 @@ public class BstNameFormatter {
                     interTokenSb.append('}');
                     return i;
                 }
-            } else if (c[i] == '{') {
+            }
+            else if (c[i] == '{') {
                 braceLevel++;
             }
             interTokenSb.append(c[i]);
@@ -279,17 +297,20 @@ public class BstNameFormatter {
                     while ((i < n) && (braceLevel > 0)) {
                         if (c[i] == '}') {
                             braceLevel--;
-                        } else if (c[i] == '{') {
+                        }
+                        else if (c[i] == '{') {
                             braceLevel++;
                         }
                         i++;
                     }
                 }
-            } else if (c[i - 1] == '}') {
+            }
+            else if (c[i - 1] == '}') {
                 braceLevel--;
             }
             result++;
         }
         return result;
     }
+
 }

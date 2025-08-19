@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class HowPublishedCheckerTest {
 
     private HowPublishedChecker checker;
+
     private HowPublishedChecker checkerBiblatex;
 
     @BeforeEach
@@ -55,4 +56,5 @@ class HowPublishedCheckerTest {
     void bibLaTexAcceptsStringWithLowercaseFirstLetter() {
         assertEquals(Optional.empty(), checkerBiblatex.checkValue("lorem ipsum"));
     }
+
 }

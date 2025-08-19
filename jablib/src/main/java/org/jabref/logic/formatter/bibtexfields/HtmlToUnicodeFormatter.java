@@ -35,4 +35,5 @@ public class HtmlToUnicodeFormatter extends Formatter implements LayoutFormatter
         // StringEscapeUtils converts characters and regex kills tags
         return StringEscapeUtils.unescapeHtml4(fieldText).replaceAll("<[^>]*>", "");
     }
+
 }

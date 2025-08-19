@@ -20,18 +20,23 @@ import static org.mockito.Mockito.spy;
 
 public class ExternalFileTypesTabViewModelTest {
 
-    private ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+    private ExternalApplicationsPreferences externalApplicationsPreferences = mock(
+            ExternalApplicationsPreferences.class);
+
     private DialogService dialogService = mock(DialogService.class);
+
     private ExternalFileTypeItemViewModel externalFileTypeItemViewModel = new ExternalFileTypeItemViewModel();
 
     @Spy
-    private ExternalFileTypesTabViewModel externalFileTypesTabViewModel = spy(new ExternalFileTypesTabViewModel(externalApplicationsPreferences, dialogService));
+    private ExternalFileTypesTabViewModel externalFileTypesTabViewModel = spy(
+            new ExternalFileTypesTabViewModel(externalApplicationsPreferences, dialogService));
 
     @BeforeEach
     void setUp() {
         externalFileTypeItemViewModel.nameProperty().set("Excel 2007");
         externalFileTypeItemViewModel.extensionProperty().set("xlsx");
-        externalFileTypeItemViewModel.mimetypeProperty().set("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        externalFileTypeItemViewModel.mimetypeProperty()
+            .set("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         externalFileTypeItemViewModel.applicationProperty().set("oocalc");
     }
 
@@ -66,7 +71,8 @@ public class ExternalFileTypesTabViewModelTest {
 
     @Test
     void WhenExternalFileTypeItemViewModelIsValidThenAddNewTypeIsSuccessful() {
-        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
+        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor
+            .forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(mocked -> {
             ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
             this.viewModelClone(capturedItem);
@@ -83,7 +89,8 @@ public class ExternalFileTypesTabViewModelTest {
     @Test
     void WhenExternalFileTypeItemViewModelMissNameThenAddNewTypeIsFailed() {
         setupViewModelWithoutName();
-        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
+        ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor
+            .forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(mocked -> {
             ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
             viewModelClone(capturedItem);
@@ -95,4 +102,5 @@ public class ExternalFileTypesTabViewModelTest {
         ObservableList<ExternalFileTypeItemViewModel> emptyFileTypes = externalFileTypesTabViewModel.getFileTypes();
         assertEquals(0, emptyFileTypes.size());
     }
+
 }

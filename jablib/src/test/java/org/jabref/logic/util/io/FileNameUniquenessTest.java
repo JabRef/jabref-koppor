@@ -100,4 +100,5 @@ class FileNameUniquenessTest {
         String fileName2 = FileNameUniqueness.eraseDuplicateMarks(fileName1);
         assertEquals("abc def", fileName2);
     }
+
 }

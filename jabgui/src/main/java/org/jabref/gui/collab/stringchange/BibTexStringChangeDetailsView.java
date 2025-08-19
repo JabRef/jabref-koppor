@@ -12,14 +12,14 @@ public final class BibTexStringChangeDetailsView extends DatabaseChangeDetailsVi
         VBox container = new VBox();
         Label header = new Label(Localization.lang("Modified string"));
         header.getStyleClass().add("sectionHeader");
-        container.getChildren().addAll(
-                header,
-                new Label(Localization.lang("Label: %0", stringChange.getOldString().getName())),
-                new Label(Localization.lang("Content: %0", stringChange.getNewString().getContent()))
-        );
+        container.getChildren()
+            .addAll(header, new Label(Localization.lang("Label: %0", stringChange.getOldString().getName())),
+                    new Label(Localization.lang("Content: %0", stringChange.getNewString().getContent())));
 
-        container.getChildren().add(new Label(Localization.lang("Current content: %0", stringChange.getOldString().getContent())));
+        container.getChildren()
+            .add(new Label(Localization.lang("Current content: %0", stringChange.getOldString().getContent())));
 
         this.setAllAnchorsAndAttachChild(container);
     }
+
 }

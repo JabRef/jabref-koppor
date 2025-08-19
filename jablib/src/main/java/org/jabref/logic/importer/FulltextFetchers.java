@@ -27,9 +27,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class for trying to resolve URLs to full-text PDF for articles.
  *
- * Combines multiple {@link FulltextFetcher}s together. Each fetcher is invoked, the "best" result (sorted by the fetcher trust level) is returned.
+ * Combines multiple {@link FulltextFetcher}s together. Each fetcher is invoked, the
+ * "best" result (sorted by the fetcher trust level) is returned.
  */
 public class FulltextFetchers {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FulltextFetchers.class);
 
     // Timeout in seconds
@@ -40,7 +42,8 @@ public class FulltextFetchers {
     private final Predicate<String> isPDF = url -> {
         try {
             return new URLDownload(url).isPdf();
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             LOGGER.warn("URL returned by fulltext fetcher is invalid");
         }
         return false;
@@ -63,24 +66,26 @@ public class FulltextFetchers {
             findDoiForEntry(clonedEntry);
         }
 
-        List<Future<Optional<FetcherResult>>> result = HeadlessExecutorService.INSTANCE.executeAll(getCallables(clonedEntry, finders), FETCHER_TIMEOUT, TimeUnit.SECONDS);
+        List<Future<Optional<FetcherResult>>> result = HeadlessExecutorService.INSTANCE
+            .executeAll(getCallables(clonedEntry, finders), FETCHER_TIMEOUT, TimeUnit.SECONDS);
 
         return result.stream()
-                     .map(FulltextFetchers::getResults)
-                     .filter(Optional::isPresent)
-                     .map(Optional::get)
-                     .filter(res -> (res.getSource()) != null)
-                     .sorted(Comparator.comparingInt((FetcherResult res) -> res.getTrust().getTrustScore()).reversed())
-                     .map(FetcherResult::getSource)
-                     .findFirst();
+            .map(FulltextFetchers::getResults)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .filter(res -> (res.getSource()) != null)
+            .sorted(Comparator.comparingInt((FetcherResult res) -> res.getTrust().getTrustScore()).reversed())
+            .map(FetcherResult::getSource)
+            .findFirst();
     }
 
     private void findDoiForEntry(BibEntry clonedEntry) {
         try {
             WebFetchers.getIdFetcherForIdentifier(DOI.class)
-                       .findIdentifier(clonedEntry)
-                       .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
-        } catch (FetcherException e) {
+                .findIdentifier(clonedEntry)
+                .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
+        }
+        catch (FetcherException e) {
             LOGGER.debug("Failed to find DOI", e);
         }
     }
@@ -88,9 +93,11 @@ public class FulltextFetchers {
     private static Optional<FetcherResult> getResults(Future<Optional<FetcherResult>> future) {
         try {
             return future.get();
-        } catch (InterruptedException ignore) {
+        }
+        catch (InterruptedException ignore) {
             // ignore thread interruptions
-        } catch (ExecutionException | CancellationException e) {
+        }
+        catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Fetcher execution failed or was cancelled");
         }
         return Optional.empty();
@@ -100,9 +107,10 @@ public class FulltextFetchers {
         return () -> {
             try {
                 return fetcher.findFullText(entry)
-                              .filter(url -> isPDF.test(url.toString()))
-                              .map(url -> new FetcherResult(fetcher.getTrustLevel(), url));
-            } catch (IOException | FetcherException e) {
+                    .filter(url -> isPDF.test(url.toString()))
+                    .map(url -> new FetcherResult(fetcher.getTrustLevel(), url));
+            }
+            catch (IOException | FetcherException e) {
                 LOGGER.debug("Failed to find fulltext PDF at given URL", e);
             }
             return Optional.empty();
@@ -110,8 +118,7 @@ public class FulltextFetchers {
     }
 
     private List<Callable<Optional<FetcherResult>>> getCallables(BibEntry entry, Set<FulltextFetcher> fetchers) {
-        return fetchers.stream()
-                       .map(f -> getCallable(entry, f))
-                       .toList();
+        return fetchers.stream().map(f -> getCallable(entry, f)).toList();
     }
+
 }

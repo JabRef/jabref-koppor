@@ -39,22 +39,38 @@ import com.tobiasdiez.easybind.EasyBinding;
 import com.tobiasdiez.easybind.optional.OptionalBinding;
 
 public class BibEntryTableViewModel {
-    private final BibEntry entry;
-    private final ObservableValue<MainTableFieldValueFormatter> fieldValueFormatter;
-    private final Map<OrFields, ObservableValue<String>> fieldValues = new HashMap<>();
-    private final Map<SpecialField, OptionalBinding<SpecialFieldValueViewModel>> specialFieldValues = new HashMap<>();
-    private final EasyBinding<List<LinkedFile>> linkedFiles;
-    private final EasyBinding<Map<Field, String>> linkedIdentifiers;
-    private final Binding<List<AbstractGroup>> matchedGroups;
-    private final BibDatabaseContext bibDatabaseContext;
-    private final BooleanProperty hasFullTextResults = new SimpleBooleanProperty(false);
-    private final BooleanProperty isMatchedBySearch = new SimpleBooleanProperty(true);
-    private final BooleanProperty isVisibleBySearch = new SimpleBooleanProperty(true);
-    private final BooleanProperty isMatchedByGroup = new SimpleBooleanProperty(true);
-    private final BooleanProperty isVisibleByGroup = new SimpleBooleanProperty(true);
-    private final ObjectProperty<MatchCategory> matchCategory = new SimpleObjectProperty<>(MatchCategory.MATCHING_SEARCH_AND_GROUPS);
 
-    public BibEntryTableViewModel(BibEntry entry, BibDatabaseContext bibDatabaseContext, ObservableValue<MainTableFieldValueFormatter> fieldValueFormatter) {
+    private final BibEntry entry;
+
+    private final ObservableValue<MainTableFieldValueFormatter> fieldValueFormatter;
+
+    private final Map<OrFields, ObservableValue<String>> fieldValues = new HashMap<>();
+
+    private final Map<SpecialField, OptionalBinding<SpecialFieldValueViewModel>> specialFieldValues = new HashMap<>();
+
+    private final EasyBinding<List<LinkedFile>> linkedFiles;
+
+    private final EasyBinding<Map<Field, String>> linkedIdentifiers;
+
+    private final Binding<List<AbstractGroup>> matchedGroups;
+
+    private final BibDatabaseContext bibDatabaseContext;
+
+    private final BooleanProperty hasFullTextResults = new SimpleBooleanProperty(false);
+
+    private final BooleanProperty isMatchedBySearch = new SimpleBooleanProperty(true);
+
+    private final BooleanProperty isVisibleBySearch = new SimpleBooleanProperty(true);
+
+    private final BooleanProperty isMatchedByGroup = new SimpleBooleanProperty(true);
+
+    private final BooleanProperty isVisibleByGroup = new SimpleBooleanProperty(true);
+
+    private final ObjectProperty<MatchCategory> matchCategory = new SimpleObjectProperty<>(
+            MatchCategory.MATCHING_SEARCH_AND_GROUPS);
+
+    public BibEntryTableViewModel(BibEntry entry, BibDatabaseContext bibDatabaseContext,
+            ObservableValue<MainTableFieldValueFormatter> fieldValueFormatter) {
         this.entry = entry;
         this.bibDatabaseContext = bibDatabaseContext;
         this.fieldValueFormatter = fieldValueFormatter;
@@ -65,13 +81,9 @@ public class BibEntryTableViewModel {
     }
 
     private static EasyBinding<Map<Field, String>> createLinkedIdentifiersBinding(BibEntry entry) {
-        return EasyBind.combine(
-                entry.getFieldBinding(StandardField.URL),
-                entry.getFieldBinding(StandardField.DOI),
-                entry.getFieldBinding(StandardField.URI),
-                entry.getFieldBinding(StandardField.EPRINT),
-                entry.getFieldBinding(StandardField.ISBN),
-                (url, doi, uri, eprint, isbn) -> {
+        return EasyBind.combine(entry.getFieldBinding(StandardField.URL), entry.getFieldBinding(StandardField.DOI),
+                entry.getFieldBinding(StandardField.URI), entry.getFieldBinding(StandardField.EPRINT),
+                entry.getFieldBinding(StandardField.ISBN), (url, doi, uri, eprint, isbn) -> {
                     Map<Field, String> identifiers = new HashMap<>();
                     url.ifPresent(value -> identifiers.put(StandardField.URL, value));
                     doi.ifPresent(value -> identifiers.put(StandardField.DOI, value));
@@ -86,15 +98,18 @@ public class BibEntryTableViewModel {
         return entry;
     }
 
-    private static Binding<List<AbstractGroup>> createMatchedGroupsBinding(BibDatabaseContext database, BibEntry entry) {
-        return new UiThreadBinding<>(EasyBind.combine(entry.getFieldBinding(StandardField.GROUPS), database.getMetaData().groupsBinding(),
-                (_, _) ->
-                        database.getMetaData().getGroups().map(groupTreeNode ->
-                                        groupTreeNode.getMatchingGroups(entry).stream()
-                                                     .map(GroupTreeNode::getGroup)
-                                                     .filter(Predicate.not(Predicate.isEqual(groupTreeNode.getGroup())))
-                                                     .collect(Collectors.toList()))
-                                .orElse(List.of())));
+    private static Binding<List<AbstractGroup>> createMatchedGroupsBinding(BibDatabaseContext database,
+            BibEntry entry) {
+        return new UiThreadBinding<>(
+                EasyBind.combine(entry.getFieldBinding(StandardField.GROUPS), database.getMetaData().groupsBinding(),
+                        (_, _) -> database.getMetaData()
+                            .getGroups()
+                            .map(groupTreeNode -> groupTreeNode.getMatchingGroups(entry)
+                                .stream()
+                                .map(GroupTreeNode::getGroup)
+                                .filter(Predicate.not(Predicate.isEqual(groupTreeNode.getGroup())))
+                                .collect(Collectors.toList()))
+                            .orElse(List.of())));
     }
 
     public OptionalBinding<String> getField(Field field) {
@@ -119,17 +134,24 @@ public class BibEntryTableViewModel {
         Optional<String> currentValue = this.entry.getField(field);
         if (value != null) {
             if (currentValue.isEmpty() && value.getValue().isEmpty()) {
-                OptionalBinding<SpecialFieldValueViewModel> zeroValue = getField(field).flatMapOpt(_ -> field.parseValue("CLEAR_RANK").map(SpecialFieldValueViewModel::new));
+                OptionalBinding<SpecialFieldValueViewModel> zeroValue = getField(field)
+                    .flatMapOpt(_ -> field.parseValue("CLEAR_RANK").map(SpecialFieldValueViewModel::new));
                 specialFieldValues.put(field, zeroValue);
                 return zeroValue;
-            } else if (value.getValue().isEmpty() || !value.getValue().get().getValue().getFieldValue().equals(currentValue)) {
-                // specialFieldValues value and BibEntry value differ => Set specialFieldValues value to BibEntry value
-                value = getField(field).flatMapOpt(fieldValue -> field.parseValue(fieldValue).map(SpecialFieldValueViewModel::new));
+            }
+            else if (value.getValue().isEmpty()
+                    || !value.getValue().get().getValue().getFieldValue().equals(currentValue)) {
+                // specialFieldValues value and BibEntry value differ => Set
+                // specialFieldValues value to BibEntry value
+                value = getField(field)
+                    .flatMapOpt(fieldValue -> field.parseValue(fieldValue).map(SpecialFieldValueViewModel::new));
                 specialFieldValues.put(field, value);
                 return value;
             }
-        } else {
-            value = getField(field).flatMapOpt(fieldValue -> field.parseValue(fieldValue).map(SpecialFieldValueViewModel::new));
+        }
+        else {
+            value = getField(field)
+                .flatMapOpt(fieldValue -> field.parseValue(fieldValue).map(SpecialFieldValueViewModel::new));
             specialFieldValues.put(field, value);
         }
         return value;
@@ -144,8 +166,7 @@ public class BibEntryTableViewModel {
         ArrayList<Observable> observables = new ArrayList<>(List.of(entry.getObservables()));
         observables.add(fieldValueFormatter);
 
-        value = Bindings.createStringBinding(() ->
-                        fieldValueFormatter.getValue().formatFieldsValues(fields, entry),
+        value = Bindings.createStringBinding(() -> fieldValueFormatter.getValue().formatFieldsValues(fields, entry),
                 observables.toArray(Observable[]::new));
         fieldValues.put(fields, value);
         return value;
@@ -192,12 +213,15 @@ public class BibEntryTableViewModel {
 
         if (isMatchedBySearch.get() && isMatchedByGroup.get()) {
             category = MatchCategory.MATCHING_SEARCH_AND_GROUPS;
-        } else if (isMatchedBySearch.get()) {
+        }
+        else if (isMatchedBySearch.get()) {
             category = MatchCategory.MATCHING_SEARCH_NOT_GROUPS;
-        } else if (isMatchedByGroup.get()) {
+        }
+        else if (isMatchedByGroup.get()) {
             category = MatchCategory.MATCHING_GROUPS_NOT_SEARCH;
         }
 
         matchCategory.set(category);
     }
+
 }

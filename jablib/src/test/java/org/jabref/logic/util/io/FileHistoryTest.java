@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileHistoryTest {
+
     private FileHistory history;
 
     @BeforeEach
@@ -68,6 +69,5 @@ class FileHistoryTest {
         history.newFile(Path.of("cc"));
         assertEquals(Path.of("bb"), history.get(1));
     }
+
 }
-
-

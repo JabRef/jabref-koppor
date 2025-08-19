@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FileFilterUtilsTest {
 
     private final FileFilterUtils fileFilterUtils = new FileFilterUtils();
+
     private final LocalDateTime time = LocalDateTime.now();
 
     @Test
@@ -70,11 +71,17 @@ class FileFilterUtilsTest {
     class SortingTests {
 
         private final List<Path> files = new ArrayList<>();
+
         private final List<String> expectedSortByDateAscending = new ArrayList<>();
+
         private final List<String> expectedSortByDateDescending = new ArrayList<>();
+
         private final List<String> wrongOrder = new ArrayList<>();
 
-        /* Initialize the directory and files used in the sorting tests, and change their last edited dates. */
+        /*
+         * Initialize the directory and files used in the sorting tests, and change their
+         * last edited dates.
+         */
         @BeforeEach
         void setUp(@TempDir Path tempDir) throws IOException {
 
@@ -119,8 +126,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateAscendingPositiveTest() {
-            List<String> sortedPaths = fileFilterUtils
-                .sortByDateAscending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateAscending(files)
                 .stream()
                 .map(Path::toString)
                 .collect(Collectors.toList());
@@ -129,8 +135,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateAscendingNegativeTest() {
-            List<String> sortedPaths = fileFilterUtils
-                .sortByDateAscending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateAscending(files)
                 .stream()
                 .map(Path::toString)
                 .collect(Collectors.toList());
@@ -139,8 +144,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateDescendingPositiveTest() {
-            List<String> sortedPaths = fileFilterUtils
-                .sortByDateDescending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateDescending(files)
                 .stream()
                 .map(Path::toString)
                 .collect(Collectors.toList());
@@ -149,19 +153,22 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateDescendingNegativeTest() {
-            List<String> sortedPaths = fileFilterUtils
-                .sortByDateDescending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateDescending(files)
                 .stream()
                 .map(Path::toString)
                 .collect(Collectors.toList());
             assertNotEquals(sortedPaths, wrongOrder);
         }
+
     }
 
     @Nested
     class filteringTests {
+
         private final List<Path> files = new ArrayList<>();
+
         private final List<Path> targetFiles = new ArrayList<>();
+
         private final Set<String> ignoreFileSet = new HashSet<>();
 
         @BeforeEach
@@ -195,5 +202,7 @@ class FileFilterUtilsTest {
             targetFiles.add(thirdPath);
             targetFiles.add(fourthPath);
         }
+
     }
+
 }

@@ -21,14 +21,9 @@ public class GroupEditor extends SimpleEditor {
 
     private Optional<BibEntry> bibEntry;
 
-    public GroupEditor(final Field field,
-                       final SuggestionProvider<?> suggestionProvider,
-                       final FieldCheckers fieldCheckers,
-                       final GuiPreferences preferences,
-                       final boolean isMultiLine,
-                       final UndoManager undoManager,
-                       final UndoAction undoAction,
-                       final RedoAction redoAction) {
+    public GroupEditor(final Field field, final SuggestionProvider<?> suggestionProvider,
+            final FieldCheckers fieldCheckers, final GuiPreferences preferences, final boolean isMultiLine,
+            final UndoManager undoManager, final UndoAction undoAction, final RedoAction redoAction) {
         super(field, suggestionProvider, fieldCheckers, preferences, isMultiLine, undoManager, undoAction, redoAction);
 
         this.setOnDragOver(event -> {
@@ -41,12 +36,15 @@ public class GroupEditor extends SimpleEditor {
         this.setOnDragDropped(event -> {
             boolean success = false;
             if (event.getDragboard().hasContent(DragAndDropDataFormats.GROUP)) {
-                List<String> draggedGroups = (List<String>) event.getDragboard().getContent(DragAndDropDataFormats.GROUP);
+                List<String> draggedGroups = (List<String>) event.getDragboard()
+                    .getContent(DragAndDropDataFormats.GROUP);
                 if (bibEntry.isPresent() && draggedGroups.getFirst() != null) {
-                    String newGroup = bibEntry.map(entry -> entry.getField(StandardField.GROUPS)
-                                                                     .map(oldGroups -> oldGroups + (preferences.getBibEntryPreferences().getKeywordSeparator()) + (draggedGroups.getFirst()))
-                                                                     .orElse(draggedGroups.getFirst()))
-                                                  .orElse(null);
+                    String newGroup = bibEntry
+                        .map(entry -> entry.getField(StandardField.GROUPS)
+                            .map(oldGroups -> oldGroups + (preferences.getBibEntryPreferences().getKeywordSeparator())
+                                    + (draggedGroups.getFirst()))
+                            .orElse(draggedGroups.getFirst()))
+                        .orElse(null);
                     bibEntry.map(entry -> entry.setField(StandardField.GROUPS, newGroup));
                     success = true;
                 }
@@ -61,4 +59,5 @@ public class GroupEditor extends SimpleEditor {
         super.bindToEntry(entry);
         this.bibEntry = Optional.of(entry);
     }
+
 }

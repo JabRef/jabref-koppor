@@ -15,6 +15,7 @@ import org.jabref.model.entry.identifier.MathSciNetId;
 import org.jabref.model.strings.StringUtil;
 
 public class IdentifierParser {
+
     private final BibEntry entry;
 
     public IdentifierParser(BibEntry entry) {
@@ -31,11 +32,14 @@ public class IdentifierParser {
 
         if (StandardField.DOI == field) {
             return DOI.parse(fieldValue);
-        } else if (StandardField.ISBN == field) {
+        }
+        else if (StandardField.ISBN == field) {
             return ISBN.parse(fieldValue);
-        } else if (StandardField.EPRINT == field) {
+        }
+        else if (StandardField.EPRINT == field) {
             return parseEprint(fieldValue);
-        } else if (StandardField.MR_NUMBER == field) {
+        }
+        else if (StandardField.MR_NUMBER == field) {
             return MathSciNetId.parse(fieldValue);
         }
 
@@ -49,10 +53,12 @@ public class IdentifierParser {
         String eprintType = eprintTypeOpt.or(() -> archivePrefixOpt).orElse("");
         if ("arxiv".equalsIgnoreCase(eprintType)) {
             return ArXivIdentifier.parse(eprint);
-        } else if ("ark".equalsIgnoreCase(eprintType)) {
+        }
+        else if ("ark".equalsIgnoreCase(eprintType)) {
             return ARK.parse(eprint);
         }
 
         return Optional.empty();
     }
+
 }

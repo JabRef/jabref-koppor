@@ -52,25 +52,30 @@ import org.slf4j.LoggerFactory;
 public class MainTableColumnFactory {
 
     public static final String STYLE_ICON_COLUMN = "column-icon";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MainTableColumnFactory.class);
 
     private final GuiPreferences preferences;
+
     private final ColumnPreferences columnPreferences;
+
     private final BibDatabaseContext database;
+
     private final CellFactory cellFactory;
+
     private final UndoManager undoManager;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
+
     private final StateManager stateManager;
+
     private final MainTableTooltip tooltip;
 
-    public MainTableColumnFactory(BibDatabaseContext database,
-                                  GuiPreferences preferences,
-                                  ColumnPreferences abstractColumnPrefs,
-                                  UndoManager undoManager,
-                                  DialogService dialogService,
-                                  StateManager stateManager,
-                                  TaskExecutor taskExecutor) {
+    public MainTableColumnFactory(BibDatabaseContext database, GuiPreferences preferences,
+            ColumnPreferences abstractColumnPrefs, UndoManager undoManager, DialogService dialogService,
+            StateManager stateManager, TaskExecutor taskExecutor) {
         this.database = Objects.requireNonNull(database);
         this.preferences = Objects.requireNonNull(preferences);
         this.columnPreferences = abstractColumnPrefs;
@@ -114,8 +119,10 @@ public class MainTableColumnFactory {
                     Field field = FieldFactory.parseField(column.getQualifier());
                     if (field instanceof SpecialField) {
                         returnColumn = createSpecialFieldColumn(column);
-                    } else {
-                        LOGGER.warn("Special field type '{}' is unknown. Using normal column type.", column.getQualifier());
+                    }
+                    else {
+                        LOGGER.warn("Special field type '{}' is unknown. Using normal column type.",
+                                column.getQualifier());
                         returnColumn = createFieldColumn(column, tooltip);
                     }
                 }
@@ -146,11 +153,14 @@ public class MainTableColumnFactory {
 
     /**
      * Creates a column for the match category.
-     * <p>This column is always hidden but is used for sorting the table
-     * in the floating mode. The order of the {@link MatchCategory} enum constants
-     * determines the sorting order.</p>
+     * <p>
+     * This column is always hidden but is used for sorting the table in the floating
+     * mode. The order of the {@link MatchCategory} enum constants determines the sorting
+     * order.
+     * </p>
      */
-    private TableColumn<BibEntryTableViewModel, MatchCategory> createMatchCategoryColumn(MainTableColumnModel columnModel) {
+    private TableColumn<BibEntryTableViewModel, MatchCategory> createMatchCategoryColumn(
+            MainTableColumnModel columnModel) {
         TableColumn<BibEntryTableViewModel, MatchCategory> column = new MainTableColumn<>(columnModel);
         column.setCellValueFactory(cellData -> cellData.getValue().matchCategory());
         column.setSortable(true);
@@ -171,9 +181,7 @@ public class MainTableColumnFactory {
         column.setStyle("-fx-alignment: CENTER-RIGHT;");
         column.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
                 String.valueOf(cellData.getTableView().getItems().indexOf(cellData.getValue()) + 1)));
-        new ValueTableCellFactory<BibEntryTableViewModel, String>()
-                .withText(text -> text)
-                .install(column);
+        new ValueTableCellFactory<BibEntryTableViewModel, String>().withText(text -> text).install(column);
         column.setSortable(false);
         return column;
     }
@@ -191,8 +199,8 @@ public class MainTableColumnFactory {
         column.setResizable(false);
         column.setCellValueFactory(cellData -> cellData.getValue().getMatchedGroups());
         new ValueTableCellFactory<BibEntryTableViewModel, List<AbstractGroup>>()
-                .withGraphic(this::createGroupColorRegion)
-                .install(column);
+            .withGraphic(this::createGroupColorRegion)
+            .install(column);
         column.setStyle("-fx-padding: 0 0 0 0;");
         column.setSortable(true);
         return column;
@@ -210,17 +218,15 @@ public class MainTableColumnFactory {
         column.setResizable(true);
         column.setCellValueFactory(cellData -> cellData.getValue().getMatchedGroups());
         new ValueTableCellFactory<BibEntryTableViewModel, List<AbstractGroup>>()
-                .withGraphic(this::createGroupIconRegion)
-                .install(column);
+            .withGraphic(this::createGroupIconRegion)
+            .install(column);
         column.setStyle("-fx-padding: 0 0 0 0;");
         column.setSortable(true);
         return column;
     }
 
     private Node createGroupColorRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
-        List<Color> groupColors = matchedGroups.stream()
-                                               .flatMap(group -> group.getColor().stream())
-                                               .toList();
+        List<Color> groupColors = matchedGroups.stream().flatMap(group -> group.getColor().stream()).toList();
 
         if (!groupColors.isEmpty()) {
             HBox container = new HBox();
@@ -240,10 +246,11 @@ public class MainTableColumnFactory {
             });
 
             String matchedGroupsString = matchedGroups.stream()
-                                                      .distinct()
-                                                      .map(AbstractGroup::getName)
-                                                      .collect(Collectors.joining(", "));
-            Tooltip tooltip = new Tooltip(Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
+                .distinct()
+                .map(AbstractGroup::getName)
+                .collect(Collectors.joining(", "));
+            Tooltip tooltip = new Tooltip(
+                    Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
             Tooltip.install(container, tooltip);
             return container;
         }
@@ -252,10 +259,11 @@ public class MainTableColumnFactory {
 
     private Node createGroupIconRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
         List<JabRefIcon> groupIcons = matchedGroups.stream()
-                                                   .filter(abstractGroup -> abstractGroup.getIconName().isPresent())
-                                                   .flatMap(group -> IconTheme.findIcon(group.getIconName().get(), group.getColor().orElse(IconTheme.getDefaultGroupColor())).stream()
-                                                   )
-                                                   .toList();
+            .filter(abstractGroup -> abstractGroup.getIconName().isPresent())
+            .flatMap(group -> IconTheme
+                .findIcon(group.getIconName().get(), group.getColor().orElse(IconTheme.getDefaultGroupColor()))
+                .stream())
+            .toList();
         if (!groupIcons.isEmpty()) {
             HBox container = new HBox();
             container.setSpacing(2);
@@ -263,13 +271,16 @@ public class MainTableColumnFactory {
             container.setAlignment(Pos.CENTER_LEFT);
             container.setPadding(new Insets(0, 2, 0, 2));
 
-            groupIcons.stream().distinct().forEach(groupIcon -> container.getChildren().add(groupIcon.getGraphicNode()));
+            groupIcons.stream()
+                .distinct()
+                .forEach(groupIcon -> container.getChildren().add(groupIcon.getGraphicNode()));
 
             String matchedGroupsString = matchedGroups.stream()
-                                                      .distinct()
-                                                      .map(AbstractGroup::getName)
-                                                      .collect(Collectors.joining(", "));
-            Tooltip tooltip = new Tooltip(Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
+                .distinct()
+                .map(AbstractGroup::getName)
+                .collect(Collectors.joining(", "));
+            Tooltip tooltip = new Tooltip(
+                    Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
             Tooltip.install(container, tooltip);
             return container;
         }
@@ -279,45 +290,43 @@ public class MainTableColumnFactory {
     /**
      * Creates a text column to display any standard field.
      */
-    private TableColumn<BibEntryTableViewModel, ?> createFieldColumn(MainTableColumnModel columnModel, MainTableTooltip tooltip) {
+    private TableColumn<BibEntryTableViewModel, ?> createFieldColumn(MainTableColumnModel columnModel,
+            MainTableTooltip tooltip) {
         return new FieldColumn(columnModel, tooltip);
     }
 
     /**
      * Creates a clickable icons column for DOIs, URLs, URIs and EPrints.
      */
-    private TableColumn<BibEntryTableViewModel, Map<Field, String>> createIdentifierColumn(MainTableColumnModel columnModel) {
+    private TableColumn<BibEntryTableViewModel, Map<Field, String>> createIdentifierColumn(
+            MainTableColumnModel columnModel) {
         return new LinkedIdentifierColumn(columnModel, cellFactory, database, dialogService, preferences, stateManager);
     }
 
     /**
      * Creates a column that displays a {@link SpecialField}
      */
-    private TableColumn<BibEntryTableViewModel, Optional<SpecialFieldValueViewModel>> createSpecialFieldColumn(MainTableColumnModel columnModel) {
+    private TableColumn<BibEntryTableViewModel, Optional<SpecialFieldValueViewModel>> createSpecialFieldColumn(
+            MainTableColumnModel columnModel) {
         return new SpecialFieldColumn(columnModel, preferences, undoManager);
     }
 
     /**
-     * Creates a column for all the linked files. Instead of creating a column for a single file type, like {@link
-     * #createExtraFileColumn(MainTableColumnModel)} createExtraFileColumn} does, this creates one single column collecting all file links.
+     * Creates a column for all the linked files. Instead of creating a column for a
+     * single file type, like {@link #createExtraFileColumn(MainTableColumnModel)}
+     * createExtraFileColumn} does, this creates one single column collecting all file
+     * links.
      */
     private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createFilesColumn(MainTableColumnModel columnModel) {
-        return new FileColumn(columnModel,
-                database,
-                dialogService,
-                preferences,
-                taskExecutor);
+        return new FileColumn(columnModel, database, dialogService, preferences, taskExecutor);
     }
 
     /**
      * Creates a column for all the linked files of a single file type.
      */
-    private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createExtraFileColumn(MainTableColumnModel columnModel) {
-        return new FileColumn(columnModel,
-                database,
-                dialogService,
-                preferences,
-                columnModel.getQualifier(),
+    private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createExtraFileColumn(
+            MainTableColumnModel columnModel) {
+        return new FileColumn(columnModel, database, dialogService, preferences, columnModel.getQualifier(),
                 taskExecutor);
     }
 
@@ -327,4 +336,5 @@ public class MainTableColumnFactory {
     private TableColumn<BibEntryTableViewModel, String> createLibraryColumn(MainTableColumnModel columnModel) {
         return new LibraryColumn(columnModel);
     }
+
 }

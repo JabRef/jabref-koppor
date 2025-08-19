@@ -21,7 +21,7 @@ public class CitedKeys {
     }
 
     /**
-     *  The cited keys in their current order.
+     * The cited keys in their current order.
      */
     public List<CitedKey> values() {
         return new ArrayList<>(data.values());
@@ -50,7 +50,8 @@ public class CitedKeys {
             if (ck.getLookupResult().isPresent()) {
                 ck.setNumber(Optional.of(index));
                 index++;
-            } else {
+            }
+            else {
                 // Unresolved citations do not get a number.
                 ck.setNumber(Optional.empty());
             }
@@ -80,4 +81,5 @@ public class CitedKeys {
             ck.distributeUniqueLetter(citationGroups);
         }
     }
+
 }

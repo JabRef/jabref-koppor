@@ -20,22 +20,20 @@ import org.jabref.model.strings.StringUtil;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class UrlEditorViewModel extends AbstractEditorViewModel {
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final BooleanProperty validUrlIsNotPresent = new SimpleBooleanProperty(true);
 
-    public UrlEditorViewModel(Field field,
-                              SuggestionProvider<?> suggestionProvider,
-                              DialogService dialogService,
-                              GuiPreferences preferences,
-                              FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public UrlEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, DialogService dialogService,
+            GuiPreferences preferences, FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.preferences = preferences;
 
-        validUrlIsNotPresent.bind(
-                EasyBind.map(text, input -> StringUtil.isBlank(input) || !URLUtil.isURL(input))
-        );
+        validUrlIsNotPresent.bind(EasyBind.map(text, input -> StringUtil.isBlank(input) || !URLUtil.isURL(input)));
     }
 
     public boolean isValidUrlIsNotPresent() {
@@ -53,8 +51,10 @@ public class UrlEditorViewModel extends AbstractEditorViewModel {
 
         try {
             NativeDesktop.openBrowser(text.get(), preferences.getExternalApplicationsPreferences());
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             dialogService.notify(Localization.lang("Unable to open link."));
         }
     }
+
 }

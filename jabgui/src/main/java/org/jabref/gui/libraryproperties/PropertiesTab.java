@@ -3,6 +3,7 @@ package org.jabref.gui.libraryproperties;
 import javafx.scene.Node;
 
 public interface PropertiesTab {
+
     Node getBuilder();
 
     String getTabName();
@@ -12,4 +13,5 @@ public interface PropertiesTab {
     void storeSettings();
 
     boolean validateSettings();
+
 }

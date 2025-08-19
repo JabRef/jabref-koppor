@@ -39,14 +39,10 @@ public class PushToVim extends AbstractPushToApplication {
         String keyString = this.getKeyString(entries, getDelimiter());
 
         try {
-            String[] com = new String[]{commandPath, "--servername",
-                    preferences.getVimServer(), "--remote-send",
-                    "<C-\\><C-N>a" + getCitePrefix() + keyString + getCiteSuffix()};
+            String[] com = new String[] { commandPath, "--servername", preferences.getVimServer(), "--remote-send",
+                    "<C-\\><C-N>a" + getCitePrefix() + keyString + getCiteSuffix() };
 
-            LOGGER.atDebug()
-                  .setMessage("Executing command {}")
-                  .addArgument(() -> Arrays.toString(com))
-                  .log();
+            LOGGER.atDebug().setMessage("Executing command {}").addArgument(() -> Arrays.toString(com)).log();
 
             final Process p = Runtime.getRuntime().exec(com);
 
@@ -58,7 +54,8 @@ public class PushToVim extends AbstractPushToApplication {
                         while ((c = out.read()) != -1) {
                             sb.append((char) c);
                         }
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         LOGGER.warn("Could not read from stderr.", e);
                     }
                     // Error stream has been closed. See if there were any errors:
@@ -66,11 +63,13 @@ public class PushToVim extends AbstractPushToApplication {
                         LOGGER.warn("Push to Vim error: {}", sb);
                         couldNotPush = true;
                     }
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     LOGGER.warn("Error handling std streams", e);
                 }
             });
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Problem pushing to Vim.", excep);
             couldNotCall = true;
         }
@@ -81,10 +80,12 @@ public class PushToVim extends AbstractPushToApplication {
         if (couldNotPush) {
             sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not push to a running Vim server."));
-        } else if (couldNotCall) {
+        }
+        else if (couldNotCall) {
             sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not run the 'vim' program."));
-        } else {
+        }
+        else {
             super.onOperationCompleted();
         }
     }
@@ -99,33 +100,20 @@ public class PushToVim extends AbstractPushToApplication {
         try {
             String[] command = jumpToLineCommandlineArguments(fileName, line, column);
             if (OS.WINDOWS) {
-                 processBuilder.command("cmd",
-                         "/c",
-                         "start",
-                         "",
-                        "\"%s\"".formatted(command[0]),
-                         "\"%s\"".formatted(command[1]),
-                        "\"%s\"".formatted(command[2]),
+                processBuilder.command("cmd", "/c", "start", "", "\"%s\"".formatted(command[0]),
+                        "\"%s\"".formatted(command[1]), "\"%s\"".formatted(command[2]),
                         "\"+normal %s|\"".formatted(Integer.toString(column)));
-            } else if (OS.LINUX) {
-                processBuilder.command("gnome-terminal",
-                        "--",
-                        command[0],
-                        command[1],
-                        command[2],
-                        command[3]);
-            } else if (OS.OS_X) {
-                processBuilder.command("open",
-                        "-a",
-                        "Terminal",
-                        "--args",
-                        command[0],
-                        command[1],
-                        command[2],
+            }
+            else if (OS.LINUX) {
+                processBuilder.command("gnome-terminal", "--", command[0], command[1], command[2], command[3]);
+            }
+            else if (OS.OS_X) {
+                processBuilder.command("open", "-a", "Terminal", "--args", command[0], command[1], command[2],
                         command[3]);
             }
             processBuilder.start();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Problem pushing to Vim.", e);
             couldNotCall = true;
         }
@@ -147,6 +135,8 @@ public class PushToVim extends AbstractPushToApplication {
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "+%s".formatted(line), fileName.toString(), "+\"normal %s|\"".formatted(column)};
+        return new String[] { commandPath, "+%s".formatted(line), fileName.toString(),
+                "+\"normal %s|\"".formatted(column) };
     }
+
 }

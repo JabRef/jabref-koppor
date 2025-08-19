@@ -18,13 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads abbreviation files (property files using NAME = ABBREVIATION as a format) into a list of Abbreviations.
+ * Reads abbreviation files (property files using NAME = ABBREVIATION as a format) into a
+ * list of Abbreviations.
  */
 public class ProtectedTermsParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectedTermsParser.class);
 
     private final List<String> terms = new ArrayList<>();
+
     private String description = Localization.lang("The text after the last line starting with # will be used");
 
     private String location;
@@ -32,13 +34,15 @@ public class ProtectedTermsParser {
     public void readTermsFromResource(String resourceFileName, String descriptionString) {
         description = descriptionString;
         location = resourceFileName;
-        try (InputStream inputStream = ProtectedTermsLoader.class.getResourceAsStream(Objects.requireNonNull(resourceFileName))) {
+        try (InputStream inputStream = ProtectedTermsLoader.class
+            .getResourceAsStream(Objects.requireNonNull(resourceFileName))) {
             if (inputStream == null) {
                 LOGGER.error("Cannot find resource '{}' ({})", resourceFileName, descriptionString);
                 return;
             }
             readTermsList(inputStream);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Cannot open resource '{}'", resourceFileName, e);
         }
     }
@@ -53,7 +57,8 @@ public class ProtectedTermsParser {
         }
         try (InputStream inputStream = Files.newInputStream(path)) {
             readTermsList(inputStream);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Cannot open file '{}'", path, e);
         }
     }
@@ -61,14 +66,14 @@ public class ProtectedTermsParser {
     private void readTermsList(InputStream inputStream) {
         try (Stream<String> lines = new BufferedReader(new InputStreamReader(inputStream)).lines()) {
             this.terms.addAll(lines.map(this::setDescription).filter(Objects::nonNull).toList());
-        } catch (UncheckedIOException e) {
+        }
+        catch (UncheckedIOException e) {
             LOGGER.warn("Could not read terms from stream", e);
         }
     }
 
     /**
      * Parse the description that starts after the # but don't include it in the terms
-     *
      * @return line or null if the line contains the description
      */
     private String setDescription(String line) {
@@ -84,4 +89,5 @@ public class ProtectedTermsParser {
         termList.setEnabled(enabled);
         return termList;
     }
+
 }

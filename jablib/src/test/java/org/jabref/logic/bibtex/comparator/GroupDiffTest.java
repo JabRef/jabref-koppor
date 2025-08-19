@@ -18,7 +18,9 @@ import static org.mockito.Mockito.when;
 class GroupDiffTest {
 
     private final MetaData originalMetaData = mock(MetaData.class);
+
     private final MetaData newMetaData = mock(MetaData.class);
+
     private GroupTreeNode rootOriginal;
 
     @BeforeEach
@@ -26,7 +28,7 @@ class GroupDiffTest {
         rootOriginal = GroupTreeNode.fromGroup(new AllEntriesGroup("All entries"));
         rootOriginal.addSubgroup(new ExplicitGroup("ExplicitA", GroupHierarchyType.INCLUDING, ','));
         GroupTreeNode parent = rootOriginal
-                .addSubgroup(new ExplicitGroup("ExplicitParent", GroupHierarchyType.INDEPENDENT, ','));
+            .addSubgroup(new ExplicitGroup("ExplicitParent", GroupHierarchyType.INDEPENDENT, ','));
         parent.addSubgroup(new ExplicitGroup("ExplicitNode", GroupHierarchyType.REFINING, ','));
     }
 
@@ -56,9 +58,11 @@ class GroupDiffTest {
 
         Optional<GroupDiff> groupDiff = GroupDiff.compare(originalMetaData, newMetaData);
 
-        Optional<GroupDiff> expectedGroupDiff = Optional.of(new GroupDiff(originalMetaData.getGroups().get(), newMetaData.getGroups().get()));
+        Optional<GroupDiff> expectedGroupDiff = Optional
+            .of(new GroupDiff(originalMetaData.getGroups().get(), newMetaData.getGroups().get()));
 
         assertEquals(expectedGroupDiff.get().getNewGroupRoot(), groupDiff.get().getNewGroupRoot());
         assertEquals(expectedGroupDiff.get().getOriginalGroupRoot(), groupDiff.get().getOriginalGroupRoot());
     }
+
 }

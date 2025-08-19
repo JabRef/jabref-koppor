@@ -30,4 +30,5 @@ class RemoteUtilTest {
         assertTrue(RemoteUtil.isUserPort(1024), "Port number in between 1024 and 65535 should be valid.");
         assertTrue(RemoteUtil.isUserPort(65535), "Port number in between 1024 and 65535 should be valid.");
     }
+
 }

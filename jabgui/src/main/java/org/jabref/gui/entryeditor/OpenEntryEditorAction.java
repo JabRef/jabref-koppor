@@ -10,13 +10,15 @@ import org.jabref.gui.actions.SimpleCommand;
 public class OpenEntryEditorAction extends SimpleCommand {
 
     private final Supplier<LibraryTab> tabSupplier;
+
     private final StateManager stateManager;
 
     public OpenEntryEditorAction(Supplier<LibraryTab> tabSupplier, StateManager stateManager) {
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
 
-        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager).and(stateManager.getEditorShowing().not()));
+        this.executable
+            .bind(ActionHelper.needsEntriesSelected(stateManager).and(stateManager.getEditorShowing().not()));
     }
 
     public void execute() {
@@ -24,4 +26,5 @@ public class OpenEntryEditorAction extends SimpleCommand {
             tabSupplier.get().showAndEdit(stateManager.getSelectedEntries().getFirst());
         }
     }
+
 }

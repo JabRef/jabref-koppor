@@ -7,24 +7,28 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 /**
- * <code>FieldChangedEvent</code> is fired when a field of <code>BibEntry</code> has been modified, removed or added.
+ * <code>FieldChangedEvent</code> is fired when a field of <code>BibEntry</code> has been
+ * modified, removed or added.
  */
 public class FieldChangedEvent extends EntryChangedEvent {
 
     private final Field field;
+
     private final String newValue;
+
     private final String oldValue;
+
     private int majorCharacterChange = 0;
 
     /**
      * @param bibEntry Affected BibEntry object
-     * @param field    Name of field which has been changed
+     * @param field Name of field which has been changed
      * @param oldValue old field value
      * @param newValue new field value
      * @param location Location affected by this event
      */
     public FieldChangedEvent(BibEntry bibEntry, Field field, String newValue, String oldValue,
-                             EntriesEventSource location) {
+            EntriesEventSource location) {
         super(bibEntry, location);
         this.field = field;
         this.newValue = newValue;
@@ -34,7 +38,7 @@ public class FieldChangedEvent extends EntryChangedEvent {
 
     /**
      * @param bibEntry Affected BibEntry object
-     * @param field    Name of field which has been changed
+     * @param field Name of field which has been changed
      * @param newValue new field value
      */
     public FieldChangedEvent(BibEntry bibEntry, Field field, String newValue, String oldValue) {
@@ -64,13 +68,17 @@ public class FieldChangedEvent extends EntryChangedEvent {
         // Objects.equals first checks '=='
         if (Objects.equals(oldValue, newValue)) {
             return 0;
-        } else if (oldValue == null) {
+        }
+        else if (oldValue == null) {
             return newValue.length();
-        } else if (newValue == null) {
+        }
+        else if (newValue == null) {
             return oldValue.length();
-        } else if (oldValue.length() == newValue.length()) {
+        }
+        else if (oldValue.length() == newValue.length()) {
             return newValue.length();
-        } else {
+        }
+        else {
             return Math.abs(newValue.length() - oldValue.length());
         }
     }
@@ -90,4 +98,5 @@ public class FieldChangedEvent extends EntryChangedEvent {
     public int getMajorCharacterChange() {
         return majorCharacterChange;
     }
+
 }

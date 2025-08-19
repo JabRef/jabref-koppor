@@ -7,4 +7,5 @@ public interface DatabaseConnection {
     DatabaseConnectionProperties getProperties();
 
     Connection getConnection();
+
 }

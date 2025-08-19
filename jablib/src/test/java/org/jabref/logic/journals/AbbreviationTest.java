@@ -117,4 +117,5 @@ class AbbreviationTest {
         Abbreviation abbreviation2 = new Abbreviation("Long Name", "L. N.", "LN");
         assertEquals(0, abbreviation1.compareTo(abbreviation2));
     }
+
 }

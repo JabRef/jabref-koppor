@@ -12,12 +12,16 @@ import org.jabref.logic.openoffice.oocsltext.CSLFormatUtils;
 public class ModifyCSLBibliographyPropertiesDialogViewModel {
 
     private final StringProperty cslBibliographyTitle = new SimpleStringProperty();
+
     private final StringProperty cslBibliographySelectedHeaderFormat = new SimpleStringProperty();
+
     private final StringProperty cslBibliographySelectedBodyFormat = new SimpleStringProperty();
-    private final ReadOnlyListProperty<String> headerFormatListProperty =
-            new ReadOnlyListWrapper<>(FXCollections.observableArrayList(CSLFormatUtils.BIBLIOGRAPHY_TITLE_FORMATS));
-    private final ReadOnlyListProperty<String> bodyFormatListProperty =
-            new ReadOnlyListWrapper<>(FXCollections.observableArrayList(CSLFormatUtils.BIBLIOGRAPHY_BODY_FORMATS));
+
+    private final ReadOnlyListProperty<String> headerFormatListProperty = new ReadOnlyListWrapper<>(
+            FXCollections.observableArrayList(CSLFormatUtils.BIBLIOGRAPHY_TITLE_FORMATS));
+
+    private final ReadOnlyListProperty<String> bodyFormatListProperty = new ReadOnlyListWrapper<>(
+            FXCollections.observableArrayList(CSLFormatUtils.BIBLIOGRAPHY_BODY_FORMATS));
 
     private final OpenOfficePreferences openOfficePreferences;
 
@@ -54,4 +58,5 @@ public class ModifyCSLBibliographyPropertiesDialogViewModel {
     public ReadOnlyListProperty<String> bodyFormatListProperty() {
         return bodyFormatListProperty;
     }
+
 }

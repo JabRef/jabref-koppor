@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Server {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     /// Entry point for the CLI
@@ -36,12 +37,15 @@ public class Server {
         List<Path> filesToServeList;
         if (files == null || files.isEmpty()) {
             LOGGER.debug("No library available to serve, serving the demo library...");
-            // Server.class.getResource("...") is always null here, thus trying relative path
-            // Path bibPath = Path.of(Server.class.getResource("http-server-demo.bib").toURI());
+            // Server.class.getResource("...") is always null here, thus trying relative
+            // path
+            // Path bibPath =
+            // Path.of(Server.class.getResource("http-server-demo.bib").toURI());
             Path bibPath = Path.of("src/main/resources/org/jabref/http/server/http-server-demo.bib").toAbsolutePath();
             LOGGER.debug("Location of demo library: {}", bibPath);
             filesToServeList = List.of(bibPath);
-        } else {
+        }
+        else {
             filesToServeList = files;
         }
 
@@ -64,7 +68,8 @@ public class Server {
                 LOGGER.debug("Shutting down jabsrv...");
                 httpServer.shutdownNow();
                 LOGGER.debug("Done, exit.");
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.error("Could not shut down server", e);
             }
         }));
@@ -72,7 +77,7 @@ public class Server {
         return httpServer;
     }
 
-    ///  Entry point for the GUI
+    /// Entry point for the GUI
     public HttpServer run(SrvStateManager srvStateManager, URI uri) {
         FilesToServe filesToServe = new FilesToServe();
 
@@ -101,9 +106,7 @@ public class Server {
         resourceConfig.register(GlobalExceptionMapper.class);
 
         LOGGER.debug("Starting HTTP server...");
-        final HttpServer httpServer =
-                GrizzlyHttpServerFactory
-                        .createHttpServer(uri, resourceConfig, serviceLocator);
+        final HttpServer httpServer = GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig, serviceLocator);
 
         return httpServer;
     }
@@ -119,24 +122,22 @@ public class Server {
         if (Files.exists(serverKeyStore)) {
             sslContextConfig.setKeyStoreFile(serverKeyStore.toString());
             sslContextConfig.setKeyStorePass("changeit");
-        } else {
+        }
+        else {
             LOGGER.error("Could not find server key store {}.", serverKeyStore);
-            LOGGER.error("One create one by following the steps described in [http-server.md](/docs/code-howtos/http-server.md), which is rendered at <https://devdocs.jabref.org/code-howtos/http-server.html>");
+            LOGGER.error(
+                    "One create one by following the steps described in [http-server.md](/docs/code-howtos/http-server.md), which is rendered at <https://devdocs.jabref.org/code-howtos/http-server.html>");
         }
         return sslContextConfig.createSSLContext(false);
     }
 
-    @NonNull
-    private Path getSslCert() {
-        return Path.of(AppDirsFactory.getInstance()
-                                     .getUserDataDir(
-                                             OS.APP_DIR_APP_NAME,
-                                             "ssl",
-                                             OS.APP_DIR_APP_AUTHOR))
-                   .resolve("server.p12");
+    @NonNull private Path getSslCert() {
+        return Path.of(AppDirsFactory.getInstance().getUserDataDir(OS.APP_DIR_APP_NAME, "ssl", OS.APP_DIR_APP_AUTHOR))
+            .resolve("server.p12");
     }
 
     static void stopServer() {
         // serverInstance.stop();
     }
+
 }

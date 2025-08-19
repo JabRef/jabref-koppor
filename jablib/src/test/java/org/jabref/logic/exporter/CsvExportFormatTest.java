@@ -28,17 +28,13 @@ import static org.mockito.Mockito.mock;
 public class CsvExportFormatTest {
 
     public BibDatabaseContext databaseContext;
+
     private Exporter exportFormat;
 
     @BeforeEach
     void setUp() {
-        exportFormat = new TemplateExporter(
-                "OpenOffice/LibreOffice CSV",
-                "oocsv",
-                "openoffice-csv",
-                "openoffice",
-                StandardFileType.CSV,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
+        exportFormat = new TemplateExporter("OpenOffice/LibreOffice CSV", "oocsv", "openoffice-csv", "openoffice",
+                StandardFileType.CSV, mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 SaveOrder.getDefaultSaveOrder());
 
         databaseContext = new BibDatabaseContext();
@@ -50,7 +46,8 @@ public class CsvExportFormatTest {
     }
 
     @Test
-    void performExportForSingleAuthor(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleAuthor(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
 
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Someone, Van Something");
@@ -66,10 +63,12 @@ public class CsvExportFormatTest {
     }
 
     @Test
-    void performExportForMultipleAuthors(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForMultipleAuthors(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
 
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "von Neumann, John and Smith, John and Black Brown, Peter");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR,
+                "von Neumann, John and Smith, John and Black Brown, Peter");
         List<BibEntry> entries = List.of(entry);
 
         exportFormat.export(databaseContext, path, entries);
@@ -82,7 +81,8 @@ public class CsvExportFormatTest {
     }
 
     @Test
-    void performExportForSingleEditor(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleEditor(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         File tmpFile = path.toFile();
         BibEntry entry = new BibEntry().withField(StandardField.EDITOR, "Someone, Van Something");
@@ -98,11 +98,12 @@ public class CsvExportFormatTest {
     }
 
     @Test
-    void performExportForMultipleEditors(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForMultipleEditors(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         File tmpFile = path.toFile();
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.EDITOR, "von Neumann, John and Smith, John and Black Brown, Peter");
+        BibEntry entry = new BibEntry().withField(StandardField.EDITOR,
+                "von Neumann, John and Smith, John and Black Brown, Peter");
         List<BibEntry> entries = List.of(entry);
 
         exportFormat.export(databaseContext, tmpFile.toPath(), entries);
@@ -113,4 +114,5 @@ public class CsvExportFormatTest {
                 "10,\"\",\"\",\"\",\"\",\"\",,,\"\",\"\",,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"von Neumann, John; Smith, John; Black Brown, Peter\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"",
                 lines.get(1));
     }
+
 }

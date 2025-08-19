@@ -11,7 +11,9 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 abstract class FullyIngestedDocumentsTrackerTest {
-    @TempDir Path tempDir;
+
+    @TempDir
+    Path tempDir;
 
     private FullyIngestedDocumentsTracker tracker;
 
@@ -49,4 +51,5 @@ abstract class FullyIngestedDocumentsTrackerTest {
         reopen();
         assertEquals(Optional.empty(), tracker.getIngestedDocumentModificationTimeInSeconds("link"));
     }
+
 }

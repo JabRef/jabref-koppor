@@ -8,6 +8,7 @@ import org.jabref.logic.util.NotificationService;
 import static org.mockito.Mockito.mock;
 
 class MVStoreChatHistoryStorageTest extends ChatHistoryStorageTest {
+
     @Override
     ChatHistoryStorage makeStorage(Path path) {
         return new MVStoreChatHistoryStorage(path, mock(NotificationService.class));
@@ -17,4 +18,5 @@ class MVStoreChatHistoryStorageTest extends ChatHistoryStorageTest {
     void close(ChatHistoryStorage storage) {
         ((MVStoreChatHistoryStorage) storage).close();
     }
+
 }

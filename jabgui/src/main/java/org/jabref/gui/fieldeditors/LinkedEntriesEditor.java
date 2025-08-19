@@ -40,38 +40,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LinkedEntriesEditor extends HBox implements FieldEditorFX {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedEntriesEditor.class);
+
     private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass("focused");
 
-    @FXML private LinkedEntriesEditorViewModel viewModel;
-    @FXML private TagsField<ParsedEntryLink> entryLinkField;
+    @FXML
+    private LinkedEntriesEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private UndoManager undoManager;
-    @Inject private StateManager stateManager;
+    @FXML
+    private TagsField<ParsedEntryLink> entryLinkField;
 
-    public LinkedEntriesEditor(Field field, BibDatabaseContext databaseContext, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private DialogService dialogService;
 
-        this.viewModel = new LinkedEntriesEditorViewModel(field, suggestionProvider, databaseContext, fieldCheckers, undoManager, stateManager);
+    @Inject
+    private ClipBoardManager clipBoardManager;
 
-        entryLinkField.setCellFactory(new ViewModelListCellFactory<ParsedEntryLink>().withText(ParsedEntryLink::getKey));
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private StateManager stateManager;
+
+    public LinkedEntriesEditor(Field field, BibDatabaseContext databaseContext,
+            SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers) {
+        ViewLoader.view(this).root(this).load();
+
+        this.viewModel = new LinkedEntriesEditorViewModel(field, suggestionProvider, databaseContext, fieldCheckers,
+                undoManager, stateManager);
+
+        entryLinkField
+            .setCellFactory(new ViewModelListCellFactory<ParsedEntryLink>().withText(ParsedEntryLink::getKey));
         entryLinkField.setSuggestionProvider(request -> viewModel.getSuggestions(request.getUserText()));
 
         entryLinkField.setTagViewFactory(this::createTag);
         entryLinkField.setConverter(viewModel.getStringConverter());
         entryLinkField.setNewItemProducer(searchText -> viewModel.getStringConverter().fromString(searchText));
-        entryLinkField.setMatcher((entryLink, searchText) -> entryLink.getKey().toLowerCase().startsWith(searchText.toLowerCase()));
+        entryLinkField.setMatcher(
+                (entryLink, searchText) -> entryLink.getKey().toLowerCase().startsWith(searchText.toLowerCase()));
         entryLinkField.setComparator(Comparator.comparing(ParsedEntryLink::getKey));
 
         entryLinkField.setShowSearchIcon(false);
         entryLinkField.setOnMouseClicked(event -> entryLinkField.getEditor().requestFocus());
         entryLinkField.getEditor().getStyleClass().clear();
         entryLinkField.getEditor().getStyleClass().add("tags-field-editor");
-        entryLinkField.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> entryLinkField.pseudoClassStateChanged(FOCUSED, newValue));
+        entryLinkField.getEditor()
+            .focusedProperty()
+            .addListener((observable, oldValue, newValue) -> entryLinkField.pseudoClassStateChanged(FOCUSED, newValue));
 
         String separator = EntryLinkList.SEPARATOR;
         entryLinkField.getEditor().setOnKeyReleased(event -> {
@@ -98,11 +114,11 @@ public class LinkedEntriesEditor extends HBox implements FieldEditorFX {
 
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, entryLink)),
-                factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, entryLink)),
-                factory.createMenuItem(StandardActions.DELETE, new TagContextAction(StandardActions.DELETE, entryLink))
-        );
+        contextMenu.getItems()
+            .addAll(factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, entryLink)),
+                    factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, entryLink)),
+                    factory.createMenuItem(StandardActions.DELETE,
+                            new TagContextAction(StandardActions.DELETE, entryLink)));
         tagLabel.setContextMenu(contextMenu);
         return tagLabel;
     }
@@ -122,7 +138,9 @@ public class LinkedEntriesEditor extends HBox implements FieldEditorFX {
     }
 
     private class TagContextAction extends SimpleCommand {
+
         private final StandardActions command;
+
         private final ParsedEntryLink entryLink;
 
         public TagContextAction(StandardActions command, ParsedEntryLink entryLink) {
@@ -144,11 +162,11 @@ public class LinkedEntriesEditor extends HBox implements FieldEditorFX {
                             JabRefDialogService.shortenDialogMessage(entryLink.getKey())));
                     entryLinkField.removeTags(entryLink);
                 }
-                case DELETE ->
-                        entryLinkField.removeTags(entryLink);
-                default ->
-                        LOGGER.info("Action {} not defined", command.getText());
+                case DELETE -> entryLinkField.removeTags(entryLink);
+                default -> LOGGER.info("Action {} not defined", command.getText());
             }
         }
+
     }
+
 }

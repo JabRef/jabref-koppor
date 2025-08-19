@@ -10,7 +10,9 @@ import javafx.beans.property.StringProperty;
 import org.jabref.model.entry.types.EntryType;
 
 public class CitationKeyPatternsPanelItemModel {
+
     private final ObjectProperty<EntryType> entryType = new SimpleObjectProperty<>();
+
     private final StringProperty pattern = new SimpleStringProperty("");
 
     public CitationKeyPatternsPanelItemModel(EntryType entryType, String pattern) {
@@ -44,4 +46,5 @@ public class CitationKeyPatternsPanelItemModel {
     public String toString() {
         return "[" + entryType.getValue().getName() + "," + pattern.getValue() + "]";
     }
+
 }

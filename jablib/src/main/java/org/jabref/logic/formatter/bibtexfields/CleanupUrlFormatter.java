@@ -13,7 +13,7 @@ import org.jabref.logic.l10n.Localization;
 /**
  * Cleanup URL link.
  * <p>
- *     Expose string representations URL links clean up logic.
+ * Expose string representations URL links clean up logic.
  * </p>
  */
 public class CleanupUrlFormatter extends Formatter {
@@ -36,12 +36,11 @@ public class CleanupUrlFormatter extends Formatter {
      * <p>
      * Method will also try to find a URL placed after "url=" or "to=".
      * <p>
-     * The conversion process is the same as executed by {@link URLDecoder} to try to
-     * take guarantees against code injections.
+     * The conversion process is the same as executed by {@link URLDecoder} to try to take
+     * guarantees against code injections.
      * <p>
-     * The plus sign is replaced by its correspondent code (%2b) to avoid the character
-     * to be replaced by a space during the decoding execution.
-     *
+     * The plus sign is replaced by its correspondent code (%2b) to avoid the character to
+     * be replaced by a space during the decoding execution.
      * @param url should not be null
      * @return the decoded URL as a String representation
      *
@@ -49,9 +48,7 @@ public class CleanupUrlFormatter extends Formatter {
      */
     @Override
     public String format(String url) {
-        String toDecode = Objects
-                .requireNonNull(url, "Null url")
-                .replaceAll("\\+", "%2b");
+        String toDecode = Objects.requireNonNull(url, "Null url").replaceAll("\\+", "%2b");
         Matcher matcher = PATTERN_URL.matcher(toDecode);
         if (matcher.find()) {
             return URLDecoder.decode(matcher.group(1), StandardCharsets.UTF_8);
@@ -66,10 +63,10 @@ public class CleanupUrlFormatter extends Formatter {
 
     @Override
     public String getExampleInput() {
-        return "https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=11&cad=" +
-               "rja&uact=8&ved=0ahUKEwjg3ZrB_ZPXAhVGuhoKHYdOBOg4ChAWCCYwAA&url=" +
-               "http%3A%2F%2Fwww.focus.de%2Fgesundheit%2Fratgeber%2Fherz%2Ftest%2" +
-               "Flebenserwartung-werden-sie-100-jahre-alt_aid_363828.html" +
-               "&usg=AOvVaw1G6m2jf-pTHYkXceii4hXU";
+        return "https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=11&cad="
+                + "rja&uact=8&ved=0ahUKEwjg3ZrB_ZPXAhVGuhoKHYdOBOg4ChAWCCYwAA&url="
+                + "http%3A%2F%2Fwww.focus.de%2Fgesundheit%2Fratgeber%2Fherz%2Ftest%2"
+                + "Flebenserwartung-werden-sie-100-jahre-alt_aid_363828.html" + "&usg=AOvVaw1G6m2jf-pTHYkXceii4hXU";
     }
+
 }

@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
  */
 @AllowedToUseStandardStreams("Used for debugging only")
 public class XMLUtil {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtil.class);
 
     private XMLUtil() {
@@ -46,7 +47,8 @@ public class XMLUtil {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(domSource, result);
             System.out.println(writer);
-        } catch (TransformerException ex) {
+        }
+        catch (TransformerException ex) {
             LOGGER.error("", ex);
         }
     }
@@ -56,9 +58,7 @@ public class XMLUtil {
     }
 
     /**
-     * Gets the content of a subnode.
-     * For example,
-     * <pre>{@code <item>
+     * Gets the content of a subnode. For example, <pre>{@code <item>
      *     <nodeName>content</nodeName>
      * </item>}</pre>
      */
@@ -70,14 +70,14 @@ public class XMLUtil {
         NodeList metadata = ((Element) item).getElementsByTagName(nodeName);
         if (metadata.getLength() == 1) {
             return Optional.ofNullable(metadata.item(0).getTextContent());
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }
 
     /**
-     * Gets the content of an attribute.
-     * For example,
+     * Gets the content of an attribute. For example,
      * {@code <item attributeName="content" />}
      */
     public static Optional<String> getAttributeContent(Node item, String attributeName) {
@@ -86,8 +86,7 @@ public class XMLUtil {
     }
 
     /**
-     * Gets a list of subnodes with the specified tag name.
-     * For example,
+     * Gets a list of subnodes with the specified tag name. For example,
      * <pre>{@code <item>
      *     <node>first hit</node>
      *     <node>second hit</node>
@@ -102,8 +101,7 @@ public class XMLUtil {
     }
 
     /**
-     * Gets a the first subnode with the specified tag name.
-     * For example,
+     * Gets a the first subnode with the specified tag name. For example,
      * <pre>{@code <item>
      *     <node>hit</node>
      *     <node>second hit, but not returned</node>
@@ -114,7 +112,9 @@ public class XMLUtil {
     }
 
     // Wrapper to make NodeList iterable,
-    // taken from <a href="http://stackoverflow.com/questions/19589231/can-i-iterate-through-a-nodelist-using-for-each-in-java">StackOverflow Answer</a>.
+    // taken from <a
+    // href="http://stackoverflow.com/questions/19589231/can-i-iterate-through-a-nodelist-using-for-each-in-java">StackOverflow
+    // Answer</a>.
     private static final class NodeListWrapper extends AbstractList<Node> implements RandomAccess {
 
         private final NodeList list;
@@ -132,5 +132,7 @@ public class XMLUtil {
         public int size() {
             return list.getLength();
         }
+
     }
+
 }

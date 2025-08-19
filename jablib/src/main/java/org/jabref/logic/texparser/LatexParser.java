@@ -14,7 +14,6 @@ public interface LatexParser {
 
     /**
      * For testing purposes.
-     *
      * @param citeString String that contains a citation
      * @return a LatexParserResult, where Path is "" and lineNumber is 1
      */
@@ -22,17 +21,18 @@ public interface LatexParser {
 
     /**
      * Parse a single LaTeX file.
-     *
      * @param latexFile Path to a LaTeX file
-     * @return Optional LatexParserResult, which contains all data related to the bibliographic entries, or empty if the file does not exist
+     * @return Optional LatexParserResult, which contains all data related to the
+     * bibliographic entries, or empty if the file does not exist
      */
     Optional<LatexParserResult> parse(Path latexFile);
 
     /**
      * Parse a list of LaTeX files.
-     *
      * @param latexFiles List of Path objects linked to a LaTeX file
-     * @return a LatexParserResults, which contains all data related to the bibliographic entries
+     * @return a LatexParserResults, which contains all data related to the bibliographic
+     * entries
      */
     LatexParserResults parse(List<Path> latexFiles);
+
 }

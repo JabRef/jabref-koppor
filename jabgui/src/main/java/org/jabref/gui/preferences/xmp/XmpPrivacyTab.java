@@ -30,22 +30,34 @@ import jakarta.inject.Inject;
 
 public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewModel> implements PreferencesTab {
 
-    @FXML private CheckBox enableXmpFilter;
-    @FXML private TableView<Field> filterList;
-    @FXML private TableColumn<Field, Field> fieldColumn;
-    @FXML private TableColumn<Field, Field> actionsColumn;
-    @FXML private ComboBox<Field> addFieldName;
-    @FXML private Button addField;
+    @FXML
+    private CheckBox enableXmpFilter;
 
-    @Inject private CliPreferences preferences;
-    @Inject private UndoManager undoManager;
+    @FXML
+    private TableView<Field> filterList;
+
+    @FXML
+    private TableColumn<Field, Field> fieldColumn;
+
+    @FXML
+    private TableColumn<Field, Field> actionsColumn;
+
+    @FXML
+    private ComboBox<Field> addFieldName;
+
+    @FXML
+    private Button addField;
+
+    @Inject
+    private CliPreferences preferences;
+
+    @Inject
+    private UndoManager undoManager;
 
     private final ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
 
     public XmpPrivacyTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -65,18 +77,17 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         fieldColumn.setReorderable(false);
         fieldColumn.setCellValueFactory(cellData -> BindingsHelper.constantOf(cellData.getValue()));
         new ValueTableCellFactory<Field, Field>()
-                .withText(item -> FieldsUtil.getNameWithType(item, preferences, undoManager))
-                .install(fieldColumn);
+            .withText(item -> FieldsUtil.getNameWithType(item, preferences, undoManager))
+            .install(fieldColumn);
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setCellValueFactory(cellData -> BindingsHelper.constantOf(cellData.getValue()));
         new ValueTableCellFactory<Field, Field>()
-                .withGraphic(item -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withTooltip(item -> Localization.lang("Remove") + " " + item.getName())
-                .withOnMouseClickedEvent(
-                        item -> evt -> viewModel.removeFilter(filterList.getFocusModel().getFocusedItem()))
-                .install(actionsColumn);
+            .withGraphic(item -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withTooltip(item -> Localization.lang("Remove") + " " + item.getName())
+            .withOnMouseClickedEvent(item -> evt -> viewModel.removeFilter(filterList.getFocusModel().getFocusedItem()))
+            .install(actionsColumn);
 
         filterList.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.DELETE) {
@@ -89,8 +100,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
 
         addFieldName.setEditable(true);
         new ViewModelListCellFactory<Field>()
-                .withText(item -> FieldsUtil.getNameWithType(item, preferences, undoManager))
-                .install(addFieldName);
+            .withText(item -> FieldsUtil.getNameWithType(item, preferences, undoManager))
+            .install(addFieldName);
         addFieldName.itemsProperty().bind(viewModel.availableFieldsProperty());
         addFieldName.valueProperty().bindBidirectional(viewModel.addFieldNameProperty());
         addFieldName.setConverter(FieldsUtil.FIELD_STRING_CONVERTER);
@@ -102,10 +113,12 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         });
 
         validationVisualizer.setDecoration(new IconValidationDecorator());
-        Platform.runLater(() -> validationVisualizer.initVisualization(viewModel.xmpFilterListValidationStatus(), filterList));
+        Platform.runLater(
+                () -> validationVisualizer.initVisualization(viewModel.xmpFilterListValidationStatus(), filterList));
     }
 
     public void addField() {
         viewModel.addField();
     }
+
 }

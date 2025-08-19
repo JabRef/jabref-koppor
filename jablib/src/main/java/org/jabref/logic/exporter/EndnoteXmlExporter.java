@@ -60,8 +60,8 @@ public class EndnoteXmlExporter extends Exporter {
     }
 
     /**
-     * Contains the mapping of all fields not explicitly handled by mapX methods.
-     * We need a fixed order here, so we use a SequencedMap
+     * Contains the mapping of all fields not explicitly handled by mapX methods. We need
+     * a fixed order here, so we use a SequencedMap
      */
     private static final SequencedMap<Field, String> STANDARD_FIELD_MAPPING = new LinkedHashMap<>();
 
@@ -106,7 +106,8 @@ public class EndnoteXmlExporter extends Exporter {
     }
 
     @Override
-    public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws ParserConfigurationException, TransformerException {
+    public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries)
+            throws ParserConfigurationException, TransformerException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(file);
         Objects.requireNonNull(entries);
@@ -194,7 +195,8 @@ public class EndnoteXmlExporter extends Exporter {
             Element keywordsElement = document.createElement("keywords");
             entry.getResolvedKeywords(bibEntryPreferences.getKeywordSeparator(), bibDatabase).forEach(keyword -> {
                 Element keywordElement = document.createElement("keyword");
-                // Hierarchical keywords are separated by the '>' character. See {@link } for details.
+                // Hierarchical keywords are separated by the '>' character. See {@link }
+                // for details.
                 keywordElement.setTextContent(keyword.get());
                 keywordsElement.appendChild(keywordElement);
             });
@@ -243,7 +245,8 @@ public class EndnoteXmlExporter extends Exporter {
             yearElement.setTextContent(day);
             datesElement.appendChild(yearElement);
         });
-        // We need to use getField here - getFieldOrAlias for Date tries to convert year, month, and day to a date, which we do not want
+        // We need to use getField here - getFieldOrAlias for Date tries to convert year,
+        // month, and day to a date, which we do not want
         entry.getField(StandardField.DATE).ifPresent(date -> {
             Element pubDatesElement = document.createElement("pub-dates");
             Element dateElement = document.createElement("date");
@@ -265,7 +268,8 @@ public class EndnoteXmlExporter extends Exporter {
         recordElement.appendChild(refTypeElement);
     }
 
-    private static void createMetaInformationElements(BibDatabaseContext databaseContext, Document document, Element recordElement) {
+    private static void createMetaInformationElements(BibDatabaseContext databaseContext, Document document,
+            Element recordElement) {
         Element databaseElement = document.createElement("database");
         databaseElement.setAttribute("name", "MyLibrary");
         String name = databaseContext.getDatabasePath().map(Path::getFileName).map(Path::toString).orElse("MyLibrary");
@@ -280,8 +284,10 @@ public class EndnoteXmlExporter extends Exporter {
 
     private static void mapAuthorAndEditor(BibEntry entry, Document document, Element recordElement) {
         Element contributorsElement = document.createElement("contributors");
-        entry.getField(StandardField.AUTHOR).ifPresent(authors -> addPersons(authors, document, contributorsElement, "authors"));
-        entry.getField(StandardField.EDITOR).ifPresent(editors -> addPersons(editors, document, contributorsElement, "secondary-authors"));
+        entry.getField(StandardField.AUTHOR)
+            .ifPresent(authors -> addPersons(authors, document, contributorsElement, "authors"));
+        entry.getField(StandardField.EDITOR)
+            .ifPresent(editors -> addPersons(editors, document, contributorsElement, "secondary-authors"));
         if (contributorsElement.hasChildNodes()) {
             recordElement.appendChild(contributorsElement);
         }
@@ -306,4 +312,5 @@ public class EndnoteXmlExporter extends Exporter {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         return transformer;
     }
+
 }

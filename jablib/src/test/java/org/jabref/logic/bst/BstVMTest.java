@@ -19,15 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BstVMTest {
 
     public static BibEntry defaultTestEntry() {
-        return new BibEntry(StandardEntryType.InProceedings)
-                .withCitationKey("canh05")
-                .withField(StandardField.AUTHOR, "Crowston, K. and Annabi, H. and Howison, J. and Masango, C.")
-                .withField(StandardField.TITLE, "Effective work practices for floss development: A model and propositions")
-                .withField(StandardField.BOOKTITLE, "Hawaii International Conference On System Sciences (HICSS)")
-                .withField(StandardField.YEAR, "2005")
-                .withField(StandardField.OWNER, "oezbek")
-                .withField(StandardField.TIMESTAMP, "2006.05.29")
-                .withField(StandardField.URL, "http://james.howison.name/publications.html");
+        return new BibEntry(StandardEntryType.InProceedings).withCitationKey("canh05")
+            .withField(StandardField.AUTHOR, "Crowston, K. and Annabi, H. and Howison, J. and Masango, C.")
+            .withField(StandardField.TITLE, "Effective work practices for floss development: A model and propositions")
+            .withField(StandardField.BOOKTITLE, "Hawaii International Conference On System Sciences (HICSS)")
+            .withField(StandardField.YEAR, "2005")
+            .withField(StandardField.OWNER, "oezbek")
+            .withField(StandardField.TIMESTAMP, "2006.05.29")
+            .withField(StandardField.URL, "http://james.howison.name/publications.html");
     }
 
     @Test
@@ -38,9 +37,7 @@ public class BstVMTest {
         String expected = "\\begin{thebibliography}{1}\\bibitem{canh05}K.~Crowston, H.~Annabi, J.~Howison, and C.~Masango.\\newblock Effective work practices for floss development: A model and  propositions.\\newblock In {\\em Hawaii International Conference On System Sciences (HICSS)}, 2005.\\end{thebibliography}";
         String result = vm.render(testEntries);
 
-        assertEquals(
-                expected.replaceAll("\\s", ""),
-                result.replaceAll("\\s", ""));
+        assertEquals(expected.replaceAll("\\s", ""), result.replaceAll("\\s", ""));
     }
 
     @Test
@@ -53,9 +50,7 @@ public class BstVMTest {
                 """;
         String result = vm.render(testEntries);
 
-        assertEquals(
-                expected.replaceAll("\\s", ""),
-                result.replaceAll("\\s", ""));
+        assertEquals(expected.replaceAll("\\s", ""), result.replaceAll("\\s", ""));
     }
 
     @Test
@@ -98,8 +93,7 @@ public class BstVMTest {
 
         vm.render(testEntries);
 
-        assertEquals(
-                "Effective work practices for floss development: A model and propositions",
+        assertEquals("Effective work practices for floss development: A model and propositions",
                 vm.latestContext.stack().pop());
     }
 
@@ -143,11 +137,8 @@ public class BstVMTest {
     @Test
     void hyphenatedName() throws URISyntaxException, IOException {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
-        List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("canh05")
-                        .withField(StandardField.AUTHOR, "Jean-Paul Sartre")
-        );
+        List<BibEntry> testEntries = List.of(new BibEntry(StandardEntryType.Article).withCitationKey("canh05")
+            .withField(StandardField.AUTHOR, "Jean-Paul Sartre"));
 
         String result = vm.render(testEntries);
 
@@ -233,4 +224,5 @@ public class BstVMTest {
 
         assertEquals("colorful morning", vm.latestContext.stack().pop());
     }
+
 }

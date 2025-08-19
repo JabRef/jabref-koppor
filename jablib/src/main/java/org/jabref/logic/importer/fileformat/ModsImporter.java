@@ -44,15 +44,20 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Importer for the MODS format.<br>
- * More details about the format can be found here <a href="http://www.loc.gov/standards/mods/">http://www.loc.gov/standards/mods/</a>. <br>
- * The newest xml schema can also be found here <a href="www.loc.gov/standards/mods/mods-schemas.html.">www.loc.gov/standards/mods/mods-schemas.html.</a>.
+ * More details about the format can be found here
+ * <a href="http://www.loc.gov/standards/mods/">http://www.loc.gov/standards/mods/</a>.
+ * <br>
+ * The newest xml schema can also be found here <a href=
+ * "www.loc.gov/standards/mods/mods-schemas.html.">www.loc.gov/standards/mods/mods-schemas.html.</a>.
  */
 public class ModsImporter extends Importer implements Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModsImporter.class);
+
     private static final Pattern MODS_PATTERN = Pattern.compile("<mods .*>");
 
     private final String keywordSeparator;
+
     private final XMLInputFactory xmlInputFactory;
 
     public ModsImporter(ImportFormatPreferences importFormatPreferences) {
@@ -77,7 +82,8 @@ public class ModsImporter extends Importer implements Parser {
         try {
             XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(input);
             parseModsCollection(bibItems, reader);
-        } catch (XMLStreamException e) {
+        }
+        catch (XMLStreamException e) {
             LOGGER.debug("could not parse document", e);
             return ParserResult.fromError(e);
         }
@@ -105,7 +111,8 @@ public class ModsImporter extends Importer implements Parser {
         }
     }
 
-    private void parseModsGroup(Map<Field, String> fields, XMLStreamReader reader, BibEntry entry) throws XMLStreamException {
+    private void parseModsGroup(Map<Field, String> fields, XMLStreamReader reader, BibEntry entry)
+            throws XMLStreamException {
         // These elements (subject, keywords and authors) can appear more than once,
         // so they are collected in lists
         List<String> notes = new ArrayList<>();
@@ -165,10 +172,10 @@ public class ModsImporter extends Importer implements Parser {
     }
 
     /**
-     * Parses information from the RelatedModsGroup. It has the same elements as ModsGroup.
-     * But information like volume, issue and the pages appear here instead of in the ModsGroup.
-     * Also, if there appears a title field, then this indicates that is the name of the journal
-     * which the article belongs to.
+     * Parses information from the RelatedModsGroup. It has the same elements as
+     * ModsGroup. But information like volume, issue and the pages appear here instead of
+     * in the ModsGroup. Also, if there appears a title field, then this indicates that is
+     * the name of the journal which the article belongs to.
      */
     private void parseRelatedItem(XMLStreamReader reader, Map<Field, String> fields) throws XMLStreamException {
         while (reader.hasNext()) {
@@ -229,10 +236,12 @@ public class ModsImporter extends Importer implements Parser {
 
         if (!total.isBlank()) {
             putIfValueNotNull(fields, StandardField.PAGES, total);
-        } else if (!startPage.isBlank()) {
+        }
+        else if (!startPage.isBlank()) {
             putIfValueNotNull(fields, StandardField.PAGES, startPage);
             if (!endPage.isBlank()) {
-                // if end appears, then there has to be a start page appeared, so get it and put it together with
+                // if end appears, then there has to be a start page appeared, so get it
+                // and put it together with
                 // the end page
                 fields.put(StandardField.PAGES, startPage + "-" + endPage);
             }
@@ -261,7 +270,8 @@ public class ModsImporter extends Importer implements Parser {
         }
     }
 
-    private void parseName(XMLStreamReader reader, Map<Field, String> fields, List<String> authors) throws XMLStreamException {
+    private void parseName(XMLStreamReader reader, Map<Field, String> fields, List<String> authors)
+            throws XMLStreamException {
         List<Name> names = new ArrayList<>();
 
         while (reader.hasNext()) {
@@ -273,7 +283,8 @@ public class ModsImporter extends Importer implements Parser {
                     if (isCharacterXMLEvent(reader)) {
                         putIfValueNotNull(fields, new UnknownField("affiliation"), reader.getText());
                     }
-                } else if ("namePart".equals(reader.getName().getLocalPart())) {
+                }
+                else if ("namePart".equals(reader.getName().getLocalPart())) {
                     String type = reader.getAttributeValue(null, "type");
                     reader.next();
                     if (isCharacterXMLEvent(reader)) {
@@ -340,7 +351,8 @@ public class ModsImporter extends Importer implements Parser {
         putIfListIsNotEmpty(fields, places, StandardField.ADDRESS, ", ");
     }
 
-    private void parseSubject(XMLStreamReader reader, Map<Field, String> fields, List<String> keywords) throws XMLStreamException {
+    private void parseSubject(XMLStreamReader reader, Map<Field, String> fields, List<String> keywords)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             reader.next();
 
@@ -387,7 +399,8 @@ public class ModsImporter extends Importer implements Parser {
                     if (isCharacterXMLEvent(reader)) {
                         recordContents.addFirst(reader.getText());
                     }
-                } else if ("languageTerm".equals(reader.getName().getLocalPart())) {
+                }
+                else if ("languageTerm".equals(reader.getName().getLocalPart())) {
                     reader.next();
                     if (isCharacterXMLEvent(reader)) {
                         languages.add(reader.getText());
@@ -453,7 +466,8 @@ public class ModsImporter extends Importer implements Parser {
                     if (isCharacterXMLEvent(reader)) {
                         locations.add(reader.getText());
                     }
-                } else if ("url".equals(reader.getName().getLocalPart())) {
+                }
+                else if ("url".equals(reader.getName().getLocalPart())) {
                     reader.next();
                     if (isCharacterXMLEvent(reader)) {
                         urls.add(reader.getText());
@@ -484,7 +498,8 @@ public class ModsImporter extends Importer implements Parser {
         String type = identifier.type();
         if ("citekey".equals(type) && entry.getCitationKey().isEmpty()) {
             entry.setCitationKey(identifier.value());
-        } else if (!"local".equals(type) && !"citekey".equals(type)) {
+        }
+        else if (!"local".equals(type) && !"citekey".equals(type)) {
             // put all identifiers (doi, issn, isbn,...) except of local and citekey
             putIfValueNotNull(fields, FieldFactory.parseField(identifier.type()), identifier.value());
         }
@@ -496,23 +511,24 @@ public class ModsImporter extends Importer implements Parser {
             switch (elementName) {
                 case "dateIssued" -> {
                     optionalParsedDate
-                            .ifPresent(parsedDate -> fields.put(StandardField.DATE, parsedDate.getNormalized()));
+                        .ifPresent(parsedDate -> fields.put(StandardField.DATE, parsedDate.getNormalized()));
 
                     optionalParsedDate.flatMap(Date::getYear)
-                            .ifPresent(year -> fields.put(StandardField.YEAR, year.toString()));
+                        .ifPresent(year -> fields.put(StandardField.YEAR, year.toString()));
 
                     optionalParsedDate.flatMap(Date::getMonth)
-                            .ifPresent(month -> fields.put(StandardField.MONTH, month.getJabRefFormat()));
+                        .ifPresent(month -> fields.put(StandardField.MONTH, month.getJabRefFormat()));
                 }
                 case "dateCreated" -> {
-                    // If there was no year in date issued, then take the year from date created
+                    // If there was no year in date issued, then take the year from date
+                    // created
                     fields.computeIfAbsent(StandardField.YEAR, k -> date.substring(0, 4));
                     fields.put(new UnknownField("created"), date);
                 }
                 case "dateCaptured" -> optionalParsedDate
-                        .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
+                    .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
                 case "dateModified" -> optionalParsedDate
-                        .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
+                    .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
             }
         }
     }
@@ -535,20 +551,25 @@ public class ModsImporter extends Importer implements Parser {
                 String namePartValue = name.value();
                 namePartValue = namePartValue.replaceAll(",$", "");
                 authors.add(namePartValue);
-            } else if ("family".equals(type) && (name.value() != null)) {
-                // family should come first, so if family appears we can set the author then comes before
-                // we have to check if forename and family name are not empty in case it's the first author
+            }
+            else if ("family".equals(type) && (name.value() != null)) {
+                // family should come first, so if family appears we can set the author
+                // then comes before
+                // we have to check if forename and family name are not empty in case it's
+                // the first author
                 if (!foreName.isEmpty() && !familyName.isEmpty()) {
                     // now set and add the old author
                     author = familyName + ", " + Joiner.on(" ").join(foreName);
                     authors.add(author);
                     // remove old forenames
                     foreName.clear();
-                } else if (foreName.isEmpty() && !familyName.isEmpty()) {
+                }
+                else if (foreName.isEmpty() && !familyName.isEmpty()) {
                     authors.add(familyName);
                 }
                 familyName = name.value();
-            } else if ("given".equals(type) && (name.value() != null)) {
+            }
+            else if ("given".equals(type) && (name.value() != null)) {
                 foreName.add(name.value());
             }
         }
@@ -558,7 +579,8 @@ public class ModsImporter extends Importer implements Parser {
             author = familyName + ", " + Joiner.on(" ").join(foreName);
             authors.add(author.trim());
             foreName.clear();
-        } else if (foreName.isEmpty() && !familyName.isEmpty()) {
+        }
+        else if (foreName.isEmpty() && !familyName.isEmpty()) {
             authors.add(familyName.trim());
         }
     }
@@ -610,10 +632,14 @@ public class ModsImporter extends Importer implements Parser {
     @Override
     public List<BibEntry> parseEntries(InputStream inputStream) throws ParseException {
         try {
-            return importDatabase(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))).getDatabase().getEntries();
-        } catch (IOException e) {
+            return importDatabase(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
+                .getDatabase()
+                .getEntries();
+        }
+        catch (IOException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
         return List.of();
     }
+
 }

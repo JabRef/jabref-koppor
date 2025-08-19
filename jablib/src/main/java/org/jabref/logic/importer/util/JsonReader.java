@@ -17,8 +17,8 @@ public class JsonReader {
 
     /**
      * Converts the given input stream into a {@link JSONObject}.
-     *
-     * @return A {@link JSONObject}. An empty JSON object is returned in the case an empty stream is passed.
+     * @return A {@link JSONObject}. An empty JSON object is returned in the case an empty
+     * stream is passed.
      */
     public static JSONObject toJsonObject(InputStream inputStream) throws ParseException {
         try {
@@ -28,7 +28,8 @@ public class JsonReader {
                 return new JSONObject();
             }
             return new JSONObject(inputStr);
-        } catch (IOException | JSONException e) {
+        }
+        catch (IOException | JSONException e) {
             throw new ParseException(e);
         }
     }
@@ -40,8 +41,10 @@ public class JsonReader {
                 return new JSONArray();
             }
             return new JSONArray(inpStr);
-        } catch (IOException | JSONException e) {
+        }
+        catch (IOException | JSONException e) {
             throw new ParseException(e);
         }
     }
+
 }

@@ -44,4 +44,5 @@ public class BvbFetcher implements SearchBasedParserFetcher {
     public Parser getParser() {
         return new MarcXmlParser();
     }
+
 }

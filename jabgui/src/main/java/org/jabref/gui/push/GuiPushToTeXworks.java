@@ -24,4 +24,5 @@ public class GuiPushToTeXworks extends PushToTeXworks implements GuiPushToApplic
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

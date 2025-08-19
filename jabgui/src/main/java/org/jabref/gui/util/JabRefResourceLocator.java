@@ -18,4 +18,5 @@ public class JabRefResourceLocator implements ResourceLocator {
 
         return Localization.getMessages();
     }
+
 }

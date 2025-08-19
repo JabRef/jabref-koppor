@@ -36,11 +36,17 @@ import static org.mockito.Mockito.mock;
 class BackupManagerDiscardedTest {
 
     private BibDatabaseContext bibDatabaseContext;
+
     private BackupManager backupManager;
+
     private Path testBib;
+
     private SelfContainedSaveConfiguration saveConfiguration;
+
     private CliPreferences preferences;
+
     private BibEntryTypesManager bibEntryTypesManager;
+
     private Path backupDir;
 
     @BeforeEach
@@ -54,15 +60,18 @@ class BackupManagerDiscardedTest {
         bibDatabaseContext.setDatabasePath(testBib);
 
         bibEntryTypesManager = new BibEntryTypesManager();
-        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false,
+                BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
 
         saveDatabase();
 
-        // We need a real CoarseChangeFilter to ensure that the BackupManager works correctly
+        // We need a real CoarseChangeFilter to ensure that the BackupManager works
+        // correctly
         CoarseChangeFilter coarseChangeFilter = new CoarseChangeFilter(bibDatabaseContext);
 
-        backupManager = BackupManager.start(mock(LibraryTab.class), bibDatabaseContext, coarseChangeFilter, bibEntryTypesManager, preferences);
+        backupManager = BackupManager.start(mock(LibraryTab.class), bibDatabaseContext, coarseChangeFilter,
+                bibEntryTypesManager, preferences);
 
         makeBackup();
     }
@@ -75,13 +84,9 @@ class BackupManagerDiscardedTest {
     private void saveDatabase() throws IOException {
         try (Writer writer = new AtomicFileWriter(testBib, StandardCharsets.UTF_8, false)) {
             BibWriter bibWriter = new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator());
-            new BibDatabaseWriter(
-                    bibWriter,
-                    saveConfiguration,
-                    preferences.getFieldPreferences(),
-                    preferences.getCitationKeyPatternPreferences(),
-                    bibEntryTypesManager)
-                    .saveDatabase(bibDatabaseContext);
+            new BibDatabaseWriter(bibWriter, saveConfiguration, preferences.getFieldPreferences(),
+                    preferences.getCitationKeyPatternPreferences(), bibEntryTypesManager)
+                .saveDatabase(bibDatabaseContext);
         }
     }
 
@@ -115,4 +120,5 @@ class BackupManagerDiscardedTest {
         backupManager.discardBackup(backupDir);
         assertFalse(BackupManager.backupFileDiffers(testBib, backupDir));
     }
+
 }

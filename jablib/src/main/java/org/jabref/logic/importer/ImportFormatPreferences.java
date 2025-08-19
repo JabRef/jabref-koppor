@@ -7,11 +7,7 @@ import org.jabref.logic.preferences.DOIPreferences;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
 
-public record ImportFormatPreferences(
-        BibEntryPreferences bibEntryPreferences,
-        CitationKeyPatternPreferences citationKeyPatternPreferences,
-        FieldPreferences fieldPreferences,
-        XmpPreferences xmpPreferences,
-        DOIPreferences doiPreferences,
-        GrobidPreferences grobidPreferences) {
+public record ImportFormatPreferences(BibEntryPreferences bibEntryPreferences,
+        CitationKeyPatternPreferences citationKeyPatternPreferences, FieldPreferences fieldPreferences,
+        XmpPreferences xmpPreferences, DOIPreferences doiPreferences, GrobidPreferences grobidPreferences) {
 }

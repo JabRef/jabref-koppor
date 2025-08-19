@@ -8,17 +8,13 @@ import org.jabref.model.entry.types.BiblatexSoftwareEntryType;
 
 public enum BiblatexSoftwareField implements Field {
 
-    HALID("hal_id"),
-    HALVERSION("hal_version"),
-    INTRODUCEDIN("introducedin"),
-    LICENSE("license"),
-    RELATEDTYPE("relatedtype"),
-    RELATEDSTRING("relatedstring"),
-    REPOSITORY("repository"),
-    SWHID("swhid");
+    HALID("hal_id"), HALVERSION("hal_version"), INTRODUCEDIN("introducedin"), LICENSE("license"),
+    RELATEDTYPE("relatedtype"), RELATEDSTRING("relatedstring"), REPOSITORY("repository"), SWHID("swhid");
 
     private final String name;
+
     private final String displayName;
+
     private final EnumSet<FieldProperty> properties;
 
     BiblatexSoftwareField(String name) {
@@ -50,8 +46,8 @@ public enum BiblatexSoftwareField implements Field {
             return Optional.empty();
         }
         return Arrays.stream(BiblatexSoftwareField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override
@@ -73,8 +69,10 @@ public enum BiblatexSoftwareField implements Field {
     public String getDisplayName() {
         if (displayName == null) {
             return Field.super.getDisplayName();
-        } else {
+        }
+        else {
             return displayName;
         }
     }
+
 }

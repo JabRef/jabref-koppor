@@ -25,4 +25,5 @@ class UiThreadChangeListener<T> implements ChangeListener<T> {
     public int hashCode() {
         return delegate.hashCode();
     }
+
 }

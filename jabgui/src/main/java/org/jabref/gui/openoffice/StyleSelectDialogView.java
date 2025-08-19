@@ -50,46 +50,90 @@ import org.controlsfx.control.textfield.CustomTextField;
 public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
     private final MenuItem edit = new MenuItem(Localization.lang("Edit"));
+
     private final MenuItem reload = new MenuItem(Localization.lang("Reload"));
 
     private final CSLStyleLoader cslStyleLoader;
+
     private final JStyleLoader jStyleLoader;
 
-    @FXML private Tab cslStyleTab;
-    @FXML private Tab jStyleTab;
+    @FXML
+    private Tab cslStyleTab;
+
+    @FXML
+    private Tab jStyleTab;
 
     // CSL Styles TableView
-    @FXML private TableView<CSLStyleSelectViewModel> cslStylesTable;
-    @FXML private TableColumn<CSLStyleSelectViewModel, String> cslNameColumn;
-    @FXML private TableColumn<CSLStyleSelectViewModel, String> cslPathColumn;
-    @FXML private TableColumn<CSLStyleSelectViewModel, Boolean> cslDeleteColumn;
+    @FXML
+    private TableView<CSLStyleSelectViewModel> cslStylesTable;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, String> cslNameColumn;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, String> cslPathColumn;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, Boolean> cslDeleteColumn;
 
     // JStyles TableView
-    @FXML private TableView<JStyleSelectViewModel> jStylesTable;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleNameColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleJournalColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleFileColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, Boolean> jStyleDeleteColumn;
+    @FXML
+    private TableView<JStyleSelectViewModel> jStylesTable;
 
-    @FXML private Button addCslButton;
-    @FXML private Button addJStyleButton;
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleNameColumn;
 
-    @FXML private VBox cslPreviewBox;
-    @FXML private VBox jStylePreviewBox;
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleJournalColumn;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleFileColumn;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, Boolean> jStyleDeleteColumn;
+
+    @FXML
+    private Button addCslButton;
+
+    @FXML
+    private Button addJStyleButton;
+
+    @FXML
+    private VBox cslPreviewBox;
+
+    @FXML
+    private VBox jStylePreviewBox;
 
     private final AtomicBoolean initialScrollPerformed = new AtomicBoolean(false);
-    @FXML private CustomTextField searchBox;
-    @FXML private TabPane tabPane;
-    @FXML private Label currentStyleNameLabel;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private ThemeManager themeManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private BibEntryTypesManager bibEntryTypesManager;
+    @FXML
+    private CustomTextField searchBox;
+
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private Label currentStyleNameLabel;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private ThemeManager themeManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private BibEntryTypesManager bibEntryTypesManager;
 
     private StyleSelectDialogViewModel viewModel;
+
     private PreviewViewer previewArticle;
+
     private PreviewViewer previewBook;
 
     /**
@@ -100,9 +144,7 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         this.cslStyleLoader = cslStyleLoader;
         this.jStyleLoader = jStyleLoader;
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -116,20 +158,26 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
     @FXML
     private void initialize() {
-        viewModel = new StyleSelectDialogViewModel(dialogService, cslStyleLoader, jStyleLoader, preferences, taskExecutor, bibEntryTypesManager);
+        viewModel = new StyleSelectDialogViewModel(dialogService, cslStyleLoader, jStyleLoader, preferences,
+                taskExecutor, bibEntryTypesManager);
 
         setupCslStylesTab();
         setupJStylesTab();
 
-        OOStyle currentStyle = preferences.getOpenOfficePreferences(Injector.instantiateModelOrService(JournalAbbreviationRepository.class)).getCurrentStyle();
+        OOStyle currentStyle = preferences
+            .getOpenOfficePreferences(Injector.instantiateModelOrService(JournalAbbreviationRepository.class))
+            .getCurrentStyle();
         if (currentStyle instanceof CitationStyle) {
             tabPane.getSelectionModel().select(cslStyleTab);
-        } else {
+        }
+        else {
             tabPane.getSelectionModel().select(jStyleTab);
         }
 
         viewModel.setSelectedTab(tabPane.getSelectionModel().getSelectedItem());
-        tabPane.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> viewModel.setSelectedTab(newValue));
+        tabPane.getSelectionModel()
+            .selectedItemProperty()
+            .addListener((_, _, newValue) -> viewModel.setSelectedTab(newValue));
 
         updateCurrentStyleLabel();
         addCslButton.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
@@ -144,26 +192,24 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         cslDeleteColumn.setCellValueFactory(cellData -> cellData.getValue().internalStyleProperty());
 
         new ValueTableCellFactory<CSLStyleSelectViewModel, Boolean>()
-                .withGraphic(internalStyle -> internalStyle ? null : IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withOnMouseClickedEvent(item -> evt -> {
-                    CSLStyleSelectViewModel selectedStyle = cslStylesTable.getSelectionModel().getSelectedItem();
-                    if (selectedStyle != null) {
-                        viewModel.deleteCslStyle(selectedStyle.getLayout().getCitationStyle());
-                    }
-                })
-                .withTooltip(item -> Localization.lang("Remove style"))
-                .install(cslDeleteColumn);
+            .withGraphic(internalStyle -> internalStyle ? null : IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withOnMouseClickedEvent(item -> evt -> {
+                CSLStyleSelectViewModel selectedStyle = cslStylesTable.getSelectionModel().getSelectedItem();
+                if (selectedStyle != null) {
+                    viewModel.deleteCslStyle(selectedStyle.getLayout().getCitationStyle());
+                }
+            })
+            .withTooltip(item -> Localization.lang("Remove style"))
+            .install(cslDeleteColumn);
 
-        new ViewModelTableRowFactory<CSLStyleSelectViewModel>()
-                .withOnMouseClickedEvent((item, event) -> {
-                    if (event.getClickCount() == 2) {
-                        viewModel.selectedCslLayoutProperty().set(item.getLayout());
-                        viewModel.storeStylePreferences();
-                        this.setResult(viewModel.getSelectedStyle());
-                        this.close();
-                    }
-                })
-                .install(cslStylesTable);
+        new ViewModelTableRowFactory<CSLStyleSelectViewModel>().withOnMouseClickedEvent((item, event) -> {
+            if (event.getClickCount() == 2) {
+                viewModel.selectedCslLayoutProperty().set(item.getLayout());
+                viewModel.storeStylePreferences();
+                this.setResult(viewModel.getSelectedStyle());
+                this.close();
+            }
+        }).install(cslStylesTable);
 
         cslStylesTable.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
             if (newValue != null) {
@@ -183,7 +229,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         viewModel.getAvailableCslLayouts().addListener((ListChangeListener<CitationStylePreviewLayout>) c -> {
             updateCslStylesTable();
             if (c.next() && c.wasAdded() && !initialScrollPerformed.get()) {
-                Platform.runLater(this::scrollToCurrentStyle); // taking care of slight delay in table population
+                Platform.runLater(this::scrollToCurrentStyle); // taking care of slight
+                                                               // delay in table
+                                                               // population
             }
         });
 
@@ -198,29 +246,27 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         jStyleDeleteColumn.setCellValueFactory(cellData -> cellData.getValue().internalStyleProperty());
 
         new ValueTableCellFactory<JStyleSelectViewModel, Boolean>()
-                .withGraphic(internalStyle -> internalStyle ? null : IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withOnMouseClickedEvent(item -> evt -> viewModel.deleteJStyle())
-                .withTooltip(item -> Localization.lang("Remove style"))
-                .install(jStyleDeleteColumn);
+            .withGraphic(internalStyle -> internalStyle ? null : IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withOnMouseClickedEvent(item -> evt -> viewModel.deleteJStyle())
+            .withTooltip(item -> Localization.lang("Remove style"))
+            .install(jStyleDeleteColumn);
 
         edit.setOnAction(e -> viewModel.editJStyle());
 
-        new ViewModelTableRowFactory<JStyleSelectViewModel>()
-                .withOnMouseClickedEvent((item, event) -> {
-                    if (event.getClickCount() == 2) {
-                        viewModel.selectedJStyleProperty().setValue(item);
-                        viewModel.storeStylePreferences();
-                        this.setResult(viewModel.getSelectedStyle());
-                        this.close();
-                    }
-                })
-                .withContextMenu(item -> createContextMenu())
-                .install(jStylesTable);
+        new ViewModelTableRowFactory<JStyleSelectViewModel>().withOnMouseClickedEvent((item, event) -> {
+            if (event.getClickCount() == 2) {
+                viewModel.selectedJStyleProperty().setValue(item);
+                viewModel.storeStylePreferences();
+                this.setResult(viewModel.getSelectedStyle());
+                this.close();
+            }
+        }).withContextMenu(item -> createContextMenu()).install(jStylesTable);
 
         jStylesTable.getSelectionModel().selectedItemProperty().addListener((_, oldValue, newValue) -> {
             if (newValue == null) {
                 viewModel.selectedJStyleProperty().setValue(oldValue);
-            } else {
+            }
+            else {
                 viewModel.selectedJStyleProperty().setValue(newValue);
             }
         });
@@ -239,8 +285,10 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         EasyBind.subscribe(viewModel.selectedJStyleProperty(), style -> {
             if (viewModel.getSelectedStyle() instanceof JStyle) {
                 jStylesTable.getSelectionModel().select(style);
-                previewArticle.setLayout(new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Article)));
-                previewBook.setLayout(new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Book)));
+                previewArticle.setLayout(
+                        new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Article)));
+                previewBook.setLayout(
+                        new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Book)));
             }
         });
     }
@@ -289,8 +337,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
     }
 
     /**
-     * When Select Style dialog is first opened, there is a slight delay in population of CSL styles table.
-     * This function scrolls to the last selected style, while taking care of the delay.
+     * When Select Style dialog is first opened, there is a slight delay in population of
+     * CSL styles table. This function scrolls to the last selected style, while taking
+     * care of the delay.
      */
     private void onDialogShown(DialogEvent event) {
         if (!cslStylesTable.getItems().isEmpty()) {
@@ -303,7 +352,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
             return; // Scroll has already been performed, exit early
         }
 
-        OOStyle currentStyle = preferences.getOpenOfficePreferences(Injector.instantiateModelOrService(JournalAbbreviationRepository.class)).getCurrentStyle();
+        OOStyle currentStyle = preferences
+            .getOpenOfficePreferences(Injector.instantiateModelOrService(JournalAbbreviationRepository.class))
+            .getCurrentStyle();
         if (currentStyle instanceof CitationStyle currentCitationStyle) {
             for (int i = 0; i < cslStylesTable.getItems().size(); i++) {
                 CSLStyleSelectViewModel item = cslStylesTable.getItems().get(i);
@@ -315,4 +366,5 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
             }
         }
     }
+
 }

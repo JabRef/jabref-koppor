@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AuthorAndsCommaReplacerTest {
 
     /**
-     * Test method for {@link org.jabref.logic.layout.format.AuthorAndsCommaReplacer#format(java.lang.String)}.
+     * Test method for
+     * {@link org.jabref.logic.layout.format.AuthorAndsCommaReplacer#format(java.lang.String)}.
      */
     @Test
     void format() {
@@ -22,11 +23,11 @@ class AuthorAndsCommaReplacerTest {
         assertEquals("Someone, Van Something", a.format("Someone, Van Something"));
 
         // Two names just an &
-        assertEquals("John von Neumann & Peter Black Brown",
-                a.format("John von Neumann and Peter Black Brown"));
+        assertEquals("John von Neumann & Peter Black Brown", a.format("John von Neumann and Peter Black Brown"));
 
         // Three names put a comma:
         assertEquals("von Neumann, John, Smith, John & Black Brown, Peter",
                 a.format("von Neumann, John and Smith, John and Black Brown, Peter"));
     }
+
 }

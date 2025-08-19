@@ -38,20 +38,33 @@ import static org.mockito.Mockito.when;
 class SidePaneViewModelTest {
 
     LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
+
     GuiPreferences preferences = mock(GuiPreferences.class);
+
     JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
+
     StateManager stateManager = mock(StateManager.class);
+
     TaskExecutor taskExecutor = mock(TaskExecutor.class);
+
     AdaptVisibleTabs adaptVisibleTabs = mock(AdaptVisibleTabs.class);
+
     DialogService dialogService = mock(DialogService.class);
+
     AiService aiService = mock(AiService.class);
+
     FileUpdateMonitor fileUpdateMonitor = mock(FileUpdateMonitor.class);
+
     BibEntryTypesManager entryTypesManager = mock(BibEntryTypesManager.class);
+
     ClipBoardManager clipBoardManager = mock(ClipBoardManager.class);
+
     UndoManager undoManager = mock(UndoManager.class);
 
     SidePanePreferences sidePanePreferences = new SidePanePreferences(new HashSet<>(), new HashMap<>(), 0);
+
     ObservableList<SidePaneType> sidePaneComponents = FXCollections.observableArrayList();
+
     SidePaneViewModel sidePaneViewModel;
 
     @BeforeEach
@@ -66,19 +79,9 @@ class SidePaneViewModelTest {
         sidePanePreferences.getPreferredPositions().put(SidePaneType.WEB_SEARCH, 1);
         sidePanePreferences.getPreferredPositions().put(SidePaneType.OPEN_OFFICE, 2);
 
-        sidePaneViewModel = new SidePaneViewModel(
-                tabContainer,
-                preferences,
-                abbreviationRepository,
-                stateManager,
-                taskExecutor,
-                adaptVisibleTabs,
-                dialogService,
-                aiService,
-                fileUpdateMonitor,
-                entryTypesManager,
-                clipBoardManager,
-                undoManager);
+        sidePaneViewModel = new SidePaneViewModel(tabContainer, preferences, abbreviationRepository, stateManager,
+                taskExecutor, adaptVisibleTabs, dialogService, aiService, fileUpdateMonitor, entryTypesManager,
+                clipBoardManager, undoManager);
     }
 
     @Test
@@ -118,6 +121,8 @@ class SidePaneViewModelTest {
 
         sidePaneComponents.sort(new SidePaneViewModel.PreferredIndexSort(sidePanePreferences));
 
-        assertTrue(sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE && sidePaneComponents.get(2) == SidePaneType.GROUPS);
+        assertTrue(sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE
+                && sidePaneComponents.get(2) == SidePaneType.GROUPS);
     }
+
 }

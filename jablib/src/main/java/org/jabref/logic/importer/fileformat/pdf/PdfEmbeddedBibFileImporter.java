@@ -35,8 +35,8 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
     }
 
     /**
-     * Extraction of embedded files in pdfs adapted from:
-     * <a href="https://svn.apache.org/repos/asf/pdfbox/trunk/examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractEmbeddedFiles.javaj">...</a>
+     * Extraction of embedded files in pdfs adapted from: <a href=
+     * "https://svn.apache.org/repos/asf/pdfbox/trunk/examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractEmbeddedFiles.javaj">...</a>
      */
     public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException, ParseException {
         List<BibEntry> allParsedEntries = new ArrayList<>();
@@ -47,7 +47,8 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
                 Map<String, PDComplexFileSpecification> names = efTree.getNames();
                 if (names != null) {
                     allParsedEntries.addAll(extractAndParseFiles(names));
-                } else {
+                }
+                else {
                     List<PDNameTreeNode<PDComplexFileSpecification>> kids = efTree.getKids();
                     if (kids != null) {
                         for (PDNameTreeNode<PDComplexFileSpecification> node : kids) {
@@ -62,7 +63,8 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
         for (PDPage page : document.getPages()) {
             for (PDAnnotation annotation : page.getAnnotations()) {
                 if (annotation instanceof PDAnnotationFileAttachment annotationFileAttachment) {
-                    PDComplexFileSpecification fileSpec = (PDComplexFileSpecification) annotationFileAttachment.getFile();
+                    PDComplexFileSpecification fileSpec = (PDComplexFileSpecification) annotationFileAttachment
+                        .getFile();
                     allParsedEntries.addAll(extractAndParseFile(getEmbeddedFile(fileSpec)));
                 }
             }
@@ -70,7 +72,8 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
         return allParsedEntries;
     }
 
-    private List<BibEntry> extractAndParseFiles(Map<String, PDComplexFileSpecification> names) throws IOException, ParseException {
+    private List<BibEntry> extractAndParseFiles(Map<String, PDComplexFileSpecification> names)
+            throws IOException, ParseException {
         List<BibEntry> allParsedEntries = new ArrayList<>();
         for (Map.Entry<String, PDComplexFileSpecification> entry : names.entrySet()) {
             String filename = entry.getKey();
@@ -122,4 +125,5 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
     public String getDescription() {
         return Localization.lang("Imports a BibTeX file found inside a PDF.");
     }
+
 }

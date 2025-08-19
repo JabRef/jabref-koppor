@@ -15,19 +15,19 @@ class OOProcessNumericMarkers {
     }
 
     /**
-     * Produce citation markers for the case of numbered citations
-     * with bibliography sorted by first appearance in the text.
+     * Produce citation markers for the case of numbered citations with bibliography
+     * sorted by first appearance in the text.
      *
-     * Numbered citation markers for each CitationGroup.
-     * Numbering is according to first appearance.
-     * Assumes global order and local order are already applied.
+     * Numbered citation markers for each CitationGroup. Numbering is according to first
+     * appearance. Assumes global order and local order are already applied.
      */
     static void produceCitationMarkers(CitationGroups citationGroups, JStyle style) {
         assert style.isNumberEntries();
 
         if (style.isSortByPosition()) {
             citationGroups.createNumberedBibliographySortedInOrderOfAppearance();
-        } else {
+        }
+        else {
             citationGroups.createNumberedBibliographySortedByComparator(OOProcess.AUTHOR_YEAR_TITLE_COMPARATOR);
         }
 
@@ -37,4 +37,5 @@ class OOProcessNumericMarkers {
             group.setCitationMarker(Optional.of(citMarker));
         }
     }
+
 }

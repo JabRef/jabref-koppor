@@ -8,6 +8,7 @@ import org.jabref.model.entry.BibEntry;
 public class CitationLookupResult {
 
     public final BibEntry entry;
+
     public final BibDatabase database;
 
     public CitationLookupResult(BibEntry entry, BibDatabase database) {
@@ -20,11 +21,15 @@ public class CitationLookupResult {
     /**
      * Note: BibEntry overrides Object.equals, but BibDatabase does not.
      * <p>
-     * Consequently, {@code this.database.equals(that.database)} below is equivalent to {@code this.database == that.database}.
+     * Consequently, {@code this.database.equals(that.database)} below is equivalent to
+     * {@code this.database == that.database}.
      * <p>
      * Since within each GUI call we use a fixed list of databases, it is OK.
      * <p>
-     * CitationLookupResult.equals is used in CitedKey.addPath to check the added Citation refers to the same source as the others. As long as we look up each citation key only once (in CitationGroups.lookupCitations), the default implementation for equals would be sufficient (and could also omit hashCode below).
+     * CitationLookupResult.equals is used in CitedKey.addPath to check the added Citation
+     * refers to the same source as the others. As long as we look up each citation key
+     * only once (in CitationGroups.lookupCitations), the default implementation for
+     * equals would be sufficient (and could also omit hashCode below).
      */
     @Override
     public boolean equals(Object otherObject) {
@@ -41,4 +46,5 @@ public class CitationLookupResult {
     public int hashCode() {
         return Objects.hash(entry, database);
     }
+
 }

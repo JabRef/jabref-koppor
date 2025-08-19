@@ -7,6 +7,7 @@ import com.google.common.base.Equivalence;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 
 public class EmptySuggestionProvider extends SuggestionProvider<String> {
+
     @Override
     protected Equivalence<String> getEquivalence() {
         return Equivalence.equals().onResultOf(value -> value);
@@ -26,4 +27,5 @@ public class EmptySuggestionProvider extends SuggestionProvider<String> {
     public Stream<String> getSource() {
         return Stream.empty();
     }
+
 }

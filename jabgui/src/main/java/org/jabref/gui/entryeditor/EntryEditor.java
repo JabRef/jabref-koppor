@@ -77,21 +77,28 @@ import jakarta.inject.Inject;
 import org.jspecify.annotations.NonNull;
 
 /**
- * GUI component that allows editing of the fields of a BibEntry (i.e. the one that shows up, when you double click on
- * an entry in the table)
+ * GUI component that allows editing of the fields of a BibEntry (i.e. the one that shows
+ * up, when you double click on an entry in the table)
  * <p>
  * It hosts the tabs (required, general, optional) and the buttons to the left.
  * <p>
- * EntryEditor also registers itself to the event bus, receiving events whenever a field of the entry changes, enabling
- * the text fields to update themselves if the change is made from somewhere else.
+ * EntryEditor also registers itself to the event bus, receiving events whenever a field
+ * of the entry changes, enabling the text fields to update themselves if the change is
+ * made from somewhere else.
  * <p>
- * The editors for fields are created via {@link org.jabref.gui.fieldeditors.FieldEditors}.
+ * The editors for fields are created via
+ * {@link org.jabref.gui.fieldeditors.FieldEditors}.
  */
 public class EntryEditor extends BorderPane implements PreviewControls, AdaptVisibleTabs {
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private final ExternalFilesEntryLinker fileLinker;
+
     private final PreviewPanel previewPanel;
+
     private final UndoAction undoAction;
+
     private final RedoAction redoAction;
 
     private Subscription typeSubscription;
@@ -100,26 +107,59 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
 
     private SourceTab sourceTab;
 
-    @FXML private TabPane tabbed;
+    @FXML
+    private TabPane tabbed;
 
-    @FXML private Button typeChangeButton;
-    @FXML private Button fetcherButton;
-    @FXML private Label typeLabel;
+    @FXML
+    private Button typeChangeButton;
 
-    @Inject private BuildInfo buildInfo;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private GuiPreferences preferences;
-    @Inject private StateManager stateManager;
-    @Inject private ThemeManager themeManager;
-    @Inject private FileUpdateMonitor fileMonitor;
-    @Inject private DirectoryMonitor directoryMonitor;
-    @Inject private CountingUndoManager undoManager;
-    @Inject private BibEntryTypesManager bibEntryTypesManager;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private JournalAbbreviationRepository journalAbbreviationRepository;
-    @Inject private AiService aiService;
-    @Inject private SearchCitationsRelationsService searchCitationsRelationsService;
+    @FXML
+    private Button fetcherButton;
+
+    @FXML
+    private Label typeLabel;
+
+    @Inject
+    private BuildInfo buildInfo;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private ThemeManager themeManager;
+
+    @Inject
+    private FileUpdateMonitor fileMonitor;
+
+    @Inject
+    private DirectoryMonitor directoryMonitor;
+
+    @Inject
+    private CountingUndoManager undoManager;
+
+    @Inject
+    private BibEntryTypesManager bibEntryTypesManager;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private JournalAbbreviationRepository journalAbbreviationRepository;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private SearchCitationsRelationsService searchCitationsRelationsService;
 
     private final List<EntryEditorTab> allPossibleTabs = new ArrayList<>();
 
@@ -128,23 +168,13 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         this.undoAction = undoAction;
         this.redoAction = redoAction;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
-        this.fileLinker = new ExternalFilesEntryLinker(
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                dialogService,
-                stateManager);
+        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), dialogService, stateManager);
 
-        this.previewPanel = new PreviewPanel(
-                dialogService,
-                preferences.getKeyBindingRepository(),
-                preferences,
-                themeManager,
-                taskExecutor,
-                stateManager);
+        this.previewPanel = new PreviewPanel(dialogService, preferences.getKeyBindingRepository(), preferences,
+                themeManager, taskExecutor, stateManager);
 
         setupKeyBindings();
 
@@ -156,7 +186,8 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
                 this.allPossibleTabs.addAll(createTabs());
 
                 adaptVisibleTabs();
-            } else {
+            }
+            else {
                 this.allPossibleTabs.clear();
             }
         });
@@ -171,29 +202,28 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         });
 
         stateManager.getSelectedEntries().addListener((InvalidationListener) _ -> {
-                    if (stateManager.getSelectedEntries().isEmpty()) {
-                        // [impl->req~entry-editor.keep-showing~1]
-                        // No change in the entry editor
-                        // We allow users to edit the "old" entry
-                    } else {
-                        setCurrentlyEditedEntry(stateManager.getSelectedEntries().getFirst());
-                    }
-                }
-        );
+            if (stateManager.getSelectedEntries().isEmpty()) {
+                // [impl->req~entry-editor.keep-showing~1]
+                // No change in the entry editor
+                // We allow users to edit the "old" entry
+            }
+            else {
+                setCurrentlyEditedEntry(stateManager.getSelectedEntries().getFirst());
+            }
+        });
 
-        EasyBind.listen(preferences.getPreviewPreferences().showPreviewAsExtraTabProperty(),
-                (_, _, newValue) -> {
-                    if (currentlyEditedEntry != null) {
-                        adaptVisibleTabs();
-                        Tab tab = tabbed.getSelectionModel().selectedItemProperty().get();
-                        if (newValue && tab instanceof FieldsEditorTab fieldsEditorTab) {
-                            fieldsEditorTab.removePreviewPanelFromThisTab();
-                        }
-                        if (tab instanceof TabWithPreviewPanel previewTab) {
-                            previewTab.handleFocus();
-                        }
-                    }
-                });
+        EasyBind.listen(preferences.getPreviewPreferences().showPreviewAsExtraTabProperty(), (_, _, newValue) -> {
+            if (currentlyEditedEntry != null) {
+                adaptVisibleTabs();
+                Tab tab = tabbed.getSelectionModel().selectedItemProperty().get();
+                if (newValue && tab instanceof FieldsEditorTab fieldsEditorTab) {
+                    fieldsEditorTab.removePreviewPanelFromThisTab();
+                }
+                if (tab instanceof TabWithPreviewPanel previewTab) {
+                    previewTab.handleFocus();
+                }
+            }
+        });
     }
 
     private void setupDragAndDrop() {
@@ -210,9 +240,15 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
 
             if (event.getDragboard().hasContent(DataFormat.FILES)) {
                 TransferMode transferMode = event.getTransferMode();
-                List<Path> files = event.getDragboard().getFiles().stream().map(File::toPath).collect(Collectors.toList());
-                // Modifiers do not work on macOS: https://bugs.openjdk.org/browse/JDK-8264172
-                // Similar code as org.jabref.gui.externalfiles.ImportHandler.importFilesInBackground
+                List<Path> files = event.getDragboard()
+                    .getFiles()
+                    .stream()
+                    .map(File::toPath)
+                    .collect(Collectors.toList());
+                // Modifiers do not work on macOS:
+                // https://bugs.openjdk.org/browse/JDK-8264172
+                // Similar code as
+                // org.jabref.gui.externalfiles.ImportHandler.importFilesInBackground
                 DragDrop.handleDropOfFiles(files, transferMode, fileLinker, entry);
                 success = true;
             }
@@ -249,7 +285,9 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
                         event.consume();
                         break;
                     case HELP:
-                        new HelpAction(HelpFile.ENTRY_EDITOR, dialogService, preferences.getExternalApplicationsPreferences()).execute();
+                        new HelpAction(HelpFile.ENTRY_EDITOR, dialogService,
+                                preferences.getExternalApplicationsPreferences())
+                            .execute();
                         event.consume();
                         break;
                     case CLOSE:
@@ -280,14 +318,15 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
 
     @FXML
     private void generateCiteKeyButton() {
-        GenerateCitationKeySingleAction action = new GenerateCitationKeySingleAction(getCurrentlyEditedEntry(), tabSupplier.get().getBibDatabaseContext(),
-                dialogService, preferences, undoManager);
+        GenerateCitationKeySingleAction action = new GenerateCitationKeySingleAction(getCurrentlyEditedEntry(),
+                tabSupplier.get().getBibDatabaseContext(), dialogService, preferences, undoManager);
         action.execute();
     }
 
     @FXML
     private void generateCleanupButton() {
-        CleanupSingleAction action = new CleanupSingleAction(getCurrentlyEditedEntry(), preferences, dialogService, stateManager, undoManager);
+        CleanupSingleAction action = new CleanupSingleAction(getCurrentlyEditedEntry(), preferences, dialogService,
+                stateManager, undoManager);
         action.execute();
     }
 
@@ -307,44 +346,37 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         tabs.add(new PreviewTab(preferences, stateManager, previewPanel));
 
         // Required, optional (important+detail), deprecated, and "other" fields
-        tabs.add(new RequiredFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel));
-        tabs.add(new ImportantOptionalFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel));
-        tabs.add(new DetailOptionalFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel));
-        tabs.add(new DeprecatedFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel));
-        tabs.add(new OtherFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new RequiredFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager,
+                journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new ImportantOptionalFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager,
+                journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new DetailOptionalFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager,
+                journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new DeprecatedFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager,
+                journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new OtherFieldsTab(undoManager, undoAction, redoAction, preferences, bibEntryTypesManager,
+                journalAbbreviationRepository, stateManager, previewPanel));
 
         // Comment Tab: Tab for general and user-specific comments
-        tabs.add(new CommentsTab(preferences, undoManager, undoAction, redoAction, journalAbbreviationRepository, stateManager, previewPanel));
+        tabs.add(new CommentsTab(preferences, undoManager, undoAction, redoAction, journalAbbreviationRepository,
+                stateManager, previewPanel));
 
         // ToDo: Needs to be recreated on preferences change
         Map<String, Set<Field>> entryEditorTabList = getAdditionalUserConfiguredTabs();
         for (Map.Entry<String, Set<Field>> tab : entryEditorTabList.entrySet()) {
-            tabs.add(new UserDefinedFieldsTab(tab.getKey(), tab.getValue(), undoManager, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager, previewPanel));
+            tabs.add(new UserDefinedFieldsTab(tab.getKey(), tab.getValue(), undoManager, undoAction, redoAction,
+                    preferences, journalAbbreviationRepository, stateManager, previewPanel));
         }
 
         tabs.add(new MathSciNetTab());
         tabs.add(new FileAnnotationTab(stateManager, preferences));
         tabs.add(new SciteTab(preferences, taskExecutor, dialogService));
-        tabs.add(new CitationRelationsTab(
-                dialogService,
-                undoManager,
-                stateManager,
-                fileMonitor,
-                preferences,
-                taskExecutor,
-                bibEntryTypesManager,
-                searchCitationsRelationsService
-        ));
+        tabs.add(new CitationRelationsTab(dialogService, undoManager, stateManager, fileMonitor, preferences,
+                taskExecutor, bibEntryTypesManager, searchCitationsRelationsService));
         tabs.add(new RelatedArticlesTab(buildInfo, preferences, dialogService, stateManager, taskExecutor));
-        sourceTab = new SourceTab(
-                undoManager,
-                preferences.getFieldPreferences(),
-                preferences.getImportFormatPreferences(),
-                fileMonitor,
-                dialogService,
-                bibEntryTypesManager,
-                keyBindingRepository,
-                stateManager);
+        sourceTab = new SourceTab(undoManager, preferences.getFieldPreferences(),
+                preferences.getImportFormatPreferences(), fileMonitor, dialogService, bibEntryTypesManager,
+                keyBindingRepository, stateManager);
         tabs.add(sourceTab);
         tabs.add(new LatexCitationsTab(preferences, dialogService, stateManager, directoryMonitor));
         tabs.add(new FulltextSearchResultsTab(stateManager, preferences, dialogService, taskExecutor, this));
@@ -355,16 +387,17 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
     }
 
     /**
-     * The preferences allow to configure tabs to show (e.g.,"General", "Abstract")
-     * These should be shown. Already hard-coded ones (above and below this code block) should be removed.
-     * This method does this calculation.
-     *
+     * The preferences allow to configure tabs to show (e.g.,"General", "Abstract") These
+     * should be shown. Already hard-coded ones (above and below this code block) should
+     * be removed. This method does this calculation.
      * @return Map of tab names and the fields to show in them.
      */
     private Map<String, Set<Field>> getAdditionalUserConfiguredTabs() {
-        Map<String, Set<Field>> entryEditorTabList = new HashMap<>(preferences.getEntryEditorPreferences().getEntryEditorTabs());
+        Map<String, Set<Field>> entryEditorTabList = new HashMap<>(
+                preferences.getEntryEditorPreferences().getEntryEditorTabs());
 
-        // Same order as in org.jabref.gui.entryeditor.EntryEditor.createTabs before the call of getAdditionalUserConfiguredTabs
+        // Same order as in org.jabref.gui.entryeditor.EntryEditor.createTabs before the
+        // call of getAdditionalUserConfiguredTabs
         entryEditorTabList.remove(PreviewTab.NAME);
         entryEditorTabList.remove(RequiredFieldsTab.NAME);
         entryEditorTabList.remove(ImportantOptionalFieldsTab.NAME);
@@ -373,13 +406,15 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         entryEditorTabList.remove(OtherFieldsTab.NAME);
         entryEditorTabList.remove(CommentsTab.NAME);
 
-        // Same order as in org.jabref.gui.entryeditor.EntryEditor.createTabs after the call of getAdditionalUserConfiguredTabs
+        // Same order as in org.jabref.gui.entryeditor.EntryEditor.createTabs after the
+        // call of getAdditionalUserConfiguredTabs
         entryEditorTabList.remove(MathSciNetTab.NAME);
         entryEditorTabList.remove(FileAnnotationTab.NAME);
         entryEditorTabList.remove(SciteTab.NAME);
         entryEditorTabList.remove(CitationRelationsTab.NAME);
         entryEditorTabList.remove(RelatedArticlesTab.NAME);
-        // SourceTab is not listed, because it has different names for BibTeX and biblatex mode
+        // SourceTab is not listed, because it has different names for BibTeX and biblatex
+        // mode
         entryEditorTabList.remove(LatexCitationsTab.NAME);
         entryEditorTabList.remove(FulltextSearchResultsTab.NAME);
 
@@ -388,10 +423,14 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
 
     @Override
     public void adaptVisibleTabs() {
-        // We need to find out, which tabs will be shown (and which not anymore) and remove and re-add the appropriate tabs
-        // to the editor. We cannot to simply remove all and re-add the complete list of visible tabs, because
-        // the tabs give an ugly animation the looks like all tabs are shifting in from the right. In other words:
-        // This hack is required since tabbed.getTabs().setAll(visibleTabs) changes the order of the tabs in the editor
+        // We need to find out, which tabs will be shown (and which not anymore) and
+        // remove and re-add the appropriate tabs
+        // to the editor. We cannot to simply remove all and re-add the complete list of
+        // visible tabs, because
+        // the tabs give an ugly animation the looks like all tabs are shifting in from
+        // the right. In other words:
+        // This hack is required since tabbed.getTabs().setAll(visibleTabs) changes the
+        // order of the tabs in the editor
 
         if (currentlyEditedEntry == null) {
             tabbed.getTabs().clear();
@@ -399,11 +438,15 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         }
 
         // First, remove tabs that we do not want to show
-        List<EntryEditorTab> toBeRemoved = allPossibleTabs.stream().filter(tab -> !tab.shouldShow(currentlyEditedEntry)).toList();
+        List<EntryEditorTab> toBeRemoved = allPossibleTabs.stream()
+            .filter(tab -> !tab.shouldShow(currentlyEditedEntry))
+            .toList();
         tabbed.getTabs().removeAll(toBeRemoved);
 
         // Next add all the visible tabs (if not already present) at the right position
-        List<Tab> visibleTabs = allPossibleTabs.stream().filter(tab -> tab.shouldShow(currentlyEditedEntry)).collect(Collectors.toList());
+        List<Tab> visibleTabs = allPossibleTabs.stream()
+            .filter(tab -> tab.shouldShow(currentlyEditedEntry))
+            .collect(Collectors.toList());
         for (int i = 0; i < visibleTabs.size(); i++) {
             Tab toBeAdded = visibleTabs.get(i);
             Tab shown = null;
@@ -436,7 +479,9 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
         }
 
         typeSubscription = EasyBind.subscribe(this.currentlyEditedEntry.typeProperty(), _ -> {
-            typeLabel.setText(new TypedBibEntry(currentlyEditedEntry, tabSupplier.get().getBibDatabaseContext().getMode()).getTypeForDisplay());
+            typeLabel
+                .setText(new TypedBibEntry(currentlyEditedEntry, tabSupplier.get().getBibDatabaseContext().getMode())
+                    .getTypeForDisplay());
             adaptVisibleTabs();
             setupToolBar();
             getSelectedTab().notifyAboutFocus(currentlyEditedEntry);
@@ -453,35 +498,36 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
 
     private void setupToolBar() {
         // Update type label
-        TypedBibEntry typedEntry = new TypedBibEntry(currentlyEditedEntry, tabSupplier.get().getBibDatabaseContext().getMode());
+        TypedBibEntry typedEntry = new TypedBibEntry(currentlyEditedEntry,
+                tabSupplier.get().getBibDatabaseContext().getMode());
         typeLabel.setText(typedEntry.getTypeForDisplay());
 
         // Add type change menu
-        ContextMenu typeMenu = new ChangeEntryTypeMenu(List.of(currentlyEditedEntry), tabSupplier.get().getBibDatabaseContext(), undoManager, bibEntryTypesManager).asContextMenu();
+        ContextMenu typeMenu = new ChangeEntryTypeMenu(List.of(currentlyEditedEntry),
+                tabSupplier.get().getBibDatabaseContext(), undoManager, bibEntryTypesManager)
+            .asContextMenu();
         typeLabel.setOnMouseClicked(event -> typeMenu.show(typeLabel, Side.RIGHT, 0, 0));
         typeChangeButton.setOnMouseClicked(event -> typeMenu.show(typeChangeButton, Side.RIGHT, 0, 0));
 
         // Add menu for fetching bibliographic information
         ContextMenu fetcherMenu = new ContextMenu();
         SortedSet<EntryBasedFetcher> entryBasedFetchers = WebFetchers.getEntryBasedFetchers(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getFilePreferences(),
-                tabSupplier.get().getBibDatabaseContext());
+                preferences.getImporterPreferences(), preferences.getImportFormatPreferences(),
+                preferences.getFilePreferences(), tabSupplier.get().getBibDatabaseContext());
         for (EntryBasedFetcher fetcher : entryBasedFetchers) {
             MenuItem fetcherMenuItem = new MenuItem(fetcher.getName());
             if (fetcher instanceof PdfMergeMetadataImporter.EntryBasedFetcherWrapper) {
                 // Handle Grobid Opt-In in case of the PdfMergeMetadataImporter
                 fetcherMenuItem.setOnAction(event -> {
-                    GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences());
-                    PdfMergeMetadataImporter.EntryBasedFetcherWrapper pdfMergeMetadataImporter =
-                            new PdfMergeMetadataImporter.EntryBasedFetcherWrapper(
-                                    preferences.getImportFormatPreferences(),
-                                    preferences.getFilePreferences(),
-                                    tabSupplier.get().getBibDatabaseContext());
+                    GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService,
+                            preferences.getGrobidPreferences());
+                    PdfMergeMetadataImporter.EntryBasedFetcherWrapper pdfMergeMetadataImporter = new PdfMergeMetadataImporter.EntryBasedFetcherWrapper(
+                            preferences.getImportFormatPreferences(), preferences.getFilePreferences(),
+                            tabSupplier.get().getBibDatabaseContext());
                     fetchAndMerge(pdfMergeMetadataImporter);
                 });
-            } else {
+            }
+            else {
                 fetcherMenuItem.setOnAction(_ -> fetchAndMerge(fetcher));
             }
             fetcherMenu.getItems().add(fetcherMenuItem);
@@ -491,20 +537,23 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
     }
 
     private void fetchAndMerge(EntryBasedFetcher fetcher) {
-        new FetchAndMergeEntry(tabSupplier.get().getBibDatabaseContext(), taskExecutor, preferences, dialogService, undoManager).fetchAndMerge(currentlyEditedEntry, fetcher);
+        new FetchAndMergeEntry(tabSupplier.get().getBibDatabaseContext(), taskExecutor, preferences, dialogService,
+                undoManager)
+            .fetchAndMerge(currentlyEditedEntry, fetcher);
     }
 
     public void setFocusToField(Field field) {
         UiTaskExecutor.runInJavaFXThread(() -> {
-        Field actualField = field;
-        boolean fieldFound = false;
+            Field actualField = field;
+            boolean fieldFound = false;
             for (Tab tab : tabbed.getTabs()) {
                 tabbed.getSelectionModel().select(tab);
                 if ((tab instanceof FieldsEditorTab fieldsEditorTab)
                         && fieldsEditorTab.getShownFields().contains(actualField)) {
                     tabbed.getSelectionModel().select(tab);
                     Platform.runLater(() -> fieldsEditorTab.requestFocus(actualField));
-                    // This line explicitly brings focus back to the main window containing the Entry Editor.
+                    // This line explicitly brings focus back to the main window
+                    // containing the Entry Editor.
                     getScene().getWindow().requestFocus();
                     fieldFound = true;
                     break;
@@ -528,4 +577,5 @@ public class EntryEditor extends BorderPane implements PreviewControls, AdaptVis
     public void previousPreviewStyle() {
         this.previewPanel.previousPreviewStyle();
     }
+
 }

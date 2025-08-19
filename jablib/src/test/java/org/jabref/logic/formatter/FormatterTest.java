@@ -28,26 +28,25 @@ class FormatterTest {
 
     @BeforeAll
     static void setUp() {
-        protectedTermsLoader = new ProtectedTermsLoader(
-                new ProtectedTermsPreferences(ProtectedTermsLoader.getInternalLists(), List.of(),
-                        List.of(), List.of()));
+        protectedTermsLoader = new ProtectedTermsLoader(new ProtectedTermsPreferences(
+                ProtectedTermsLoader.getInternalLists(), List.of(), List.of(), List.of()));
     }
 
     /**
-     * When a new formatter is added by copy and pasting another formatter, it may happen that the <code>getKey()</code>
-     * method is not adapted. This results in duplicate keys, which this test tests for.
+     * When a new formatter is added by copy and pasting another formatter, it may happen
+     * that the <code>getKey()</code> method is not adapted. This results in duplicate
+     * keys, which this test tests for.
      */
     @Test
     void allFormatterKeysAreUnique() {
         // idea for uniqueness checking by https://stackoverflow.com/a/44032568/873282
         assertEquals(List.of(),
-                getFormatters().collect(Collectors.groupingBy(
-                                       Formatter::getKey,
-                        Collectors.counting()))
-                               .entrySet().stream()
-                               .filter(e -> e.getValue() > 1)
-                               .map(Map.Entry::getKey)
-                               .toList());
+                getFormatters().collect(Collectors.groupingBy(Formatter::getKey, Collectors.counting()))
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getValue() > 1)
+                    .map(Map.Entry::getKey)
+                    .toList());
     }
 
     @ParameterizedTest
@@ -120,4 +119,5 @@ class FormatterTest {
                         new TruncateFormatter(0)));
         // @formatter:on
     }
+
 }

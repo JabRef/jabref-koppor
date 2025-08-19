@@ -38,8 +38,11 @@ import static org.mockito.Mockito.mock;
 class BibEntryWriterTest {
 
     private static ImportFormatPreferences importFormatPreferences;
+
     private final StringWriter stringWriter = new StringWriter();
+
     private BibWriter bibWriter = new BibWriter(stringWriter, OS.NEWLINE);
+
     private BibEntryWriter bibEntryWriter;
 
     @BeforeEach
@@ -52,13 +55,13 @@ class BibEntryWriterTest {
     @Test
     void serialization() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
-                // set required fields
-                .withField(StandardField.AUTHOR, "Foo Bar")
-                .withField(StandardField.JOURNAL, "International Journal of Something")
-                // set optional fields
-                .withField(StandardField.NUMBER, "1")
-                .withField(StandardField.NOTE, "some note")
-                .withChanged(true);
+            // set required fields
+            .withField(StandardField.AUTHOR, "Foo Bar")
+            .withField(StandardField.JOURNAL, "International Journal of Something")
+            // set optional fields
+            .withField(StandardField.NUMBER, "1")
+            .withField(StandardField.NOTE, "some note")
+            .withChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
@@ -76,8 +79,8 @@ class BibEntryWriterTest {
     @Test
     void bibEntryTwoSpacesBeforeAndAfterKept() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "  two spaces before and after (before)  ")
-                .withChanged(true);
+            .withField(StandardField.AUTHOR, "  two spaces before and after (before)  ")
+            .withChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
@@ -93,8 +96,8 @@ class BibEntryWriterTest {
     @Test
     void bibEntryNotModified() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "  two spaces before and after  ")
-                .withChanged(true);
+            .withField(StandardField.AUTHOR, "  two spaces before and after  ")
+            .withChanged(true);
 
         BibEntry original = new BibEntry(entry);
 
@@ -105,10 +108,9 @@ class BibEntryWriterTest {
 
     @Test
     void writeOtherTypeTest() throws IOException {
-        BibEntry entry = new BibEntry(new UnknownEntryType("other"))
-                .withField(StandardField.COMMENT, "testentry")
-                .withCitationKey("test")
-                .withChanged(true);
+        BibEntry entry = new BibEntry(new UnknownEntryType("other")).withField(StandardField.COMMENT, "testentry")
+            .withCitationKey("test")
+            .withChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
@@ -139,13 +141,13 @@ class BibEntryWriterTest {
     @Test
     void writeEntryWithOrField() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.InBook)
-                // set a required OR field (author/editor)
-                .withField(StandardField.EDITOR, "Foo Bar")
-                .withField(StandardField.JOURNAL, "International Journal of Something")
-                // set an optional field
-                .withField(StandardField.NUMBER, "1")
-                .withField(StandardField.NOTE, "some note")
-                .withChanged(true);
+            // set a required OR field (author/editor)
+            .withField(StandardField.EDITOR, "Foo Bar")
+            .withField(StandardField.JOURNAL, "International Journal of Something")
+            // set an optional field
+            .withField(StandardField.NUMBER, "1")
+            .withField(StandardField.NOTE, "some note")
+            .withChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
@@ -163,14 +165,14 @@ class BibEntryWriterTest {
     @Test
     void writeEntryWithOrFieldBothFieldsPresent() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.InBook)
-                // set a required OR field with both fields(author/editor)
-                .withField(StandardField.AUTHOR, "Foo Thor")
-                .withField(StandardField.EDITOR, "Edi Bar")
-                .withField(StandardField.JOURNAL, "International Journal of Something")
-                // set an optional field
-                .withField(StandardField.NUMBER, "1")
-                .withField(StandardField.NOTE, "some note")
-                .withChanged(true);
+            // set a required OR field with both fields(author/editor)
+            .withField(StandardField.AUTHOR, "Foo Thor")
+            .withField(StandardField.EDITOR, "Edi Bar")
+            .withField(StandardField.JOURNAL, "International Journal of Something")
+            // set an optional field
+            .withField(StandardField.NUMBER, "1")
+            .withField(StandardField.NOTE, "some note")
+            .withChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
@@ -527,7 +529,8 @@ class BibEntryWriterTest {
                   pagetotal = {678},
                   publisher = {Crown},
                 }
-                """.replace("\n", OS.NEWLINE);
+                """
+            .replace("\n", OS.NEWLINE);
 
         BibEntry entry = firstEntryFrom(bibtexEntry);
 
@@ -550,42 +553,39 @@ class BibEntryWriterTest {
                   subtitle   = {Encyclopedia of Photography},
                   title      = {International Center of Photography},
                 }
-                """.replace("\n", OS.NEWLINE);
+                """
+            .replace("\n", OS.NEWLINE);
         assertEquals(expected, stringWriter.toString());
     }
 
     @Test
     void constantMonthApril() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.MONTH, "#apr#");
+        BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.MONTH, "#apr#");
         // enable writing
         entry.setChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
         assertEquals("""
-                        @Misc{,
-                          month = apr,
-                        }
-                        """.replace("\n", OS.NEWLINE),
-                stringWriter.toString());
+                @Misc{,
+                  month = apr,
+                }
+                """.replace("\n", OS.NEWLINE), stringWriter.toString());
     }
 
     @Test
     void monthApril() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.MONTH, "apr");
+        BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.MONTH, "apr");
         // enable writing
         entry.setChanged(true);
 
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
         assertEquals("""
-                        @Misc{,
-                          month = {apr},
-                        }
-                        """.replace("\n", OS.NEWLINE),
-                stringWriter.toString());
+                @Misc{,
+                  month = {apr},
+                }
+                """.replace("\n", OS.NEWLINE), stringWriter.toString());
     }
 
     @Test
@@ -614,12 +614,12 @@ class BibEntryWriterTest {
     void addFieldWithLongerLength() throws Exception {
         String bibtexEntry = """
 
-            @Article{test,
-              author =  {BlaBla},
-              journal = {International Journal of Something},
-              number =  {1},
-              note =    {some note},
-            }""".replace("\n", OS.NEWLINE);
+                @Article{test,
+                  author =  {BlaBla},
+                  journal = {International Journal of Something},
+                  number =  {1},
+                  note =    {some note},
+                }""".replace("\n", OS.NEWLINE);
         BibEntry entry = firstEntryFrom(bibtexEntry);
 
         // modify entry
@@ -629,14 +629,14 @@ class BibEntryWriterTest {
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
         String expected = """
-            @Article{test,
-              author       = {BlaBla},
-              journal      = {International Journal of Something},
-              note         = {some note},
-              number       = {1},
-              howpublished = {asdf},
-            }
-            """.replace("\n", OS.NEWLINE);
+                @Article{test,
+                  author       = {BlaBla},
+                  journal      = {International Journal of Something},
+                  note         = {some note},
+                  number       = {1},
+                  howpublished = {asdf},
+                }
+                """.replace("\n", OS.NEWLINE);
         assertEquals(expected, stringWriter.toString());
     }
 
@@ -649,10 +649,10 @@ class BibEntryWriterTest {
         bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
 
         String expected = """
-           @Article{,
-             note   = {some note},
-           }
-           """.replace("\n", OS.NEWLINE);
+                @Article{,
+                  note   = {some note},
+                }
+                """.replace("\n", OS.NEWLINE);
         assertEquals(expected, stringWriter.toString());
     }
 
@@ -810,14 +810,9 @@ class BibEntryWriterTest {
     }
 
     static Stream<Arguments> getFormattedFieldName() {
-        return Stream.of(
-                Arguments.of(" = ", "", 0),
-                Arguments.of("a = ", "a", 0),
-                Arguments.of("   = ", "", 2),
-                Arguments.of("a  = ", "a", 2),
-                Arguments.of("abc = ", "abc", 2),
-                Arguments.of("abcdef = ", "abcdef", 6)
-        );
+        return Stream.of(Arguments.of(" = ", "", 0), Arguments.of("a = ", "a", 0), Arguments.of("   = ", "", 2),
+                Arguments.of("a  = ", "a", 2), Arguments.of("abc = ", "abc", 2),
+                Arguments.of("abcdef = ", "abcdef", 6));
     }
 
     @ParameterizedTest
@@ -828,12 +823,9 @@ class BibEntryWriterTest {
     }
 
     static Stream<Arguments> getLengthOfLongestFieldName() {
-        return Stream.of(
-                Arguments.of(1, new BibEntry().withField(FieldFactory.parseField("t"), "t")),
-                Arguments.of(5, new BibEntry(EntryTypeFactory.parse("reference"))
-                        .withCitationKey("Broecker1984")
-                        .withField(StandardField.TITLE, "International Center of Photography}"))
-        );
+        return Stream.of(Arguments.of(1, new BibEntry().withField(FieldFactory.parseField("t"), "t")),
+                Arguments.of(5, new BibEntry(EntryTypeFactory.parse("reference")).withCitationKey("Broecker1984")
+                    .withField(StandardField.TITLE, "International Center of Photography}")));
     }
 
     @ParameterizedTest
@@ -843,14 +835,13 @@ class BibEntryWriterTest {
     }
 
     /**
-     * Provides the first entry, from the database, built of the given textual representation.
+     * Provides the first entry, from the database, built of the given textual
+     * representation.
      * <p>
      * Instance import preferences object used.
      */
     private BibEntry firstEntryFrom(final String bibContentText) throws JabRefException {
-        return BibDatabaseContext
-                .of(bibContentText, importFormatPreferences)
-                .getEntries()
-                .getFirst();
+        return BibDatabaseContext.of(bibContentText, importFormatPreferences).getEntries().getFirst();
     }
+
 }

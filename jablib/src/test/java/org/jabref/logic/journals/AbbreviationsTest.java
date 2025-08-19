@@ -23,4 +23,5 @@ class AbbreviationsTest {
     void getNextAbbreviationConvertsAbbreviationToDotlessAbbreviation() {
         assertEquals("2D Mater", repository.getNextAbbreviation("2D Mater.").get());
     }
+
 }

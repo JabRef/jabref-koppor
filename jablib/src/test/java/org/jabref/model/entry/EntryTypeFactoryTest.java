@@ -15,4 +15,5 @@ class EntryTypeFactoryTest {
         EntryType patent = IEEETranEntryType.Patent;
         assertEquals(patent, EntryTypeFactory.parse("patent"));
     }
+
 }

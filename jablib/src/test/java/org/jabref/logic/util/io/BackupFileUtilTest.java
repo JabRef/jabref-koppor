@@ -28,7 +28,8 @@ class BackupFileUtilTest {
 
     @Test
     void uniqueFilePrefix() {
-        // We cannot test for a concrete hash code, because hashing implementation differs from environment to environment
+        // We cannot test for a concrete hash code, because hashing implementation differs
+        // from environment to environment
         assertNotEquals("", BackupFileUtil.getUniqueFilePrefix(Path.of("test.bib")));
     }
 
@@ -36,7 +37,9 @@ class BackupFileUtilTest {
     void getPathOfBackupFileAndCreateDirectoryReturnsAppDirectoryInCaseOfNoError() {
         String start = Directories.getBackupDirectory().toString();
         backupDir = Directories.getBackupDirectory();
-        String result = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of("test.bib"), BackupFileType.BACKUP, backupDir).toString();
+        String result = BackupFileUtil
+            .getPathForNewBackupFileAndCreateDirectory(Path.of("test.bib"), BackupFileType.BACKUP, backupDir)
+            .toString();
         // We just check the prefix
         assertEquals(start, result.substring(0, start.length()));
     }
@@ -45,12 +48,14 @@ class BackupFileUtilTest {
     void getPathOfBackupFileAndCreateDirectoryReturnsSameDirectoryInCaseOfException() {
         backupDir = Directories.getBackupDirectory();
         try (MockedStatic<Files> files = Mockito.mockStatic(Files.class, Answers.RETURNS_DEEP_STUBS)) {
-            files.when(() -> Files.createDirectories(Directories.getBackupDirectory()))
-                 .thenThrow(new IOException());
+            files.when(() -> Files.createDirectories(Directories.getBackupDirectory())).thenThrow(new IOException());
             Path testPath = Path.of("tmp", "test.bib");
-            Path result = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(testPath, BackupFileType.BACKUP, backupDir);
-            // The intended fallback behavior is to put the .bak file in the same directory as the .bib file
+            Path result = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(testPath, BackupFileType.BACKUP,
+                    backupDir);
+            // The intended fallback behavior is to put the .bak file in the same
+            // directory as the .bib file
             assertEquals(Path.of("tmp", "test.bib.bak"), result);
         }
     }
+
 }

@@ -17,7 +17,9 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 
 public class ToggleMergeUnmergeButton extends Button {
+
     private final ObjectProperty<FieldState> fieldState = new SimpleObjectProperty<>(FieldState.UNMERGED);
+
     private final BooleanProperty canMerge = new SimpleBooleanProperty(Boolean.TRUE);
 
     private final ActionFactory actionFactory = new ActionFactory();
@@ -65,12 +67,13 @@ public class ToggleMergeUnmergeButton extends Button {
 
     /**
      * Setting {@code canMerge} to {@code false} will disable the merge/unmerge button
-     * */
+     */
     public void setCanMerge(boolean value) {
         canMergeProperty().set(value);
     }
 
     private class ToggleMergeCommand extends SimpleCommand {
+
         private final Action mergeAction = new Action() {
             @Override
             public Optional<JabRefIcon> getIcon() {
@@ -100,14 +103,19 @@ public class ToggleMergeUnmergeButton extends Button {
             if (fieldStateProperty().get() == FieldState.MERGED) {
                 setFieldState(FieldState.UNMERGED);
                 configureMergeButton();
-            } else {
+            }
+            else {
                 setFieldState(FieldState.MERGED);
                 configureUnmergeButton();
             }
         }
+
     }
 
     public enum FieldState {
+
         MERGED, UNMERGED
+
     }
+
 }

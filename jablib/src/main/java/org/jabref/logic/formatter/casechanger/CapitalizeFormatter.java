@@ -16,7 +16,8 @@ public class CapitalizeFormatter extends Formatter {
     }
 
     /**
-     * Converts the first character of each word of the given string to a upper case (and all others to lower case), but does not change words starting with "{"
+     * Converts the first character of each word of the given string to a upper case (and
+     * all others to lower case), but does not change words starting with "{"
      */
     @Override
     public String format(String input) {
@@ -29,12 +30,13 @@ public class CapitalizeFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Changes The First Letter Of All Words To Capital Case And The Remaining Letters To Lower Case.");
+        return Localization
+            .lang("Changes The First Letter Of All Words To Capital Case And The Remaining Letters To Lower Case.");
     }
 
     @Override
     public String getExampleInput() {
         return "I have {a} DREAM";
     }
+
 }

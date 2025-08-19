@@ -30,37 +30,43 @@ public class MetaDataSerializer {
     }
 
     /**
-     * Writes all data in the format &lt;key, serialized data>.
-     * Also serializes user-defined .blg file paths (if present).
+     * Writes all data in the format &lt;key, serialized data>. Also serializes
+     * user-defined .blg file paths (if present).
      */
     public static Map<String, String> getSerializedStringMap(MetaData metaData,
-                                                             GlobalCitationKeyPatterns globalCiteKeyPatterns) {
+            GlobalCitationKeyPatterns globalCiteKeyPatterns) {
 
         // metadata-key, list of contents
-        //  - contents to be separated by OS.NEWLINE
-        //  - each meta data item is written as separate @Comment entry - see org.jabref.logic.exporter.BibtexDatabaseWriter.writeMetaDataItem
+        // - contents to be separated by OS.NEWLINE
+        // - each meta data item is written as separate @Comment entry - see
+        // org.jabref.logic.exporter.BibtexDatabaseWriter.writeMetaDataItem
         Map<String, List<String>> stringyMetaData = new HashMap<>();
 
         // First write all meta data except groups
-        metaData.getSaveOrder().ifPresent(
-                saveOrderConfig -> stringyMetaData.put(MetaData.SAVE_ORDER_CONFIG, saveOrderConfig.getAsStringList()));
-        metaData.getSaveActions().ifPresent(
-                saveActions -> stringyMetaData.put(MetaData.SAVE_ACTIONS, getAsStringList(saveActions, OS.NEWLINE)));
+        metaData.getSaveOrder()
+            .ifPresent(saveOrderConfig -> stringyMetaData.put(MetaData.SAVE_ORDER_CONFIG,
+                    saveOrderConfig.getAsStringList()));
+        metaData.getSaveActions()
+            .ifPresent(saveActions -> stringyMetaData.put(MetaData.SAVE_ACTIONS,
+                    getAsStringList(saveActions, OS.NEWLINE)));
         if (metaData.isProtected()) {
             stringyMetaData.put(MetaData.PROTECTED_FLAG_META, List.of("true"));
         }
         stringyMetaData.putAll(serializeCiteKeyPatterns(metaData, globalCiteKeyPatterns));
-        metaData.getMode().ifPresent(
-                mode -> stringyMetaData.put(MetaData.DATABASE_TYPE, List.of(mode.getAsString())));
-        metaData.getLibrarySpecificFileDirectory().ifPresent(
-                path -> stringyMetaData.put(MetaData.FILE_DIRECTORY, List.of(path.trim())));
-        metaData.getUserFileDirectories().forEach((user, path) -> stringyMetaData
-                .put(MetaData.FILE_DIRECTORY + '-' + user, List.of(path.trim())));
-        metaData.getLatexFileDirectories().forEach((user, path) -> stringyMetaData
-                .put(MetaData.FILE_DIRECTORY_LATEX + '-' + user, List.of(path.toString().trim())));
-        metaData.getVersionDBStructure().ifPresent(
-                versionDBStructure -> stringyMetaData.put(MetaData.VERSION_DB_STRUCT, List.of(versionDBStructure.trim())));
-        metaData.getBlgFilePaths().forEach((user, path) -> stringyMetaData.put(MetaData.BLG_FILE_PATH + "-" + user, List.of(path.toString().trim())));
+        metaData.getMode().ifPresent(mode -> stringyMetaData.put(MetaData.DATABASE_TYPE, List.of(mode.getAsString())));
+        metaData.getLibrarySpecificFileDirectory()
+            .ifPresent(path -> stringyMetaData.put(MetaData.FILE_DIRECTORY, List.of(path.trim())));
+        metaData.getUserFileDirectories()
+            .forEach((user, path) -> stringyMetaData.put(MetaData.FILE_DIRECTORY + '-' + user, List.of(path.trim())));
+        metaData.getLatexFileDirectories()
+            .forEach((user, path) -> stringyMetaData.put(MetaData.FILE_DIRECTORY_LATEX + '-' + user,
+                    List.of(path.toString().trim())));
+        metaData.getVersionDBStructure()
+            .ifPresent(versionDBStructure -> stringyMetaData.put(MetaData.VERSION_DB_STRUCT,
+                    List.of(versionDBStructure.trim())));
+        metaData.getBlgFilePaths()
+            .forEach((user, path) -> stringyMetaData.put(MetaData.BLG_FILE_PATH + "-" + user,
+                    List.of(path.toString().trim())));
 
         for (ContentSelector selector : metaData.getContentSelectorsSorted()) {
             stringyMetaData.put(MetaData.SELECTOR_META_PREFIX + selector.getField().getName(), selector.getValues());
@@ -70,17 +76,20 @@ public class MetaDataSerializer {
 
         // Write groups if present.
         // Skip this if only the root node exists (which is always the AllEntriesGroup).
-        metaData.getGroups().filter(root -> root.getNumberOfChildren() > 0).ifPresent(
-                root -> serializedMetaData.put(MetaData.GROUPSTREE, serializeGroups(root)));
+        metaData.getGroups()
+            .filter(root -> root.getNumberOfChildren() > 0)
+            .ifPresent(root -> serializedMetaData.put(MetaData.GROUPSTREE, serializeGroups(root)));
 
-        metaData.getGroupSearchSyntaxVersion().ifPresent(
-                version -> serializedMetaData.put(MetaData.GROUPS_SEARCH_SYNTAX_VERSION, version.toString()));
+        metaData.getGroupSearchSyntaxVersion()
+            .ifPresent(version -> serializedMetaData.put(MetaData.GROUPS_SEARCH_SYNTAX_VERSION, version.toString()));
 
         // finally add all unknown meta data items to the serialization map
         Map<String, List<String>> unknownMetaData = metaData.getUnknownMetaData();
         for (Map.Entry<String, List<String>> entry : unknownMetaData.entrySet()) {
-            // The last "MetaData.SEPARATOR_STRING" adds compatibility to JabRef v5.9 and earlier
-            StringJoiner value = new StringJoiner(MetaData.SEPARATOR_STRING + OS.NEWLINE, OS.NEWLINE, MetaData.SEPARATOR_STRING + OS.NEWLINE);
+            // The last "MetaData.SEPARATOR_STRING" adds compatibility to JabRef v5.9 and
+            // earlier
+            StringJoiner value = new StringJoiner(MetaData.SEPARATOR_STRING + OS.NEWLINE, OS.NEWLINE,
+                    MetaData.SEPARATOR_STRING + OS.NEWLINE);
             for (String line : entry.getValue()) {
                 value.add(line.replace(MetaData.SEPARATOR_STRING, "\\" + MetaData.SEPARATOR_STRING));
             }
@@ -100,20 +109,22 @@ public class MetaDataSerializer {
             }
 
             boolean isSaveActions = MetaData.SAVE_ACTIONS.equals(metaItem.getKey());
-            // The last "MetaData.SEPARATOR_STRING" adds compatibility to JabRef v5.9 and earlier
+            // The last "MetaData.SEPARATOR_STRING" adds compatibility to JabRef v5.9 and
+            // earlier
             StringJoiner joiner = new StringJoiner(MetaData.SEPARATOR_STRING, "", MetaData.SEPARATOR_STRING);
             boolean lastWasSaveActionsEnablement = false;
             for (String dataItem : itemList) {
                 String string;
                 if (lastWasSaveActionsEnablement) {
                     string = OS.NEWLINE;
-                } else {
+                }
+                else {
                     string = "";
                 }
                 string += StringUtil.quote(dataItem, MetaData.SEPARATOR_STRING, MetaData.ESCAPE_CHARACTER);
-                // in case of save actions, add an additional newline after the enabled flag
-                lastWasSaveActionsEnablement = isSaveActions
-                        && (FieldFormatterCleanups.ENABLED.equals(dataItem)
+                // in case of save actions, add an additional newline after the enabled
+                // flag
+                lastWasSaveActionsEnablement = isSaveActions && (FieldFormatterCleanups.ENABLED.equals(dataItem)
                         || FieldFormatterCleanups.DISABLED.equals(dataItem));
                 joiner.add(string);
             }
@@ -126,7 +137,8 @@ public class MetaDataSerializer {
         return serializedMetaData;
     }
 
-    private static Map<String, List<String>> serializeCiteKeyPatterns(MetaData metaData, GlobalCitationKeyPatterns globalCitationKeyPatterns) {
+    private static Map<String, List<String>> serializeCiteKeyPatterns(MetaData metaData,
+            GlobalCitationKeyPatterns globalCitationKeyPatterns) {
         Map<String, List<String>> stringyPattern = new HashMap<>();
         AbstractCitationKeyPatterns citationKeyPattern = metaData.getCiteKeyPatterns(globalCitationKeyPatterns);
         for (EntryType key : citationKeyPattern.getAllKeys()) {
@@ -137,7 +149,8 @@ public class MetaDataSerializer {
                 stringyPattern.put(metaDataKey, data);
             }
         }
-        if ((citationKeyPattern.getDefaultValue() != null) && !citationKeyPattern.getDefaultValue().equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)) {
+        if ((citationKeyPattern.getDefaultValue() != null)
+                && !citationKeyPattern.getDefaultValue().equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)) {
             List<String> data = new ArrayList<>();
             data.add(citationKeyPattern.getDefaultValue().stringRepresentation());
             stringyPattern.put(MetaData.KEYPATTERNDEFAULT, data);
@@ -158,17 +171,10 @@ public class MetaDataSerializer {
     }
 
     public static String serializeCustomEntryTypes(BibEntryType entryType) {
-        return MetaData.ENTRYTYPE_FLAG +
-                entryType.getType().getName() +
-                ": req[" +
-                FieldFactory.serializeOrFieldsList(entryType.getRequiredFields()) +
-                "] opt[" +
-                FieldFactory.serializeFieldsList(
-                        entryType.getOptionalFields()
-                                 .stream()
-                                 .map(BibField::field)
-                                 .toList()) +
-                "]";
+        return MetaData.ENTRYTYPE_FLAG + entryType.getType().getName() + ": req["
+                + FieldFactory.serializeOrFieldsList(entryType.getRequiredFields()) + "] opt["
+                + FieldFactory.serializeFieldsList(entryType.getOptionalFields().stream().map(BibField::field).toList())
+                + "]";
     }
 
     public static List<String> getAsStringList(FieldFormatterCleanups fieldFormatterCleanups, String delimiter) {
@@ -176,13 +182,15 @@ public class MetaDataSerializer {
 
         if (fieldFormatterCleanups.isEnabled()) {
             stringRepresentation.add(FieldFormatterCleanups.ENABLED);
-        } else {
+        }
+        else {
             stringRepresentation.add(FieldFormatterCleanups.DISABLED);
         }
 
-        String formatterString = FieldFormatterCleanups.getMetaDataString(
-                fieldFormatterCleanups.getConfiguredActions(), delimiter);
+        String formatterString = FieldFormatterCleanups.getMetaDataString(fieldFormatterCleanups.getConfiguredActions(),
+                delimiter);
         stringRepresentation.add(formatterString);
         return stringRepresentation;
     }
+
 }

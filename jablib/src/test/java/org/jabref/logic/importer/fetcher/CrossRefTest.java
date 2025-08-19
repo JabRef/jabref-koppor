@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CrossRefTest {
 
     private CrossRef fetcher;
+
     private BibEntry barrosEntry;
 
     @BeforeEach
@@ -51,14 +52,16 @@ class CrossRefTest {
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service");
         entry.setField(StandardField.AUTHOR, "Stefan Kolb");
-        assertEquals("10.1109/sose.2014.26", fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
+        assertEquals("10.1109/sose.2014.26",
+                fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
     }
 
     @Test
     void findTitleOnly() throws FetcherException {
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service");
-        assertEquals("10.1109/sose.2014.26", fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
+        assertEquals("10.1109/sose.2014.26",
+                fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
     }
 
     @Test
@@ -74,7 +77,8 @@ class CrossRefTest {
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service----");
         entry.setField(StandardField.AUTHOR, "Stefan Kolb and Guido Wirtz");
-        assertEquals("10.1109/sose.2014.26", fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
+        assertEquals("10.1109/sose.2014.26",
+                fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
     }
 
     @Test
@@ -90,15 +94,18 @@ class CrossRefTest {
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service");
         entry.setField(StandardField.AUTHOR, "Stefan Kolb and Simon Harrer");
-        assertEquals("10.1109/sose.2014.26", fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
+        assertEquals("10.1109/sose.2014.26",
+                fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
     }
 
     @Test
     void findWithSubtitle() throws FetcherException {
         BibEntry entry = new BibEntry();
-        // CrossRef entry will only include { "title": "A break in the clouds", "subtitle": "towards a cloud definition" }
+        // CrossRef entry will only include { "title": "A break in the clouds",
+        // "subtitle": "towards a cloud definition" }
         entry.setField(StandardField.TITLE, "A break in the clouds: towards a cloud definition");
-        assertEquals("10.1145/1496091.1496100", fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
+        assertEquals("10.1145/1496091.1496100",
+                fetcher.findIdentifier(entry).get().asString().toLowerCase(Locale.ENGLISH));
     }
 
     @Test
@@ -108,7 +115,10 @@ class CrossRefTest {
 
     @Test
     void findByAuthors() throws FetcherException {
-        assertEquals(Optional.of(barrosEntry), fetcher.performSearch("\"Barros, Alistair\" AND \"Dumas, Marlon\" AND \"Arthur H.M. ter Hofstede\"").stream().findFirst());
+        assertEquals(Optional.of(barrosEntry),
+                fetcher.performSearch("\"Barros, Alistair\" AND \"Dumas, Marlon\" AND \"Arthur H.M. ter Hofstede\"")
+                    .stream()
+                    .findFirst());
     }
 
     @Test
@@ -153,4 +163,5 @@ class CrossRefTest {
     void performSearchValidReturnNothingDOI() {
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById("10.1392/BC1.0"));
     }
+
 }

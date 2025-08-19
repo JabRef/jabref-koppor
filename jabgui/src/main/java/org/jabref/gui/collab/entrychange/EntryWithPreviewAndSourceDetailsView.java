@@ -13,8 +13,10 @@ public final class EntryWithPreviewAndSourceDetailsView extends DatabaseChangeDe
 
     private final PreviewWithSourceTab previewWithSourceTab = new PreviewWithSourceTab();
 
-    public EntryWithPreviewAndSourceDetailsView(BibEntry entry, BibDatabaseContext bibDatabaseContext, GuiPreferences preferences, BibEntryTypesManager entryTypesManager, PreviewViewer previewViewer) {
-        TabPane tabPanePreviewCode = previewWithSourceTab.getPreviewWithSourceTab(entry, bibDatabaseContext, preferences, entryTypesManager, previewViewer);
+    public EntryWithPreviewAndSourceDetailsView(BibEntry entry, BibDatabaseContext bibDatabaseContext,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager, PreviewViewer previewViewer) {
+        TabPane tabPanePreviewCode = previewWithSourceTab.getPreviewWithSourceTab(entry, bibDatabaseContext,
+                preferences, entryTypesManager, previewViewer);
         setLeftAnchor(tabPanePreviewCode, 8d);
         setTopAnchor(tabPanePreviewCode, 8d);
         setRightAnchor(tabPanePreviewCode, 8d);
@@ -22,4 +24,5 @@ public final class EntryWithPreviewAndSourceDetailsView extends DatabaseChangeDe
 
         getChildren().setAll(tabPanePreviewCode);
     }
+
 }

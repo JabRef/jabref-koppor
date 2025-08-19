@@ -6,7 +6,9 @@ import org.jabref.logic.layout.LayoutFormatter;
 /// of more than two authors).
 public class AuthorAndsReplacer implements LayoutFormatter {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see org.jabref.export.layout.LayoutFormatter#format(java.lang.String)
      */
     @Override
@@ -34,4 +36,5 @@ public class AuthorAndsReplacer implements LayoutFormatter {
 
         return s;
     }
+
 }

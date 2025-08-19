@@ -34,41 +34,44 @@ public class LocalizationParser {
 
     public static SortedSet<LocalizationEntry> findMissingKeys(LocalizationBundleForTest type) throws IOException {
         Set<LocalizationEntry> entries = findLocalizationEntriesInFiles(type);
-        Set<String> keysInJavaFiles = entries.stream()
-                                             .map(LocalizationEntry::getKey)
-                                             .collect(Collectors.toSet());
+        Set<String> keysInJavaFiles = entries.stream().map(LocalizationEntry::getKey).collect(Collectors.toSet());
 
         Set<String> englishKeys;
         if (type == LocalizationBundleForTest.LANG) {
             englishKeys = getKeysInPropertiesFile("/l10n/JabRef_en.properties");
-        } else {
+        }
+        else {
             englishKeys = getKeysInPropertiesFile("/l10n/Menu_en.properties");
         }
         List<String> missingKeys = new ArrayList<>(keysInJavaFiles);
         missingKeys.removeAll(englishKeys);
 
         return entries.stream()
-                      .filter(e -> missingKeys.contains(e.getKey()))
-                      .collect(Collectors.toCollection(TreeSet::new));
+            .filter(e -> missingKeys.contains(e.getKey()))
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static SortedSet<String> findObsolete(LocalizationBundleForTest type) throws IOException {
         Set<String> englishKeys;
         if (type == LocalizationBundleForTest.LANG) {
             englishKeys = getKeysInPropertiesFile("/l10n/JabRef_en.properties");
-        } else {
+        }
+        else {
             englishKeys = getKeysInPropertiesFile("/l10n/Menu_en.properties");
         }
-        Set<String> keysInSourceFiles = findLocalizationEntriesInFiles(type)
-                .stream().map(LocalizationEntry::getKey).collect(Collectors.toSet());
+        Set<String> keysInSourceFiles = findLocalizationEntriesInFiles(type).stream()
+            .map(LocalizationEntry::getKey)
+            .collect(Collectors.toSet());
         englishKeys.removeAll(keysInSourceFiles);
         return new TreeSet<>(englishKeys);
     }
 
-    private static Set<LocalizationEntry> findLocalizationEntriesInFiles(LocalizationBundleForTest type) throws IOException {
+    private static Set<LocalizationEntry> findLocalizationEntriesInFiles(LocalizationBundleForTest type)
+            throws IOException {
         if (type == LocalizationBundleForTest.MENU) {
             return findLocalizationEntriesInJavaFiles(type);
-        } else {
+        }
+        else {
             Set<LocalizationEntry> entriesInFiles = new HashSet<>();
             entriesInFiles.addAll(findLocalizationEntriesInJavaFiles(type));
             entriesInFiles.addAll(findLocalizationEntriesInFxmlFiles(type));
@@ -79,66 +82,72 @@ public class LocalizationParser {
     public static Set<LocalizationEntry> findLocalizationParametersStringsInJavaFiles(LocalizationBundleForTest type)
             throws IOException {
         try (Stream<Path> pathStream = Files.walk(Path.of("src/main"))) {
-            return pathStream
-                    .filter(LocalizationParser::isJavaFile)
-                    .flatMap(path -> getLocalizationParametersInJavaFile(path, type).stream())
-                    .collect(Collectors.toSet());
-        } catch (UncheckedIOException ioe) {
+            return pathStream.filter(LocalizationParser::isJavaFile)
+                .flatMap(path -> getLocalizationParametersInJavaFile(path, type).stream())
+                .collect(Collectors.toSet());
+        }
+        catch (UncheckedIOException ioe) {
             throw new IOException(ioe);
         }
     }
 
-    private static Set<LocalizationEntry> findLocalizationEntriesInJavaFiles(LocalizationBundleForTest type) throws IOException {
+    private static Set<LocalizationEntry> findLocalizationEntriesInJavaFiles(LocalizationBundleForTest type)
+            throws IOException {
         try {
             return List.of("jablib", "jabkit", "jabsrv", "jabgui")
-                       .stream()
-                       .map(path -> Path.of("..", path, "src", "main", "java").normalize())
-                       .flatMap(Unchecked.function(path -> Files.walk(path)))
-                       .filter(LocalizationParser::isJavaFile)
-                       .flatMap(javaPath -> getLanguageKeysInJavaFile(javaPath, type).stream())
-                       .collect(Collectors.toSet());
-        } catch (UncheckedIOException ioe) {
+                .stream()
+                .map(path -> Path.of("..", path, "src", "main", "java").normalize())
+                .flatMap(Unchecked.function(path -> Files.walk(path)))
+                .filter(LocalizationParser::isJavaFile)
+                .flatMap(javaPath -> getLanguageKeysInJavaFile(javaPath, type).stream())
+                .collect(Collectors.toSet());
+        }
+        catch (UncheckedIOException ioe) {
             throw new IOException(ioe);
         }
     }
 
-    private static Set<LocalizationEntry> findLocalizationEntriesInFxmlFiles(LocalizationBundleForTest type) throws IOException {
+    private static Set<LocalizationEntry> findLocalizationEntriesInFxmlFiles(LocalizationBundleForTest type)
+            throws IOException {
         try {
             return List.of("jablib", "jabkit", "jabsrv", "jabgui")
-                       .stream()
-                       .map(path -> Path.of("..", path, "src", "main", "resources").normalize())
-                       .filter(Files::isDirectory)
-                       .flatMap(Unchecked.function(path -> Files.walk(path)))
-                       .filter(LocalizationParser::isFxmlFile)
-                       .flatMap(fxmlPath -> getLanguageKeysInFxmlFile(fxmlPath, type).stream())
-                       .collect(Collectors.toSet());
-        } catch (UncheckedIOException ioe) {
+                .stream()
+                .map(path -> Path.of("..", path, "src", "main", "resources").normalize())
+                .filter(Files::isDirectory)
+                .flatMap(Unchecked.function(path -> Files.walk(path)))
+                .filter(LocalizationParser::isFxmlFile)
+                .flatMap(fxmlPath -> getLanguageKeysInFxmlFile(fxmlPath, type).stream())
+                .collect(Collectors.toSet());
+        }
+        catch (UncheckedIOException ioe) {
             throw new IOException(ioe);
         }
     }
 
     /**
-     * Returns the trimmed key set of the given property file. Each key is already unescaped.
+     * Returns the trimmed key set of the given property file. Each key is already
+     * unescaped.
      */
     public static SortedSet<String> getKeysInPropertiesFile(String path) {
         Properties properties = getProperties(path);
-        return properties.keySet().stream()
-                         .map(Object::toString)
-                         .map(String::trim)
-                         .map(key -> key
-                                 // escape keys to make them comparable
-                                 .replace("\\", "\\\\")
-                                 .replace("\n", "\\n")
-                         )
-                         .collect(Collectors.toCollection(TreeSet::new));
+        return properties.keySet()
+            .stream()
+            .map(Object::toString)
+            .map(String::trim)
+            .map(key -> key
+                // escape keys to make them comparable
+                .replace("\\", "\\\\")
+                .replace("\n", "\\n"))
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Properties getProperties(String path) {
         Properties properties = new Properties();
         try (InputStream is = LocalizationConsistencyTest.class.getResourceAsStream(path);
-             InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             properties.load(reader);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
         return properties;
@@ -156,26 +165,31 @@ public class LocalizationParser {
         List<String> lines;
         try {
             lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             throw new RuntimeException(exception);
         }
         String content = String.join("\n", lines);
-        return JavaLocalizationEntryParser.getLanguageKeysInString(content, type).stream()
-                                          .map(key -> new LocalizationEntry(path, key, type))
-                                          .collect(Collectors.toList());
+        return JavaLocalizationEntryParser.getLanguageKeysInString(content, type)
+            .stream()
+            .map(key -> new LocalizationEntry(path, key, type))
+            .collect(Collectors.toList());
     }
 
-    private static List<LocalizationEntry> getLocalizationParametersInJavaFile(Path path, LocalizationBundleForTest type) {
+    private static List<LocalizationEntry> getLocalizationParametersInJavaFile(Path path,
+            LocalizationBundleForTest type) {
         List<String> lines;
         try {
             lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             throw new RuntimeException(exception);
         }
         String content = String.join("\n", lines);
-        return JavaLocalizationEntryParser.getLocalizationParameter(content, type).stream()
-                                          .map(key -> new LocalizationEntry(path, key, type))
-                                          .collect(Collectors.toList());
+        return JavaLocalizationEntryParser.getLocalizationParameter(content, type)
+            .stream()
+            .map(key -> new LocalizationEntry(path, key, type))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -186,7 +200,8 @@ public class LocalizationParser {
     private static Collection<LocalizationEntry> getLanguageKeysInFxmlFile(Path path, LocalizationBundleForTest type) {
         Collection<String> result = new ArrayList<>();
 
-        // Afterburner ViewLoader forces a controller factory, but we do not need any controller
+        // Afterburner ViewLoader forces a controller factory, but we do not need any
+        // controller
         MockedStatic<ViewLoader> viewLoader = Mockito.mockStatic(ViewLoader.class, Answers.RETURNS_DEEP_STUBS);
 
         // Record which keys are requested; we pretend that we have all keys
@@ -215,32 +230,40 @@ public class LocalizationParser {
             // We don't want to initialize controller
             loader.setControllerFactory(Mockito::mock);
 
-            // We need to load in "static mode" because otherwise fxml files with fx:root doesn't work
+            // We need to load in "static mode" because otherwise fxml files with fx:root
+            // doesn't work
             setStaticLoad(loader);
             loader.load();
-        } catch (IOException exception) {
+        }
+        catch (IOException exception) {
             throw new RuntimeException(exception);
-        } finally {
+        }
+        finally {
             viewLoader.close();
         }
 
-        return result.stream()
-                     .map(key -> new LocalizationEntry(path, key, type))
-                     .toList();
+        return result.stream().map(key -> new LocalizationEntry(path, key, type)).toList();
     }
 
     private static void setStaticLoad(FXMLLoader loader) {
-        // Somebody decided to make "setStaticLoad" package-private, so let's use reflection
+        // Somebody decided to make "setStaticLoad" package-private, so let's use
+        // reflection
         //
         // Issues in JFX:
-        //   - https://bugs.openjdk.java.net/browse/JDK-8159005 "SceneBuilder needs public access to FXMLLoader setStaticLoad" --> call for "request from community users with use cases"
-        //   - https://bugs.openjdk.java.net/browse/JDK-8127532 "FXMLLoader#setStaticLoad is deprecated"
+        // - https://bugs.openjdk.java.net/browse/JDK-8159005 "SceneBuilder needs public
+        // access to FXMLLoader setStaticLoad" --> call for "request from community users
+        // with use cases"
+        // - https://bugs.openjdk.java.net/browse/JDK-8127532 "FXMLLoader#setStaticLoad is
+        // deprecated"
         try {
             Method method = FXMLLoader.class.getDeclaredMethod("setStaticLoad", boolean.class);
             method.setAccessible(true);
             method.invoke(loader, true);
-        } catch (SecurityException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        }
+        catch (SecurityException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
+
 }

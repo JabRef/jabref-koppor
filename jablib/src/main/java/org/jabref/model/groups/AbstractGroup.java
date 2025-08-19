@@ -21,13 +21,18 @@ public abstract class AbstractGroup implements SearchMatcher {
      * The group's name.
      */
     protected final StringProperty name = new SimpleStringProperty();
+
     /**
      * The hierarchical context of the group.
      */
     protected final GroupHierarchyType context;
+
     protected Optional<Color> color = Optional.empty();
+
     protected boolean isExpanded = true;
+
     protected Optional<String> description = Optional.empty();
+
     protected Optional<String> iconName = Optional.empty();
 
     protected AbstractGroup(String name, GroupHierarchyType context) {
@@ -37,14 +42,8 @@ public abstract class AbstractGroup implements SearchMatcher {
 
     @Override
     public String toString() {
-        return "AbstractGroup{" +
-                "name='" + name.getValue() + '\'' +
-                ", context=" + context +
-                ", color=" + color +
-                ", isExpanded=" + isExpanded +
-                ", description=" + description +
-                ", iconName=" + iconName +
-                '}';
+        return "AbstractGroup{" + "name='" + name.getValue() + '\'' + ", context=" + context + ", color=" + color
+                + ", isExpanded=" + isExpanded + ", description=" + description + ", iconName=" + iconName + '}';
     }
 
     @Override
@@ -56,8 +55,8 @@ public abstract class AbstractGroup implements SearchMatcher {
             return false;
         }
         AbstractGroup that = (AbstractGroup) other;
-        return Objects.equals(this.name.getValue(), that.name.getValue()) && Objects.equals(this.description, that.description)
-                && Objects.equals(this.context, that.context);
+        return Objects.equals(this.name.getValue(), that.name.getValue())
+                && Objects.equals(this.description, that.description) && Objects.equals(this.context, that.context);
     }
 
     @Override
@@ -76,7 +75,8 @@ public abstract class AbstractGroup implements SearchMatcher {
     public void setColor(String colorString) {
         if (StringUtil.isBlank(colorString)) {
             color = Optional.empty();
-        } else {
+        }
+        else {
             setColor(Color.valueOf(colorString));
         }
     }
@@ -96,7 +96,8 @@ public abstract class AbstractGroup implements SearchMatcher {
     public void setDescription(String description) {
         if (StringUtil.isBlank(description)) {
             this.description = Optional.empty();
-        } else {
+        }
+        else {
             this.description = Optional.of(description);
         }
     }
@@ -108,7 +109,8 @@ public abstract class AbstractGroup implements SearchMatcher {
     public void setIconName(String iconName) {
         if (StringUtil.isBlank(iconName)) {
             this.iconName = Optional.empty();
-        } else {
+        }
+        else {
             this.iconName = Optional.of(iconName);
         }
     }
@@ -166,10 +168,9 @@ public abstract class AbstractGroup implements SearchMatcher {
     }
 
     /**
-     * Returns true if this group is dynamic, i.e. uses a search definition or
-     * equiv. that might match new entries, or false if this group contains a
-     * fixed set of entries and thus will never match a new entry that was not
-     * explicitly added to it.
+     * Returns true if this group is dynamic, i.e. uses a search definition or equiv. that
+     * might match new entries, or false if this group contains a fixed set of entries and
+     * thus will never match a new entry that was not explicitly added to it.
      */
     public abstract boolean isDynamic();
 
@@ -177,4 +178,5 @@ public abstract class AbstractGroup implements SearchMatcher {
      * @return A deep copy of this object.
      */
     public abstract AbstractGroup deepCopy();
+
 }

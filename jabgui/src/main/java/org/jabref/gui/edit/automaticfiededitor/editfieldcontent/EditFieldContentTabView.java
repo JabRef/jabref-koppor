@@ -23,9 +23,13 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
 public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView {
+
     public Button appendValueButton;
+
     public Button clearFieldButton;
+
     public Button setValueButton;
+
     @FXML
     private ComboBox<Field> fieldComboBox;
 
@@ -36,6 +40,7 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
     private CheckBox overwriteFieldContentCheckBox;
 
     private final List<BibEntry> selectedEntries;
+
     private final BibDatabase database;
 
     private EditFieldContentViewModel viewModel;
@@ -49,9 +54,7 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -97,4 +100,5 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
     void setFieldValue() {
         viewModel.setFieldValue();
     }
+
 }

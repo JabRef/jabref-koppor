@@ -18,19 +18,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for handling general actions; cut, copy and paste. The focused component is kept track of by
- * Globals.focusListener, and we call the action stored under the relevant name in its action map.
+ * Class for handling general actions; cut, copy and paste. The focused component is kept
+ * track of by Globals.focusListener, and we call the action stored under the relevant
+ * name in its action map.
  */
 public class EditAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EditAction.class);
 
     private final Supplier<LibraryTab> tabSupplier;
+
     private final StandardActions action;
+
     private final StateManager stateManager;
+
     private final UndoManager undoManager;
 
-    public EditAction(StandardActions action, Supplier<LibraryTab> tabSupplier, StateManager stateManager, UndoManager undoManager) {
+    public EditAction(StandardActions action, Supplier<LibraryTab> tabSupplier, StateManager stateManager,
+            UndoManager undoManager) {
         this.action = action;
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
@@ -38,7 +43,8 @@ public class EditAction extends SimpleCommand {
 
         if (action == StandardActions.PASTE) {
             this.executable.bind(ActionHelper.needsDatabase(stateManager));
-        } else {
+        }
+        else {
             this.executable.bind(ActionHelper.needsEntriesSelected(stateManager));
         }
     }
@@ -70,11 +76,14 @@ public class EditAction extends SimpleCommand {
                         throw new IllegalStateException(message);
                     }
                 }
-            } else if ((focusOwner instanceof CodeArea) || (focusOwner instanceof WebView)) {
+            }
+            else if ((focusOwner instanceof CodeArea) || (focusOwner instanceof WebView)) {
                 LOGGER.debug("Ignoring request in CodeArea or WebView");
-            } else {
+            }
+            else {
                 LOGGER.debug("Else: {}", focusOwner.getClass().getSimpleName());
-                // Not sure what is selected -> copy/paste/cut selected entries except for Preview and CodeArea
+                // Not sure what is selected -> copy/paste/cut selected entries except for
+                // Preview and CodeArea
 
                 switch (action) {
                     case COPY -> tabSupplier.get().copyEntry();
@@ -91,9 +100,11 @@ public class EditAction extends SimpleCommand {
                             undoManager.redo();
                         }
                     }
-                    default -> LOGGER.debug("Only cut/copy/paste/deleteEntry supported but got: {} and focus owner {}", action, focusOwner);
+                    default -> LOGGER.debug("Only cut/copy/paste/deleteEntry supported but got: {} and focus owner {}",
+                            action, focusOwner);
                 }
             }
         });
     }
+
 }

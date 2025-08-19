@@ -26,4 +26,5 @@ class ScholarQueryTransformerTest extends YearAndYearRangeByFilteringQueryTransf
     public String getTitlePrefix() {
         return "allintitle:";
     }
+
 }

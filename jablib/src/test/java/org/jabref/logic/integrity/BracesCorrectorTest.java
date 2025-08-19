@@ -51,4 +51,5 @@ class BracesCorrectorTest {
     void inputUnbalanced() {
         assertEquals("{{ban}ana}", BracesCorrector.apply("ban}ana}"));
     }
+
 }

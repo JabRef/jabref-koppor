@@ -36,22 +36,29 @@ import org.slf4j.LoggerFactory;
 /// else
 ///     → autoMerge := local + remoteDiff
 public class GitSyncService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GitSyncService.class);
 
     private static final boolean AMEND = true;
+
     private final ImportFormatPreferences importFormatPreferences;
+
     private final GitHandlerRegistry gitHandlerRegistry;
+
     private final GitConflictResolverStrategy gitConflictResolverStrategy;
+
     private final GitSemanticMergeExecutor mergeExecutor;
 
-    public GitSyncService(ImportFormatPreferences importFormatPreferences, GitHandlerRegistry gitHandlerRegistry, GitConflictResolverStrategy gitConflictResolverStrategy, GitSemanticMergeExecutor mergeExecutor) {
+    public GitSyncService(ImportFormatPreferences importFormatPreferences, GitHandlerRegistry gitHandlerRegistry,
+            GitConflictResolverStrategy gitConflictResolverStrategy, GitSemanticMergeExecutor mergeExecutor) {
         this.importFormatPreferences = importFormatPreferences;
         this.gitHandlerRegistry = gitHandlerRegistry;
         this.gitConflictResolverStrategy = gitConflictResolverStrategy;
         this.mergeExecutor = mergeExecutor;
     }
 
-    public MergeResult fetchAndMerge(BibDatabaseContext localDatabaseContext, Path bibFilePath) throws GitAPIException, IOException, JabRefException {
+    public MergeResult fetchAndMerge(BibDatabaseContext localDatabaseContext, Path bibFilePath)
+            throws GitAPIException, IOException, JabRefException {
         Optional<Path> repoRoot = GitHandler.findRepositoryRoot(bibFilePath);
         if (repoRoot.isEmpty()) {
             LOGGER.warn("Path is not inside a Git repository.");
@@ -90,10 +97,12 @@ public class GitSyncService {
             RevisionTriple triple = locator.locateMergeCommits(git);
 
             // 3. Perform semantic merge
-            MergeResult result = performSemanticMerge(git, triple.base(), triple.remote(), localDatabaseContext, bibFilePath);
+            MergeResult result = performSemanticMerge(git, triple.base(), triple.remote(), localDatabaseContext,
+                    bibFilePath);
 
             // 4. Auto-commit merge result if successful
-            // TODO: Allow user customization of auto-merge commit message (e.g. conventional commits)
+            // TODO: Allow user customization of auto-merge commit message (e.g.
+            // conventional commits)
             if (result.isSuccessful()) {
                 gitHandler.createCommitOnCurrentBranch("Auto-merged by JabRef", !AMEND);
             }
@@ -102,11 +111,8 @@ public class GitSyncService {
         }
     }
 
-    public MergeResult performSemanticMerge(Git git,
-                                            Optional<RevCommit> baseCommitOpt,
-                                            RevCommit remoteCommit,
-                                            BibDatabaseContext localDatabaseContext,
-                                            Path bibFilePath) throws IOException, JabRefException {
+    public MergeResult performSemanticMerge(Git git, Optional<RevCommit> baseCommitOpt, RevCommit remoteCommit,
+            BibDatabaseContext localDatabaseContext, Path bibFilePath) throws IOException, JabRefException {
 
         Path bibPath = bibFilePath.toRealPath();
         Path workTree = git.getRepository().getWorkTree().toPath().toRealPath();
@@ -121,13 +127,16 @@ public class GitSyncService {
         BibDatabaseContext base;
         if (baseCommitOpt.isPresent()) {
             Optional<String> baseContent = GitFileReader.readFileFromCommit(git, baseCommitOpt.get(), relativePath);
-            base = baseContent.isEmpty() ? BibDatabaseContext.empty() : BibDatabaseContext.of(baseContent.get(), importFormatPreferences);
-        } else {
+            base = baseContent.isEmpty() ? BibDatabaseContext.empty()
+                    : BibDatabaseContext.of(baseContent.get(), importFormatPreferences);
+        }
+        else {
             base = new BibDatabaseContext();
         }
 
         Optional<String> remoteContent = GitFileReader.readFileFromCommit(git, remoteCommit, relativePath);
-        BibDatabaseContext remote = remoteContent.isEmpty() ? BibDatabaseContext.empty() : BibDatabaseContext.of(remoteContent.get(), importFormatPreferences);
+        BibDatabaseContext remote = remoteContent.isEmpty() ? BibDatabaseContext.empty()
+                : BibDatabaseContext.of(remoteContent.get(), importFormatPreferences);
         BibDatabaseContext local = localDatabaseContext;
 
         // 2. Conflict detection
@@ -136,7 +145,8 @@ public class GitSyncService {
         BibDatabaseContext effectiveRemote;
         if (conflicts.isEmpty()) {
             effectiveRemote = remote;
-        } else {
+        }
+        else {
             // 3. If there are conflicts, ask strategy to resolve
             List<BibEntry> resolved = gitConflictResolverStrategy.resolveConflicts(conflicts);
             if (resolved.isEmpty()) {
@@ -152,7 +162,8 @@ public class GitSyncService {
         return result;
     }
 
-    public void push(BibDatabaseContext localDatabaseContext, Path bibFilePath) throws GitAPIException, IOException, JabRefException {
+    public void push(BibDatabaseContext localDatabaseContext, Path bibFilePath)
+            throws GitAPIException, IOException, JabRefException {
         Optional<Path> repoRoot = GitHandler.findRepositoryRoot(bibFilePath);
 
         if (repoRoot.isEmpty()) {
@@ -178,7 +189,8 @@ public class GitSyncService {
                 boolean committed = gitHandler.createCommitOnCurrentBranch("Changes committed by JabRef", !AMEND);
                 if (committed) {
                     gitHandler.pushCommitsToRemoteRepository();
-                } else {
+                }
+                else {
                     LOGGER.info("No changes to commit — skipping push");
                 }
             }
@@ -196,7 +208,8 @@ public class GitSyncService {
                     GitRevisionLocator locator = new GitRevisionLocator();
                     RevisionTriple triple = locator.locateMergeCommits(git);
 
-                    MergeResult mergeResult = performSemanticMerge(git, triple.base(), triple.remote(), localDatabaseContext, bibFilePath);
+                    MergeResult mergeResult = performSemanticMerge(git, triple.base(), triple.remote(),
+                            localDatabaseContext, bibFilePath);
 
                     if (!mergeResult.isSuccessful()) {
                         LOGGER.warn("Semantic merge failed — aborting push");
@@ -207,7 +220,8 @@ public class GitSyncService {
 
                     if (committed) {
                         gitHandler.pushCommitsToRemoteRepository();
-                    } else {
+                    }
+                    else {
                         LOGGER.info("Nothing to commit after semantic merge — skipping push");
                     }
                 }
@@ -222,5 +236,5 @@ public class GitSyncService {
             }
         }
     }
-}
 
+}

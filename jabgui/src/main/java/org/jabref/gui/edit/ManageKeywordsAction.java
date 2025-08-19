@@ -22,7 +22,8 @@ public class ManageKeywordsAction extends SimpleCommand {
         this.stateManager = stateManager;
 
         this.executable.bind(needsDatabase(stateManager).and(needsEntriesSelected(stateManager)));
-        this.statusMessage.bind(BindingsHelper.ifThenElse(this.executable, "", Localization.lang("Select at least one entry to manage keywords.")));
+        this.statusMessage.bind(BindingsHelper.ifThenElse(this.executable, "",
+                Localization.lang("Select at least one entry to manage keywords.")));
     }
 
     @Override
@@ -30,4 +31,5 @@ public class ManageKeywordsAction extends SimpleCommand {
         DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
         dialogService.showCustomDialogAndWait(new ManageKeywordsDialog(stateManager.getSelectedEntries()));
     }
+
 }

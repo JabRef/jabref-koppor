@@ -31,7 +31,9 @@ import static com.google.common.collect.Sets.union;
 /// - Entries without citation keys are currently ignored.
 /// - Changing a citation key is not supported and is treated as deletion + addition.
 public class SemanticConflictDetector {
-    public static List<ThreeWayEntryConflict> detectConflicts(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote) {
+
+    public static List<ThreeWayEntryConflict> detectConflicts(BibDatabaseContext base, BibDatabaseContext local,
+            BibDatabaseContext remote) {
         // 1. get diffs between base, local and remote
         BibDatabaseDiff localDiff = BibDatabaseDiff.compare(base, local);
         BibDatabaseDiff remoteDiff = BibDatabaseDiff.compare(base, remote);
@@ -64,20 +66,18 @@ public class SemanticConflictDetector {
     /**
      * Detect entry-level conflicts among base, local, and remote versions of an entry.
      * <p>
-     *
      * @param base the entry in the common ancestor
      * @param local the entry in the local version
      * @param remote the entry in the remote version
      * @return optional conflict (if detected)
      */
-    private static Optional<ThreeWayEntryConflict> detectEntryConflict(BibEntry base,
-                                                                       BibEntry local,
-                                                                       BibEntry remote) {
+    private static Optional<ThreeWayEntryConflict> detectEntryConflict(BibEntry base, BibEntry local, BibEntry remote) {
         // Case 1: Both local and remote added same citation key -> compare their fields
         if (base == null && local != null && remote != null) {
             if (hasConflictingFields(new BibEntry(), local, remote)) {
                 return Optional.of(new ThreeWayEntryConflict(null, local, remote));
-            } else {
+            }
+            else {
                 return Optional.empty();
             }
         }
@@ -114,15 +114,16 @@ public class SemanticConflictDetector {
         }
 
         Set<Field> allFields = Stream.of(base, local, remote)
-                                     .flatMap(entry -> entry.getFields().stream())
-                                     .collect(Collectors.toSet());
+            .flatMap(entry -> entry.getFields().stream())
+            .collect(Collectors.toSet());
 
         for (Field field : allFields) {
             String baseVal = base.getField(field).orElse(null);
             String localVal = local.getField(field).orElse(null);
             String remoteVal = remote.getField(field).orElse(null);
 
-            // Case 1: Both local and remote modified the same field from base, and the values differ
+            // Case 1: Both local and remote modified the same field from base, and the
+            // values differ
             if (modifiedOnBothSidesWithDisagreement(baseVal, localVal, remoteVal)) {
                 return true;
             }
@@ -162,8 +163,7 @@ public class SemanticConflictDetector {
             return false;
         }
 
-        return (baseVal != null)
-                && ((localVal == null && notEqual(baseVal, remoteVal))
+        return (baseVal != null) && ((localVal == null && notEqual(baseVal, remoteVal))
                 || (remoteVal == null && notEqual(baseVal, localVal)));
     }
 
@@ -176,15 +176,15 @@ public class SemanticConflictDetector {
     }
 
     /**
-     * Converts a List of BibEntryDiff into a Map where the key is the citation key,
-     * and the value is the corresponding BibEntryDiff.
+     * Converts a List of BibEntryDiff into a Map where the key is the citation key, and
+     * the value is the corresponding BibEntryDiff.
      * <p>
-     * Notes:
-     * - Only entries with a citation key are included (entries without a key cannot be uniquely identified during merge).
-     * - Entries that represent additions (base == null) or deletions (new == null) are also included.
-     * - If multiple BibEntryDiffs share the same citation key (rare), the latter one will overwrite the former.
+     * Notes: - Only entries with a citation key are included (entries without a key
+     * cannot be uniquely identified during merge). - Entries that represent additions
+     * (base == null) or deletions (new == null) are also included. - If multiple
+     * BibEntryDiffs share the same citation key (rare), the latter one will overwrite the
+     * former.
      * <p>
-     *
      * @param entryDiffs A list of entry diffs produced by BibDatabaseDiff
      * @return A map from citation key to corresponding BibEntryDiff
      */
@@ -193,9 +193,8 @@ public class SemanticConflictDetector {
 
         for (BibEntryDiff diff : entryDiffs) {
             Optional<String> citationKey = Optional.ofNullable(diff.newEntry())
-                                                   .flatMap(BibEntry::getCitationKey)
-                                                   .or(() -> Optional.ofNullable(diff.originalEntry())
-                                                                     .flatMap(BibEntry::getCitationKey));
+                .flatMap(BibEntry::getCitationKey)
+                .or(() -> Optional.ofNullable(diff.originalEntry()).flatMap(BibEntry::getCitationKey));
             citationKey.ifPresent(key -> result.put(key, diff));
         }
 
@@ -203,14 +202,12 @@ public class SemanticConflictDetector {
     }
 
     private static Map<String, BibEntry> getCitationKeyToEntryMap(BibDatabaseContext context) {
-        return context.getDatabase().getEntries().stream()
-                      .filter(entry -> entry.getCitationKey().isPresent())
-                      .collect(Collectors.toMap(
-                              entry -> entry.getCitationKey().get(),
-                              Function.identity(),
-                              (existing, replacement) -> replacement,
-                              LinkedHashMap::new
-                      ));
+        return context.getDatabase()
+            .getEntries()
+            .stream()
+            .filter(entry -> entry.getCitationKey().isPresent())
+            .collect(Collectors.toMap(entry -> entry.getCitationKey().get(), Function.identity(),
+                    (existing, replacement) -> replacement, LinkedHashMap::new));
     }
 
     private static BibEntry resolveEntry(String key, BibEntryDiff diff, Map<String, BibEntry> fullMap) {
@@ -221,13 +218,13 @@ public class SemanticConflictDetector {
     }
 
     /**
-     * Compares base and remote, finds all semantic-level changes (new entries, updated fields), and builds a patch plan.
-     * This plan is meant to be applied to local during merge:
-     * result = local + (remote − base)
-     *
+     * Compares base and remote, finds all semantic-level changes (new entries, updated
+     * fields), and builds a patch plan. This plan is meant to be applied to local during
+     * merge: result = local + (remote − base)
      * @param base The base version of the database.
      * @param remote The remote version to be merged.
-     * @return A {@link MergePlan} describing how to update the local copy with remote changes.
+     * @return A {@link MergePlan} describing how to update the local copy with remote
+     * changes.
      */
     public static MergePlan extractMergePlan(BibDatabaseContext base, BibDatabaseContext remote) {
         Map<String, BibEntry> baseMap = getCitationKeyToEntryMap(base);
@@ -243,7 +240,8 @@ public class SemanticConflictDetector {
 
             if (baseEntry == null) {
                 newEntries.add(remoteEntry);
-            } else {
+            }
+            else {
                 Map<Field, String> patch = computeFieldPatch(baseEntry, remoteEntry);
                 if (!patch.isEmpty()) {
                     fieldPatches.put(key, patch);
@@ -255,8 +253,8 @@ public class SemanticConflictDetector {
     }
 
     /**
-     * Compares base and remote and constructs a patch at the field level. null == the field is deleted.
-     *
+     * Compares base and remote and constructs a patch at the field level. null == the
+     * field is deleted.
      * @param base base version
      * @param remote remote version
      * @return A map from field to new value
@@ -264,17 +262,16 @@ public class SemanticConflictDetector {
     private static Map<Field, String> computeFieldPatch(BibEntry base, BibEntry remote) {
         Map<Field, String> patch = new LinkedHashMap<>();
 
-        Stream.concat(base.getFields().stream(), remote.getFields().stream())
-              .distinct()
-              .forEach(field -> {
-                  String baseValue = base.getField(field).orElse(null);
-                  String remoteValue = remote.getField(field).orElse(null);
+        Stream.concat(base.getFields().stream(), remote.getFields().stream()).distinct().forEach(field -> {
+            String baseValue = base.getField(field).orElse(null);
+            String remoteValue = remote.getField(field).orElse(null);
 
-                  if (!Objects.equals(baseValue, remoteValue)) {
-                      patch.put(field, remoteValue);
-                  }
-              });
+            if (!Objects.equals(baseValue, remoteValue)) {
+                patch.put(field, remoteValue);
+            }
+        });
 
         return patch;
     }
+
 }

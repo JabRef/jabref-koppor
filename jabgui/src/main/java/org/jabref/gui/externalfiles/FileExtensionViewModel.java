@@ -16,8 +16,11 @@ import org.jabref.logic.util.FileType;
 public class FileExtensionViewModel {
 
     private final String name;
+
     private final String description;
+
     private final List<String> extensions;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
     FileExtensionViewModel(FileType fileType, ExternalApplicationsPreferences externalApplicationsPreferences) {
@@ -37,11 +40,12 @@ public class FileExtensionViewModel {
 
     public JabRefIcon getIcon() {
         return ExternalFileTypes.getExternalFileTypeByExt(extensions.getFirst(), externalApplicationsPreferences)
-                                .map(ExternalFileType::getIcon)
-                                .orElse(null);
+            .map(ExternalFileType::getIcon)
+            .orElse(null);
     }
 
     public Filter<Path> dirFilter() {
         return FileFilterConverter.toDirFilter(extensions);
     }
+
 }

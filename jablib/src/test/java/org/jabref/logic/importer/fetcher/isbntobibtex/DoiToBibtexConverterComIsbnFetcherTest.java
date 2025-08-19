@@ -27,14 +27,16 @@ class DoiToBibtexConverterComIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @BeforeEach
     void setUp() {
         bibEntryEffectiveJava = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
-                .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
-                .withField(StandardField.YEAR, "2007")
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.ISBN, "9780321356680")
-                .withField(StandardField.PAGES, "256");
+            .withField(StandardField.TITLE,
+                    "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
+            .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
+            .withField(StandardField.YEAR, "2007")
+            .withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(StandardField.ISBN, "9780321356680")
+            .withField(StandardField.PAGES, "256");
 
-        fetcher = new DoiToBibtexConverterComIsbnFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        fetcher = new DoiToBibtexConverterComIsbnFetcher(
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
 
     @Test
@@ -60,14 +62,13 @@ class DoiToBibtexConverterComIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @Test
     @Override
     public void authorsAreCorrectlyFormatted() throws FetcherException {
-        BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Repository")
-                .withField(StandardField.ISBN, "9783110702125")
-                .withField(StandardField.AUTHOR, "Hans-Joachim Habermann and Frank Leymann")
-                .withField(StandardField.PAGES, "294")
-                .withField(StandardField.YEAR, "2020")
-                .withField(StandardField.DAY, "12")
-                .withField(StandardField.MONTH, "10");
+        BibEntry bibEntry = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "Repository")
+            .withField(StandardField.ISBN, "9783110702125")
+            .withField(StandardField.AUTHOR, "Hans-Joachim Habermann and Frank Leymann")
+            .withField(StandardField.PAGES, "294")
+            .withField(StandardField.YEAR, "2020")
+            .withField(StandardField.DAY, "12")
+            .withField(StandardField.MONTH, "10");
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("9783110702125");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
@@ -86,4 +87,5 @@ class DoiToBibtexConverterComIsbnFetcherTest extends AbstractIsbnFetcherTest {
     void searchByIdFailedWithShortISBN() {
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById("0321356683"));
     }
+
 }

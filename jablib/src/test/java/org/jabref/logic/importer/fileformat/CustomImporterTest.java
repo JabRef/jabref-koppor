@@ -90,4 +90,5 @@ class CustomImporterTest {
                 "src/main/java/org/jabref/logic/importer/fileformat/" + importer.getName() + "Importer.java",
                 importer.getClass().getName());
     }
+
 }

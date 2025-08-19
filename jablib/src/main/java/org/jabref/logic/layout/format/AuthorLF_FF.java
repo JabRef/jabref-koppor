@@ -11,4 +11,5 @@ public class AuthorLF_FF implements LayoutFormatter {
 
         return al.getAsLastFirstFirstLastNamesWithAnd(false);
     }
+
 }

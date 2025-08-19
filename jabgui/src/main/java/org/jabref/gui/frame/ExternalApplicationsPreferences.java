@@ -16,23 +16,25 @@ import org.jabref.gui.externalfiletype.ExternalFileType;
 public class ExternalApplicationsPreferences {
 
     private final StringProperty eMailSubject;
+
     private final BooleanProperty shouldAutoOpenEmailAttachmentsFolder;
 
     private final BooleanProperty useCustomTerminal;
-    private final StringProperty customTerminalCommand;
-    private final BooleanProperty useCustomFileBrowser;
-    private final StringProperty customFileBrowserCommand;
-    private final StringProperty kindleEmail;
-    private final ObservableSet<ExternalFileType> externalFileTypes = FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
 
-    public ExternalApplicationsPreferences(String eMailSubject,
-                                           boolean shouldAutoOpenEmailAttachmentsFolder,
-                                           Set<ExternalFileType> externalFileTypes,
-                                           boolean useCustomTerminal,
-                                           String customTerminalCommand,
-                                           boolean useCustomFileBrowser,
-                                           String customFileBrowserCommand,
-                                           String kindleEmail) {
+    private final StringProperty customTerminalCommand;
+
+    private final BooleanProperty useCustomFileBrowser;
+
+    private final StringProperty customFileBrowserCommand;
+
+    private final StringProperty kindleEmail;
+
+    private final ObservableSet<ExternalFileType> externalFileTypes = FXCollections
+        .observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
+
+    public ExternalApplicationsPreferences(String eMailSubject, boolean shouldAutoOpenEmailAttachmentsFolder,
+            Set<ExternalFileType> externalFileTypes, boolean useCustomTerminal, String customTerminalCommand,
+            boolean useCustomFileBrowser, String customFileBrowserCommand, String kindleEmail) {
 
         this.eMailSubject = new SimpleStringProperty(eMailSubject);
         this.shouldAutoOpenEmailAttachmentsFolder = new SimpleBooleanProperty(shouldAutoOpenEmailAttachmentsFolder);
@@ -131,4 +133,5 @@ public class ExternalApplicationsPreferences {
     public ObservableSet<ExternalFileType> getExternalFileTypes() {
         return this.externalFileTypes;
     }
+
 }

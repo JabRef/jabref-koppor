@@ -22,14 +22,15 @@ import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 public class CopyFilesAction extends SimpleCommand {
 
     private final DialogService dialogService;
+
     private final CliPreferences preferences;
+
     private final StateManager stateManager;
+
     private final UiTaskExecutor uiTaskExecutor;
 
-    public CopyFilesAction(DialogService dialogService,
-                           CliPreferences preferences,
-                           StateManager stateManager,
-                           UiTaskExecutor taskExecutor) {
+    public CopyFilesAction(DialogService dialogService, CliPreferences preferences, StateManager stateManager,
+            UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -40,7 +41,8 @@ public class CopyFilesAction extends SimpleCommand {
 
     private void showDialog(List<CopyFilesResultItemViewModel> data) {
         if (data.isEmpty()) {
-            dialogService.showInformationDialogAndWait(Localization.lang("Copy linked files to folder..."), Localization.lang("No linked files found for export."));
+            dialogService.showInformationDialogAndWait(Localization.lang("Copy linked files to folder..."),
+                    Localization.lang("No linked files found for export."));
             return;
         }
         dialogService.showCustomDialogAndWait(new CopyFilesDialogView(new CopyFilesResultListDependency(data)));
@@ -48,23 +50,24 @@ public class CopyFilesAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
+        BibDatabaseContext database = stateManager.getActiveDatabase()
+            .orElseThrow(() -> new NullPointerException("Database null"));
         List<BibEntry> entries = stateManager.getSelectedEntries();
 
         DirectoryDialogConfiguration dirDialogConfiguration = new DirectoryDialogConfiguration.Builder()
-                .withInitialDirectory(preferences.getExportPreferences().getExportWorkingDirectory())
-                .build();
+            .withInitialDirectory(preferences.getExportPreferences().getExportWorkingDirectory())
+            .build();
         Optional<Path> exportPath = dialogService.showDirectorySelectionDialog(dirDialogConfiguration);
         exportPath.ifPresent(path -> {
-            Task<List<CopyFilesResultItemViewModel>> exportTask = new CopyFilesTask(database, entries, path, preferences);
+            Task<List<CopyFilesResultItemViewModel>> exportTask = new CopyFilesTask(database, entries, path,
+                    preferences);
 
-            dialogService.showProgressDialog(
-                    Localization.lang("Copy linked files to folder..."),
-                    Localization.lang("Copy linked files to folder..."),
-                    exportTask);
+            dialogService.showProgressDialog(Localization.lang("Copy linked files to folder..."),
+                    Localization.lang("Copy linked files to folder..."), exportTask);
 
             uiTaskExecutor.execute(exportTask);
             exportTask.setOnSucceeded(e -> showDialog(exportTask.getValue()));
         });
     }
+
 }

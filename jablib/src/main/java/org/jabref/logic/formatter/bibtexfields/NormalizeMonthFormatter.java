@@ -35,4 +35,5 @@ public class NormalizeMonthFormatter extends Formatter {
     public String getExampleInput() {
         return "December";
     }
+
 }

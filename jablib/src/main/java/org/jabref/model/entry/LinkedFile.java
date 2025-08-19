@@ -29,32 +29,40 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Represents the link to an external file (e.g. associated PDF file).
- * This class is {@link Serializable} which is needed for drag and drop in gui
+ * Represents the link to an external file (e.g. associated PDF file). This class is
+ * {@link Serializable} which is needed for drag and drop in gui
  */
 @AllowedToUseLogic("Uses FileUtil from logic")
 @NullMarked
 public class LinkedFile implements Serializable {
 
     private static final String REGEX_URL = "^((?:https?\\:\\/\\/|www\\.)(?:[-a-z0-9]+\\.)*[-a-z0-9]+.*)";
+
     private static final Pattern URL_PATTERN = Pattern.compile(REGEX_URL);
 
     private static final LinkedFile NULL_OBJECT = new LinkedFile("", Path.of(""), "");
 
-    // We have to mark these properties as transient because they can't be serialized directly
+    // We have to mark these properties as transient because they can't be serialized
+    // directly
     private transient StringProperty description = new SimpleStringProperty();
+
     private transient StringProperty link = new SimpleStringProperty();
-    // This field is a {@link StringProperty}, and not an {@link ObjectProperty<FileType>}, as {@link LinkedFile} might
+
+    // This field is a {@link StringProperty}, and not an {@link
+    // ObjectProperty<FileType>}, as {@link LinkedFile} might
     // be a URI, where a file type might not be present.
     private transient StringProperty fileType = new SimpleStringProperty();
+
     private transient StringProperty sourceURL = new SimpleStringProperty();
 
     public LinkedFile(String description, Path link, String fileType) {
-        this(Objects.requireNonNull(description), Objects.requireNonNull(link).toString(), Objects.requireNonNull(fileType));
+        this(Objects.requireNonNull(description), Objects.requireNonNull(link).toString(),
+                Objects.requireNonNull(fileType));
     }
 
     public LinkedFile(String description, Path link, String fileType, String sourceUrl) {
-        this(Objects.requireNonNull(description), Objects.requireNonNull(link).toString(), Objects.requireNonNull(fileType), Objects.requireNonNull(sourceUrl));
+        this(Objects.requireNonNull(description), Objects.requireNonNull(link).toString(),
+                Objects.requireNonNull(fileType), Objects.requireNonNull(sourceUrl));
     }
 
     public LinkedFile(String description, String link, FileType fileType) {
@@ -62,7 +70,8 @@ public class LinkedFile implements Serializable {
     }
 
     /**
-     * Constructor can also be used for non-valid paths. We need to parse them, because the GUI needs to render it.
+     * Constructor can also be used for non-valid paths. We need to parse them, because
+     * the GUI needs to render it.
      */
     public LinkedFile(String description, String link, String fileType, String sourceUrl) {
         this.description.setValue(Objects.requireNonNull(description));
@@ -84,7 +93,8 @@ public class LinkedFile implements Serializable {
     }
 
     public LinkedFile(String description, URL link, String fileType, String sourceUrl) {
-        this(description, Objects.requireNonNull(link).toString(), Objects.requireNonNull(fileType), Objects.requireNonNull(sourceUrl));
+        this(description, Objects.requireNonNull(link).toString(), Objects.requireNonNull(fileType),
+                Objects.requireNonNull(sourceUrl));
     }
 
     /**
@@ -137,7 +147,8 @@ public class LinkedFile implements Serializable {
     public void setLink(String link) {
         if (!isOnlineLink(link)) {
             this.link.setValue(link.replace("\\", "/"));
-        } else {
+        }
+        else {
             this.link.setValue(link);
         }
     }
@@ -151,7 +162,7 @@ public class LinkedFile implements Serializable {
     }
 
     public Observable[] getObservables() {
-        return new Observable[] {this.link, this.description, this.fileType, this.sourceURL};
+        return new Observable[] { this.link, this.description, this.fileType, this.sourceURL };
     }
 
     @Override
@@ -193,9 +204,9 @@ public class LinkedFile implements Serializable {
 
     /**
      * Checks if the given String is an online link
-     *
      * @param toCheck The String to check
-     * @return <code>true</code>, if it starts with "http://", "https://" or contains "www."; <code>false</code> otherwise
+     * @return <code>true</code>, if it starts with "http://", "https://" or contains
+     * "www."; <code>false</code> otherwise
      */
     public static boolean isOnlineLink(String toCheck) {
         String normalizedFilePath = toCheck.trim().toLowerCase();
@@ -209,12 +220,9 @@ public class LinkedFile implements Serializable {
 
     @Override
     public String toString() {
-        return "ParsedFileField{" +
-                "description='" + description.get() + '\'' +
-                ", link='" + link.get() + '\'' +
-                ", fileType='" + fileType.get() + '\'' +
-                (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\'')) +
-                '}';
+        return "ParsedFileField{" + "description='" + description.get() + '\'' + ", link='" + link.get() + '\''
+                + ", fileType='" + fileType.get() + '\''
+                + (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\'')) + '}';
     }
 
     public boolean isEmpty() {
@@ -238,7 +246,8 @@ public class LinkedFile implements Serializable {
     public Optional<Path> findIn(List<Path> directories) {
         try {
             if (link.get().isEmpty()) {
-                // We do not want to match empty paths (which could be any file or none ?!)
+                // We do not want to match empty paths (which could be any file or none
+                // ?!)
                 return Optional.empty();
             }
 
@@ -246,14 +255,18 @@ public class LinkedFile implements Serializable {
             if (file.isAbsolute() || directories.isEmpty()) {
                 if (Files.exists(file)) {
                     return Optional.of(file);
-                } else {
+                }
+                else {
                     return Optional.empty();
                 }
-            } else {
+            }
+            else {
                 return FileUtil.find(link.get(), directories);
             }
-        } catch (InvalidPathException ex) {
+        }
+        catch (InvalidPathException ex) {
             return Optional.empty();
         }
     }
+
 }

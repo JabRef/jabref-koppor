@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class MultiKeyMap<K1 extends Enum<K1>, K2, V> {
+
     private final EnumMap<K1, Map<K2, V>> map;
 
     public MultiKeyMap(Class<K1> keyType) {
@@ -16,7 +17,8 @@ public class MultiKeyMap<K1 extends Enum<K1>, K2, V> {
         Map<K2, V> metaValue = map.get(key1);
         if (metaValue == null) {
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.ofNullable(metaValue.get(key2));
         }
     }
@@ -27,7 +29,8 @@ public class MultiKeyMap<K1 extends Enum<K1>, K2, V> {
             Map<K2, V> newMetaValue = new HashMap<>();
             newMetaValue.put(key2, value);
             map.put(key1, newMetaValue);
-        } else {
+        }
+        else {
             metaValue.put(key2, value);
         }
     }
@@ -35,4 +38,5 @@ public class MultiKeyMap<K1 extends Enum<K1>, K2, V> {
     public void remove(K1 key1) {
         map.remove(key1);
     }
+
 }

@@ -40,17 +40,26 @@ import static org.mockito.Mockito.when;
 class JournalAbbreviationsViewModelTabTest {
 
     private final static TestAbbreviation ABBREVIATION_0 = new TestAbbreviation("Full0", "Abb0");
-    private final static TestAbbreviation ABBREVIATION_0_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full0", "Abb0", "A0");
+
+    private final static TestAbbreviation ABBREVIATION_0_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full0", "Abb0",
+            "A0");
 
     private final static TestAbbreviation ABBREVIATION_1 = new TestAbbreviation("Full1", "Abb1");
+
     private final static TestAbbreviation ABBREVIATION_1_SHOW = new TestAbbreviation("Full1", "Abb1", true);
-    private final static TestAbbreviation ABBREVIATION_1_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full1", "Abb1", "A1");
+
+    private final static TestAbbreviation ABBREVIATION_1_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full1", "Abb1",
+            "A1");
 
     private final static TestAbbreviation ABBREVIATION_2 = new TestAbbreviation("Full2", "Abb2");
-    private final static TestAbbreviation ABBREVIATION_2_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full2", "Abb2", "A2");
+
+    private final static TestAbbreviation ABBREVIATION_2_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full2", "Abb2",
+            "A2");
 
     private final static TestAbbreviation ABBREVIATION_3 = new TestAbbreviation("Full3", "Abb3");
-    private final static TestAbbreviation ABBREVIATION_3_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full3", "Abb3", "A3");
+
+    private final static TestAbbreviation ABBREVIATION_3_OTHER_SHORT_UNIQUE = new TestAbbreviation("Full3", "Abb3",
+            "A3");
 
     private final static TestAbbreviation ABBREVIATION_4 = new TestAbbreviation("Full4", "Abb4");
 
@@ -59,9 +68,13 @@ class JournalAbbreviationsViewModelTabTest {
     private final static TestAbbreviation ABBREVIATION_6 = new TestAbbreviation("Full6", "Abb6");
 
     private JournalAbbreviationsTabViewModel viewModel;
+
     private Path emptyTestFile;
+
     private Path tempFolder;
+
     private final JournalAbbreviationRepository repository = JournalAbbreviationLoader.loadBuiltInRepository();
+
     private DialogService dialogService;
 
     static class TestAbbreviation extends Abbreviation {
@@ -89,12 +102,11 @@ class JournalAbbreviationsViewModelTabTest {
             }
             return this.getName() + "," + this.getAbbreviation();
         }
+
     }
 
     private static String csvListOfAbbreviations(List<TestAbbreviation> testAbbreviations) {
-       return testAbbreviations.stream()
-               .map(TestAbbreviation::toString)
-               .collect(Collectors.joining("\n"));
+        return testAbbreviations.stream().map(TestAbbreviation::toString).collect(Collectors.joining("\n"));
     }
 
     private static String csvListOfAbbreviations(TestAbbreviation... testAbbreviations) {
@@ -107,71 +119,75 @@ class JournalAbbreviationsViewModelTabTest {
         }
     }
 
-    private record TestData(
-            List<CsvFileNameAndContent> csvFiles,
-            TestAbbreviation abbreviationToCheck,
-            List<String> finalContentsOfFile2,
-            List<String> finalContentsOfFile3
-    ) {
+    private record TestData(List<CsvFileNameAndContent> csvFiles, TestAbbreviation abbreviationToCheck,
+            List<String> finalContentsOfFile2, List<String> finalContentsOfFile3) {
         /**
-         * Note that we have a **different** ordering at the constructor, because Java generics have "type erasure"
+         * Note that we have a **different** ordering at the constructor, because Java
+         * generics have "type erasure"
          */
-        public TestData(
-                List<CsvFileNameAndContent> csvFiles,
-                List<TestAbbreviation> finalContentsOfFile2,
-                List<TestAbbreviation> finalContentsOfFile3,
-                TestAbbreviation abbreviationToCheck
-        ) {
-            this(csvFiles,
-                    abbreviationToCheck,
-                    finalContentsOfFile2.stream().map(TestAbbreviation::toString).toList(),
+        public TestData(List<CsvFileNameAndContent> csvFiles, List<TestAbbreviation> finalContentsOfFile2,
+                List<TestAbbreviation> finalContentsOfFile3, TestAbbreviation abbreviationToCheck) {
+            this(csvFiles, abbreviationToCheck, finalContentsOfFile2.stream().map(TestAbbreviation::toString).toList(),
                     finalContentsOfFile3.stream().map(TestAbbreviation::toString).toList());
         }
     }
 
     public static Stream<TestData> provideTestFiles() {
-        // filenameing: testfileXY, where X is the number of test (count starts at 1), and Y is the number of the file in the test (count starts at 0)
+        // filenameing: testfileXY, where X is the number of test (count starts at 1), and
+        // Y is the number of the file in the test (count starts at 0)
         // testfile_3 has 5 entries after de-duplication
         return Stream.of(
                 // No shortest unique abbreviations in files
-                // Shortest unique abbreviations in entries (being the same then the abbreviation)
-                new TestData(
-                        List.of(
-                                new CsvFileNameAndContent("testFile10.csv", ABBREVIATION_1),
-                                new CsvFileNameAndContent("testFile11.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2),
-                                new CsvFileNameAndContent("testFile12.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2, ABBREVIATION_3),
-                                new CsvFileNameAndContent("testFile13.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_1, ABBREVIATION_2, ABBREVIATION_3, ABBREVIATION_4)),
+                // Shortest unique abbreviations in entries (being the same then the
+                // abbreviation)
+                new TestData(List.of(new CsvFileNameAndContent("testFile10.csv", ABBREVIATION_1),
+                        new CsvFileNameAndContent("testFile11.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2),
+                        new CsvFileNameAndContent("testFile12.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2,
+                                ABBREVIATION_3),
+                        new CsvFileNameAndContent("testFile13.csv", ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_1,
+                                ABBREVIATION_2, ABBREVIATION_3, ABBREVIATION_4)),
                         List.of(ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2, ABBREVIATION_5),
                         List.of(ABBREVIATION_0, ABBREVIATION_1, ABBREVIATION_2, ABBREVIATION_3, ABBREVIATION_6),
                         ABBREVIATION_1_SHOW),
 
                 // Shortest unique abbreviations
                 new TestData(
-                        List.of(
-                                new CsvFileNameAndContent("testFile20.csv", ABBREVIATION_1_OTHER_SHORT_UNIQUE),
-                                new CsvFileNameAndContent("testFile21.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE),
-                                new CsvFileNameAndContent("testFile22.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3_OTHER_SHORT_UNIQUE),
-                                // contains duplicate entry ABBREVIATION_1_OTHER_SHORT_UNIQUE, therefore 6 entries
-                                new CsvFileNameAndContent("testFile23.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3, ABBREVIATION_4)),
-                        List.of(ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_5),
+                        List.of(new CsvFileNameAndContent("testFile20.csv", ABBREVIATION_1_OTHER_SHORT_UNIQUE),
+                                new CsvFileNameAndContent("testFile21.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE,
+                                        ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE),
+                                new CsvFileNameAndContent("testFile22.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE,
+                                        ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE,
+                                        ABBREVIATION_3_OTHER_SHORT_UNIQUE),
+                                // contains duplicate entry
+                                // ABBREVIATION_1_OTHER_SHORT_UNIQUE, therefore 6 entries
+                                new CsvFileNameAndContent("testFile23.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE,
+                                        ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE,
+                                        ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3, ABBREVIATION_4)),
+                        List.of(ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE,
+                                ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_5),
                         // without duplicates
-                        List.of(ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3, ABBREVIATION_6),
+                        List.of(ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1_OTHER_SHORT_UNIQUE,
+                                ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3, ABBREVIATION_6),
                         ABBREVIATION_1_OTHER_SHORT_UNIQUE),
 
                 // Mixed abbreviations (some have shortest unique, some have not)
-                new TestData(
-                        List.of(
-                                new CsvFileNameAndContent("testFile30.csv", ABBREVIATION_1),
-                                new CsvFileNameAndContent("testFile31.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1, ABBREVIATION_2_OTHER_SHORT_UNIQUE),
-                                new CsvFileNameAndContent("testFile32.csv", ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3),
-                                // contains ABBREVIATION_1 in two variants, therefore 5 in total
-                                new CsvFileNameAndContent("testFile33.csv", ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_1, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_4)),
-                        // Entries of testFile2 plus ABBREVIATION_5_SHOW minus ABBREVIATION_3
-                        List.of(ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_5),
-                        // Entries of testFile3 plus ABBREVIATION_6_SHOW minus ABBREVIATION_4
-                        List.of(ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_1, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_6),
-                        ABBREVIATION_1_OTHER_SHORT_UNIQUE)
-        );
+                new TestData(List.of(new CsvFileNameAndContent("testFile30.csv", ABBREVIATION_1),
+                        new CsvFileNameAndContent("testFile31.csv", ABBREVIATION_0_OTHER_SHORT_UNIQUE, ABBREVIATION_1,
+                                ABBREVIATION_2_OTHER_SHORT_UNIQUE),
+                        new CsvFileNameAndContent("testFile32.csv", ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE,
+                                ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_3),
+                        // contains ABBREVIATION_1 in two variants, therefore 5 in total
+                        new CsvFileNameAndContent("testFile33.csv", ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE,
+                                ABBREVIATION_1, ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_4)),
+                        // Entries of testFile2 plus ABBREVIATION_5_SHOW minus
+                        // ABBREVIATION_3
+                        List.of(ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_2_OTHER_SHORT_UNIQUE,
+                                ABBREVIATION_5),
+                        // Entries of testFile3 plus ABBREVIATION_6_SHOW minus
+                        // ABBREVIATION_4
+                        List.of(ABBREVIATION_0, ABBREVIATION_1_OTHER_SHORT_UNIQUE, ABBREVIATION_1,
+                                ABBREVIATION_2_OTHER_SHORT_UNIQUE, ABBREVIATION_6),
+                        ABBREVIATION_1_OTHER_SHORT_UNIQUE));
     }
 
     @BeforeEach
@@ -182,7 +198,8 @@ class JournalAbbreviationsViewModelTabTest {
         this.tempFolder = tempFolder;
 
         TaskExecutor taskExecutor = new CurrentThreadTaskExecutor();
-        viewModel = new JournalAbbreviationsTabViewModel(abbreviationPreferences, dialogService, taskExecutor, repository);
+        viewModel = new JournalAbbreviationsTabViewModel(abbreviationPreferences, dialogService, taskExecutor,
+                repository);
 
         emptyTestFile = createTestFile(new CsvFileNameAndContent("emptyTestFile.csv", ""));
     }
@@ -222,7 +239,8 @@ class JournalAbbreviationsViewModelTabTest {
     @ParameterizedTest
     @MethodSource("provideTestFiles")
     void addDuplicatedFileResultsInErrorDialog(TestData testData) throws IOException {
-        when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
+        when(dialogService.showFileSaveDialog(any()))
+            .thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.addNewFile();
         viewModel.addNewFile();
         verify(dialogService).showErrorDialogAndWait(anyString(), anyString());
@@ -231,7 +249,8 @@ class JournalAbbreviationsViewModelTabTest {
     @ParameterizedTest
     @MethodSource("provideTestFiles")
     void openDuplicatedFileResultsInAnException(TestData testData) throws IOException {
-        when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
+        when(dialogService.showFileOpenDialog(any()))
+            .thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.openFile();
         viewModel.openFile();
         verify(dialogService).showErrorDialogAndWait(anyString(), anyString());
@@ -245,7 +264,8 @@ class JournalAbbreviationsViewModelTabTest {
         viewModel.selectLastJournalFile();
         assertEquals(0, viewModel.abbreviationsCountProperty().get());
 
-        when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
+        when(dialogService.showFileSaveDialog(any()))
+            .thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
         assertEquals(1, viewModel.abbreviationsCountProperty().get());
@@ -267,7 +287,8 @@ class JournalAbbreviationsViewModelTabTest {
     @ParameterizedTest
     @MethodSource("provideTestFiles")
     void removeLastListSetsCurrentFileAndCurrentAbbreviationToNull(TestData testData) throws IOException {
-        when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
+        when(dialogService.showFileSaveDialog(any()))
+            .thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.addNewFile();
         viewModel.removeCurrentFile();
 
@@ -329,9 +350,10 @@ class JournalAbbreviationsViewModelTabTest {
         viewModel.currentFileProperty().set(viewModel.journalFilesProperty().getFirst());
         ObservableList<Abbreviation> expected = FXCollections.observableArrayList(repository.getAllLoaded());
         ObservableList<Abbreviation> actualAbbreviations = FXCollections
-                .observableArrayList(viewModel.abbreviationsProperty().stream()
-                                              .map(AbbreviationViewModel::getAbbreviationObject)
-                                              .collect(Collectors.toList()));
+            .observableArrayList(viewModel.abbreviationsProperty()
+                .stream()
+                .map(AbbreviationViewModel::getAbbreviationObject)
+                .collect(Collectors.toList()));
 
         assertEquals(expected, actualAbbreviations);
     }
@@ -492,7 +514,13 @@ class JournalAbbreviationsViewModelTabTest {
         assertEquals(5, viewModel.abbreviationsProperty().size());
 
         viewModel.selectLastJournalFile();
-        assertTrue(viewModel.currentFileProperty().get().getAbsolutePath().get().getFileName().toString().endsWith("3.csv"));
+        assertTrue(viewModel.currentFileProperty()
+            .get()
+            .getAbsolutePath()
+            .get()
+            .getFileName()
+            .toString()
+            .endsWith("3.csv"));
         selectLastAbbreviation();
         viewModel.deleteAbbreviation();
         viewModel.addAbbreviation(ABBREVIATION_6);
@@ -516,7 +544,7 @@ class JournalAbbreviationsViewModelTabTest {
      */
     private void selectLastAbbreviation() {
         viewModel.currentAbbreviationProperty()
-                 .set(viewModel.abbreviationsProperty().get(viewModel.abbreviationsCountProperty().get() - 1));
+            .set(viewModel.abbreviationsProperty().get(viewModel.abbreviationsCountProperty().get() - 1));
     }
 
     private void addFourTestFileToViewModelAndPreferences(TestData testData) throws IOException {
@@ -532,4 +560,5 @@ class JournalAbbreviationsViewModelTabTest {
         Files.writeString(file, testFile.content);
         return file;
     }
+
 }

@@ -67,20 +67,20 @@ public class CiteSeerQueryTransformer extends AbstractQueryTransformer {
 
     @Override
     protected String handleYearRange(String yearRange) {
-         parseYearRange(yearRange);
-         if (endYear == Integer.MAX_VALUE) { // invalid year range
-             Calendar calendar = Calendar.getInstance();
-             this.getJSONPayload().put("yearEnd", calendar.get(Calendar.YEAR));
-             return "";
-         }
-         this.getJSONPayload().put("yearStart", startYear);
-         this.getJSONPayload().put("yearEnd", endYear);
-         return yearRange;
+        parseYearRange(yearRange);
+        if (endYear == Integer.MAX_VALUE) { // invalid year range
+            Calendar calendar = Calendar.getInstance();
+            this.getJSONPayload().put("yearEnd", calendar.get(Calendar.YEAR));
+            return "";
+        }
+        this.getJSONPayload().put("yearStart", startYear);
+        this.getJSONPayload().put("yearEnd", endYear);
+        return yearRange;
     }
 
     /**
-     * covers the five fields that are required to make a POST request
-     * except "must_have_pdf" as FullTextFetcher is not yet implemented for CiteSeer
+     * covers the five fields that are required to make a POST request except
+     * "must_have_pdf" as FullTextFetcher is not yet implemented for CiteSeer
      */
     @Override
     protected Optional<String> handleOtherField(String fieldAsString, String term) {
@@ -117,4 +117,5 @@ public class CiteSeerQueryTransformer extends AbstractQueryTransformer {
     public JSONObject getJSONPayload() {
         return this.payload;
     }
+
 }

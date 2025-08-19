@@ -13,13 +13,15 @@ import org.jabref.logic.util.TaskExecutor;
 
 public class NewLibraryFromPdfActionOnline extends NewLibraryFromPdfAction {
 
-    public NewLibraryFromPdfActionOnline(LibraryTabContainer libraryTabContainer, StateManager stateManager, DialogService dialogService, CliPreferences preferences, TaskExecutor taskExecutor) {
+    public NewLibraryFromPdfActionOnline(LibraryTabContainer libraryTabContainer, StateManager stateManager,
+            DialogService dialogService, CliPreferences preferences, TaskExecutor taskExecutor) {
         super(libraryTabContainer, stateManager, dialogService, preferences, taskExecutor);
     }
 
     @Override
     protected Callable<ParserResult> getParserResultCallable(Path path) {
-        return () -> new ParserResult(
-                new GrobidService(this.preferences.getGrobidPreferences()).processReferences(path, preferences.getImportFormatPreferences()));
+        return () -> new ParserResult(new GrobidService(this.preferences.getGrobidPreferences()).processReferences(path,
+                preferences.getImportFormatPreferences()));
     }
+
 }

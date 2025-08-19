@@ -12,6 +12,7 @@ import org.jabref.model.entry.BibEntry;
 public class CompareCitedKey implements Comparator<ComparableCitedKey> {
 
     Comparator<BibEntry> entryComparator;
+
     boolean unresolvedComesFirst;
 
     CompareCitedKey(Comparator<BibEntry> entryComparator, boolean unresolvedComesFirst) {
@@ -27,13 +28,17 @@ public class CompareCitedKey implements Comparator<ComparableCitedKey> {
         if (aBibEntry.isEmpty() && bBibEntry.isEmpty()) {
             // Both are unresolved: compare them by citation key.
             return a.getCitationKey().compareTo(b.getCitationKey());
-        } else if (aBibEntry.isEmpty()) {
+        }
+        else if (aBibEntry.isEmpty()) {
             return -mul;
-        } else if (bBibEntry.isEmpty()) {
+        }
+        else if (bBibEntry.isEmpty()) {
             return mul;
-        } else {
+        }
+        else {
             // Proper comparison of entries
             return entryComparator.compare(aBibEntry.get(), bBibEntry.get());
         }
     }
+
 }

@@ -37,39 +37,36 @@ import static org.mockito.Mockito.mock;
 public class DocBook5ExporterTest {
 
     public BibDatabaseContext databaseContext;
+
     public Charset charset;
+
     public List<BibEntry> entries;
 
     private Path xmlFile;
+
     private Exporter exporter;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        exporter = new TemplateExporter(
-                "DocBook 5.1",
-                "docbook5",
-                "docbook5",
-                null,
-                StandardFileType.XML,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder());
+        exporter = new TemplateExporter("DocBook 5.1", "docbook5", "docbook5", null, StandardFileType.XML,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder());
 
         LocalDate myDate = LocalDate.of(2018, 1, 1);
 
         xmlFile = Path.of(DocBook5ExporterTest.class.getResource("Docbook5ExportFormat.xml").toURI());
         databaseContext = new BibDatabaseContext();
         charset = StandardCharsets.UTF_8;
-        BibEntry entry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "my paper title")
-                .withField(StandardField.AUTHOR, "Stefan Kolb and Tobias Diez")
-                .withField(StandardField.ISBN, "1-2-34")
-                .withCitationKey("mykey")
-                .withDate(new Date(myDate));
+        BibEntry entry = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "my paper title")
+            .withField(StandardField.AUTHOR, "Stefan Kolb and Tobias Diez")
+            .withField(StandardField.ISBN, "1-2-34")
+            .withCitationKey("mykey")
+            .withDate(new Date(myDate));
         entries = List.of(entry);
     }
 
     @Test
-    void performExportForSingleEntry(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleEntry(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
 
         exporter.export(databaseContext, path, entries);
@@ -77,8 +74,11 @@ public class DocBook5ExporterTest {
         Builder control = Input.from(Files.newInputStream(xmlFile));
         Builder test = Input.from(Files.newInputStream(path));
 
-        assertThat(test, CompareMatcher.isSimilarTo(control)
-                                       .normalizeWhitespace()
-                                       .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)).throwComparisonFailure());
+        assertThat(test,
+                CompareMatcher.isSimilarTo(control)
+                    .normalizeWhitespace()
+                    .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+                    .throwComparisonFailure());
     }
+
 }

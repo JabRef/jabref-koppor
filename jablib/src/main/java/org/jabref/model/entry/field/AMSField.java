@@ -9,7 +9,9 @@ public enum AMSField implements Field {
     FJOURNAL("fjournal");
 
     private final String name;
+
     private final String displayName;
+
     private final EnumSet<FieldProperty> properties;
 
     AMSField(String name) {
@@ -37,9 +39,7 @@ public enum AMSField implements Field {
     }
 
     public static <T> Optional<AMSField> fromName(T type, String name) {
-        return Arrays.stream(AMSField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+        return Arrays.stream(AMSField.values()).filter(field -> field.getName().equalsIgnoreCase(name)).findAny();
     }
 
     @Override
@@ -61,8 +61,10 @@ public enum AMSField implements Field {
     public String getDisplayName() {
         if (displayName == null) {
             return Field.super.getDisplayName();
-        } else {
+        }
+        else {
             return displayName;
         }
     }
+
 }

@@ -25,16 +25,17 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 public class GitPullAction extends SimpleCommand {
 
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final GuiPreferences guiPreferences;
+
     private final TaskExecutor taskExecutor;
+
     private final GitHandlerRegistry handlerRegistry;
 
-    public GitPullAction(DialogService dialogService,
-                         StateManager stateManager,
-                         GuiPreferences guiPreferences,
-                         TaskExecutor taskExecutor,
-                         GitHandlerRegistry handlerRegistry) {
+    public GitPullAction(DialogService dialogService, StateManager stateManager, GuiPreferences guiPreferences,
+            TaskExecutor taskExecutor, GitHandlerRegistry handlerRegistry) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.guiPreferences = guiPreferences;
@@ -46,20 +47,16 @@ public class GitPullAction extends SimpleCommand {
     public void execute() {
         Optional<BibDatabaseContext> activeDatabaseOpt = stateManager.getActiveDatabase();
         if (activeDatabaseOpt.isEmpty()) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("No library open"),
-                    Localization.lang("Please open a library before pulling.")
-            );
+            dialogService.showErrorDialogAndWait(Localization.lang("No library open"),
+                    Localization.lang("Please open a library before pulling."));
             return;
         }
 
         BibDatabaseContext activeDatabase = activeDatabaseOpt.get();
         Optional<Path> bibFilePathOpt = activeDatabase.getDatabasePath();
         if (bibFilePathOpt.isEmpty()) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("No library file path"),
-                    Localization.lang("Cannot pull from Git: No file is associated with this library.")
-            );
+            dialogService.showErrorDialogAndWait(Localization.lang("No library file path"),
+                    Localization.lang("Cannot pull from Git: No file is associated with this library."));
             return;
         }
 
@@ -67,54 +64,40 @@ public class GitPullAction extends SimpleCommand {
         GitHandler handler = new GitHandler(bibFilePath.getParent());
         GitConflictResolverDialog dialog = new GitConflictResolverDialog(dialogService, guiPreferences);
         GitConflictResolverStrategy resolver = new GuiGitConflictResolverStrategy(dialog);
-        GitSemanticMergeExecutor mergeExecutor = new GitSemanticMergeExecutorImpl(guiPreferences.getImportFormatPreferences());
+        GitSemanticMergeExecutor mergeExecutor = new GitSemanticMergeExecutorImpl(
+                guiPreferences.getImportFormatPreferences());
 
-        GitSyncService syncService = new GitSyncService(guiPreferences.getImportFormatPreferences(), handlerRegistry, resolver, mergeExecutor);
+        GitSyncService syncService = new GitSyncService(guiPreferences.getImportFormatPreferences(), handlerRegistry,
+                resolver, mergeExecutor);
         GitStatusViewModel statusViewModel = new GitStatusViewModel(stateManager, bibFilePath);
         GitPullViewModel viewModel = new GitPullViewModel(syncService, statusViewModel);
 
-        BackgroundTask
-                .wrap(() -> viewModel.pull())
-                .onSuccess(result -> {
-                    if (result.isSuccessful()) {
-                        dialogService.showInformationDialogAndWait(
-                                Localization.lang("Git Pull"),
-                                Localization.lang("Successfully merged and updated.")
-                        );
-                    } else {
-                        dialogService.showWarningDialogAndWait(
-                                Localization.lang("Git Pull"),
-                                Localization.lang("Merge completed with conflicts.")
-                        );
-                    }
-                })
-                .onFailure(ex -> {
-                    if (ex instanceof JabRefException e) {
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("Git Pull Failed"),
-                                e.getLocalizedMessage(),
-                                e
-                        );
-                    } else if (ex instanceof GitAPIException e) {
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("Git Pull Failed"),
-                                Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()),
-                                e
-                        );
-                    } else if (ex instanceof IOException e) {
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("Git Pull Failed"),
-                                Localization.lang("I/O error: %0", e.getLocalizedMessage()),
-                                e
-                        );
-                    } else {
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("Git Pull Failed"),
-                                Localization.lang("Unexpected error: %0", ex.getLocalizedMessage()),
-                                ex
-                        );
-                    }
-                })
-                .executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> viewModel.pull()).onSuccess(result -> {
+            if (result.isSuccessful()) {
+                dialogService.showInformationDialogAndWait(Localization.lang("Git Pull"),
+                        Localization.lang("Successfully merged and updated."));
+            }
+            else {
+                dialogService.showWarningDialogAndWait(Localization.lang("Git Pull"),
+                        Localization.lang("Merge completed with conflicts."));
+            }
+        }).onFailure(ex -> {
+            if (ex instanceof JabRefException e) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Git Pull Failed"), e.getLocalizedMessage(), e);
+            }
+            else if (ex instanceof GitAPIException e) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Git Pull Failed"),
+                        Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()), e);
+            }
+            else if (ex instanceof IOException e) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Git Pull Failed"),
+                        Localization.lang("I/O error: %0", e.getLocalizedMessage()), e);
+            }
+            else {
+                dialogService.showErrorDialogAndWait(Localization.lang("Git Pull Failed"),
+                        Localization.lang("Unexpected error: %0", ex.getLocalizedMessage()), ex);
+            }
+        }).executeWith(taskExecutor);
     }
+
 }

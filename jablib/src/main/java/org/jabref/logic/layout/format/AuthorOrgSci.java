@@ -36,4 +36,5 @@ public class AuthorOrgSci implements LayoutFormatter {
         }
         return sb.toString();
     }
+
 }

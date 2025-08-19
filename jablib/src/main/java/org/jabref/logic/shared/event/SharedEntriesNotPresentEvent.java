@@ -10,6 +10,5 @@ import org.jabref.model.entry.BibEntry;
  *
  * @param bibEntries Affected {@link BibEntry}
  */
-public record SharedEntriesNotPresentEvent(
-        List<BibEntry> bibEntries) {
+public record SharedEntriesNotPresentEvent(List<BibEntry> bibEntries) {
 }

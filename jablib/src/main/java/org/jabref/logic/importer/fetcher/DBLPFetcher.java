@@ -31,6 +31,7 @@ import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
  * @see <a href="https://dblp.dagstuhl.de/faq/13501473">Basic API documentation</a>
  */
 public class DBLPFetcher implements SearchBasedParserFetcher {
+
     public static final String FETCHER_NAME = "DBLP";
 
     private static final String BASIC_SEARCH_URL = "https://dblp.org/search/publ/api";
@@ -48,7 +49,8 @@ public class DBLPFetcher implements SearchBasedParserFetcher {
         uriBuilder.addParameter("q", new DBLPQueryTransformer().transformLuceneQuery(luceneQuery).orElse(""));
         uriBuilder.addParameter("h", String.valueOf(100)); // number of hits
         uriBuilder.addParameter("c", String.valueOf(0)); // no need for auto-completion
-        uriBuilder.addParameter("f", String.valueOf(0)); // "from", index of first hit to download
+        uriBuilder.addParameter("f", String.valueOf(0)); // "from", index of first hit to
+                                                         // download
         uriBuilder.addParameter("format", "bib1");
 
         return uriBuilder.build().toURL();
@@ -65,11 +67,11 @@ public class DBLPFetcher implements SearchBasedParserFetcher {
         doiCleaner.cleanup(entry);
 
         FieldFormatterCleanups cleanups = new FieldFormatterCleanups(true,
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TIMESTAMP, new ClearFormatter()),
-                        // unescape the contents of the URL field, e.g., some\_url\_part becomes some_url_part
-                        new FieldFormatterCleanup(StandardField.URL, new LayoutFormatterBasedFormatter(new RemoveLatexCommandsFormatter()))
-                ));
+                List.of(new FieldFormatterCleanup(StandardField.TIMESTAMP, new ClearFormatter()),
+                        // unescape the contents of the URL field, e.g., some\_url\_part
+                        // becomes some_url_part
+                        new FieldFormatterCleanup(StandardField.URL,
+                                new LayoutFormatterBasedFormatter(new RemoveLatexCommandsFormatter()))));
         cleanups.applySaveActions(entry);
     }
 
@@ -82,4 +84,5 @@ public class DBLPFetcher implements SearchBasedParserFetcher {
     public Optional<HelpFile> getHelpPage() {
         return Optional.of(HelpFile.FETCHER_DBLP);
     }
+
 }

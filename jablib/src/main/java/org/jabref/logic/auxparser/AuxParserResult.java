@@ -12,12 +12,17 @@ import org.jabref.model.entry.BibtexString;
 public class AuxParserResult {
 
     private final BibDatabase masterDatabase;
+
     private final Set<String> uniqueKeys = new HashSet<>();
+
     private final List<String> unresolvedKeys = new ArrayList<>();
 
     private final BibDatabase auxDatabase = new BibDatabase();
+
     private int nestedAuxCount;
+
     private int crossRefEntriesCount;
+
     private int insertedStrings;
 
     public AuxParserResult(BibDatabase masterDatabase) {
@@ -46,7 +51,6 @@ public class AuxParserResult {
 
     /**
      * Query the number of extra entries pulled in due to crossrefs from other entries.
-     *
      * @return The number of additional entries pulled in due to crossref
      */
     public int getCrossRefEntriesCount() {
@@ -83,4 +87,5 @@ public class AuxParserResult {
     public Set<String> getUniqueKeys() {
         return uniqueKeys;
     }
+
 }

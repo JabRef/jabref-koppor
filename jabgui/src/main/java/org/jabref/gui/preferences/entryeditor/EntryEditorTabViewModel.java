@@ -22,17 +22,29 @@ import org.jabref.model.entry.field.FieldFactory;
 public class EntryEditorTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty openOnNewEntryProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty defaultSourceProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableRelatedArticlesTabProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableAiSummaryTabProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableAiChatTabProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty acceptRecommendationsProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableLatexCitationsTabProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty smartFileAnnotationsTabProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableValidationProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty allowIntegerEditionProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty journalPopupProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autoLinkEnabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty enableSciteTabProperty = new SimpleBooleanProperty();
 
     private final BooleanProperty showUserCommentsProperty = new SimpleBooleanProperty();
@@ -40,8 +52,11 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     private final StringProperty fieldsProperty = new SimpleStringProperty();
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final EntryEditorPreferences entryEditorPreferences;
+
     private final MrDlibPreferences mrDlibPreferences;
 
     public EntryEditorTabViewModel(DialogService dialogService, GuiPreferences preferences) {
@@ -54,7 +69,7 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     @Override
     public void setValues() {
         // ToDo: Include CustomizeGeneralFieldsDialog in PreferencesDialog
-        //       Therefore yet unused: entryEditorPreferences.getEntryEditorTabList();
+        // Therefore yet unused: entryEditorPreferences.getEntryEditorTabList();
 
         openOnNewEntryProperty.setValue(entryEditorPreferences.shouldOpenOnNewEntry());
         defaultSourceProperty.setValue(entryEditorPreferences.showSourceTabByDefault());
@@ -66,7 +81,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         smartFileAnnotationsTabProperty.setValue(entryEditorPreferences.shouldShowFileAnnotationsTab());
         enableValidationProperty.setValue(entryEditorPreferences.shouldEnableValidation());
         allowIntegerEditionProperty.setValue(entryEditorPreferences.shouldAllowIntegerEditionBibtex());
-        journalPopupProperty.setValue(entryEditorPreferences.shouldEnableJournalPopup() == EntryEditorPreferences.JournalPopupEnabled.ENABLED);
+        journalPopupProperty.setValue(entryEditorPreferences
+            .shouldEnableJournalPopup() == EntryEditorPreferences.JournalPopupEnabled.ENABLED);
         autoLinkEnabledProperty.setValue(entryEditorPreferences.autoLinkFilesEnabled());
         enableSciteTabProperty.setValue(entryEditorPreferences.shouldShowSciteTab());
         showUserCommentsProperty.setValue(entryEditorPreferences.shouldShowUserCommentsFields());
@@ -104,9 +120,9 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         entryEditorPreferences.setShowSourceTabByDefault(defaultSourceProperty.getValue());
         entryEditorPreferences.setEnableValidation(enableValidationProperty.getValue());
         entryEditorPreferences.setAllowIntegerEditionBibtex(allowIntegerEditionProperty.getValue());
-        entryEditorPreferences.setEnableJournalPopup(journalPopupProperty.getValue()
-                ? EntryEditorPreferences.JournalPopupEnabled.ENABLED
-                : EntryEditorPreferences.JournalPopupEnabled.DISABLED);
+        entryEditorPreferences
+            .setEnableJournalPopup(journalPopupProperty.getValue() ? EntryEditorPreferences.JournalPopupEnabled.ENABLED
+                    : EntryEditorPreferences.JournalPopupEnabled.DISABLED);
         // entryEditorPreferences.setDividerPosition();
         entryEditorPreferences.setAutoLinkFilesEnabled(autoLinkEnabledProperty.getValue());
         entryEditorPreferences.setShouldShowSciteTab(enableSciteTabProperty.getValue());
@@ -118,21 +134,23 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         for (String line : lines) {
             String[] parts = line.split(":");
             if (parts.length != 2) {
-                dialogService.showInformationDialogAndWait(
-                        Localization.lang("Error"),
+                dialogService.showInformationDialogAndWait(Localization.lang("Error"),
                         Localization.lang("Each line must be of the following form: 'tab:field1;field2;...;fieldN'."));
                 return;
             }
 
-            // Use literal string of unwanted characters specified below as opposed to exporting characters
-            // from preferences because the list of allowable characters in this particular differs
-            // i.e. ';' character is allowed in this window, but it's on the list of unwanted chars in preferences
+            // Use literal string of unwanted characters specified below as opposed to
+            // exporting characters
+            // from preferences because the list of allowable characters in this
+            // particular differs
+            // i.e. ';' character is allowed in this window, but it's on the list of
+            // unwanted chars in preferences
             String unwantedChars = "#{}()~,^&-\"'`ʹ\\";
             String testString = CitationKeyGenerator.cleanKey(parts[1], unwantedChars);
             if (!testString.equals(parts[1])) {
-                dialogService.showInformationDialogAndWait(
-                        Localization.lang("Error"),
-                        Localization.lang("Field names are not allowed to contain white spaces or certain characters (%0).",
+                dialogService.showInformationDialogAndWait(Localization.lang("Error"),
+                        Localization.lang(
+                                "Field names are not allowed to contain white spaces or certain characters (%0).",
                                 "# { } ( ) ~ , ^ & - \" ' ` ʹ \\"));
                 return;
             }
@@ -202,4 +220,5 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     public BooleanProperty showUserCommentsProperty() {
         return this.showUserCommentsProperty;
     }
+
 }

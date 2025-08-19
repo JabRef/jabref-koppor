@@ -43,25 +43,30 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
  * Perform an import action
  */
 public class ImportCommand extends SimpleCommand {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportCommand.class);
 
-    public enum ImportMethod { AS_NEW, TO_EXISTING }
+    public enum ImportMethod {
+
+        AS_NEW, TO_EXISTING
+
+    }
 
     private final LibraryTabContainer tabContainer;
+
     private final ImportMethod importMethod;
 
     private final DialogService dialogService;
+
     private final CliPreferences preferences;
+
     private final FileUpdateMonitor fileUpdateMonitor;
+
     private final TaskExecutor taskExecutor;
 
-    public ImportCommand(LibraryTabContainer tabContainer,
-                         ImportMethod importMethod,
-                         CliPreferences preferences,
-                         StateManager stateManager,
-                         FileUpdateMonitor fileUpdateMonitor,
-                         TaskExecutor taskExecutor,
-                         DialogService dialogService) {
+    public ImportCommand(LibraryTabContainer tabContainer, ImportMethod importMethod, CliPreferences preferences,
+            StateManager stateManager, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor,
+            DialogService dialogService) {
         this.tabContainer = tabContainer;
         this.importMethod = importMethod;
         this.preferences = preferences;
@@ -76,20 +81,17 @@ public class ImportCommand extends SimpleCommand {
 
     @Override
     public void execute() {
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(),
+                preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
         SortedSet<Importer> importers = importFormatReader.getImportFormats();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(FileFilterConverter.ANY_FILE)
-                .addExtensionFilter(FileFilterConverter.forAllImporters(importers))
-                .addExtensionFilter(FileFilterConverter.importerToExtensionFilter(importers))
-                .withInitialDirectory(preferences.getImporterPreferences().getImportWorkingDirectory())
-                .build();
+            .addExtensionFilter(FileFilterConverter.ANY_FILE)
+            .addExtensionFilter(FileFilterConverter.forAllImporters(importers))
+            .addExtensionFilter(FileFilterConverter.importerToExtensionFilter(importers))
+            .withInitialDirectory(preferences.getImporterPreferences().getImportWorkingDirectory())
+            .build();
 
         List<Path> selectedFiles = dialogService.showFileOpenDialogAndGetMultipleFiles(fileDialogConfiguration);
 
@@ -100,7 +102,8 @@ public class ImportCommand extends SimpleCommand {
         importMultipleFiles(selectedFiles, importers, fileDialogConfiguration.getSelectedExtensionFilter());
     }
 
-    private void importMultipleFiles(List<Path> files, SortedSet<Importer> importers, FileChooser.ExtensionFilter selectedExtensionFilter) {
+    private void importMultipleFiles(List<Path> files, SortedSet<Importer> importers,
+            FileChooser.ExtensionFilter selectedExtensionFilter) {
         for (Path file : files) {
             if (!Files.exists(file)) {
                 dialogService.showErrorDialogAndWait(Localization.lang("Import"),
@@ -118,11 +121,13 @@ public class ImportCommand extends SimpleCommand {
         if (!isGeneralFilter) {
             // User picked a specific format
             format = FileFilterConverter.getImporter(selectedExtensionFilter, importers);
-        } else if (files.size() == 1) {
+        }
+        else if (files.size() == 1) {
             // Infer if only one file and no specific filter
             selectedExtensionFilter = FileFilterConverter.determineExtensionFilter(files.getFirst());
             format = FileFilterConverter.getImporter(selectedExtensionFilter, importers);
-        } else {
+        }
+        else {
             format = Optional.empty();
         }
 
@@ -135,15 +140,15 @@ public class ImportCommand extends SimpleCommand {
         // while no library is currently open.
         if (importMethod == ImportMethod.AS_NEW || tab == null) {
             task.onSuccess(parserResult -> {
-                    tabContainer.addTab(parserResult.getDatabaseContext(), true);
-                    dialogService.notify(Localization.lang("%0 entry(s) imported", parserResult.getDatabase().getEntries().size()));
-                })
-                .onFailure(ex -> {
-                    LOGGER.error("Error importing", ex);
-                    dialogService.notify(Localization.lang("Error importing. See the error log for details."));
-                })
-                .executeWith(taskExecutor);
-        } else {
+                tabContainer.addTab(parserResult.getDatabaseContext(), true);
+                dialogService
+                    .notify(Localization.lang("%0 entry(s) imported", parserResult.getDatabase().getEntries().size()));
+            }).onFailure(ex -> {
+                LOGGER.error("Error importing", ex);
+                dialogService.notify(Localization.lang("Error importing. See the error log for details."));
+            }).executeWith(taskExecutor);
+        }
+        else {
             ImportEntriesDialog dialog = new ImportEntriesDialog(tab.getBibDatabaseContext(), task);
             dialog.setTitle(Localization.lang("Import"));
             dialogService.showCustomDialogAndWait(dialog);
@@ -160,51 +165,52 @@ public class ImportCommand extends SimpleCommand {
         Optional<Importer> importer = Optional.ofNullable(importFormat);
         // We import all files and collect their results
         List<ImportFormatReader.UnknownFormatImport> imports = new ArrayList<>();
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(),
+                preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
         for (Path filename : files) {
             try {
                 if (importer.isEmpty()) {
                     // Unknown format
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                        if (FileUtil.isPDFFile(filename) && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
+                        if (FileUtil.isPDFFile(filename) && GrobidUseDialogHelper
+                            .showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
                             importFormatReader.reset();
                         }
-                        dialogService.notify(Localization.lang("Importing file %0 as unknown format", filename.getFileName().toString()));
+                        dialogService.notify(Localization.lang("Importing file %0 as unknown format",
+                                filename.getFileName().toString()));
                     });
                     // This import method never throws an IOException
                     imports.add(importFormatReader.importUnknownFormat(filename, fileUpdateMonitor));
-                } else {
+                }
+                else {
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                        if (((importer.get() instanceof PdfGrobidImporter) || (importer.get() instanceof PdfMergeMetadataImporter))
-                                && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
+                        if (((importer.get() instanceof PdfGrobidImporter)
+                                || (importer.get() instanceof PdfMergeMetadataImporter))
+                                && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService,
+                                        preferences.getGrobidPreferences())) {
                             importFormatReader.reset();
                         }
-                        dialogService.notify(Localization.lang("Importing in %0 format", importer.get().getName()) + "...");
+                        dialogService
+                            .notify(Localization.lang("Importing in %0 format", importer.get().getName()) + "...");
                     });
                     // Specific importer
                     ParserResult pr = importer.get().importDatabase(filename);
                     imports.add(new ImportFormatReader.UnknownFormatImport(importer.get().getName(), pr));
                 }
-            } catch (ImportException ex) {
+            }
+            catch (ImportException ex) {
                 UiTaskExecutor.runAndWaitInJavaFXThread(
-                        () -> dialogService.showWarningDialogAndWait(
-                                Localization.lang("Import error"),
-                                Localization.lang("Please check your library file for wrong syntax.")
-                                + "\n\n"
-                                + ex.getLocalizedMessage()));
+                        () -> dialogService.showWarningDialogAndWait(Localization.lang("Import error"),
+                                Localization.lang("Please check your library file for wrong syntax.") + "\n\n"
+                                        + ex.getLocalizedMessage()));
             }
         }
 
         if (imports.isEmpty()) {
-            UiTaskExecutor.runAndWaitInJavaFXThread(
-                    () -> dialogService.showWarningDialogAndWait(
-                            Localization.lang("Import error"),
-                            Localization.lang("No entries found. Please make sure you are using the correct import filter.")));
+            UiTaskExecutor.runAndWaitInJavaFXThread(() -> dialogService.showWarningDialogAndWait(
+                    Localization.lang("Import error"),
+                    Localization.lang("No entries found. Please make sure you are using the correct import filter.")));
 
             return new ParserResult();
         }
@@ -229,17 +235,22 @@ public class ImportCommand extends SimpleCommand {
             if (ImportFormatReader.BIBTEX_FORMAT.equals(importResult.format())) {
                 // additional treatment of BibTeX
                 new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator()).mergeMetaData(
-                        result.getMetaData(),
-                        parserResult.getMetaData(),
-                        importResult.parserResult().getPath().map(path -> path.getFileName().toString()).orElse("unknown"),
+                        result.getMetaData(), parserResult.getMetaData(),
+                        importResult.parserResult()
+                            .getPath()
+                            .map(path -> path.getFileName().toString())
+                            .orElse("unknown"),
                         parserResult.getDatabase().getEntries());
             }
-            // TODO: collect errors into ParserResult, because they are currently ignored (see caller of this method)
+            // TODO: collect errors into ParserResult, because they are currently ignored
+            // (see caller of this method)
         }
 
         // set timestamp and owner
-        UpdateField.setAutomaticFields(resultDatabase.getEntries(), preferences.getOwnerPreferences(), preferences.getTimestampPreferences()); // set timestamp and owner
+        UpdateField.setAutomaticFields(resultDatabase.getEntries(), preferences.getOwnerPreferences(),
+                preferences.getTimestampPreferences()); // set timestamp and owner
 
         return result;
     }
+
 }

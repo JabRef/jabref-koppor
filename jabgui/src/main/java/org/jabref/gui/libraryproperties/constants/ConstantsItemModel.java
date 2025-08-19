@@ -19,10 +19,13 @@ public class ConstantsItemModel {
     private final static Pattern IS_NUMBER = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     private final StringProperty labelProperty = new SimpleStringProperty();
+
     private final StringProperty contentProperty = new SimpleStringProperty();
 
     private final Validator labelValidator;
+
     private final Validator contentValidator;
+
     private final CompositeValidator combinedValidator;
 
     public ConstantsItemModel(String label, String content) {
@@ -65,15 +68,21 @@ public class ConstantsItemModel {
     private static ValidationMessage validateLabel(String input) {
         if (input == null) {
             return ValidationMessage.error("May not be null");
-        } else if (input.trim().isEmpty()) {
+        }
+        else if (input.trim().isEmpty()) {
             return ValidationMessage.error(Localization.lang("Please enter the string's label"));
-        } else if (IS_NUMBER.matcher(input).matches()) {
+        }
+        else if (IS_NUMBER.matcher(input).matches()) {
             return ValidationMessage.error(Localization.lang("The label of the string cannot be a number."));
-        } else if (input.contains("#")) {
-            return ValidationMessage.error(Localization.lang("The label of the string cannot contain the '#' character."));
-        } else if (input.contains(" ")) {
+        }
+        else if (input.contains("#")) {
+            return ValidationMessage
+                .error(Localization.lang("The label of the string cannot contain the '#' character."));
+        }
+        else if (input.contains(" ")) {
             return ValidationMessage.error(Localization.lang("The label of the string cannot contain spaces."));
-        } else {
+        }
+        else {
             return null; // everything is ok
         }
     }
@@ -81,10 +90,13 @@ public class ConstantsItemModel {
     private static ValidationMessage validateContent(String input) {
         if (input == null) {
             return ValidationMessage.error(Localization.lang("Must not be empty!"));
-        } else if (input.trim().isEmpty()) {
+        }
+        else if (input.trim().isEmpty()) {
             return ValidationMessage.error(Localization.lang("Must not be empty!"));
-        } else {
+        }
+        else {
             return null; // everything is ok
         }
     }
+
 }

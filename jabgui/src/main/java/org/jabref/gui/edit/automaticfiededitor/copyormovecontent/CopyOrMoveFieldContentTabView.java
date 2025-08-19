@@ -23,8 +23,11 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
-public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
+public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView
+        implements AutomaticFieldEditorTab {
+
     public Button copyContentButton;
+
     @FXML
     private Button moveContentButton;
 
@@ -33,6 +36,7 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
 
     @FXML
     private ComboBox<Field> fromFieldComboBox;
+
     @FXML
     private ComboBox<Field> toFieldComboBox;
 
@@ -40,8 +44,11 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
     private CheckBox overwriteFieldContentCheckBox;
 
     private CopyOrMoveFieldContentTabViewModel viewModel;
+
     private final List<BibEntry> selectedEntries;
+
     private final BibDatabase database;
+
     private final StateManager stateManager;
 
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
@@ -51,9 +58,7 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     public void initialize() {
@@ -67,7 +72,8 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         copyContentButton.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
         overwriteFieldContentCheckBox.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
 
-        Platform.runLater(() -> visualizer.initVisualization(viewModel.toFieldValidationStatus(), toFieldComboBox, true));
+        Platform
+            .runLater(() -> visualizer.initVisualization(viewModel.toFieldValidationStatus(), toFieldComboBox, true));
     }
 
     private void initializeFromAndToComboBox() {
@@ -104,4 +110,5 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
     void swapContent() {
         viewModel.swapValues();
     }
+
 }

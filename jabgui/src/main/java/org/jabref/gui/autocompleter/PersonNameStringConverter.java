@@ -9,10 +9,13 @@ import org.jabref.model.entry.AuthorList;
 public class PersonNameStringConverter extends StringConverter<Author> {
 
     private final boolean autoCompFF;
+
     private final boolean autoCompLF;
+
     private final AutoCompleteFirstNameMode autoCompleteFirstNameMode;
 
-    public PersonNameStringConverter(boolean autoCompFF, boolean autoCompLF, AutoCompleteFirstNameMode autoCompleteFirstNameMode) {
+    public PersonNameStringConverter(boolean autoCompFF, boolean autoCompLF,
+            AutoCompleteFirstNameMode autoCompleteFirstNameMode) {
         this.autoCompFF = autoCompFF;
         this.autoCompLF = autoCompLF;
         this.autoCompleteFirstNameMode = autoCompleteFirstNameMode;
@@ -66,4 +69,5 @@ public class PersonNameStringConverter extends StringConverter<Author> {
     public Author fromString(String string) {
         return AuthorList.parse(string).getAuthor(0);
     }
+
 }

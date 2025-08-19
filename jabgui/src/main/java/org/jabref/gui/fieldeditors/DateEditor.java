@@ -23,27 +23,31 @@ import jakarta.inject.Inject;
 
 public class DateEditor extends HBox implements FieldEditorFX {
 
-    @FXML private DateEditorViewModel viewModel;
-    @FXML private TemporalAccessorPicker datePicker;
+    @FXML
+    private DateEditorViewModel viewModel;
 
-    @Inject private UndoManager undoManager;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
+    @FXML
+    private TemporalAccessorPicker datePicker;
 
-    public DateEditor(Field field,
-                      DateTimeFormatter dateFormatter,
-                      SuggestionProvider<?> suggestionProvider,
-                      FieldCheckers fieldCheckers,
-                      UndoAction undoAction,
-                      RedoAction redoAction) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    public DateEditor(Field field, DateTimeFormatter dateFormatter, SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers, UndoAction undoAction, RedoAction redoAction) {
+        ViewLoader.view(this).root(this).load();
 
         this.viewModel = new DateEditorViewModel(field, suggestionProvider, dateFormatter, fieldCheckers, undoManager);
         datePicker.setStringConverter(viewModel.getDateToStringConverter());
-        establishBinding(datePicker.getEditor(), viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), datePicker.getEditor());
+        establishBinding(datePicker.getEditor(), viewModel.textProperty(), keyBindingRepository, undoAction,
+                redoAction);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                datePicker.getEditor());
     }
 
     public DateEditorViewModel getViewModel() {
@@ -59,4 +63,5 @@ public class DateEditor extends HBox implements FieldEditorFX {
     public Parent getNode() {
         return this;
     }
+
 }

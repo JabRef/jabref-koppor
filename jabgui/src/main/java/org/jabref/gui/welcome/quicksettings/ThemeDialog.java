@@ -22,19 +22,41 @@ import org.jabref.logic.l10n.Localization;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class ThemeDialog extends FXDialog {
-    @FXML private RadioButton lightRadio;
-    @FXML private RadioButton darkRadio;
-    @FXML private RadioButton customRadio;
-    @FXML private ToggleGroup themeGroup;
-    @FXML private TextField customPathField;
-    @FXML private VBox customThemeContainer;
-    @FXML private HelpButton helpButton;
-    @FXML private ThemeWireFrame lightWireframe;
-    @FXML private ThemeWireFrame darkWireframe;
-    @FXML private ThemeWireFrame customWireframe;
+
+    @FXML
+    private RadioButton lightRadio;
+
+    @FXML
+    private RadioButton darkRadio;
+
+    @FXML
+    private RadioButton customRadio;
+
+    @FXML
+    private ToggleGroup themeGroup;
+
+    @FXML
+    private TextField customPathField;
+
+    @FXML
+    private VBox customThemeContainer;
+
+    @FXML
+    private HelpButton helpButton;
+
+    @FXML
+    private ThemeWireFrame lightWireframe;
+
+    @FXML
+    private ThemeWireFrame darkWireframe;
+
+    @FXML
+    private ThemeWireFrame customWireframe;
 
     private ThemeDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
 
     public ThemeDialog(GuiPreferences preferences, DialogService dialogService, ThemeManager themeManager) {
@@ -46,9 +68,7 @@ public class ThemeDialog extends FXDialog {
 
         setHeaderText(Localization.lang("Select your preferred theme for the application"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK && viewModel.isValidConfiguration()) {
@@ -121,4 +141,5 @@ public class ThemeDialog extends FXDialog {
     private void browseThemeFile() {
         viewModel.browseForThemeFile();
     }
+
 }

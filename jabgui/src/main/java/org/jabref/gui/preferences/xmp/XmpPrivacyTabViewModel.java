@@ -25,11 +25,17 @@ import de.saxsys.mvvmfx.utils.validation.Validator;
 public class XmpPrivacyTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty xmpFilterEnabledProperty = new SimpleBooleanProperty();
-    private final ListProperty<Field> xmpFilterListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<Field> availableFieldsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<Field> xmpFilterListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
+    private final ListProperty<Field> availableFieldsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final ObjectProperty<Field> addFieldProperty = new SimpleObjectProperty<>();
 
     private final DialogService dialogService;
+
     private final XmpPreferences xmpPreferences;
 
     private final Validator xmpFilterListValidator;
@@ -38,13 +44,9 @@ public class XmpPrivacyTabViewModel implements PreferenceTabViewModel {
         this.dialogService = dialogService;
         this.xmpPreferences = xmpPreferences;
 
-        xmpFilterListValidator = new FunctionBasedValidator<>(
-                xmpFilterListProperty,
-                input -> !input.isEmpty(),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("XMP metadata"),
-                        Localization.lang("Filter List"),
-                        Localization.lang("List must not be empty."))));
+        xmpFilterListValidator = new FunctionBasedValidator<>(xmpFilterListProperty, input -> !input.isEmpty(),
+                ValidationMessage.error("%s > %s %n %n %s".formatted(Localization.lang("XMP metadata"),
+                        Localization.lang("Filter List"), Localization.lang("List must not be empty."))));
     }
 
     @Override
@@ -71,7 +73,11 @@ public class XmpPrivacyTabViewModel implements PreferenceTabViewModel {
             return;
         }
 
-        if (xmpFilterListProperty.getValue().stream().filter(item -> item.equals(addFieldProperty.getValue())).findAny().isEmpty()) {
+        if (xmpFilterListProperty.getValue()
+            .stream()
+            .filter(item -> item.equals(addFieldProperty.getValue()))
+            .findAny()
+            .isEmpty()) {
             xmpFilterListProperty.add(addFieldProperty.getValue());
             addFieldProperty.setValue(null);
         }
@@ -89,8 +95,8 @@ public class XmpPrivacyTabViewModel implements PreferenceTabViewModel {
     public boolean validateSettings() {
         ValidationStatus validationStatus = xmpFilterListValidationStatus();
         if (xmpFilterEnabledProperty.getValue() && !validationStatus.isValid()) {
-            validationStatus.getHighestMessage().ifPresent(message ->
-                    dialogService.showErrorDialogAndWait(message.getMessage()));
+            validationStatus.getHighestMessage()
+                .ifPresent(message -> dialogService.showErrorDialogAndWait(message.getMessage()));
             return false;
         }
         return true;
@@ -111,4 +117,5 @@ public class XmpPrivacyTabViewModel implements PreferenceTabViewModel {
     public ObjectProperty<Field> addFieldNameProperty() {
         return addFieldProperty;
     }
+
 }

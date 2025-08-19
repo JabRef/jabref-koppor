@@ -20,8 +20,11 @@ import static org.mockito.Mockito.when;
 class OpenConsoleActionTest {
 
     private final StateManager stateManager = mock(StateManager.class);
+
     private final GuiPreferences preferences = mock(GuiPreferences.class);
+
     private final BibDatabaseContext current = mock(BibDatabaseContext.class);
+
     private final BibDatabaseContext other = mock(BibDatabaseContext.class);
 
     @BeforeEach
@@ -53,4 +56,5 @@ class OpenConsoleActionTest {
         verify(stateManager, times(1)).getActiveDatabase();
         verify(current, times(1)).getDatabasePath();
     }
+
 }

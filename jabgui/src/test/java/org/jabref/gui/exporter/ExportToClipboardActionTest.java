@@ -44,32 +44,40 @@ import static org.mockito.Mockito.when;
 class ExportToClipboardActionTest {
 
     private ExportToClipboardAction exportToClipboardAction;
+
     private final DialogService dialogService = spy(DialogService.class);
+
     private final ClipBoardManager clipBoardManager = mock(ClipBoardManager.class);
+
     private final BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
+
     private final CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
     private final StateManager stateManager = mock(StateManager.class);
 
     private TaskExecutor taskExecutor;
+
     private ObservableList<BibEntry> selectedEntries;
 
     @BeforeEach
     void setUp() {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.AUTHOR, "Souti Chattopadhyay and Nicholas Nelson and Audrey Au and Natalia Morales and Christopher Sanchez and Rahul Pandita and Anita Sarma")
-                .withField(StandardField.TITLE, "A tale from the trenches")
-                .withField(StandardField.YEAR, "2020")
-                .withField(StandardField.DOI, "10.1145/3377811.3380330")
-                .withField(StandardField.SUBTITLE, "cognitive biases and software development");
+        BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.AUTHOR,
+                "Souti Chattopadhyay and Nicholas Nelson and Audrey Au and Natalia Morales and Christopher Sanchez and Rahul Pandita and Anita Sarma")
+            .withField(StandardField.TITLE, "A tale from the trenches")
+            .withField(StandardField.YEAR, "2020")
+            .withField(StandardField.DOI, "10.1145/3377811.3380330")
+            .withField(StandardField.SUBTITLE, "cognitive biases and software development");
 
         selectedEntries = FXCollections.observableArrayList(entry);
         when(stateManager.getSelectedEntries()).thenReturn(selectedEntries);
 
         taskExecutor = new CurrentThreadTaskExecutor();
-        when(preferences.getExportPreferences().getCustomExporters()).thenReturn(FXCollections.observableList(List.of()));
+        when(preferences.getExportPreferences().getCustomExporters())
+            .thenReturn(FXCollections.observableList(List.of()));
         when(preferences.getSelfContainedExportConfiguration()).thenReturn(mock(SelfContainedSaveConfiguration.class));
         when(preferences.getXmpPreferences()).thenReturn(mock(XmpPreferences.class));
-        exportToClipboardAction = new ExportToClipboardAction(dialogService, stateManager, clipBoardManager, taskExecutor, preferences);
+        exportToClipboardAction = new ExportToClipboardAction(dialogService, stateManager, clipBoardManager,
+                taskExecutor, preferences);
     }
 
     @Test
@@ -77,7 +85,8 @@ class ExportToClipboardActionTest {
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.emptyObservableList());
 
         exportToClipboardAction.execute();
-        verify(dialogService, times(1)).notify(Localization.lang("This operation requires one or more entries to be selected."));
+        verify(dialogService, times(1))
+            .notify(Localization.lang("This operation requires one or more entries to be selected."));
     }
 
     @Test
@@ -93,24 +102,25 @@ class ExportToClipboardActionTest {
         when(preferences.getFilePreferences()).thenReturn(filePreferences);
         when(preferences.getLibraryPreferences()).thenReturn(libraryPreferences);
         when(preferences.getExportPreferences().getLastExportExtension()).thenReturn("HTML");
-        when(preferences.getSelfContainedExportConfiguration().getSaveOrder()).thenReturn(SaveOrder.getDefaultSaveOrder());
+        when(preferences.getSelfContainedExportConfiguration().getSaveOrder())
+            .thenReturn(SaveOrder.getDefaultSaveOrder());
         when(stateManager.getSelectedEntries()).thenReturn(selectedEntries);
         when(stateManager.getActiveDatabase()).thenReturn(Optional.ofNullable(databaseContext));
         // noinspection ConstantConditions since databaseContext is mocked
-        when(databaseContext.getFileDirectories(preferences.getFilePreferences())).thenReturn(new ArrayList<>(List.of(Path.of("path"))));
+        when(databaseContext.getFileDirectories(preferences.getFilePreferences()))
+            .thenReturn(new ArrayList<>(List.of(Path.of("path"))));
         when(databaseContext.getMetaData()).thenReturn(new MetaData());
-        when(dialogService.showChoiceDialogAndWait(
-                eq(Localization.lang("Export")),
-                eq(Localization.lang("Select export format")),
-                eq(Localization.lang("Export")),
-                any(Exporter.class),
-                anyCollection())
-        ).thenReturn(Optional.of(selectedExporter));
+        when(dialogService.showChoiceDialogAndWait(eq(Localization.lang("Export")),
+                eq(Localization.lang("Select export format")), eq(Localization.lang("Export")), any(Exporter.class),
+                anyCollection()))
+            .thenReturn(Optional.of(selectedExporter));
 
         exportToClipboardAction.execute();
-        verify(dialogService, times(1)).showChoiceDialogAndWait(
-                eq(Localization.lang("Export")), eq(Localization.lang("Select export format")),
-                eq(Localization.lang("Export")), any(Exporter.class), anyCollection());
-        verify(dialogService, times(1)).notify(Localization.lang("Entries exported to clipboard") + ": " + selectedEntries.size());
+        verify(dialogService, times(1)).showChoiceDialogAndWait(eq(Localization.lang("Export")),
+                eq(Localization.lang("Select export format")), eq(Localization.lang("Export")), any(Exporter.class),
+                anyCollection());
+        verify(dialogService, times(1))
+            .notify(Localization.lang("Entries exported to clipboard") + ": " + selectedEntries.size());
     }
+
 }

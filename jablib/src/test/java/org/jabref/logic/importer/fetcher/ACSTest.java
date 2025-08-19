@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @FetcherTest
 class ACSTest {
+
     private FulltextFetcher fetcher = new ACS();
 
     @Test
@@ -24,10 +25,8 @@ class ACSTest {
     void findByDOI() throws IOException, FetcherException {
         // DOI randomly chosen from https://pubs.acs.org/toc/acscii/0/0
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1021/acscentsci.4c00971");
-        assertEquals(
-                Optional.of(URLUtil.create("https://pubs.acs.org/doi/pdf/10.1021/acscentsci.4c00971")),
-                fetcher.findFullText(entry)
-        );
+        assertEquals(Optional.of(URLUtil.create("https://pubs.acs.org/doi/pdf/10.1021/acscentsci.4c00971")),
+                fetcher.findFullText(entry));
     }
 
     @Test
@@ -46,4 +45,5 @@ class ACSTest {
     void trustLevel() {
         assertEquals(TrustLevel.PUBLISHER, fetcher.getTrustLevel());
     }
+
 }

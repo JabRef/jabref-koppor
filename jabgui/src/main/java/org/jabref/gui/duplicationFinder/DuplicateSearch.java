@@ -42,27 +42,33 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class DuplicateSearch extends SimpleCommand {
 
     private final Supplier<LibraryTab> tabSupplier;
+
     private final BlockingQueue<List<BibEntry>> duplicates = new LinkedBlockingQueue<>();
 
     private final AtomicBoolean libraryAnalyzed = new AtomicBoolean();
+
     private final AtomicBoolean autoRemoveExactDuplicates = new AtomicBoolean();
+
     private final AtomicInteger duplicateCount = new AtomicInteger();
+
     private final SimpleStringProperty duplicateCountObservable = new SimpleStringProperty();
+
     private final SimpleStringProperty duplicateTotal = new SimpleStringProperty();
+
     private final SimpleIntegerProperty duplicateProgress = new SimpleIntegerProperty(0);
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
 
     private final GuiPreferences preferences;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final TaskExecutor taskExecutor;
 
-    public DuplicateSearch(Supplier<LibraryTab> tabSupplier,
-                           DialogService dialogService,
-                           StateManager stateManager,
-                           GuiPreferences preferences,
-                           BibEntryTypesManager entryTypesManager,
-                           TaskExecutor taskExecutor) {
+    public DuplicateSearch(Supplier<LibraryTab> tabSupplier, DialogService dialogService, StateManager stateManager,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager, TaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -75,7 +81,8 @@ public class DuplicateSearch extends SimpleCommand {
 
     @Override
     public void execute() {
-        BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
+        BibDatabaseContext database = stateManager.getActiveDatabase()
+            .orElseThrow(() -> new NullPointerException("Database null"));
         dialogService.notify(Localization.lang("Searching for duplicates..."));
 
         List<BibEntry> entries = database.getEntries();
@@ -88,12 +95,12 @@ public class DuplicateSearch extends SimpleCommand {
             return;
         }
 
-        duplicateCountObservable.addListener((obj, oldValue, newValue) -> UiTaskExecutor.runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
+        duplicateCountObservable.addListener((obj, oldValue, newValue) -> UiTaskExecutor
+            .runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
 
-        HeadlessExecutorService.INSTANCE.executeInterruptableTask(() -> searchPossibleDuplicates(entries, database.getMode()), "DuplicateSearcher");
-        BackgroundTask.wrap(this::verifyDuplicates)
-                      .onSuccess(this::handleDuplicates)
-                      .executeWith(taskExecutor);
+        HeadlessExecutorService.INSTANCE
+            .executeInterruptableTask(() -> searchPossibleDuplicates(entries, database.getMode()), "DuplicateSearcher");
+        BackgroundTask.wrap(this::verifyDuplicates).onSuccess(this::handleDuplicates).executeWith(taskExecutor);
     }
 
     private void searchPossibleDuplicates(List<BibEntry> entries, BibDatabaseMode databaseMode) {
@@ -123,12 +130,14 @@ public class DuplicateSearch extends SimpleCommand {
 
             List<BibEntry> dups;
             try {
-                // poll with timeout in case the library is not analyzed completely, but contains no more duplicates
+                // poll with timeout in case the library is not analyzed completely, but
+                // contains no more duplicates
                 dups = this.duplicates.poll(100, TimeUnit.MILLISECONDS);
                 if (dups == null) {
                     continue;
                 }
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 return null;
             }
 
@@ -146,7 +155,8 @@ public class DuplicateSearch extends SimpleCommand {
                     askAboutExact = true;
                 }
 
-                DuplicateResolverType resolverType = askAboutExact ? DuplicateResolverType.DUPLICATE_SEARCH_WITH_EXACT : DuplicateResolverType.DUPLICATE_SEARCH;
+                DuplicateResolverType resolverType = askAboutExact ? DuplicateResolverType.DUPLICATE_SEARCH_WITH_EXACT
+                        : DuplicateResolverType.DUPLICATE_SEARCH;
 
                 UiTaskExecutor.runAndWaitInJavaFXThread(() -> askResolveStrategy(result, first, second, resolverType));
             }
@@ -155,13 +165,21 @@ public class DuplicateSearch extends SimpleCommand {
         return result;
     }
 
-    private void askResolveStrategy(DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverType resolverType) {
-        DuplicateResolverDialog dialog = new DuplicateResolverDialog(first, second, resolverType, stateManager, dialogService, preferences);
+    private void askResolveStrategy(DuplicateSearchResult result, BibEntry first, BibEntry second,
+            DuplicateResolverType resolverType) {
+        DuplicateResolverDialog dialog = new DuplicateResolverDialog(first, second, resolverType, stateManager,
+                dialogService, preferences);
 
-        dialog.titleProperty().bind(Bindings.concat(dialog.getTitle()).concat(" (").concat(duplicateProgress.getValue()).concat("/").concat(duplicateTotal).concat(")"));
+        dialog.titleProperty()
+            .bind(Bindings.concat(dialog.getTitle())
+                .concat(" (")
+                .concat(duplicateProgress.getValue())
+                .concat("/")
+                .concat(duplicateTotal)
+                .concat(")"));
 
         DuplicateResolverResult resolverResult = dialogService.showCustomDialogAndWait(dialog)
-                                                              .orElse(DuplicateResolverResult.BREAK);
+            .orElse(DuplicateResolverResult.BREAK);
 
         if ((resolverResult == DuplicateResolverResult.KEEP_LEFT)
                 || (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)) {
@@ -170,15 +188,19 @@ public class DuplicateSearch extends SimpleCommand {
             if (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT) {
                 autoRemoveExactDuplicates.set(true); // Remember choice
             }
-        } else if (resolverResult == DuplicateResolverResult.KEEP_RIGHT) {
+        }
+        else if (resolverResult == DuplicateResolverResult.KEEP_RIGHT) {
             result.remove(first);
             result.replace(second, dialog.getNewRightEntry());
-        } else if (resolverResult == DuplicateResolverResult.BREAK) {
+        }
+        else if (resolverResult == DuplicateResolverResult.BREAK) {
             libraryAnalyzed.set(true);
             duplicates.clear();
-        } else if (resolverResult == DuplicateResolverResult.KEEP_MERGE) {
+        }
+        else if (resolverResult == DuplicateResolverResult.KEEP_MERGE) {
             result.replace(first, second, dialog.getMergedEntry());
-        } else if (resolverResult == DuplicateResolverResult.KEEP_BOTH) {
+        }
+        else if (resolverResult == DuplicateResolverResult.KEEP_BOTH) {
             result.replace(first, dialog.getNewLeftEntry());
             result.replace(second, dialog.getNewRightEntry());
         }
@@ -213,13 +235,14 @@ public class DuplicateSearch extends SimpleCommand {
     }
 
     /**
-     * Result of a duplicate search.
-     * Uses {@link System#identityHashCode(Object)} for identifying objects for removal, as completely identical
-     * {@link BibEntry BibEntries} are equal to each other.
+     * Result of a duplicate search. Uses {@link System#identityHashCode(Object)} for
+     * identifying objects for removal, as completely identical {@link BibEntry
+     * BibEntries} are equal to each other.
      */
     static class DuplicateSearchResult {
 
         private final Map<String, BibEntry> toRemove = new HashMap<>();
+
         private final List<BibEntry> toAdd = new ArrayList<>();
 
         private int duplicates = 0;
@@ -258,5 +281,7 @@ public class DuplicateSearch extends SimpleCommand {
         public synchronized int getDuplicateCount() {
             return duplicates;
         }
+
     }
+
 }

@@ -17,16 +17,16 @@ import com.google.common.annotations.VisibleForTesting;
 public class GroupsPreferences {
 
     private final SetProperty<GroupViewMode> groupViewMode;
+
     private final BooleanProperty shouldAutoAssignGroup;
+
     private final BooleanProperty shouldDisplayGroupCount;
+
     private final ObjectProperty<GroupHierarchyType> defaultHierarchicalContext;
 
-    public GroupsPreferences(boolean viewModeIntersection,
-                             boolean viewModeFilter,
-                             boolean viewModeInvert,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             GroupHierarchyType defaultHierarchicalContext) {
+    public GroupsPreferences(boolean viewModeIntersection, boolean viewModeFilter, boolean viewModeInvert,
+            boolean shouldAutoAssignGroup, boolean shouldDisplayGroupCount,
+            GroupHierarchyType defaultHierarchicalContext) {
 
         this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet());
         this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
@@ -45,10 +45,8 @@ public class GroupsPreferences {
     }
 
     @VisibleForTesting
-    public GroupsPreferences(EnumSet<GroupViewMode> groupViewMode,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             GroupHierarchyType defaultHierarchicalContext) {
+    public GroupsPreferences(EnumSet<GroupViewMode> groupViewMode, boolean shouldAutoAssignGroup,
+            boolean shouldDisplayGroupCount, GroupHierarchyType defaultHierarchicalContext) {
         this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet(groupViewMode));
         this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
         this.shouldDisplayGroupCount = new SimpleBooleanProperty(shouldDisplayGroupCount);
@@ -69,7 +67,8 @@ public class GroupsPreferences {
     public void setGroupViewMode(GroupViewMode mode, boolean value) {
         if (value) {
             groupViewMode.add(mode);
-        } else {
+        }
+        else {
             groupViewMode.remove(mode);
         }
     }
@@ -109,4 +108,5 @@ public class GroupsPreferences {
     public void setDefaultHierarchicalContext(GroupHierarchyType defaultHierarchicalContext) {
         this.defaultHierarchicalContext.set(defaultHierarchicalContext);
     }
+
 }

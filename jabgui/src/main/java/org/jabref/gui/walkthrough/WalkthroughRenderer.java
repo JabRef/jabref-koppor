@@ -23,10 +23,11 @@ import org.jabref.logic.l10n.Localization;
 
 /// Renders walkthrough steps and content blocks into JavaFX nodes.
 public class WalkthroughRenderer {
+
     /// Renders a tooltip step into a JavaFX node.
     ///
-    /// @param step           The tooltip step to render
-    /// @param walkthrough    The walkthrough context for navigation
+    /// @param step The tooltip step to render
+    /// @param walkthrough The walkthrough context for navigation
     /// @param beforeNavigate Runnable to execute before any navigation action
     /// @return The rendered tooltip content node
     public Node render(TooltipStep step, Walkthrough walkthrough, Runnable beforeNavigate) {
@@ -56,8 +57,8 @@ public class WalkthroughRenderer {
 
     /// Renders a panel step into a JavaFX node.
     ///
-    /// @param step           The panel step to render
-    /// @param walkthrough    The walkthrough context for navigation
+    /// @param step The panel step to render
+    /// @param walkthrough The walkthrough context for navigation
     /// @param beforeNavigate Runnable to execute before any navigation action
     /// @return The rendered panel node
     public Node render(PanelStep step, Walkthrough walkthrough, Runnable beforeNavigate) {
@@ -87,7 +88,8 @@ public class WalkthroughRenderer {
             VBox.setVgrow(panel, Priority.ALWAYS);
             panel.setMaxHeight(Double.MAX_VALUE);
             step.maxWidth().ifPresent(panel::setMaxWidth);
-        } else if (step.position() == PanelPosition.TOP || step.position() == PanelPosition.BOTTOM) {
+        }
+        else if (step.position() == PanelPosition.TOP || step.position() == PanelPosition.BOTTOM) {
             panel.getStyleClass().add("walkthrough-side-panel-horizontal");
             HBox.setHgrow(panel, Priority.ALWAYS);
             panel.setMaxWidth(Double.MAX_VALUE);
@@ -143,22 +145,19 @@ public class WalkthroughRenderer {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         component.backButtonText()
-                 .ifPresent(text ->
-                         actions.getChildren()
-                                .add(makeButton(text, "walkthrough-back-button", beforeNavigate, walkthrough::previousStep)));
+            .ifPresent(text -> actions.getChildren()
+                .add(makeButton(text, "walkthrough-back-button", beforeNavigate, walkthrough::previousStep)));
 
         HBox rightActions = new HBox();
         rightActions.setAlignment(Pos.CENTER_RIGHT);
         rightActions.getStyleClass().add("walkthrough-right-actions");
 
         component.skipButtonText()
-                 .ifPresent(text ->
-                         rightActions.getChildren()
-                                     .add(makeButton(text, "walkthrough-skip-button", beforeNavigate, walkthrough::skip)));
+            .ifPresent(text -> rightActions.getChildren()
+                .add(makeButton(text, "walkthrough-skip-button", beforeNavigate, walkthrough::skip)));
         component.continueButtonText()
-                 .ifPresent(text ->
-                         rightActions.getChildren()
-                                     .add(makeButton(text, "walkthrough-continue-button", beforeNavigate, walkthrough::nextStep)));
+            .ifPresent(text -> rightActions.getChildren()
+                .add(makeButton(text, "walkthrough-continue-button", beforeNavigate, walkthrough::nextStep)));
         actions.getChildren().addAll(spacer, rightActions);
         return actions;
     }
@@ -166,14 +165,11 @@ public class WalkthroughRenderer {
     private VBox createContent(VisibleComponent component, Walkthrough walkthrough, Runnable beforeNavigate) {
         VBox contentBox = new VBox();
         contentBox.getStyleClass().add("walkthrough-content");
-        contentBox.getChildren().addAll(component.content().stream().map(block ->
-                switch (block) {
-                    case TextBlock textBlock -> render(textBlock);
-                    case InfoBlock infoBlock -> render(infoBlock);
-                    case ArbitraryJFXBlock arbitraryBlock ->
-                            render(arbitraryBlock, walkthrough, beforeNavigate);
-                }
-        ).toArray(Node[]::new));
+        contentBox.getChildren().addAll(component.content().stream().map(block -> switch (block) {
+            case TextBlock textBlock -> render(textBlock);
+            case InfoBlock infoBlock -> render(infoBlock);
+            case ArbitraryJFXBlock arbitraryBlock -> render(arbitraryBlock, walkthrough, beforeNavigate);
+        }).toArray(Node[]::new));
         return contentBox;
     }
 
@@ -186,4 +182,5 @@ public class WalkthroughRenderer {
         });
         return button;
     }
+
 }

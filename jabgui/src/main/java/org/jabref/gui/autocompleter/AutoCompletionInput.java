@@ -1,7 +1,9 @@
 package org.jabref.gui.autocompleter;
 
 public class AutoCompletionInput {
+
     private String unfinishedPart;
+
     private String prefix;
 
     public AutoCompletionInput(String prefix, String unfinishedPart) {
@@ -16,4 +18,5 @@ public class AutoCompletionInput {
     public String getPrefix() {
         return prefix;
     }
+
 }

@@ -14,9 +14,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 
 /**
- * A custom exporter to write bib entries to a .xmp file for further processing
- * in other scenarios and applications. The xmp metadata are written in dublin
- * core format.
+ * A custom exporter to write bib entries to a .xmp file for further processing in other
+ * scenarios and applications. The xmp metadata are written in dublin core format.
  */
 public class XmpExporter extends Exporter {
 
@@ -31,8 +30,9 @@ public class XmpExporter extends Exporter {
 
     /**
      * @param databaseContext the database to export from
-     * @param file            the file to write to. If it contains "split", then the output is split into different files
-     * @param entries         a list containing all entries that should be exported
+     * @param file the file to write to. If it contains "split", then the output is split
+     * into different files
+     * @param entries a list containing all entries that should be exported
      */
     @Override
     public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws IOException {
@@ -44,7 +44,8 @@ public class XmpExporter extends Exporter {
             return;
         }
 
-        // This is a distinction between writing all entries from the supplied list to a single .xmp file,
+        // This is a distinction between writing all entries from the supplied list to a
+        // single .xmp file,
         // or write every entry to a separate file.
         if (XMP_SPLIT_DIRECTORY_INDICATOR.equals(file.getFileName().toString().trim())) {
             for (BibEntry entry : entries) {
@@ -53,12 +54,14 @@ public class XmpExporter extends Exporter {
                 String suffix = entry.getId() + "_" + entry.getField(InternalField.KEY_FIELD).orElse("null") + ".xmp";
                 if (file.getParent() == null) {
                     entryFile = Path.of(suffix);
-                } else {
+                }
+                else {
                     entryFile = Path.of(file.getParent() + "/" + suffix);
                 }
                 this.writeBibToXmp(entryFile, List.of(entry));
             }
-        } else {
+        }
+        else {
             this.writeBibToXmp(file, entries);
         }
     }
@@ -67,4 +70,5 @@ public class XmpExporter extends Exporter {
         String xmpContent = new XmpUtilWriter(this.xmpPreferences).generateXmpStringWithoutXmpDeclaration(entries);
         Files.writeString(file, xmpContent);
     }
+
 }

@@ -10,6 +10,7 @@ import org.jabref.model.entry.field.Field;
 public class ContentSelector {
 
     private final Field field;
+
     private final List<String> values;
 
     public ContentSelector(Field field, String... values) {
@@ -31,8 +32,7 @@ public class ContentSelector {
         }
 
         ContentSelector that = (ContentSelector) o;
-        return Objects.equals(field, that.field) &&
-                Objects.equals(values, that.values);
+        return Objects.equals(field, that.field) && Objects.equals(values, that.values);
     }
 
     @Override
@@ -52,4 +52,5 @@ public class ContentSelector {
     public List<String> getValues() {
         return Collections.unmodifiableList(values);
     }
+
 }

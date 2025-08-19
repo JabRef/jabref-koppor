@@ -16,21 +16,28 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 public class ArgumentProcessor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ArgumentProcessor.class);
 
-    public enum Mode { INITIAL_START, REMOTE_START }
+    public enum Mode {
+
+        INITIAL_START, REMOTE_START
+
+    }
 
     private final Mode startupMode;
+
     private final GuiPreferences preferences;
+
     private final GuiCommandLine guiCli;
+
     private final CommandLine cli;
 
     private final List<UiCommand> uiCommands = new ArrayList<>();
+
     private boolean guiNeeded = true;
 
-    public ArgumentProcessor(String[] args,
-                             Mode startupMode,
-                             GuiPreferences preferences) {
+    public ArgumentProcessor(String[] args, Mode startupMode, GuiPreferences preferences) {
         this.startupMode = startupMode;
         this.preferences = preferences;
         this.guiCli = new GuiCommandLine();
@@ -74,7 +81,8 @@ public class ArgumentProcessor {
         if (guiCli.libraries != null && !guiCli.libraries.isEmpty()) {
             if (guiCli.append) {
                 uiCommands.add(new UiCommand.AppendToCurrentLibrary(guiCli.libraries));
-            } else {
+            }
+            else {
                 uiCommands.add(new UiCommand.OpenLibraries(guiCli.libraries));
             }
         }
@@ -93,7 +101,8 @@ public class ArgumentProcessor {
             System.out.println(Localization.lang("Setting all preferences to default values."));
             preferences.clear();
             new SharedDatabasePreferences().clear();
-        } catch (BackingStoreException e) {
+        }
+        catch (BackingStoreException e) {
             System.err.println(Localization.lang("Unable to clear preferences."));
             LOGGER.error("Unable to clear preferences", e);
         }
@@ -106,4 +115,5 @@ public class ArgumentProcessor {
     public GuiCommandLine getGuiCli() {
         return guiCli;
     }
+
 }

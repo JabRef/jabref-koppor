@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 @Disabled("Needs running emacs daemon. Start emacs with --daemon")
 class PushToEmacsTest {
+
     GuiPushToEmacs pushToEmacs;
 
     @BeforeEach
@@ -33,7 +34,8 @@ class PushToEmacsTest {
         String emacsClient = OS.WINDOWS ? "\"C:\\tools\\emacs\\bin\\emacsclientw.exe\"" : "emacsclient";
         Map<String, String> emacsConfig = Map.of("Emacs", emacsClient);
         ObservableMap<String, String> emacsConfigObservableMap = FXCollections.observableMap(emacsConfig);
-        when(pushToApplicationPreferences.getCommandPaths()).thenReturn(new SimpleMapProperty<>(emacsConfigObservableMap));
+        when(pushToApplicationPreferences.getCommandPaths())
+            .thenReturn(new SimpleMapProperty<>(emacsConfigObservableMap));
 
         when(pushToApplicationPreferences.getEmacsArguments()).thenReturn("-n -e");
 
@@ -44,10 +46,8 @@ class PushToEmacsTest {
 
     @Test
     void pushEntries() {
-        pushToEmacs.pushEntries(
-                List.of(
-                        new BibEntry().withCitationKey("key1"),
-                        new BibEntry().withCitationKey("key2"))
-        );
+        pushToEmacs
+            .pushEntries(List.of(new BibEntry().withCitationKey("key1"), new BibEntry().withCitationKey("key2")));
     }
+
 }

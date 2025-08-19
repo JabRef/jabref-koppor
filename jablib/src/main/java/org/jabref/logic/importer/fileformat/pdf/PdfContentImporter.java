@@ -40,8 +40,8 @@ import static org.jabref.model.strings.StringUtil.isNullOrEmpty;
  * <p>
  * Currently, Springer, and IEEE formats are supported.
  * <p>
- * In case one wants to have a list of {@link BibEntry} matching the bibliography of a PDF,
- * please see {@link BibliographyFromPdfImporter}.
+ * In case one wants to have a list of {@link BibEntry} matching the bibliography of a
+ * PDF, please see {@link BibliographyFromPdfImporter}.
  * <p>
  * If several PDF importers should be tried, use {@link PdfMergeMetadataImporter}.
  */
@@ -67,7 +67,8 @@ public class PdfContentImporter extends PdfImporter {
      * EXCEPTION: a closing bracket is NOT removed
      * </p>
      * <p>
-     * TODO: Additionally replace multiple subsequent spaces by one space, which will cause a rename of this method
+     * TODO: Additionally replace multiple subsequent spaces by one space, which will
+     * cause a rename of this method
      * </p>
      */
     private String removeNonLettersAtEnd(String input) {
@@ -81,7 +82,8 @@ public class PdfContentImporter extends PdfImporter {
             result = result.substring(0, result.length() - 1);
             if (result.isEmpty()) {
                 break;
-            } else {
+            }
+            else {
                 lastC = result.charAt(result.length() - 1);
             }
         }
@@ -92,7 +94,7 @@ public class PdfContentImporter extends PdfImporter {
         // TODO: replace with NormalizeNamesFormatter?!
         String res;
         // supported formats:
-        //   Matthias Schrepfer1, Johannes Wolf1, Jan Mendling1, and Hajo A. Reijers2
+        // Matthias Schrepfer1, Johannes Wolf1, Jan Mendling1, and Hajo A. Reijers2
         if (names.contains(",")) {
             String[] splitNames = names.split(",");
             res = "";
@@ -102,7 +104,8 @@ public class PdfContentImporter extends PdfImporter {
                 if (curName.indexOf("and") == 0) {
                     // skip possible ands between names
                     curName = curName.substring(3).trim();
-                } else {
+                }
+                else {
                     int posAnd = curName.indexOf(" and ");
                     if (posAnd >= 0) {
                         String nameBefore = curName.substring(0, posAnd);
@@ -118,13 +121,15 @@ public class PdfContentImporter extends PdfImporter {
                     }
                     if (isFirst) {
                         isFirst = false;
-                    } else {
+                    }
+                    else {
                         res = res.concat(" and ");
                     }
                     res = res.concat(curName);
                 }
             }
-        } else {
+        }
+        else {
             // assumption: names separated by space
 
             String[] splitNames = names.split(" ");
@@ -145,39 +150,46 @@ public class PdfContentImporter extends PdfImporter {
                     if (splitNames[i].contains(".")) {
                         // we found a middle name
                         res = res.concat(splitNames[i]).concat(" ");
-                    } else {
+                    }
+                    else {
                         // last name found
                         res = res.concat(removeNonLettersAtEnd(splitNames[i]));
 
                         if (!splitNames[i].isEmpty() && Character.isLowerCase(splitNames[i].charAt(0))) {
                             // it is probably be "van", "vom", ...
-                            // we just rely on the fact that these things are written in lower case letters
+                            // we just rely on the fact that these things are written in
+                            // lower case letters
                             // do NOT finish name
                             res = res.concat(" ");
-                        } else {
+                        }
+                        else {
                             // finish this name
                             workedOnFirstOrMiddle = false;
                         }
                     }
-                } else {
+                }
+                else {
                     if (!"and".equalsIgnoreCase(splitNames[i])) {
                         if (isFirst) {
                             isFirst = false;
-                        } else {
+                        }
+                        else {
                             res = res.concat(" and ");
                         }
                         if ("et".equalsIgnoreCase(splitNames[i]) && (splitNames.length > (i + 1))
                                 && "al.".equalsIgnoreCase(splitNames[i + 1])) {
                             res = res.concat("others");
                             break;
-                        } else {
+                        }
+                        else {
                             res = res.concat(splitNames[i]).concat(" ");
                             workedOnFirstOrMiddle = true;
                         }
-                    }  // do nothing, just increment i at the end of this iteration
+                    } // do nothing, just increment i at the end of this iteration
                 }
                 i++;
-            } while (i < splitNames.length);
+            }
+            while (i < splitNames.length);
         }
         return res;
     }
@@ -226,18 +238,20 @@ public class PdfContentImporter extends PdfImporter {
             float YspaceThreshold = previous.getFontSizeInPt() * 3.0F;
             float Xgap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float Ygap = current.getYDirAdj() - previous.getYDirAdj();
-            // For cases like paper titles spanning two or more lines, both X and Y gaps must exceed thresholds,
+            // For cases like paper titles spanning two or more lines, both X and Y gaps
+            // must exceed thresholds,
             // so "&&" is used instead of "||".
             return Math.abs(Xgap) > XspaceThreshold && Math.abs(Ygap) > YspaceThreshold;
         }
 
         private boolean isUnwantedText(TextPosition previousTextPosition, TextPosition textPosition,
-                                       Map<Float, TextPosition> lastPositionMap, float fontSize) {
+                Map<Float, TextPosition> lastPositionMap, float fontSize) {
             // This indicates that the text is at the start of the line, so it is needed.
             if (textPosition == null || previousTextPosition == null) {
                 return false;
             }
-            // We use the font size to identify titles. Blank characters don't have a font size, so we discard them.
+            // We use the font size to identify titles. Blank characters don't have a font
+            // size, so we discard them.
             // The space will be added back in the final result, but not in this method.
             if (StringUtil.isBlank(textPosition.getUnicode())) {
                 return true;
@@ -279,7 +293,8 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         private boolean isLegalTitle(String candidateText) {
-            // The minimum title length typically observed in academic research is 4 characters.
+            // The minimum title length typically observed in academic research is 4
+            // characters.
             return candidateText.length() >= 4;
         }
 
@@ -290,43 +305,53 @@ public class PdfContentImporter extends PdfImporter {
             float Ygap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
             return Math.abs(Xgap) > XspaceThreshold || Math.abs(Ygap) > YspaceThreshold;
         }
+
     }
 
     /**
-     * Parses the first page content of a PDF document and extracts bibliographic information such as title, author,
-     * abstract, keywords, and other relevant metadata. This method processes the content line-by-line and uses
-     * custom parsing logic to identify and assemble information blocks from academic papers.
+     * Parses the first page content of a PDF document and extracts bibliographic
+     * information such as title, author, abstract, keywords, and other relevant metadata.
+     * This method processes the content line-by-line and uses custom parsing logic to
+     * identify and assemble information blocks from academic papers.
      *
-     * idea: split[] contains the different lines, blocks are separated by empty lines, treat each block
-     *       or do special treatment at authors (which are not broken).
-     *       Therefore, we do a line-based and not a block-based splitting i points to the current line
-     *       curString (mostly) contains the current block,
-     *       the different lines are joined into one and thereby separated by " "
+     * idea: split[] contains the different lines, blocks are separated by empty lines,
+     * treat each block or do special treatment at authors (which are not broken).
+     * Therefore, we do a line-based and not a block-based splitting i points to the
+     * current line curString (mostly) contains the current block, the different lines are
+     * joined into one and thereby separated by " "
      *
-     * <p> This method follows the structure typically found in academic paper PDFs:
-     * - First, it attempts to detect the title by font size, if available, or by text position.
-     * - Authors are then processed line-by-line until reaching the next section.
-     * - Abstract and keywords, if found, are extracted as they appear on the page.
-     * - Finally, conference details, DOI, and publication information are parsed from the lower blocks.
+     * <p>
+     * This method follows the structure typically found in academic paper PDFs: - First,
+     * it attempts to detect the title by font size, if available, or by text position. -
+     * Authors are then processed line-by-line until reaching the next section. - Abstract
+     * and keywords, if found, are extracted as they appear on the page. - Finally,
+     * conference details, DOI, and publication information are parsed from the lower
+     * blocks.
      *
-     * <p> The parsing logic also identifies and categorizes entries based on keywords such as "Abstract" or "Keywords"
-     * and specific terms that denote sections. Additionally, this method can handle
-     * publisher-specific formats like Springer or IEEE, extracting data like series, volume, and conference titles.
-     *
-     * @param firstpageContents The raw content of the PDF's first page, which may contain metadata and main content.
-     * @param lineSeparator     The line separator used to format and unify line breaks in the text content.
-     * @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the
-     *                          default title parsing.
-     * @return An {@link Optional} containing a {@link BibEntry} with the parsed bibliographic data if extraction
-     *         is successful. Otherwise, an empty {@link Optional}.
+     * <p>
+     * The parsing logic also identifies and categorizes entries based on keywords such as
+     * "Abstract" or "Keywords" and specific terms that denote sections. Additionally,
+     * this method can handle publisher-specific formats like Springer or IEEE, extracting
+     * data like series, volume, and conference titles.
+     * @param firstpageContents The raw content of the PDF's first page, which may contain
+     * metadata and main content.
+     * @param lineSeparator The line separator used to format and unify line breaks in the
+     * text content.
+     * @param titleByFontSize An optional title string determined by font size; if
+     * provided, this overrides the default title parsing.
+     * @return An {@link Optional} containing a {@link BibEntry} with the parsed
+     * bibliographic data if extraction is successful. Otherwise, an empty
+     * {@link Optional}.
      */
     @VisibleForTesting
-    Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
+    Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator,
+            Optional<String> titleByFontSize) {
         String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(firstpageContents, lineSeparator);
 
         lines = firstpageContentsUnifiedLineBreaks.split(lineSeparator);
 
-        lineIndex = 0; // to prevent array index out of bounds exception on second run we need to reset i to zero
+        lineIndex = 0; // to prevent array index out of bounds exception on second run we
+                       // need to reset i to zero
 
         proceedToNextNonEmptyLine();
         if (lineIndex >= lines.length) {
@@ -365,7 +390,8 @@ public class PdfContentImporter extends PdfImporter {
                 fillCurStringWithNonEmptyLines();
                 conference = curString;
                 curString = "";
-            } else {
+            }
+            else {
                 // e.g. Copyright (c) 1998 by the Genetics Society of America
                 // future work: get year using RegEx
                 String lower = curString.toLowerCase(Locale.ROOT);
@@ -395,10 +421,12 @@ public class PdfContentImporter extends PdfImporter {
             curString = streamlineNames(lines[lineIndex]);
             if (author == null) {
                 author = curString;
-            } else {
+            }
+            else {
                 if (!"".equals(curString)) {
                     author = author.concat(" and ").concat(curString);
-                }  // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
+                } // if lines[i] is "and" then "" is returned by streamlineNames -> do
+                  // nothing
             }
             lineIndex++;
         }
@@ -408,15 +436,18 @@ public class PdfContentImporter extends PdfImporter {
         // then, abstract and keywords follow
         while (lineIndex < lines.length) {
             curString = lines[lineIndex];
-            if ((curString.length() >= "Abstract".length()) && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
+            if ((curString.length() >= "Abstract".length())
+                    && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
                 if (curString.length() == "Abstract".length()) {
                     // only word "abstract" found -- skip line
                     curString = "";
-                } else {
+                }
+                else {
                     curString = curString.substring("Abstract".length() + 1).trim().concat(System.lineSeparator());
                 }
                 lineIndex++;
-                // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as line separator
+                // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as
+                // line separator
                 // whereas we need linebreak as separator
                 while ((lineIndex < lines.length) && !"".equals(lines[lineIndex])) {
                     curString = curString.concat(lines[lineIndex]).concat(System.lineSeparator());
@@ -424,17 +455,21 @@ public class PdfContentImporter extends PdfImporter {
                 }
                 abstractT = curString.trim();
                 lineIndex++;
-            } else if ((curString.length() >= "Keywords".length()) && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
+            }
+            else if ((curString.length() >= "Keywords".length())
+                    && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
                 if (curString.length() == "Keywords".length()) {
                     // only word "Keywords" found -- skip line
                     curString = "";
-                } else {
+                }
+                else {
                     curString = curString.substring("Keywords".length() + 1).trim();
                 }
                 lineIndex++;
                 fillCurStringWithNonEmptyLines();
                 keywords = removeNonLettersAtEnd(curString);
-            } else {
+            }
+            else {
                 String lower = curString.toLowerCase(Locale.ROOT);
 
                 int pos = lower.indexOf("technical");
@@ -443,7 +478,7 @@ public class PdfContentImporter extends PdfImporter {
                     pos = curString.trim().lastIndexOf(' ');
                     if (pos >= 0) {
                         // assumption: last character of curString is NOT ' '
-                        //   otherwise pos+1 leads to an out-of-bounds exception
+                        // otherwise pos+1 leads to an out-of-bounds exception
                         number = curString.substring(pos + 1);
                     }
                 }
@@ -469,15 +504,21 @@ public class PdfContentImporter extends PdfImporter {
             int pos = curString.indexOf("(Eds.)");
             if ((pos >= 0) && (publisher == null)) {
                 // looks like a Springer last line
-                // e.g: A. Persson and J. Stirna (Eds.): PoEM 2009, LNBIP 39, pp. 161-175, 2009.
+                // e.g: A. Persson and J. Stirna (Eds.): PoEM 2009, LNBIP 39, pp. 161-175,
+                // 2009.
                 publisher = "Springer";
                 editor = streamlineNames(curString.substring(0, pos - 1));
 
                 int edslength = "(Eds.)".length();
-                int posWithEditor = pos + edslength + 2; // +2 because of ":" after (Eds.) and the subsequent space
+                int posWithEditor = pos + edslength + 2; // +2 because of ":" after (Eds.)
+                                                         // and the subsequent space
                 if (posWithEditor > curString.length()) {
-                    curString = curString.substring(posWithEditor - 2); // we don't have any spaces after Eds so we substract the 2
-                } else {
+                    curString = curString.substring(posWithEditor - 2); // we don't have
+                                                                        // any spaces
+                                                                        // after Eds so we
+                                                                        // substract the 2
+                }
+                else {
                     curString = curString.substring(posWithEditor);
                 }
                 String[] springerSplit = curString.split(", ");
@@ -495,7 +536,8 @@ public class PdfContentImporter extends PdfImporter {
                         year = springerSplit[3].substring(0, 4);
                     }
                 }
-            } else {
+            }
+            else {
                 doi = getDoi(doi);
                 arXivId = getArXivId(arXivId);
 
@@ -553,8 +595,10 @@ public class PdfContentImporter extends PdfImporter {
             entry.setField(StandardField.EPRINTTYPE, "arXiv");
 
             // Quick workaround to avoid wrong year and number parsing
-            number = null; // "Germany" in org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
-            year = null; // "2408" in org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
+            number = null; // "Germany" in
+                           // org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
+            year = null; // "2408" in
+                         // org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
         }
         if (series != null) {
             entry.setField(StandardField.SERIES, series);
@@ -617,9 +661,8 @@ public class PdfContentImporter extends PdfImporter {
     }
 
     /**
-     * PDFTextStripper normally does NOT produce multiple empty lines
-     * (besides at strange PDFs). These strange PDFs are handled here:
-     * proceed to next non-empty line
+     * PDFTextStripper normally does NOT produce multiple empty lines (besides at strange
+     * PDFs). These strange PDFs are handled here: proceed to next non-empty line
      */
     private void proceedToNextNonEmptyLine() {
         while ((lineIndex < lines.length) && lines[lineIndex].trim().isEmpty()) {
@@ -628,12 +671,10 @@ public class PdfContentImporter extends PdfImporter {
     }
 
     /**
-     * Fill curString with lines until "" is found
-     * No trailing space is added
-     * i is advanced to the next non-empty line (ignoring white space)
+     * Fill curString with lines until "" is found No trailing space is added i is
+     * advanced to the next non-empty line (ignoring white space)
      * <p>
-     * Lines containing only white spaces are ignored,
-     * but NOT considered as ""
+     * Lines containing only white spaces are ignored, but NOT considered as ""
      * <p>
      * Uses GLOBAL variables lines, curLine, i
      */
@@ -656,9 +697,8 @@ public class PdfContentImporter extends PdfImporter {
     }
 
     /**
-     * resets curString
-     * curString now contains the last block (until "" reached)
-     * Trailing space is added
+     * resets curString curString now contains the last block (until "" reached) Trailing
+     * space is added
      * <p>
      * invariant before/after: i points to line before the last handled block
      */
@@ -698,6 +738,8 @@ public class PdfContentImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently, Springer and IEEE formats are supported.");
+        return Localization.lang(
+                "This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently, Springer and IEEE formats are supported.");
     }
+
 }

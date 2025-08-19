@@ -5,12 +5,8 @@ package org.jabref.model.entry.field;
 /// It is confusing to have a FieldProperty for a single field.
 /// We accept that some developers might be confused for different handling at [org.jabref.logic.integrity.FieldCheckers#getForField(Field)].
 public enum FieldProperty {
-    BOOK_NAME,
-    DATE,
-    EDITOR_TYPE,
-    EXTERNAL,
-    FILE_EDITOR,
-    JOURNAL_NAME,
+
+    BOOK_NAME, DATE, EDITOR_TYPE, EXTERNAL, FILE_EDITOR, JOURNAL_NAME,
 
     // globally unique identifier for the concrete article
     IDENTIFIER,
@@ -25,16 +21,13 @@ public enum FieldProperty {
 
     YEARDIVISION,
 
-    MULTILINE_TEXT,
-    NUMERIC,
-    PAGINATION,
-    PERSON_NAMES,
+    MULTILINE_TEXT, NUMERIC, PAGINATION, PERSON_NAMES,
 
-    SINGLE_ENTRY_LINK,
-    MULTIPLE_ENTRY_LINK,
+    SINGLE_ENTRY_LINK, MULTIPLE_ENTRY_LINK,
 
     // Field content should be treated as data
     VERBATIM,
 
     YES_NO
+
 }

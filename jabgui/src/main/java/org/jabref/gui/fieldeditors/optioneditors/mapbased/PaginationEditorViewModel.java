@@ -11,14 +11,13 @@ import org.jabref.model.entry.field.Field;
 
 public class PaginationEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public PaginationEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
-        super(field, suggestionProvider, fieldCheckers, undoManager, Map.of(
-                "page", Localization.lang("Page"),
-                "column", Localization.lang("Column"),
-                "line", Localization.lang("Line"),
-                "verse", Localization.lang("Verse"),
-                "section", Localization.lang("Section"),
-                "paragraph", Localization.lang("Paragraph"),
-                "none", Localization.lang("None")));
+    public PaginationEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
+        super(field, suggestionProvider, fieldCheckers, undoManager,
+                Map.of("page", Localization.lang("Page"), "column", Localization.lang("Column"), "line",
+                        Localization.lang("Line"), "verse", Localization.lang("Verse"), "section",
+                        Localization.lang("Section"), "paragraph", Localization.lang("Paragraph"), "none",
+                        Localization.lang("None")));
     }
+
 }

@@ -10,7 +10,8 @@ public class BracesCorrector {
     public static String apply(String input) {
         if (input == null) {
             return null;
-        } else {
+        }
+        else {
             Matcher matcher = PATTERN_ESCAPED_CURLY_BRACES.matcher(input);
             StringBuilder addedBraces = new StringBuilder(input);
             String c = matcher.replaceAll("");
@@ -20,7 +21,8 @@ public class BracesCorrector {
                 if (diff < 0) {
                     addedBraces.insert(0, "{");
                     diff++;
-                } else {
+                }
+                else {
                     addedBraces.append("}");
                     diff--;
                 }
@@ -28,4 +30,5 @@ public class BracesCorrector {
             return addedBraces.toString();
         }
     }
+
 }

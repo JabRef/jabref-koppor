@@ -18,10 +18,11 @@ public class TypeChecker implements EntryChecker {
         }
 
         if (StandardEntryType.Proceedings == entry.getType()) {
-            return List.of(new IntegrityMessage(
-                    Localization.lang("wrong entry type as proceedings has page numbers"), entry, StandardField.PAGES));
+            return List.of(new IntegrityMessage(Localization.lang("wrong entry type as proceedings has page numbers"),
+                    entry, StandardField.PAGES));
         }
 
         return List.of();
     }
+
 }

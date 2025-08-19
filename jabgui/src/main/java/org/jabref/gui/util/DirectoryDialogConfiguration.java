@@ -46,5 +46,7 @@ public class DirectoryDialogConfiguration {
             withInitialDirectory(Path.of(directory));
             return this;
         }
+
     }
+
 }

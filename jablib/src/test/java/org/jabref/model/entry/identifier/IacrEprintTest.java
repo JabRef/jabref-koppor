@@ -13,32 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class IacrEprintTest {
 
     private static Stream<Arguments> provideTestData() {
-        return Stream.of(
-                Arguments.arguments(
-                        "acceptPlainIacrEprint",
-                        "2019/001"
-                ),
-                Arguments.arguments(
-                        "ignoreLeadingAndTrailingWhitespaces",
-                        " 2019/001   "
-                ),
-                Arguments.arguments(
-                        "acceptFullUrlIacrEprint",
-                        "https://eprint.iacr.org/2019/001"
-                ),
-                Arguments.arguments(
-                        "acceptShortenedUrlIacrEprint",
-                        "https://ia.cr/2019/001"
-                ),
-                Arguments.arguments(
-                        "acceptDomainUrlIacrEprint",
-                        "eprint.iacr.org/2019/001"
-                ),
-                Arguments.arguments(
-                        "acceptShortenedDomainUrlIacrEprint",
-                        "ia.cr/2019/001"
-                )
-        );
+        return Stream.of(Arguments.arguments("acceptPlainIacrEprint", "2019/001"),
+                Arguments.arguments("ignoreLeadingAndTrailingWhitespaces", " 2019/001   "),
+                Arguments.arguments("acceptFullUrlIacrEprint", "https://eprint.iacr.org/2019/001"),
+                Arguments.arguments("acceptShortenedUrlIacrEprint", "https://ia.cr/2019/001"),
+                Arguments.arguments("acceptDomainUrlIacrEprint", "eprint.iacr.org/2019/001"),
+                Arguments.arguments("acceptShortenedDomainUrlIacrEprint", "ia.cr/2019/001"));
     }
 
     @Test
@@ -56,4 +36,5 @@ class IacrEprintTest {
     void constructValidIacrEprintUrl() {
         assertEquals("https://ia.cr/2019/001", new IacrEprint("2019/001").getAsciiUrl());
     }
+
 }

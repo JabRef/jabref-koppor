@@ -26,4 +26,5 @@ public class ISSNCleanup implements CleanupJob {
         }
         return List.of();
     }
+
 }

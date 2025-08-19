@@ -1,7 +1,7 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
 /**
- * This class converts a query string written in lucene syntax into a complex  query.
+ * This class converts a query string written in lucene syntax into a complex query.
  *
  * For simplicity this is currently limited to fielded data and the boolean AND operator.
  */
@@ -41,4 +41,5 @@ public class SpringerQueryTransformer extends AbstractQueryTransformer {
     protected String handleYear(String year) {
         return "date:%s*".formatted(year);
     }
+
 }

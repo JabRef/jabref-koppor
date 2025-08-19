@@ -17,12 +17,15 @@ class LanguageTest {
 
     @Test
     void convertKnownLanguageAndCountryCorrect() {
-        // Language and country code have to be separated see: https://stackoverflow.com/a/3318598
-        assertEquals(Optional.of(Locale.of("pt", "BR")), Language.convertToSupportedLocale(Language.BRAZILIAN_PORTUGUESE));
+        // Language and country code have to be separated see:
+        // https://stackoverflow.com/a/3318598
+        assertEquals(Optional.of(Locale.of("pt", "BR")),
+                Language.convertToSupportedLocale(Language.BRAZILIAN_PORTUGUESE));
     }
 
     @Test
     void convertToKnownLocaleNull() {
         assertThrows(NullPointerException.class, () -> Language.convertToSupportedLocale(null));
     }
+
 }

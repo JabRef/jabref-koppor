@@ -12,17 +12,17 @@ import org.apache.lucene.queryparser.flexible.standard.parser.StandardSyntaxPars
 import static org.jabref.logic.importer.fetcher.transformers.AbstractQueryTransformer.NO_EXPLICIT_FIELD;
 
 /**
- * Searches web resources for bibliographic information based on a free-text query.
- * May return multiple search hits.
+ * Searches web resources for bibliographic information based on a free-text query. May
+ * return multiple search hits.
  * <p>
- *    This interface is used for web resources which directly return BibTeX data ({@link BibEntry})
+ * This interface is used for web resources which directly return BibTeX data
+ * ({@link BibEntry})
  * </p>
  */
 public interface SearchBasedFetcher extends WebFetcher {
 
     /**
      * This method is used to send complex queries using fielded search.
-     *
      * @param luceneQuery the root node of the lucene query
      * @return a list of {@link BibEntry}, which are matched by the query (may be empty)
      */
@@ -30,7 +30,6 @@ public interface SearchBasedFetcher extends WebFetcher {
 
     /**
      * Looks for hits which are matched by the given free-text query.
-     *
      * @param searchQuery query string that can be parsed into a lucene query
      * @return a list of {@link BibEntry}, which are matched by the query (may be empty)
      */
@@ -43,10 +42,12 @@ public interface SearchBasedFetcher extends WebFetcher {
         QueryNode queryNode;
         try {
             queryNode = parser.parse(searchQuery, NO_EXPLICIT_FIELD);
-        } catch (QueryNodeParseException e) {
+        }
+        catch (QueryNodeParseException e) {
             throw new FetcherException("An error occurred when parsing the query");
         }
 
         return this.performSearch(queryNode);
     }
+
 }

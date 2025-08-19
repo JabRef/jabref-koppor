@@ -7,8 +7,11 @@ import java.util.Objects;
 import org.jabref.model.strings.StringUtil;
 
 public class UnknownField implements Field {
+
     private String name;
+
     private final EnumSet<FieldProperty> properties;
+
     private final String displayName;
 
     public UnknownField(String name) {
@@ -77,8 +80,7 @@ public class UnknownField implements Field {
 
     @Override
     public String toString() {
-        return "UnknownField{" +
-               "name='" + name + '\'' +
-               '}';
+        return "UnknownField{" + "name='" + name + '\'' + '}';
     }
+
 }

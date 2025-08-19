@@ -53,40 +53,45 @@ import org.slf4j.LoggerFactory;
 /**
  * URL download to a string.
  * <p>
- * Example:
- * <code>
+ * Example: <code>
  * URLDownload dl = new URLDownload(URL);
  * String content = dl.asString(ENCODING);
  * dl.toFile(Path); // available in FILE
  * String contentType = dl.getMimeType();
- * </code>
- * <br/><br/>
- * Almost each call to a public method creates a new HTTP connection (except for {@link #asString(Charset, URLConnection) asString},
- * which uses an already opened connection). Nothing is cached.
+ * </code> <br/>
+ * <br/>
+ * Almost each call to a public method creates a new HTTP connection (except for
+ * {@link #asString(Charset, URLConnection) asString}, which uses an already opened
+ * connection). Nothing is cached.
  */
 public class URLDownload {
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(URLDownload.class);
+
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
+
     private static final int MAX_RETRIES = 3;
 
     private final URL source;
+
     private final Map<String, String> parameters = new HashMap<>();
+
     private String postData = "";
+
     private Duration connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+
     private SSLContext sslContext;
 
     static {
-        Unirest.config()
-               .followRedirects(true)
-               .enableCookieManagement(true)
-               .setDefaultHeader("User-Agent", USER_AGENT);
+        Unirest.config().followRedirects(true).enableCookieManagement(true).setDefaultHeader("User-Agent", USER_AGENT);
     }
 
     /**
      * @param source the URL to download from
-     * @throws MalformedURLException if no protocol is specified in the source, or an unknown protocol is found
+     * @throws MalformedURLException if no protocol is specified in the source, or an
+     * unknown protocol is found
      */
     public URLDownload(String source) throws MalformedURLException {
         this(URLUtil.create(source));
@@ -102,8 +107,10 @@ public class URLDownload {
         try {
             sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null, null, new SecureRandom());
-            // Note: SSL certificates are installed at {@link TrustStoreManager#configureTrustStore(Path)}
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            // Note: SSL certificates are installed at {@link
+            // TrustStoreManager#configureTrustStore(Path)}
+        }
+        catch (NoSuchAlgorithmException | KeyManagementException e) {
             LOGGER.error("Could not initialize SSL context", e);
             sslContext = null;
         }
@@ -124,19 +131,23 @@ public class URLDownload {
             do {
                 retries++;
                 HttpResponse<String> response = Unirest.head(urlToCheck).asString();
-                // Check if we have redirects, e.g. arxiv will give otherwise content type html for the original url
-                // We need to do it "manually", because ".followRedirects(true)" only works for GET not for HEAD
+                // Check if we have redirects, e.g. arxiv will give otherwise content type
+                // html for the original url
+                // We need to do it "manually", because ".followRedirects(true)" only
+                // works for GET not for HEAD
                 locationHeader = response.getHeaders().getFirst("location");
                 if (!StringUtil.isNullOrEmpty(locationHeader)) {
                     urlToCheck = locationHeader;
                 }
                 // while loop, because there could be multiple redirects
-            } while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
+            }
+            while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
             contentType = Unirest.head(urlToCheck).asString().getHeaders().getFirst("Content-Type");
             if ((contentType != null) && !contentType.isEmpty()) {
                 return Optional.of(contentType);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.debug("Error getting MIME type of URL via HEAD request", e);
         }
 
@@ -146,7 +157,8 @@ public class URLDownload {
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.debug("Error getting MIME type of URL via GET request", e);
         }
 
@@ -157,7 +169,8 @@ public class URLDownload {
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.debug("Error trying to get MIME type of local URI", e);
         }
 
@@ -165,9 +178,8 @@ public class URLDownload {
     }
 
     /**
-     * Check the connection by using the HEAD request.
-     * UnirestException can be thrown for invalid request.
-     *
+     * Check the connection by using the HEAD request. UnirestException can be thrown for
+     * invalid request.
      * @return the status code of the response
      */
     public boolean canBeReached() throws UnirestException {
@@ -196,7 +208,6 @@ public class URLDownload {
 
     /**
      * Downloads the web resource to a String. Uses UTF-8 as encoding.
-     *
      * @return the downloaded string
      */
     public String asString() throws FetcherException {
@@ -205,7 +216,6 @@ public class URLDownload {
 
     /**
      * Downloads the web resource to a String.
-     *
      * @param encoding the desired String encoding
      * @return the downloaded string
      */
@@ -214,8 +224,8 @@ public class URLDownload {
     }
 
     /**
-     * Downloads the web resource to a String from an existing connection. Uses UTF-8 as encoding.
-     *
+     * Downloads the web resource to a String from an existing connection. Uses UTF-8 as
+     * encoding.
      * @param existingConnection an existing connection
      * @return the downloaded string
      */
@@ -225,17 +235,17 @@ public class URLDownload {
 
     /**
      * Downloads the web resource to a String.
-     *
-     * @param encoding   the desired String encoding
+     * @param encoding the desired String encoding
      * @param connection an existing connection
      * @return the downloaded string
      */
     public static String asString(Charset encoding, URLConnection connection) throws FetcherException {
         try (InputStream input = new BufferedInputStream(connection.getInputStream());
-             Writer output = new StringWriter()) {
+                Writer output = new StringWriter()) {
             copy(input, output, encoding);
             return output.toString();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Error downloading", e);
         }
     }
@@ -250,7 +260,8 @@ public class URLDownload {
 
         try {
             return cookieManager.getCookieStore().get(this.source.toURI());
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             LOGGER.error("Unable to convert download URL to URI", e);
             return List.of();
         }
@@ -258,13 +269,13 @@ public class URLDownload {
 
     /**
      * Downloads the web resource to a file.
-     *
      * @param destination the destination file path.
      */
     public void toFile(Path destination) throws FetcherException {
         try (InputStream input = new BufferedInputStream(this.openConnection().getInputStream())) {
             Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not copy input", e);
             throw new FetcherException("Could not copy input", e);
         }
@@ -279,10 +290,12 @@ public class URLDownload {
         int responseCode;
         try {
             responseCode = urlConnection.getResponseCode();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Error getting response code", e);
         }
-        LOGGER.debug("Response code: {}", responseCode); // We could check for != 200, != 204
+        LOGGER.debug("Response code: {}", responseCode); // We could check for != 200, !=
+                                                         // 204
         if (responseCode >= 300) {
             SimpleHttpResponse simpleHttpResponse = new SimpleHttpResponse(urlConnection);
             LOGGER.error("Failed to read from url: {}", simpleHttpResponse);
@@ -292,7 +305,8 @@ public class URLDownload {
         InputStream inputStream;
         try {
             inputStream = urlConnection.getInputStream();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Error getting input stream", e);
         }
         return new ProgressInputStream(new BufferedInputStream(inputStream), fileSize);
@@ -300,7 +314,6 @@ public class URLDownload {
 
     /**
      * Downloads the web resource to a temporary file.
-     *
      * @return the path of the temporary file.
      */
     public Path toTemporaryFile() throws FetcherException {
@@ -316,7 +329,8 @@ public class URLDownload {
         Path file;
         try {
             file = Files.createTempFile(fileName, extension);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Could not create temporary file", e);
         }
         file.toFile().deleteOnExit();
@@ -345,14 +359,14 @@ public class URLDownload {
      * Open a connection to this object's URL (with specified settings).
      * <p>
      * If accessing an HTTP URL, remember to close the resulting connection after usage.
-     *
      * @return an open connection
      */
     public URLConnection openConnection() throws FetcherException {
         URLConnection connection;
         try {
             connection = getUrlConnection();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Error opening connection", e);
         }
 
@@ -361,14 +375,14 @@ public class URLDownload {
             try {
                 // this does network i/o: GET + read returned headers
                 status = httpURLConnection.getResponseCode();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Error getting response code", e);
                 throw new FetcherException("Error getting response code", e);
             }
 
-            if ((status == HttpURLConnection.HTTP_MOVED_TEMP)
-                || (status == HttpURLConnection.HTTP_MOVED_PERM)
-                || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
+            if ((status == HttpURLConnection.HTTP_MOVED_TEMP) || (status == HttpURLConnection.HTTP_MOVED_PERM)
+                    || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
                 // get redirect url from "location" header field
                 String newUrl = connection.getHeaderField("location");
                 // open the new connection again
@@ -376,16 +390,19 @@ public class URLDownload {
                     httpURLConnection.disconnect();
                     // multiple redirects are implemented by this recursion
                     connection = new URLDownload(newUrl).openConnection();
-                } catch (MalformedURLException e) {
+                }
+                catch (MalformedURLException e) {
                     throw new FetcherException("Could not open URL Download", e);
                 }
-            } else if (status >= 400) {
+            }
+            else if (status >= 400) {
                 // in case of an error, propagate the error message
                 SimpleHttpResponse httpResponse = new SimpleHttpResponse(httpURLConnection);
                 LOGGER.info("{}: {}", FetcherException.getRedactedUrl(this.source), httpResponse);
                 if (status < 500) {
                     throw new FetcherClientException(this.source, httpResponse);
-                } else {
+                }
+                else {
                     throw new FetcherServerException(this.source, httpResponse);
                 }
             }
@@ -426,4 +443,5 @@ public class URLDownload {
     public Duration getConnectTimeout() {
         return connectTimeout;
     }
+
 }

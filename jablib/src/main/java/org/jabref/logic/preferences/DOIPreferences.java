@@ -6,7 +6,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class DOIPreferences {
+
     private BooleanProperty useCustom;
+
     private final StringProperty defaultBaseURI;
 
     public DOIPreferences(boolean useCustom, String defaultBaseURI) {
@@ -37,4 +39,5 @@ public class DOIPreferences {
     public void setDefaultBaseURI(String defaultBaseURI) {
         this.defaultBaseURI.set(defaultBaseURI);
     }
+
 }

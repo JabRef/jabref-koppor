@@ -19,18 +19,39 @@ import org.jabref.logic.l10n.Localization;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class OnlineServicesDialog extends FXDialog {
-    @FXML private CheckBox versionCheckBox;
-    @FXML private CheckBox webSearchBox;
-    @FXML private CheckBox dlibCheckBox;
-    @FXML private CheckBox grobidCheckBox;
-    @FXML private TextField grobidUrlField;
-    @FXML private HBox grobidUrlContainer;
-    @FXML private VBox fetchersContainer;
-    @FXML private HelpButton helpButton;
-    @FXML private HelpButton grobidHelpButton;
-    @FXML private HelpButton fetchersHelpButton;
+
+    @FXML
+    private CheckBox versionCheckBox;
+
+    @FXML
+    private CheckBox webSearchBox;
+
+    @FXML
+    private CheckBox dlibCheckBox;
+
+    @FXML
+    private CheckBox grobidCheckBox;
+
+    @FXML
+    private TextField grobidUrlField;
+
+    @FXML
+    private HBox grobidUrlContainer;
+
+    @FXML
+    private VBox fetchersContainer;
+
+    @FXML
+    private HelpButton helpButton;
+
+    @FXML
+    private HelpButton grobidHelpButton;
+
+    @FXML
+    private HelpButton fetchersHelpButton;
 
     private OnlineServicesDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
 
     public OnlineServicesDialog(GuiPreferences preferences, ThemeManager themeManager) {
@@ -39,11 +60,10 @@ public class OnlineServicesDialog extends FXDialog {
 
         this.preferences = preferences;
 
-        this.setHeaderText(Localization.lang("Enable and configure online databases and services for importing entries"));
+        this.setHeaderText(
+                Localization.lang("Enable and configure online databases and services for importing entries"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -81,4 +101,5 @@ public class OnlineServicesDialog extends FXDialog {
             fetchersContainer.getChildren().add(fetcherCheckBox);
         }
     }
+
 }

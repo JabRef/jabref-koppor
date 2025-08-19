@@ -24,14 +24,18 @@ public final class BstPreviewLayout implements PreviewLayout {
     private static final Logger LOGGER = LoggerFactory.getLogger(BstPreviewLayout.class);
 
     private final String name;
+
     private String source;
+
     private BstVM bstVM;
+
     private String error;
 
     public BstPreviewLayout(Path path) {
         try {
             this.source = String.join("\n", Files.readAllLines(path));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error reading file", e);
             this.source = "";
         }
@@ -44,7 +48,8 @@ public final class BstPreviewLayout implements PreviewLayout {
         }
         try {
             bstVM = new BstVM(path);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not read {}.", path.toAbsolutePath(), e);
             error = Localization.lang("Error opening file '%0'", path.toString());
         }
@@ -55,17 +60,20 @@ public final class BstPreviewLayout implements PreviewLayout {
         if (error != null) {
             return error;
         }
-        // ensure that the entry is of BibTeX format (and do not modify the original entry)
+        // ensure that the entry is of BibTeX format (and do not modify the original
+        // entry)
         BibEntry entry = new BibEntry(originalEntry);
         new ConvertToBibtexCleanup().cleanup(entry);
         String result = bstVM.render(List.of(entry));
         // Remove all comments
         result = result.replaceAll("%.*", "");
         // Remove all LaTeX comments
-        // The RemoveLatexCommandsFormatter keeps the words inside latex environments. Therefore, we remove them manually
+        // The RemoveLatexCommandsFormatter keeps the words inside latex environments.
+        // Therefore, we remove them manually
         result = result.replace("\\begin{thebibliography}{1}", "");
         result = result.replace("\\end{thebibliography}", "");
-        // The RemoveLatexCommandsFormatter keeps the word inside the latex command, but we want to remove that completely
+        // The RemoveLatexCommandsFormatter keeps the word inside the latex command, but
+        // we want to remove that completely
         result = result.replaceAll("\\\\bibitem[{].*[}]", "");
         // We want to replace \newblock by a space instead of completely removing it
         result = result.replace("\\newblock", " ");
@@ -106,4 +114,5 @@ public final class BstPreviewLayout implements PreviewLayout {
     public static boolean isBstStyleFile(String styleFile) {
         return StandardFileType.BST.getExtensions().stream().anyMatch(styleFile::endsWith);
     }
+
 }

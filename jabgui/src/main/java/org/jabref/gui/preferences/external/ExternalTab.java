@@ -23,26 +23,46 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel> implements PreferencesTab {
 
-    @FXML private TextField eMailReferenceSubject;
-    @FXML private CheckBox autoOpenAttachedFolders;
-    @FXML private ComboBox<GuiPushToApplication> pushToApplicationCombo;
-    @FXML private TextField citeCommand;
-    @FXML private Button autolinkExternalHelp;
+    @FXML
+    private TextField eMailReferenceSubject;
 
-    @FXML private CheckBox useCustomTerminal;
-    @FXML private TextField customTerminalCommand;
-    @FXML private Button customTerminalBrowse;
-    @FXML private CheckBox useCustomFileBrowser;
-    @FXML private TextField customFileBrowserCommand;
-    @FXML private Button customFileBrowserBrowse;
-    @FXML private TextField kindleEmail;
+    @FXML
+    private CheckBox autoOpenAttachedFolders;
+
+    @FXML
+    private ComboBox<GuiPushToApplication> pushToApplicationCombo;
+
+    @FXML
+    private TextField citeCommand;
+
+    @FXML
+    private Button autolinkExternalHelp;
+
+    @FXML
+    private CheckBox useCustomTerminal;
+
+    @FXML
+    private TextField customTerminalCommand;
+
+    @FXML
+    private Button customTerminalBrowse;
+
+    @FXML
+    private CheckBox useCustomFileBrowser;
+
+    @FXML
+    private TextField customFileBrowserCommand;
+
+    @FXML
+    private Button customFileBrowserBrowse;
+
+    @FXML
+    private TextField kindleEmail;
 
     private final ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
 
     public ExternalTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -53,10 +73,9 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
     public void initialize() {
         this.viewModel = new ExternalTabViewModel(dialogService, preferences);
 
-        new ViewModelListCellFactory<GuiPushToApplication>()
-                .withText(GuiPushToApplication::getDisplayName)
-                .withIcon(GuiPushToApplication::getApplicationIcon)
-                .install(pushToApplicationCombo);
+        new ViewModelListCellFactory<GuiPushToApplication>().withText(GuiPushToApplication::getDisplayName)
+            .withIcon(GuiPushToApplication::getApplicationIcon)
+            .install(pushToApplicationCombo);
 
         eMailReferenceSubject.textProperty().bindBidirectional(viewModel.eMailReferenceSubjectProperty());
         autoOpenAttachedFolders.selectedProperty().bindBidirectional(viewModel.autoOpenAttachedFoldersProperty());
@@ -80,11 +99,15 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
         validationVisualizer.setDecoration(new IconValidationDecorator());
         Platform.runLater(() -> {
             validationVisualizer.initVisualization(viewModel.terminalCommandValidationStatus(), customTerminalCommand);
-            validationVisualizer.initVisualization(viewModel.fileBrowserCommandValidationStatus(), customFileBrowserCommand);
+            validationVisualizer.initVisualization(viewModel.fileBrowserCommandValidationStatus(),
+                    customFileBrowserCommand);
         });
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP_PUSH_TO_APPLICATION, new HelpAction(HelpFile.PUSH_TO_APPLICATION, dialogService, preferences.getExternalApplicationsPreferences()), autolinkExternalHelp);
+        actionFactory.configureIconButton(StandardActions.HELP_PUSH_TO_APPLICATION,
+                new HelpAction(HelpFile.PUSH_TO_APPLICATION, dialogService,
+                        preferences.getExternalApplicationsPreferences()),
+                autolinkExternalHelp);
     }
 
     @FXML
@@ -106,4 +129,5 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
     void resetCiteCommandToDefault() {
         viewModel.resetCiteCommandToDefault();
     }
+
 }

@@ -11,9 +11,11 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 public class AiTemplatesService {
+
     private final AiPreferences aiPreferences;
 
     private final VelocityEngine velocityEngine = new VelocityEngine();
+
     private final VelocityContext baseContext = new VelocityContext();
 
     public AiTemplatesService(AiPreferences aiPreferences) {
@@ -83,4 +85,5 @@ public class AiTemplatesService {
 
         return writer.toString();
     }
+
 }

@@ -21,4 +21,5 @@ public class BstEntry {
     public BstEntry(BibEntry e) {
         this.entry = e;
     }
+
 }

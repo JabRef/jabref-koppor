@@ -13,7 +13,8 @@ import com.sun.star.text.XText;
 import com.sun.star.text.XTextRangeCompare;
 
 /**
- * RangeSort provides sorting based on XTextRangeCompare, which only provides comparison between XTextRange values within the same XText.
+ * RangeSort provides sorting based on XTextRangeCompare, which only provides comparison
+ * between XTextRange values within the same XText.
  */
 public class RangeSort {
 
@@ -23,15 +24,16 @@ public class RangeSort {
     /**
      * Compare two RangeHolders (using RangeHolder.getRange()) within an XText.
      * <p>
-     * Note: since we only look at the ranges, this comparison is generally not consistent with `equals` on the RangeHolders. Probably should not be used for key comparison in {@code TreeMap<RangeHolder>} or {@code Set<RangeHolder>}
+     * Note: since we only look at the ranges, this comparison is generally not consistent
+     * with `equals` on the RangeHolders. Probably should not be used for key comparison
+     * in {@code TreeMap<RangeHolder>} or {@code Set<RangeHolder>}
      */
     private static class HolderComparatorWithinPartition implements Comparator<RangeHolder> {
 
         private final XTextRangeCompare cmp;
 
         HolderComparatorWithinPartition(XText text) {
-            cmp = UnoCast.cast(XTextRangeCompare.class, text)
-                          .orElseThrow(java.lang.IllegalArgumentException::new);
+            cmp = UnoCast.cast(XTextRangeCompare.class, text).orElseThrow(java.lang.IllegalArgumentException::new);
         }
 
         /**
@@ -41,6 +43,7 @@ public class RangeSort {
         public int compare(RangeHolder a, RangeHolder b) {
             return UnoTextRange.compareStartsThenEndsUnsafe(cmp, a.getRange(), b.getRange());
         }
+
     }
 
     /**
@@ -60,6 +63,7 @@ public class RangeSort {
      * Represent a partitioning of RangeHolders by XText
      */
     public static class RangePartitions<V extends RangeHolder> {
+
         private final Map<XText, List<V>> partitions;
 
         public RangePartitions() {
@@ -75,6 +79,7 @@ public class RangeSort {
         public List<List<V>> getPartitions() {
             return new ArrayList<>(partitions.values());
         }
+
     }
 
     /**
@@ -98,4 +103,5 @@ public class RangeSort {
         }
         return result;
     }
+
 }

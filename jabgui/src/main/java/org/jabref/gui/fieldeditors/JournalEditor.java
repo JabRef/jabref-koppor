@@ -26,40 +26,46 @@ import jakarta.inject.Inject;
 
 public class JournalEditor extends HBox implements FieldEditorFX {
 
-    @FXML private JournalEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
+    @FXML
+    private JournalEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private JournalAbbreviationRepository abbreviationRepository;
-    @Inject private UndoManager undoManager;
+    @FXML
+    private EditorTextField textField;
 
-    public JournalEditor(Field field,
-                         SuggestionProvider<?> suggestionProvider,
-                         FieldCheckers fieldCheckers,
-                         UndoAction undoAction,
-                         RedoAction redoAction) {
+    @FXML
+    private Button journalInfoButton;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private DialogService dialogService;
 
-        this.viewModel = new JournalEditorViewModel(
-                field,
-                suggestionProvider,
-                abbreviationRepository,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager);
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private JournalAbbreviationRepository abbreviationRepository;
+
+    @Inject
+    private UndoManager undoManager;
+
+    public JournalEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoAction undoAction, RedoAction redoAction) {
+
+        ViewLoader.view(this).root(this).load();
+
+        this.viewModel = new JournalEditorViewModel(field, suggestionProvider, abbreviationRepository, fieldCheckers,
+                taskExecutor, dialogService, undoManager);
 
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
         textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
         AutoCompletionTextInputBinding.autoComplete(textField, viewModel::complete);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textField);
     }
 
     public JournalEditorViewModel getViewModel() {
@@ -87,4 +93,5 @@ public class JournalEditor extends HBox implements FieldEditorFX {
             viewModel.showJournalInfo(journalInfoButton);
         }
     }
+
 }

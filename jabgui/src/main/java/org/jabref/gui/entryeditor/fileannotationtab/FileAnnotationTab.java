@@ -19,10 +19,10 @@ public class FileAnnotationTab extends EntryEditorTab {
     public static final String NAME = "File annotations";
 
     private final StateManager stateManager;
+
     private final EntryEditorPreferences entryEditorPreferences;
 
-    public FileAnnotationTab(StateManager stateManager,
-                             GuiPreferences preferences) {
+    public FileAnnotationTab(StateManager stateManager, GuiPreferences preferences) {
         this.stateManager = stateManager;
         this.entryEditorPreferences = preferences.getEntryEditorPreferences();
 
@@ -36,26 +36,26 @@ public class FileAnnotationTab extends EntryEditorTab {
             return entry.getField(StandardField.FILE).isPresent();
         }
 
-        return entry.getField(StandardField.FILE).isPresent()
-                && stateManager.activeTabProperty().get()
-                .map(tab -> tab.getAnnotationCache()
-                        .getFromCache(entry)
-                        .values()
-                        .stream()
-                        .anyMatch(list -> !list.isEmpty()))
-                .orElse(false);
+        return entry.getField(StandardField.FILE).isPresent() && stateManager.activeTabProperty()
+            .get()
+            .map(tab -> tab.getAnnotationCache()
+                .getFromCache(entry)
+                .values()
+                .stream()
+                .anyMatch(list -> !list.isEmpty()))
+            .orElse(false);
     }
 
     @Override
     protected void bindToEntry(BibEntry entry) {
         if (stateManager.activeTabProperty().get().isPresent()) {
             FileAnnotationCache cache = stateManager.activeTabProperty().get().get().getAnnotationCache();
-            Parent content = ViewLoader.view(new FileAnnotationTabView(entry, cache))
-                                       .load()
-                                       .getView();
+            Parent content = ViewLoader.view(new FileAnnotationTabView(entry, cache)).load().getView();
             setContent(content);
-        } else {
+        }
+        else {
             setContent(null);
         }
     }
+
 }

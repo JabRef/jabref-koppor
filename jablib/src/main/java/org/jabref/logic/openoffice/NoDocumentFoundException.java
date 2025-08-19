@@ -9,4 +9,5 @@ public class NoDocumentFoundException extends Exception {
     public NoDocumentFoundException() {
         super("No Writer documents found");
     }
+
 }

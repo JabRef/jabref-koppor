@@ -11,7 +11,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class UnprotectTermsFormatterTest {
 
@@ -23,18 +24,16 @@ class UnprotectTermsFormatterTest {
     }
 
     private static Stream<Arguments> terms() throws IOException {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("VLSI", "{VLSI}"),
-                Arguments.of("VLsI", "VLsI"),
-                Arguments.of("VLSI", "VLSI"),
-                Arguments.of("VLSI VLSI", "{VLSI} {VLSI}"),
-                Arguments.of("BPEL", "{BPEL}"),
-                Arguments.of("3GPP 3G", "{3GPP} {3G}"),
+        return Stream.of(Arguments.of("", ""), Arguments.of("VLSI", "{VLSI}"), Arguments.of("VLsI", "VLsI"),
+                Arguments.of("VLSI", "VLSI"), Arguments.of("VLSI VLSI", "{VLSI} {VLSI}"),
+                Arguments.of("BPEL", "{BPEL}"), Arguments.of("3GPP 3G", "{3GPP} {3G}"),
                 Arguments.of("{A} and {B}}", "{A} and {B}}"),
-                Arguments.of("Testing BPEL Engine Performance: A Survey", "{Testing BPEL Engine Performance: A Survey}"),
-                Arguments.of("Testing BPEL Engine Performance: A Survey", "Testing {BPEL} Engine Performance: A Survey"),
-                Arguments.of("Testing BPEL Engine Performance: A Survey", "{Testing {BPEL} Engine Performance: A Survey}"),
+                Arguments.of("Testing BPEL Engine Performance: A Survey",
+                        "{Testing BPEL Engine Performance: A Survey}"),
+                Arguments.of("Testing BPEL Engine Performance: A Survey",
+                        "Testing {BPEL} Engine Performance: A Survey"),
+                Arguments.of("Testing BPEL Engine Performance: A Survey",
+                        "{Testing {BPEL} Engine Performance: A Survey}"),
                 Arguments.of("In CDMA", new UnprotectTermsFormatter().getExampleInput()));
     }
 
@@ -43,4 +42,5 @@ class UnprotectTermsFormatterTest {
     void test(String expected, String toFormat) {
         assertEquals(expected, formatter.format(toFormat));
     }
+
 }

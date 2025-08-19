@@ -126,4 +126,5 @@ class ContentSelectorSuggestionProviderTest {
 
         assertEquals(expected, result);
     }
+
 }

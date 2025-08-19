@@ -8,7 +8,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class FullScreenDarken extends BaseWindowEffect {
+
     private @Nullable Rectangle overlay;
+
     private @Nullable Runnable onClickHandler;
 
     public FullScreenDarken(@NonNull Pane pane) {
@@ -60,7 +62,8 @@ public final class FullScreenDarken extends BaseWindowEffect {
         if (onClickHandler != null) {
             overlay.setOnMouseClicked(this::handleClick);
             overlay.setMouseTransparent(false);
-        } else {
+        }
+        else {
             overlay.setMouseTransparent(true);
         }
 
@@ -80,4 +83,5 @@ public final class FullScreenDarken extends BaseWindowEffect {
         }
         event.consume();
     }
+
 }

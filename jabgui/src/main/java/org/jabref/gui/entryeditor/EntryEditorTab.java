@@ -15,7 +15,8 @@ public abstract class EntryEditorTab extends Tab {
     protected BibEntry currentEntry;
 
     /**
-     * Needed to track for which type of entry this tab was build and to rebuild it if the type changes
+     * Needed to track for which type of entry this tab was build and to rebuild it if the
+     * type changes
      */
     private EntryType currentEntryType;
 
@@ -30,8 +31,8 @@ public abstract class EntryEditorTab extends Tab {
     protected abstract void bindToEntry(BibEntry entry);
 
     /**
-     * The tab just got the focus. Override this method if you want to perform a special action on focus (like selecting
-     * the first field in the editor)
+     * The tab just got the focus. Override this method if you want to perform a special
+     * action on focus (like selecting the first field in the editor)
      */
     protected void handleFocus() {
         // Do nothing by default
@@ -52,4 +53,5 @@ public abstract class EntryEditorTab extends Tab {
         }
         handleFocus();
     }
+
 }

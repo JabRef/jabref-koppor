@@ -3,9 +3,10 @@ package org.jabref.support;
 import org.jabref.model.TreeNode;
 
 public class TreeNodeTestData {
+
     /// Gets the marked node in the following tree:
     ///
-    ///     Root A A (= parent) B (<-- this)
+    /// Root A A (= parent) B (<-- this)
     public static TreeNodeMock getNodeInSimpleTree(TreeNodeMock root) {
         root.addChild(new TreeNodeMock());
         TreeNodeMock parent = new TreeNodeMock();
@@ -21,7 +22,7 @@ public class TreeNodeTestData {
 
     /// Gets the marked node in the following tree:
     ///
-    ///     Root A A A (= grand parent) B B (= parent) C (<-- this) D (= child) C
+    /// Root A A A (= grand parent) B B (= parent) C (<-- this) D (= child) C
     public static TreeNodeMock getNodeInComplexTree(TreeNodeMock root) {
         root.addChild(new TreeNodeMock());
         root.addChild(new TreeNodeMock());
@@ -51,7 +52,7 @@ public class TreeNodeTestData {
 
     /// Gets the marked in the following tree:
     ///
-    ///     Root A A A (<- this) A
+    /// Root A A A (<- this) A
     public static TreeNodeMock getNodeAsChild(TreeNodeMock root) {
         root.addChild(new TreeNodeMock());
         root.addChild(new TreeNodeMock());
@@ -62,7 +63,8 @@ public class TreeNodeTestData {
     }
 
     /**
-     * This is just a dummy class deriving from TreeNode&lt;T> so that we can test the generic class
+     * This is just a dummy class deriving from TreeNode&lt;T> so that we can test the
+     * generic class
      */
     public static class TreeNodeMock extends TreeNode<TreeNodeMock> {
 
@@ -87,14 +89,14 @@ public class TreeNodeTestData {
 
         @Override
         public String toString() {
-            return "TreeNodeMock{" +
-                    "name='" + name + '\'' +
-                    '}';
+            return "TreeNodeMock{" + "name='" + name + '\'' + '}';
         }
 
         @Override
         public TreeNodeMock copyNode() {
             return new TreeNodeMock(name);
         }
+
     }
+
 }

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.mock;
 class PushToWinEdtTest {
 
     private DialogService dialogService;
+
     private GuiPreferences preferences;
 
     @BeforeEach
@@ -25,6 +26,8 @@ class PushToWinEdtTest {
 
     @Test
     void jumpToLineCommandlineArguments() {
-        assertNotNull(new GuiPushToWinEdt(dialogService, preferences.getPushToApplicationPreferences()).jumpToLineCommandlineArguments(Path.of("test.tex"), 1, 5));
+        assertNotNull(new GuiPushToWinEdt(dialogService, preferences.getPushToApplicationPreferences())
+            .jumpToLineCommandlineArguments(Path.of("test.tex"), 1, 5));
     }
+
 }

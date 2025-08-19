@@ -29,4 +29,5 @@ class RISImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(new RisImporter(), fileName, FILE_ENDING);
     }
+
 }

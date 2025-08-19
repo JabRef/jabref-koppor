@@ -12,10 +12,10 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public interface LibraryTabContainer {
+
     ObservableList<LibraryTab> getLibraryTabs();
 
-    @Nullable
-    LibraryTab getCurrentLibraryTab();
+    @Nullable LibraryTab getCurrentLibraryTab();
 
     void showLibraryTab(LibraryTab libraryTab);
 
@@ -25,7 +25,6 @@ public interface LibraryTabContainer {
 
     /**
      * Closes a designated libraryTab
-     *
      * @param tab to be closed.
      * @return true if closing the tab was successful
      */
@@ -37,4 +36,5 @@ public interface LibraryTabContainer {
      * Refreshes the ui after changes to the preferences
      */
     void refresh();
+
 }

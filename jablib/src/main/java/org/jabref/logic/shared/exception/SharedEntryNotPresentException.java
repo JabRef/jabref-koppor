@@ -3,7 +3,8 @@ package org.jabref.logic.shared.exception;
 import org.jabref.model.entry.BibEntry;
 
 /**
- * This exception is thrown if a BibEntry is going to be updated while it does not exist on the shared side.
+ * This exception is thrown if a BibEntry is going to be updated while it does not exist
+ * on the shared side.
  */
 public class SharedEntryNotPresentException extends Exception {
 
@@ -17,4 +18,5 @@ public class SharedEntryNotPresentException extends Exception {
     public BibEntry getNonPresentBibEntry() {
         return this.nonPresentBibEntry;
     }
+
 }

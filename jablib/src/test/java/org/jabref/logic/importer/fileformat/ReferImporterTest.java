@@ -61,9 +61,9 @@ public class ReferImporterTest {
 
     @Test
     void isRecognizedFormatReject() throws IOException, URISyntaxException {
-        List<String> list = List.of("Endnote.pattern.A.enw", "IEEEImport1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
-                "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi", "RisImporterTest1.ris",
-                "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
+        List<String> list = List.of("Endnote.pattern.A.enw", "IEEEImport1.txt", "IsiImporterTest1.isi",
+                "IsiImporterTestInspec.isi", "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi",
+                "RisImporterTest1.ris", "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
 
         for (String str : list) {
             Path file = Path.of(ReferImporterTest.class.getResource(str).toURI());
@@ -78,19 +78,20 @@ public class ReferImporterTest {
         BibEntry actualEntry = bibEntryList.getFirst();
 
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Reviewed AuthorL, ReviewedF I.")
-                .withField(StandardField.JOURNAL, "Publication")
-                .withField(StandardField.TITLE, "Title")
-                .withField(StandardField.VOLUME, "Volume")
-                .withField(StandardField.ISSUE, "Issue")
-                .withField(StandardField.PAGES, "Pages")
-                .withField(StandardField.SERIES, "Series")
-                .withField(StandardField.URL, "Url")
-                .withField(StandardField.ABSTRACT, "Abstract")
-                .withField(StandardField.EDITOR, "EditorL, EditorF I.")
-                .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
-                .withField(StandardField.YEAR, "2025")
-                .withField(StandardField.NOTE, "Loc. in Archive; Rights");
+            .withField(StandardField.AUTHOR,
+                    "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Reviewed AuthorL, ReviewedF I.")
+            .withField(StandardField.JOURNAL, "Publication")
+            .withField(StandardField.TITLE, "Title")
+            .withField(StandardField.VOLUME, "Volume")
+            .withField(StandardField.ISSUE, "Issue")
+            .withField(StandardField.PAGES, "Pages")
+            .withField(StandardField.SERIES, "Series")
+            .withField(StandardField.URL, "Url")
+            .withField(StandardField.ABSTRACT, "Abstract")
+            .withField(StandardField.EDITOR, "EditorL, EditorF I.")
+            .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
+            .withField(StandardField.YEAR, "2025")
+            .withField(StandardField.NOTE, "Loc. in Archive; Rights");
 
         assertEquals(1, bibEntryList.size());
         assertEquals(expectedEntry, actualEntry);
@@ -106,9 +107,9 @@ public class ReferImporterTest {
                 """;
 
         BibEntry entry = referImporter.importDatabase(new BufferedReader(Reader.of(refEntry)))
-                                                   .getDatabase()
-                                                   .getEntries()
-                                                   .getFirst();
+            .getDatabase()
+            .getEntries()
+            .getFirst();
 
         assertEquals(StandardEntryType.Book, entry.getType());
         assertEquals(Optional.empty(), entry.getField(StandardField.AUTHOR));
@@ -121,65 +122,65 @@ public class ReferImporterTest {
         List<BibEntry> bibEntries = referImporter.importDatabase(file).getDatabase().getEntries();
 
         BibEntry bookEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I.")
-                .withField(StandardField.TITLE, "TitleTest")
-                .withField(StandardField.SERIES, "Series")
-                .withField(StandardField.VOLUME, "Volume")
-                .withField(StandardField.ADDRESS, "Place")
-                .withField(StandardField.PUBLISHER, "Publisher")
-                .withField(StandardField.NOTE, "Loc. in Archive B; Rights B; Call Number B")
-                .withField(StandardField.ISBN, "I-S-B-N")
-                .withField(StandardField.URL, "URL")
-                .withField(StandardField.EDITION, "Ed")
-                .withField(StandardField.ABSTRACT, "Abstract")
-                .withField(StandardField.LANGUAGE, "en")
-                .withField(StandardField.YEAR, "Date");
+            .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I.")
+            .withField(StandardField.TITLE, "TitleTest")
+            .withField(StandardField.SERIES, "Series")
+            .withField(StandardField.VOLUME, "Volume")
+            .withField(StandardField.ADDRESS, "Place")
+            .withField(StandardField.PUBLISHER, "Publisher")
+            .withField(StandardField.NOTE, "Loc. in Archive B; Rights B; Call Number B")
+            .withField(StandardField.ISBN, "I-S-B-N")
+            .withField(StandardField.URL, "URL")
+            .withField(StandardField.EDITION, "Ed")
+            .withField(StandardField.ABSTRACT, "Abstract")
+            .withField(StandardField.LANGUAGE, "en")
+            .withField(StandardField.YEAR, "Date");
 
         BibEntry conferencePaperEntry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.TITLE, "PTitle")
-                .withField(StandardField.SERIES, "Series")
-                .withField(StandardField.VOLUME, "Volume")
-                .withField(StandardField.ADDRESS, "PlaceAddress")
-                .withField(StandardField.PUBLISHER, "Publisher")
-                .withField(StandardField.PAGES, "Pages")
-                .withField(StandardField.NOTE, "Loc. in Archive CP; Rights CP; Call Number CP")
-                .withField(StandardField.ISBN, "ISBN")
-                .withField(StandardField.URL, "URL")
-                .withField(StandardField.ABSTRACT, "Abstract")
-                .withField(StandardField.BOOKTITLE, "Proceedings Title")
-                .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Series EditorL, SeriesF I.")
-                .withField(StandardField.EDITOR, "EditorL, EditorF I.")
-                .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
-                .withField(StandardField.YEAR, "DateD");
+            .withField(StandardField.TITLE, "PTitle")
+            .withField(StandardField.SERIES, "Series")
+            .withField(StandardField.VOLUME, "Volume")
+            .withField(StandardField.ADDRESS, "PlaceAddress")
+            .withField(StandardField.PUBLISHER, "Publisher")
+            .withField(StandardField.PAGES, "Pages")
+            .withField(StandardField.NOTE, "Loc. in Archive CP; Rights CP; Call Number CP")
+            .withField(StandardField.ISBN, "ISBN")
+            .withField(StandardField.URL, "URL")
+            .withField(StandardField.ABSTRACT, "Abstract")
+            .withField(StandardField.BOOKTITLE, "Proceedings Title")
+            .withField(StandardField.AUTHOR,
+                    "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Series EditorL, SeriesF I.")
+            .withField(StandardField.EDITOR, "EditorL, EditorF I.")
+            .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
+            .withField(StandardField.YEAR, "DateD");
 
-        BibEntry encyclopediaEntry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.TITLE, "Title")
-                .withField(StandardField.SERIES, "Series")
-                .withField(StandardField.VOLUME, "Volume")
-                .withField(StandardField.ADDRESS, "Place")
-                .withField(StandardField.PUBLISHER, "Publisher")
-                .withField(StandardField.PAGES, "Pages")
-                .withField(StandardField.NOTE, "Loc. in Archive Ep; Rights Ep; Call Number Ep")
-                .withField(StandardField.ISBN, "ISBN")
-                .withField(StandardField.URL, "URL")
-                .withField(StandardField.EDITION, "Edition")
-                .withField(StandardField.ABSTRACT, "Abstract")
-                .withField(StandardField.BOOKTITLE, "Encyclopedia Title")
-                .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Series EditorL, SeriesF I.")
-                .withField(StandardField.EDITOR, "EditorL, EditorF I.")
-                .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
-                .withField(StandardField.YEAR, "Date");
+        BibEntry encyclopediaEntry = new BibEntry(StandardEntryType.Misc).withField(StandardField.TITLE, "Title")
+            .withField(StandardField.SERIES, "Series")
+            .withField(StandardField.VOLUME, "Volume")
+            .withField(StandardField.ADDRESS, "Place")
+            .withField(StandardField.PUBLISHER, "Publisher")
+            .withField(StandardField.PAGES, "Pages")
+            .withField(StandardField.NOTE, "Loc. in Archive Ep; Rights Ep; Call Number Ep")
+            .withField(StandardField.ISBN, "ISBN")
+            .withField(StandardField.URL, "URL")
+            .withField(StandardField.EDITION, "Edition")
+            .withField(StandardField.ABSTRACT, "Abstract")
+            .withField(StandardField.BOOKTITLE, "Encyclopedia Title")
+            .withField(StandardField.AUTHOR,
+                    "AuthorL, AuthorsF I. and ContributorL, ContributorF I. and Series EditorL, SeriesF I.")
+            .withField(StandardField.EDITOR, "EditorL, EditorF I.")
+            .withField(StandardField.TRANSLATOR, "TranslatorL, TranslatorF I")
+            .withField(StandardField.YEAR, "Date");
 
-        BibEntry thesisEntry = new BibEntry(StandardEntryType.PhdThesis)
-                .withField(StandardField.TITLE, "Title")
-                .withField(StandardField.ADDRESS, "Place")
-                .withField(StandardField.SCHOOL, "University")
-                .withField(StandardField.DOI, "Type")
-                .withField(StandardField.NOTE, "Loc. in Archive Th; Rights Th; Call Number")
-                .withField(StandardField.URL, "Url")
-                .withField(StandardField.ABSTRACT, "Abstract")
-                .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I. and ContributorL, ContributorF I.")
-                .withField(StandardField.YEAR, "Date");
+        BibEntry thesisEntry = new BibEntry(StandardEntryType.PhdThesis).withField(StandardField.TITLE, "Title")
+            .withField(StandardField.ADDRESS, "Place")
+            .withField(StandardField.SCHOOL, "University")
+            .withField(StandardField.DOI, "Type")
+            .withField(StandardField.NOTE, "Loc. in Archive Th; Rights Th; Call Number")
+            .withField(StandardField.URL, "Url")
+            .withField(StandardField.ABSTRACT, "Abstract")
+            .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I. and ContributorL, ContributorF I.")
+            .withField(StandardField.YEAR, "Date");
 
         assertEquals(4, bibEntries.size());
         assertEquals(bookEntry, bibEntries.getFirst());
@@ -187,4 +188,5 @@ public class ReferImporterTest {
         assertEquals(encyclopediaEntry, bibEntries.get(2));
         assertEquals(thesisEntry, bibEntries.get(3));
     }
+
 }

@@ -10,6 +10,7 @@ import com.google.common.eventbus.Subscribe;
 public class SynchronizationEventListenerTest {
 
     private SharedEntriesNotPresentEvent sharedEntriesNotPresentEvent;
+
     private UpdateRefusedEvent updateRefusedEvent;
 
     @Subscribe
@@ -29,4 +30,5 @@ public class SynchronizationEventListenerTest {
     public UpdateRefusedEvent getUpdateRefusedEvent() {
         return updateRefusedEvent;
     }
+
 }

@@ -16,34 +16,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * In case the transformer contains state for a query transformation (such as the {@link IEEEQueryTransformer}), it has to be noted at the JavaDoc.
- * Otherwise, a single instance QueryTransformer can be used.
+ * In case the transformer contains state for a query transformation (such as the
+ * {@link IEEEQueryTransformer}), it has to be noted at the JavaDoc. Otherwise, a single
+ * instance QueryTransformer can be used.
  */
 public abstract class AbstractQueryTransformer {
+
     public static final String NO_EXPLICIT_FIELD = "default";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractQueryTransformer.class);
 
     // These can be used for filtering in post processing
     protected int startYear = Integer.MAX_VALUE;
+
     protected int endYear = Integer.MIN_VALUE;
 
     /**
-     * Transforms a and b and c to (a AND b AND c), where
-     * a, b, and c can be complex expressions.
+     * Transforms a and b and c to (a AND b AND c), where a, b, and c can be complex
+     * expressions.
      */
     protected Optional<String> transform(BooleanQueryNode query) {
         String delimiter;
         if (query instanceof OrQueryNode) {
             delimiter = getLogicalOrOperator();
-        } else {
+        }
+        else {
             // We define the logical AND operator as the default implementation
             delimiter = getLogicalAndOperator();
         }
 
-        String result = query.getChildren().stream()
-                             .map(this::transform)
-                             .flatMap(Optional::stream)
-                             .collect(Collectors.joining(delimiter, "(", ")"));
+        String result = query.getChildren()
+            .stream()
+            .map(this::transform)
+            .flatMap(Optional::stream)
+            .collect(Collectors.joining(delimiter, "(", ")"));
         if ("()".equals(result)) {
             return Optional.empty();
         }
@@ -51,16 +57,16 @@ public abstract class AbstractQueryTransformer {
     }
 
     /**
-     * Returns the logical AND operator used by the library
-     * Note: whitespaces have to be included around the operator
+     * Returns the logical AND operator used by the library Note: whitespaces have to be
+     * included around the operator
      *
      * Example: <code>" AND "</code>
      */
     protected abstract String getLogicalAndOperator();
 
     /**
-     * Returns the logical OR operator used by the library
-     * Note: whitespaces have to be included around the operator
+     * Returns the logical OR operator used by the library Note: whitespaces have to be
+     * included around the operator
      *
      * Example: <code>" OR "</code>
      */
@@ -118,7 +124,8 @@ public abstract class AbstractQueryTransformer {
         ModifierQueryNode.Modifier modifier = query.getModifier();
         if (modifier == ModifierQueryNode.Modifier.MOD_NOT) {
             return transform(query.getChild()).map(s -> getLogicalNotOperator() + s);
-        } else {
+        }
+        else {
             return transform(query.getChild());
         }
     }
@@ -152,15 +159,16 @@ public abstract class AbstractQueryTransformer {
         int parsedEndYear = Integer.parseInt(split[1]);
         if (parsedEndYear >= parsedStartYear) {
             endYear = parsedEndYear;
-        } else {
+        }
+        else {
             startYear = parsedEndYear;
             endYear = parsedStartYear;
         }
     }
 
     /**
-     * Return a string representation of the year-range fielded term
-     * Should follow the structure yyyy-yyyy
+     * Return a string representation of the year-range fielded term Should follow the
+     * structure yyyy-yyyy
      *
      * Example: <code>2015-2021</code>
      */
@@ -195,8 +203,8 @@ public abstract class AbstractQueryTransformer {
     }
 
     /**
-     * Return a string representation of the provided field
-     * If it is not supported return an empty optional.
+     * Return a string representation of the provided field If it is not supported return
+     * an empty optional.
      */
     protected Optional<String> handleOtherField(String fieldAsString, String term) {
         return Optional.of(createKeyValuePair(fieldAsString, term));
@@ -224,13 +232,14 @@ public abstract class AbstractQueryTransformer {
     }
 
     /**
-     * Parses the given query string into a complex query using lucene.
-     * Note: For unique fields, the alphabetically and numerically first instance in the query string is used in the complex query.
-     *
+     * Parses the given query string into a complex query using lucene. Note: For unique
+     * fields, the alphabetically and numerically first instance in the query string is
+     * used in the complex query.
      * @param luceneQuery The lucene query tp transform
-     * @return A query string containing all fields that are contained in the original lucene query and
-     * that are expressible in the library specific query language, other information either is discarded or
-     * stored as part of the state of the transformer if it can be used e.g. as a URL parameter for the query.
+     * @return A query string containing all fields that are contained in the original
+     * lucene query and that are expressible in the library specific query language, other
+     * information either is discarded or stored as part of the state of the transformer
+     * if it can be used e.g. as a URL parameter for the query.
      */
     public Optional<String> transformLuceneQuery(QueryNode luceneQuery) {
         Optional<String> transformedQuery = transform(luceneQuery);
@@ -247,4 +256,5 @@ public abstract class AbstractQueryTransformer {
         }
         return query;
     }
+
 }

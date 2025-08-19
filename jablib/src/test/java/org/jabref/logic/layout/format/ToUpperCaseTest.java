@@ -19,12 +19,8 @@ class ToUpperCaseTest {
     }
 
     private static Stream<Arguments> toUpperCaseTests() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of(null, null),
-                Arguments.of("ABCD EFG", "abcd efg"),
-                Arguments.of("ABCD EFG", "ABCD EFG"),
-                Arguments.of("ABCD EFG", "abCD eFg")
-        );
+        return Stream.of(Arguments.of("", ""), Arguments.of(null, null), Arguments.of("ABCD EFG", "abcd efg"),
+                Arguments.of("ABCD EFG", "ABCD EFG"), Arguments.of("ABCD EFG", "abCD eFg"));
     }
+
 }

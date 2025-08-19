@@ -18,7 +18,9 @@ public class INSPIREBibtexFilterReader extends FilterReader {
     private static final Pattern PATTERN = Pattern.compile("@Article\\{.*,");
 
     private final BufferedReader inReader;
+
     private String line;
+
     private int pos;
 
     private boolean pre;
@@ -47,7 +49,8 @@ public class INSPIREBibtexFilterReader extends FilterReader {
             if (l.contains("</pre>")) {
                 pre = false;
             }
-        } while (!pre);
+        }
+        while (!pre);
         return l;
     }
 
@@ -57,7 +60,8 @@ public class INSPIREBibtexFilterReader extends FilterReader {
         }
         if (PATTERN.matcher(preliminaryLine).find()) {
             return preliminaryLine.replace(' ', '_');
-        } else {
+        }
+        else {
             return preliminaryLine;
         }
     }
@@ -77,4 +81,5 @@ public class INSPIREBibtexFilterReader extends FilterReader {
         }
         return line.charAt(pos++);
     }
+
 }

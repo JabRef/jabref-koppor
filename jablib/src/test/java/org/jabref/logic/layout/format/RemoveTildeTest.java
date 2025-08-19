@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RemoveTildeTest {
+
     private LayoutFormatter formatter;
 
     @BeforeEach
@@ -26,15 +27,10 @@ class RemoveTildeTest {
     }
 
     private static Stream<Arguments> provideArguments() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("simple", "simple"),
-                Arguments.of(" ", "~"),
-                Arguments.of("   ", "~~~"),
-                Arguments.of(" \\~ ", "~\\~~"),
-                Arguments.of("\\\\ ", "\\\\~"),
+        return Stream.of(Arguments.of("", ""), Arguments.of("simple", "simple"), Arguments.of(" ", "~"),
+                Arguments.of("   ", "~~~"), Arguments.of(" \\~ ", "~\\~~"), Arguments.of("\\\\ ", "\\\\~"),
                 Arguments.of("Doe Joe and Jane, M. and Kamp, J. A.", "Doe Joe and Jane, M. and Kamp, J.~A."),
-                Arguments.of("T\\~olkien, J. R. R.", "T\\~olkien, J.~R.~R.")
-        );
+                Arguments.of("T\\~olkien, J. R. R.", "T\\~olkien, J.~R.~R."));
     }
+
 }

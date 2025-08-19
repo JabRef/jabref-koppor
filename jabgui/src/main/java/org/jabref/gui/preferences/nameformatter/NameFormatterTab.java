@@ -23,18 +23,29 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTabViewModel> implements PreferencesTab {
 
-    @FXML private TableView<NameFormatterItemModel> formatterList;
-    @FXML private TableColumn<NameFormatterItemModel, String> formatterNameColumn;
-    @FXML private TableColumn<NameFormatterItemModel, String> formatterStringColumn;
-    @FXML private TableColumn<NameFormatterItemModel, String> actionsColumn;
-    @FXML private TextField addFormatterName;
-    @FXML private TextField addFormatterString;
-    @FXML private Button formatterHelp;
+    @FXML
+    private TableView<NameFormatterItemModel> formatterList;
+
+    @FXML
+    private TableColumn<NameFormatterItemModel, String> formatterNameColumn;
+
+    @FXML
+    private TableColumn<NameFormatterItemModel, String> formatterStringColumn;
+
+    @FXML
+    private TableColumn<NameFormatterItemModel, String> actionsColumn;
+
+    @FXML
+    private TextField addFormatterName;
+
+    @FXML
+    private TextField addFormatterString;
+
+    @FXML
+    private Button formatterHelp;
 
     public NameFormatterTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -50,28 +61,28 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
         formatterNameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         formatterNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         formatterNameColumn.setEditable(true);
-        formatterNameColumn.setOnEditCommit(
-                (TableColumn.CellEditEvent<NameFormatterItemModel, String> event) ->
-                        event.getRowValue().setName(event.getNewValue()));
+        formatterNameColumn
+            .setOnEditCommit((TableColumn.CellEditEvent<NameFormatterItemModel, String> event) -> event.getRowValue()
+                .setName(event.getNewValue()));
 
         formatterStringColumn.setSortable(true);
         formatterStringColumn.setReorderable(false);
         formatterStringColumn.setCellValueFactory(cellData -> cellData.getValue().formatProperty());
         formatterStringColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         formatterStringColumn.setEditable(true);
-        formatterStringColumn.setOnEditCommit(
-                (TableColumn.CellEditEvent<NameFormatterItemModel, String> event) ->
-                        event.getRowValue().setFormat(event.getNewValue()));
+        formatterStringColumn
+            .setOnEditCommit((TableColumn.CellEditEvent<NameFormatterItemModel, String> event) -> event.getRowValue()
+                .setFormat(event.getNewValue()));
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         new ValueTableCellFactory<NameFormatterItemModel, String>()
-                .withGraphic(name -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
-                .withOnMouseClickedEvent(item -> evt ->
-                        viewModel.removeFormatter(formatterList.getFocusModel().getFocusedItem()))
-                .install(actionsColumn);
+            .withGraphic(name -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
+            .withOnMouseClickedEvent(
+                    item -> evt -> viewModel.removeFormatter(formatterList.getFocusModel().getFocusedItem()))
+            .install(actionsColumn);
 
         formatterList.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.DELETE) {
@@ -102,10 +113,14 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
         });
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP_NAME_FORMATTER, new HelpAction(HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER, dialogService, preferences.getExternalApplicationsPreferences()), formatterHelp);
+        actionFactory.configureIconButton(StandardActions.HELP_NAME_FORMATTER,
+                new HelpAction(HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER, dialogService,
+                        preferences.getExternalApplicationsPreferences()),
+                formatterHelp);
     }
 
     public void addFormatter() {
         viewModel.addFormatter();
     }
+
 }

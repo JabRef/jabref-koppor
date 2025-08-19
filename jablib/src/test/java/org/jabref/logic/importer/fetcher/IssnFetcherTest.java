@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 class IssnFetcherTest {
 
     private IssnFetcher fetcher;
+
     private BibEntry bibEntry;
 
     @BeforeEach
@@ -31,10 +32,9 @@ class IssnFetcherTest {
 
         fetcher = new IssnFetcher();
 
-        bibEntry = new BibEntry()
-                .withField(StandardField.ISSN, "15454509")
-                .withField(StandardField.JOURNALTITLE, "Annual Review of Biochemistry")
-                .withField(StandardField.PUBLISHER, "Annual Reviews Inc.");
+        bibEntry = new BibEntry().withField(StandardField.ISSN, "15454509")
+            .withField(StandardField.JOURNALTITLE, "Annual Review of Biochemistry")
+            .withField(StandardField.PUBLISHER, "Annual Reviews Inc.");
     }
 
     @Test
@@ -53,4 +53,5 @@ class IssnFetcherTest {
     void getName() {
         assertEquals("ISSN", fetcher.getName());
     }
+
 }

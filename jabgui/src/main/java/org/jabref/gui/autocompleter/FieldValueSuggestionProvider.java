@@ -12,6 +12,7 @@ import org.jabref.model.entry.field.Field;
 class FieldValueSuggestionProvider extends StringSuggestionProvider {
 
     private final Field field;
+
     private final BibDatabase database;
 
     FieldValueSuggestionProvider(Field field, BibDatabase database) {
@@ -23,4 +24,5 @@ class FieldValueSuggestionProvider extends StringSuggestionProvider {
     public Stream<String> getSource() {
         return database.getEntries().parallelStream().flatMap(entry -> entry.getField(field).stream());
     }
+
 }

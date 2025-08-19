@@ -8,16 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NonSpaceWhitespaceRemoverTest {
+
     private final NonSpaceWhitespaceRemover nonSpaceWhitespaceRemover = new NonSpaceWhitespaceRemover();
 
     @ParameterizedTest
-    @CsvSource({
-            "'', ''",
-            "'abcd EFG', 'abcd EFG'",
-            "'abcd    EFG', 'abcd    EFG'",
-            "'abcd\t EFG', 'abcd EFG'",
-            "'abcd\r E\nFG\r\n', 'abcd EFG'"
-    })
+    @CsvSource({ "'', ''", "'abcd EFG', 'abcd EFG'", "'abcd    EFG', 'abcd    EFG'", "'abcd\t EFG', 'abcd EFG'",
+            "'abcd\r E\nFG\r\n', 'abcd EFG'" })
     void format(String input, String expected) {
         assertEquals(expected, nonSpaceWhitespaceRemover.format(input));
     }
@@ -26,4 +22,5 @@ class NonSpaceWhitespaceRemoverTest {
     void nullInput() {
         assertNull(nonSpaceWhitespaceRemover.format(null));
     }
+
 }

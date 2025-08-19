@@ -42,10 +42,13 @@ import static org.mockito.Mockito.when;
 
 class EmbeddedBibFilePdfExporterTest {
 
-    @TempDir static Path tempDir;
+    @TempDir
+    static Path tempDir;
 
     private static BibEntry olly2018 = new BibEntry(StandardEntryType.Article);
+
     private static BibEntry toral2006 = new BibEntry(StandardEntryType.Article);
+
     private static BibEntry vapnik2000 = new BibEntry(StandardEntryType.Article);
 
     private EmbeddedBibFilePdfExporter exporter;
@@ -53,7 +56,9 @@ class EmbeddedBibFilePdfExporterTest {
     private PdfEmbeddedBibFileImporter importer;
 
     private BibDatabaseContext databaseContext;
+
     private JournalAbbreviationRepository abbreviationRepository;
+
     private FilePreferences filePreferences;
 
     private static void initBibEntries() throws IOException {
@@ -82,7 +87,8 @@ class EmbeddedBibFilePdfExporterTest {
         olly2018.setFiles(List.of(linkedFile));
 
         toral2006.setField(StandardField.AUTHOR, "Toral, Antonio and Munoz, Rafael");
-        toral2006.setField(StandardField.TITLE, "A proposal to automatically build and maintain gazetteers for Named Entity Recognition by using Wikipedia");
+        toral2006.setField(StandardField.TITLE,
+                "A proposal to automatically build and maintain gazetteers for Named Entity Recognition by using Wikipedia");
         toral2006.setField(StandardField.BOOKTITLE, "Proceedings of EACL");
         toral2006.setField(StandardField.PAGES, "56--61");
         toral2006.setField(StandardField.EPRINTTYPE, "asdf");
@@ -112,15 +118,14 @@ class EmbeddedBibFilePdfExporterTest {
 
         BibDatabaseMode bibDatabaseMode = BibDatabaseMode.BIBTEX;
         BibEntryTypesManager bibEntryTypesManager = new BibEntryTypesManager();
-        FieldPreferences fieldPreferences = new FieldPreferences(
-                true,
-                List.of(StandardField.MONTH),
-                List.of());
+        FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(StandardField.MONTH), List.of());
 
         exporter = new EmbeddedBibFilePdfExporter(bibDatabaseMode, bibEntryTypesManager, fieldPreferences);
 
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.fieldPreferences().getNonWrappableFields())
+            .thenReturn(FXCollections.emptyObservableList());
         importer = new PdfEmbeddedBibFileImporter(importFormatPreferences);
 
         databaseContext = new BibDatabaseContext();
@@ -134,14 +139,18 @@ class EmbeddedBibFilePdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithValidPdfFileLinks")
-    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
+    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
+        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(olly2018), abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithInvalidPdfFileLinks")
-    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
+    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
+        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(olly2018), abbreviationRepository));
     }
 
     public static Stream<Arguments> provideBibEntriesWithValidPdfFileLinks() {
@@ -154,13 +163,15 @@ class EmbeddedBibFilePdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("providePathsToValidPDFs")
-    void successfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void successfulExportToFileByPath(Path path)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         assertTrue(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("providePathsToInvalidPDFs")
-    void unsuccessfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void unsuccessfulExportToFileByPath(Path path)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         assertFalse(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
@@ -174,8 +185,7 @@ class EmbeddedBibFilePdfExporterTest {
 
     public static Stream<Arguments> providePathsToInvalidPDFs() throws IOException {
         LinkedFile existingFileThatIsNotLinked = createDefaultLinkedFile("notlinked.pdf", tempDir);
-        return Stream.of(
-                Arguments.of(Path.of("")),
+        return Stream.of(Arguments.of(Path.of("")),
                 Arguments.of(tempDir.resolve("path/to/nowhere.pdf").toAbsolutePath()),
                 Arguments.of(Path.of(existingFileThatIsNotLinked.getLink())));
     }
@@ -193,12 +203,11 @@ class EmbeddedBibFilePdfExporterTest {
     @ParameterizedTest
     @MethodSource("providePathToNewPDFs")
     void roundtripExportImport(Path path) throws IOException {
-        BibEntry expected = new BibEntry(StandardEntryType.Misc)
-                .withCitationKey("test")
-                .withField(StandardField.AUTHOR, "Test Author")
-                .withField(StandardField.TITLE, "Test Title")
-                .withField(StandardField.URL, "http://example.com")
-                .withField(StandardField.DATE, "2020-10-14");
+        BibEntry expected = new BibEntry(StandardEntryType.Misc).withCitationKey("test")
+            .withField(StandardField.AUTHOR, "Test Author")
+            .withField(StandardField.TITLE, "Test Title")
+            .withField(StandardField.URL, "http://example.com")
+            .withField(StandardField.DATE, "2020-10-14");
         expected.setChanged(true);
 
         List<BibEntry> expectedEntries = List.of(expected);
@@ -209,4 +218,5 @@ class EmbeddedBibFilePdfExporterTest {
 
         assertEquals(expectedEntries, importedEntries);
     }
+
 }

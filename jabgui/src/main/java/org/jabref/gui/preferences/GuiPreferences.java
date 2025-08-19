@@ -21,6 +21,7 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.push.PushToApplicationPreferences;
 
 public interface GuiPreferences extends CliPreferences {
+
     CopyToPreferences getCopyToPreferences();
 
     EntryEditorPreferences getEntryEditorPreferences();
@@ -58,4 +59,5 @@ public interface GuiPreferences extends CliPreferences {
     KeyBindingRepository getKeyBindingRepository();
 
     NewEntryPreferences getNewEntryPreferences();
+
 }

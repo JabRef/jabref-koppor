@@ -27,67 +27,68 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AiPreferences {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AiPreferences.class);
 
     private static final String KEYRING_AI_SERVICE = "org.jabref.ai";
+
     private static final String KEYRING_AI_SERVICE_ACCOUNT = "apiKey";
 
     private final BooleanProperty enableAi;
+
     private final BooleanProperty autoGenerateEmbeddings;
+
     private final BooleanProperty autoGenerateSummaries;
 
     private final ObjectProperty<AiProvider> aiProvider;
 
     private final StringProperty openAiChatModel;
+
     private final StringProperty mistralAiChatModel;
+
     private final StringProperty geminiChatModel;
+
     private final StringProperty huggingFaceChatModel;
+
     private final StringProperty gpt4AllChatModel;
 
     private final BooleanProperty customizeExpertSettings;
 
     private final StringProperty openAiApiBaseUrl;
+
     private final StringProperty mistralAiApiBaseUrl;
+
     private final StringProperty geminiApiBaseUrl;
+
     private final StringProperty huggingFaceApiBaseUrl;
+
     private final StringProperty gpt4AllApiBaseUrl;
 
     private final ObjectProperty<EmbeddingModel> embeddingModel;
+
     private final DoubleProperty temperature;
+
     private final IntegerProperty contextWindowSize;
+
     private final IntegerProperty documentSplitterChunkSize;
+
     private final IntegerProperty documentSplitterOverlapSize;
+
     private final IntegerProperty ragMaxResultsCount;
+
     private final DoubleProperty ragMinScore;
 
     private final Map<AiTemplate, StringProperty> templates;
 
     private Runnable apiKeyChangeListener;
 
-    public AiPreferences(boolean enableAi,
-                         boolean autoGenerateEmbeddings,
-                         boolean autoGenerateSummaries,
-                         AiProvider aiProvider,
-                         String openAiChatModel,
-                         String mistralAiChatModel,
-                         String geminiChatModel,
-                         String huggingFaceChatModel,
-                         String gpt4AllModel,
-                         boolean customizeExpertSettings,
-                         String openAiApiBaseUrl,
-                         String mistralAiApiBaseUrl,
-                         String geminiApiBaseUrl,
-                         String huggingFaceApiBaseUrl,
-                         String gpt4AllApiBaseUrl,
-                         EmbeddingModel embeddingModel,
-                         double temperature,
-                         int contextWindowSize,
-                         int documentSplitterChunkSize,
-                         int documentSplitterOverlapSize,
-                         int ragMaxResultsCount,
-                         double ragMinScore,
-                         Map<AiTemplate, String> templates
-    ) {
+    public AiPreferences(boolean enableAi, boolean autoGenerateEmbeddings, boolean autoGenerateSummaries,
+            AiProvider aiProvider, String openAiChatModel, String mistralAiChatModel, String geminiChatModel,
+            String huggingFaceChatModel, String gpt4AllModel, boolean customizeExpertSettings, String openAiApiBaseUrl,
+            String mistralAiApiBaseUrl, String geminiApiBaseUrl, String huggingFaceApiBaseUrl, String gpt4AllApiBaseUrl,
+            EmbeddingModel embeddingModel, double temperature, int contextWindowSize, int documentSplitterChunkSize,
+            int documentSplitterOverlapSize, int ragMaxResultsCount, double ragMinScore,
+            Map<AiTemplate, String> templates) {
         this.enableAi = new SimpleBooleanProperty(enableAi);
         this.autoGenerateEmbeddings = new SimpleBooleanProperty(autoGenerateEmbeddings);
         this.autoGenerateSummaries = new SimpleBooleanProperty(autoGenerateSummaries);
@@ -116,25 +117,33 @@ public class AiPreferences {
         this.ragMaxResultsCount = new SimpleIntegerProperty(ragMaxResultsCount);
         this.ragMinScore = new SimpleDoubleProperty(ragMinScore);
 
-        this.templates = Map.of(
-                AiTemplate.CHATTING_SYSTEM_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.CHATTING_SYSTEM_MESSAGE)),
-                AiTemplate.CHATTING_USER_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.CHATTING_USER_MESSAGE)),
-                AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE)),
-                AiTemplate.SUMMARIZATION_CHUNK_USER_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_CHUNK_USER_MESSAGE)),
-                AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE)),
-                AiTemplate.SUMMARIZATION_COMBINE_USER_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_COMBINE_USER_MESSAGE)),
-                AiTemplate.CITATION_PARSING_SYSTEM_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.CITATION_PARSING_SYSTEM_MESSAGE)),
-                AiTemplate.CITATION_PARSING_USER_MESSAGE, new SimpleStringProperty(templates.get(AiTemplate.CITATION_PARSING_USER_MESSAGE))
-        );
+        this.templates = Map.of(AiTemplate.CHATTING_SYSTEM_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.CHATTING_SYSTEM_MESSAGE)),
+                AiTemplate.CHATTING_USER_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.CHATTING_USER_MESSAGE)),
+                AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE)),
+                AiTemplate.SUMMARIZATION_CHUNK_USER_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_CHUNK_USER_MESSAGE)),
+                AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE)),
+                AiTemplate.SUMMARIZATION_COMBINE_USER_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.SUMMARIZATION_COMBINE_USER_MESSAGE)),
+                AiTemplate.CITATION_PARSING_SYSTEM_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.CITATION_PARSING_SYSTEM_MESSAGE)),
+                AiTemplate.CITATION_PARSING_USER_MESSAGE,
+                new SimpleStringProperty(templates.get(AiTemplate.CITATION_PARSING_USER_MESSAGE)));
     }
 
     public String getApiKeyForAiProvider(AiProvider aiProvider) {
         try (final Keyring keyring = Keyring.create()) {
             return keyring.getPassword(KEYRING_AI_SERVICE, KEYRING_AI_SERVICE_ACCOUNT + "-" + aiProvider.name());
-        } catch (PasswordAccessException e) {
+        }
+        catch (PasswordAccessException e) {
             LOGGER.debug("No API key stored for provider {}. Returning an empty string", aiProvider.getLabel());
             return "";
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.warn("JabRef could not open keyring for retrieving {} API token", aiProvider.getLabel(), e);
             return "";
         }
@@ -145,13 +154,17 @@ public class AiPreferences {
             if (StringUtil.isNullOrEmpty(newKey)) {
                 try {
                     keyring.deletePassword(KEYRING_AI_SERVICE, KEYRING_AI_SERVICE_ACCOUNT + "-" + aiProvider.name());
-                } catch (PasswordAccessException ex) {
-                    LOGGER.debug("API key for provider {} not stored in keyring. JabRef does not store an empty key.", aiProvider.getLabel());
                 }
-            } else {
+                catch (PasswordAccessException ex) {
+                    LOGGER.debug("API key for provider {} not stored in keyring. JabRef does not store an empty key.",
+                            aiProvider.getLabel());
+                }
+            }
+            else {
                 keyring.setPassword(KEYRING_AI_SERVICE, KEYRING_AI_SERVICE_ACCOUNT + "-" + aiProvider.name(), newKey);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.warn("JabRef could not open keyring for storing {} API token", aiProvider.getLabel(), e);
         }
     }
@@ -283,7 +296,8 @@ public class AiPreferences {
     public EmbeddingModel getEmbeddingModel() {
         if (getCustomizeExpertSettings()) {
             return embeddingModel.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.EMBEDDING_MODEL;
         }
     }
@@ -359,7 +373,8 @@ public class AiPreferences {
     public double getTemperature() {
         if (getCustomizeExpertSettings()) {
             return temperature.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.TEMPERATURE;
         }
     }
@@ -375,11 +390,14 @@ public class AiPreferences {
     public int getContextWindowSize() {
         if (getCustomizeExpertSettings()) {
             return contextWindowSize.get();
-        } else {
+        }
+        else {
             return switch (aiProvider.get()) {
                 case OPEN_AI -> AiDefaultPreferences.getContextWindowSize(AiProvider.OPEN_AI, openAiChatModel.get());
-                case MISTRAL_AI -> AiDefaultPreferences.getContextWindowSize(AiProvider.MISTRAL_AI, mistralAiChatModel.get());
-                case HUGGING_FACE -> AiDefaultPreferences.getContextWindowSize(AiProvider.HUGGING_FACE, huggingFaceChatModel.get());
+                case MISTRAL_AI ->
+                    AiDefaultPreferences.getContextWindowSize(AiProvider.MISTRAL_AI, mistralAiChatModel.get());
+                case HUGGING_FACE ->
+                    AiDefaultPreferences.getContextWindowSize(AiProvider.HUGGING_FACE, huggingFaceChatModel.get());
                 case GEMINI -> AiDefaultPreferences.getContextWindowSize(AiProvider.GEMINI, geminiChatModel.get());
                 case GPT4ALL -> AiDefaultPreferences.getContextWindowSize(AiProvider.GPT4ALL, gpt4AllChatModel.get());
             };
@@ -397,7 +415,8 @@ public class AiPreferences {
     public int getDocumentSplitterChunkSize() {
         if (getCustomizeExpertSettings()) {
             return documentSplitterChunkSize.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.DOCUMENT_SPLITTER_CHUNK_SIZE;
         }
     }
@@ -413,7 +432,8 @@ public class AiPreferences {
     public int getDocumentSplitterOverlapSize() {
         if (getCustomizeExpertSettings()) {
             return documentSplitterOverlapSize.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.DOCUMENT_SPLITTER_OVERLAP;
         }
     }
@@ -429,7 +449,8 @@ public class AiPreferences {
     public int getRagMaxResultsCount() {
         if (getCustomizeExpertSettings()) {
             return ragMaxResultsCount.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.RAG_MAX_RESULTS_COUNT;
         }
     }
@@ -445,7 +466,8 @@ public class AiPreferences {
     public double getRagMinScore() {
         if (getCustomizeExpertSettings()) {
             return ragMinScore.get();
-        } else {
+        }
+        else {
             return AiDefaultPreferences.RAG_MIN_SCORE;
         }
     }
@@ -456,7 +478,6 @@ public class AiPreferences {
 
     /**
      * Listen to changes of preferences that are related to embeddings generation.
-     *
      * @param runnable The runnable that should be executed when the preferences change.
      */
     public void addListenerToEmbeddingsParametersChange(Runnable runnable) {
@@ -501,34 +522,25 @@ public class AiPreferences {
 
     public String getSelectedChatModel() {
         return switch (aiProvider.get()) {
-            case OPEN_AI ->
-                    openAiChatModel.get();
-            case MISTRAL_AI ->
-                    mistralAiChatModel.get();
-            case HUGGING_FACE ->
-                    huggingFaceChatModel.get();
-            case GEMINI ->
-                    geminiChatModel.get();
-            case GPT4ALL ->
-                    gpt4AllChatModel.get();
+            case OPEN_AI -> openAiChatModel.get();
+            case MISTRAL_AI -> mistralAiChatModel.get();
+            case HUGGING_FACE -> huggingFaceChatModel.get();
+            case GEMINI -> geminiChatModel.get();
+            case GPT4ALL -> gpt4AllChatModel.get();
         };
     }
 
     public String getSelectedApiBaseUrl() {
         if (customizeExpertSettings.get()) {
             return switch (aiProvider.get()) {
-                case OPEN_AI ->
-                        openAiApiBaseUrl.get();
-                case MISTRAL_AI ->
-                        mistralAiApiBaseUrl.get();
-                case HUGGING_FACE ->
-                        huggingFaceApiBaseUrl.get();
-                case GEMINI ->
-                        geminiApiBaseUrl.get();
-                case GPT4ALL ->
-                        gpt4AllApiBaseUrl.get();
+                case OPEN_AI -> openAiApiBaseUrl.get();
+                case MISTRAL_AI -> mistralAiApiBaseUrl.get();
+                case HUGGING_FACE -> huggingFaceApiBaseUrl.get();
+                case GEMINI -> geminiApiBaseUrl.get();
+                case GPT4ALL -> gpt4AllApiBaseUrl.get();
             };
-        } else {
+        }
+        else {
             return aiProvider.get().getApiUrl();
         }
     }
@@ -555,4 +567,5 @@ public class AiPreferences {
     public StringProperty templateProperty(AiTemplate aiTemplate) {
         return templates.get(aiTemplate);
     }
+
 }

@@ -8,11 +8,15 @@ import org.jabref.model.entry.field.Field;
  * Matches entries based on a search phrase relative to the content in a specified field.
  */
 public abstract class KeywordGroup extends AbstractGroup {
+
     protected final Field searchField;
+
     protected final String searchExpression;
+
     protected final boolean caseSensitive;
 
-    public KeywordGroup(String name, GroupHierarchyType context, Field searchField, String searchExpression, boolean caseSensitive) {
+    public KeywordGroup(String name, GroupHierarchyType context, Field searchField, String searchExpression,
+            boolean caseSensitive) {
         super(name, context);
         this.caseSensitive = caseSensitive;
         this.searchField = searchField;
@@ -48,11 +52,13 @@ public abstract class KeywordGroup extends AbstractGroup {
             return false;
         }
         KeywordGroup that = (KeywordGroup) o;
-        return isCaseSensitive() == that.isCaseSensitive() && Objects.equals(getSearchField(), that.getSearchField()) && Objects.equals(getSearchExpression(), that.getSearchExpression());
+        return isCaseSensitive() == that.isCaseSensitive() && Objects.equals(getSearchField(), that.getSearchField())
+                && Objects.equals(getSearchExpression(), that.getSearchExpression());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getSearchField(), getSearchExpression(), isCaseSensitive());
     }
+
 }

@@ -22,16 +22,17 @@ import org.jabref.model.entry.LinkedFile;
 public class AttachFileAction extends SimpleCommand {
 
     private final LibraryTab libraryTab;
+
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final FilePreferences filePreferences;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    public AttachFileAction(LibraryTab libraryTab,
-                            DialogService dialogService,
-                            StateManager stateManager,
-                            FilePreferences filePreferences,
-                            ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public AttachFileAction(LibraryTab libraryTab, DialogService dialogService, StateManager stateManager,
+            FilePreferences filePreferences, ExternalApplicationsPreferences externalApplicationsPreferences) {
         this.libraryTab = libraryTab;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -61,35 +62,35 @@ public class AttachFileAction extends SimpleCommand {
 
         if (filePreferences.shouldOpenFileExplorerInFileDirectory()) {
             initialDirectory = databaseContext.getFirstExistingFileDir(filePreferences)
-                                              .orElse(filePreferences.getWorkingDirectory());
-        } else if (filePreferences.shouldOpenFileExplorerInLastUsedDirectory()) {
+                .orElse(filePreferences.getWorkingDirectory());
+        }
+        else if (filePreferences.shouldOpenFileExplorerInLastUsedDirectory()) {
             initialDirectory = filePreferences.getLastUsedDirectory();
-        } else {
+        }
+        else {
             initialDirectory = filePreferences.getWorkingDirectory();
         }
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .withInitialDirectory(initialDirectory)
-                .build();
+            .withInitialDirectory(initialDirectory)
+            .build();
 
         dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(newFile -> {
             filePreferences.setLastUsedDirectory(newFile.getParent());
-            LinkedFile linkedFile = LinkedFilesEditorViewModel.fromFile(
-                    newFile,
-                    databaseContext.getFileDirectories(filePreferences),
-                    externalApplicationsPreferences);
+            LinkedFile linkedFile = LinkedFilesEditorViewModel.fromFile(newFile,
+                    databaseContext.getFileDirectories(filePreferences), externalApplicationsPreferences);
 
             LinkedFileEditDialog dialog = new LinkedFileEditDialog(linkedFile);
 
-            dialogService.showCustomDialogAndWait(dialog)
-                  .ifPresent(editedLinkedFile -> {
-                      Optional<FieldChange> fieldChange = entry.addFile(editedLinkedFile);
-                      fieldChange.ifPresent(change -> {
-                          UndoableFieldChange ce = new UndoableFieldChange(change);
-                          libraryTab.getUndoManager().addEdit(ce);
-                          libraryTab.markBaseChanged();
-                      });
-                  });
+            dialogService.showCustomDialogAndWait(dialog).ifPresent(editedLinkedFile -> {
+                Optional<FieldChange> fieldChange = entry.addFile(editedLinkedFile);
+                fieldChange.ifPresent(change -> {
+                    UndoableFieldChange ce = new UndoableFieldChange(change);
+                    libraryTab.getUndoManager().addEdit(ce);
+                    libraryTab.markBaseChanged();
+                });
+            });
         });
     }
+
 }

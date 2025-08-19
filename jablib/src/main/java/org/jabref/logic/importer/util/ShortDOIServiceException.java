@@ -3,6 +3,7 @@ package org.jabref.logic.importer.util;
 import org.jabref.logic.JabRefException;
 
 public class ShortDOIServiceException extends JabRefException {
+
     public ShortDOIServiceException(String message) {
         super(message);
     }
@@ -22,4 +23,5 @@ public class ShortDOIServiceException extends JabRefException {
     public ShortDOIServiceException(Throwable cause) {
         super(cause);
     }
+
 }

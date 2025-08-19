@@ -6,11 +6,10 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * The |built_in| function {\.{purify\$}} pops the top (string) literal, removes
- * nonalphanumeric characters except for |white_space| and |sep_char| characters
- * (these get converted to a |space|) and removes certain alphabetic characters
- * contained in the control sequences associated with a special character, and
- * pushes the resulting string. If the literal isn't a string, it complains and
- * pushes the null string.
+ * nonalphanumeric characters except for |white_space| and |sep_char| characters (these
+ * get converted to a |space|) and removes certain alphabetic characters contained in the
+ * control sequences associated with a special character, and pushes the resulting string.
+ * If the literal isn't a string, it complains and pushes the null string.
  *
  */
 public class BstWidthCalculator {
@@ -20,11 +19,11 @@ public class BstWidthCalculator {
     /*
      * Quoted from Bibtex:
      *
-     * Now we initialize the system-dependent |char_width| array, for which
-     * |space| is the only |white_space| character given a nonzero printing
-     * width. The widths here are taken from Stanford's June~'87 $cmr10$~font
-     * and represent hundredths of a point (rounded), but since they're used
-     * only for relative comparisons, the units have no meaning.
+     * Now we initialize the system-dependent |char_width| array, for which |space| is the
+     * only |white_space| character given a nonzero printing width. The widths here are
+     * taken from Stanford's June~'87 $cmr10$~font and represent hundredths of a point
+     * (rounded), but since they're used only for relative comparisons, the units have no
+     * meaning.
      */
 
     private static int[] widths;
@@ -161,15 +160,16 @@ public class BstWidthCalculator {
     public static int getCharWidth(char c) {
         if ((c >= 0) && (c < 128)) {
             return BstWidthCalculator.widths[c];
-        } else {
+        }
+        else {
             return 0;
         }
     }
 
     public static int width(String toMeasure) {
         /*
-         * From Bibtex: We use the natural width for all but special characters,
-         * and we complain if the string isn't brace-balanced.
+         * From Bibtex: We use the natural width for all but special characters, and we
+         * complain if the string isn't brace-balanced.
          */
 
         int i = 0;
@@ -181,11 +181,10 @@ public class BstWidthCalculator {
         /*
          * From Bibtex:
          *
-         * We use the natural widths of all characters except that some
-         * characters have no width: braces, control sequences (except for the
-         * usual 13 accented and foreign characters, whose widths are given in
-         * the next module), and |white_space| following control sequences (even
-         * a null control sequence).
+         * We use the natural widths of all characters except that some characters have no
+         * width: braces, control sequences (except for the usual 13 accented and foreign
+         * characters, whose widths are given in the next module), and |white_space|
+         * following control sequences (even a null control sequence).
          *
          */
         while (i < n) {
@@ -202,7 +201,8 @@ public class BstWidthCalculator {
                         }
                         if ((i < n) && (i == afterBackslash)) {
                             i++; // Skip non-alpha control seq
-                        } else {
+                        }
+                        else {
                             if (BstCaseChanger.findSpecialChar(c, afterBackslash).isPresent()) {
                                 result += BstWidthCalculator.getSpecialCharWidth(c, afterBackslash);
                             }
@@ -213,9 +213,11 @@ public class BstWidthCalculator {
                         while ((i < n) && (braceLevel > 0) && (c[i] != '\\')) {
                             if (c[i] == '}') {
                                 braceLevel--;
-                            } else if (c[i] == '{') {
+                            }
+                            else if (c[i] == '{') {
                                 braceLevel++;
-                            } else {
+                            }
+                            else {
                                 result += BstWidthCalculator.getCharWidth(c[i]);
                             }
                             i++;
@@ -223,10 +225,12 @@ public class BstWidthCalculator {
                     }
                     continue;
                 }
-            } else if (c[i] == '}') {
+            }
+            else if (c[i] == '}') {
                 if (braceLevel > 0) {
                     braceLevel--;
-                } else {
+                }
+                else {
                     LOGGER.warn("Too many closing braces in string: {}", toMeasure);
                 }
             }
@@ -238,4 +242,5 @@ public class BstWidthCalculator {
         }
         return result;
     }
+
 }

@@ -70,23 +70,28 @@ import static org.jabref.gui.duplicationFinder.DuplicateResolverDialog.Duplicate
 public class ImportHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportHandler.class);
+
     private final BibDatabaseContext bibDatabaseContext;
+
     private final GuiPreferences preferences;
+
     private final FileUpdateMonitor fileUpdateMonitor;
+
     private final ExternalFilesEntryLinker fileLinker;
+
     private final ExternalFilesContentImporter contentImporter;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
 
-    public ImportHandler(BibDatabaseContext database,
-                         GuiPreferences preferences,
-                         FileUpdateMonitor fileupdateMonitor,
-                         UndoManager undoManager,
-                         StateManager stateManager,
-                         DialogService dialogService,
-                         TaskExecutor taskExecutor) {
+    public ImportHandler(BibDatabaseContext database, GuiPreferences preferences, FileUpdateMonitor fileupdateMonitor,
+            UndoManager undoManager, StateManager stateManager, DialogService dialogService,
+            TaskExecutor taskExecutor) {
 
         this.bibDatabaseContext = database;
         this.preferences = preferences;
@@ -95,7 +100,8 @@ public class ImportHandler {
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
 
-        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(), dialogService, stateManager);
+        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), dialogService, stateManager);
         this.contentImporter = new ExternalFilesContentImporter(preferences.getImportFormatPreferences());
         this.undoManager = undoManager;
     }
@@ -104,11 +110,16 @@ public class ImportHandler {
         return fileLinker;
     }
 
-    public BackgroundTask<List<ImportFilesResultItemViewModel>> importFilesInBackground(final List<Path> files, final BibDatabaseContext bibDatabaseContext, final FilePreferences filePreferences, TransferMode transferMode) {
-        // TODO: Make a utility class out of this. Package: org.jabref.logic.externalfiles.
+    public BackgroundTask<List<ImportFilesResultItemViewModel>> importFilesInBackground(final List<Path> files,
+            final BibDatabaseContext bibDatabaseContext, final FilePreferences filePreferences,
+            TransferMode transferMode) {
+        // TODO: Make a utility class out of this. Package:
+        // org.jabref.logic.externalfiles.
         return new BackgroundTask<>() {
             private int counter;
+
             private final List<ImportFilesResultItemViewModel> results = new ArrayList<>();
+
             private final List<BibEntry> allEntriesToAdd = new ArrayList<>();
 
             @Override
@@ -123,11 +134,14 @@ public class ImportHandler {
                     }
 
                     UiTaskExecutor.runInJavaFXThread(() -> {
-                        setTitle(Localization.lang("Importing files into %1 | %2 of %0 file(s) processed.",
-                                files.size(),
-                                bibDatabaseContext.getDatabasePath().map(path -> path.getFileName().toString()).orElse(Localization.lang("untitled")),
-                                counter));
-                        updateMessage(Localization.lang("Processing %0", FileUtil.shortenFileName(file.getFileName().toString(), 68)));
+                        setTitle(
+                                Localization.lang("Importing files into %1 | %2 of %0 file(s) processed.", files.size(),
+                                        bibDatabaseContext.getDatabasePath()
+                                            .map(path -> path.getFileName().toString())
+                                            .orElse(Localization.lang("untitled")),
+                                        counter));
+                        updateMessage(Localization.lang("Processing %0",
+                                FileUtil.shortenFileName(file.getFileName().toString(), 68)));
                         updateProgress(counter, files.size());
                         showToUser(true);
                     });
@@ -140,21 +154,27 @@ public class ImportHandler {
                             if (files.size() == 1) {
                                 pdfEntriesInFile = new ArrayList<>(1);
                                 UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                                    MultiMergeEntriesView dialog = PdfMergeDialog.createMergeDialog(file, preferences, taskExecutor);
+                                    MultiMergeEntriesView dialog = PdfMergeDialog.createMergeDialog(file, preferences,
+                                            taskExecutor);
                                     dialogService.showCustomDialogAndWait(dialog).ifPresent(pdfEntriesInFile::add);
                                 });
-                            } else {
-                                ParserResult pdfImporterResult = contentImporter.importPDFContent(file, bibDatabaseContext, filePreferences);
+                            }
+                            else {
+                                ParserResult pdfImporterResult = contentImporter.importPDFContent(file,
+                                        bibDatabaseContext, filePreferences);
                                 pdfEntriesInFile = pdfImporterResult.getDatabase().getEntries();
                                 if (pdfImporterResult.hasWarnings()) {
-                                    addResultToList(file, false, Localization.lang("Error reading PDF content: %0", pdfImporterResult.getErrorMessage()));
+                                    addResultToList(file, false, Localization.lang("Error reading PDF content: %0",
+                                            pdfImporterResult.getErrorMessage()));
                                 }
                             }
 
                             if (pdfEntriesInFile.isEmpty()) {
                                 entriesToAdd.add(createEmptyEntryWithLink(file));
-                                addResultToList(file, false, Localization.lang("No BibTeX was found. An empty entry was created with file link."));
-                            } else {
+                                addResultToList(file, false, Localization
+                                    .lang("No BibTeX was found. An empty entry was created with file link."));
+                            }
+                            else {
                                 generateKeys(pdfEntriesInFile);
                                 pdfEntriesInFile.forEach(entry -> {
                                     if (entry.getFiles().size() > 1) {
@@ -162,34 +182,44 @@ public class ImportHandler {
                                         LOGGER.warn("Entry's files: {}", entry.getFiles());
                                     }
                                     entry.clearField(StandardField.FILE);
-                                    // Modifiers do not work on macOS: https://bugs.openjdk.org/browse/JDK-8264172
-                                    // Similar code as org.jabref.gui.preview.PreviewPanel.PreviewPanel
+                                    // Modifiers do not work on macOS:
+                                    // https://bugs.openjdk.org/browse/JDK-8264172
+                                    // Similar code as
+                                    // org.jabref.gui.preview.PreviewPanel.PreviewPanel
                                     DragDrop.handleDropOfFiles(List.of(file), transferMode, fileLinker, entry);
                                     addToImportEntriesGroup(pdfEntriesInFile);
                                     entriesToAdd.addAll(pdfEntriesInFile);
-                                    addResultToList(file, true, Localization.lang("File was successfully imported as a new entry"));
+                                    addResultToList(file, true,
+                                            Localization.lang("File was successfully imported as a new entry"));
                                 });
                             }
-                        } else if (FileUtil.isBibFile(file)) {
-                            ParserResult bibtexParserResult = contentImporter.importFromBibFile(file, fileUpdateMonitor);
+                        }
+                        else if (FileUtil.isBibFile(file)) {
+                            ParserResult bibtexParserResult = contentImporter.importFromBibFile(file,
+                                    fileUpdateMonitor);
                             List<BibEntry> entries = bibtexParserResult.getDatabaseContext().getEntries();
                             entriesToAdd.addAll(entries);
                             boolean success = !bibtexParserResult.hasWarnings();
                             String message;
                             if (success) {
                                 message = Localization.lang("Bib entry was successfully imported");
-                            } else {
+                            }
+                            else {
                                 message = bibtexParserResult.getErrorMessage();
                             }
                             addResultToList(file, success, message);
-                        } else {
+                        }
+                        else {
                             BibEntry emptyEntryWithLink = createEmptyEntryWithLink(file);
                             entriesToAdd.add(emptyEntryWithLink);
-                            addResultToList(file, false, Localization.lang("No BibTeX data was found. An empty entry was created with file link."));
+                            addResultToList(file, false, Localization
+                                .lang("No BibTeX data was found. An empty entry was created with file link."));
                         }
-                    } catch (IOException ex) {
+                    }
+                    catch (IOException ex) {
                         LOGGER.error("Error importing", ex);
-                        addResultToList(file, false, Localization.lang("Error from import: %0", ex.getLocalizedMessage()));
+                        addResultToList(file, false,
+                                Localization.lang("Error from import: %0", ex.getLocalizedMessage()));
 
                         UiTaskExecutor.runInJavaFXThread(() -> updateMessage(Localization.lang("Error")));
                     }
@@ -202,14 +232,16 @@ public class ImportHandler {
 
                     counter++;
                 }
-                // We need to run the actual import on the FX Thread, otherwise we will get some deadlocks with the UIThreadList
+                // We need to run the actual import on the FX Thread, otherwise we will
+                // get some deadlocks with the UIThreadList
                 // That method does a clone() on each entry
                 UiTaskExecutor.runInJavaFXThread(() -> importEntries(allEntriesToAdd));
                 return results;
             }
 
             private void addResultToList(Path newFile, boolean success, String logMessage) {
-                ImportFilesResultItemViewModel result = new ImportFilesResultItemViewModel(newFile, success, logMessage);
+                ImportFilesResultItemViewModel result = new ImportFilesResultItemViewModel(newFile, success,
+                        logMessage);
                 results.add(result);
             }
         };
@@ -223,11 +255,12 @@ public class ImportHandler {
     }
 
     /**
-     * Cleans up the given entries and adds them to the library.
-     * There is no automatic download done.
+     * Cleans up the given entries and adds them to the library. There is no automatic
+     * download done.
      */
     public void importEntries(List<BibEntry> entries) {
-        ImportCleanup cleanup = ImportCleanup.targeting(bibDatabaseContext.getMode(), preferences.getFieldPreferences());
+        ImportCleanup cleanup = ImportCleanup.targeting(bibDatabaseContext.getMode(),
+                preferences.getFieldPreferences());
         cleanup.doPostCleanup(entries);
         importCleanedEntries(entries);
     }
@@ -250,45 +283,47 @@ public class ImportHandler {
         importEntryWithDuplicateCheck(bibDatabaseContext, entry, BREAK, new EntryImportHandlerTracker());
     }
 
-    private void importEntryWithDuplicateCheck(BibDatabaseContext bibDatabaseContext, BibEntry entry, DuplicateResolverDialog.DuplicateResolverResult decision, EntryImportHandlerTracker tracker) {
+    private void importEntryWithDuplicateCheck(BibDatabaseContext bibDatabaseContext, BibEntry entry,
+            DuplicateResolverDialog.DuplicateResolverResult decision, EntryImportHandlerTracker tracker) {
         BibEntry entryToInsert = cleanUpEntry(bibDatabaseContext, entry);
 
-        BackgroundTask.wrap(() -> findDuplicate(bibDatabaseContext, entryToInsert))
-                      .onFailure(e -> {
-                          tracker.markSkipped();
-                          LOGGER.error("Error in duplicate search", e);
-                      })
-                      .onSuccess(existingDuplicateInLibrary -> {
-                          BibEntry finalEntry = entryToInsert;
-                          if (existingDuplicateInLibrary.isPresent()) {
-                              Optional<BibEntry> duplicateHandledEntry = handleDuplicates(bibDatabaseContext, entryToInsert, existingDuplicateInLibrary.get(), decision);
-                              if (duplicateHandledEntry.isEmpty()) {
-                                    tracker.markSkipped();
-                                  return;
-                              }
-                              finalEntry = duplicateHandledEntry.get();
-                          }
-                          importCleanedEntries(bibDatabaseContext, List.of(finalEntry));
-                          addToImportEntriesGroup(List.of(finalEntry));
-                          downloadLinkedFiles(finalEntry);
-                          BibEntry entryToFocus = finalEntry;
-                          stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entryToFocus));
-                          tracker.markImported();
-                      }).executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> findDuplicate(bibDatabaseContext, entryToInsert)).onFailure(e -> {
+            tracker.markSkipped();
+            LOGGER.error("Error in duplicate search", e);
+        }).onSuccess(existingDuplicateInLibrary -> {
+            BibEntry finalEntry = entryToInsert;
+            if (existingDuplicateInLibrary.isPresent()) {
+                Optional<BibEntry> duplicateHandledEntry = handleDuplicates(bibDatabaseContext, entryToInsert,
+                        existingDuplicateInLibrary.get(), decision);
+                if (duplicateHandledEntry.isEmpty()) {
+                    tracker.markSkipped();
+                    return;
+                }
+                finalEntry = duplicateHandledEntry.get();
+            }
+            importCleanedEntries(bibDatabaseContext, List.of(finalEntry));
+            addToImportEntriesGroup(List.of(finalEntry));
+            downloadLinkedFiles(finalEntry);
+            BibEntry entryToFocus = finalEntry;
+            stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entryToFocus));
+            tracker.markImported();
+        }).executeWith(taskExecutor);
     }
 
     @VisibleForTesting
     BibEntry cleanUpEntry(BibDatabaseContext bibDatabaseContext, BibEntry entry) {
-        ImportCleanup cleanup = ImportCleanup.targeting(bibDatabaseContext.getMode(), preferences.getFieldPreferences());
+        ImportCleanup cleanup = ImportCleanup.targeting(bibDatabaseContext.getMode(),
+                preferences.getFieldPreferences());
         return cleanup.doPostCleanup(entry);
     }
 
     public Optional<BibEntry> findDuplicate(BibDatabaseContext bibDatabaseContext, BibEntry entryToCheck) {
         return new DuplicateCheck(Injector.instantiateModelOrService(BibEntryTypesManager.class))
-                .containsDuplicate(bibDatabaseContext.getDatabase(), entryToCheck, bibDatabaseContext.getMode());
+            .containsDuplicate(bibDatabaseContext.getDatabase(), entryToCheck, bibDatabaseContext.getMode());
     }
 
-    public Optional<BibEntry> handleDuplicates(BibDatabaseContext bibDatabaseContext, BibEntry originalEntry, BibEntry duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult decision) {
+    public Optional<BibEntry> handleDuplicates(BibDatabaseContext bibDatabaseContext, BibEntry originalEntry,
+            BibEntry duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult decision) {
         DuplicateDecisionResult decisionResult = getDuplicateDecision(originalEntry, duplicateEntry, decision);
         switch (decisionResult.decision()) {
             case KEEP_RIGHT:
@@ -308,8 +343,10 @@ public class ImportHandler {
         return Optional.of(originalEntry);
     }
 
-    public DuplicateDecisionResult getDuplicateDecision(BibEntry originalEntry, BibEntry duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult decision) {
-        DuplicateResolverDialog dialog = new DuplicateResolverDialog(duplicateEntry, originalEntry, DuplicateResolverDialog.DuplicateResolverType.IMPORT_CHECK, stateManager, dialogService, preferences);
+    public DuplicateDecisionResult getDuplicateDecision(BibEntry originalEntry, BibEntry duplicateEntry,
+            DuplicateResolverDialog.DuplicateResolverResult decision) {
+        DuplicateResolverDialog dialog = new DuplicateResolverDialog(duplicateEntry, originalEntry,
+                DuplicateResolverDialog.DuplicateResolverType.IMPORT_CHECK, stateManager, dialogService, preferences);
         if (decision == BREAK) {
             decision = dialogService.showCustomDialogAndWait(dialog).orElse(BREAK);
         }
@@ -320,27 +357,18 @@ public class ImportHandler {
     }
 
     public void setAutomaticFields(List<BibEntry> entries) {
-        UpdateField.setAutomaticFields(
-                entries,
-                preferences.getOwnerPreferences(),
-                preferences.getTimestampPreferences()
-        );
+        UpdateField.setAutomaticFields(entries, preferences.getOwnerPreferences(),
+                preferences.getTimestampPreferences());
     }
 
     public void downloadLinkedFiles(BibEntry entry) {
         if (preferences.getFilePreferences().shouldDownloadLinkedFiles()) {
-            entry.getFiles().stream()
-                 .filter(LinkedFile::isOnlineLink)
-                 .forEach(linkedFile ->
-                         new LinkedFileViewModel(
-                                 linkedFile,
-                                 entry,
-                                 bibDatabaseContext,
-                                 taskExecutor,
-                                 dialogService,
-                                 preferences
-                         ).download(false)
-                 );
+            entry.getFiles()
+                .stream()
+                .filter(LinkedFile::isOnlineLink)
+                .forEach(linkedFile -> new LinkedFileViewModel(linkedFile, entry, bibDatabaseContext, taskExecutor,
+                        dialogService, preferences)
+                    .download(false));
         }
     }
 
@@ -350,8 +378,9 @@ public class ImportHandler {
                 List<FieldChange> undo = entryChanger.add(entries);
                 // TODO: Add undo
                 // if (!undo.isEmpty()) {
-                //    ce.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(new GroupTreeNodeViewModel(node),
-                //            undo));
+                // ce.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(new
+                // GroupTreeNodeViewModel(node),
+                // undo));
                 // }
             }
         }
@@ -359,7 +388,6 @@ public class ImportHandler {
 
     /**
      * Generate keys for given entries.
-     *
      * @param entries entries to generate keys for
      */
     private void generateKeys(List<BibEntry> entries) {
@@ -367,21 +395,22 @@ public class ImportHandler {
             return;
         }
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(
-                bibDatabaseContext.getMetaData().getCiteKeyPatterns(preferences.getCitationKeyPatternPreferences()
-                                                                               .getKeyPatterns()),
-                bibDatabaseContext.getDatabase(),
-                preferences.getCitationKeyPatternPreferences());
+                bibDatabaseContext.getMetaData()
+                    .getCiteKeyPatterns(preferences.getCitationKeyPatternPreferences().getKeyPatterns()),
+                bibDatabaseContext.getDatabase(), preferences.getCitationKeyPatternPreferences());
         entries.forEach(keyGenerator::generateAndSetKey);
     }
 
     public List<BibEntry> handleBibTeXData(String entries) {
         BibtexParser parser = new BibtexParser(preferences.getImportFormatPreferences(), fileUpdateMonitor);
         try {
-            List<BibEntry> result = parser.parseEntries(new ByteArrayInputStream(entries.getBytes(StandardCharsets.UTF_8)));
+            List<BibEntry> result = parser
+                .parseEntries(new ByteArrayInputStream(entries.getBytes(StandardCharsets.UTF_8)));
             Collection<BibtexString> stringConstants = parser.getStringValues();
             importStringConstantsWithDuplicateCheck(stringConstants);
             return result;
-        } catch (ParseException ex) {
+        }
+        catch (ParseException ex) {
             LOGGER.error("Could not paste", ex);
             return List.of();
         }
@@ -392,18 +421,26 @@ public class ImportHandler {
 
         for (BibtexString stringConstantToAdd : stringConstants) {
             try {
-                ConstantsItemModel checker = new ConstantsItemModel(stringConstantToAdd.getName(), stringConstantToAdd.getContent());
+                ConstantsItemModel checker = new ConstantsItemModel(stringConstantToAdd.getName(),
+                        stringConstantToAdd.getContent());
                 if (checker.combinedValidationValidProperty().get()) {
                     bibDatabaseContext.getDatabase().addString(stringConstantToAdd);
-                } else {
-                    failures.add(Localization.lang("String constant \"%0\" was not imported because it is not a valid string constant", stringConstantToAdd.getName()));
                 }
-            } catch (KeyCollisionException ex) {
-                failures.add(Localization.lang("String constant %0 was not imported because it already exists in this library", stringConstantToAdd.getName()));
+                else {
+                    failures.add(Localization.lang(
+                            "String constant \"%0\" was not imported because it is not a valid string constant",
+                            stringConstantToAdd.getName()));
+                }
+            }
+            catch (KeyCollisionException ex) {
+                failures.add(Localization.lang(
+                        "String constant %0 was not imported because it already exists in this library",
+                        stringConstantToAdd.getName()));
             }
         }
         if (!failures.isEmpty()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Importing String constants"), Localization.lang("Could not import the following string constants:\n %0", String.join("\n", failures)));
+            dialogService.showWarningDialogAndWait(Localization.lang("Importing String constants"), Localization
+                .lang("Could not import the following string constants:\n %0", String.join("\n", failures)));
         }
     }
 
@@ -418,7 +455,8 @@ public class ImportHandler {
             if (FileUtil.isPDFFile(Path.of(fileName))) {
                 try {
                     return handlePdfUrl(data);
-                } catch (IOException ex) {
+                }
+                catch (IOException ex) {
                     LOGGER.error("Could not handle PDF URL", ex);
                     return List.of();
                 }
@@ -436,15 +474,13 @@ public class ImportHandler {
 
     private List<BibEntry> tryImportFormats(String data) {
         try {
-            ImportFormatReader importFormatReader = new ImportFormatReader(
-                    preferences.getImporterPreferences(),
-                    preferences.getImportFormatPreferences(),
-                    preferences.getCitationKeyPatternPreferences(),
-                    fileUpdateMonitor
-            );
+            ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(),
+                    preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                    fileUpdateMonitor);
             UnknownFormatImport unknownFormatImport = importFormatReader.importUnknownFormat(data);
             return unknownFormatImport.parserResult().getDatabase().getEntries();
-        } catch (ImportException ex) { // ex is already localized
+        }
+        catch (ImportException ex) { // ex is already localized
             dialogService.showErrorDialogAndWait(Localization.lang("Import error"), ex);
             return List.of();
         }
@@ -454,7 +490,8 @@ public class ImportHandler {
         importEntriesWithDuplicateCheck(database, entriesToAdd, new EntryImportHandlerTracker());
     }
 
-    public void importEntriesWithDuplicateCheck(BibDatabaseContext database, List<BibEntry> entriesToAdd, EntryImportHandlerTracker tracker) {
+    public void importEntriesWithDuplicateCheck(BibDatabaseContext database, List<BibEntry> entriesToAdd,
+            EntryImportHandlerTracker tracker) {
         boolean firstEntry = true;
         for (BibEntry entry : entriesToAdd) {
             if (firstEntry) {
@@ -464,10 +501,12 @@ public class ImportHandler {
                 continue;
             }
             if (preferences.getMergeDialogPreferences().shouldMergeApplyToAllEntries()) {
-                DuplicateResolverDialog.DuplicateResolverResult decision = preferences.getMergeDialogPreferences().getAllEntriesDuplicateResolverDecision();
+                DuplicateResolverDialog.DuplicateResolverResult decision = preferences.getMergeDialogPreferences()
+                    .getAllEntriesDuplicateResolverDecision();
                 LOGGER.debug("Not first entry, pref flag is true, we use {}", decision);
                 importEntryWithDuplicateCheck(database, entry, decision, tracker);
-            } else {
+            }
+            else {
                 LOGGER.debug("not first entry, not pref flag, break will  be used");
                 importEntryWithDuplicateCheck(database, entry, BREAK, tracker);
             }
@@ -485,13 +524,15 @@ public class ImportHandler {
         Path targetFile = targetDirectory.get().resolve(filename);
         try {
             urlDownload.toFile(targetFile);
-        } catch (FetcherException fe) {
+        }
+        catch (FetcherException fe) {
             LOGGER.error("Error downloading PDF from URL", fe);
             return List.of();
         }
         try {
             PdfMergeMetadataImporter importer = new PdfMergeMetadataImporter(preferences.getImportFormatPreferences());
-            ParserResult parserResult = importer.importDatabase(targetFile, bibDatabaseContext, preferences.getFilePreferences());
+            ParserResult parserResult = importer.importDatabase(targetFile, bibDatabaseContext,
+                    preferences.getFilePreferences());
             if (parserResult.hasWarnings()) {
                 LOGGER.warn("PDF import had warnings: {}", parserResult.getErrorMessage());
             }
@@ -502,13 +543,15 @@ public class ImportHandler {
                         entry.addFile(new LinkedFile("", targetFile, StandardFileType.PDF.getName()));
                     }
                 });
-            } else {
+            }
+            else {
                 BibEntry emptyEntry = new BibEntry();
                 emptyEntry.addFile(new LinkedFile("", targetFile, StandardFileType.PDF.getName()));
                 entries.add(emptyEntry);
             }
             return entries;
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             LOGGER.error("Error importing PDF from URL - IO issue", ex);
             return List.of();
         }
@@ -518,12 +561,13 @@ public class ImportHandler {
         if (preferences.getLibraryPreferences().isAddImportedEntriesEnabled()) {
             // Only one SmartGroup
             this.bibDatabaseContext.getMetaData()
-                                   .getGroups()
-                                   .flatMap(grp -> grp.getChildren()
-                                                      .stream()
-                                                      .filter(node -> node.getGroup() instanceof SmartGroup)
-                                                      .findFirst())
-                                   .ifPresent(smtGrp -> smtGrp.addEntriesToGroup(entriesToInsert));
+                .getGroups()
+                .flatMap(grp -> grp.getChildren()
+                    .stream()
+                    .filter(node -> node.getGroup() instanceof SmartGroup)
+                    .findFirst())
+                .ifPresent(smtGrp -> smtGrp.addEntriesToGroup(entriesToInsert));
         }
     }
+
 }

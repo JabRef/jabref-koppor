@@ -24,30 +24,61 @@ import com.airhacks.afterburner.views.ViewLoader;
 public class CleanupPresetPanel extends VBox {
 
     private final BibDatabaseContext databaseContext;
-    @FXML private Label cleanupRenamePDFLabel;
-    @FXML private CheckBox cleanUpDOI;
-    @FXML private CheckBox cleanUpEprint;
-    @FXML private CheckBox cleanUpURL;
-    @FXML private CheckBox cleanUpISSN;
-    @FXML private CheckBox cleanUpMovePDF;
-    @FXML private CheckBox cleanUpMakePathsRelative;
-    @FXML private CheckBox cleanUpRenamePDF;
-    @FXML private CheckBox cleanUpRenamePDFonlyRelativePaths;
-    @FXML private CheckBox cleanUpDeletedFiles;
-    @FXML private CheckBox cleanUpUpgradeExternalLinks;
-    @FXML private CheckBox cleanUpBiblatex;
-    @FXML private CheckBox cleanUpBibtex;
-    @FXML private CheckBox cleanUpTimestampToCreationDate;
-    @FXML private CheckBox cleanUpTimestampToModificationDate;
-    @FXML private FieldFormatterCleanupsPanel formatterCleanupsPanel;
 
-    public CleanupPresetPanel(BibDatabaseContext databaseContext, CleanupPreferences cleanupPreferences, FilePreferences filePreferences) {
+    @FXML
+    private Label cleanupRenamePDFLabel;
+
+    @FXML
+    private CheckBox cleanUpDOI;
+
+    @FXML
+    private CheckBox cleanUpEprint;
+
+    @FXML
+    private CheckBox cleanUpURL;
+
+    @FXML
+    private CheckBox cleanUpISSN;
+
+    @FXML
+    private CheckBox cleanUpMovePDF;
+
+    @FXML
+    private CheckBox cleanUpMakePathsRelative;
+
+    @FXML
+    private CheckBox cleanUpRenamePDF;
+
+    @FXML
+    private CheckBox cleanUpRenamePDFonlyRelativePaths;
+
+    @FXML
+    private CheckBox cleanUpDeletedFiles;
+
+    @FXML
+    private CheckBox cleanUpUpgradeExternalLinks;
+
+    @FXML
+    private CheckBox cleanUpBiblatex;
+
+    @FXML
+    private CheckBox cleanUpBibtex;
+
+    @FXML
+    private CheckBox cleanUpTimestampToCreationDate;
+
+    @FXML
+    private CheckBox cleanUpTimestampToModificationDate;
+
+    @FXML
+    private FieldFormatterCleanupsPanel formatterCleanupsPanel;
+
+    public CleanupPresetPanel(BibDatabaseContext databaseContext, CleanupPreferences cleanupPreferences,
+            FilePreferences filePreferences) {
         this.databaseContext = Objects.requireNonNull(databaseContext);
 
         // Load FXML
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         init(cleanupPreferences, filePreferences);
     }
@@ -55,48 +86,49 @@ public class CleanupPresetPanel extends VBox {
     private void init(CleanupPreferences cleanupPreferences, FilePreferences filePreferences) {
         Optional<Path> firstExistingDir = databaseContext.getFirstExistingFileDir(filePreferences);
         if (firstExistingDir.isPresent()) {
-            cleanUpMovePDF.setText(Localization.lang("Move linked files to default file directory %0", firstExistingDir.get().toString()));
-        } else {
+            cleanUpMovePDF.setText(Localization.lang("Move linked files to default file directory %0",
+                    firstExistingDir.get().toString()));
+        }
+        else {
             cleanUpMovePDF.setText(Localization.lang("Move linked files to default file directory %0", "..."));
 
-            // Since the directory does not exist, we cannot move it to there. So, this option is not checked - regardless of the presets stored in the preferences.
+            // Since the directory does not exist, we cannot move it to there. So, this
+            // option is not checked - regardless of the presets stored in the
+            // preferences.
             cleanUpMovePDF.setDisable(true);
             cleanUpMovePDF.setSelected(false);
         }
 
         cleanUpRenamePDFonlyRelativePaths.disableProperty().bind(cleanUpRenamePDF.selectedProperty().not());
 
-        cleanUpUpgradeExternalLinks.setText(Localization.lang("Upgrade external PDF/PS links to use the '%0' field.", StandardField.FILE.getDisplayName()));
+        cleanUpUpgradeExternalLinks.setText(Localization.lang("Upgrade external PDF/PS links to use the '%0' field.",
+                StandardField.FILE.getDisplayName()));
 
         String currentPattern = Localization.lang("Filename format pattern (from preferences)")
-                                            .concat(filePreferences.getFileNamePattern());
+            .concat(filePreferences.getFileNamePattern());
         cleanupRenamePDFLabel.setText(currentPattern);
 
-        cleanUpBibtex.selectedProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        cleanUpBiblatex.selectedProperty().setValue(false);
-                    }
-                });
-        cleanUpBiblatex.selectedProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        cleanUpBibtex.selectedProperty().setValue(false);
-                    }
-                });
+        cleanUpBibtex.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                cleanUpBiblatex.selectedProperty().setValue(false);
+            }
+        });
+        cleanUpBiblatex.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                cleanUpBibtex.selectedProperty().setValue(false);
+            }
+        });
 
-        cleanUpTimestampToCreationDate.selectedProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        cleanUpTimestampToModificationDate.selectedProperty().setValue(false);
-                    }
-                });
-        cleanUpTimestampToModificationDate.selectedProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        cleanUpTimestampToCreationDate.selectedProperty().setValue(false);
-                    }
-                });
+        cleanUpTimestampToCreationDate.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                cleanUpTimestampToModificationDate.selectedProperty().setValue(false);
+            }
+        });
+        cleanUpTimestampToModificationDate.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                cleanUpTimestampToCreationDate.selectedProperty().setValue(false);
+            }
+        });
         updateDisplay(cleanupPreferences);
     }
 
@@ -109,17 +141,23 @@ public class CleanupPresetPanel extends VBox {
         }
         cleanUpMakePathsRelative.setSelected(preset.isActive(CleanupPreferences.CleanupStep.MAKE_PATHS_RELATIVE));
         cleanUpRenamePDF.setSelected(preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF));
-        cleanUpRenamePDFonlyRelativePaths.setSelected(preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF_ONLY_RELATIVE_PATHS));
-        cleanUpUpgradeExternalLinks.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS));
+        cleanUpRenamePDFonlyRelativePaths
+            .setSelected(preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF_ONLY_RELATIVE_PATHS));
+        cleanUpUpgradeExternalLinks
+            .setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS));
         cleanUpDeletedFiles.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_DELETED_LINKED_FILES));
         cleanUpBiblatex.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBLATEX));
         cleanUpBibtex.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBTEX));
-        cleanUpTimestampToCreationDate.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE));
-        cleanUpTimestampToModificationDate.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE));
-        cleanUpTimestampToModificationDate.setSelected(preset.isActive(CleanupPreferences.CleanupStep.DO_NOT_CONVERT_TIMESTAMP));
+        cleanUpTimestampToCreationDate
+            .setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE));
+        cleanUpTimestampToModificationDate
+            .setSelected(preset.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE));
+        cleanUpTimestampToModificationDate
+            .setSelected(preset.isActive(CleanupPreferences.CleanupStep.DO_NOT_CONVERT_TIMESTAMP));
         cleanUpISSN.setSelected(preset.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_ISSN));
         formatterCleanupsPanel.cleanupsDisableProperty().setValue(!preset.getFieldFormatterCleanups().isEnabled());
-        formatterCleanupsPanel.cleanupsProperty().setValue(FXCollections.observableArrayList(preset.getFieldFormatterCleanups().getConfiguredActions()));
+        formatterCleanupsPanel.cleanupsProperty()
+            .setValue(FXCollections.observableArrayList(preset.getFieldFormatterCleanups().getConfiguredActions()));
     }
 
     public CleanupPreferences getCleanupPreset() {
@@ -146,7 +184,8 @@ public class CleanupPresetPanel extends VBox {
         if (cleanUpRenamePDF.isSelected()) {
             if (cleanUpRenamePDFonlyRelativePaths.isSelected()) {
                 activeJobs.add(CleanupPreferences.CleanupStep.RENAME_PDF_ONLY_RELATIVE_PATHS);
-            } else {
+            }
+            else {
                 activeJobs.add(CleanupPreferences.CleanupStep.RENAME_PDF);
             }
         }
@@ -171,8 +210,9 @@ public class CleanupPresetPanel extends VBox {
 
         activeJobs.add(CleanupPreferences.CleanupStep.FIX_FILE_LINKS);
 
-        return new CleanupPreferences(activeJobs, new FieldFormatterCleanups(
-                !formatterCleanupsPanel.cleanupsDisableProperty().getValue(),
-                formatterCleanupsPanel.cleanupsProperty()));
+        return new CleanupPreferences(activeJobs,
+                new FieldFormatterCleanups(!formatterCleanupsPanel.cleanupsDisableProperty().getValue(),
+                        formatterCleanupsPanel.cleanupsProperty()));
     }
+
 }

@@ -24,4 +24,5 @@ class UiThreadListChangeListener<E> implements ListChangeListener<E> {
     public int hashCode() {
         return delegate.hashCode();
     }
+
 }

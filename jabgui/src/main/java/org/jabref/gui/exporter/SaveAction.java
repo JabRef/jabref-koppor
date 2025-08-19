@@ -17,20 +17,24 @@ import com.airhacks.afterburner.injection.Injector;
  */
 public class SaveAction extends SimpleCommand {
 
-    public enum SaveMethod { SAVE, SAVE_AS, SAVE_SELECTED }
+    public enum SaveMethod {
+
+        SAVE, SAVE_AS, SAVE_SELECTED
+
+    }
 
     private final SaveMethod saveMethod;
+
     private final Supplier<LibraryTab> tabSupplier;
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
 
-    public SaveAction(SaveMethod saveMethod,
-                      Supplier<LibraryTab> tabSupplier,
-                      DialogService dialogService,
-                      GuiPreferences preferences,
-                      StateManager stateManager) {
+    public SaveAction(SaveMethod saveMethod, Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+            GuiPreferences preferences, StateManager stateManager) {
         this.saveMethod = saveMethod;
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
@@ -39,19 +43,16 @@ public class SaveAction extends SimpleCommand {
 
         if (saveMethod == SaveMethod.SAVE_SELECTED) {
             this.executable.bind(ActionHelper.needsEntriesSelected(stateManager));
-        } else {
+        }
+        else {
             this.executable.bind(ActionHelper.needsDatabase(stateManager));
         }
     }
 
     @Override
     public void execute() {
-        SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(
-                tabSupplier.get(),
-                dialogService,
-                preferences,
-                Injector.instantiateModelOrService(BibEntryTypesManager.class),
-                stateManager);
+        SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(tabSupplier.get(), dialogService, preferences,
+                Injector.instantiateModelOrService(BibEntryTypesManager.class), stateManager);
 
         switch (saveMethod) {
             case SAVE -> saveDatabaseAction.save();
@@ -59,4 +60,5 @@ public class SaveAction extends SimpleCommand {
             case SAVE_SELECTED -> saveDatabaseAction.saveSelectedAsPlain();
         }
     }
+
 }

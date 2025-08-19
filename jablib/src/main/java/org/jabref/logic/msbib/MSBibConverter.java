@@ -17,7 +17,9 @@ import org.jabref.model.entry.types.StandardEntryType;
 public class MSBibConverter {
 
     private static final String MSBIB_PREFIX = "msbib-";
+
     private static final String BIBTEX_PREFIX = "BIBTEX_";
+
     private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER = new RemoveEnclosingBracesFormatter();
 
     private MSBibConverter() {
@@ -43,7 +45,8 @@ public class MSBibConverter {
         // Duplicate: also added as BookTitle
         entry.getFieldLatexFree(StandardField.BOOKTITLE).ifPresent(booktitle -> result.conferenceName = booktitle);
         entry.getFieldLatexFree(StandardField.PAGES).ifPresent(pages -> result.pages = new PageNumbers(pages));
-        entry.getFieldLatexFree(new UnknownField(MSBIB_PREFIX + "accessed")).ifPresent(accesed -> result.dateAccessed = accesed);
+        entry.getFieldLatexFree(new UnknownField(MSBIB_PREFIX + "accessed"))
+            .ifPresent(accesed -> result.dateAccessed = accesed);
 
         entry.getFieldLatexFree(StandardField.URLDATE).ifPresent(acessed -> result.dateAccessed = acessed);
 
@@ -74,12 +77,13 @@ public class MSBibConverter {
 
         // Value must be converted
         entry.getFieldLatexFree(StandardField.LANGUAGE)
-             .ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
+            .ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
         StringBuilder sbNumber = new StringBuilder();
         entry.getFieldLatexFree(StandardField.ISBN).ifPresent(isbn -> sbNumber.append(" ISBN: ").append(isbn));
         entry.getFieldLatexFree(StandardField.ISSN).ifPresent(issn -> sbNumber.append(" ISSN: ").append(issn));
         entry.getFieldLatexFree(new UnknownField("lccn")).ifPresent(lccn -> sbNumber.append("LCCN: ").append(lccn));
-        entry.getFieldLatexFree(StandardField.MR_NUMBER).ifPresent(mrnumber -> sbNumber.append(" MRN: ").append(mrnumber));
+        entry.getFieldLatexFree(StandardField.MR_NUMBER)
+            .ifPresent(mrnumber -> sbNumber.append(" MRN: ").append(mrnumber));
 
         result.standardNumber = sbNumber.toString();
         if (result.standardNumber.isEmpty()) {
@@ -90,14 +94,18 @@ public class MSBibConverter {
 
         if (entry.getFieldLatexFree(StandardField.TYPE).isPresent()) {
             result.thesisType = entry.getFieldLatexFree(StandardField.TYPE).get();
-        } else {
+        }
+        else {
             if (entry.getType().equals(StandardEntryType.TechReport)) {
                 result.thesisType = "Tech. rep.";
-            } else if (entry.getType().equals(StandardEntryType.MastersThesis)) {
+            }
+            else if (entry.getType().equals(StandardEntryType.MastersThesis)) {
                 result.thesisType = "Master's thesis";
-            } else if (entry.getType().equals(StandardEntryType.PhdThesis)) {
+            }
+            else if (entry.getType().equals(StandardEntryType.PhdThesis)) {
                 result.thesisType = "Ph.D. dissertation";
-            } else if (entry.getType().equals(StandardEntryType.Unpublished)) {
+            }
+            else if (entry.getType().equals(StandardEntryType.Unpublished)) {
                 result.thesisType = "unpublished";
             }
         }
@@ -113,12 +121,17 @@ public class MSBibConverter {
         }
 
         if (entry.getType().equals(IEEETranEntryType.Patent)) {
-            entry.getField(StandardField.AUTHOR).ifPresent(authors -> result.inventors = getAuthors(entry, authors, StandardField.AUTHOR));
-        } else {
-            entry.getField(StandardField.AUTHOR).ifPresent(authors -> result.authors = getAuthors(entry, authors, StandardField.AUTHOR));
+            entry.getField(StandardField.AUTHOR)
+                .ifPresent(authors -> result.inventors = getAuthors(entry, authors, StandardField.AUTHOR));
         }
-        entry.getField(StandardField.EDITOR).ifPresent(editors -> result.editors = getAuthors(entry, editors, StandardField.EDITOR));
-        entry.getField(StandardField.TRANSLATOR).ifPresent(translator -> result.translators = getAuthors(entry, translator, StandardField.EDITOR));
+        else {
+            entry.getField(StandardField.AUTHOR)
+                .ifPresent(authors -> result.authors = getAuthors(entry, authors, StandardField.AUTHOR));
+        }
+        entry.getField(StandardField.EDITOR)
+            .ifPresent(editors -> result.editors = getAuthors(entry, editors, StandardField.EDITOR));
+        entry.getField(StandardField.TRANSLATOR)
+            .ifPresent(translator -> result.translators = getAuthors(entry, translator, StandardField.EDITOR));
 
         return result;
     }
@@ -127,7 +140,8 @@ public class MSBibConverter {
         List<MsBibAuthor> result = new ArrayList<>();
 
         // Only one corporate author is supported
-        // Heuristics: If the author is surrounded by curly braces, it is a corporate author
+        // Heuristics: If the author is surrounded by curly braces, it is a corporate
+        // author
         boolean corporate = !REMOVE_BRACES_FORMATTER.format(authors).equals(authors);
 
         Optional<String> authorLatexFreeOpt = entry.getFieldLatexFree(field);
@@ -142,9 +156,11 @@ public class MSBibConverter {
             authorLatexFree = "{" + authorLatexFree + "}";
         }
 
-        return AuthorList.parse(authorLatexFree).getAuthors()
-                         .stream()
-                         .map(author -> new MsBibAuthor(author, corporate))
-                         .toList();
+        return AuthorList.parse(authorLatexFree)
+            .getAuthors()
+            .stream()
+            .map(author -> new MsBibAuthor(author, corporate))
+            .toList();
     }
+
 }

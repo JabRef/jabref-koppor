@@ -23,18 +23,21 @@ public class OptionalUtil {
     }
 
     /**
-     * @return An immutable list containing the values - if no values present: empty immutable list
+     * @return An immutable list containing the values - if no values present: empty
+     * immutable list
      */
     @SafeVarargs
     public static <T> List<T> toList(Optional<T>... values) {
         return Stream.of(values).flatMap(Optional::stream).toList();
     }
 
-    public static <T, R> Stream<R> flatMapFromStream(Optional<T> value, Function<? super T, ? extends Stream<? extends R>> mapper) {
+    public static <T, R> Stream<R> flatMapFromStream(Optional<T> value,
+            Function<? super T, ? extends Stream<? extends R>> mapper) {
         return value.stream().flatMap(mapper);
     }
 
-    public static <T, R> Stream<R> flatMap(Optional<T> value, Function<? super T, ? extends Collection<? extends R>> mapper) {
+    public static <T, R> Stream<R> flatMap(Optional<T> value,
+            Function<? super T, ? extends Collection<? extends R>> mapper) {
         return value.stream().flatMap(element -> mapper.apply(element).stream());
     }
 
@@ -46,10 +49,12 @@ public class OptionalUtil {
         return value.isPresent() && value.get();
     }
 
-    public static <T, S, R> Optional<R> combine(Optional<T> valueOne, Optional<S> valueTwo, BiFunction<T, S, R> combine) {
+    public static <T, S, R> Optional<R> combine(Optional<T> valueOne, Optional<S> valueTwo,
+            BiFunction<T, S, R> combine) {
         if (valueOne.isPresent() && valueTwo.isPresent()) {
             return Optional.ofNullable(combine.apply(valueOne.get(), valueTwo.get()));
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }
@@ -57,7 +62,8 @@ public class OptionalUtil {
     public static <T> Optional<T> orElse(Optional<? extends T> valueOne, Optional<? extends T> valueTwo) {
         if (valueOne.isPresent()) {
             return valueOne.map(f -> f);
-        } else {
+        }
+        else {
             return valueTwo.map(f -> f);
         }
     }
@@ -65,8 +71,10 @@ public class OptionalUtil {
     public static <T extends S, S> S orElse(Optional<T> optional, S otherwise) {
         if (optional.isPresent()) {
             return optional.get();
-        } else {
+        }
+        else {
             return otherwise;
         }
     }
+
 }

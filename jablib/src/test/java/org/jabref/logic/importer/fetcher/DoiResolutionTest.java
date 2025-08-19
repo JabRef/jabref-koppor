@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 class DoiResolutionTest {
 
     private DoiResolution finder;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -34,23 +35,24 @@ class DoiResolutionTest {
     @Test
     void linkWithPdfInTitleTag() throws IOException {
         entry.setField(StandardField.DOI, "10.1051/0004-6361/201527330");
-        assertEquals(
-                Optional.of(URLUtil.create("https://www.aanda.org/articles/aa/pdf/2016/01/aa27330-15.pdf")),
-                finder.findFullText(entry)
-        );
+        assertEquals(Optional.of(URLUtil.create("https://www.aanda.org/articles/aa/pdf/2016/01/aa27330-15.pdf")),
+                finder.findFullText(entry));
     }
 
     @Disabled("Cannot fetch due to Cloudflare protection")
     @Test
     void linkWithPdfStringLeadsToFulltext() throws IOException {
         entry.setField(StandardField.DOI, "10.1002/acr2.11101");
-        assertEquals(Optional.of(URLUtil.create("https://onlinelibrary.wiley.com/doi/pdf/10.1002/acr2.11101")), finder.findFullText(entry));
+        assertEquals(Optional.of(URLUtil.create("https://onlinelibrary.wiley.com/doi/pdf/10.1002/acr2.11101")),
+                finder.findFullText(entry));
     }
 
     @Test
     void citationMetaTagLeadsToFulltext() throws IOException {
         entry.setField(StandardField.DOI, "10.1007/978-3-319-89963-3_28");
-        assertEquals(Optional.of(URLUtil.create("https://link.springer.com/content/pdf/10.1007/978-3-319-89963-3_28.pdf")), finder.findFullText(entry));
+        assertEquals(
+                Optional.of(URLUtil.create("https://link.springer.com/content/pdf/10.1007/978-3-319-89963-3_28.pdf")),
+                finder.findFullText(entry));
     }
 
     @Test
@@ -63,9 +65,12 @@ class DoiResolutionTest {
     void returnAnythingWhenBehindSpringerPayWall() throws IOException {
         // Springer returns an HTML page instead of an empty page,
         // even if the user does not have access
-        // We cannot easily handle this case, because other publisher return the wrong media type.
+        // We cannot easily handle this case, because other publisher return the wrong
+        // media type.
         entry.setField(StandardField.DOI, "10.1007/978-3-319-62594-2_12");
-        assertEquals(Optional.of(URLUtil.create("https://link.springer.com/content/pdf/10.1007/978-3-319-62594-2_12.pdf")), finder.findFullText(entry));
+        assertEquals(
+                Optional.of(URLUtil.create("https://link.springer.com/content/pdf/10.1007/978-3-319-62594-2_12.pdf")),
+                finder.findFullText(entry));
     }
 
     @Test
@@ -83,4 +88,5 @@ class DoiResolutionTest {
     void trustLevel() {
         assertEquals(TrustLevel.SOURCE, finder.getTrustLevel());
     }
+
 }

@@ -14,20 +14,23 @@ import org.apache.lucene.search.highlight.TextFragment;
 public final class SearchResult {
 
     private final boolean hasFulltextResults;
+
     private final String path;
+
     private final String pageContent;
+
     private final String annotation;
+
     private final int pageNumber;
+
     private final Highlighter highlighter;
+
     private List<String> contentResultStringsHtml;
+
     private List<String> annotationsResultStringsHtml;
 
-    private SearchResult(boolean hasFulltextResults,
-                         String path,
-                         String pageContent,
-                         String annotation,
-                         int pageNumber,
-                         Highlighter highlighter) {
+    private SearchResult(boolean hasFulltextResults, String path, String pageContent, String annotation, int pageNumber,
+            Highlighter highlighter) {
         this.hasFulltextResults = hasFulltextResults;
         this.path = path;
         this.pageContent = pageContent;
@@ -46,14 +49,16 @@ public final class SearchResult {
 
     public List<String> getContentResultStringsHtml() {
         if (contentResultStringsHtml == null) {
-            return contentResultStringsHtml = getHighlighterFragments(highlighter, LinkedFilesConstants.CONTENT, pageContent);
+            return contentResultStringsHtml = getHighlighterFragments(highlighter, LinkedFilesConstants.CONTENT,
+                    pageContent);
         }
         return contentResultStringsHtml;
     }
 
     public List<String> getAnnotationsResultStringsHtml() {
         if (annotationsResultStringsHtml == null) {
-            annotationsResultStringsHtml = getHighlighterFragments(highlighter, LinkedFilesConstants.ANNOTATIONS, annotation);
+            annotationsResultStringsHtml = getHighlighterFragments(highlighter, LinkedFilesConstants.ANNOTATIONS,
+                    annotation);
         }
         return annotationsResultStringsHtml;
     }
@@ -70,12 +75,16 @@ public final class SearchResult {
         return pageNumber;
     }
 
-    private static List<String> getHighlighterFragments(Highlighter highlighter, LinkedFilesConstants field, String content) {
-        try (TokenStream contentStream = LinkedFilesConstants.LINKED_FILES_ANALYZER.tokenStream(field.toString(), content)) {
+    private static List<String> getHighlighterFragments(Highlighter highlighter, LinkedFilesConstants field,
+            String content) {
+        try (TokenStream contentStream = LinkedFilesConstants.LINKED_FILES_ANALYZER.tokenStream(field.toString(),
+                content)) {
             TextFragment[] frags = highlighter.getBestTextFragments(contentStream, content, true, 10);
             return Arrays.stream(frags).map(TextFragment::toString).toList();
-        } catch (IOException | InvalidTokenOffsetsException e) {
+        }
+        catch (IOException | InvalidTokenOffsetsException e) {
             return List.of();
         }
     }
+
 }

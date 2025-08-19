@@ -30,7 +30,9 @@ class CustomEntryTypesTabViewModelTest {
     private BibEntryType online;
 
     private BibEntryTypesManager entryTypesManager;
+
     private FieldPreferences fieldPreferences;
+
     private CliPreferences preferences;
 
     @BeforeEach
@@ -40,13 +42,17 @@ class CustomEntryTypesTabViewModelTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
         entryTypesManager = new BibEntryTypesManager();
-        online = BiblatexEntryTypeDefinitions.ALL.stream().filter(type -> type.getType().equals(StandardEntryType.Online)).findAny().get();
+        online = BiblatexEntryTypeDefinitions.ALL.stream()
+            .filter(type -> type.getType().equals(StandardEntryType.Online))
+            .findAny()
+            .get();
     }
 
     @ParameterizedTest
     @EnumSource(BibDatabaseMode.class)
     void storeSettingsKeepsStandardTypes(BibDatabaseMode mode) {
-        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(mode, entryTypesManager, mock(DialogService.class), preferences);
+        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(mode, entryTypesManager,
+                mock(DialogService.class), preferences);
         model.setValues();
         model.storeSettings();
         assertEquals(new TreeSet<>(), entryTypesManager.getAllCustomizedTypes(mode));
@@ -54,18 +60,19 @@ class CustomEntryTypesTabViewModelTest {
 
     @Test
     void storeSettingsKeepsTypeWhenOrFieldsDiffersOnly() {
-        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX, entryTypesManager, mock(DialogService.class), preferences);
+        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX,
+                entryTypesManager, mock(DialogService.class), preferences);
         model.setValues();
 
         // This is similar ot the standard online type, but has no OR fields
-        BibEntryType onlineWithoutOrFields = new BibEntryTypeBuilder()
-                .withType(StandardEntryType.Online)
-                .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE, StandardField.URL)
-                .withImportantFields(
-                        StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE, StandardField.ORGANIZATION, StandardField.URLDATE)
-                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION,
-                        StandardField.ADDENDUM, StandardField.PUBSTATE)
-                .build();
+        BibEntryType onlineWithoutOrFields = new BibEntryTypeBuilder().withType(StandardEntryType.Online)
+            .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE,
+                    StandardField.URL)
+            .withImportantFields(StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE,
+                    StandardField.ORGANIZATION, StandardField.URLDATE)
+            .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION, StandardField.ADDENDUM,
+                    StandardField.PUBSTATE)
+            .build();
         model.entryTypes().setAll(List.of(new CustomEntryTypeViewModel(onlineWithoutOrFields, x -> false)));
 
         model.storeSettings();
@@ -75,16 +82,18 @@ class CustomEntryTypesTabViewModelTest {
 
     @Test
     void storeSettingsUpdatesType() {
-        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX, entryTypesManager, mock(DialogService.class), preferences);
+        CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX,
+                entryTypesManager, mock(DialogService.class), preferences);
         model.setValues();
 
         // No important optional fields anymore (they are required now)
-        BibEntryType modified = new BibEntryTypeBuilder()
-                .withType(StandardEntryType.Online)
-                .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE, StandardField.URL, StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE, StandardField.ORGANIZATION, StandardField.URLDATE)
-                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION,
-                        StandardField.ADDENDUM, StandardField.PUBSTATE)
-                .build();
+        BibEntryType modified = new BibEntryTypeBuilder().withType(StandardEntryType.Online)
+            .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE,
+                    StandardField.URL, StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE,
+                    StandardField.ORGANIZATION, StandardField.URLDATE)
+            .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION, StandardField.ADDENDUM,
+                    StandardField.PUBSTATE)
+            .build();
         model.entryTypes().setAll(List.of(new CustomEntryTypeViewModel(modified, x -> false)));
 
         model.storeSettings();
@@ -92,4 +101,5 @@ class CustomEntryTypesTabViewModelTest {
         TreeSet<BibEntryType> expected = new TreeSet<>(List.of(modified));
         assertEquals(expected, entryTypesManager.getAllCustomizedTypes(BibDatabaseMode.BIBLATEX));
     }
+
 }

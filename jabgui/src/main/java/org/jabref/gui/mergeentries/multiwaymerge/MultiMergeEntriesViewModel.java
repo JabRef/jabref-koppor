@@ -31,7 +31,8 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
     public void addSource(EntrySource entrySource) {
         if (!entrySource.isLoading.getValue()) {
             updateFields(entrySource.entry.get());
-        } else {
+        }
+        else {
             entrySource.isLoading.addListener((observable, oldValue, newValue) -> {
                 if (!newValue) {
                     updateFields(entrySource.entry.get());
@@ -76,20 +77,21 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
     }
 
     public static class EntrySource {
+
         private final StringProperty title = new SimpleStringProperty("");
+
         private final ObjectProperty<BibEntry> entry = new SimpleObjectProperty<>();
+
         private final BooleanProperty isLoading = new SimpleBooleanProperty(false);
 
         public EntrySource(String title, Supplier<BibEntry> entrySupplier, TaskExecutor taskExecutor) {
             this.title.set(title);
             isLoading.set(true);
 
-            BackgroundTask.wrap(entrySupplier::get)
-                          .onSuccess(value -> {
-                              entry.set(value);
-                              isLoading.set(false);
-                          })
-                          .executeWith(taskExecutor);
+            BackgroundTask.wrap(entrySupplier::get).onSuccess(value -> {
+                entry.set(value);
+                isLoading.set(false);
+            }).executeWith(taskExecutor);
         }
 
         public EntrySource(String title, BibEntry entry) {
@@ -108,5 +110,7 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
         public BooleanProperty isLoadingProperty() {
             return isLoading;
         }
+
     }
+
 }

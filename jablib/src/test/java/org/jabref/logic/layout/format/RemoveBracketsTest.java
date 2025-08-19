@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RemoveBracketsTest {
+
     private LayoutFormatter formatter;
 
     @BeforeEach
@@ -39,4 +40,5 @@ class RemoveBracketsTest {
     void withoutBracketsUnmodified() {
         assertEquals("some text", formatter.format("some text"));
     }
+
 }

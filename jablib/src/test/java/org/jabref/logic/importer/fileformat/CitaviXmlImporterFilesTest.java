@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class CitaviXmlImporterFilesTest {
 
     private static final String FILE_ENDING = ".ctv6bak";
+
     private final CitaviXmlImporter citaviXmlImporter = new CitaviXmlImporter();
 
     private static Stream<String> fileNames() throws IOException {
@@ -41,4 +42,5 @@ class CitaviXmlImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(citaviXmlImporter, fileName, FILE_ENDING);
     }
+
 }

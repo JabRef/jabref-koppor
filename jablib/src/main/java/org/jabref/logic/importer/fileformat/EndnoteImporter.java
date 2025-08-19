@@ -22,10 +22,9 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
 /**
- * Importer for the Refer/Endnote format.
- * modified to use article number for pages if pages are missing (some
- * journals, e.g., Physical Review Letters, don't use pages anymore)
- * <br>
+ * Importer for the Refer/Endnote format. modified to use article number for pages if
+ * pages are missing (some journals, e.g., Physical Review Letters, don't use pages
+ * anymore) <br>
  * check here for details on the format
  * <a href="http://libguides.csuchico.edu/c.php?g=414245&p=2822898">...</a>
  */
@@ -34,6 +33,7 @@ public class EndnoteImporter extends Importer {
     private static final String ENDOFRECORD = "__EOREOR__";
 
     private static final Pattern A_PATTERN = Pattern.compile("%A .*");
+
     private static final Pattern E_PATTERN = Pattern.compile("%E .*");
 
     @Override
@@ -53,7 +53,8 @@ public class EndnoteImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Importer for the Refer/Endnote format. Modified to use article number for pages if pages are missing.");
+        return Localization.lang(
+                "Importer for the Refer/Endnote format. Modified to use article number for pages if pages are missing.");
     }
 
     @Override
@@ -79,11 +80,13 @@ public class EndnoteImporter extends Importer {
             if (str.indexOf("%0") == 0) {
                 if (first) {
                     first = false;
-                } else {
+                }
+                else {
                     sb.append(ENDOFRECORD);
                 }
                 sb.append(str);
-            } else {
+            }
+            else {
                 sb.append(str);
             }
             sb.append('\n');
@@ -130,61 +133,68 @@ public class EndnoteImporter extends Importer {
                     case "A" -> {
                         if (author.isEmpty()) {
                             author = new StringBuilder(val);
-                        } else {
+                        }
+                        else {
                             author.append(" and ").append(val);
                         }
                     }
                     case "E" -> {
                         if (editor.isEmpty()) {
                             editor = new StringBuilder(val);
-                        } else {
+                        }
+                        else {
                             editor.append(" and ").append(val);
                         }
                     }
-                    case "T" ->
-                            hm.put(StandardField.TITLE, val);
+                    case "T" -> hm.put(StandardField.TITLE, val);
                     case "0" -> {
                         if (val.indexOf("Journal") == 0) {
                             type = StandardEntryType.Article;
-                        } else if (val.indexOf("Book Section") == 0) {
+                        }
+                        else if (val.indexOf("Book Section") == 0) {
                             type = StandardEntryType.InCollection;
-                        } else if (val.indexOf("Book") == 0) {
+                        }
+                        else if (val.indexOf("Book") == 0) {
                             type = StandardEntryType.Book;
-                        } else if (val.indexOf("Edited Book") == 0) {
+                        }
+                        else if (val.indexOf("Edited Book") == 0) {
                             type = StandardEntryType.Book;
                             isEditedBook = true;
-                        } else if (val.indexOf("Conference") == 0) {
+                        }
+                        else if (val.indexOf("Conference") == 0) {
                             type = StandardEntryType.InProceedings;
-                        } else if (val.indexOf("Report") == 0) {
+                        }
+                        else if (val.indexOf("Report") == 0) {
                             type = StandardEntryType.TechReport;
-                        } else if (val.indexOf("Review") == 0) {
+                        }
+                        else if (val.indexOf("Review") == 0) {
                             type = StandardEntryType.Article;
-                        } else if (val.indexOf("Thesis") == 0) {
+                        }
+                        else if (val.indexOf("Thesis") == 0) {
                             type = StandardEntryType.PhdThesis;
-                        } else {
+                        }
+                        else {
                             type = BibEntry.DEFAULT_TYPE; //
                         }
                     }
-                    case "7" ->
-                            hm.put(StandardField.EDITION, val);
-                    case "C" ->
-                            hm.put(StandardField.ADDRESS, val);
-                    case "D" ->
-                            hm.put(StandardField.YEAR, val);
-                    case "8" ->
-                            hm.put(StandardField.DATE, val);
+                    case "7" -> hm.put(StandardField.EDITION, val);
+                    case "C" -> hm.put(StandardField.ADDRESS, val);
+                    case "D" -> hm.put(StandardField.YEAR, val);
+                    case "8" -> hm.put(StandardField.DATE, val);
                     case "J" ->
                         // "Alternate journal. Let's set it only if no journal
                         // has been set with %B.
-                            hm.putIfAbsent(StandardField.JOURNAL, val);
+                        hm.putIfAbsent(StandardField.JOURNAL, val);
                     case "B" -> {
                         // This prefix stands for "journal" in a journal entry, and
                         // "series" in a book entry.
                         if (type.equals(StandardEntryType.Article)) {
                             hm.put(StandardField.JOURNAL, val);
-                        } else if (type.equals(StandardEntryType.Book) || type.equals(StandardEntryType.InBook)) {
+                        }
+                        else if (type.equals(StandardEntryType.Book) || type.equals(StandardEntryType.InBook)) {
                             hm.put(StandardField.SERIES, val);
-                        } else {
+                        }
+                        else {
                             /* type = inproceedings */
                             hm.put(StandardField.BOOKTITLE, val);
                         }
@@ -192,19 +202,18 @@ public class EndnoteImporter extends Importer {
                     case "I" -> {
                         if (type.equals(StandardEntryType.PhdThesis)) {
                             hm.put(StandardField.SCHOOL, val);
-                        } else {
+                        }
+                        else {
                             hm.put(StandardField.PUBLISHER, val);
                         }
                     }
                     case "P" ->
-                        // replace single dash page ranges (23-45) with double dashes (23--45):
-                            hm.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
-                    case "V" ->
-                            hm.put(StandardField.VOLUME, val);
-                    case "N" ->
-                            hm.put(StandardField.NUMBER, val);
-                    case "U" ->
-                            hm.put(StandardField.URL, val);
+                        // replace single dash page ranges (23-45) with double dashes
+                        // (23--45):
+                        hm.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
+                    case "V" -> hm.put(StandardField.VOLUME, val);
+                    case "N" -> hm.put(StandardField.NUMBER, val);
+                    case "U" -> hm.put(StandardField.URL, val);
                     case "R" -> {
                         String doi = val;
                         if (doi.startsWith("doi:")) {
@@ -217,14 +226,13 @@ public class EndnoteImporter extends Importer {
                         if (val.startsWith("Artn")) {
                             String[] tokens = val.split("\\s");
                             artnum = tokens[1];
-                        } else {
+                        }
+                        else {
                             hm.put(StandardField.NOTE, val);
                         }
                     }
-                    case "K" ->
-                            hm.put(StandardField.KEYWORDS, val);
-                    case "X" ->
-                            hm.put(StandardField.ABSTRACT, val);
+                    case "K" -> hm.put(StandardField.KEYWORDS, val);
+                    case "X" -> hm.put(StandardField.ABSTRACT, val);
                     case "9" -> {
                         if (val.indexOf("Ph.D.") == 0) {
                             type = StandardEntryType.PhdThesis;
@@ -233,8 +241,7 @@ public class EndnoteImporter extends Importer {
                             type = StandardEntryType.MastersThesis;
                         }
                     }
-                    case "F" ->
-                            hm.put(InternalField.KEY_FIELD, CitationKeyGenerator.cleanKey(val, ""));
+                    case "F" -> hm.put(InternalField.KEY_FIELD, CitationKeyGenerator.cleanKey(val, ""));
                 }
             }
 
@@ -253,7 +260,8 @@ public class EndnoteImporter extends Importer {
                 hm.put(StandardField.EDITOR, fixAuthor(editor.toString()));
             }
             // if pages missing and article number given, use the article number
-            if (((hm.get(StandardField.PAGES) == null) || "-".equals(hm.get(StandardField.PAGES))) && !"".equals(artnum)) {
+            if (((hm.get(StandardField.PAGES) == null) || "-".equals(hm.get(StandardField.PAGES)))
+                    && !"".equals(artnum)) {
                 hm.put(StandardField.PAGES, artnum);
             }
 
@@ -270,10 +278,8 @@ public class EndnoteImporter extends Importer {
     /**
      * We must be careful about the author names, since they can be presented differently
      * by different sources. Normally each %A tag brings one name, and we get the authors
-     * separated by " and ". This is the correct behaviour.
-     * One source lists the names separated by comma, with a comma at the end. We can detect
-     * this format and fix it.
-     *
+     * separated by " and ". This is the correct behaviour. One source lists the names
+     * separated by comma, with a comma at the end. We can detect this format and fix it.
      * @param s The author string
      * @return The fixed author string
      */
@@ -287,8 +293,10 @@ public class EndnoteImporter extends Importer {
         if (index == (s.length() - 1)) {
             String mod = s.substring(0, s.length() - 1).replace(", ", " and ");
             return AuthorList.fixAuthorLastNameFirst(mod);
-        } else {
+        }
+        else {
             return AuthorList.fixAuthorLastNameFirst(s);
         }
     }
+
 }

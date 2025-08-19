@@ -23,11 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BibEntryTypeBuilder {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibEntryTypeBuilder.class);
+
     private final SequencedSet<OrFields> requiredFields = new LinkedHashSet<>();
+
     private final Set<Field> seenFields = new HashSet<>();
+
     private SequencedSet<BibField> optionalFields = new LinkedHashSet<>();
+
     private EntryType type = StandardEntryType.Misc;
+
     private boolean hasWarnings = false;
 
     public BibEntryTypeBuilder withType(EntryType type) {
@@ -42,8 +48,10 @@ public class BibEntryTypeBuilder {
             hasWarnings = true;
         }
         this.seenFields.addAll(newFields);
-        this.optionalFields = Streams.concat(optionalFields.stream(), newFields.stream().map(field -> new BibField(field, FieldPriority.IMPORTANT)))
-                                     .collect(Collectors.toCollection(LinkedHashSet::new));
+        this.optionalFields = Streams
+            .concat(optionalFields.stream(),
+                    newFields.stream().map(field -> new BibField(field, FieldPriority.IMPORTANT)))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         return this;
     }
 
@@ -58,8 +66,9 @@ public class BibEntryTypeBuilder {
             hasWarnings = true;
         }
         this.seenFields.addAll(newFields);
-        this.optionalFields = Streams.concat(optionalFields.stream(), newFields.stream().map(field -> new BibField(field, FieldPriority.DETAIL)))
-                                     .collect(Collectors.toCollection(LinkedHashSet::new));
+        this.optionalFields = Streams
+            .concat(optionalFields.stream(), newFields.stream().map(field -> new BibField(field, FieldPriority.DETAIL)))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         return this;
     }
 
@@ -72,7 +81,10 @@ public class BibEntryTypeBuilder {
     }
 
     public BibEntryTypeBuilder addRequiredFields(SequencedSet<OrFields> requiredFields) {
-        Set<Field> fieldsToAdd = requiredFields.stream().map(OrFields::getFields).flatMap(Set::stream).collect(Collectors.toSet());
+        Set<Field> fieldsToAdd = requiredFields.stream()
+            .map(OrFields::getFields)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
         List<Field> containedFields = containedInSeenFields(fieldsToAdd);
         if (!containedFields.isEmpty()) {
             LOGGER.warn("Fields {} already added to type {}.", containedFields, type.getDisplayName());
@@ -88,7 +100,8 @@ public class BibEntryTypeBuilder {
     }
 
     public BibEntryTypeBuilder addRequiredFields(Field... requiredFields) {
-        return addRequiredFields(Arrays.stream(requiredFields).map(OrFields::new).collect(Collectors.toCollection(LinkedHashSet::new)));
+        return addRequiredFields(
+                Arrays.stream(requiredFields).map(OrFields::new).collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
     public BibEntryTypeBuilder withRequiredFields(Field... requiredFields) {
@@ -96,20 +109,23 @@ public class BibEntryTypeBuilder {
     }
 
     public BibEntryTypeBuilder withRequiredFields(OrFields first, Field... requiredFields) {
-        return addRequiredFields(Stream.concat(Stream.of(first), Arrays.stream(requiredFields).map(OrFields::new)).collect(Collectors.toCollection(LinkedHashSet::new)));
+        return addRequiredFields(Stream.concat(Stream.of(first), Arrays.stream(requiredFields).map(OrFields::new))
+            .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
     public BibEntryTypeBuilder withRequiredFields(SequencedSet<OrFields> first, Field... requiredFields) {
-        return addRequiredFields(Stream.concat(first.stream(), Arrays.stream(requiredFields).map(OrFields::new)).collect(Collectors.toCollection(LinkedHashSet::new)));
+        return addRequiredFields(Stream.concat(first.stream(), Arrays.stream(requiredFields).map(OrFields::new))
+            .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
     public BibEntryType build() {
         // Treat required fields as important ones
         Stream<BibField> requiredAsImportant = requiredFields.stream()
-                .map(OrFields::getFields)
-                .flatMap(Set::stream)
-                .map(field -> new BibField(field, FieldPriority.IMPORTANT));
-        SequencedSet<BibField> allFields = Stream.concat(optionalFields.stream(), requiredAsImportant).collect(Collectors.toCollection(LinkedHashSet::new));
+            .map(OrFields::getFields)
+            .flatMap(Set::stream)
+            .map(field -> new BibField(field, FieldPriority.IMPORTANT));
+        SequencedSet<BibField> allFields = Stream.concat(optionalFields.stream(), requiredAsImportant)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         return new BibEntryType(type, allFields, requiredFields);
     }
 
@@ -120,4 +136,5 @@ public class BibEntryTypeBuilder {
     private List<Field> containedInSeenFields(Collection<Field> fields) {
         return fields.stream().filter(seenFields::contains).toList();
     }
+
 }

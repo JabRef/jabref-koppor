@@ -15,4 +15,5 @@ public class AbstractUndoableJabRefEdit extends AbstractUndoableEdit {
     public String getRedoPresentationName() {
         return "<html>" + Localization.lang("Redo") + ": " + getPresentationName() + "</html>";
     }
+
 }

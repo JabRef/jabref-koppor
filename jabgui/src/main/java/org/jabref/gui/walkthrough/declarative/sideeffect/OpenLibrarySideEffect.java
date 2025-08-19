@@ -27,12 +27,17 @@ import org.slf4j.LoggerFactory;
 
 /// Side effect that opens a specified library in a new tab.
 public class OpenLibrarySideEffect implements WalkthroughSideEffect {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenLibrarySideEffect.class);
+
     private static final String WALKTHROUGH_LIBRARY_TEMPLATE = "Example Library (%s)";
 
     private final String libraryName;
+
     private final LibraryTabContainer tabContainer;
+
     private final StateManager stateManager;
+
     private @Nullable LibraryTab createdTab;
 
     public OpenLibrarySideEffect(LibraryTabContainer frame) {
@@ -70,19 +75,15 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                 return false;
             }
 
-            LibraryTab libraryTab = LibraryTab.createLibraryTab(
-                    databaseContext.get(),
-                    tabContainer,
+            LibraryTab libraryTab = LibraryTab.createLibraryTab(databaseContext.get(), tabContainer,
                     Injector.instantiateModelOrService(DialogService.class),
                     Injector.instantiateModelOrService(AiService.class),
-                    Injector.instantiateModelOrService(GuiPreferences.class),
-                    stateManager,
+                    Injector.instantiateModelOrService(GuiPreferences.class), stateManager,
                     Injector.instantiateModelOrService(FileUpdateMonitor.class),
                     Injector.instantiateModelOrService(BibEntryTypesManager.class),
                     Injector.instantiateModelOrService(CountingUndoManager.class),
                     Injector.instantiateModelOrService(ClipBoardManager.class),
-                    Injector.instantiateModelOrService(TaskExecutor.class)
-            );
+                    Injector.instantiateModelOrService(TaskExecutor.class));
 
             libraryTab.setText(WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName));
 
@@ -91,7 +92,8 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
 
             LOGGER.debug("Successfully opened example library");
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.error("Failed to open example library", e);
             return false;
         }
@@ -107,7 +109,8 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                 LOGGER.debug("Successfully closed example library tab");
                 createdTab = null;
                 return true;
-            } else {
+            }
+            else {
                 LOGGER.warn("Failed to close example library tab");
                 return false;
             }
@@ -118,7 +121,8 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
             boolean closed = tabContainer.closeTab(exampleTab.get());
             if (!closed) {
                 LOGGER.debug("Successfully closed found example library tab");
-            } else {
+            }
+            else {
                 LOGGER.warn("Failed to close found example library tab");
                 return false;
             }
@@ -134,12 +138,12 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
     }
 
     private Optional<LibraryTab> findLibraryTab() {
-        return tabContainer.getLibraryTabs().stream()
-                           .filter(tab -> WALKTHROUGH_LIBRARY_TEMPLATE
-                                   .formatted(libraryName).equals(tab.getText()) ||
-                                   (tab.getBibDatabaseContext().getDatabasePath().isEmpty() &&
-                                           tab.getBibDatabaseContext().getDatabase().getEntryCount() > 0))
-                           .findFirst();
+        return tabContainer.getLibraryTabs()
+            .stream()
+            .filter(tab -> WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName).equals(tab.getText())
+                    || (tab.getBibDatabaseContext().getDatabasePath().isEmpty()
+                            && tab.getBibDatabaseContext().getDatabase().getEntryCount() > 0))
+            .findFirst();
     }
 
     private Optional<BibDatabaseContext> loadExampleLibrary() {
@@ -149,12 +153,15 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                 return Optional.empty();
             }
 
-            return Optional.of(OpenDatabase.loadDatabase(in,
-                    Injector.instantiateModelOrService(GuiPreferences.class).getImportFormatPreferences(),
-                    Injector.instantiateModelOrService(FileUpdateMonitor.class)).getDatabaseContext());
-        } catch (IOException e) {
+            return Optional.of(OpenDatabase
+                .loadDatabase(in, Injector.instantiateModelOrService(GuiPreferences.class).getImportFormatPreferences(),
+                        Injector.instantiateModelOrService(FileUpdateMonitor.class))
+                .getDatabaseContext());
+        }
+        catch (IOException e) {
             LOGGER.error("Failed to load \"{}\" library from resource", libraryName, e);
             return Optional.empty();
         }
     }
+
 }

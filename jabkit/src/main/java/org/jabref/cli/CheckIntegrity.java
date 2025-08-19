@@ -18,10 +18,10 @@ class CheckIntegrity implements Runnable {
     @Parameters(index = "0", description = "BibTeX file to check", arity = "0..1")
     private File inputFile;
 
-    @Option(names = {"--input"}, description = "Input BibTeX file")
+    @Option(names = { "--input" }, description = "Input BibTeX file")
     private File inputOption;
 
-    @Option(names = {"--output-format"}, description = "Output format: txt or csv")
+    @Option(names = { "--output-format" }, description = "Output format: txt or csv")
     private String outputFormat = "txt"; // FixMe: Default value?
 
     @Override
@@ -33,4 +33,5 @@ class CheckIntegrity implements Runnable {
 
         // TODO: Implement integrity checking
     }
+
 }

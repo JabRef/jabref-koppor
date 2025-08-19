@@ -19,9 +19,13 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtectedTermsList.class);
 
     private String description;
+
     private final List<String> termsList;
+
     private final String location;
+
     private final boolean internalList;
+
     private boolean enabled;
 
     public ProtectedTermsList(String description, List<String> termList, String location, boolean internalList) {
@@ -90,7 +94,8 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
                 create ? StandardOpenOption.CREATE : StandardOpenOption.APPEND)) {
             writer.write(s);
             termsList.add(term);
-        } catch (IOException ioe) {
+        }
+        catch (IOException ioe) {
             LOGGER.warn("Problem adding protected term to list", ioe);
             return false;
         }
@@ -109,4 +114,5 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
     public int hashCode() {
         return Objects.hash(location, description);
     }
+
 }

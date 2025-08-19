@@ -36,6 +36,7 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 
 public interface CliPreferences {
+
     void clear() throws BackingStoreException;
 
     void deleteKey(String key) throws IllegalArgumentException;
@@ -65,7 +66,8 @@ public interface CliPreferences {
     ImportFormatPreferences getImportFormatPreferences();
 
     /**
-     * Returns the export configuration. The contained SaveConfiguration is a {@link org.jabref.model.metadata.SelfContainedSaveOrder}
+     * Returns the export configuration. The contained SaveConfiguration is a
+     * {@link org.jabref.model.metadata.SelfContainedSaveOrder}
      */
     SelfContainedSaveConfiguration getSelfContainedExportConfiguration();
 
@@ -120,4 +122,5 @@ public interface CliPreferences {
     PushToApplicationPreferences getPushToApplicationPreferences();
 
     GitPreferences getGitPreferences();
+
 }

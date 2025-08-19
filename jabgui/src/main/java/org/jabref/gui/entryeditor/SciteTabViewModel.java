@@ -33,21 +33,23 @@ public class SciteTabViewModel extends AbstractViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(SciteTabViewModel.class);
 
     public enum SciteStatus {
-        IN_PROGRESS,
-        FOUND,
-        ERROR,
-        DOI_MISSING,
-        DOI_LOOK_UP,
-        DOI_LOOK_UP_ERROR
+
+        IN_PROGRESS, FOUND, ERROR, DOI_MISSING, DOI_LOOK_UP, DOI_LOOK_UP_ERROR
+
     }
 
     private static final String BASE_URL = "https://api.scite.ai/";
 
     private final GuiPreferences preferences;
+
     private final TaskExecutor taskExecutor;
+
     private final ObjectProperty<SciteStatus> status;
+
     private final StringProperty searchError;
+
     private Optional<SciteTallyModel> currentResult = Optional.empty();
+
     private Future<?> searchTask;
 
     public SciteTabViewModel(GuiPreferences preferences, TaskExecutor taskExecutor) {
@@ -78,16 +80,16 @@ public class SciteTabViewModel extends AbstractViewModel {
         }
 
         searchTask = BackgroundTask.wrap(() -> fetchTallies(entry.getDOI().get()))
-                                   .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
-                                   .onSuccess(result -> {
-                                       currentResult = Optional.of(result);
-                                       status.set(SciteStatus.FOUND);
-                                   })
-                                   .onFailure(error -> {
-                                       searchError.set(error.getMessage());
-                                       status.set(SciteStatus.ERROR);
-                                   })
-                                   .executeWith(taskExecutor);
+            .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
+            .onSuccess(result -> {
+                currentResult = Optional.of(result);
+                status.set(SciteStatus.FOUND);
+            })
+            .onFailure(error -> {
+                searchError.set(error.getMessage());
+                status.set(SciteStatus.ERROR);
+            })
+            .executeWith(taskExecutor);
     }
 
     private void cancelSearch() {
@@ -103,7 +105,8 @@ public class SciteTabViewModel extends AbstractViewModel {
         URL url;
         try {
             url = new URI(BASE_URL + "tallies/" + doi.asString()).toURL();
-        } catch (MalformedURLException | URISyntaxException ex) {
+        }
+        catch (MalformedURLException | URISyntaxException ex) {
             throw new FetcherException("Malformed URL for DOI", ex);
         }
         LOGGER.debug("Fetching tallies from {}", url);
@@ -114,7 +117,8 @@ public class SciteTabViewModel extends AbstractViewModel {
         if (tallies.has("detail")) {
             String message = tallies.getString("detail");
             throw new FetcherException(message);
-        } else if (!tallies.has("total")) {
+        }
+        else if (!tallies.has("total")) {
             throw new FetcherException("Unexpected result data.");
         }
         return SciteTallyModel.fromJSONObject(tallies);
@@ -123,20 +127,19 @@ public class SciteTabViewModel extends AbstractViewModel {
     public void lookUpDoi(BibEntry entry) {
         CrossRef doiFetcher = new CrossRef();
 
-        BackgroundTask.wrap(() -> doiFetcher.findIdentifier(entry))
-                      .onRunning(() -> {
-                          status.set(SciteStatus.DOI_LOOK_UP);
-                      })
-                      .onSuccess(identifier -> {
-                          if (identifier.isPresent()) {
-                              entry.setField(StandardField.DOI, identifier.get().asString());
-                              bindToEntry(entry);
-                          } else {
-                              status.set(SciteStatus.DOI_MISSING);
-                          }
-                      }).onFailure(ex -> {
-                          status.set(SciteStatus.DOI_LOOK_UP_ERROR);
-                      }).executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> doiFetcher.findIdentifier(entry)).onRunning(() -> {
+            status.set(SciteStatus.DOI_LOOK_UP);
+        }).onSuccess(identifier -> {
+            if (identifier.isPresent()) {
+                entry.setField(StandardField.DOI, identifier.get().asString());
+                bindToEntry(entry);
+            }
+            else {
+                status.set(SciteStatus.DOI_MISSING);
+            }
+        }).onFailure(ex -> {
+            status.set(SciteStatus.DOI_LOOK_UP_ERROR);
+        }).executeWith(taskExecutor);
     }
 
     public ObjectProperty<SciteStatus> statusProperty() {
@@ -150,4 +153,5 @@ public class SciteTabViewModel extends AbstractViewModel {
     public Optional<SciteTallyModel> getCurrentResult() {
         return currentResult;
     }
+
 }

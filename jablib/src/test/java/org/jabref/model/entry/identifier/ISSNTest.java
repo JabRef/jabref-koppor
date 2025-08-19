@@ -59,4 +59,5 @@ class ISSNTest {
     void isValidFormatIncorrect() {
         assertFalse(new ISSN("00279634").isValidFormat());
     }
+
 }

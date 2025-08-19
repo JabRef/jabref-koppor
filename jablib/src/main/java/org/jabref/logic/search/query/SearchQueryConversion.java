@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SearchQueryConversion {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchQueryConversion.class);
 
     public static SqlQueryNode searchToSql(String table, SearchQuery searchQuery) {
@@ -19,7 +20,8 @@ public class SearchQueryConversion {
     }
 
     public static String flagsToSearchExpression(SearchQuery searchQuery) {
-        LOGGER.debug("Converting search flags to search expression: {}, flags {}", searchQuery.getSearchExpression(), searchQuery.getSearchFlags());
+        LOGGER.debug("Converting search flags to search expression: {}, flags {}", searchQuery.getSearchExpression(),
+                searchQuery.getSearchFlags());
         return new SearchFlagsToExpressionVisitor(searchQuery.getSearchFlags()).visit(searchQuery.getContext());
     }
 
@@ -48,8 +50,7 @@ public class SearchQueryConversion {
         String term = ctx.getText();
 
         if (ctx.getStart().getType() == SearchParser.STRING_LITERAL) {
-            return term.substring(1, term.length() - 1)
-                       .replace("\\\"", "\"");
+            return term.substring(1, term.length() - 1).replace("\\\"", "\"");
         }
 
         if (ctx.getStart().getType() == SearchParser.TERM) {
@@ -58,4 +59,5 @@ public class SearchQueryConversion {
 
         return term;
     }
+
 }

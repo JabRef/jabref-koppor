@@ -12,8 +12,11 @@ import com.google.common.eventbus.Subscribe;
 public class EventListenerTest {
 
     private List<BibEntry> addedEntries;
+
     private BibEntry firstInsertedEntry;
+
     private List<BibEntry> removedEntries;
+
     private BibEntry changedEntry;
 
     @Subscribe
@@ -47,4 +50,5 @@ public class EventListenerTest {
     public BibEntry getChangedEntry() {
         return changedEntry;
     }
+
 }

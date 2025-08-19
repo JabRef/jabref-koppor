@@ -23,4 +23,5 @@ public class EditorValidator {
             validationVisualizer.initVisualization(status, textInput);
         }
     }
+
 }

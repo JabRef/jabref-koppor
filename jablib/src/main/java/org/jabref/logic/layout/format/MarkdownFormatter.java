@@ -12,6 +12,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 public class MarkdownFormatter implements LayoutFormatter {
 
     private final Parser parser;
+
     private final HtmlRenderer renderer;
 
     public MarkdownFormatter() {
@@ -30,4 +31,5 @@ public class MarkdownFormatter implements LayoutFormatter {
         // workaround HTMLChars transforming "\n" into <br> by returning a one liner
         return html.replaceAll("\\r\\n|\\r|\\n", " ").trim();
     }
+
 }

@@ -22,12 +22,14 @@ public class ExternalFilesContentImporter {
     public ParserResult importPDFContent(Path file, BibDatabaseContext context, FilePreferences filePreferences) {
         try {
             return new PdfMergeMetadataImporter(importFormatPreferences).importDatabase(file, context, filePreferences);
-        } catch (IOException e) {
-           return ParserResult.fromError(e);
+        }
+        catch (IOException e) {
+            return ParserResult.fromError(e);
         }
     }
 
     public ParserResult importFromBibFile(Path bibFile, FileUpdateMonitor fileUpdateMonitor) throws IOException {
         return OpenDatabase.loadDatabase(bibFile, importFormatPreferences, fileUpdateMonitor);
     }
+
 }

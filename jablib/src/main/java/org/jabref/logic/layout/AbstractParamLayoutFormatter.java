@@ -17,7 +17,6 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
     /**
      * Parse an argument string and return the parts of the argument. The parts are
      * separated by commas, and escaped commas are reduced to literal commas.
-     *
      * @param arg The argument string.
      * @return A list of strings representing the parts of the argument.
      */
@@ -30,11 +29,14 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
             if (escaped) {
                 handleEscapedCharacter(current, currentChar);
                 escaped = false;
-            } else if (currentChar == '\\') {
+            }
+            else if (currentChar == '\\') {
                 escaped = true;
-            } else if (currentChar == AbstractParamLayoutFormatter.SEPARATOR) {
+            }
+            else if (currentChar == AbstractParamLayoutFormatter.SEPARATOR) {
                 addPart(parts, current);
-            } else {
+            }
+            else {
                 current.append(currentChar);
             }
         }
@@ -60,4 +62,5 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
         parts.add(current.toString());
         current.setLength(0);
     }
+
 }

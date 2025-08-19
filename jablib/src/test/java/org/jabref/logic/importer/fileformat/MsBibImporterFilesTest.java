@@ -14,8 +14,7 @@ class MsBibImporterFilesTest {
     private static final String FILE_ENDING = ".xml";
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("MsBib")
-                && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name -> name.startsWith("MsBib") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -41,4 +40,5 @@ class MsBibImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(new MsBibImporter(), fileName, FILE_ENDING);
     }
+
 }

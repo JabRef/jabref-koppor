@@ -22,16 +22,17 @@ import org.jabref.model.entry.BibEntry;
 public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
 
     private final StateManager stateManager;
+
     private final UndoManager undoManager;
+
     private final GuiPreferences preferences;
+
     private final NotificationService notificationService;
+
     private final TaskExecutor taskExecutor;
 
-    public BatchEntryMergeWithFetchedDataAction(StateManager stateManager,
-                                                UndoManager undoManager,
-                                                GuiPreferences preferences,
-                                                NotificationService notificationService,
-                                                TaskExecutor taskExecutor) {
+    public BatchEntryMergeWithFetchedDataAction(StateManager stateManager, UndoManager undoManager,
+            GuiPreferences preferences, NotificationService notificationService, TaskExecutor taskExecutor) {
         this.stateManager = stateManager;
         this.undoManager = undoManager;
         this.preferences = preferences;
@@ -47,9 +48,7 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
             return;
         }
 
-        List<BibEntry> entries = stateManager.getActiveDatabase()
-                                             .map(BibDatabaseContext::getEntries)
-                                             .orElse(List.of());
+        List<BibEntry> entries = stateManager.getActiveDatabase().map(BibDatabaseContext::getEntries).orElse(List.of());
 
         if (entries.isEmpty()) {
             notificationService.notify(Localization.lang("No entries available for merging"));
@@ -57,12 +56,9 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
         }
 
         MergingIdBasedFetcher fetcher = new MergingIdBasedFetcher(preferences.getImportFormatPreferences());
-        BatchEntryMergeTask mergeTask = new BatchEntryMergeTask(
-                entries,
-                fetcher,
-                undoManager,
-                notificationService);
+        BatchEntryMergeTask mergeTask = new BatchEntryMergeTask(entries, fetcher, undoManager, notificationService);
 
         mergeTask.executeWith(taskExecutor);
     }
+
 }

@@ -7,8 +7,11 @@ import org.jabref.model.strings.StringUtil;
 public class UndoableStringChange extends AbstractUndoableJabRefEdit {
 
     private final BibtexString string;
+
     private final String oldValue;
+
     private final String newValue;
+
     private final boolean nameChange;
 
     public UndoableStringChange(BibtexString string, boolean nameChange, String oldValue, String newValue) {
@@ -20,10 +23,11 @@ public class UndoableStringChange extends AbstractUndoableJabRefEdit {
 
     @Override
     public String getPresentationName() {
-        return nameChange ? Localization.lang("change string name %0 to %1", StringUtil.boldHTML(oldValue),
-                StringUtil.boldHTML(newValue)) :
-                Localization.lang("change string content %0 to %1",
-                        StringUtil.boldHTML(oldValue), StringUtil.boldHTML(newValue));
+        return nameChange
+                ? Localization.lang("change string name %0 to %1", StringUtil.boldHTML(oldValue),
+                        StringUtil.boldHTML(newValue))
+                : Localization.lang("change string content %0 to %1", StringUtil.boldHTML(oldValue),
+                        StringUtil.boldHTML(newValue));
     }
 
     @Override
@@ -33,7 +37,8 @@ public class UndoableStringChange extends AbstractUndoableJabRefEdit {
         // Revert the change.
         if (nameChange) {
             string.setName(oldValue);
-        } else {
+        }
+        else {
             string.setContent(oldValue);
         }
     }
@@ -45,8 +50,10 @@ public class UndoableStringChange extends AbstractUndoableJabRefEdit {
         // Redo the change.
         if (nameChange) {
             string.setName(newValue);
-        } else {
+        }
+        else {
             string.setContent(newValue);
         }
     }
+
 }

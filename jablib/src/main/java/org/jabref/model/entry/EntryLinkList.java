@@ -28,4 +28,5 @@ public class EntryLinkList {
     public static String serialize(List<ParsedEntryLink> list) {
         return list.stream().map(ParsedEntryLink::getKey).collect(Collectors.joining(SEPARATOR));
     }
+
 }

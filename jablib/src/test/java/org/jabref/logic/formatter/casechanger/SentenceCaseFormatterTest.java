@@ -10,7 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class SentenceCaseFormatterTest {
 
@@ -22,23 +23,18 @@ class SentenceCaseFormatterTest {
     }
 
     private static Stream<Arguments> testData() {
-        return Stream.of(
-                Arguments.of("Upper first", "upper First"),
-                Arguments.of("Upper first", "uPPER FIRST"),
+        return Stream.of(Arguments.of("Upper first", "upper First"), Arguments.of("Upper first", "uPPER FIRST"),
                 Arguments.of("Upper {NOT} first", "upper {NOT} FIRST"),
                 Arguments.of("Upper {N}ot first", "upper {N}OT FIRST"),
                 Arguments.of("Whose music? A sociology of musical language",
                         "Whose music? a sociology of musical language"),
-                Arguments.of("Bibliographic software. A comparison.",
-                        "bibliographic software. a comparison."),
+                Arguments.of("Bibliographic software. A comparison.", "bibliographic software. a comparison."),
                 Arguments.of("England’s monitor; The history of the separation",
                         "England’s Monitor; the History of the Separation"),
                 Arguments.of("Dr. schultz: a dentist turned bounty hunter.",
                         "Dr. schultz: a dentist turned bounty hunter."),
-                Arguments.of("Wetting-and-drying",
-                        "wetting-and-drying"),
-                Arguments.of("Example case. {EXCLUDED SENTENCE.}",
-                        "Example case. {EXCLUDED SENTENCE.}"),
+                Arguments.of("Wetting-and-drying", "wetting-and-drying"),
+                Arguments.of("Example case. {EXCLUDED SENTENCE.}", "Example case. {EXCLUDED SENTENCE.}"),
                 Arguments.of("I have {Aa} dream", new SentenceCaseFormatter().getExampleInput()));
     }
 
@@ -47,4 +43,5 @@ class SentenceCaseFormatterTest {
     void test(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
+
 }

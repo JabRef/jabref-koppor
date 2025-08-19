@@ -12,20 +12,12 @@ import com.sun.star.text.XTextDocument;
 
 public interface NamedRangeManager {
 
-    NamedRange createNamedRange(XTextDocument doc,
-                                String markName,
-                                XTextCursor position,
-                                boolean insertSpaceAfter,
-                                boolean withoutBrackets)
-            throws
-            CreationException;
+    NamedRange createNamedRange(XTextDocument doc, String markName, XTextCursor position, boolean insertSpaceAfter,
+            boolean withoutBrackets) throws CreationException;
 
-    List<String> getUsedNames(XTextDocument doc)
-            throws
-            NoDocumentException;
+    List<String> getUsedNames(XTextDocument doc) throws NoDocumentException;
 
     Optional<NamedRange> getNamedRangeFromDocument(XTextDocument doc, String markName)
-            throws
-            NoDocumentException,
-            WrappedTargetException;
+            throws NoDocumentException, WrappedTargetException;
+
 }

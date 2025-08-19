@@ -34,9 +34,8 @@ class MSBibExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws SaveException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries)
+            throws SaveException {
         Objects.requireNonNull(databaseContext); // required by test case
         if (entries.isEmpty()) {
             return;
@@ -44,7 +43,8 @@ class MSBibExporter extends Exporter {
 
         MSBibDatabase msBibDatabase = new MSBibDatabase(databaseContext.getDatabase(), entries);
 
-        // forcing to use UTF8 output format for some problems with XML export in other encodings
+        // forcing to use UTF8 output format for some problems with XML export in other
+        // encodings
         try (AtomicFileWriter ps = new AtomicFileWriter(file, StandardCharsets.UTF_8)) {
             try {
                 DOMSource source = new DOMSource(msBibDatabase.getDomForExport());
@@ -52,11 +52,14 @@ class MSBibExporter extends Exporter {
                 Transformer trans = transformerFactory.newTransformer();
                 trans.setOutputProperty(OutputKeys.INDENT, "yes");
                 trans.transform(source, result);
-            } catch (TransformerException | IllegalArgumentException | TransformerFactoryConfigurationError e) {
+            }
+            catch (TransformerException | IllegalArgumentException | TransformerFactoryConfigurationError e) {
                 throw new SaveException(e);
             }
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             throw new SaveException(ex);
         }
     }
+
 }

@@ -12,8 +12,8 @@ import org.jabref.model.strings.StringUtil;
  * All implementing classes should additionally offer
  *
  * <ul>
- *     <li><code>public static Optional&lt;Class> parse(String value)</code></li>
- *     <li><code>public static boolean isValid(String value)</code></li>
+ * <li><code>public static Optional&lt;Class> parse(String value)</code></li>
+ * <li><code>public static boolean isValid(String value)</code></li>
  * </ul>
  */
 public interface Identifier {
@@ -32,17 +32,15 @@ public interface Identifier {
             return Optional.empty();
         }
 
-        return Stream.<Supplier<Optional<? extends Identifier>>>of(
-                             () -> DOI.findInText(identifier),
-                             () -> ArXivIdentifier.parse(identifier),
-                             () -> ISBN.parse(identifier),
-                             () -> SSRN.parse(identifier),
-                             () -> RFC.parse(identifier)
-                     )
-                     .map(Supplier::get)
-                     .filter(Optional::isPresent)
-                     .map(Optional::get)
-                     .map(id -> (Identifier) id)
-                     .findFirst();
+        return Stream
+            .<Supplier<Optional<? extends Identifier>>>of(() -> DOI.findInText(identifier),
+                    () -> ArXivIdentifier.parse(identifier), () -> ISBN.parse(identifier), () -> SSRN.parse(identifier),
+                    () -> RFC.parse(identifier))
+            .map(Supplier::get)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(id -> (Identifier) id)
+            .findFirst();
     }
+
 }

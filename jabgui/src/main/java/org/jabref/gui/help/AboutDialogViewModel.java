@@ -24,20 +24,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AboutDialogViewModel extends AbstractViewModel {
+
     private final String changelogUrl;
+
     private final String versionInfo;
+
     private final ReadOnlyStringWrapper environmentInfo = new ReadOnlyStringWrapper();
+
     private final Logger logger = LoggerFactory.getLogger(AboutDialogViewModel.class);
+
     private final ReadOnlyStringWrapper heading = new ReadOnlyStringWrapper();
+
     private final ReadOnlyStringWrapper maintainers = new ReadOnlyStringWrapper();
+
     private final ReadOnlyStringWrapper license = new ReadOnlyStringWrapper();
+
     private final ReadOnlyBooleanWrapper isDevelopmentVersion = new ReadOnlyBooleanWrapper();
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final ReadOnlyStringWrapper developmentVersion = new ReadOnlyStringWrapper();
+
     private final ClipBoardManager clipBoardManager;
 
-    public AboutDialogViewModel(DialogService dialogService, GuiPreferences preferences, ClipBoardManager clipBoardManager, BuildInfo buildInfo) {
+    public AboutDialogViewModel(DialogService dialogService, GuiPreferences preferences,
+            ClipBoardManager clipBoardManager, BuildInfo buildInfo) {
         this.dialogService = Objects.requireNonNull(dialogService);
         this.preferences = Objects.requireNonNull(preferences);
         this.clipBoardManager = Objects.requireNonNull(clipBoardManager);
@@ -46,17 +59,21 @@ public class AboutDialogViewModel extends AbstractViewModel {
 
         if (version.length == 1) {
             isDevelopmentVersion.set(false);
-        } else {
+        }
+        else {
             isDevelopmentVersion.set(true);
-            String dev = Lists.newArrayList(version).stream().filter(string -> !string.equals(version[0])).collect(
-                    Collectors.joining("--"));
+            String dev = Lists.newArrayList(version)
+                .stream()
+                .filter(string -> !string.equals(version[0]))
+                .collect(Collectors.joining("--"));
             developmentVersion.set(dev);
         }
         maintainers.set(buildInfo.maintainers);
         license.set(Localization.lang("License") + ":");
         changelogUrl = buildInfo.version.getChangelogUrl();
 
-        String javafx_version = System.getProperty("javafx.runtime.version", BuildInfo.UNKNOWN_VERSION).toLowerCase(Locale.ROOT);
+        String javafx_version = System.getProperty("javafx.runtime.version", BuildInfo.UNKNOWN_VERSION)
+            .toLowerCase(Locale.ROOT);
 
         versionInfo = "JabRef %s%n%s %s %s %nJava %s %nJavaFX %s".formatted(buildInfo.version, BuildInfo.OS,
                 BuildInfo.OS_VERSION, BuildInfo.OS_ARCH, BuildInfo.JAVA_VERSION, javafx_version);
@@ -146,7 +163,8 @@ public class AboutDialogViewModel extends AbstractViewModel {
     private void openWebsite(String url) {
         try {
             NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             dialogService.showErrorDialogAndWait(Localization.lang("Could not open website."), e);
             logger.error("Could not open default browser.", e);
         }
@@ -155,4 +173,5 @@ public class AboutDialogViewModel extends AbstractViewModel {
     public void openPrivacyPolicy() {
         openWebsite(URLs.PRIVACY_POLICY_URL);
     }
+
 }

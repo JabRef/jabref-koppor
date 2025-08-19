@@ -21,8 +21,11 @@ import org.slf4j.LoggerFactory;
 public class FileNodeViewModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileNodeViewModel.class);
+
     private final Path path;
+
     private final ObservableList<FileNodeViewModel> children;
+
     private int fileCount;
 
     public FileNodeViewModel(Path path) {
@@ -51,16 +54,14 @@ public class FileNodeViewModel {
      * Return a string of a FileTime in a yyyy-MM-dd HH:mm format.
      */
     public static String formatDateTime(FileTime fileTime) {
-        LocalDateTime localDateTime = fileTime
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        LocalDateTime localDateTime = fileTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
     /**
-     * Return a string for displaying a node name (and its number of children if it is a directory).
+     * Return a string for displaying a node name (and its number of children if it is a
+     * directory).
      */
     public String getDisplayText() {
         if (path.toFile().isDirectory()) {
@@ -70,8 +71,8 @@ public class FileNodeViewModel {
     }
 
     /**
-     * Return a string for displaying a node name (and its number of children if it is a directory).
-     * along with the last edited time
+     * Return a string for displaying a node name (and its number of children if it is a
+     * directory). along with the last edited time
      */
     public String getDisplayTextWithEditDate() {
         if (path.toFile().isDirectory()) {
@@ -80,17 +81,17 @@ public class FileNodeViewModel {
         FileTime lastEditedTime = null;
         try {
             lastEditedTime = Files.getLastModifiedTime(path);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not get last modified time", e);
         }
-        return "%s (%s: %s)".formatted(path.getFileName(), Localization.lang("last edited"), formatDateTime(lastEditedTime));
+        return "%s (%s: %s)".formatted(path.getFileName(), Localization.lang("last edited"),
+                formatDateTime(lastEditedTime));
     }
 
     @Override
     public String toString() {
-        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}".formatted(
-                this.path,
-                this.children,
+        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}".formatted(this.path, this.children,
                 this.fileCount);
     }
 
@@ -107,6 +108,8 @@ public class FileNodeViewModel {
         if (!(obj instanceof FileNodeViewModel other)) {
             return false;
         }
-        return Objects.equals(children, other.children) && (fileCount == other.fileCount) && Objects.equals(path, other.path);
+        return Objects.equals(children, other.children) && (fileCount == other.fileCount)
+                && Objects.equals(path, other.path);
     }
+
 }

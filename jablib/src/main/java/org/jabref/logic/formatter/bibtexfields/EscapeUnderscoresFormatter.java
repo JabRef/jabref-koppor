@@ -36,4 +36,5 @@ public class EscapeUnderscoresFormatter extends Formatter {
     public String getExampleInput() {
         return "Text_with_underscores";
     }
+
 }

@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AuthorFirstLastOxfordCommasTest {
 
     /**
-     * Test method for {@link org.jabref.logic.layout.format.AuthorFirstLastOxfordCommas#format(java.lang.String)}.
+     * Test method for
+     * {@link org.jabref.logic.layout.format.AuthorFirstLastOxfordCommas#format(java.lang.String)}.
      */
     @Test
     void format() {
@@ -22,14 +23,14 @@ class AuthorFirstLastOxfordCommasTest {
         assertEquals("Van Something Someone", a.format("Someone, Van Something"));
 
         // Two names
-        assertEquals("John von Neumann and Peter Black Brown", a
-                .format("John von Neumann and Peter Black Brown"));
+        assertEquals("John von Neumann and Peter Black Brown", a.format("John von Neumann and Peter Black Brown"));
 
         // Three names
-        assertEquals("John von Neumann, John Smith, and Peter Black Brown", a
-                .format("von Neumann, John and Smith, John and Black Brown, Peter"));
+        assertEquals("John von Neumann, John Smith, and Peter Black Brown",
+                a.format("von Neumann, John and Smith, John and Black Brown, Peter"));
 
-        assertEquals("John von Neumann, John Smith, and Peter Black Brown", a
-                .format("John von Neumann and John Smith and Black Brown, Peter"));
+        assertEquals("John von Neumann, John Smith, and Peter Black Brown",
+                a.format("John von Neumann and John Smith and Black Brown, Peter"));
     }
+
 }

@@ -5,9 +5,7 @@ import org.jabref.model.entry.BibEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public record SimpleJson(
-        long id,
-        String citationKey) {
+public record SimpleJson(long id, String citationKey) {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleJson.class);
 

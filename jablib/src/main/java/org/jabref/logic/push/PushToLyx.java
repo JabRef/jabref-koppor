@@ -34,11 +34,13 @@ public class PushToLyx extends AbstractPushToApplication {
     public void onOperationCompleted() {
         if (couldNotPush) {
             this.sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Verify that LyX is running and that the lyxpipe is valid.")
-                            + "[" + commandPath + "]");
-        } else if (couldNotCall) {
+                    Localization.lang("Verify that LyX is running and that the lyxpipe is valid.") + "[" + commandPath
+                            + "]");
+        }
+        else if (couldNotCall) {
             this.sendErrorNotification(Localization.lang("Unable to write to %0.", commandPath + ".in"));
-        } else {
+        }
+        else {
             super.onOperationCompleted();
         }
     }
@@ -56,7 +58,8 @@ public class PushToLyx extends AbstractPushToApplication {
             return;
         }
 
-        Path lp = Path.of(commandPath); // this needs to fixed because it gives "asdf" when going prefs.get("lyxpipe")
+        Path lp = Path.of(commandPath); // this needs to fixed because it gives "asdf"
+                                        // when going prefs.get("lyxpipe")
         if (!Files.exists(lp) || !Files.isWritable(lp)) {
             // See if it helps to append ".in":
             lp = Path.of(commandPath + ".in");
@@ -73,10 +76,12 @@ public class PushToLyx extends AbstractPushToApplication {
             try (BufferedWriter lyxOut = Files.newBufferedWriter(lyxPipe, StandardCharsets.UTF_8)) {
                 String citeStr = "LYXCMD:sampleclient:citation-insert:" + keyString;
                 lyxOut.write(citeStr + "\n");
-            } catch (IOException excep) {
+            }
+            catch (IOException excep) {
                 couldNotCall = true;
                 LOGGER.warn("Problem pushing to LyX/Kile.", excep);
             }
         });
     }
+
 }

@@ -16,8 +16,11 @@ import org.jabref.model.strings.StringUtil;
 public class SearchResultContainer extends ListView<CAYWEntry> {
 
     private final static int MAX_LINES = 3;
+
     private final static int ESTIMATED_CHARS_PER_LINE = 80;
+
     private final static int TOOLTIP_WIDTH = 400;
+
     private final static double PREF_WIDTH = 300;
 
     private ObservableList<CAYWEntry> selectedEntries = javafx.collections.FXCollections.observableArrayList();
@@ -51,9 +54,13 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
     }
 
     private static class SearchResultCell extends ListCell<CAYWEntry> {
+
         private final VBox content;
+
         private final Text labelText;
+
         private final Text descriptionText;
+
         private final Tooltip tooltip;
 
         public SearchResultCell() {
@@ -68,9 +75,7 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
 
             content.getChildren().addAll(labelText, descriptionText);
 
-            descriptionText.wrappingWidthProperty().bind(
-                    widthProperty().subtract(20)
-            );
+            descriptionText.wrappingWidthProperty().bind(widthProperty().subtract(20));
         }
 
         @Override
@@ -80,7 +85,8 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
             if (empty || item == null) {
                 setGraphic(null);
                 setTooltip(null);
-            } else {
+            }
+            else {
                 labelText.setText(item.label());
 
                 String fullDescription = item.description();
@@ -93,7 +99,8 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
                     tooltip.setWrapText(true);
                     tooltip.setMaxWidth(TOOLTIP_WIDTH);
                     setTooltip(tooltip);
-                } else {
+                }
+                else {
                     setTooltip(null);
                 }
 
@@ -110,9 +117,12 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
 
             if (lines.length <= MAX_LINES) {
                 return StringUtil.limitStringLength(text, ESTIMATED_CHARS_PER_LINE * MAX_LINES);
-            } else {
+            }
+            else {
                 return String.join(OS.NEWLINE, Arrays.copyOf(lines, MAX_LINES)) + "...";
             }
         }
+
     }
+
 }

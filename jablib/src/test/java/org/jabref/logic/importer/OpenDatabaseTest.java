@@ -25,13 +25,21 @@ import static org.mockito.Mockito.mock;
 class OpenDatabaseTest {
 
     private final Charset defaultEncoding = StandardCharsets.UTF_8;
+
     private LibraryPreferences libraryPreferences;
+
     private ImportFormatPreferences importFormatPreferences;
+
     private final Path bibNoHeader;
+
     private final Path bibWrongHeader;
+
     private final Path bibHeader;
+
     private final Path bibHeaderAndSignature;
+
     private final Path bibEncodingWithoutNewline;
+
     private final FileUpdateMonitor fileMonitor = new DummyFileUpdateMonitor();
 
     OpenDatabaseTest() throws URISyntaxException {
@@ -107,7 +115,8 @@ class OpenDatabaseTest {
      */
     @Test
     void correctlyParseEncodingWithoutNewline() throws IOException {
-        ParserResult result = OpenDatabase.loadDatabase(bibEncodingWithoutNewline, importFormatPreferences, fileMonitor);
+        ParserResult result = OpenDatabase.loadDatabase(bibEncodingWithoutNewline, importFormatPreferences,
+                fileMonitor);
         assertEquals(StandardCharsets.US_ASCII, result.getMetaData().getEncoding().get());
 
         BibDatabase db = result.getDatabase();
@@ -119,4 +128,5 @@ class OpenDatabaseTest {
         BibEntry entry = entries.iterator().next();
         assertEquals(Optional.of("testArticle"), entry.getCitationKey());
     }
+
 }

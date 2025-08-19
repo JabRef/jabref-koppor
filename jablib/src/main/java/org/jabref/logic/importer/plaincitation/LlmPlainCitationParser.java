@@ -15,11 +15,15 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 
 public class LlmPlainCitationParser implements PlainCitationParser {
+
     private final AiTemplatesService aiTemplatesService;
+
     private final ImportFormatPreferences importFormatPreferences;
+
     private final ChatModel llm;
 
-    public LlmPlainCitationParser(AiTemplatesService aiTemplatesService, ImportFormatPreferences importFormatPreferences, ChatModel llm) {
+    public LlmPlainCitationParser(AiTemplatesService aiTemplatesService,
+            ImportFormatPreferences importFormatPreferences, ChatModel llm) {
         this.aiTemplatesService = aiTemplatesService;
         this.importFormatPreferences = importFormatPreferences;
         this.llm = llm;
@@ -29,7 +33,8 @@ public class LlmPlainCitationParser implements PlainCitationParser {
     public Optional<BibEntry> parsePlainCitation(String text) throws FetcherException {
         try {
             return BibtexParser.singleFromString(getBibtexStringFromLlm(text), importFormatPreferences);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException("Could not parse BibTeX returned from LLM", e);
         }
     }
@@ -38,11 +43,7 @@ public class LlmPlainCitationParser implements PlainCitationParser {
         String systemMessage = aiTemplatesService.makeCitationParsingSystemMessage();
         String userMessage = aiTemplatesService.makeCitationParsingUserMessage(searchQuery);
 
-        return llm.chat(
-                List.of(
-                        new SystemMessage(systemMessage),
-                        new UserMessage(userMessage)
-                )
-        ).aiMessage().text();
+        return llm.chat(List.of(new SystemMessage(systemMessage), new UserMessage(userMessage))).aiMessage().text();
     }
+
 }

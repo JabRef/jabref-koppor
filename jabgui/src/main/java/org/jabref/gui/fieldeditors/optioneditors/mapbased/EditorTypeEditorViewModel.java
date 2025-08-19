@@ -11,14 +11,13 @@ import org.jabref.model.entry.field.Field;
 
 public class EditorTypeEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public EditorTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
-        super(field, suggestionProvider, fieldCheckers, undoManager, Map.of(
-                "editor", Localization.lang("Editor"),
-                "compiler", Localization.lang("Compiler"),
-                "founder", Localization.lang("Founder"),
-                "continuator", Localization.lang("Continuator"),
-                "redactor", Localization.lang("Redactor"),
-                "reviser", Localization.lang("Reviser"),
-                "collaborator", Localization.lang("Collaborator")));
+    public EditorTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
+        super(field, suggestionProvider, fieldCheckers, undoManager,
+                Map.of("editor", Localization.lang("Editor"), "compiler", Localization.lang("Compiler"), "founder",
+                        Localization.lang("Founder"), "continuator", Localization.lang("Continuator"), "redactor",
+                        Localization.lang("Redactor"), "reviser", Localization.lang("Reviser"), "collaborator",
+                        Localization.lang("Collaborator")));
     }
+
 }

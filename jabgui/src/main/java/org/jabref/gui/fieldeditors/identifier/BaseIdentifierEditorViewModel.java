@@ -31,25 +31,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extends AbstractEditorViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseIdentifierEditorViewModel.class);
+
     protected BooleanProperty isInvalidIdentifier = new SimpleBooleanProperty();
+
     protected final BooleanProperty canShortenIdentifier = new SimpleBooleanProperty(false);
+
     protected final BooleanProperty identifierLookupInProgress = new SimpleBooleanProperty(false);
+
     protected final BooleanProperty canLookupIdentifier = new SimpleBooleanProperty(true);
+
     protected final BooleanProperty canFetchBibliographyInformationById = new SimpleBooleanProperty();
+
     protected IdentifierParser identifierParser;
+
     protected final ObjectProperty<Optional<T>> identifier = new SimpleObjectProperty<>(Optional.empty());
+
     protected DialogService dialogService;
+
     protected TaskExecutor taskExecutor;
+
     protected GuiPreferences preferences;
 
-    public BaseIdentifierEditorViewModel(Field field,
-                                         SuggestionProvider<?> suggestionProvider,
-                                         FieldCheckers fieldCheckers,
-                                         DialogService dialogService,
-                                         TaskExecutor taskExecutor,
-                                         GuiPreferences preferences,
-                                         UndoManager undoManager) {
+    public BaseIdentifierEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers, DialogService dialogService, TaskExecutor taskExecutor,
+            GuiPreferences preferences, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -57,13 +64,16 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     }
 
     /**
-     * Since it's not possible to perform the same actions on all identifiers, specific implementations can call the {@code configure}
-     * method to tell the actions they can perform and the actions they can't. Based on this configuration, the view will enable/disable or
-     * show/hide certain UI elements for certain identifier editors.
+     * Since it's not possible to perform the same actions on all identifiers, specific
+     * implementations can call the {@code configure} method to tell the actions they can
+     * perform and the actions they can't. Based on this configuration, the view will
+     * enable/disable or show/hide certain UI elements for certain identifier editors.
      * <p>
-     * <b>NOTE: This method MUST be called by all the implementation view models in their principal constructor</b>
+     * <b>NOTE: This method MUST be called by all the implementation view models in their
+     * principal constructor</b>
      */
-    protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier) {
+    protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier,
+            boolean canShortenIdentifier) {
         this.canLookupIdentifier.set(canLookupIdentifier);
         this.canFetchBibliographyInformationById.set(canFetchBibliographyInformationById);
         this.canShortenIdentifier.set(canShortenIdentifier);
@@ -81,13 +91,20 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     protected void handleIdentifierFetchingError(Exception exception, IdFetcher<T> fetcher) {
         LOGGER.error("Error while fetching identifier", exception);
         if (exception instanceof FetcherClientException) {
-            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("No data was found for the identifier"));
-        } else if (exception instanceof FetcherServerException) {
-            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Server not available"));
-        } else if (exception.getCause() != null) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Error occurred %0", exception.getCause().getMessage()));
-        } else {
-            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Error occurred %0", exception.getCause().getMessage()));
+            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("No data was found for the identifier"));
+        }
+        else if (exception instanceof FetcherServerException) {
+            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("Server not available"));
+        }
+        else if (exception.getCause() != null) {
+            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("Error occurred %0", exception.getCause().getMessage()));
+        }
+        else {
+            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("Error occurred %0", exception.getCause().getMessage()));
         }
     }
 
@@ -141,17 +158,18 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
 
     public void openExternalLink() {
         identifier.get().flatMap(Identifier::getExternalURI).ifPresent(url -> {
-                    try {
-                        NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
-                    } catch (IOException ex) {
-                        dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), ex);
-                    }
-                }
-        );
+            try {
+                NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
+            }
+            catch (IOException ex) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), ex);
+            }
+        });
     }
 
     public void shortenID() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Shortening of identifiers is not supported by this identifier editor.");
+        throw new UnsupportedOperationException(
+                "Shortening of identifiers is not supported by this identifier editor.");
     }
 
     @Override
@@ -161,4 +179,5 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
         EasyBind.subscribe(textProperty(), ignored -> updateIdentifier());
         EasyBind.subscribe(identifier, newIdentifier -> isInvalidIdentifier.set(newIdentifier.isEmpty()));
     }
+
 }

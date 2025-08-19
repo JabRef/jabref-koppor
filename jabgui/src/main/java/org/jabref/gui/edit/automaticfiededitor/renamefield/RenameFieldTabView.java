@@ -23,15 +23,22 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
 public class RenameFieldTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
+
     @FXML
     private Button renameButton;
+
     @FXML
     private ComboBox<Field> fieldComboBox;
+
     @FXML
     private TextField newFieldNameTextField;
+
     private final List<BibEntry> selectedEntries;
+
     private final BibDatabase database;
+
     private final StateManager stateManager;
+
     private RenameFieldViewModel viewModel;
 
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
@@ -41,9 +48,7 @@ public class RenameFieldTabView extends AbstractAutomaticFieldEditorTabView impl
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -62,7 +67,8 @@ public class RenameFieldTabView extends AbstractAutomaticFieldEditorTabView impl
 
         newFieldNameTextField.textProperty().bindBidirectional(viewModel.newFieldNameProperty());
 
-        Platform.runLater(() -> visualizer.initVisualization(viewModel.fieldNameValidationStatus(), newFieldNameTextField, true));
+        Platform.runLater(
+                () -> visualizer.initVisualization(viewModel.fieldNameValidationStatus(), newFieldNameTextField, true));
     }
 
     @Override
@@ -74,4 +80,5 @@ public class RenameFieldTabView extends AbstractAutomaticFieldEditorTabView impl
     void renameField() {
         viewModel.renameField();
     }
+
 }

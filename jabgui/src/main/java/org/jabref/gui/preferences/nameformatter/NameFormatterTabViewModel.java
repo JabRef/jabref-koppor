@@ -15,8 +15,11 @@ import org.jabref.model.strings.StringUtil;
 
 public class NameFormatterTabViewModel implements PreferenceTabViewModel {
 
-    private final ListProperty<NameFormatterItemModel> formatterListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<NameFormatterItemModel> formatterListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final StringProperty addFormatterNameProperty = new SimpleStringProperty();
+
     private final StringProperty addFormatterStringProperty = new SimpleStringProperty();
 
     private final NameFormatterPreferences nameFormatterPreferences;
@@ -34,7 +37,8 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
         for (int i = 0; i < names.size(); i++) {
             if (i < formats.size()) {
                 formatterListProperty.add(new NameFormatterItemModel(names.get(i), formats.get(i)));
-            } else {
+            }
+            else {
                 formatterListProperty.add(new NameFormatterItemModel(names.get(i)));
             }
         }
@@ -56,10 +60,10 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
     }
 
     public void addFormatter() {
-        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue()) &&
-                !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
-            formatterListProperty.add(new NameFormatterItemModel(
-                    addFormatterNameProperty.getValue(), addFormatterStringProperty.getValue()));
+        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue())
+                && !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
+            formatterListProperty.add(new NameFormatterItemModel(addFormatterNameProperty.getValue(),
+                    addFormatterStringProperty.getValue()));
 
             addFormatterNameProperty.setValue("");
             addFormatterStringProperty.setValue("");
@@ -81,4 +85,5 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
     public StringProperty addFormatterStringProperty() {
         return addFormatterStringProperty;
     }
+
 }

@@ -33,14 +33,22 @@ import org.slf4j.LoggerFactory;
 ///   <li>The current sync status (e.g., {@code UP_TO_DATE}, {@code DIVERGED}, etc.)</li>
 /// </ul>
 public class GitStatusViewModel extends AbstractViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GitStatusViewModel.class);
+
     private final StateManager stateManager;
+
     private final ObjectProperty<BibDatabaseContext> databaseContext = new SimpleObjectProperty<>();
+
     private final ObjectProperty<SyncStatus> syncStatus = new SimpleObjectProperty<>(SyncStatus.UNTRACKED);
+
     private final BooleanProperty isTracking = new SimpleBooleanProperty(false);
+
     private final BooleanProperty conflictDetected = new SimpleBooleanProperty(false);
+
     // "" denotes that no commit was pulled
     private final StringProperty lastPulledCommit = new SimpleStringProperty("");
+
     private @Nullable GitHandler activeHandler = null;
 
     public GitStatusViewModel(StateManager stateManager, Path bibFilePath) {
@@ -50,7 +58,8 @@ public class GitStatusViewModel extends AbstractViewModel {
                 BibDatabaseContext databaseContext1 = newDb.get();
                 databaseContext.set(databaseContext1);
                 updateStatusFromContext(databaseContext1);
-            } else {
+            }
+            else {
                 LOGGER.debug("No active database with path; resetting Git status.");
                 reset();
             }
@@ -88,8 +97,8 @@ public class GitStatusViewModel extends AbstractViewModel {
     }
 
     /**
-     * Clears all internal state to defaults.
-     * Should be called when switching projects or Git context is lost
+     * Clears all internal state to defaults. Should be called when switching projects or
+     * Git context is lost
      */
     public void reset() {
         activeHandler = null;
@@ -104,8 +113,7 @@ public class GitStatusViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getCurrentBibFile() {
-        return getDatabaseContext()
-                .flatMap(BibDatabaseContext::getDatabasePath);
+        return getDatabaseContext().flatMap(BibDatabaseContext::getDatabasePath);
     }
 
     public ObjectProperty<SyncStatus> syncStatusProperty() {
@@ -159,4 +167,5 @@ public class GitStatusViewModel extends AbstractViewModel {
     public Optional<GitHandler> getActiveHandler() {
         return Optional.ofNullable(activeHandler);
     }
+
 }

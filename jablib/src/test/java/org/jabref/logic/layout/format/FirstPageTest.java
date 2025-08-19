@@ -21,12 +21,8 @@ class FirstPageTest {
     }
 
     private static Stream<Arguments> providePages() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("", null),
-                Arguments.of("345", "345"),
-                Arguments.of("345", "345-350"),
-                Arguments.of("345", "345--350")
-        );
+        return Stream.of(Arguments.of("", ""), Arguments.of("", null), Arguments.of("345", "345"),
+                Arguments.of("345", "345-350"), Arguments.of("345", "345--350"));
     }
+
 }

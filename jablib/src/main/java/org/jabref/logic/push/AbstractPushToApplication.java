@@ -23,27 +23,35 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractPushToApplication implements PushToApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPushToApplication.class);
-    protected boolean couldNotCall; // Set to true in case the command could not be executed, e.g., if the file is not found
-    protected boolean couldNotPush; // Set to true in case the tunnel to the program (if one is used) does not operate
-    protected boolean notDefined; // Set to true if the corresponding path is not defined in the preferences
+
+    protected boolean couldNotCall; // Set to true in case the command could not be
+                                    // executed, e.g., if the file is not found
+
+    protected boolean couldNotPush; // Set to true in case the tunnel to the program (if
+                                    // one is used) does not operate
+
+    protected boolean notDefined; // Set to true if the corresponding path is not defined
+                                  // in the preferences
 
     protected String commandPath;
 
     protected final NotificationService notificationService;
+
     protected final PushToApplicationPreferences preferences;
 
-    public AbstractPushToApplication(NotificationService notificationService, PushToApplicationPreferences preferences) {
+    public AbstractPushToApplication(NotificationService notificationService,
+            PushToApplicationPreferences preferences) {
         this.notificationService = notificationService;
         this.preferences = preferences;
     }
 
     protected String getKeyString(List<BibEntry> entries, @NonNull String delimiter) {
         return entries.stream()
-                      .map(BibEntry::getCitationKey)
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
-                      .filter(key -> !key.isEmpty())
-                      .collect(Collectors.joining(delimiter));
+            .map(BibEntry::getCitationKey)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .filter(key -> !key.isEmpty())
+            .collect(Collectors.joining(delimiter));
     }
 
     public void pushEntries(List<BibEntry> entries) {
@@ -74,21 +82,15 @@ public abstract class AbstractPushToApplication implements PushToApplication {
                     LOGGER.error("Commandline does not contain enough parameters to \"push to application\"");
                     return;
                 }
-                processBuilder.command(
-                        "open",
-                        "-a",
-                        commands[0],
-                        "-n",
-                        "--args",
-                        commands[1],
-                        commands[2]
-                );
+                processBuilder.command("open", "-a", commands[0], "-n", "--args", commands[1], commands[2]);
                 processBuilder.start();
-            } else {
+            }
+            else {
                 processBuilder.command(getCommandLine(keyString));
                 processBuilder.start();
             }
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
@@ -97,18 +99,18 @@ public abstract class AbstractPushToApplication implements PushToApplication {
     @Override
     public void onOperationCompleted() {
         if (notDefined) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
+            sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Path to %0 not defined", getDisplayName()) + ".");
-        } else if (couldNotCall) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
+        }
+        else if (couldNotCall) {
+            sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not call executable") + " '" + commandPath + "'.");
-        } else if (couldNotPush) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
+        }
+        else if (couldNotPush) {
+            sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not connect to %0", getDisplayName()) + ".");
-        } else {
+        }
+        else {
             notificationService.notify(Localization.lang("Pushed citations to %0", getDisplayName()) + ".");
         }
     }
@@ -122,7 +124,8 @@ public abstract class AbstractPushToApplication implements PushToApplication {
     public void sendErrorNotification(String title, String message) {
         if (StringUtil.isNullOrEmpty(message)) {
             notificationService.notify(title);
-        } else {
+        }
+        else {
             notificationService.notify(title.concat(" ").concat(message));
         }
     }
@@ -133,10 +136,9 @@ public abstract class AbstractPushToApplication implements PushToApplication {
     }
 
     /**
-     * Constructs the command line arguments for pushing citations to the application.
-     * The method formats the citation key and prefixes/suffixes as per user preferences
+     * Constructs the command line arguments for pushing citations to the application. The
+     * method formats the citation key and prefixes/suffixes as per user preferences
      * before invoking the application with the command to insert text.
-     *
      * @param keyString String containing the Bibtex keys to be pushed to the application
      * @return String array with the command to call and its arguments
      */
@@ -147,7 +149,6 @@ public abstract class AbstractPushToApplication implements PushToApplication {
 
     /**
      * Function to get the command name in case it is different from the application name
-     *
      * @return String with the command name
      */
     public String getCommandName() {
@@ -179,7 +180,8 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         try {
             processBuilder.command(command);
             processBuilder.start();
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
@@ -189,4 +191,5 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         LOGGER.error("Not yet implemented");
         return new String[0];
     }
+
 }

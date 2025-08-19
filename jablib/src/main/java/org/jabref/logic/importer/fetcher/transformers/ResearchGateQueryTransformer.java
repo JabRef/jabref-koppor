@@ -38,4 +38,5 @@ public class ResearchGateQueryTransformer extends AbstractQueryTransformer {
     protected String handleYear(String year) {
         return StringUtil.quoteStringIfSpaceIsContained(year);
     }
+
 }

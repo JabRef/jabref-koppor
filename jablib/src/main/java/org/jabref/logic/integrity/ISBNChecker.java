@@ -27,4 +27,5 @@ public class ISBNChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

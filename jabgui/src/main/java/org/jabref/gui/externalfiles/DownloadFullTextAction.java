@@ -30,18 +30,20 @@ import org.slf4j.LoggerFactory;
 public class DownloadFullTextAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadFullTextAction.class);
+
     // The minimum number of selected entries to ask the user for confirmation
     private static final int WARNING_LIMIT = 5;
 
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
+
     private final UiTaskExecutor taskExecutor;
 
-    public DownloadFullTextAction(DialogService dialogService,
-                                  StateManager stateManager,
-                                  GuiPreferences preferences,
-                                  UiTaskExecutor taskExecutor) {
+    public DownloadFullTextAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences,
+            UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -65,14 +67,12 @@ public class DownloadFullTextAction extends SimpleCommand {
         dialogService.notify(Localization.lang("Looking for full text document..."));
 
         if (entries.size() >= WARNING_LIMIT) {
-            boolean confirmDownload = dialogService.showConfirmationDialogAndWait(
-                    Localization.lang("Download full text documents"),
-                    Localization.lang(
-                            "You are attempting to download full text documents for %0 entries.\nJabRef will send at least one request per entry to a publisher.",
-                            String.valueOf(stateManager.getSelectedEntries().size())),
-                    // [impl->req~ui.dialogs.confirmation.naming~1]
-                    Localization.lang("Download full text documents"),
-                    Localization.lang("Cancel"));
+            boolean confirmDownload = dialogService
+                .showConfirmationDialogAndWait(Localization.lang("Download full text documents"), Localization.lang(
+                        "You are attempting to download full text documents for %0 entries.\nJabRef will send at least one request per entry to a publisher.",
+                        String.valueOf(stateManager.getSelectedEntries().size())),
+                        // [impl->req~ui.dialogs.confirmation.naming~1]
+                        Localization.lang("Download full text documents"), Localization.lang("Cancel"));
 
             if (!confirmDownload) {
                 dialogService.notify(Localization.lang("Operation canceled."));
@@ -86,8 +86,7 @@ public class DownloadFullTextAction extends SimpleCommand {
                 Map<BibEntry, Optional<URL>> downloads = new ConcurrentHashMap<>();
                 int count = 0;
                 for (BibEntry entry : entries) {
-                    FulltextFetchers fetchers = new FulltextFetchers(
-                            preferences.getImportFormatPreferences(),
+                    FulltextFetchers fetchers = new FulltextFetchers(preferences.getImportFormatPreferences(),
                             preferences.getImporterPreferences());
                     downloads.put(entry, fetchers.findFullTextPDF(entry));
                     updateProgress(++count, entries.size());
@@ -96,13 +95,11 @@ public class DownloadFullTextAction extends SimpleCommand {
             }
         };
 
-        findFullTextsTask.setOnSucceeded(value ->
-                downloadFullTexts(findFullTextsTask.getValue(), stateManager.getActiveDatabase().get()));
+        findFullTextsTask.setOnSucceeded(
+                value -> downloadFullTexts(findFullTextsTask.getValue(), stateManager.getActiveDatabase().get()));
 
-        dialogService.showProgressDialog(
-                Localization.lang("Download full text documents"),
-                Localization.lang("Looking for full text document..."),
-                findFullTextsTask);
+        dialogService.showProgressDialog(Localization.lang("Download full text documents"),
+                Localization.lang("Looking for full text document..."), findFullTextsTask);
 
         taskExecutor.execute(findFullTextsTask);
     }
@@ -113,7 +110,8 @@ public class DownloadFullTextAction extends SimpleCommand {
             Optional<URL> result = download.getValue();
             if (result.isPresent()) {
                 addLinkedFileFromURL(databaseContext, result.get(), entry);
-            } else {
+            }
+            else {
                 dialogService.notify(Localization.lang("No full text document found for entry %0.",
                         entry.getCitationKey().orElse(Localization.lang("undefined"))));
             }
@@ -121,28 +119,25 @@ public class DownloadFullTextAction extends SimpleCommand {
     }
 
     /**
-     * This method attaches a linked file from a URL (if not already linked) to an entry using the key and value pair
-     * from the findFullTexts map and then downloads the file into the given targetDirectory
-     *
+     * This method attaches a linked file from a URL (if not already linked) to an entry
+     * using the key and value pair from the findFullTexts map and then downloads the file
+     * into the given targetDirectory
      * @param databaseContext the active database
-     * @param url             the url "key"
-     * @param entry           the entry "value"
+     * @param url the url "key"
+     * @param entry the entry "value"
      */
     private void addLinkedFileFromURL(BibDatabaseContext databaseContext, URL url, BibEntry entry) {
         LinkedFile newLinkedFile = new LinkedFile(url, "");
 
         if (!entry.getFiles().contains(newLinkedFile)) {
-            LinkedFileViewModel onlineFile = new LinkedFileViewModel(
-                    newLinkedFile,
-                    entry,
-                    databaseContext,
-                    taskExecutor,
-                    dialogService,
-                    preferences);
+            LinkedFileViewModel onlineFile = new LinkedFileViewModel(newLinkedFile, entry, databaseContext,
+                    taskExecutor, dialogService, preferences);
             onlineFile.download(true);
-        } else {
+        }
+        else {
             dialogService.notify(Localization.lang("Full text document for entry %0 already linked.",
                     entry.getCitationKey().orElse(Localization.lang("undefined"))));
         }
     }
+
 }

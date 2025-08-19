@@ -24,7 +24,8 @@ public class RemoteListenerServerManager implements AutoCloseable {
             remoteServerThread.interrupt();
             remoteServerThread = null;
             LOGGER.debug("RemoteListenerServerManager stopped successfully.");
-        } else {
+        }
+        else {
             LOGGER.debug("RemoteListenerServerManager was not open, nothing to stop.");
         }
     }
@@ -39,11 +40,13 @@ public class RemoteListenerServerManager implements AutoCloseable {
 
         try {
             remoteServerThread = new RemoteListenerServerThread(messageHandler, port);
-        } catch (BindException e) {
-            LOGGER.error("There was an error opening the configured network port {}. Please ensure there isn't another" +
-                    " application already using that port.", port);
+        }
+        catch (BindException e) {
+            LOGGER.error("There was an error opening the configured network port {}. Please ensure there isn't another"
+                    + " application already using that port.", port);
             remoteServerThread = null;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Unknown error while opening the network port.", e);
             remoteServerThread = null;
         }
@@ -75,4 +78,5 @@ public class RemoteListenerServerManager implements AutoCloseable {
         LOGGER.debug("Closing RemoteListenerServerManager");
         stop();
     }
+
 }

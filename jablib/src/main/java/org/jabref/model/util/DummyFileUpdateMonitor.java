@@ -25,4 +25,5 @@ public class DummyFileUpdateMonitor implements FileUpdateMonitor {
     public void shutdown() {
         // empty
     }
+
 }

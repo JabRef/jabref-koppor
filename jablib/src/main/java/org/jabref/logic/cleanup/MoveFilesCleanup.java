@@ -28,7 +28,9 @@ public class MoveFilesCleanup implements CleanupJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoveFilesCleanup.class);
 
     private final Supplier<BibDatabaseContext> databaseContext;
+
     private final FilePreferences filePreferences;
+
     private final List<JabRefException> ioExceptions;
 
     public MoveFilesCleanup(Supplier<BibDatabaseContext> databaseContext, FilePreferences filePreferences) {
@@ -46,9 +48,12 @@ public class MoveFilesCleanup implements CleanupJob {
             LinkedFileHandler fileHandler = new LinkedFileHandler(file, entry, databaseContext.get(), filePreferences);
             try {
                 changed = fileHandler.moveToDefaultDirectory() || changed;
-            } catch (IOException exception) {
+            }
+            catch (IOException exception) {
                 LOGGER.error("Error while moving file {}", file.getLink(), exception);
-                ioExceptions.add(new JabRefException(Localization.lang("Could not move file %0. Please close this file and retry.", file.getLink()), exception));
+                ioExceptions.add(new JabRefException(
+                        Localization.lang("Could not move file %0. Please close this file and retry.", file.getLink()),
+                        exception));
             }
         }
 
@@ -63,4 +68,5 @@ public class MoveFilesCleanup implements CleanupJob {
     public List<JabRefException> getIoExceptions() {
         return ioExceptions;
     }
+
 }

@@ -23,4 +23,5 @@ public interface BibEntryCitationsAndReferencesRepository {
     boolean isReferencesUpdatable(BibEntry entry);
 
     void close();
+
 }

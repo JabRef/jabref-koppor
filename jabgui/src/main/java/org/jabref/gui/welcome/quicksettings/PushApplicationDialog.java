@@ -22,16 +22,26 @@ import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class PushApplicationDialog extends FXDialog {
-    @FXML private ListView<GuiPushToApplication> applicationsList;
-    @FXML private TextField pathField;
-    @FXML private HelpButton helpButton;
+
+    @FXML
+    private ListView<GuiPushToApplication> applicationsList;
+
+    @FXML
+    private TextField pathField;
+
+    @FXML
+    private HelpButton helpButton;
 
     private PushApplicationDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
 
-    public PushApplicationDialog(GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor, ThemeManager themeManager) {
+    public PushApplicationDialog(GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor,
+            ThemeManager themeManager) {
         super(AlertType.NONE, Localization.lang("Configure push to applications"), true);
         themeManager.updateFontStyle(this.getDialogPane().getScene());
 
@@ -41,14 +51,13 @@ public class PushApplicationDialog extends FXDialog {
 
         this.setHeaderText(Localization.lang("Select your text editor or LaTeX application for pushing citations"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK && viewModel.isValidConfiguration()) {
                 viewModel.saveSettings();
-            } else if (button == ButtonType.CANCEL) {
+            }
+            else if (button == ButtonType.CANCEL) {
                 viewModel.cancelDetection();
             }
             return null;
@@ -61,7 +70,8 @@ public class PushApplicationDialog extends FXDialog {
 
         applicationsList.itemsProperty().bind(viewModel.applicationsProperty());
         applicationsList.setCellFactory(_ -> new PushToApplicationCell(viewModel.detectedApplications()));
-        EasyBind.subscribe(applicationsList.getSelectionModel().selectedItemProperty(), viewModel::setSelectedApplication);
+        EasyBind.subscribe(applicationsList.getSelectionModel().selectedItemProperty(),
+                viewModel::setSelectedApplication);
 
         pathField.textProperty().bindBidirectional(viewModel.pathProperty());
         pathField.textProperty().addListener((_, _, newText) -> updatePathValidation(newText));
@@ -71,7 +81,8 @@ public class PushApplicationDialog extends FXDialog {
     private void updatePathValidation(String newText) {
         if (PushToApplicationDetector.isValidAbsolutePath(newText)) {
             pathField.getStyleClass().removeAll("invalid-path");
-        } else {
+        }
+        else {
             if (!pathField.getStyleClass().contains("invalid-path")) {
                 pathField.getStyleClass().add("invalid-path");
             }
@@ -82,4 +93,5 @@ public class PushApplicationDialog extends FXDialog {
     private void browseApplication() {
         viewModel.browseForApplication();
     }
+
 }

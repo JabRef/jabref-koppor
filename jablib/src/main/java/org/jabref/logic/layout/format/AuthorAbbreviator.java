@@ -20,4 +20,5 @@ public class AuthorAbbreviator implements LayoutFormatter {
         AuthorList list = AuthorList.parse(fieldText);
         return list.getAsLastFirstNamesWithAnd(true);
     }
+
 }

@@ -32,25 +32,33 @@ class CollectionOfComputerScienceBibliographiesParserTest {
     @Disabled("Parse/fetcher remote side does not return anything valid for the link")
     @Test
     void parseEntriesReturnsOneBibEntryInListIfXmlHasSingleResult() throws ParseException, IOException {
-        parseXmlAndCheckResults("collection_of_computer_science_bibliographies_single_result.xml", List.of("collection_of_computer_science_bibliographies_single_result.bib"));
+        parseXmlAndCheckResults("collection_of_computer_science_bibliographies_single_result.xml",
+                List.of("collection_of_computer_science_bibliographies_single_result.bib"));
     }
 
     @Test
     void parseEntriesReturnsMultipleBibEntriesInListIfXmlHasMultipleResults() throws ParseException, IOException {
-        parseXmlAndCheckResults("collection_of_computer_science_bibliographies_multiple_results.xml", Arrays.asList("collection_of_computer_science_bibliographies_multiple_results_first_result.bib", "collection_of_computer_science_bibliographies_multiple_results_second_result.bib"));
+        parseXmlAndCheckResults("collection_of_computer_science_bibliographies_multiple_results.xml",
+                Arrays.asList("collection_of_computer_science_bibliographies_multiple_results_first_result.bib",
+                        "collection_of_computer_science_bibliographies_multiple_results_second_result.bib"));
     }
 
-    private void parseXmlAndCheckResults(String xmlName, List<String> resourceNames) throws ParseException, IOException {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+    private void parseXmlAndCheckResults(String xmlName, List<String> resourceNames)
+            throws ParseException, IOException {
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
 
         InputStream is = CollectionOfComputerScienceBibliographiesParserTest.class.getResourceAsStream(xmlName);
-        CollectionOfComputerScienceBibliographiesParser parser = new CollectionOfComputerScienceBibliographiesParser(importFormatPreferences);
+        CollectionOfComputerScienceBibliographiesParser parser = new CollectionOfComputerScienceBibliographiesParser(
+                importFormatPreferences);
         List<BibEntry> entries = parser.parseEntries(is);
         assertEquals(resourceNames.size(), entries.size());
         assertNotNull(entries);
         for (int i = 0; i < resourceNames.size(); i++) {
-            BibEntryAssert.assertEquals(CollectionOfComputerScienceBibliographiesParserTest.class, resourceNames.get(i), entries.get(i));
+            BibEntryAssert.assertEquals(CollectionOfComputerScienceBibliographiesParserTest.class, resourceNames.get(i),
+                    entries.get(i));
         }
     }
+
 }

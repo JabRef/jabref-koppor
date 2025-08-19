@@ -38,30 +38,35 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * This class tests the Integrity Checker as a whole.
- * Aspects are: selected fields, issues arising in a complete BibTeX entry, ... When testing a checker works with a certain input,
- * this test has to go to a test belonging to the respective checker. See PersonNamesCheckerTest for an example test.
+ * This class tests the Integrity Checker as a whole. Aspects are: selected fields, issues
+ * arising in a complete BibTeX entry, ... When testing a checker works with a certain
+ * input, this test has to go to a test belonging to the respective checker. See
+ * PersonNamesCheckerTest for an example test.
  */
 class IntegrityCheckTest {
 
     @Test
     void bibTexAcceptsStandardEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBTEX));
+        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article),
+                BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void bibTexDoesNotAcceptIEEETranEntryType() {
-        assertWrong(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBTEX));
+        assertWrong(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent),
+                BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void bibLaTexAcceptsIEEETranEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBLATEX));
+        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent),
+                BibDatabaseMode.BIBLATEX));
     }
 
     @Test
     void bibLaTexAcceptsStandardEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBLATEX));
+        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article),
+                BibDatabaseMode.BIBLATEX));
     }
 
     @ParameterizedTest
@@ -85,8 +90,7 @@ class IntegrityCheckTest {
     }
 
     private static Stream<String> provideIncorrectFormat() {
-        return Stream.of("   Knuth, Donald E. ",
-                "Knuth, Donald E. and Kurt Cobain and A. Einstein",
+        return Stream.of("   Knuth, Donald E. ", "Knuth, Donald E. and Kurt Cobain and A. Einstein",
                 ", and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and ,",
                 "and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and");
     }
@@ -96,7 +100,8 @@ class IntegrityCheckTest {
         MetaData metaData = mock(MetaData.class);
         Mockito.when(metaData.getLibrarySpecificFileDirectory()).thenReturn(Optional.of("."));
         Mockito.when(metaData.getUserFileDirectory(any(String.class))).thenReturn(Optional.empty());
-        // FIXME: must be set as checkBibtexDatabase only activates title checker based on database mode
+        // FIXME: must be set as checkBibtexDatabase only activates title checker based on
+        // database mode
         Mockito.when(metaData.getMode()).thenReturn(Optional.of(BibDatabaseMode.BIBTEX));
 
         // Code run in jablib subfolder. The root of the repository contains "README.md"
@@ -136,27 +141,22 @@ class IntegrityCheckTest {
         bibDatabase.insertEntry(entry);
         BibDatabaseContext context = new BibDatabaseContext(bibDatabase);
 
-        new IntegrityCheck(context,
-                mock(FilePreferences.class),
-                createCitationKeyPatternPreferences(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
-                .check();
+        new IntegrityCheck(context, mock(FilePreferences.class), createCitationKeyPatternPreferences(),
+                JournalAbbreviationLoader.loadBuiltInRepository(), false)
+            .check();
 
         assertEquals(clonedEntry, entry);
     }
 
     private BibDatabaseContext createContext(Field field, String value, EntryType type) {
-        BibEntry entry = new BibEntry(type)
-                .withField(field, value);
+        BibEntry entry = new BibEntry(type).withField(field, value);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntry(entry);
         return new BibDatabaseContext(bibDatabase);
     }
 
     private BibDatabaseContext createContext(Field field, String value, MetaData metaData) {
-        BibEntry entry = new BibEntry()
-                .withField(field, value);
+        BibEntry entry = new BibEntry().withField(field, value);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntry(entry);
         return new BibDatabaseContext(bibDatabase, metaData);
@@ -171,12 +171,9 @@ class IntegrityCheckTest {
     private void assertWrong(BibDatabaseContext context) {
         List<IntegrityMessage> messages;
 
-        messages = new IntegrityCheck(context,
-                mock(FilePreferences.class),
-                createCitationKeyPatternPreferences(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
-                .check();
+        messages = new IntegrityCheck(context, mock(FilePreferences.class), createCitationKeyPatternPreferences(),
+                JournalAbbreviationLoader.loadBuiltInRepository(), false)
+            .check();
 
         assertNotEquals(List.of(), messages);
     }
@@ -186,32 +183,23 @@ class IntegrityCheckTest {
         when(filePreferencesMock.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
         List<IntegrityMessage> messages;
 
-        messages = new IntegrityCheck(context,
-                filePreferencesMock,
-                createCitationKeyPatternPreferences(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
-                .check();
+        messages = new IntegrityCheck(context, filePreferencesMock, createCitationKeyPatternPreferences(),
+                JournalAbbreviationLoader.loadBuiltInRepository(), false)
+            .check();
 
         assertEquals(List.of(), messages);
     }
 
     private CitationKeyPatternPreferences createCitationKeyPatternPreferences() {
-        return new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B,
-                "",
-                "",
-                CitationKeyGenerator.DEFAULT_UNWANTED_CHARACTERS,
-                GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
-                "",
-                ',');
+        return new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B, "", "",
+                CitationKeyGenerator.DEFAULT_UNWANTED_CHARACTERS, GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
+                "", ',');
     }
 
     private BibDatabaseContext withMode(BibDatabaseContext context, BibDatabaseMode mode) {
         context.setMode(mode);
         return context;
     }
+
 }

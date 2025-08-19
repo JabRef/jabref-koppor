@@ -16,7 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class EntryLinkCheckerTest {
 
     private BibDatabase database;
+
     private EntryLinkChecker checker;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -96,4 +98,5 @@ class EntryLinkCheckerTest {
         List<IntegrityMessage> message = checker.check(entry1);
         assertFalse(message.isEmpty(), message.toString());
     }
+
 }

@@ -21,9 +21,11 @@ import org.slf4j.LoggerFactory;
 public class DateEditorViewModel extends AbstractEditorViewModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateEditorViewModel.class);
+
     private final DateTimeFormatter dateFormatter;
 
-    public DateEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, DateTimeFormatter dateFormatter, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public DateEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, DateTimeFormatter dateFormatter,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dateFormatter = dateFormatter;
     }
@@ -35,11 +37,13 @@ public class DateEditorViewModel extends AbstractEditorViewModel {
                 if (date != null) {
                     try {
                         return dateFormatter.format(date);
-                    } catch (DateTimeException ex) {
+                    }
+                    catch (DateTimeException ex) {
                         LOGGER.error("Could not format date", ex);
                         return "";
                     }
-                } else {
+                }
+                else {
                     return "";
                 }
             }
@@ -49,14 +53,17 @@ public class DateEditorViewModel extends AbstractEditorViewModel {
                 if (StringUtil.isNotBlank(string)) {
                     try {
                         return dateFormatter.parse(string);
-                    } catch (DateTimeParseException exception) {
+                    }
+                    catch (DateTimeParseException exception) {
                         // We accept all kinds of dates (not just in the format specified)
                         return Date.parse(string).map(Date::toTemporalAccessor).orElse(null);
                     }
-                } else {
+                }
+                else {
                     return null;
                 }
             }
         };
     }
+
 }

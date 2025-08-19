@@ -12,24 +12,22 @@ import org.jabref.model.entry.BibEntryTypesManager;
 public class BibEntryCitationsAndReferencesRepositoryShell implements BibEntryCitationsAndReferencesRepository {
 
     private static final String CITATIONS_STORE = "citations";
+
     private static final String REFERENCES_STORE = "references";
 
     private final BibEntryRelationRepository citationsDao;
+
     private final BibEntryRelationRepository referencesDao;
 
-    public BibEntryCitationsAndReferencesRepositoryShell(
-        BibEntryRelationRepository citationsDao,
-        BibEntryRelationRepository referencesDao
-    ) {
+    public BibEntryCitationsAndReferencesRepositoryShell(BibEntryRelationRepository citationsDao,
+            BibEntryRelationRepository referencesDao) {
         this.citationsDao = citationsDao;
         this.referencesDao = referencesDao;
     }
 
     @Override
     public void insertCitations(BibEntry entry, List<BibEntry> citations) {
-        citationsDao.addRelations(
-            entry, Objects.requireNonNullElseGet(citations, List::of)
-        );
+        citationsDao.addRelations(entry, Objects.requireNonNullElseGet(citations, List::of));
     }
 
     @Override
@@ -52,9 +50,7 @@ public class BibEntryCitationsAndReferencesRepositoryShell implements BibEntryCi
 
     @Override
     public void insertReferences(BibEntry entry, List<BibEntry> references) {
-        referencesDao.addRelations(
-            entry, Objects.requireNonNullElseGet(references, List::of)
-        );
+        referencesDao.addRelations(entry, Objects.requireNonNullElseGet(references, List::of));
     }
 
     @Override
@@ -81,16 +77,16 @@ public class BibEntryCitationsAndReferencesRepositoryShell implements BibEntryCi
         this.referencesDao.close();
     }
 
-    public static BibEntryCitationsAndReferencesRepositoryShell of(Path citationsRelationsDirectory,
-                                                                   int storeTTL,
-                                                                   ImportFormatPreferences importFormatPreferences,
-                                                                   FieldPreferences fieldPreferences,
-                                                                   BibEntryTypesManager entryTypesManager) {
+    public static BibEntryCitationsAndReferencesRepositoryShell of(Path citationsRelationsDirectory, int storeTTL,
+            ImportFormatPreferences importFormatPreferences, FieldPreferences fieldPreferences,
+            BibEntryTypesManager entryTypesManager) {
         Path citationsPath = citationsRelationsDirectory.resolve("%s.mv".formatted(CITATIONS_STORE));
         Path relationsPath = citationsRelationsDirectory.resolve("%s.mv".formatted(REFERENCES_STORE));
         return new BibEntryCitationsAndReferencesRepositoryShell(
-                new MVStoreBibEntryRelationRepository(citationsPath, CITATIONS_STORE, storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences),
-                new MVStoreBibEntryRelationRepository(relationsPath, REFERENCES_STORE, storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences)
-        );
+                new MVStoreBibEntryRelationRepository(citationsPath, CITATIONS_STORE, storeTTL, entryTypesManager,
+                        importFormatPreferences, fieldPreferences),
+                new MVStoreBibEntryRelationRepository(relationsPath, REFERENCES_STORE, storeTTL, entryTypesManager,
+                        importFormatPreferences, fieldPreferences));
     }
+
 }

@@ -47,13 +47,15 @@ public abstract class SuggestionProvider<T> {
             Comparator<T> comparator = getComparator();
             Equivalence<T> equivalence = getEquivalence();
             return getSource().filter(candidate -> isMatch(candidate, request))
-                              .map(equivalence::wrap) // Need to do a bit of acrobatic as there is no distinctBy method
-                              .distinct()
-                              .limit(10)
-                              .map(Equivalence.Wrapper::get)
-                              .sorted(comparator)
-                              .collect(Collectors.toList());
-        } else {
+                .map(equivalence::wrap) // Need to do a bit of acrobatic as there is no
+                                        // distinctBy method
+                .distinct()
+                .limit(10)
+                .map(Equivalence.Wrapper::get)
+                .sorted(comparator)
+                .collect(Collectors.toList());
+        }
+        else {
             return List.of();
         }
     }
@@ -63,11 +65,12 @@ public abstract class SuggestionProvider<T> {
     public List<T> getPossibleSuggestions() {
         Comparator<T> comparator = getComparator().reversed();
         Equivalence<T> equivalence = getEquivalence();
-        return getSource().map(equivalence::wrap) // Need to do a bit of acrobatic as there is no distinctBy method
-                          .distinct()
-                          .map(Equivalence.Wrapper::get)
-                          .sorted(comparator)
-                          .collect(Collectors.toList());
+        return getSource().map(equivalence::wrap) // Need to do a bit of acrobatic as
+                                                  // there is no distinctBy method
+            .distinct()
+            .map(Equivalence.Wrapper::get)
+            .sorted(comparator)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -81,4 +84,5 @@ public abstract class SuggestionProvider<T> {
     protected abstract boolean isMatch(T candidate, ISuggestionRequest request);
 
     public abstract Stream<T> getSource();
+
 }

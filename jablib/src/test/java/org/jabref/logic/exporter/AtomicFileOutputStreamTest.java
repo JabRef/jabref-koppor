@@ -21,6 +21,7 @@ import static org.mockito.Mockito.spy;
 class AtomicFileOutputStreamTest {
 
     private static final String FIFTY_CHARS = Strings.repeat("1234567890", 5);
+
     private static final String FIVE_THOUSAND_CHARS = Strings.repeat("A", 5_000);
 
     @Test
@@ -51,12 +52,12 @@ class AtomicFileOutputStreamTest {
                 outputStream.write(((byte[]) invocation.getRawArguments()[0])[0]);
                 outputStream.flush();
                 throw new IOException();
-            }).when(spiedOutputStream)
-              .write(Mockito.any(byte[].class), anyInt(), anyInt());
+            }).when(spiedOutputStream).write(Mockito.any(byte[].class), anyInt(), anyInt());
 
             assertThrows(IOException.class, () -> {
-                try (AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(pathToTestFile, pathToTmpFile, spiedOutputStream, false);
-                     InputStream inputStream = new ByteArrayInputStream(FIVE_THOUSAND_CHARS.getBytes())) {
+                try (AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(pathToTestFile,
+                        pathToTmpFile, spiedOutputStream, false);
+                        InputStream inputStream = new ByteArrayInputStream(FIVE_THOUSAND_CHARS.getBytes())) {
                     inputStream.transferTo(atomicFileOutputStream);
                 }
             });
@@ -65,4 +66,5 @@ class AtomicFileOutputStreamTest {
         // Written file still has the contents as before the error
         assertEquals(FIFTY_CHARS, Files.readString(pathToTestFile));
     }
+
 }

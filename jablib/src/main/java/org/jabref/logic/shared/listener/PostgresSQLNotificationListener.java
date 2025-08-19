@@ -18,7 +18,9 @@ public class PostgresSQLNotificationListener implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgresSQLNotificationListener.class);
 
     private final DBMSSynchronizer dbmsSynchronizer;
+
     private final PGConnection pgConnection;
+
     private volatile boolean stop;
 
     public PostgresSQLNotificationListener(DBMSSynchronizer dbmsSynchronizer, PGConnection pgConnection) {
@@ -45,7 +47,8 @@ public class PostgresSQLNotificationListener implements Runnable {
                 // Wait a while before checking again for new notifications
                 Thread.sleep(500);
             }
-        } catch (SQLException | InterruptedException exception) {
+        }
+        catch (SQLException | InterruptedException exception) {
             LOGGER.error("Error while listening for updates to PostgresSQL", exception);
         }
     }
@@ -53,4 +56,5 @@ public class PostgresSQLNotificationListener implements Runnable {
     public void stop() {
         stop = true;
     }
+
 }

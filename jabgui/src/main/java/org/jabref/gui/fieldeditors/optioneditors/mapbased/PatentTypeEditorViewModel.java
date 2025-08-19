@@ -12,7 +12,8 @@ import org.jabref.model.entry.field.Field;
 
 public class PatentTypeEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public PatentTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public PatentTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager, getMap());
     }
 
@@ -32,4 +33,5 @@ public class PatentTypeEditorViewModel extends StringMapBasedEditorViewModel {
         itemMap.put("patrequs", Localization.lang("U.S. patent request"));
         return itemMap;
     }
+
 }

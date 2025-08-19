@@ -20,4 +20,5 @@ public interface RangeSortable<T> extends RangeHolder {
     int getIndexInPosition();
 
     T getContent();
+
 }

@@ -49,4 +49,5 @@ class ReplaceTest {
         a.setArgument("Eds.");
         assertEquals("Bob Bruce and Jolly Jumper", a.format("Bob Bruce and Jolly Jumper"));
     }
+
 }

@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 class EndnoteXmlImporterFilesTest {
 
     private static final String FILE_ENDING = ".xml";
+
     private ImportFormatPreferences importFormatPreferences;
 
     private static Stream<String> fileNames() throws IOException {
@@ -53,4 +54,5 @@ class EndnoteXmlImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(new EndnoteXmlImporter(importFormatPreferences), fileName, FILE_ENDING);
     }
+
 }

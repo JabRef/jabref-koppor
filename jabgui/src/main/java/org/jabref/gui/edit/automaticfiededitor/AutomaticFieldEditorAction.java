@@ -10,8 +10,11 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 
 public class AutomaticFieldEditorAction extends SimpleCommand {
+
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final UndoManager undoManager;
 
     public AutomaticFieldEditorAction(StateManager stateManager, DialogService dialogService, UndoManager undoManager) {
@@ -26,4 +29,5 @@ public class AutomaticFieldEditorAction extends SimpleCommand {
     public void execute() {
         dialogService.showCustomDialogAndWait(new AutomaticFieldEditorDialog(stateManager, undoManager));
     }
+
 }

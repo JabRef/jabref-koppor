@@ -10,7 +10,8 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 
 /**
- * Fixes the format of the file field. For example, if the file link is empty but the description wrongly contains the path.
+ * Fixes the format of the file field. For example, if the file link is empty but the
+ * description wrongly contains the path.
  */
 public class FileLinksCleanup implements CleanupJob {
 
@@ -23,7 +24,8 @@ public class FileLinksCleanup implements CleanupJob {
 
         List<LinkedFile> fileList = entry.getFiles();
 
-        // Parsing automatically moves a single description to link, so we just need to write the fileList back again
+        // Parsing automatically moves a single description to link, so we just need to
+        // write the fileList back again
         String newValue = FileFieldWriter.getStringRepresentation(fileList);
         if (!oldValue.get().equals(newValue)) {
             entry.setField(StandardField.FILE, newValue);
@@ -32,4 +34,5 @@ public class FileLinksCleanup implements CleanupJob {
         }
         return List.of();
     }
+
 }

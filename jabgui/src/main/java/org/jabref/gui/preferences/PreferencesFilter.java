@@ -21,27 +21,33 @@ public class PreferencesFilter {
         Map<String, Object> defaults = new HashMap<>(preferences.getDefaults());
         Map<String, Object> prefs = preferences.getPreferences();
 
-        return prefs.entrySet().stream()
-                    .map(entry -> new PreferenceOption(entry.getKey(), entry.getValue(), defaults.get(entry.getKey())))
-                    .collect(Collectors.toList());
+        return prefs.entrySet()
+            .stream()
+            .map(entry -> new PreferenceOption(entry.getKey(), entry.getValue(), defaults.get(entry.getKey())))
+            .collect(Collectors.toList());
     }
 
     public List<PreferenceOption> getDeviatingPreferences() {
         return getPreferenceOptions().stream()
-                                     .filter(PreferenceOption::isChanged)
-                                     .sorted()
-                                     .collect(Collectors.toList());
+            .filter(PreferenceOption::isChanged)
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public enum PreferenceType {
+
         BOOLEAN, INTEGER, STRING
+
     }
 
     public static class PreferenceOption implements Comparable<PreferenceOption> {
 
         private final String key;
+
         private final Object value;
+
         private final Optional<Object> defaultValue;
+
         private final PreferenceType type;
 
         public PreferenceOption(String key, Object value, Object defaultValue) {
@@ -58,9 +64,11 @@ public class PreferencesFilter {
         private PreferenceType getType(Object value) {
             if (value instanceof Boolean) {
                 return PreferenceType.BOOLEAN;
-            } else if (value instanceof Integer) {
+            }
+            else if (value instanceof Integer) {
                 return PreferenceType.INTEGER;
-            } else {
+            }
+            else {
                 return PreferenceType.STRING;
             }
         }
@@ -98,5 +106,7 @@ public class PreferencesFilter {
         public int compareTo(PreferenceOption o) {
             return Objects.compare(this.key, o.key, String::compareTo);
         }
+
     }
+
 }

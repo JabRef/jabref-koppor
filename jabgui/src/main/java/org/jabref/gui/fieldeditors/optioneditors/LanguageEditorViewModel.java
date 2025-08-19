@@ -15,9 +15,11 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.StringUtil;
 
 public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
+
     private BibDatabaseMode databaseMode;
 
-    public LanguageEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public LanguageEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.databaseMode = databaseMode;
     }
@@ -29,8 +31,9 @@ public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
             public String toString(Langid object) {
                 if (object == null) {
                     return null;
-                } else {
-                    return object.getLangid();  // Langid used as both display and value
+                }
+                else {
+                    return object.getLangid(); // Langid used as both display and value
                 }
             }
 
@@ -38,7 +41,8 @@ public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
             public Langid fromString(String string) {
                 if (StringUtil.isNotBlank(string)) {
                     return Langid.parse(string).orElse(null);
-                } else {
+                }
+                else {
                     return null;
                 }
             }
@@ -52,6 +56,7 @@ public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
 
     @Override
     public String convertToDisplayText(Langid object) {
-        return object.getName();  // Langid and display text are the same
+        return object.getName(); // Langid and display text are the same
     }
+
 }

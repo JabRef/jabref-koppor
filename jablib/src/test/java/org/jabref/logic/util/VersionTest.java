@@ -109,7 +109,8 @@ class VersionTest {
 
     @Test
     void validVersionIsNotNewerThanUnknownVersion() {
-        // Reason: unknown version should only happen for developer builds where we don't want an update notification
+        // Reason: unknown version should only happen for developer builds where we don't
+        // want an update notification
         Version unknownVersion = Version.parse(BuildInfo.UNKNOWN_VERSION);
         Version validVersion = Version.parse("4.2");
         assertFalse(validVersion.isNewerThan(unknownVersion));
@@ -332,4 +333,5 @@ class VersionTest {
     void getAllAvailableVersionsReturnsSomething() throws IOException {
         assertNotEquals(List.of(), Version.getAllAvailableVersions());
     }
+
 }

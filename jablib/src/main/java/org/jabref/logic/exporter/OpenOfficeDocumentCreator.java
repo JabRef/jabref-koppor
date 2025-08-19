@@ -52,7 +52,8 @@ public class OpenOfficeDocumentCreator extends Exporter {
             }
             out.closeEntry();
 
-            // Add manifest (required for OOo 2.0), "meta.xml", "mimetype" files. These are in the
+            // Add manifest (required for OOo 2.0), "meta.xml", "mimetype" files. These
+            // are in the
             // resource/openoffice directory, and are copied verbatim into the zip file.
             OpenOfficeDocumentCreator.addResourceFile("meta.xml", "/resource/openoffice/meta.xml", out);
             OpenOfficeDocumentCreator.addResourceFile("mimetype", "/resource/openoffice/mimetype", out);
@@ -61,7 +62,8 @@ public class OpenOfficeDocumentCreator extends Exporter {
         }
     }
 
-    private static void exportOpenOfficeCalc(Path file, BibDatabase database, List<BibEntry> entries) throws IOException {
+    private static void exportOpenOfficeCalc(Path file, BibDatabase database, List<BibEntry> entries)
+            throws IOException {
         // First store the xml formatted content to a temporary file.
         File tmpFile = File.createTempFile("oocalc", null);
         OpenOfficeDocumentCreator.exportOpenOfficeCalcXML(tmpFile, database, entries);
@@ -78,8 +80,8 @@ public class OpenOfficeDocumentCreator extends Exporter {
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext, final Path file,
-                       List<BibEntry> entries) throws IOException {
+    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries)
+            throws IOException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(entries);
         if (!entries.isEmpty()) { // Do not export if no entries
@@ -96,7 +98,8 @@ public class OpenOfficeDocumentCreator extends Exporter {
             Transformer trans = TransformerFactory.newInstance().newTransformer();
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
             trans.transform(source, result);
-        } catch (TransformerException | IOException e) {
+        }
+        catch (TransformerException | IOException e) {
             throw new Error(e);
         }
     }
@@ -111,8 +114,10 @@ public class OpenOfficeDocumentCreator extends Exporter {
     private static void addFromResource(String resource, OutputStream out) {
         try (InputStream in = OpenOfficeDocumentCreator.class.getResourceAsStream(resource)) {
             in.transferTo(out);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Cannot get resource", e);
         }
     }
+
 }

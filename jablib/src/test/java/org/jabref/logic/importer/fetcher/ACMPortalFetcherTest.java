@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @FetcherTest
 @DisabledOnCIServer("ACM replied with 403 Forbidden on 2025-03-17")
 class ACMPortalFetcherTest {
+
     ACMPortalFetcher fetcher;
 
     @BeforeEach
@@ -36,25 +37,29 @@ class ACMPortalFetcherTest {
     @Test
     void searchByQueryFindsEntry() throws FetcherException {
         BibEntry searchEntry = new BibEntry(StandardEntryType.Conference)
-                        .withField(StandardField.AUTHOR, "Olsson, Tobias and Ericsson, Morgan and Wingkvist, Anna")
-                        .withField(StandardField.YEAR, "2017")
-                        .withField(StandardField.MONTH, "9")
-                        .withField(StandardField.DAY, "11")
-                        .withField(StandardField.SERIES, "ECSA '17")
-                        .withField(StandardField.BOOKTITLE, "Proceedings of the 11th European Conference on Software Architecture: Companion Proceedings")
-                        .withField(StandardField.DOI, "10.1145/3129790.3129810")
-                        .withField(StandardField.LOCATION, "Canterbury, United Kingdom")
-                        .withField(StandardField.ISBN, "9781450352178")
-                        .withField(StandardField.KEYWORDS, "conformance checking, repository data mining, software architecture")
-                        .withField(StandardField.PUBLISHER, "Association for Computing Machinery")
-                        .withField(StandardField.ADDRESS, "New York, NY, USA")
-                        .withField(StandardField.TITLE, "The relationship of code churn and architectural violations in the open source software JabRef")
-                        .withField(StandardField.URL, "https://doi.org/10.1145/3129790.3129810")
-                        .withField(StandardField.PAGETOTAL, "7")
-                        .withField(StandardField.PAGES, "152–158");
+            .withField(StandardField.AUTHOR, "Olsson, Tobias and Ericsson, Morgan and Wingkvist, Anna")
+            .withField(StandardField.YEAR, "2017")
+            .withField(StandardField.MONTH, "9")
+            .withField(StandardField.DAY, "11")
+            .withField(StandardField.SERIES, "ECSA '17")
+            .withField(StandardField.BOOKTITLE,
+                    "Proceedings of the 11th European Conference on Software Architecture: Companion Proceedings")
+            .withField(StandardField.DOI, "10.1145/3129790.3129810")
+            .withField(StandardField.LOCATION, "Canterbury, United Kingdom")
+            .withField(StandardField.ISBN, "9781450352178")
+            .withField(StandardField.KEYWORDS, "conformance checking, repository data mining, software architecture")
+            .withField(StandardField.PUBLISHER, "Association for Computing Machinery")
+            .withField(StandardField.ADDRESS, "New York, NY, USA")
+            .withField(StandardField.TITLE,
+                    "The relationship of code churn and architectural violations in the open source software JabRef")
+            .withField(StandardField.URL, "https://doi.org/10.1145/3129790.3129810")
+            .withField(StandardField.PAGETOTAL, "7")
+            .withField(StandardField.PAGES, "152–158");
 
-        List<BibEntry> fetchedEntries = fetcher.performSearch("The relationship of code churn and architectural violations in the open source software JabRef");
-        // we clear the abstract due to copyright reasons (JabRef's code should not contain copyrighted abstracts)
+        List<BibEntry> fetchedEntries = fetcher.performSearch(
+                "The relationship of code churn and architectural violations in the open source software JabRef");
+        // we clear the abstract due to copyright reasons (JabRef's code should not
+        // contain copyrighted abstracts)
         for (BibEntry bibEntry : fetchedEntries) {
             bibEntry.clearField(StandardField.ABSTRACT);
         }
@@ -75,4 +80,5 @@ class ACMPortalFetcherTest {
         ACMPortalParser expected = new ACMPortalParser();
         assertEquals(expected.getClass(), fetcher.getParser().getClass());
     }
+
 }

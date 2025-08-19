@@ -19,15 +19,19 @@ public final class PreambleChangeDetailsView extends DatabaseChangeDetailsView {
         container.getChildren().add(header);
 
         if (StringUtil.isNotBlank(preambleDiff.getOriginalPreamble())) {
-            container.getChildren().add(new Label(Localization.lang("Current value: %0", preambleDiff.getOriginalPreamble())));
+            container.getChildren()
+                .add(new Label(Localization.lang("Current value: %0", preambleDiff.getOriginalPreamble())));
         }
 
         if (StringUtil.isNotBlank(preambleDiff.getNewPreamble())) {
-            container.getChildren().add(new Label(Localization.lang("Value set externally: %0", preambleDiff.getNewPreamble())));
-        } else {
+            container.getChildren()
+                .add(new Label(Localization.lang("Value set externally: %0", preambleDiff.getNewPreamble())));
+        }
+        else {
             container.getChildren().add(new Label(Localization.lang("Value cleared externally")));
         }
 
         this.setAllAnchorsAndAttachChild(container);
     }
+
 }

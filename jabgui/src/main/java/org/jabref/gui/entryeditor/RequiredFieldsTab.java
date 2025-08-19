@@ -28,26 +28,15 @@ import org.jabref.model.entry.field.OrFields;
 public class RequiredFieldsTab extends FieldsEditorTab {
 
     public static final String NAME = "Required fields";
+
     private final BibEntryTypesManager entryTypesManager;
 
-    public RequiredFieldsTab(UndoManager undoManager,
-                             UndoAction undoAction,
-                             RedoAction redoAction,
-                             GuiPreferences preferences,
-                             BibEntryTypesManager entryTypesManager,
-                             JournalAbbreviationRepository journalAbbreviationRepository,
-                             StateManager stateManager,
-                             PreviewPanel previewPanel) {
-        super(
-                false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
-        );
+    public RequiredFieldsTab(UndoManager undoManager, UndoAction undoAction, RedoAction redoAction,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository, StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(false, undoManager, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager,
+                previewPanel);
         this.entryTypesManager = entryTypesManager;
         setText(Localization.lang("Required fields"));
         setTooltip(new Tooltip(Localization.lang("Show required fields")));
@@ -56,8 +45,9 @@ public class RequiredFieldsTab extends FieldsEditorTab {
 
     @Override
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
+        BibDatabaseMode mode = stateManager.getActiveDatabase()
+            .map(BibDatabaseContext::getMode)
+            .orElse(BibDatabaseMode.BIBLATEX);
         Optional<BibEntryType> entryType = entryTypesManager.enrich(entry.getType(), mode);
         SequencedSet<Field> fields = new LinkedHashSet<>();
         if (entryType.isPresent()) {
@@ -66,10 +56,12 @@ public class RequiredFieldsTab extends FieldsEditorTab {
             }
             // Add the edit field for BibTeX key (AKA citation key)
             fields.add(InternalField.KEY_FIELD);
-        } else {
+        }
+        else {
             // Entry type unknown -> treat all fields as required
             fields.addAll(entry.getFields());
         }
         return fields;
     }
+
 }

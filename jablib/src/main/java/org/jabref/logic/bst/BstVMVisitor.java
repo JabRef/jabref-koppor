@@ -20,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class BstVMVisitor extends BstBaseVisitor<Integer> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BstVMVisitor.class);
 
     private final BstVMContext bstVMContext;
+
     private final StringBuilder bbl;
 
     private BstEntry selectedBstEntry = null;
@@ -59,16 +61,15 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
     public Integer visitFunctionCommand(BstParser.FunctionCommandContext ctx) {
         String name = ctx.id.getText();
         LOGGER.trace("Function: {}", name);
-        bstVMContext.functions().put(name,
-                (visitor, functionContext) -> visitor.visit(ctx.function));
+        bstVMContext.functions().put(name, (visitor, functionContext) -> visitor.visit(ctx.function));
         return BstVM.TRUE;
     }
 
     @Override
     public Integer visitMacroCommand(BstParser.MacroCommandContext ctx) {
         String replacement = ctx.repl.getText().substring(1, ctx.repl.getText().length() - 1);
-        bstVMContext.functions().put(ctx.id.getText(),
-                (visitor, functionContext) -> bstVMContext.stack().push(replacement));
+        bstVMContext.functions()
+            .put(ctx.id.getText(), (visitor, functionContext) -> bstVMContext.stack().push(replacement));
         return BstVM.TRUE;
     }
 
@@ -78,28 +79,26 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
         for (BstEntry e : bstVMContext.entries()) {
             for (Map.Entry<String, String> mEntry : e.fields.entrySet()) {
                 Field field = FieldFactory.parseField(mEntry.getKey());
-                String fieldValue = e.entry.getResolvedFieldOrAlias(field, bstVMContext.bibDatabase())
-                                           .map(content -> {
-                                               try {
-                                                   String result = fieldWriter.write(field, content);
-                                                   if (result.startsWith("{")) {
-                                                       // Strip enclosing {} from the output
-                                                       return result.substring(1, result.length() - 1);
-                                                   }
-                                                   if (field == StandardField.MONTH) {
-                                                       // We don't have the internal BibTeX strings at hand.
-                                                       // Thus, we look up the full month name in the generic table.
-                                                       return Month.parse(result)
-                                                                   .map(Month::getFullName)
-                                                                   .orElse(result);
-                                                   }
-                                                   return result;
-                                               } catch (InvalidFieldValueException invalidFieldValueException) {
-                                                   // in case there is something wrong with the content, just return the content itself
-                                                   return content;
-                                               }
-                                           })
-                                           .orElse(null);
+                String fieldValue = e.entry.getResolvedFieldOrAlias(field, bstVMContext.bibDatabase()).map(content -> {
+                    try {
+                        String result = fieldWriter.write(field, content);
+                        if (result.startsWith("{")) {
+                            // Strip enclosing {} from the output
+                            return result.substring(1, result.length() - 1);
+                        }
+                        if (field == StandardField.MONTH) {
+                            // We don't have the internal BibTeX strings at hand.
+                            // Thus, we look up the full month name in the generic table.
+                            return Month.parse(result).map(Month::getFullName).orElse(result);
+                        }
+                        return result;
+                    }
+                    catch (InvalidFieldValueException invalidFieldValueException) {
+                        // in case there is something wrong with the content, just return
+                        // the content itself
+                        return content;
+                    }
+                }).orElse(null);
                 mEntry.setValue(fieldValue);
             }
         }
@@ -261,22 +260,26 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
                             bstVMContext.stack().push(s.substring(1, s.length() - 1));
                         }
                         case BstParser.INTEGER ->
-                                bstVMContext.stack().push(Integer.parseInt(token.getText().substring(1)));
+                            bstVMContext.stack().push(Integer.parseInt(token.getText().substring(1)));
                         case BstParser.QUOTED ->
-                                bstVMContext.stack().push(new Identifier(token.getText().substring(1)));
+                            bstVMContext.stack().push(new Identifier(token.getText().substring(1)));
                     }
-                } else if (childNode instanceof BstParser.StackContext) {
+                }
+                else if (childNode instanceof BstParser.StackContext) {
                     bstVMContext.stack().push(childNode);
-                } else {
+                }
+                else {
                     this.visit(childNode);
                 }
-            } catch (BstVMException e) {
-                bstVMContext.path().ifPresentOrElse(
-                        path -> LOGGER.error("{} ({})", e.getMessage(), path, e),
-                        () -> LOGGER.error("", e));
+            }
+            catch (BstVMException e) {
+                bstVMContext.path()
+                    .ifPresentOrElse(path -> LOGGER.error("{} ({})", e.getMessage(), path, e),
+                            () -> LOGGER.error("", e));
                 throw e;
             }
         }
         return BstVM.TRUE;
     }
+
 }

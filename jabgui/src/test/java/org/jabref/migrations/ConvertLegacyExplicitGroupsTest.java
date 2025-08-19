@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConvertLegacyExplicitGroupsTest {
 
     private PostOpenMigration action;
+
     private BibEntry entry;
+
     private ExplicitGroup group;
 
     @BeforeEach
@@ -67,4 +69,5 @@ class ConvertLegacyExplicitGroupsTest {
         parserResult.getMetaData().setGroups(groupRoot);
         return parserResult;
     }
+
 }

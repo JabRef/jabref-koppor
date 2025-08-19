@@ -1,7 +1,8 @@
 package org.jabref.model.openoffice.style;
 
 /**
- * What should createCitationMarker do if it discovers that uniqueLetters provided are not sufficient for unique presentation?
+ * What should createCitationMarker do if it discovers that uniqueLetters provided are not
+ * sufficient for unique presentation?
  */
 public enum NonUniqueCitationMarker {
 
@@ -14,5 +15,5 @@ public enum NonUniqueCitationMarker {
      * Throw an exception
      */
     THROWS
-}
 
+}

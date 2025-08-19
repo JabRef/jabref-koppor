@@ -39,22 +39,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides a model for managing study definitions.
- * To visualize the model one can bind the properties to UI elements.
+ * This class provides a model for managing study definitions. To visualize the model one
+ * can bind the properties to UI elements.
  */
 public class ManageStudyDefinitionViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ManageStudyDefinitionViewModel.class);
 
-    private static final Set<String> DEFAULT_SELECTION = Set.of(
-            ACMPortalFetcher.FETCHER_NAME,
-            IEEE.FETCHER_NAME,
-            SpringerFetcher.FETCHER_NAME,
-            DBLPFetcher.FETCHER_NAME);
+    private static final Set<String> DEFAULT_SELECTION = Set.of(ACMPortalFetcher.FETCHER_NAME, IEEE.FETCHER_NAME,
+            SpringerFetcher.FETCHER_NAME, DBLPFetcher.FETCHER_NAME);
 
     private final StringProperty title = new SimpleStringProperty();
+
     private final ObservableList<String> authors = FXCollections.observableArrayList();
+
     private final ObservableList<String> researchQuestions = FXCollections.observableArrayList();
+
     private final ObservableList<String> queries = FXCollections.observableArrayList();
+
     private final ObservableList<StudyCatalogItem> databases = FXCollections.observableArrayList();
 
     // Hold the complement of databases for the selector
@@ -68,36 +70,32 @@ public class ManageStudyDefinitionViewModel {
      * Constructor for a new study
      */
     public ManageStudyDefinitionViewModel(ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences,
-                                          WorkspacePreferences workspacePreferences,
-                                          DialogService dialogService) {
+            ImporterPreferences importerPreferences, WorkspacePreferences workspacePreferences,
+            DialogService dialogService) {
         databases.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                    .stream()
-                                    .map(SearchBasedFetcher::getName)
-                                    // The user wants to select specific fetchers
-                                    // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                    .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
-                                    .map(name -> {
-                                        boolean enabled = DEFAULT_SELECTION.contains(name);
-                                        return new StudyCatalogItem(name, enabled);
-                                    })
-                                    .toList());
+            .stream()
+            .map(SearchBasedFetcher::getName)
+            // The user wants to select specific fetchers
+            // The fetcher summarizing ALL fetchers can be emulated by selecting ALL
+            // fetchers (which happens rarely when doing an SLR)
+            .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
+            .map(name -> {
+                boolean enabled = DEFAULT_SELECTION.contains(name);
+                return new StudyCatalogItem(name, enabled);
+            })
+            .toList());
         this.dialogService = Objects.requireNonNull(dialogService);
         this.workspacePreferences = Objects.requireNonNull(workspacePreferences);
     }
 
     /**
      * Constructor for an existing study
-     *
-     * @param study          The study to initialize the UI from
+     * @param study The study to initialize the UI from
      * @param studyDirectory The path where the study resides
      */
-    public ManageStudyDefinitionViewModel(Study study,
-                                          Path studyDirectory,
-                                          ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences,
-                                          WorkspacePreferences workspacePreferences,
-                                          DialogService dialogService) {
+    public ManageStudyDefinitionViewModel(Study study, Path studyDirectory,
+            ImportFormatPreferences importFormatPreferences, ImporterPreferences importerPreferences,
+            WorkspacePreferences workspacePreferences, DialogService dialogService) {
         // copy the content of the study object into the UI fields
         authors.addAll(Objects.requireNonNull(study).getAuthors());
         title.setValue(study.getTitle());
@@ -105,16 +103,17 @@ public class ManageStudyDefinitionViewModel {
         queries.addAll(study.getQueries().stream().map(StudyQuery::getQuery).toList());
         List<StudyDatabase> studyDatabases = study.getDatabases();
         databases.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                    .stream()
-                                    .map(SearchBasedFetcher::getName)
-                                    // The user wants to select specific fetchers
-                                    // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                    .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
-                                    .map(name -> {
-                                        boolean enabled = studyDatabases.contains(new StudyDatabase(name, true));
-                                        return new StudyCatalogItem(name, enabled);
-                                    })
-                                    .toList());
+            .stream()
+            .map(SearchBasedFetcher::getName)
+            // The user wants to select specific fetchers
+            // The fetcher summarizing ALL fetchers can be emulated by selecting ALL
+            // fetchers (which happens rarely when doing an SLR)
+            .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
+            .map(name -> {
+                boolean enabled = studyDatabases.contains(new StudyDatabase(name, true));
+                return new StudyCatalogItem(name, enabled);
+            })
+            .toList());
 
         this.directory.set(Objects.requireNonNull(studyDirectory).toString());
         this.dialogService = Objects.requireNonNull(dialogService);
@@ -167,17 +166,19 @@ public class ManageStudyDefinitionViewModel {
     }
 
     public SlrStudyAndDirectory saveStudy() {
-        Study study = new Study(
-                authors,
-                title.getValueSafe(),
-                researchQuestions,
+        Study study = new Study(authors, title.getValueSafe(), researchQuestions,
                 queries.stream().map(StudyQuery::new).collect(Collectors.toList()),
-                databases.stream().map(studyDatabaseItem -> new StudyDatabase(studyDatabaseItem.getName(), studyDatabaseItem.isEnabled())).filter(StudyDatabase::isEnabled).collect(Collectors.toList()));
+                databases.stream()
+                    .map(studyDatabaseItem -> new StudyDatabase(studyDatabaseItem.getName(),
+                            studyDatabaseItem.isEnabled()))
+                    .filter(StudyDatabase::isEnabled)
+                    .collect(Collectors.toList()));
         Path studyDirectory;
         final String studyDirectoryAsString = directory.getValueSafe();
         try {
             studyDirectory = Path.of(studyDirectoryAsString);
-        } catch (InvalidPathException e) {
+        }
+        catch (InvalidPathException e) {
             LOGGER.error("Invalid path was provided: {}", studyDirectoryAsString);
             dialogService.notify(Localization.lang("Unable to write to %0.", studyDirectoryAsString));
             // We do not assume another path - we return that there is an invalid object.
@@ -186,20 +187,20 @@ public class ManageStudyDefinitionViewModel {
         Path studyDefinitionFile = studyDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME);
         try {
             new StudyYamlParser().writeStudyYamlFile(study, studyDefinitionFile);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not write study file {}", studyDefinitionFile, e);
-            dialogService.notify(Localization.lang("Please enter a valid file path.") +
-                    ": " + studyDirectoryAsString);
+            dialogService.notify(Localization.lang("Please enter a valid file path.") + ": " + studyDirectoryAsString);
             // We do not assume another path - we return that there is an invalid object.
             return null;
         }
 
         try {
             new GitHandler(studyDirectory).createCommitOnCurrentBranch("Update study definition", false);
-        } catch (IOException | GitAPIException e) {
+        }
+        catch (IOException | GitAPIException e) {
             LOGGER.error("Could not commit study definition file in directory {}", studyDirectory, e);
-            dialogService.notify(Localization.lang("Please enter a valid file path.") +
-                    ": " + studyDirectory);
+            dialogService.notify(Localization.lang("Please enter a valid file path.") + ": " + studyDirectory);
             // We continue nevertheless as the directory itself could be valid
         }
 
@@ -235,10 +236,11 @@ public class ManageStudyDefinitionViewModel {
 
     public void updateSelectedCatalogs() {
         List<String> selectedCatalogsList = databases.stream()
-                                                     .filter(StudyCatalogItem::isEnabled)
-                                                     .map(StudyCatalogItem::getName)
-                                                     .collect(Collectors.toList());
+            .filter(StudyCatalogItem::isEnabled)
+            .map(StudyCatalogItem::getName)
+            .collect(Collectors.toList());
 
         workspacePreferences.setSelectedSlrCatalogs(selectedCatalogsList);
     }
+
 }

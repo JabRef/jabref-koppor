@@ -22,13 +22,14 @@ import org.slf4j.LoggerFactory;
 
 @AllowedToUseClassGetResource("to determine the root directory")
 public class MathMLParser {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MathMLParser.class);
+
     private static final String XSLT_FILE_PATH = "/xslt/mathml_latex/mmltex.xsl";
 
     /**
-     * Parses the MathML element into its corresponding
-     * LaTeX representation, using an XSLT transformation file
-     *
+     * Parses the MathML element into its corresponding LaTeX representation, using an
+     * XSLT transformation file
      * @param reader the stream reader
      * @return Returns the LaTeX representation
      */
@@ -44,7 +45,8 @@ public class MathMLParser {
             Source xmlSource = new StreamSource(Reader.of(xmlContent));
 
             // No SystemId required, because no relative URLs need to be resolved
-            Source xsltSource = new StreamSource(xsltResource, MathMLParser.class.getResource(XSLT_FILE_PATH).toExternalForm());
+            Source xsltSource = new StreamSource(xsltResource,
+                    MathMLParser.class.getResource(XSLT_FILE_PATH).toExternalForm());
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer(xsltSource);
@@ -54,13 +56,12 @@ public class MathMLParser {
             transformer.transform(xmlSource, result);
 
             latexResult = writer.getBuffer().toString();
-        } catch (XMLStreamException
-                | TransformerException
-                | IOException e) {
+        }
+        catch (XMLStreamException | TransformerException | IOException e) {
             LOGGER.error("Could not transform", e);
             return "<Unsupported MathML expression>";
         }
         return latexResult;
     }
-}
 
+}

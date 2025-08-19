@@ -38,7 +38,8 @@ public class EditInsert {
      * <p>
      * In the document we store citations by their citation key.
      * <p>
-     * If the citation key is missing, the best we can do is to notify the user. Or the programmer, that we cannot accept such input.
+     * If the citation key is missing, the best we can do is to notify the user. Or the
+     * programmer, that we cannot accept such input.
      */
     private static String insertEntryGetCitationKey(BibEntry entry) {
         Optional<String> key = entry.getCitationKey();
@@ -49,24 +50,14 @@ public class EditInsert {
     }
 
     /**
-     * @param cursor   Where to insert.
-     * @param pageInfo A single pageInfo for a list of entries. This is what we get from the GUI.
+     * @param cursor Where to insert.
+     * @param pageInfo A single pageInfo for a list of entries. This is what we get from
+     * the GUI.
      */
-    public static void insertCitationGroup(XTextDocument doc,
-                                           OOFrontend frontend,
-                                           XTextCursor cursor,
-                                           List<BibEntry> entries,
-                                           BibDatabase database,
-                                           JStyle style,
-                                           CitationType citationType,
-                                           String pageInfo)
-            throws
-            NoDocumentException,
-            NotRemoveableException,
-            WrappedTargetException,
-            PropertyVetoException,
-            CreationException,
-            IllegalTypeException {
+    public static void insertCitationGroup(XTextDocument doc, OOFrontend frontend, XTextCursor cursor,
+            List<BibEntry> entries, BibDatabase database, JStyle style, CitationType citationType, String pageInfo)
+            throws NoDocumentException, NotRemoveableException, WrappedTargetException, PropertyVetoException,
+            CreationException, IllegalTypeException {
 
         List<String> citationKeys = OOListUtil.map(entries, EditInsert::insertEntryGetCitationKey);
 
@@ -85,9 +76,9 @@ public class EditInsert {
         OOText citeText;
         if (style.isNumberEntries()) {
             citeText = OOText.fromString("[-]"); // A dash only. Only refresh later.
-        } else {
-            citeText = style.createCitationMarker(citations,
-                    citationType.inParenthesis(),
+        }
+        else {
+            citeText = style.createCitationMarker(citations, citationType.inParenthesis(),
                     NonUniqueCitationMarker.FORGIVEN);
         }
 
@@ -97,17 +88,12 @@ public class EditInsert {
 
         try {
             UnoScreenRefresh.lockControllers(doc);
-            UpdateCitationMarkers.createAndFillCitationGroup(frontend,
-                    doc,
-                    citationKeys,
-                    pageInfos,
-                    citationType,
-                    citeText,
-                    cursor,
-                    style,
-                    true /* insertSpaceAfter */);
-        } finally {
+            UpdateCitationMarkers.createAndFillCitationGroup(frontend, doc, citationKeys, pageInfos, citationType,
+                    citeText, cursor, style, true /* insertSpaceAfter */);
+        }
+        finally {
             UnoScreenRefresh.unlockControllers(doc);
         }
     }
+
 }

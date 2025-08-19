@@ -33,8 +33,11 @@ import org.slf4j.LoggerFactory;
 /// that developers should use whenever they use strings for the e.g. GUI that need to be translatable.
 @AllowedToUseStandardStreams("Needs to have acess to System.err because it's called very early before our loggers")
 public class Localization {
+
     static final String RESOURCE_PREFIX = "l10n/JabRef";
+
     private static Locale locale;
+
     private static LocalizationBundle localizedMessages;
 
     private Localization() {
@@ -42,8 +45,7 @@ public class Localization {
 
     /**
      * Public access to all messages that are not menu-entries
-     *
-     * @param key    The key of the message in unescaped form like "All fields"
+     * @param key The key of the message in unescaped form like "All fields"
      * @param params Replacement strings for parameters %0, %1, etc.
      * @return The message with replaced parameters
      */
@@ -57,16 +59,16 @@ public class Localization {
     }
 
     /**
-     * Sets the language and loads the appropriate translations. Note, that this function should be called before any
-     * other function of this class.
-     *
+     * Sets the language and loads the appropriate translations. Note, that this function
+     * should be called before any other function of this class.
      * @param language Language identifier like "en", "de", etc.
      */
     public static void setLanguage(Language language) {
         Optional<Locale> knownLanguage = Language.convertToSupportedLocale(language);
         final Locale defaultLocale = Locale.getDefault();
         if (knownLanguage.isEmpty()) {
-            LoggerFactory.getLogger(Localization.class).warn("Language {} is not supported by JabRef (Default: {})", language, defaultLocale);
+            LoggerFactory.getLogger(Localization.class)
+                .warn("Language {} is not supported by JabRef (Default: {})", language, defaultLocale);
             setLanguage(Language.ENGLISH);
             return;
         }
@@ -80,16 +82,17 @@ public class Localization {
 
         try {
             createResourceBundles(locale);
-        } catch (MissingResourceException ex) {
+        }
+        catch (MissingResourceException ex) {
             // should not happen as we have scripts to enforce this
-            LoggerFactory.getLogger(Localization.class).warn("Could not find bundles for language {}, switching to full english language", locale, ex);
+            LoggerFactory.getLogger(Localization.class)
+                .warn("Could not find bundles for language {}, switching to full english language", locale, ex);
             setLanguage(Language.ENGLISH);
         }
     }
 
     /**
      * Returns the messages bundle, e.g. to load FXML files correctly translated.
-     *
      * @return The internally cashed bundle.
      */
     public static LocalizationBundle getMessages() {
@@ -101,10 +104,10 @@ public class Localization {
     }
 
     /**
-     * Creates and caches the language bundles used in JabRef for a particular language. This function first loads
-     * correct version of the "escaped" bundles that are given in {@link l10n}. After that, it stores the unescaped
-     * version in a cached {@link LocalizationBundle} for fast access.
-     *
+     * Creates and caches the language bundles used in JabRef for a particular language.
+     * This function first loads correct version of the "escaped" bundles that are given
+     * in {@link l10n}. After that, it stores the unescaped version in a cached
+     * {@link LocalizationBundle} for fast access.
      * @param locale Localization to use.
      */
     private static void createResourceBundles(Locale locale) {
@@ -115,26 +118,25 @@ public class Localization {
 
     /**
      * Helper function to create a Map from the key/value pairs of a bundle.
-     *
      * @param baseBundle JabRef language bundle with keys and values for translations.
      * @return Lookup map for the baseBundle.
      */
     private static Map<String, String> createLookupMap(ResourceBundle baseBundle) {
         final ArrayList<String> baseKeys = Collections.list(baseBundle.getKeys());
-        return new HashMap<>(baseKeys.stream().collect(
-                Collectors.toMap(
-                        // not required to unescape content, because that is already done by the ResourceBundle itself
-                        key -> key,
-                        baseBundle::getString)
-        ));
+        return new HashMap<>(baseKeys.stream()
+            .collect(Collectors.toMap(
+                    // not required to unescape content, because that is already done by
+                    // the ResourceBundle itself
+                    key -> key, baseBundle::getString)));
     }
 
     /**
-     * This looks up a key in the bundle and replaces parameters %0, ..., %9 with the respective params given. Note that
-     * the keys are the "unescaped" strings from the bundle property files.
-     *
-     * @param bundle The {@link LocalizationBundle} which is usually {@link Localization#localizedMessages}.
-     * @param key    The lookup key.
+     * This looks up a key in the bundle and replaces parameters %0, ..., %9 with the
+     * respective params given. Note that the keys are the "unescaped" strings from the
+     * bundle property files.
+     * @param bundle The {@link LocalizationBundle} which is usually
+     * {@link Localization#localizedMessages}.
+     * @param key The lookup key.
      * @param params The parameters that should be inserted into the message
      * @return The final message with replaced parameters.
      */
@@ -143,7 +145,8 @@ public class Localization {
 
         String translation = bundle.containsKey(key) ? bundle.getString(key) : "";
         if (translation.isEmpty()) {
-            LoggerFactory.getLogger(Localization.class).warn("Warning: could not get translation for \"{}\" for locale {}", key, Locale.getDefault());
+            LoggerFactory.getLogger(Localization.class)
+                .warn("Warning: could not get translation for \"{}\" for locale {}", key, Locale.getDefault());
             translation = key;
         }
         return new LocalizationKeyParams(translation, params).replacePlaceholders();
@@ -163,8 +166,7 @@ public class Localization {
         @Override
         public final Object handleGetObject(String key) {
             Objects.requireNonNull(key);
-            return Optional.ofNullable(lookup.get(key))
-                           .orElse(key);
+            return Optional.ofNullable(lookup.get(key)).orElse(key);
         }
 
         @Override
@@ -182,6 +184,7 @@ public class Localization {
             // Pretend we have every key
             return true;
         }
-    }
-}
 
+    }
+
+}

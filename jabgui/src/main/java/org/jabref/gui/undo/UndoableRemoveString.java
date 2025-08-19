@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 public class UndoableRemoveString extends AbstractUndoableJabRefEdit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UndoableRemoveString.class);
+
     private final BibDatabase base;
+
     private final BibtexString string;
 
     public UndoableRemoveString(BibDatabase base, BibtexString string) {
@@ -31,7 +33,8 @@ public class UndoableRemoveString extends AbstractUndoableJabRefEdit {
         // Revert the change.
         try {
             base.addString(string);
-        } catch (KeyCollisionException ex) {
+        }
+        catch (KeyCollisionException ex) {
             LOGGER.warn("Problem to undo `remove string`", ex);
         }
     }
@@ -42,4 +45,5 @@ public class UndoableRemoveString extends AbstractUndoableJabRefEdit {
         // Redo the change.
         base.removeString(string.getId());
     }
+
 }

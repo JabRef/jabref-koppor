@@ -19,12 +19,13 @@ public class CanonicalBibEntry {
     /// This returns a canonical BibTeX serialization.
     /// The result is close to BibTeX, but not a valid BibTeX representation in all cases
     ///
-    ///  - Serializes all fields, even the JabRef internal ones.
-    ///  - Does NOT serialize "KEY_FIELD" as field, but as key.
-    ///  - Special characters such as "{" or "&" are NOT escaped, but written as is.
-    ///  - New lines are written as is.
-    ///  - String constants are not handled. That means, `month = apr` in a bib file gets `month = {#apr#}`.
-    ///    This indicates that the month field is correctly stored.
+    /// - Serializes all fields, even the JabRef internal ones.
+    /// - Does NOT serialize "KEY_FIELD" as field, but as key.
+    /// - Special characters such as "{" or "&" are NOT escaped, but written as is.
+    /// - New lines are written as is.
+    /// - String constants are not handled. That means, `month = apr` in a bib file gets
+    /// `month = {#apr#}`.
+    /// This indicates that the month field is correctly stored.
     ///
     public static String getCanonicalRepresentation(BibEntry entry) {
         StringBuilder sb = new StringBuilder();
@@ -35,7 +36,8 @@ public class CanonicalBibEntry {
         String citeKey = entry.getCitationKey().orElse("");
         sb.append("@%s{%s,".formatted(entry.getType().getName(), citeKey)).append('\n');
 
-        // we have to introduce a new Map as fields are stored case-sensitive in JabRef (see https://github.com/koppor/jabref/issues/45).
+        // we have to introduce a new Map as fields are stored case-sensitive in JabRef
+        // (see https://github.com/koppor/jabref/issues/45).
         Map<String, String> mapFieldToValue = new HashMap<>();
 
         // determine sorted fields -- all fields lower case
@@ -58,7 +60,8 @@ public class CanonicalBibEntry {
             sj.add(line);
         }
 
-        sj.add("  _jabref_shared = {sharedId: %d, version: %d}".formatted(entry.getSharedBibEntryData().getSharedID(), entry.getSharedBibEntryData().getVersion()));
+        sj.add("  _jabref_shared = {sharedId: %d, version: %d}".formatted(entry.getSharedBibEntryData().getSharedID(),
+                entry.getSharedBibEntryData().getVersion()));
 
         sb.append(sj);
 
@@ -66,4 +69,5 @@ public class CanonicalBibEntry {
         sb.append('}');
         return sb.toString();
     }
+
 }

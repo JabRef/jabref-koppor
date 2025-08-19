@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RemoveBracketsAddCommaTest {
+
     private LayoutFormatter formatter;
 
     @BeforeEach
@@ -26,10 +27,8 @@ class RemoveBracketsAddCommaTest {
     }
 
     private static Stream<Arguments> provideExamples() {
-        return Stream.of(
-                Arguments.of("some text,", "{some text}"),
-                Arguments.of("some text", "{some text"),
-                Arguments.of("some text,", "some text}")
-        );
+        return Stream.of(Arguments.of("some text,", "{some text}"), Arguments.of("some text", "{some text"),
+                Arguments.of("some text,", "some text}"));
     }
+
 }

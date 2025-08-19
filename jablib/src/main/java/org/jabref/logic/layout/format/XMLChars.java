@@ -65,7 +65,7 @@ public class XMLChars implements LayoutFormatter {
                 forceReplace[i] = true;
             }
             forceReplace[32] = false;
-            for (int i : new int[] {44, 45, 63, 64, 94, 95, 96, 124}) {
+            for (int i : new int[] { 44, 45, 63, 64, 94, 95, 96, 124 }) {
                 forceReplace[i] = true;
             }
         }
@@ -86,7 +86,8 @@ public class XMLChars implements LayoutFormatter {
             // TODO: Check whether > 125 is correct here or whether it should rather be >=
             if ((code > 125) || forceReplace[code]) {
                 buffer.append("&#").append(code).append(';');
-            } else {
+            }
+            else {
                 buffer.append((char) code);
             }
         }
@@ -99,4 +100,5 @@ public class XMLChars implements LayoutFormatter {
 
         return fieldText;
     }
+
 }

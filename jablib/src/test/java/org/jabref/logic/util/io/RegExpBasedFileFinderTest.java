@@ -17,17 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RegExpBasedFileFinderTest {
+
     private static final List<String> PDF_EXTENSION = List.of("pdf");
-    private static final List<String> FILE_NAMES = List.of(
-            "ACM_IEEE-CS.pdf",
-            "pdfInDatabase.pdf",
-            "Regexp from [A-Z].pdf",
-            "directory/subdirectory/2003_Hippel_209.pdf",
-            "directory/subdirectory/2017_Gražulis_726.pdf",
-            "directory/subdirectory/pdfInSubdirectory.pdf",
-            "directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf"
-            );
+
+    private static final List<String> FILE_NAMES = List.of("ACM_IEEE-CS.pdf", "pdfInDatabase.pdf",
+            "Regexp from [A-Z].pdf", "directory/subdirectory/2003_Hippel_209.pdf",
+            "directory/subdirectory/2017_Gražulis_726.pdf", "directory/subdirectory/pdfInSubdirectory.pdf",
+            "directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf");
+
     private Path directory;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -36,13 +35,15 @@ class RegExpBasedFileFinderTest {
         entry.setType(StandardEntryType.Article);
         entry.setCitationKey("HipKro03");
         entry.setField(StandardField.AUTHOR, "Eric von Hippel and Georg von Krogh");
-        entry.setField(StandardField.TITLE, "Open Source Software and the \"Private-Collective\" Innovation Model: Issues for Organization Science");
+        entry.setField(StandardField.TITLE,
+                "Open Source Software and the \"Private-Collective\" Innovation Model: Issues for Organization Science");
         entry.setField(StandardField.JOURNAL, "Organization Science");
         entry.setField(StandardField.YEAR, "2003");
         entry.setField(StandardField.VOLUME, "14");
         entry.setField(StandardField.PAGES, "209--223");
         entry.setField(StandardField.NUMBER, "2");
-        entry.setField(StandardField.ADDRESS, "Institute for Operations Research and the Management Sciences (INFORMS), Linthicum, Maryland, USA");
+        entry.setField(StandardField.ADDRESS,
+                "Institute for Operations Research and the Management Sciences (INFORMS), Linthicum, Maryland, USA");
         entry.setField(StandardField.DOI, "http://dx.doi.org/10.1287/orsc.14.2.209.14992");
         entry.setField(StandardField.ISSN, "1526-5455");
         entry.setField(StandardField.PUBLISHER, "INFORMS");
@@ -73,7 +74,8 @@ class RegExpBasedFileFinderTest {
     @Test
     void yearAuthFirstPageFindFiles() throws IOException {
         // given
-        RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/[year]_[auth]_[firstpage].*\\\\.[extension]", ',');
+        RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/[year]_[auth]_[firstpage].*\\\\.[extension]",
+                ',');
 
         // when
         List<Path> result = fileFinder.findAssociatedFiles(entry, List.of(directory), PDF_EXTENSION);
@@ -110,15 +112,16 @@ class RegExpBasedFileFinderTest {
     @Test
     void findAssociatedFilesFindFileContainingParenthesizesFromBracketedExpression() throws IOException {
         BibEntry bibEntry = new BibEntry().withCitationKey("Guo_ICC_2010")
-                                     .withField(StandardField.TITLE, "Ferroelectric Metal Organic Framework (MOF)")
-                                     .withField(StandardField.AUTHOR, "Guo, M. and Cai, H.-L. and Xiong, R.-G.")
-                                     .withField(StandardField.JOURNAL, "Inorganic Chemistry Communications")
-                                     .withField(StandardField.YEAR, "2010");
+            .withField(StandardField.TITLE, "Ferroelectric Metal Organic Framework (MOF)")
+            .withField(StandardField.AUTHOR, "Guo, M. and Cai, H.-L. and Xiong, R.-G.")
+            .withField(StandardField.JOURNAL, "Inorganic Chemistry Communications")
+            .withField(StandardField.YEAR, "2010");
 
         RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/.*[TITLE].*\\\\.[extension]", ',');
 
         List<Path> result = fileFinder.findAssociatedFiles(bibEntry, List.of(directory), PDF_EXTENSION);
-        List<Path> pdfFile = List.of(directory.resolve("directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf"));
+        List<Path> pdfFile = List.of(directory.resolve(
+                "directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf"));
 
         assertEquals(pdfFile, result);
     }
@@ -131,7 +134,8 @@ class RegExpBasedFileFinderTest {
         localEntry.setField(StandardField.AUTHOR, "Gražulis, Saulius and O. Kitsune");
         localEntry.setField(StandardField.PAGES, "726--729");
 
-        RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/[year]_[auth]_[firstpage]\\\\.[extension]", ',');
+        RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/[year]_[auth]_[firstpage]\\\\.[extension]",
+                ',');
 
         // when
         List<Path> result = fileFinder.findAssociatedFiles(localEntry, List.of(directory), PDF_EXTENSION);
@@ -173,4 +177,5 @@ class RegExpBasedFileFinderTest {
         // then
         assertTrue(result.isEmpty());
     }
+
 }

@@ -57,48 +57,61 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * Fetcher for ArXiv that merges fields from arXiv-issued DOIs (and user-issued ones when applicable) to get more information overall.
+ * Fetcher for ArXiv that merges fields from arXiv-issued DOIs (and user-issued ones when
+ * applicable) to get more information overall.
  * <p>
  * These are the post-processing steps applied to the original fetch from ArXiv's API:
  * <ol>
- *     <li>Use ArXiv-issued DOI to get more merge more data with original entry, overwriting some of those fields;</li>
- *     <li>Use user-issued DOI (if it was provided) to merge even more data with the result of the previous step, overwriting some of those fields;</li>
- *     <li>Modify keywords: remove repetitions and adapt some edge cases (commas in keyword transformed into forward slashes).</li>
+ * <li>Use ArXiv-issued DOI to get more merge more data with original entry, overwriting
+ * some of those fields;</li>
+ * <li>Use user-issued DOI (if it was provided) to merge even more data with the result of
+ * the previous step, overwriting some of those fields;</li>
+ * <li>Modify keywords: remove repetitions and adapt some edge cases (commas in keyword
+ * transformed into forward slashes).</li>
  * </ol>
  *
- * @see <a href="https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/">arXiv.org blog </a> for more info about arXiv-issued DOIs
- * @see <a href="https://arxiv.org/help/api/index">ArXiv API</a> for an overview of the API
- * @see <a href="https://arxiv.org/help/api/user-manual#_calling_the_api">ArXiv API User's Manual</a> for a detailed description on how to use the API
+ * @see <a href=
+ * "https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/">arXiv.org
+ * blog </a> for more info about arXiv-issued DOIs
+ * @see <a href="https://arxiv.org/help/api/index">ArXiv API</a> for an overview of the
+ * API
+ * @see <a href="https://arxiv.org/help/api/user-manual#_calling_the_api">ArXiv API User's
+ * Manual</a> for a detailed description on how to use the API
  */
-public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, IdBasedFetcher, IdFetcher<ArXivIdentifier> {
+public class ArXivFetcher
+        implements FulltextFetcher, PagedSearchBasedFetcher, IdBasedFetcher, IdFetcher<ArXivIdentifier> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArXivFetcher.class);
 
-    // See https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/
+    // See
+    // https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/
     private static final String DOI_PREFIX = "10.48550/arXiv.";
 
     /*
-     * Reason behind choice of these fields:
-     *   - KEYWORDS: More descriptive
-     *   - AUTHOR: Better formatted (last name, rest of name)
+     * Reason behind choice of these fields: - KEYWORDS: More descriptive - AUTHOR: Better
+     * formatted (last name, rest of name)
      */
     private static final Set<Field> CHOSEN_AUTOMATIC_DOI_FIELDS = Set.of(StandardField.KEYWORDS, StandardField.AUTHOR);
 
     /*
-     * Reason behind choice of these fields:
-     *   - DOI: give preference to DOIs manually inputted by users, instead of automatic ones
-     *   - PUBLISHER: ArXiv-issued DOIs give 'ArXiv' as entry publisher. While this can be true, prefer using one from external sources,
-     *      if applicable
-     *   - KEY_FIELD: Usually, the KEY_FIELD retrieved from user-assigned DOIs are 'nicer' (instead of a DOI link, it's usually contains one author and the year)
+     * Reason behind choice of these fields: - DOI: give preference to DOIs manually
+     * inputted by users, instead of automatic ones - PUBLISHER: ArXiv-issued DOIs give
+     * 'ArXiv' as entry publisher. While this can be true, prefer using one from external
+     * sources, if applicable - KEY_FIELD: Usually, the KEY_FIELD retrieved from
+     * user-assigned DOIs are 'nicer' (instead of a DOI link, it's usually contains one
+     * author and the year)
      */
-    private static final Set<Field> CHOSEN_MANUAL_DOI_FIELDS = Set.of(StandardField.DOI, StandardField.PUBLISHER, InternalField.KEY_FIELD);
+    private static final Set<Field> CHOSEN_MANUAL_DOI_FIELDS = Set.of(StandardField.DOI, StandardField.PUBLISHER,
+            InternalField.KEY_FIELD);
 
     private static final Map<String, String> ARXIV_KEYWORDS_WITH_COMMA_REPLACEMENTS = Map.of(
             "Computational Engineering, Finance, and Science", "Computational Engineering / Finance / Science",
             "Distributed, Parallel, and Cluster Computing", "Distributed / Parallel / Cluster Computing");
 
     private final ArXiv arXiv;
+
     private final DoiFetcher doiFetcher;
+
     private final ImportFormatPreferences importFormatPreferences;
 
     public ArXivFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -136,33 +149,32 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
 
     /**
      * Remove duplicate values on "KEYWORD" field, if any. Al
-     *
      * @param bibEntry A BibEntry to modify
      */
     private void adaptKeywordsFrom(BibEntry bibEntry) {
         Optional<String> allKeywords = bibEntry.getField(StandardField.KEYWORDS);
         if (allKeywords.isPresent()) {
-            // With the use of ArXiv-issued DOI's KEYWORDS field, some of those keywords might contain comma. As this is the
-            // default keyword separator, replace the commas of these instances with some other character
+            // With the use of ArXiv-issued DOI's KEYWORDS field, some of those keywords
+            // might contain comma. As this is the
+            // default keyword separator, replace the commas of these instances with some
+            // other character
             // (see ARXIV_KEYWORDS_WITH_COMMA_REPLACEMENTS variable)
             for (Map.Entry<String, String> entry : ARXIV_KEYWORDS_WITH_COMMA_REPLACEMENTS.entrySet()) {
                 allKeywords = Optional.of(allKeywords.get().replaceAll(entry.getKey(), entry.getValue()));
             }
 
-            String filteredKeywords = KeywordList.merge(
-                    allKeywords.get(),
-                    "",
-                    importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).toString();
+            String filteredKeywords = KeywordList
+                .merge(allKeywords.get(), "", importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .toString();
             bibEntry.setField(StandardField.KEYWORDS, filteredKeywords);
         }
     }
 
     /**
-     * Get ArXiv-issued DOI from the entry's arXiv ID
-     * <br/><br/>
-     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are composed of a fixed
-     * {@link #DOI_PREFIX} + the entry's ArXiv ID
-     *
+     * Get ArXiv-issued DOI from the entry's arXiv ID <br/>
+     * <br/>
+     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are
+     * composed of a fixed {@link #DOI_PREFIX} + the entry's ArXiv ID
      * @param arXivId An ArXiv ID
      * @return ArXiv-issued DOI
      */
@@ -171,30 +183,33 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
     }
 
     /**
-     * Get ArXiv-issued DOI from the arXiv entry itself.
-     * <br/><br/>
-     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are composed of a fixed {@link #DOI_PREFIX} + the entry's ArXiv ID
-     *
-     * @param arXivBibEntry A Bibtex Entry, formatted as a ArXiv entry. Must contain an EPRINT field
+     * Get ArXiv-issued DOI from the arXiv entry itself. <br/>
+     * <br/>
+     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are
+     * composed of a fixed {@link #DOI_PREFIX} + the entry's ArXiv ID
+     * @param arXivBibEntry A Bibtex Entry, formatted as a ArXiv entry. Must contain an
+     * EPRINT field
      * @return ArXiv-issued DOI, or Empty, if method could not retrieve it
      */
     private static Optional<String> getAutomaticDoi(BibEntry arXivBibEntry) {
-        // As the input should always contain a EPRINT if created from inner 'ArXiv' class, don't bother doing a check that might call
+        // As the input should always contain a EPRINT if created from inner 'ArXiv'
+        // class, don't bother doing a check that might call
         // ArXiv's API again (method 'findIdentifier')
         Optional<String> entryEprint = arXivBibEntry.getField(StandardField.EPRINT);
         if (entryEprint.isEmpty()) {
             LOGGER.error("Cannot infer ArXiv-issued DOI from BibEntry: no 'EPRINT' field found");
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.of(ArXivFetcher.getAutomaticDoi(entryEprint.get()));
         }
     }
 
     /**
-     * Get ArXiv-issued DOI from ArXiv Identifier object
-     * <br/><br/>
-     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are composed of a fixed {@link #DOI_PREFIX} + the entry's ArXiv ID
-     *
+     * Get ArXiv-issued DOI from ArXiv Identifier object <br/>
+     * <br/>
+     * ArXiv-issued DOIs are identifiers associated with every ArXiv entry. They are
+     * composed of a fixed {@link #DOI_PREFIX} + the entry's ArXiv ID
      * @param arXivId An ArXiv ID as internal object
      * @return ArXiv-issued DOI
      */
@@ -210,28 +225,31 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
     }
 
     /**
-     * Get user-issued DOI from ArXiv Bibtex entry, if any
-     * <br/><br/>
-     * User-issued DOIs are identifiers associated with some ArXiv entries that can associate an entry with an external service, like
+     * Get user-issued DOI from ArXiv Bibtex entry, if any <br/>
+     * <br/>
+     * User-issued DOIs are identifiers associated with some ArXiv entries that can
+     * associate an entry with an external service, like
      * <a href="https://link.springer.com/">Springer Link</a>.
-     *
      * @param arXivBibEntry An ArXiv Bibtex entry from where the DOI is extracted
-     * @return User-issued DOI, if any field exists and if it's not an automatic one (see {@link #getAutomaticDoi(ArXivIdentifier)})
+     * @return User-issued DOI, if any field exists and if it's not an automatic one (see
+     * {@link #getAutomaticDoi(ArXivIdentifier)})
      */
     private static Optional<String> getManualDoi(BibEntry arXivBibEntry) {
         return arXivBibEntry.getField(StandardField.DOI).filter(ArXivFetcher::isManualDoi);
     }
 
     /**
-     * Get the Bibtex Entry from a Future API request (uses blocking) and treat exceptions.
-     *
+     * Get the Bibtex Entry from a Future API request (uses blocking) and treat
+     * exceptions.
      * @param bibEntryFuture A CompletableFuture that parallelize the API fetching process
      * @return the fetch result
      */
-    private static Optional<BibEntry> waitForBibEntryRetrieval(CompletableFuture<Optional<BibEntry>> bibEntryFuture) throws FetcherException {
+    private static Optional<BibEntry> waitForBibEntryRetrieval(CompletableFuture<Optional<BibEntry>> bibEntryFuture)
+            throws FetcherException {
         try {
             return bibEntryFuture.join();
-        } catch (CompletionException e) {
+        }
+        catch (CompletionException e) {
             if (!(e.getCause() instanceof FetcherException)) {
                 LOGGER.error("The supplied future should only throw a FetcherException.", e);
                 throw e;
@@ -241,18 +259,22 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
     }
 
     /**
-     * Eventually merge the ArXiv Bibtex entry with a Future Bibtex entry (ArXiv/user-assigned DOIs)
-     *
+     * Eventually merge the ArXiv Bibtex entry with a Future Bibtex entry
+     * (ArXiv/user-assigned DOIs)
      * @param arXivEntry The entry to merge into
      * @param bibEntryFuture A future result of the fetching process
-     * @param priorityFields Which fields from "bibEntryFuture" to prioritize, replacing them on "arXivEntry"
-     * @param id Identifier used in initiating the "bibEntryFuture" future (for logging). This is usually a DOI, but can be anything.
+     * @param priorityFields Which fields from "bibEntryFuture" to prioritize, replacing
+     * them on "arXivEntry"
+     * @param id Identifier used in initiating the "bibEntryFuture" future (for logging).
+     * This is usually a DOI, but can be anything.
      */
-    private void mergeArXivEntryWithFutureDoiEntry(BibEntry arXivEntry, CompletableFuture<Optional<BibEntry>> bibEntryFuture, Set<Field> priorityFields, String id) {
+    private void mergeArXivEntryWithFutureDoiEntry(BibEntry arXivEntry,
+            CompletableFuture<Optional<BibEntry>> bibEntryFuture, Set<Field> priorityFields, String id) {
         Optional<BibEntry> bibEntry;
         try {
             bibEntry = waitForBibEntryRetrieval(bibEntryFuture);
-        } catch (FetcherException | CompletionException e) {
+        }
+        catch (FetcherException | CompletionException e) {
             LOGGER.error("Failed to fetch future BibEntry with id '{}' (skipping merge).", id, e);
             return;
         }
@@ -260,36 +282,43 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         if (bibEntry.isPresent()) {
             adaptKeywordsFrom(bibEntry.get());
             arXivEntry.mergeWith(bibEntry.get(), priorityFields);
-        } else {
+        }
+        else {
             LOGGER.error("Future BibEntry for id '{}' was completed, but no entry was found (skipping merge).", id);
         }
     }
 
     /**
      * Infuse arXivBibEntryPromise with additional fields in an asynchronous way
-     *
      * @param arXivBibEntry An existing entry to be updated with new/modified fields
      */
     private void inplaceAsyncInfuseArXivWithDoi(BibEntry arXivBibEntry) {
-        CompletableFuture<Optional<BibEntry>> arXivBibEntryCompletedFuture = CompletableFuture.completedFuture(Optional.of(arXivBibEntry));
-        Optional<ArXivIdentifier> arXivBibEntryId = arXivBibEntry.getField(StandardField.EPRINT).flatMap(ArXivIdentifier::parse);
+        CompletableFuture<Optional<BibEntry>> arXivBibEntryCompletedFuture = CompletableFuture
+            .completedFuture(Optional.of(arXivBibEntry));
+        Optional<ArXivIdentifier> arXivBibEntryId = arXivBibEntry.getField(StandardField.EPRINT)
+            .flatMap(ArXivIdentifier::parse);
 
         try {
             this.inplaceAsyncInfuseArXivWithDoi(arXivBibEntryCompletedFuture, arXivBibEntryId);
-        } catch (FetcherException e) {
-            LOGGER.error("FetcherException should not be found here, as main Bibtex Entry already exists " +
-                    "(and failing additional fetches should be skipped)", e);
+        }
+        catch (FetcherException e) {
+            LOGGER.error("FetcherException should not be found here, as main Bibtex Entry already exists "
+                    + "(and failing additional fetches should be skipped)", e);
         }
     }
 
     /**
-     * Infuse arXivBibEntryFuture with additional fields in an asynchronous way, accelerating the process by providing a valid ArXiv ID
-     *
-     * @param arXivBibEntryFuture A future entry that (if it exists) will be updated with new/modified fields
-     * @param arXivId An ArXiv ID for the main reference (from ArXiv), so that the retrieval of ArXiv-issued DOI metadata can be faster
-     * @throws FetcherException when failed to fetch the main ArtXiv Bibtex entry ('arXivBibEntryFuture').
+     * Infuse arXivBibEntryFuture with additional fields in an asynchronous way,
+     * accelerating the process by providing a valid ArXiv ID
+     * @param arXivBibEntryFuture A future entry that (if it exists) will be updated with
+     * new/modified fields
+     * @param arXivId An ArXiv ID for the main reference (from ArXiv), so that the
+     * retrieval of ArXiv-issued DOI metadata can be faster
+     * @throws FetcherException when failed to fetch the main ArtXiv Bibtex entry
+     * ('arXivBibEntryFuture').
      */
-    private void inplaceAsyncInfuseArXivWithDoi(CompletableFuture<Optional<BibEntry>> arXivBibEntryFuture, Optional<ArXivIdentifier> arXivId) throws FetcherException {
+    private void inplaceAsyncInfuseArXivWithDoi(CompletableFuture<Optional<BibEntry>> arXivBibEntryFuture,
+            Optional<ArXivIdentifier> arXivId) throws FetcherException {
 
         Optional<CompletableFuture<Optional<BibEntry>>> automaticDoiBibEntryFuture;
         Optional<BibEntry> arXivBibEntry;
@@ -297,9 +326,12 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         Optional<String> automaticDoi;
         Optional<String> manualDoi;
 
-        // We can accelerate the processing time by initiating a parallel request for DOIFetcher with an ArXiv-issued DOI alongside the ArXiv fetching itself,
-        // BUT ONLY IF we have a valid arXivId. If not, the ArXiv entry must be retrieved before, which invalidates this optimization (although we can still speed
-        // up the process by running both the ArXiv-assigned and user-assigned DOI fetching at the same time, if an entry has this last information)
+        // We can accelerate the processing time by initiating a parallel request for
+        // DOIFetcher with an ArXiv-issued DOI alongside the ArXiv fetching itself,
+        // BUT ONLY IF we have a valid arXivId. If not, the ArXiv entry must be retrieved
+        // before, which invalidates this optimization (although we can still speed
+        // up the process by running both the ArXiv-assigned and user-assigned DOI
+        // fetching at the same time, if an entry has this last information)
         if (arXivId.isPresent()) {
             automaticDoi = Optional.of(ArXivFetcher.getAutomaticDoi(arXivId.get()));
             automaticDoiBibEntryFuture = Optional.of(doiFetcher.asyncPerformSearchById(automaticDoi.get()));
@@ -308,8 +340,10 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             if (arXivBibEntry.isEmpty()) {
                 return;
             }
-        } else {
-            // If ArXiv fetch fails (FetcherException), exception must be passed onwards for the transparency of this class (original ArXiv fetcher does the same)
+        }
+        else {
+            // If ArXiv fetch fails (FetcherException), exception must be passed onwards
+            // for the transparency of this class (original ArXiv fetcher does the same)
             arXivBibEntry = ArXivFetcher.waitForBibEntryRetrieval(arXivBibEntryFuture);
             if (arXivBibEntry.isEmpty()) {
                 return;
@@ -320,18 +354,19 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         }
 
         manualDoi = ArXivFetcher.getManualDoi(arXivBibEntry.get());
-        Optional<CompletableFuture<Optional<BibEntry>>> manualDoiBibEntryFuture = manualDoi.map(doiFetcher::asyncPerformSearchById);
+        Optional<CompletableFuture<Optional<BibEntry>>> manualDoiBibEntryFuture = manualDoi
+            .map(doiFetcher::asyncPerformSearchById);
 
-        automaticDoiBibEntryFuture.ifPresent(future ->
-                mergeArXivEntryWithFutureDoiEntry(arXivBibEntry.get(), future, CHOSEN_AUTOMATIC_DOI_FIELDS, automaticDoi.get()));
-        manualDoiBibEntryFuture.ifPresent(future ->
-                mergeArXivEntryWithFutureDoiEntry(arXivBibEntry.get(), future, CHOSEN_MANUAL_DOI_FIELDS, manualDoi.get()));
+        automaticDoiBibEntryFuture.ifPresent(future -> mergeArXivEntryWithFutureDoiEntry(arXivBibEntry.get(), future,
+                CHOSEN_AUTOMATIC_DOI_FIELDS, automaticDoi.get()));
+        manualDoiBibEntryFuture.ifPresent(future -> mergeArXivEntryWithFutureDoiEntry(arXivBibEntry.get(), future,
+                CHOSEN_MANUAL_DOI_FIELDS, manualDoi.get()));
     }
 
     /**
-     * Constructs a complex query string using the field prefixes specified at https://arxiv.org/help/api/user-manual
-     * and modify resulting BibEntries with additional info from the ArXiv-issued DOI
-     *
+     * Constructs a complex query string using the field prefixes specified at
+     * https://arxiv.org/help/api/user-manual and modify resulting BibEntries with
+     * additional info from the ArXiv-issued DOI
      * @param luceneQuery the root node of the lucene query
      * @return A list of entries matching the complex query
      */
@@ -346,17 +381,16 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         ExecutorService executor = Executors.newFixedThreadPool(getPageSize() * 2);
 
         Collection<CompletableFuture<BibEntry>> futureSearchResult = result.getContent()
-                                                                       .stream()
-                                                                       .map(bibEntry ->
-                                                                               CompletableFuture.supplyAsync(() -> {
-                                                                                   this.inplaceAsyncInfuseArXivWithDoi(bibEntry);
-                                                                                   return bibEntry;
-                                                                               }, executor))
-                                                                       .toList();
+            .stream()
+            .map(bibEntry -> CompletableFuture.supplyAsync(() -> {
+                this.inplaceAsyncInfuseArXivWithDoi(bibEntry);
+                return bibEntry;
+            }, executor))
+            .toList();
 
         Collection<BibEntry> modifiedSearchResult = futureSearchResult.stream()
-                                      .map(CompletableFuture::join)
-                                      .collect(Collectors.toList());
+            .map(CompletableFuture::join)
+            .collect(Collectors.toList());
 
         return new Page<>(result.getQuery(), result.getPageNumber(), modifiedSearchResult);
     }
@@ -383,15 +417,18 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
     /**
      * Fetcher for the arXiv.
      *
-     * @see <a href="https://arxiv.org/help/api/index">ArXiv API</a> for an overview of the API
-     * @see <a href="https://arxiv.org/help/api/user-manual#_calling_the_api">ArXiv API User's Manual</a> for a detailed
-     * description on how to use the API
+     * @see <a href="https://arxiv.org/help/api/index">ArXiv API</a> for an overview of
+     * the API
+     * @see <a href="https://arxiv.org/help/api/user-manual#_calling_the_api">ArXiv API
+     * User's Manual</a> for a detailed description on how to use the API
      * <p>
      * Similar implementions:
-     * <a href="https://github.com/nathangrigg/arxiv2bib">arxiv2bib</a> which is <a href="https://arxiv2bibtex.org/">live</a>
-     * <a href="https://gitlab.c3sl.ufpr.br/portalmec/dspace-portalmec/blob/aa209d15082a9870f9daac42c78a35490ce77b52/dspace-api/src/main/java/org/dspace/submit/lookup/ArXivService.java">dspace-portalmec</a>
+     * <a href="https://github.com/nathangrigg/arxiv2bib">arxiv2bib</a> which is
+     * <a href="https://arxiv2bibtex.org/">live</a> <a href=
+     * "https://gitlab.c3sl.ufpr.br/portalmec/dspace-portalmec/blob/aa209d15082a9870f9daac42c78a35490ce77b52/dspace-api/src/main/java/org/dspace/submit/lookup/ArXivService.java">dspace-portalmec</a>
      */
-    protected static class ArXiv implements FulltextFetcher, PagedSearchBasedFetcher, IdBasedFetcher, IdFetcher<ArXivIdentifier> {
+    protected static class ArXiv
+            implements FulltextFetcher, PagedSearchBasedFetcher, IdBasedFetcher, IdFetcher<ArXivIdentifier> {
 
         private static final Logger LOGGER = LoggerFactory.getLogger(ArXiv.class);
 
@@ -411,13 +448,14 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
 
             try {
                 Optional<URL> pdfUrl = searchForEntries(entry).stream()
-                                                              .map(ArXivEntry::getPdfUrl)
-                                                              .filter(Optional::isPresent)
-                                                              .map(Optional::get)
-                                                              .findFirst();
+                    .map(ArXivEntry::getPdfUrl)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst();
                 pdfUrl.ifPresent(url -> LOGGER.info("Fulltext PDF found @ arXiv."));
                 return pdfUrl;
-            } catch (FetcherException e) {
+            }
+            catch (FetcherException e) {
                 LOGGER.warn("arXiv API request failed", e);
             }
 
@@ -433,7 +471,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             List<ArXivEntry> entries = queryApi(searchQuery, List.of(), 0, 1);
             if (entries.size() == 1) {
                 return Optional.of(entries.getFirst());
-            } else {
+            }
+            else {
                 return Optional.empty();
             }
         }
@@ -447,7 +486,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             List<ArXivEntry> entries = queryApi("", List.of(identifier.get()), 0, 1);
             if (!entries.isEmpty()) {
                 return Optional.of(entries.getFirst());
-            } else {
+            }
+            else {
                 return Optional.empty();
             }
         }
@@ -463,23 +503,25 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 try {
                     // Get pdf of entry with the specified id
                     return OptionalUtil.toList(searchForEntryById(identifier.get()));
-                } catch (FetcherException e) {
+                }
+                catch (FetcherException e) {
                     LOGGER.warn("arXiv eprint API request failed", e);
                 }
             }
 
             // 2. DOI and other fields
             String query;
-            Optional<String> doiString = entry.getField(StandardField.DOI)
-                                              .flatMap(DOI::parse)
-                                              .map(DOI::asString);
+            Optional<String> doiString = entry.getField(StandardField.DOI).flatMap(DOI::parse).map(DOI::asString);
 
-            // ArXiv-issued DOIs seem to be unsearchable from ArXiv API's "query string", so ignore it
+            // ArXiv-issued DOIs seem to be unsearchable from ArXiv API's "query string",
+            // so ignore it
             if (doiString.isPresent() && ArXivFetcher.isManualDoi(doiString.get())) {
                 query = "doi:" + doiString.get();
-            } else {
+            }
+            else {
                 Optional<String> authorQuery = entry.getField(StandardField.AUTHOR).map(author -> "au:" + author);
-                Optional<String> titleQuery = entry.getField(StandardField.TITLE).map(title -> "ti:" + StringUtil.ignoreCurlyBracket(title));
+                Optional<String> titleQuery = entry.getField(StandardField.TITLE)
+                    .map(title -> "ti:" + StringUtil.ignoreCurlyBracket(title));
                 query = String.join("+AND+", OptionalUtil.toList(authorQuery, titleQuery));
             }
 
@@ -512,20 +554,23 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         /**
          * Queries the API.
          * <p>
-         * If only {@code searchQuery} is given, then the API will return results for each article that matches the query.
-         * If only {@code ids} is given, then the API will return results for each article in the list.
-         * If both {@code searchQuery} and {@code ids} are given, then the API will return each article in
-         * {@code ids} that matches {@code searchQuery}. This allows the API to act as a results filter.
-         *
+         * If only {@code searchQuery} is given, then the API will return results for each
+         * article that matches the query. If only {@code ids} is given, then the API will
+         * return results for each article in the list. If both {@code searchQuery} and
+         * {@code ids} are given, then the API will return each article in {@code ids}
+         * that matches {@code searchQuery}. This allows the API to act as a results
+         * filter.
          * @param searchQuery the search query used to find articles;
-         *                    <a href="http://arxiv.org/help/api/user-manual#query_details">details</a>
-         * @param ids         a list of arXiv identifiers
-         * @param start       the index of the first returned result (zero-based)
-         * @param maxResults  the number of maximal results (has to be smaller than 2000)
+         * <a href="http://arxiv.org/help/api/user-manual#query_details">details</a>
+         * @param ids a list of arXiv identifiers
+         * @param start the index of the first returned result (zero-based)
+         * @param maxResults the number of maximal results (has to be smaller than 2000)
          * @return the response from the API as a XML document (Atom 1.0)
-         * @throws FetcherException if there was a problem while building the URL or the API was not accessible
+         * @throws FetcherException if there was a problem while building the URL or the
+         * API was not accessible
          */
-        private Document callApi(String searchQuery, List<ArXivIdentifier> ids, int start, int maxResults) throws FetcherException {
+        private Document callApi(String searchQuery, List<ArXivIdentifier> ids, int start, int maxResults)
+                throws FetcherException {
             if (maxResults > 2000) {
                 throw new IllegalArgumentException("The arXiv API limits the number of maximal results to be 2000");
             }
@@ -533,10 +578,12 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             URIBuilder uriBuilder;
             try {
                 uriBuilder = new URIBuilder(API_URL);
-            } catch (URISyntaxException e) {
+            }
+            catch (URISyntaxException e) {
                 throw new FetcherException("Invalid URL", e);
             }
-            // The arXiv API has problems with accents, so we remove them (i.e. Fréchet -> Frechet)
+            // The arXiv API has problems with accents, so we remove them (i.e. Fréchet ->
+            // Frechet)
             if (StringUtil.isNotBlank(searchQuery)) {
                 uriBuilder.addParameter("search_query", StringUtil.stripAccents(searchQuery));
             }
@@ -549,7 +596,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             URL url;
             try {
                 url = uriBuilder.build().toURL();
-            } catch (MalformedURLException | URISyntaxException e) {
+            }
+            catch (MalformedURLException | URISyntaxException e) {
                 throw new FetcherException("Invalid URL", e);
             }
 
@@ -560,10 +608,12 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 if (connection.getResponseCode() == 400) {
                     // Bad request error from server, try to get more information
                     throw getException(builder.parse(connection.getErrorStream()));
-                } else {
+                }
+                else {
                     return builder.parse(connection.getInputStream());
                 }
-            } catch (SAXException | ParserConfigurationException | IOException exception) {
+            }
+            catch (SAXException | ParserConfigurationException | IOException exception) {
                 throw new FetcherException(url, "arXiv API request failed", exception);
             }
         }
@@ -572,17 +622,19 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             List<Node> entries = XMLUtil.asList(error.getElementsByTagName("entry"));
 
             // Check if the API returned an error
-            // In case of an error, only one entry will be returned with the error information. For example:
+            // In case of an error, only one entry will be returned with the error
+            // information. For example:
             // https://export.arxiv.org/api/query?id_list=0307015
             // <entry>
-            //      <id>https://arxiv.org/api/errors#incorrect_id_format_for_0307015</id>
-            //      <title>Error</title>
-            //      <summary>incorrect id format for 0307015</summary>
+            // <id>https://arxiv.org/api/errors#incorrect_id_format_for_0307015</id>
+            // <title>Error</title>
+            // <summary>incorrect id format for 0307015</summary>
             // </entry>
             if (entries.size() == 1) {
                 Node node = entries.getFirst();
                 Optional<String> id = XMLUtil.getNodeContent(node, "id");
-                Boolean isError = id.map(idContent -> idContent.startsWith("http://arxiv.org/api/errors")).orElse(false);
+                Boolean isError = id.map(idContent -> idContent.startsWith("http://arxiv.org/api/errors"))
+                    .orElse(false);
                 if (isError) {
                     String errorMessage = XMLUtil.getNodeContent(node, "summary").orElse("Unknown error");
                     return new FetcherException(errorMessage);
@@ -602,8 +654,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         }
 
         /**
-         * Constructs a complex query string using the field prefixes specified at https://arxiv.org/help/api/user-manual
-         *
+         * Constructs a complex query string using the field prefixes specified at
+         * https://arxiv.org/help/api/user-manual
          * @param luceneQuery the root node of the lucene query
          * @return A list of entries matching the complex query
          */
@@ -611,28 +663,32 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         public Page<BibEntry> performSearchPaged(QueryNode luceneQuery, int pageNumber) throws FetcherException {
             ArXivQueryTransformer transformer = new ArXivQueryTransformer();
             String transformedQuery = transformer.transformLuceneQuery(luceneQuery).orElse("");
-            List<BibEntry> searchResult = searchForEntries(transformedQuery, pageNumber)
-                    .stream()
-                    .map(arXivEntry -> arXivEntry.toBibEntry(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()))
-                    .collect(Collectors.toList());
+            List<BibEntry> searchResult = searchForEntries(transformedQuery, pageNumber).stream()
+                .map(arXivEntry -> arXivEntry
+                    .toBibEntry(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()))
+                .collect(Collectors.toList());
 
             return new Page<>(transformedQuery, pageNumber, filterYears(searchResult, transformer));
         }
 
         private List<BibEntry> filterYears(List<BibEntry> searchResult, ArXivQueryTransformer transformer) {
             return searchResult.stream()
-                               .filter(entry -> entry.getField(StandardField.DATE).isPresent())
-                               // Filter the date field for year only
-                               .filter(entry -> transformer.getEndYear().isEmpty() || (Integer.parseInt(entry.getField(StandardField.DATE).get().substring(0, 4)) <= transformer.getEndYear().get()))
-                               .filter(entry -> transformer.getStartYear().isEmpty() || (Integer.parseInt(entry.getField(StandardField.DATE).get().substring(0, 4)) >= transformer.getStartYear().get()))
-                               .collect(Collectors.toList());
+                .filter(entry -> entry.getField(StandardField.DATE).isPresent())
+                // Filter the date field for year only
+                .filter(entry -> transformer.getEndYear().isEmpty() || (Integer.parseInt(
+                        entry.getField(StandardField.DATE).get().substring(0, 4)) <= transformer.getEndYear().get()))
+                .filter(entry -> transformer.getStartYear().isEmpty() || (Integer.parseInt(
+                        entry.getField(StandardField.DATE).get().substring(0, 4)) >= transformer.getStartYear().get()))
+                .collect(Collectors.toList());
         }
 
-        protected CompletableFuture<Optional<BibEntry>> asyncPerformSearchById(String identifier) throws CompletionException {
+        protected CompletableFuture<Optional<BibEntry>> asyncPerformSearchById(String identifier)
+                throws CompletionException {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     return performSearchById(identifier);
-                } catch (FetcherException e) {
+                }
+                catch (FetcherException e) {
                     throw new CompletionException(e);
                 }
             });
@@ -640,17 +696,17 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
 
         @Override
         public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-            return searchForEntryById(identifier)
-                    .map(arXivEntry -> arXivEntry.toBibEntry(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()));
+            return searchForEntryById(identifier).map(arXivEntry -> arXivEntry
+                .toBibEntry(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()));
         }
 
         @Override
         public Optional<ArXivIdentifier> findIdentifier(BibEntry entry) throws FetcherException {
             return searchForEntries(entry).stream()
-                                          .map(ArXivEntry::getId)
-                                          .filter(Optional::isPresent)
-                                          .map(Optional::get)
-                                          .findFirst();
+                .map(ArXivEntry::getId)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
         }
 
         @Override
@@ -661,18 +717,28 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
         private static class ArXivEntry {
 
             private final Optional<String> title;
+
             private final Optional<String> urlAbstractPage;
+
             private final Optional<String> publishedDate;
+
             private final Optional<String> abstractText;
+
             private final List<String> authorNames;
+
             private final List<String> categories;
+
             private final Optional<URL> pdfUrl;
+
             private final Optional<String> doi;
+
             private final Optional<String> journalReferenceText;
+
             private final Optional<String> primaryCategory;
 
             public ArXivEntry(Node item) {
-                // see https://arxiv.org/help/api/user-manual#_details_of_atom_results_returned
+                // see
+                // https://arxiv.org/help/api/user-manual#_details_of_atom_results_returned
 
                 // Title of the article
                 // The result from the arXiv contains hard line breaks, try to remove them
@@ -685,8 +751,10 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 publishedDate = XMLUtil.getNodeContent(item, "published");
 
                 // Abstract of the article
-                abstractText = XMLUtil.getNodeContent(item, "summary").map(ArXivEntry::correctLineBreaks)
-                                      .map(String::trim).map(BracesCorrector::apply);
+                abstractText = XMLUtil.getNodeContent(item, "summary")
+                    .map(ArXivEntry::correctLineBreaks)
+                    .map(String::trim)
+                    .map(BracesCorrector::apply);
 
                 // Authors of the article
                 authorNames = new ArrayList<>();
@@ -710,7 +778,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                         pdfUrlParsed = XMLUtil.getAttributeContent(linkNode, "href").map(url -> {
                             try {
                                 return URLUtil.create(url);
-                            } catch (MalformedURLException e) {
+                            }
+                            catch (MalformedURLException e) {
                                 return null;
                             }
                         });
@@ -725,9 +794,11 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 journalReferenceText = XMLUtil.getNodeContent(item, "arxiv:journal_ref");
 
                 // Primary category
-                // Ex: <arxiv:primary_category xmlns:arxiv="https://arxiv.org/schemas/atom" term="math-ph" scheme="http://arxiv.org/schemas/atom"/>
+                // Ex: <arxiv:primary_category
+                // xmlns:arxiv="https://arxiv.org/schemas/atom" term="math-ph"
+                // scheme="http://arxiv.org/schemas/atom"/>
                 primaryCategory = XMLUtil.getNode(item, "arxiv:primary_category")
-                                         .flatMap(node -> XMLUtil.getAttributeContent(node, "term"));
+                    .flatMap(node -> XMLUtil.getAttributeContent(node, "term"));
             }
 
             public static String correctLineBreaks(String s) {
@@ -762,7 +833,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 return publishedDate.map(date -> {
                     if (date.length() < 10) {
                         return null;
-                    } else {
+                    }
+                    else {
                         return date.substring(0, 10);
                     }
                 });
@@ -783,6 +855,9 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 getPdfUrl().ifPresent(url -> bibEntry.setFiles(List.of(new LinkedFile(url, "PDF"))));
                 return bibEntry;
             }
+
         }
+
     }
+
 }

@@ -12,6 +12,7 @@ import org.jabref.model.metadata.SaveOrder;
 public class SortCriterionViewModel {
 
     private final ObjectProperty<Field> fieldProperty = new SimpleObjectProperty<>();
+
     private final BooleanProperty descendingProperty = new SimpleBooleanProperty();
 
     public SortCriterionViewModel(SaveOrder.SortCriterion criterion) {
@@ -35,4 +36,5 @@ public class SortCriterionViewModel {
     public SaveOrder.SortCriterion getCriterion() {
         return new SaveOrder.SortCriterion(fieldProperty.getValue(), descendingProperty.getValue());
     }
+
 }

@@ -26,7 +26,6 @@ public class BibEntryView {
 
     /**
      * Creates a layout for a given {@link BibEntry} to be displayed in a List
-     *
      * @param entry {@link BibEntry} to display
      * @return layout container displaying the entry
      */
@@ -45,11 +44,7 @@ public class BibEntryView {
         Node journal = createLabel(journalText);
         journal.getStyleClass().add("journal");
 
-        VBox entryContainer = new VBox(
-                new HBox(10, entryType, title),
-                new HBox(5, year, journal),
-                authors
-        );
+        VBox entryContainer = new VBox(new HBox(10, entryType, title), new HBox(5, year, journal), authors);
 
         entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).ifPresent(summaryText -> {
             Node summary = createSummary(summaryText);
@@ -63,7 +58,6 @@ public class BibEntryView {
 
     /**
      * Gets the correct Icon for a given {@link EntryType}
-     *
      * @param type {@link EntryType} to get Icon for
      * @return Icon corresponding to {@link EntryType}
      */
@@ -71,7 +65,8 @@ public class BibEntryView {
         if (type instanceof StandardEntryType standardEntry) {
             if (standardEntry == StandardEntryType.Book) {
                 return IconTheme.JabRefIcons.BOOK;
-            } else if (CROSS_REF_TYPES.contains(standardEntry)) {
+            }
+            else if (CROSS_REF_TYPES.contains(standardEntry)) {
                 return IconTheme.JabRefIcons.OPEN_LINK;
             }
         }
@@ -80,14 +75,13 @@ public class BibEntryView {
 
     /**
      * Checks if text contains right-to-left characters
-     *
      * @param text Text to check
      * @return true if text contains RTL characters
      */
     private static boolean isRTL(String text) {
         for (char c : text.toCharArray()) {
-            if (Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
-                    Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
+            if (Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+                    || Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
                 return true;
             }
         }
@@ -97,11 +91,9 @@ public class BibEntryView {
     /**
      * Creates a text node for the summary with horizontal scrolling for RTL text,
      * avoiding JavaFX bug related to RTL text wrapping
-     *
      * @param text The summary text content
-     * @return Node with either:
-     *         - ScrollPane (for RTL text)
-     *         - TextFlowLimited (for LTR text)
+     * @return Node with either: - ScrollPane (for RTL text) - TextFlowLimited (for LTR
+     * text)
      */
     private static Node createSummary(String text) {
         if (isRTL(text)) {
@@ -110,19 +102,18 @@ public class BibEntryView {
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollPane.setFitToHeight(true);
             return scrollPane;
-        } else {
+        }
+        else {
             return new TextFlowLimited(new Text(text));
         }
     }
 
     /**
-     * Creates a label with horizontal scrolling for RTL text, 
-     * avoiding JavaFX bug related to RTL text wrapping
-     *
+     * Creates a label with horizontal scrolling for RTL text, avoiding JavaFX bug related
+     * to RTL text wrapping
      * @param text The label text content
-     * @return Node with either:
-     *         - ScrollPane (for RTL text)
-     *         - Wrapped Label (for LTR text)
+     * @return Node with either: - ScrollPane (for RTL text) - Wrapped Label (for LTR
+     * text)
      */
     private static Node createLabel(String text) {
         if (isRTL(text)) {
@@ -131,10 +122,12 @@ public class BibEntryView {
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollPane.setFitToHeight(true);
             return scrollPane;
-        } else {
+        }
+        else {
             Label label = new Label(text);
             label.setWrapText(true);
             return label;
         }
     }
+
 }

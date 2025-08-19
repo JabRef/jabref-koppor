@@ -16,7 +16,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 public class InternalMaterialDesignIcon implements JabRefIcon {
 
     private final List<Ikon> icons;
+
     private Optional<Color> color;
+
     private final String unicode;
 
     public InternalMaterialDesignIcon(Color color, Ikon... icons) {
@@ -45,9 +47,9 @@ public class InternalMaterialDesignIcon implements JabRefIcon {
         fontIcon.getStyleClass().add("glyph-icon");
 
         // Override the default color from the css files
-        color.ifPresent(color -> fontIcon.setStyle(fontIcon.getStyle() +
-                "-fx-fill: %s;".formatted(ColorUtil.toRGBCode(color)) +
-                "-fx-icon-color: %s;".formatted(ColorUtil.toRGBCode(color))));
+        color.ifPresent(
+                color -> fontIcon.setStyle(fontIcon.getStyle() + "-fx-fill: %s;".formatted(ColorUtil.toRGBCode(color))
+                        + "-fx-icon-color: %s;".formatted(ColorUtil.toRGBCode(color))));
 
         return fontIcon;
     }
@@ -75,4 +77,5 @@ public class InternalMaterialDesignIcon implements JabRefIcon {
     public Ikon getIkon() {
         return icons.getFirst();
     }
+
 }

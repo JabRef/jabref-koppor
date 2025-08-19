@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MsBibMappingTest {
+
     @Test
     void getLanguage() {
         String lang = MSBibMapping.getLanguage(1609);
@@ -28,4 +29,5 @@ class MsBibMappingTest {
         int lcid = MSBibMapping.getLCID("not a language");
         assertEquals(1033, lcid);
     }
+
 }

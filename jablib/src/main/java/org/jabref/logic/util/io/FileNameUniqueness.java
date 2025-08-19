@@ -15,16 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileNameUniqueness {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FileNameUniqueness.class);
 
     private static final Pattern DUPLICATE_MARK_PATTERN = Pattern.compile("(.*) \\(\\d+\\)");
 
     /**
-     * Returns a file name such that it does not match any existing files in targetDirectory
-     *
+     * Returns a file name such that it does not match any existing files in
+     * targetDirectory
      * @param targetDirectory The directory in which file name should be unique
-     * @param fileName        Suggested name for the file
-     * @return a file name such that it does not match any existing files in targetDirectory
+     * @param fileName Suggested name for the file
+     * @return a file name such that it does not match any existing files in
+     * targetDirectory
      */
     public static String getNonOverWritingFileName(Path targetDirectory, String fileName) {
         Optional<String> extensionOptional = FileUtil.getFileExtension(fileName);
@@ -36,7 +38,8 @@ public class FileNameUniqueness {
         if (extensionOptional.isPresent()) {
             extensionSuffix = '.' + extensionOptional.get();
             fileNameWithoutExtension = fileName.substring(0, fileName.lastIndexOf('.'));
-        } else {
+        }
+        else {
             extensionSuffix = "";
             fileNameWithoutExtension = fileName;
         }
@@ -45,9 +48,7 @@ public class FileNameUniqueness {
 
         int counter = 1;
         while (Files.exists(targetDirectory.resolve(newFileName))) {
-            newFileName = fileNameWithoutExtension +
-                    " (" + counter + ")" +
-                    extensionSuffix;
+            newFileName = fileNameWithoutExtension + " (" + counter + ")" + extensionSuffix;
             counter++;
         }
 
@@ -55,17 +56,20 @@ public class FileNameUniqueness {
     }
 
     /**
-     * This function decide whether the newly downloaded file has the same content with other files
-     * It returns ture when the content is duplicate, while returns false if it is not
-     *
+     * This function decide whether the newly downloaded file has the same content with
+     * other files It returns ture when the content is duplicate, while returns false if
+     * it is not
      * @param directory The directory which saves the files (.pdf, for example)
      * @param fileName Suggest name for the newly downloaded file
      * @param messageOnDeletion To display the error and success message
-     * @return true when the content of the newly downloaded file is same as the file with "similar" name,
-     *         false when there is no "similar" file name or the content is different from that of files with "similar" name
-     * @throws IOException Fail when the file is not exist or something wrong when reading the file
+     * @return true when the content of the newly downloaded file is same as the file with
+     * "similar" name, false when there is no "similar" file name or the content is
+     * different from that of files with "similar" name
+     * @throws IOException Fail when the file is not exist or something wrong when reading
+     * the file
      */
-    public static boolean isDuplicatedFile(Path directory, Path fileName, Consumer<String> messageOnDeletion) throws IOException {
+    public static boolean isDuplicatedFile(Path directory, Path fileName, Consumer<String> messageOnDeletion)
+            throws IOException {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileName);
 
@@ -88,16 +92,17 @@ public class FileNameUniqueness {
             if (com.google.common.io.Files.equal(originalFile.toFile(), duplicateFile.toFile())) {
                 try {
                     Files.delete(duplicateFile);
-                    messageOnDeletion.accept(Localization.lang("File '%1' is a duplicate of '%0'. Keeping '%0'", originalFileName, fileName));
-                } catch (IOException e) {
-                    LOGGER.error("File '{}' is a duplicate of '{}'. Could not delete '{}'.", fileName, originalFileName, fileName);
+                    messageOnDeletion.accept(Localization.lang("File '%1' is a duplicate of '%0'. Keeping '%0'",
+                            originalFileName, fileName));
+                }
+                catch (IOException e) {
+                    LOGGER.error("File '{}' is a duplicate of '{}'. Could not delete '{}'.", fileName, originalFileName,
+                            fileName);
                 }
                 return true;
             }
 
-            originalFileName = fileNameWithoutDuplicated +
-                    " (" + counter + ")"
-                    + extensionSuffix;
+            originalFileName = fileNameWithoutDuplicated + " (" + counter + ")" + extensionSuffix;
             counter++;
 
             if (newFilename.equals(originalFileName)) {
@@ -109,13 +114,15 @@ public class FileNameUniqueness {
     }
 
     /**
-     * This is the opposite function of getNonOverWritingFileName
-     * It will recover the file name to origin if it has duplicate mark such as " (1)"
-     * change the String whose format is "xxxxxx (number)" into "xxxxxx", while return the same String when it does not match the format
-     * This is the opposite function of getNonOverWritingFileName
-     *
-     * @param fileName Suggested name for the file without extensionSuffix, if it has duplicate file name with other file, it will end with something like " (1)"
-     * @return Suggested name for the file without extensionSuffix and duplicate marks such as " (1)"
+     * This is the opposite function of getNonOverWritingFileName It will recover the file
+     * name to origin if it has duplicate mark such as " (1)" change the String whose
+     * format is "xxxxxx (number)" into "xxxxxx", while return the same String when it
+     * does not match the format This is the opposite function of
+     * getNonOverWritingFileName
+     * @param fileName Suggested name for the file without extensionSuffix, if it has
+     * duplicate file name with other file, it will end with something like " (1)"
+     * @return Suggested name for the file without extensionSuffix and duplicate marks
+     * such as " (1)"
      */
     public static String eraseDuplicateMarks(String fileName) {
         Matcher m = DUPLICATE_MARK_PATTERN.matcher(fileName);
@@ -127,4 +134,5 @@ public class FileNameUniqueness {
 
         return filePath.resolveSibling(eraseDuplicateMarks(FileUtil.getBaseName(filePath)) + extensionSuffix);
     }
+
 }

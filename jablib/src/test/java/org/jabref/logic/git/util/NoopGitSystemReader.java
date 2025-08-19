@@ -4,16 +4,19 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.util.SystemReader;
 
 /**
- * Noop implementation of {@link SystemReader}
- * to prevent leaking of system and user git config into tests.
+ * Noop implementation of {@link SystemReader} to prevent leaking of system and user git
+ * config into tests.
  */
 public class NoopGitSystemReader extends SystemReader.Delegate {
+
     private static final StoredConfig NOP = new StoredConfig() {
         @Override
-        public void load() { }
+        public void load() {
+        }
 
         @Override
-        public void save() { }
+        public void save() {
+        }
     };
 
     public NoopGitSystemReader() {
@@ -29,4 +32,5 @@ public class NoopGitSystemReader extends SystemReader.Delegate {
     public StoredConfig getSystemConfig() {
         return NOP;
     }
+
 }

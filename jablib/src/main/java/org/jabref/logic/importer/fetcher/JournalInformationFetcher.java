@@ -29,10 +29,14 @@ import org.slf4j.LoggerFactory;
  * Fetches journal information from the JabRef Web API
  */
 public class JournalInformationFetcher implements WebFetcher {
+
     public static final String NAME = "Journal Information";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalInformationFetcher.class);
+
     // Uses JabRef Online APIs
     private static final String API_URL = "https://jabref.org/api";
+
     private static final Pattern QUOTES_BRACKET_PATTERN = Pattern.compile("[\"\\[\\]]");
 
     @Override
@@ -40,13 +44,15 @@ public class JournalInformationFetcher implements WebFetcher {
         return JournalInformationFetcher.NAME;
     }
 
-    public Optional<JournalInformation> getJournalInformation(String issnString, String journalName) throws FetcherException {
+    public Optional<JournalInformation> getJournalInformation(String issnString, String journalName)
+            throws FetcherException {
         ISSN issn = new ISSN(issnString);
         String cleanedISSN = "";
 
         if (issn.isValidFormat() || issn.isCanBeCleaned()) {
             cleanedISSN = issn.getCleanedISSN();
-        } else {
+        }
+        else {
             LOGGER.warn(Localization.lang("Incorrect ISSN format"));
         }
 
@@ -55,9 +61,9 @@ public class JournalInformationFetcher implements WebFetcher {
         JSONObject postData = buildPostData(cleanedISSN, journalName);
 
         HttpResponse<JsonNode> httpResponse = Unirest.post(API_URL)
-                                                     .header("Content-Type", "application/json")
-                                                     .body(postData)
-                                                     .asJson();
+            .header("Content-Type", "application/json")
+            .body(postData)
+            .asJson();
 
         if (httpResponse.getBody() != null) {
             JSONObject responseJsonObject = httpResponse.getBody().getObject();
@@ -122,49 +128,38 @@ public class JournalInformationFetcher implements WebFetcher {
                         citableDocsPrevious3Years = parseCitationInfo(citationInfo, "citableDocsPrevious3Years");
                         citesOutgoing = parseCitationInfo(citationInfo, "citesOutgoing");
                         citesOutgoingPerDoc = parseCitationInfo(citationInfo, "citesOutgoingPerDoc");
-                        citesIncomingByRecentlyPublished = parseCitationInfo(citationInfo, "citesIncomingByRecentlyPublished");
-                        citesIncomingPerDocByRecentlyPublished = parseCitationInfo(citationInfo, "citesIncomingPerDocByRecentlyPublished");
+                        citesIncomingByRecentlyPublished = parseCitationInfo(citationInfo,
+                                "citesIncomingByRecentlyPublished");
+                        citesIncomingPerDocByRecentlyPublished = parseCitationInfo(citationInfo,
+                                "citesIncomingPerDocByRecentlyPublished");
                         sjrArray = parseCitationInfo(citationInfo, "sjrIndex");
                         snipArray = parseCitationInfo(citationInfo, "snipIndex");
                     }
-                } else {
+                }
+                else {
                     throw new FetcherException(Localization.lang("ISSN and/or journal name not found in catalog"));
                 }
-            } else {
+            }
+            else {
                 throw new FetcherException(Localization.lang("ISSN and/or journal name not found in catalog"));
             }
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             throw new FetcherException(Localization.lang("Parsing error"), e);
         }
 
-        return new JournalInformation(
-                title,
-                publisher,
-                coverageStartYear,
-                coverageEndYear,
-                subjectArea,
-                country,
-                categories,
-                scimagoId,
-                hIndex,
-                issn,
-                sjrArray,
-                snipArray,
-                docsThisYear,
-                docsPrevious3Years,
-                citableDocsPrevious3Years,
-                citesOutgoing,
-                citesOutgoingPerDoc,
-                citesIncomingByRecentlyPublished,
-                citesIncomingPerDocByRecentlyPublished
-        );
+        return new JournalInformation(title, publisher, coverageStartYear, coverageEndYear, subjectArea, country,
+                categories, scimagoId, hIndex, issn, sjrArray, snipArray, docsThisYear, docsPrevious3Years,
+                citableDocsPrevious3Years, citesOutgoing, citesOutgoingPerDoc, citesIncomingByRecentlyPublished,
+                citesIncomingPerDocByRecentlyPublished);
     }
 
     private static String getConcatenatedString(JSONObject jsonObject, String key) {
         JSONArray jsonArray = jsonObject.optJSONArray(key);
         if (jsonArray != null) {
             return QUOTES_BRACKET_PATTERN.matcher(jsonArray.join(", ")).replaceAll("");
-        } else {
+        }
+        else {
             return "";
         }
     }
@@ -228,4 +223,5 @@ public class JournalInformationFetcher implements WebFetcher {
         parsedArray.sort(Comparator.comparing(Pair::getKey));
         return parsedArray;
     }
+
 }

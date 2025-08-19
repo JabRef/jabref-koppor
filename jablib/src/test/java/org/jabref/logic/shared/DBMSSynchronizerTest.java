@@ -43,16 +43,21 @@ import static org.mockito.Mockito.when;
 class DBMSSynchronizerTest {
 
     private DBMSSynchronizer dbmsSynchronizer;
+
     private BibDatabase bibDatabase;
+
     private final GlobalCitationKeyPatterns pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
+
     private DBMSConnection dbmsConnection;
+
     private DBMSProcessor dbmsProcessor;
+
     private DBMSType dbmsType;
 
     private BibEntry createExampleBibEntry(int index) {
         BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Wirthlin, Michael J" + index)
-                .withField(StandardField.TITLE, "The nano processor" + index);
+            .withField(StandardField.AUTHOR, "Wirthlin, Michael J" + index)
+            .withField(StandardField.TITLE, "The nano processor" + index);
         bibEntry.getSharedBibEntryData().setSharedID(index);
         return bibEntry;
     }
@@ -121,8 +126,7 @@ class DBMSSynchronizerTest {
 
         List<BibEntry> actualEntries = dbmsProcessor.getSharedEntries();
 
-        BibEntry expectedBibEntry = createExampleBibEntry(1)
-                .withField(StandardField.AUTHOR, "Brad L and Gilson");
+        BibEntry expectedBibEntry = createExampleBibEntry(1).withField(StandardField.AUTHOR, "Brad L and Gilson");
 
         assertEquals(List.of(expectedBibEntry), actualEntries);
     }
@@ -199,8 +203,7 @@ class DBMSSynchronizerTest {
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
 
-        BibEntry modifiedBibEntry = createExampleBibEntry(1)
-                .withField(new UnknownField("custom"), "custom value");
+        BibEntry modifiedBibEntry = createExampleBibEntry(1).withField(new UnknownField("custom"), "custom value");
         modifiedBibEntry.clearField(StandardField.TITLE);
         modifiedBibEntry.setType(StandardEntryType.Article);
 
@@ -218,8 +221,7 @@ class DBMSSynchronizerTest {
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
 
-        BibEntry modifiedBibEntry = createExampleBibEntry(1)
-                .withField(new UnknownField("custom"), "custom value");
+        BibEntry modifiedBibEntry = createExampleBibEntry(1).withField(new UnknownField("custom"), "custom value");
         modifiedBibEntry.clearField(StandardField.TITLE);
         modifiedBibEntry.setType(StandardEntryType.Article);
 
@@ -235,11 +237,13 @@ class DBMSSynchronizerTest {
         bibDatabase.insertEntry(bibEntry);
 
         MetaData testMetaData = new MetaData();
-        testMetaData.setSaveActions(new FieldFormatterCleanups(true, List.of(new FieldFormatterCleanup(StandardField.AUTHOR, new LowerCaseFormatter()))));
+        testMetaData.setSaveActions(new FieldFormatterCleanups(true,
+                List.of(new FieldFormatterCleanup(StandardField.AUTHOR, new LowerCaseFormatter()))));
         dbmsSynchronizer.setMetaData(testMetaData);
 
         dbmsSynchronizer.applyMetaData();
 
         assertEquals("wirthlin, michael j1", bibEntry.getField(StandardField.AUTHOR).get());
     }
+
 }

@@ -21,10 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GitHandlerRegistryTest {
+
     @TempDir
     Path tempDir;
 
     private GitHandlerRegistry registry;
+
     private Git testGit;
 
     @BeforeEach
@@ -73,4 +75,5 @@ class GitHandlerRegistryTest {
         GitHandler handler2 = handlerOpt.get();
         assertSame(handler1, handler2, "Should return same cached handler");
     }
+
 }

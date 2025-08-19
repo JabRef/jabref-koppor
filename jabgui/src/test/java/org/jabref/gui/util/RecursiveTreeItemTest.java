@@ -19,8 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RecursiveTreeItemTest {
 
     private RecursiveTreeItem<TreeNodeTestData.TreeNodeMock> rootTreeItem;
+
     private TreeNodeTestData.TreeNodeMock root;
+
     private ObjectProperty<Predicate<TreeNodeTestData.TreeNodeMock>> filterPredicate;
+
     private TreeNodeTestData.TreeNodeMock node;
 
     @BeforeEach
@@ -36,23 +39,34 @@ class RecursiveTreeItemTest {
 
     @Test
     void addsAllChildrenNodes() {
-        assertEquals(root.getChildren(), rootTreeItem.getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
+        assertEquals(root.getChildren(),
+                rootTreeItem.getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
     }
 
     @Test
     void addsAllChildrenOfChildNode() {
-        assertEquals(
-                root.getChildAt(1).get().getChildren(),
-                rootTreeItem.getChildren().get(1).getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
+        assertEquals(root.getChildAt(1).get().getChildren(),
+                rootTreeItem.getChildren()
+                    .get(1)
+                    .getChildren()
+                    .stream()
+                    .map(TreeItem::getValue)
+                    .collect(Collectors.toList()));
     }
 
     @Test
     void respectsFilter() {
         filterPredicate.setValue(item -> item.getName().contains("test"));
 
-        assertEquals(List.of(node.getParent().get()), rootTreeItem.getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
-        assertEquals(
-                List.of(node),
-                rootTreeItem.getChildren().getFirst().getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
+        assertEquals(List.of(node.getParent().get()),
+                rootTreeItem.getChildren().stream().map(TreeItem::getValue).collect(Collectors.toList()));
+        assertEquals(List.of(node),
+                rootTreeItem.getChildren()
+                    .getFirst()
+                    .getChildren()
+                    .stream()
+                    .map(TreeItem::getValue)
+                    .collect(Collectors.toList()));
     }
+
 }

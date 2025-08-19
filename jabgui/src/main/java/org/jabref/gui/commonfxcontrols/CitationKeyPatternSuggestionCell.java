@@ -20,6 +20,7 @@ import org.jabref.logic.citationkeypattern.CitationKeyPattern;
 import org.jabref.logic.l10n.Localization;
 
 public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<CitationKeyPatternsPanelItemModel, String> {
+
     private final CitationKeyPatternSuggestionTextField searchField;
 
     public CitationKeyPatternSuggestionCell(List<String> citationKeyPatterns) {
@@ -54,20 +55,25 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
         if (empty || item == null) {
             setGraphic(null);
             setText(null);
-        } else {
+        }
+        else {
             setText(item);
         }
     }
 
     static class CitationKeyPatternSuggestionTextField extends TextField {
+
         private final List<String> citationKeyPatterns;
+
         private final ContextMenu suggestionsList;
+
         private int heightOfMenuItem;
 
         public CitationKeyPatternSuggestionTextField(List<String> citationKeyPatterns) {
             this.citationKeyPatterns = new ArrayList<>(citationKeyPatterns);
             this.suggestionsList = new ContextMenu();
-            // Initial reasonable estimate before the menu items are populated. We overwrite this dynamically
+            // Initial reasonable estimate before the menu items are populated. We
+            // overwrite this dynamically
             this.heightOfMenuItem = 30;
 
             setListener();
@@ -78,10 +84,11 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
                 String enteredText = getText();
                 if (enteredText == null || enteredText.isEmpty()) {
                     suggestionsList.hide();
-                } else {
+                }
+                else {
                     List<String> filteredEntries = citationKeyPatterns.stream()
-                                                                      .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
-                                                                      .toList();
+                        .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
+                        .toList();
 
                     if (!filteredEntries.isEmpty()) {
                         populatePopup(filteredEntries);
@@ -90,7 +97,8 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
                             double screenY = localToScreen(0, 0).getY() + getHeight();
                             suggestionsList.show(this, screenX, screenY);
                         }
-                    } else {
+                    }
+                    else {
                         suggestionsList.hide();
                     }
                 }
@@ -125,7 +133,10 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
             }
 
             if (!menuItems.isEmpty()) {
-                Platform.runLater(() -> heightOfMenuItem = (int) menuItems.getFirst().getContent().getBoundsInLocal().getHeight());
+                Platform.runLater(() -> heightOfMenuItem = (int) menuItems.getFirst()
+                    .getContent()
+                    .getBoundsInLocal()
+                    .getHeight());
             }
 
             suggestionsList.getItems().clear();
@@ -157,17 +168,17 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
         private Menu createPatternsSubMenu() {
             Menu patternsSubMenu = new Menu(Localization.lang("All patterns"));
 
-            Map<CitationKeyPattern.Category, List<CitationKeyPattern>> categorizedPatterns =
-                    CitationKeyPattern.getAllPatterns().stream()
-                                      .collect(Collectors.groupingBy(CitationKeyPattern::getCategory));
+            Map<CitationKeyPattern.Category, List<CitationKeyPattern>> categorizedPatterns = CitationKeyPattern
+                .getAllPatterns()
+                .stream()
+                .collect(Collectors.groupingBy(CitationKeyPattern::getCategory));
 
-            Map<CitationKeyPattern.Category, String> categoryNames = Map.of(
-                    CitationKeyPattern.Category.AUTHOR_RELATED, Localization.lang("Author related"),
-                    CitationKeyPattern.Category.EDITOR_RELATED, Localization.lang("Editor related"),
-                    CitationKeyPattern.Category.TITLE_RELATED, Localization.lang("Title related"),
-                    CitationKeyPattern.Category.OTHER_FIELDS, Localization.lang("Other fields"),
-                    CitationKeyPattern.Category.BIBENTRY_FIELDS, Localization.lang("Entry fields")
-            );
+            Map<CitationKeyPattern.Category, String> categoryNames = Map.of(CitationKeyPattern.Category.AUTHOR_RELATED,
+                    Localization.lang("Author related"), CitationKeyPattern.Category.EDITOR_RELATED,
+                    Localization.lang("Editor related"), CitationKeyPattern.Category.TITLE_RELATED,
+                    Localization.lang("Title related"), CitationKeyPattern.Category.OTHER_FIELDS,
+                    Localization.lang("Other fields"), CitationKeyPattern.Category.BIBENTRY_FIELDS,
+                    Localization.lang("Entry fields"));
 
             for (Map.Entry<CitationKeyPattern.Category, String> entry : categoryNames.entrySet()) {
                 CitationKeyPattern.Category category = entry.getKey();
@@ -189,5 +200,7 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
             }
             return patternsSubMenu;
         }
+
     }
+
 }

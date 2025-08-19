@@ -29,4 +29,5 @@ final class StyleSheetResource extends StyleSheet {
     public String toString() {
         return "StyleSheet{" + getSceneStylesheet() + "}";
     }
+
 }

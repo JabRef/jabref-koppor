@@ -14,8 +14,8 @@ class OOProcessCitationKeyMarkers {
     }
 
     /**
-     *  Produce citation markers for the case when the citation
-     *  markers are the citation keys themselves, separated by commas.
+     * Produce citation markers for the case when the citation markers are the citation
+     * keys themselves, separated by commas.
      */
     static void produceCitationMarkers(CitationGroups citationGroups, JStyle style) {
         assert style.isCitationKeyCiteMarkers();
@@ -23,11 +23,11 @@ class OOProcessCitationKeyMarkers {
         citationGroups.createPlainBibliographySortedByComparator(OOProcess.AUTHOR_YEAR_TITLE_COMPARATOR);
 
         for (CitationGroup group : citationGroups.getCitationGroupsInGlobalOrder()) {
-            String citMarker =
-                style.getCitationGroupMarkupBefore()
-                + String.join(",", OOListUtil.map(group.getCitationsInLocalOrder(), Citation::getCitationKey))
-                + style.getCitationGroupMarkupAfter();
+            String citMarker = style.getCitationGroupMarkupBefore()
+                    + String.join(",", OOListUtil.map(group.getCitationsInLocalOrder(), Citation::getCitationKey))
+                    + style.getCitationGroupMarkupAfter();
             group.setCitationMarker(Optional.of(OOText.fromString(citMarker)));
         }
     }
+
 }

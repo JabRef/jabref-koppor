@@ -23,10 +23,7 @@ class LatexToUnicodeFormatterTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "ı, \\i",
-            "ı, {\\i}"
-    })
+    @CsvSource({ "ı, \\i", "ı, {\\i}" })
     void smallIwithoutDot(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
@@ -81,7 +78,8 @@ class LatexToUnicodeFormatterTest {
 
     @Test
     void iWithDiaresisAndEscapedI() {
-        // this might look strange in the test, but is actually a correct translation and renders identically to the above example in the UI
+        // this might look strange in the test, but is actually a correct translation and
+        // renders identically to the above example in the UI
         assertEquals("ı̈", formatter.format("\\\"{\\i}"));
     }
 
@@ -179,7 +177,8 @@ class LatexToUnicodeFormatterTest {
      */
     @Test
     void twoDifferentMacrons() {
-        assertEquals("Puṇya-pattana-vidyā-pı̄ṭhādhi-kṛtaiḥ prā-kaśyaṃ nı̄taḥ", formatter.format("Pu{\\d{n}}ya-pattana-vidy{\\={a}}-p{\\={\\i}}{\\d{t}}h{\\={a}}dhi-k{\\d{r}}tai{\\d{h}} pr{\\={a}}-ka{{\\'{s}}}ya{\\d{m}} n{\\={\\i}}ta{\\d{h}}"));
+        assertEquals("Puṇya-pattana-vidyā-pı̄ṭhādhi-kṛtaiḥ prā-kaśyaṃ nı̄taḥ", formatter.format(
+                "Pu{\\d{n}}ya-pattana-vidy{\\={a}}-p{\\={\\i}}{\\d{t}}h{\\={a}}dhi-k{\\d{r}}tai{\\d{h}} pr{\\={a}}-ka{{\\'{s}}}ya{\\d{m}} n{\\={\\i}}ta{\\d{h}}"));
     }
 
     @Test
@@ -206,4 +205,5 @@ class LatexToUnicodeFormatterTest {
     void conversionOfOrdinal9th() {
         assertEquals("9ᵗʰ", formatter.format("9\\textsuperscript{th}"));
     }
+
 }

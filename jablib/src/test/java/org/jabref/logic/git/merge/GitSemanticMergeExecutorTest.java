@@ -27,11 +27,17 @@ import static org.mockito.Mockito.when;
 public class GitSemanticMergeExecutorTest {
 
     private BibDatabaseContext base;
+
     private BibDatabaseContext local;
+
     private BibDatabaseContext remote;
+
     private ImportFormatPreferences preferences;
+
     private GitSemanticMergeExecutor executor;
+
     private Path tempFile;
+
     @TempDir
     private Path tempDir;
 
@@ -41,8 +47,7 @@ public class GitSemanticMergeExecutorTest {
         local = new BibDatabaseContext();
         remote = new BibDatabaseContext();
 
-        BibEntry baseEntry = new BibEntry().withCitationKey("Smith2020")
-                                           .withField(StandardField.TITLE, "Old Title");
+        BibEntry baseEntry = new BibEntry().withCitationKey("Smith2020").withField(StandardField.TITLE, "Old Title");
         BibEntry localEntry = new BibEntry(baseEntry);
         BibEntry remoteEntry = new BibEntry(baseEntry);
         remoteEntry.setField(StandardField.TITLE, "New Title");
@@ -52,8 +57,7 @@ public class GitSemanticMergeExecutorTest {
         remote.getDatabase().insertEntry(remoteEntry);
 
         preferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(preferences.fieldPreferences().getNonWrappableFields())
-                .thenReturn(FXCollections.emptyObservableList());
+        when(preferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
 
         executor = new GitSemanticMergeExecutorImpl(preferences);
 
@@ -69,10 +73,9 @@ public class GitSemanticMergeExecutorTest {
         String mergedContent = Files.readString(tempFile);
         BibDatabaseContext mergedContext = BibDatabaseContext.of(mergedContent, preferences);
 
-        BibEntry expected = new BibEntry()
-                .withCitationKey("Smith2020")
-                .withField(StandardField.TITLE, "New Title");
+        BibEntry expected = new BibEntry().withCitationKey("Smith2020").withField(StandardField.TITLE, "New Title");
 
         assertEquals(List.of(expected), mergedContext.getDatabase().getEntries());
     }
+
 }

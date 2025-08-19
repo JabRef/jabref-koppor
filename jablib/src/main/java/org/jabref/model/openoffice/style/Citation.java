@@ -70,17 +70,15 @@ public class Citation implements ComparableCitation, CitationMarkerEntry, Citati
     }
 
     public static Optional<CitationLookupResult> lookup(BibDatabase database, String key) {
-        return database
-                .getEntryByCitationKey(key)
-                .map(bibEntry -> new CitationLookupResult(bibEntry, database));
+        return database.getEntryByCitationKey(key).map(bibEntry -> new CitationLookupResult(bibEntry, database));
     }
 
     public static Optional<CitationLookupResult> lookup(List<BibDatabase> databases, String key) {
         return databases.stream()
-                         .map(database -> Citation.lookup(database, key))
-                         .filter(Optional::isPresent)
-                         .map(Optional::get)
-                         .findFirst();
+            .map(database -> Citation.lookup(database, key))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .findFirst();
     }
 
     public void lookupInDatabases(List<BibDatabase> databases) {
@@ -149,4 +147,5 @@ public class Citation implements ComparableCitation, CitationMarkerEntry, Citati
         Citation citation = pair.a;
         citation.uniqueLetter = pair.b;
     }
+
 }

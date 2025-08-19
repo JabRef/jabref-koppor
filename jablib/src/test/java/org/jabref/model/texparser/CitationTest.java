@@ -18,9 +18,13 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class CitationTest {
 
     Path path;
+
     int line;
+
     String key;
+
     String lineText;
+
     Citation citation;
 
     @BeforeEach
@@ -32,28 +36,22 @@ class CitationTest {
     }
 
     private static Stream<Arguments> colStartColEndNotInBounds() {
-        return Stream.of(
-                arguments(-1, 2),
-                arguments(1, 9)
-        );
+        return Stream.of(arguments(-1, 2), arguments(1, 9));
     }
 
     private static Stream<Arguments> colStartColEndInBounds() {
-        return Stream.of(
-                arguments(0, 2),
-                arguments(1, 8)
-        );
+        return Stream.of(arguments(0, 2), arguments(1, 8));
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {-1, 0})
+    @ValueSource(ints = { -1, 0 })
     void constructorLineSmallerEqualZeroTest(int line) {
         Exception e = assertThrows(IllegalArgumentException.class, () -> new Citation(path, line, 1, 5, lineText));
         assertEquals("Line has to be greater than 0.", e.getMessage());
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2})
+    @ValueSource(ints = { 1, 2 })
     void constructorLineLargerZeroTest(int line) {
         Citation citation = new Citation(path, line, 1, 5, lineText);
     }
@@ -61,7 +59,8 @@ class CitationTest {
     @ParameterizedTest
     @MethodSource("colStartColEndNotInBounds")
     void constructorColStartColEndNotInBoundsTest(int colStart, int colEnd) {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new Citation(path, line, colStart, colEnd, lineText));
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> new Citation(path, line, colStart, colEnd, lineText));
         assertEquals("Citation has to be between 0 and line length.", e.getMessage());
     }
 
@@ -108,4 +107,5 @@ class CitationTest {
         assertEquals(citation, citation1);
         assertNotEquals(citation, citation2);
     }
+
 }

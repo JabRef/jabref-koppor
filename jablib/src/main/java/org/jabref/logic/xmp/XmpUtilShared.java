@@ -14,8 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * XMPUtilShared provides support for reading {@link org.jabref.logic.xmp.XmpUtilReader} and writing {@link org.jabref.logic.xmp.XmpUtilWriter} BibTeX data as XMP metadata
- * in PDF-documents.
+ * XMPUtilShared provides support for reading {@link org.jabref.logic.xmp.XmpUtilReader}
+ * and writing {@link org.jabref.logic.xmp.XmpUtilWriter} BibTeX data as XMP metadata in
+ * PDF-documents.
  */
 public class XmpUtilShared {
 
@@ -28,7 +29,8 @@ public class XmpUtilShared {
     public XmpUtilShared() {
         try {
             DOM_XMP_PARSER = new DomXmpParser();
-        } catch (XmpParsingException e) {
+        }
+        catch (XmpParsingException e) {
             LOGGER.error("Could not initialize DomXmpParser", e);
             DOM_XMP_PARSER = null;
         }
@@ -39,19 +41,20 @@ public class XmpUtilShared {
         try {
             meta = DOM_XMP_PARSER.parse(is);
             return meta;
-        } catch (XmpParsingException e) {
-            // bad style to catch Exception but as this is called in a loop we do not want to break here when any schema encounters an error
+        }
+        catch (XmpParsingException e) {
+            // bad style to catch Exception but as this is called in a loop we do not want
+            // to break here when any schema encounters an error
             throw new IOException(e);
         }
     }
 
     /**
-     * Will try to read XMP metadata from the given file, returning whether
-     * metadata was found.
+     * Will try to read XMP metadata from the given file, returning whether metadata was
+     * found.
      *
-     * Caution: This method is as expensive as it is reading the actual metadata
-     * itself from the PDF.
-     *
+     * Caution: This method is as expensive as it is reading the actual metadata itself
+     * from the PDF.
      * @param path the path to the PDF.
      * @return whether a BibEntry was found in the given PDF.
      */
@@ -59,12 +62,15 @@ public class XmpUtilShared {
         try {
             List<BibEntry> bibEntries = new XmpUtilReader().readXmp(path, xmpPreferences);
             return !bibEntries.isEmpty();
-        } catch (EncryptedPdfsNotSupportedException ex) {
+        }
+        catch (EncryptedPdfsNotSupportedException ex) {
             LOGGER.info("Encryption not supported by XMPUtil");
             return false;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             XmpUtilShared.LOGGER.debug("No metadata was found. Path: {}", path.toString());
             return false;
         }
     }
+
 }

@@ -25,7 +25,9 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(LSPServer.class);
 
     private LanguageClient client;
+
     private BibtexWorkspaceService workspaceService;
+
     private BibtexTextDocumentService textDocumentService;
 
     public LSPServer(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository) {
@@ -52,9 +54,11 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
         return CompletableFuture.completedFuture(null);
     }
 
-    /// currently not implemented because it comes from the LanguageServer interface and is documented like here
+    /// currently not implemented because it comes from the LanguageServer interface and
+    /// is documented like here
     /// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
-    /// we have to decide how to implement this so jabls gets stopped only when started before by a lsp client
+    /// we have to decide how to implement this so jabls gets stopped only when started
+    /// before by a lsp client
     @Override
     public void exit() {
     }
@@ -76,4 +80,5 @@ public class LSPServer implements LanguageServer, LanguageClientAware {
         textDocumentService.setClient(client);
         client.logMessage(new MessageParams(MessageType.Warning, "BibtexLSPServer connected."));
     }
+
 }

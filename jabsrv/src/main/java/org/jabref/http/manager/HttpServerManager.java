@@ -39,7 +39,8 @@ public class HttpServerManager implements AutoCloseable {
             httpServerThread.interrupt();
             httpServerThread = null;
             LOGGER.debug("HTTP server stopped successfully.");
-        } else {
+        }
+        else {
             LOGGER.debug("HTTP server is not started, nothing to stop.");
         }
     }
@@ -49,4 +50,5 @@ public class HttpServerManager implements AutoCloseable {
         LOGGER.debug("Closing HTTP server manager...");
         stop();
     }
+
 }

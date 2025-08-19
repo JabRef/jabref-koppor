@@ -29,24 +29,25 @@ import org.slf4j.LoggerFactory;
  * <p>
  * It uses the mailto:-mechanism
  * <p>
- * Microsoft Outlook does not support attachments via mailto
- * Therefore, the folder(s), where the file(s) belonging to the entry are stored,
- * are opened. This feature is disabled by default and can be switched on at
- * preferences/external programs
+ * Microsoft Outlook does not support attachments via mailto Therefore, the folder(s),
+ * where the file(s) belonging to the entry are stored, are opened. This feature is
+ * disabled by default and can be switched on at preferences/external programs
  */
 @AllowedToUseAwt("Requires AWT to send an email")
 public abstract class SendAsEMailAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAsEMailAction.class);
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
+
     private final TaskExecutor taskExecutor;
 
-    public SendAsEMailAction(DialogService dialogService,
-                             GuiPreferences preferences,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor) {
+    public SendAsEMailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -55,14 +56,11 @@ public abstract class SendAsEMailAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        BackgroundTask.wrap(this::sendEmail)
-                      .onSuccess(dialogService::notify)
-                      .onFailure(e -> {
-                          String message = Localization.lang("Error creating email");
-                          LOGGER.warn(message, e);
-                          dialogService.notify(message);
-                      })
-                      .executeWith(taskExecutor);
+        BackgroundTask.wrap(this::sendEmail).onSuccess(dialogService::notify).onFailure(e -> {
+            String message = Localization.lang("Error creating email");
+            LOGGER.warn(message, e);
+            dialogService.notify(message);
+        }).executeWith(taskExecutor);
     }
 
     private String sendEmail() throws URISyntaxException, IOException {
@@ -100,20 +98,24 @@ public abstract class SendAsEMailAction extends SimpleCommand {
     }
 
     private List<String> getAttachments(List<BibEntry> entries) {
-        // open folders is needed to indirectly support email programs, which cannot handle
-        //   the unofficial "mailto:attachment" property
+        // open folders is needed to indirectly support email programs, which cannot
+        // handle
+        // the unofficial "mailto:attachment" property
         boolean openFolders = preferences.getExternalApplicationsPreferences().shouldAutoOpenEmailAttachmentsFolder();
 
         BibDatabaseContext databaseContext = stateManager.getActiveDatabase().get();
-        List<Path> fileList = FileUtil.getListOfLinkedFiles(entries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
+        List<Path> fileList = FileUtil.getListOfLinkedFiles(entries,
+                databaseContext.getFileDirectories(preferences.getFilePreferences()));
 
         List<String> attachments = new ArrayList<>();
         for (Path path : fileList) {
             attachments.add(path.toAbsolutePath().toString());
             if (openFolders) {
                 try {
-                    NativeDesktop.openFolderAndSelectFile(path.toAbsolutePath(), preferences.getExternalApplicationsPreferences(), dialogService);
-                } catch (IOException e) {
+                    NativeDesktop.openFolderAndSelectFile(path.toAbsolutePath(),
+                            preferences.getExternalApplicationsPreferences(), dialogService);
+                }
+                catch (IOException e) {
                     LOGGER.debug("Cannot open file", e);
                 }
             }
@@ -126,4 +128,5 @@ public abstract class SendAsEMailAction extends SimpleCommand {
     protected abstract String getSubject();
 
     protected abstract String getBody();
+
 }

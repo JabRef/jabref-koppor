@@ -4,7 +4,9 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class CopyToPreferences {
+
     private final BooleanProperty shouldIncludeCrossReferences = new SimpleBooleanProperty();
+
     private final BooleanProperty shouldAskForIncludingCrossReferences = new SimpleBooleanProperty();
 
     public CopyToPreferences(boolean shouldAskForIncludingCrossReferences, boolean shouldIncludeCrossReferences) {
@@ -35,4 +37,5 @@ public class CopyToPreferences {
     public BooleanProperty shouldAskForIncludingCrossReferencesProperty() {
         return shouldAskForIncludingCrossReferences;
     }
+
 }

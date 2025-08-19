@@ -17,4 +17,5 @@ public interface Parser {
     default List<BibEntry> parseEntries(String dataString) throws ParseException {
         return parseEntries(new ByteArrayInputStream(dataString.getBytes(StandardCharsets.UTF_8)));
     }
+
 }

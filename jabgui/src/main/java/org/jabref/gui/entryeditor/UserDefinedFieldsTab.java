@@ -17,25 +17,14 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 public class UserDefinedFieldsTab extends FieldsEditorTab {
+
     private final LinkedHashSet<Field> fields;
 
-    public UserDefinedFieldsTab(String name,
-                                Set<Field> fields,
-                                UndoManager undoManager,
-                                UndoAction undoAction,
-                                RedoAction redoAction,
-                                GuiPreferences preferences,
-                                JournalAbbreviationRepository journalAbbreviationRepository,
-                                StateManager stateManager,
-                                PreviewPanel previewPanel) {
-        super(
-                false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
+    public UserDefinedFieldsTab(String name, Set<Field> fields, UndoManager undoManager, UndoAction undoAction,
+            RedoAction redoAction, GuiPreferences preferences,
+            JournalAbbreviationRepository journalAbbreviationRepository, StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(false, undoManager, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager,
                 previewPanel);
 
         this.fields = new LinkedHashSet<>(fields);
@@ -48,4 +37,5 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
         return fields;
     }
+
 }

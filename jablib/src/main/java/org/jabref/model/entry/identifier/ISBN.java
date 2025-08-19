@@ -25,7 +25,8 @@ public class ISBN implements Identifier {
         ISBN isbn = new ISBN(input);
         if (isbn.isValid()) {
             return Optional.of(isbn);
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }
@@ -39,7 +40,8 @@ public class ISBN implements Identifier {
         boolean valid;
         if (isbnString.length() == 10) {
             valid = isbn10check();
-        } else {
+        }
+        else {
             // length is either 10 or 13 based on regexp so will be 13 here
             valid = isbn13check();
         }
@@ -54,7 +56,8 @@ public class ISBN implements Identifier {
         return isbn13check();
     }
 
-    // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
+    // Check that the control digit is correct, see e.g.
+    // https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
     private boolean isbn10check() {
         if (isbnString.length() != 10) {
             return false;
@@ -72,7 +75,8 @@ public class ISBN implements Identifier {
         return (sum % 11) == 0;
     }
 
-    // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
+    // Check that the control digit is correct, see e.g.
+    // https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
     private boolean isbn13check() {
         if (isbnString.length() != 13) {
             return false;
@@ -103,7 +107,8 @@ public class ISBN implements Identifier {
     public Optional<URI> getExternalURI() {
         try {
             return Optional.of(new URI("https://www.worldcat.org/isbn/" + isbnString));
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             return Optional.empty();
         }
     }
@@ -124,4 +129,5 @@ public class ISBN implements Identifier {
     public int hashCode() {
         return Objects.hash(isbnString.toLowerCase(Locale.ENGLISH));
     }
+
 }

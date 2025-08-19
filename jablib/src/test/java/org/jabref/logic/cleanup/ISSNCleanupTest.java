@@ -20,9 +20,7 @@ class ISSNCleanupTest {
 
     @BeforeEach
     void setUp() {
-        worker = new CleanupWorker(
-                mock(BibDatabaseContext.class),
-                mock(FilePreferences.class),
+        worker = new CleanupWorker(mock(BibDatabaseContext.class), mock(FilePreferences.class),
                 mock(TimestampPreferences.class));
     }
 
@@ -55,4 +53,5 @@ class ISSNCleanupTest {
         worker.cleanup(preset, entry);
         assertEquals(Optional.of("Banana"), entry.getField(StandardField.ISSN));
     }
+
 }

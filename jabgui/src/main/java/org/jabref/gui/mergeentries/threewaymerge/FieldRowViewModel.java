@@ -31,23 +31,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FieldRowViewModel {
+
     public enum Selection {
-        LEFT,
-        RIGHT,
+
+        LEFT, RIGHT,
         /**
-         * When the user types something into the merged field value and neither the left nor
-         * right values match it, NONE is selected
-         * */
+         * When the user types something into the merged field value and neither the left
+         * nor right values match it, NONE is selected
+         */
         NONE
+
     }
 
     private final Logger LOGGER = LoggerFactory.getLogger(FieldRowViewModel.class);
+
     private final BooleanProperty isFieldsMerged = new SimpleBooleanProperty(Boolean.FALSE);
 
     private final ObjectProperty<Selection> selection = new SimpleObjectProperty<>();
 
     private final StringProperty leftFieldValue = new SimpleStringProperty("");
+
     private final StringProperty rightFieldValue = new SimpleStringProperty("");
+
     private final StringProperty mergedFieldValue = new SimpleStringProperty("");
 
     private final Field field;
@@ -64,7 +69,8 @@ public class FieldRowViewModel {
 
     private final CompoundEdit fieldsMergedEdit = new CompoundEdit();
 
-    public FieldRowViewModel(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory) {
+    public FieldRowViewModel(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry,
+            FieldMergerFactory fieldMergerFactory) {
         this.field = field;
         this.leftEntry = leftEntry;
         this.rightEntry = rightEntry;
@@ -74,7 +80,8 @@ public class FieldRowViewModel {
         if (field.equals(InternalField.TYPE_HEADER)) {
             setLeftFieldValue(leftEntry.getType().getDisplayName());
             setRightFieldValue(rightEntry.getType().getDisplayName());
-        } else {
+        }
+        else {
             setLeftFieldValue(leftEntry.getField(field).orElse(""));
             setRightFieldValue(rightEntry.getField(field).orElse(""));
         }
@@ -84,12 +91,14 @@ public class FieldRowViewModel {
         EasyBind.listen(mergedFieldValueProperty(), (obs, old, mergedFieldValue) -> {
             if (field.equals(InternalField.TYPE_HEADER)) {
                 getMergedEntry().setType(EntryTypeFactory.parse(mergedFieldValue));
-            } else {
+            }
+            else {
                 getMergedEntry().setField(field, mergedFieldValue);
             }
         });
 
-        hasEqualLeftAndRight = Bindings.createBooleanBinding(this::hasEqualLeftAndRightValues, leftFieldValueProperty(), rightFieldValueProperty());
+        hasEqualLeftAndRight = Bindings.createBooleanBinding(this::hasEqualLeftAndRightValues, leftFieldValueProperty(),
+                rightFieldValueProperty());
 
         selectNonEmptyValue();
 
@@ -97,7 +106,8 @@ public class FieldRowViewModel {
             LOGGER.debug("Field are merged: {}", areFieldsMerged);
             if (areFieldsMerged) {
                 selectLeftValue();
-            } else {
+            }
+            else {
                 selectNonEmptyValue();
             }
         });
@@ -114,9 +124,11 @@ public class FieldRowViewModel {
             LOGGER.debug("Merged value is {} for field {}", mergedValue, field.getDisplayName());
             if (mergedValue.equals(getLeftFieldValue())) {
                 selectLeftValue();
-            } else if (getMergedFieldValue().equals(getRightFieldValue())) {
+            }
+            else if (getMergedFieldValue().equals(getRightFieldValue())) {
                 selectRightValue();
-            } else {
+            }
+            else {
                 selectNone();
             }
         });
@@ -129,14 +141,16 @@ public class FieldRowViewModel {
         String rightValue = getRightFieldValue();
 
         if (StandardField.YEAR == field) {
-                YearFieldValuePlausibilityComparator comparator = new YearFieldValuePlausibilityComparator();
-                ComparisonResult comparison = comparator.compare(leftValue, rightValue);
-                if (ComparisonResult.RIGHT_BETTER == comparison) {
-                    selectRightValue();
-                } else if (ComparisonResult.LEFT_BETTER == comparison) {
-                    selectLeftValue();
-                }
-        } else if (InternalField.TYPE_HEADER == field) {
+            YearFieldValuePlausibilityComparator comparator = new YearFieldValuePlausibilityComparator();
+            ComparisonResult comparison = comparator.compare(leftValue, rightValue);
+            if (ComparisonResult.RIGHT_BETTER == comparison) {
+                selectRightValue();
+            }
+            else if (ComparisonResult.LEFT_BETTER == comparison) {
+                selectLeftValue();
+            }
+        }
+        else if (InternalField.TYPE_HEADER == field) {
             if (leftValue.equalsIgnoreCase(StandardEntryType.Misc.getName())) {
                 selectRightValue();
             }
@@ -146,7 +160,8 @@ public class FieldRowViewModel {
     public void selectNonEmptyValue() {
         if (StringUtil.isNullOrEmpty(leftFieldValue.get())) {
             selectRightValue();
-        } else {
+        }
+        else {
             selectLeftValue();
         }
     }
@@ -162,7 +177,8 @@ public class FieldRowViewModel {
     public void selectRightValue() {
         if (isFieldsMerged()) {
             selectLeftValue();
-        } else {
+        }
+        else {
             setSelection(Selection.RIGHT);
         }
     }
@@ -200,7 +216,8 @@ public class FieldRowViewModel {
 
         if (fieldsMergedEdit.canRedo()) {
             fieldsMergedEdit.redo();
-        } else {
+        }
+        else {
             fieldsMergedEdit.addEdit(new MergeFieldsUndo(oldLeftFieldValue, oldRightFieldValue, mergedFields));
             fieldsMergedEdit.end();
         }
@@ -281,8 +298,11 @@ public class FieldRowViewModel {
     }
 
     class MergeFieldsUndo extends AbstractUndoableEdit {
+
         private final String oldLeft;
+
         private final String oldRight;
+
         private final String mergedFields;
 
         MergeFieldsUndo(String oldLeft, String oldRight, String mergedFields) {
@@ -304,5 +324,7 @@ public class FieldRowViewModel {
             setLeftFieldValue(mergedFields);
             setRightFieldValue(mergedFields);
         }
+
     }
+
 }

@@ -19,18 +19,23 @@ public class RankingFieldComparator implements Comparator<Optional<SpecialFieldV
                 int compareToRes = val1.get().getValue().compareTo(val2.get().getValue());
                 if (compareToRes == 0) {
                     return 0;
-                } else {
+                }
+                else {
                     return compareToRes * -1;
                 }
-            } else {
+            }
+            else {
                 return -1;
             }
-        } else {
+        }
+        else {
             if (val2.isPresent()) {
                 return 1;
-            } else {
+            }
+            else {
                 return 0;
             }
         }
     }
+
 }

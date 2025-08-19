@@ -13,11 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BibTexStringAdd extends DatabaseChange {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibTexStringAdd.class);
 
     private final BibtexString addedString;
 
-    public BibTexStringAdd(BibtexString addedString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringAdd(BibtexString addedString, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.addedString = addedString;
         setChangeName(Localization.lang("Added string: '%0'", addedString.getName()));
@@ -28,7 +30,8 @@ public final class BibTexStringAdd extends DatabaseChange {
         try {
             databaseContext.getDatabase().addString(addedString);
             undoEdit.addEdit(new UndoableInsertString(databaseContext.getDatabase(), addedString));
-        } catch (KeyCollisionException ex) {
+        }
+        catch (KeyCollisionException ex) {
             LOGGER.warn("Error: could not add string '{}': {}", addedString.getName(), ex.getMessage(), ex);
         }
     }
@@ -36,4 +39,5 @@ public final class BibTexStringAdd extends DatabaseChange {
     public BibtexString getAddedString() {
         return addedString;
     }
+
 }

@@ -46,7 +46,9 @@ class WebFetchersTest {
             "org.jabref.logic.importer.FulltextFetchersTest$FulltextFetcherWithTrustLevel");
 
     private ImportFormatPreferences importFormatPreferences;
+
     private ImporterPreferences importerPreferences;
+
     private final ClassGraph classGraph = new ClassGraph().enableAllInfo().acceptPackages("org.jabref");
 
     @BeforeEach
@@ -56,15 +58,15 @@ class WebFetchersTest {
     }
 
     private Set<Class<?>> getIgnoredInaccessibleClasses() {
-        return IGNORED_INACCESSIBLE_FETCHERS.stream()
-                     .map(classPath -> {
-                         try {
-                             return Class.forName(classPath);
-                         } catch (ClassNotFoundException e) {
-                             LOGGER.error("Some of the ignored classes were not found", e);
-                             return null;
-                         }
-                     }).filter(Objects::nonNull).collect(Collectors.toSet());
+        return IGNORED_INACCESSIBLE_FETCHERS.stream().map(classPath -> {
+            try {
+                return Class.forName(classPath);
+            }
+            catch (ClassNotFoundException e) {
+                LOGGER.error("Some of the ignored classes were not found", e);
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @Test
@@ -75,7 +77,8 @@ class WebFetchersTest {
             ClassInfoList controlClasses = scanResult.getClassesImplementing(IdBasedFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new LinkedHashSet<>(controlClasses.loadClasses());
 
-            // Some classes implement IdBasedFetcher, but are only accessible to other fetcher, so ignore them
+            // Some classes implement IdBasedFetcher, but are only accessible to other
+            // fetcher, so ignore them
             expected.removeAll(getIgnoredInaccessibleClasses());
 
             expected.remove(AbstractIsbnFetcher.class);
@@ -100,14 +103,12 @@ class WebFetchersTest {
 
     @Test
     void getEntryBasedFetchersReturnsAllFetcherDerivingFromEntryBasedFetcher() {
-        Set<EntryBasedFetcher> idFetchers = WebFetchers.getEntryBasedFetchers(
-                mock(ImporterPreferences.class),
-                importFormatPreferences,
-                mock(FilePreferences.class),
-                mock(BibDatabaseContext.class));
+        Set<EntryBasedFetcher> idFetchers = WebFetchers.getEntryBasedFetchers(mock(ImporterPreferences.class),
+                importFormatPreferences, mock(FilePreferences.class), mock(BibDatabaseContext.class));
 
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getClassesImplementing(EntryBasedFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses = scanResult
+                .getClassesImplementing(EntryBasedFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new HashSet<>(controlClasses.loadClasses());
 
             expected.remove(EntryBasedParserFetcher.class);
@@ -118,14 +119,17 @@ class WebFetchersTest {
 
     @Test
     void getSearchBasedFetchersReturnsAllFetcherDerivingFromSearchBasedFetcher() {
-        Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
+        Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences,
+                importerPreferences);
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getClassesImplementing(SearchBasedFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses = scanResult
+                .getClassesImplementing(SearchBasedFetcher.class.getCanonicalName());
 
             Set<Class<?>> expected = new TreeSet<>(Comparator.comparing(Class::getName));
             expected.addAll(controlClasses.loadClasses());
 
-            // Some classes implement SearchBasedFetcher, but are only accessible to other fetcher, so ignore them
+            // Some classes implement SearchBasedFetcher, but are only accessible to other
+            // fetcher, so ignore them
             expected.removeAll(getIgnoredInaccessibleClasses());
 
             // Remove interfaces
@@ -139,7 +143,8 @@ class WebFetchersTest {
             expected.remove(PagedSearchBasedParserFetcher.class);
             expected.remove(PagedSearchBasedFetcher.class);
 
-            // Remove GROBID and LLM, because we don't want to show this to the user (since they convert text to BibTeX)
+            // Remove GROBID and LLM, because we don't want to show this to the user
+            // (since they convert text to BibTeX)
             expected.remove(GrobidPlainCitationParser.class);
             expected.remove(LlmPlainCitationParser.class);
 
@@ -149,13 +154,15 @@ class WebFetchersTest {
 
     @Test
     void getFullTextFetchersReturnsAllFetcherDerivingFromFullTextFetcher() {
-        Set<FulltextFetcher> fullTextFetchers = WebFetchers.getFullTextFetchers(importFormatPreferences, importerPreferences);
+        Set<FulltextFetcher> fullTextFetchers = WebFetchers.getFullTextFetchers(importFormatPreferences,
+                importerPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {
             ClassInfoList controlClasses = scanResult.getClassesImplementing(FulltextFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new HashSet<>(controlClasses.loadClasses());
 
-            // Some classes implement FulltextFetcher, but are only accessible to other fetcher, so ignore them
+            // Some classes implement FulltextFetcher, but are only accessible to other
+            // fetcher, so ignore them
             expected.removeAll(getIgnoredInaccessibleClasses());
 
             // Remove the following, because they don't work atm
@@ -174,7 +181,8 @@ class WebFetchersTest {
             ClassInfoList controlClasses = scanResult.getClassesImplementing(IdFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new HashSet<>(controlClasses.loadClasses());
 
-            // Some classes implement IdFetcher, but are only accessible to other fetcher, so ignore them
+            // Some classes implement IdFetcher, but are only accessible to other fetcher,
+            // so ignore them
             expected.removeAll(getIgnoredInaccessibleClasses());
 
             expected.remove(IdParserFetcher.class);
@@ -187,7 +195,8 @@ class WebFetchersTest {
 
     private Set<? extends Class<?>> getClasses(Collection<?> objects) {
         return objects.stream()
-                      .map(Object::getClass)
-                      .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getName))));
+            .map(Object::getClass)
+            .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getName))));
     }
+
 }

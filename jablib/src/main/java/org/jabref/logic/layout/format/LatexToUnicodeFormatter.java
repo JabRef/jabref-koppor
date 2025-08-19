@@ -35,4 +35,5 @@ public class LatexToUnicodeFormatter extends Formatter implements LayoutFormatte
     public String getExampleInput() {
         return "M{\\\"{o}}nch";
     }
+
 }

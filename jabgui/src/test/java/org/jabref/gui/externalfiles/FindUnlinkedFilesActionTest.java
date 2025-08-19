@@ -27,6 +27,7 @@ class FindUnlinkedFilesActionTest {
     private BibDatabaseContext databaseContext;
 
     private StateManager stateManager;
+
     private FindUnlinkedFilesAction action;
 
     @BeforeEach
@@ -65,4 +66,5 @@ class FindUnlinkedFilesActionTest {
 
         assertFalse(action.executableProperty().get());
     }
+
 }

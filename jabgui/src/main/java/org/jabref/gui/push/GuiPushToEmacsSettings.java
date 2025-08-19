@@ -13,10 +13,8 @@ public class GuiPushToEmacsSettings extends GuiPushToApplicationSettings {
 
     private final TextField additionalParams = new TextField();
 
-    public GuiPushToEmacsSettings(PushToApplication application,
-                                  DialogService dialogService,
-                                  FilePreferences filePreferences,
-                                  PushToApplicationPreferences preferences) {
+    public GuiPushToEmacsSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences preferences) {
         super(application, dialogService, filePreferences, preferences);
 
         settingsPane.add(new Label(Localization.lang("Additional parameters") + ":"), 0, 1);
@@ -29,4 +27,5 @@ public class GuiPushToEmacsSettings extends GuiPushToApplicationSettings {
         super.storeSettings();
         preferences.setEmacsArguments(additionalParams.getText());
     }
+
 }

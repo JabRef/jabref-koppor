@@ -27,20 +27,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class HtmlExportFormatTest {
+
     public BibDatabaseContext databaseContext;
+
     public Charset charset;
+
     public List<BibEntry> entries;
+
     private Exporter exportFormat;
 
     @BeforeEach
     void setUp() {
-        exportFormat = new TemplateExporter("HTML",
-                "html",
-                "html",
-                null,
-                StandardFileType.HTML,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder());
+        exportFormat = new TemplateExporter("HTML", "html", "html", null, StandardFileType.HTML,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder());
 
         databaseContext = new BibDatabaseContext();
         charset = StandardCharsets.UTF_8;
@@ -57,10 +56,12 @@ public class HtmlExportFormatTest {
     }
 
     @Test
-    void emitWellFormedHtml(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void emitWellFormedHtml(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         exportFormat.export(databaseContext, path, entries);
         List<String> lines = Files.readAllLines(path);
         assertEquals("</html>", lines.getLast());
     }
+
 }

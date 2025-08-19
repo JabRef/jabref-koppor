@@ -21,6 +21,7 @@ import com.google.common.collect.MoreCollectors;
 public class FieldColumn extends MainTableColumn<String> {
 
     private final OrFields fields;
+
     private final MainTableTooltip tooltip;
 
     public FieldColumn(MainTableColumnModel model, MainTableTooltip tooltip) {
@@ -31,10 +32,9 @@ public class FieldColumn extends MainTableColumn<String> {
         setText(getDisplayName());
         setCellValueFactory(param -> getFieldValue(param.getValue()));
 
-        new ValueTableCellFactory<BibEntryTableViewModel, String>()
-                .withText(text -> text)
-                .graphicTooltip(this::createTooltip)
-                .install(this);
+        new ValueTableCellFactory<BibEntryTableViewModel, String>().withText(text -> text)
+            .graphicTooltip(this::createTooltip)
+            .install(this);
 
         if (fields.hasExactlyOne()) {
             // comparator can't parse more than one value
@@ -50,7 +50,6 @@ public class FieldColumn extends MainTableColumn<String> {
 
     /**
      * Get the table column name to be displayed in the UI
-     *
      * @return name to be displayed. null if field is empty.
      */
     @Override
@@ -61,7 +60,8 @@ public class FieldColumn extends MainTableColumn<String> {
     private ObservableValue<String> getFieldValue(BibEntryTableViewModel entry) {
         if (fields.isEmpty()) {
             return null;
-        } else {
+        }
+        else {
             return entry.getFields(fields);
         }
     }
@@ -69,4 +69,5 @@ public class FieldColumn extends MainTableColumn<String> {
     private Tooltip createTooltip(BibEntryTableViewModel entry, String fieldValue) {
         return tooltip.createTooltip(entry.getBibDatabaseContext(), entry.getEntry(), fieldValue);
     }
+
 }

@@ -17,15 +17,19 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 
 public class LowLevelIngestor {
+
     private final AiPreferences aiPreferences;
 
     private final EmbeddingStore<TextSegment> embeddingStore;
+
     private final EmbeddingModel embeddingModel;
 
     private EmbeddingStoreIngestor ingestor;
+
     private DocumentSplitter documentSplitter;
 
-    public LowLevelIngestor(AiPreferences aiPreferences, EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel) {
+    public LowLevelIngestor(AiPreferences aiPreferences, EmbeddingStore<TextSegment> embeddingStore,
+            EmbeddingModel embeddingModel) {
         this.aiPreferences = aiPreferences;
         this.embeddingStore = embeddingStore;
         this.embeddingModel = embeddingModel;
@@ -36,16 +40,14 @@ public class LowLevelIngestor {
     }
 
     private void rebuild() {
-        this.documentSplitter = DocumentSplitters
-                .recursive(aiPreferences.getDocumentSplitterChunkSize(),
-                           aiPreferences.getDocumentSplitterOverlapSize());
+        this.documentSplitter = DocumentSplitters.recursive(aiPreferences.getDocumentSplitterChunkSize(),
+                aiPreferences.getDocumentSplitterOverlapSize());
 
-        this.ingestor = EmbeddingStoreIngestor
-                .builder()
-                .embeddingStore(embeddingStore)
-                .embeddingModel(embeddingModel)
-                .documentSplitter(documentSplitter)
-                .build();
+        this.ingestor = EmbeddingStoreIngestor.builder()
+            .embeddingStore(embeddingStore)
+            .embeddingModel(embeddingModel)
+            .documentSplitter(documentSplitter)
+            .build();
     }
 
     private void setupListeningToPreferencesChanges() {
@@ -54,13 +56,14 @@ public class LowLevelIngestor {
     }
 
     /**
-     * Add document to embedding store.
-     * This method does not check if file was already ingested.
-     *
+     * Add document to embedding store. This method does not check if file was already
+     * ingested.
      * @param document - document to add.
-     * @param stopProperty - in case you want to stop the ingestion process, set this property to true.
+     * @param stopProperty - in case you want to stop the ingestion process, set this
+     * property to true.
      */
-    public void ingestDocument(Document document, ReadOnlyBooleanProperty stopProperty, IntegerProperty workDone, IntegerProperty workMax) throws InterruptedException {
+    public void ingestDocument(Document document, ReadOnlyBooleanProperty stopProperty, IntegerProperty workDone,
+            IntegerProperty workMax) throws InterruptedException {
         List<TextSegment> textSegments = documentSplitter.split(document);
         workMax.set(textSegments.size());
 
@@ -74,4 +77,5 @@ public class LowLevelIngestor {
             workDone.set(workDone.get() + 1);
         }
     }
+
 }

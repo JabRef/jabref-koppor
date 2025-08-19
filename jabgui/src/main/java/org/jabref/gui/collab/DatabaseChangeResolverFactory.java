@@ -9,11 +9,15 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 
 public class DatabaseChangeResolverFactory {
+
     private final DialogService dialogService;
+
     private final BibDatabaseContext databaseContext;
+
     private final GuiPreferences preferences;
 
-    public DatabaseChangeResolverFactory(DialogService dialogService, BibDatabaseContext databaseContext, GuiPreferences preferences) {
+    public DatabaseChangeResolverFactory(DialogService dialogService, BibDatabaseContext databaseContext,
+            GuiPreferences preferences) {
         this.dialogService = dialogService;
         this.databaseContext = databaseContext;
         this.preferences = preferences;
@@ -26,4 +30,5 @@ public class DatabaseChangeResolverFactory {
 
         return Optional.empty();
     }
+
 }

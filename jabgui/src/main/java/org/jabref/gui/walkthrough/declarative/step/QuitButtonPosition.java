@@ -2,6 +2,7 @@ package org.jabref.gui.walkthrough.declarative.step;
 
 /// The position of the quit button in the walkthrough.
 public enum QuitButtonPosition {
+
     /// Bottom right corner - good for most panel positions
     BOTTOM_RIGHT,
 
@@ -16,4 +17,5 @@ public enum QuitButtonPosition {
 
     /// Automatically position based on panel position to avoid overlap
     AUTO
+
 }

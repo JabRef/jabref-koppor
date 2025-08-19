@@ -17,7 +17,9 @@ import org.jabref.model.openoffice.style.CitationType;
  * - pageInfo does not appear here. It is not encoded in the mark name.
  */
 class Codec52 {
+
     private static final String BIB_CITATION = "JR_cite";
+
     private static final Pattern CITE_PATTERN =
             // Pattern.compile(BIB_CITATION + "(\\d*)_(\\d*)_(.*)");
             // citationType is always "1" "2" or "3"
@@ -30,14 +32,17 @@ class Codec52 {
      * This is what we get back from parsing a refMarkName.
      */
     public static class ParsedMarkName {
+
         /**
          * "", "0", "1" ...
          */
         public final String index;
+
         /**
          * in-text-citation type
          */
         public final CitationType citationType;
+
         /**
          * Citation keys embedded in the reference mark.
          */
@@ -50,10 +55,12 @@ class Codec52 {
             this.citationType = citationType;
             this.citationKeys = citationKeys;
         }
+
     }
 
     /**
-     * Integer representation was written into the document in JabRef52, keep it for compatibility.
+     * Integer representation was written into the document in JabRef52, keep it for
+     * compatibility.
      */
     private static CitationType citationTypeFromInt(int code) {
         return switch (code) {
@@ -73,19 +80,19 @@ class Codec52 {
     }
 
     /**
-     * Produce a reference mark name for JabRef for the given citationType and list citation keys that does not yet appear among the reference marks of the document.
-     *
-     * @param usedNames    Reference mark names already in use.
+     * Produce a reference mark name for JabRef for the given citationType and list
+     * citation keys that does not yet appear among the reference marks of the document.
+     * @param usedNames Reference mark names already in use.
      * @param citationKeys Identifies the cited sources.
      * @param citationType Encodes the effect of withText and inParenthesis options.
-     *                     <p>
-     *                     The first occurrence of citationKeys gets no serial number, the second gets 0, the third 1 ...
-     *                     <p>
-     *                     Or the first unused in this series, after removals.
+     * <p>
+     * The first occurrence of citationKeys gets no serial number, the second gets 0, the
+     * third 1 ...
+     * <p>
+     * Or the first unused in this series, after removals.
      */
-    public static String getUniqueMarkName(Set<String> usedNames,
-                                           List<String> citationKeys,
-                                           CitationType citationType) {
+    public static String getUniqueMarkName(Set<String> usedNames, List<String> citationKeys,
+            CitationType citationType) {
 
         String citationKeysPart = String.join(",", citationKeys);
 
@@ -101,7 +108,6 @@ class Codec52 {
 
     /**
      * Parse a JabRef (reference) mark name.
-     *
      * @return Optional.empty() on failure.
      */
     public static Optional<ParsedMarkName> parseMarkName(String refMarkName) {
@@ -126,12 +132,10 @@ class Codec52 {
 
     /**
      * Filter a list of reference mark names by `isJabRefReferenceMarkName`
-     *
      * @param names The list to be filtered.
      */
     public static List<String> filterIsJabRefReferenceMarkName(List<String> names) {
-        return names.stream()
-                     .filter(Codec52::isJabRefReferenceMarkName)
-                     .collect(Collectors.toList());
+        return names.stream().filter(Codec52::isJabRefReferenceMarkName).collect(Collectors.toList());
     }
+
 }

@@ -31,7 +31,9 @@ public class SearchDialog {
     public static final Logger LOGGER = LoggerFactory.getLogger(SearchDialog.class);
 
     private static final double DIALOG_WIDTH_RATIO = 0.5;
+
     private static final double DIALOG_HEIGHT_RATIO = 0.4;
+
     private static final int PREF_HEIGHT = 150;
 
     private final ObservableList<CAYWEntry> selectedItems = FXCollections.observableArrayList();
@@ -74,12 +76,7 @@ public class SearchDialog {
             dialogStage.close();
         });
 
-        mainLayout.getChildren().addAll(
-                searchField,
-                selectedContainer,
-                scrollPane,
-                finishButton
-        );
+        mainLayout.getChildren().addAll(searchField, selectedContainer, scrollPane, finishButton);
 
         Scene scene = new Scene(mainLayout, dialogWidth, dialogHeight);
 
@@ -92,11 +89,13 @@ public class SearchDialog {
         try (InputStream inputStream = getClass().getResourceAsStream("/JabRef-icon-64.png")) {
             if (inputStream == null) {
                 LOGGER.warn("Error loading icon for SearchDialog");
-            } else {
+            }
+            else {
                 Image icon = new Image(inputStream);
                 dialogStage.getIcons().add(icon);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.warn("Error loading icon for SearchDialog", e);
         }
 
@@ -114,4 +113,5 @@ public class SearchDialog {
             dialogStage.close();
         }
     }
+
 }

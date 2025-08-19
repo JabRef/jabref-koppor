@@ -24,4 +24,5 @@ public class SpecialFieldsPreferences {
     public void setSpecialFieldsEnabled(boolean specialFieldsEnabled) {
         this.specialFieldsEnabled.set(specialFieldsEnabled);
     }
+
 }

@@ -11,12 +11,15 @@ import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
 
 /**
- * Wrapper around a {@link BibEntry} offering methods for {@link BibDatabaseMode}-dependent results
+ * Wrapper around a {@link BibEntry} offering methods for
+ * {@link BibDatabaseMode}-dependent results
  */
 public class TypedBibEntry {
 
     private final BibEntry entry;
+
     private final Optional<BibDatabase> database;
+
     private final BibDatabaseMode mode;
 
     public TypedBibEntry(BibEntry entry, BibDatabaseMode mode) {
@@ -33,16 +36,16 @@ public class TypedBibEntry {
     }
 
     /**
-     * Checks the fields of the entry whether all required fields are set.
-     * In other words: It is checked whether this entry contains all fields it needs to be complete.
-     *
+     * Checks the fields of the entry whether all required fields are set. In other words:
+     * It is checked whether this entry contains all fields it needs to be complete.
      * @return true if all required fields are set, false otherwise
      */
     public boolean hasAllRequiredFields(BibEntryTypesManager entryTypesManager) {
         Optional<BibEntryType> type = entryTypesManager.enrich(entry.getType(), this.mode);
         if (type.isPresent()) {
             return entry.allFieldsPresent(type.get().getRequiredFields(), database.orElse(null));
-        } else {
+        }
+        else {
             return true;
         }
     }
@@ -53,4 +56,5 @@ public class TypedBibEntry {
     public String getTypeForDisplay() {
         return entry.getType().getDisplayName();
     }
+
 }

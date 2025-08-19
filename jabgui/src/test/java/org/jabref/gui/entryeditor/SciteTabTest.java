@@ -26,8 +26,10 @@ public class SciteTabTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private TaskExecutor taskExecutor;
+
     @Mock
     private DialogService dialogService;
 
@@ -60,9 +62,9 @@ public class SciteTabTest {
     @Test
     void bindEntry() {
         SciteTab tab = new SciteTab(preferences, taskExecutor, dialogService);
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.DOI, SAMPLE_DOI);
+        BibEntry entry = new BibEntry().withField(StandardField.DOI, SAMPLE_DOI);
 
         tab.bindToEntry(entry);
     }
+
 }

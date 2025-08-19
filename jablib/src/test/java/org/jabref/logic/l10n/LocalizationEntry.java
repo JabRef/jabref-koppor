@@ -9,7 +9,9 @@ import java.util.Objects;
 class LocalizationEntry implements Comparable<LocalizationEntry> {
 
     private final Path path;
+
     private final String key;
+
     private final LocalizationBundleForTest bundle;
 
     LocalizationEntry(Path path, String key, LocalizationBundleForTest bundle) {
@@ -65,4 +67,5 @@ class LocalizationEntry implements Comparable<LocalizationEntry> {
     public int compareTo(LocalizationEntry o) {
         return getId().compareTo(o.getId());
     }
+
 }

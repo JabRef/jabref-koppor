@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper class for merging bibliography entries with undo support.
- * Source entry data is merged into the library entry, with longer field values preferred
- * and obsolete fields removed.
+ * Helper class for merging bibliography entries with undo support. Source entry data is
+ * merged into the library entry, with longer field values preferred and obsolete fields
+ * removed.
  */
 public final class MergeEntriesHelper {
 
@@ -29,10 +29,12 @@ public final class MergeEntriesHelper {
 
     /// Merges two BibEntry objects with undo support.
     ///
-    /// @param entryFromFetcher The entry containing new information (source, from the fetcher)
+    /// @param entryFromFetcher The entry containing new information (source, from the
+    /// fetcher)
     /// @param entryFromLibrary The entry to be updated (target, from the library)
     /// @param namedCompound Compound edit to collect undo information
-    public static boolean mergeEntries(BibEntry entryFromFetcher, BibEntry entryFromLibrary, NamedCompound namedCompound) {
+    public static boolean mergeEntries(BibEntry entryFromFetcher, BibEntry entryFromLibrary,
+            NamedCompound namedCompound) {
         LOGGER.debug("Entry from fetcher: {}", entryFromFetcher);
         LOGGER.debug("Entry from library: {}", entryFromLibrary);
 
@@ -43,7 +45,8 @@ public final class MergeEntriesHelper {
         return typeChanged || fieldsChanged || fieldsRemoved;
     }
 
-    private static boolean mergeEntryType(BibEntry entryFromFetcher, BibEntry entryFromLibrary, NamedCompound namedCompound) {
+    private static boolean mergeEntryType(BibEntry entryFromFetcher, BibEntry entryFromLibrary,
+            NamedCompound namedCompound) {
         EntryType fetcherType = entryFromFetcher.getType();
         EntryType libraryType = entryFromLibrary.getType();
 
@@ -56,7 +59,8 @@ public final class MergeEntriesHelper {
         return false;
     }
 
-    private static boolean mergeFields(BibEntry entryFromFetcher, BibEntry entryFromLibrary, NamedCompound namedCompound) {
+    private static boolean mergeFields(BibEntry entryFromFetcher, BibEntry entryFromLibrary,
+            NamedCompound namedCompound) {
         Set<Field> allFields = new LinkedHashSet<>();
         allFields.addAll(entryFromFetcher.getFields());
         allFields.addAll(entryFromLibrary.getFields());
@@ -70,14 +74,16 @@ public final class MergeEntriesHelper {
             if (fetcherValue.isPresent() && shouldUpdateField(fetcherValue.get(), libraryValue)) {
                 LOGGER.debug("Updating field {}: {} -> {}", field, libraryValue.orElse(null), fetcherValue.get());
                 entryFromLibrary.setField(field, fetcherValue.get());
-                namedCompound.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), fetcherValue.get()));
+                namedCompound.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null),
+                        fetcherValue.get()));
                 anyFieldsChanged = true;
             }
         }
         return anyFieldsChanged;
     }
 
-    private static boolean removeFieldsNotPresentInFetcher(BibEntry entryFromFetcher, BibEntry entryFromLibrary, NamedCompound namedCompound) {
+    private static boolean removeFieldsNotPresentInFetcher(BibEntry entryFromFetcher, BibEntry entryFromLibrary,
+            NamedCompound namedCompound) {
         Set<Field> obsoleteFields = new LinkedHashSet<>(entryFromLibrary.getFields());
         obsoleteFields.removeAll(entryFromFetcher.getFields());
 
@@ -100,10 +106,12 @@ public final class MergeEntriesHelper {
     }
 
     private static boolean shouldUpdateField(String fetcherValue, Optional<String> libraryValue) {
-        // TODO: Think of a better heuristics - better "quality" is the ultimate goal (e.g., more sensible year, better page ranges, longer abstract ...)
-        //       This is difficult to get 100% right
-        //       Read more at https://github.com/JabRef/jabref/issues/12549
+        // TODO: Think of a better heuristics - better "quality" is the ultimate goal
+        // (e.g., more sensible year, better page ranges, longer abstract ...)
+        // This is difficult to get 100% right
+        // Read more at https://github.com/JabRef/jabref/issues/12549
         // Currently: Only overwrite if there is nothing in the library
         return libraryValue.isEmpty();
     }
+
 }

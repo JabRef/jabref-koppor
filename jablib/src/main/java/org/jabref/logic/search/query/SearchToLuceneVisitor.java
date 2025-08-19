@@ -13,6 +13,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 
 /// Tests are located in `org.jabref.logic.search.query.SearchQueryLuceneConversionTest`.
 public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
+
     private final EnumSet<SearchFlags> searchFlags;
 
     public SearchToLuceneVisitor(EnumSet<SearchFlags> searchFlags) {
@@ -94,7 +95,8 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
         if (isRegexOp) {
             String expression = field + "/" + term + "/";
             return isNegationOp ? "NOT " + expression : expression;
-        } else {
+        }
+        else {
             term = isQuoted ? "\"" + escapeQuotes(term) + "\"" : QueryParser.escape(term);
             String expression = field + term;
             return isNegationOp ? "NOT " + expression : expression;
@@ -107,23 +109,18 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
 
     private static boolean isNegationOperator(int operator) {
         return switch (operator) {
-            case SearchParser.NEQUAL,
-                 SearchParser.NCEQUAL,
-                 SearchParser.NEEQUAL,
-                 SearchParser.NCEEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL -> true;
+            case SearchParser.NEQUAL, SearchParser.NCEQUAL, SearchParser.NEEQUAL, SearchParser.NCEEQUAL,
+                    SearchParser.NREQUAL, SearchParser.NCREEQUAL ->
+                true;
             default -> false;
         };
     }
 
     private static boolean isRegexOperator(int operator) {
         return switch (operator) {
-            case SearchParser.REQUAL,
-                 SearchParser.CREEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL -> true;
+            case SearchParser.REQUAL, SearchParser.CREEQUAL, SearchParser.NREQUAL, SearchParser.NCREEQUAL -> true;
             default -> false;
         };
     }
+
 }

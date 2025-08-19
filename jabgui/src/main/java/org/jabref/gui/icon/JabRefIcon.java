@@ -16,4 +16,5 @@ public interface JabRefIcon {
     JabRefIcon disabled();
 
     Ikon getIkon();
+
 }

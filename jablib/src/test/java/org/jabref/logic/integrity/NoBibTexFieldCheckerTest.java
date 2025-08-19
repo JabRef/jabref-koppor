@@ -21,19 +21,12 @@ class NoBibTexFieldCheckerTest {
     private static Stream<Field> nonBiblatexOnlyFields() {
         return Stream.of(
                 // arbitrary field
-                new UnknownField("fieldNameNotDefinedInThebiblatexManual"),
-                StandardField.ABSTRACT,
-                StandardField.COMMENT,
-                StandardField.DOI,
-                StandardField.URL,
+                new UnknownField("fieldNameNotDefinedInThebiblatexManual"), StandardField.ABSTRACT,
+                StandardField.COMMENT, StandardField.DOI, StandardField.URL,
 
                 // these fields are not recognized as biblatex only fields
-                StandardField.ADDRESS,
-                StandardField.INSTITUTION,
-                StandardField.JOURNAL,
-                StandardField.KEYWORDS,
-                StandardField.REVIEW
-        );
+                StandardField.ADDRESS, StandardField.INSTITUTION, StandardField.JOURNAL, StandardField.KEYWORDS,
+                StandardField.REVIEW);
     }
 
     @ParameterizedTest()
@@ -44,15 +37,12 @@ class NoBibTexFieldCheckerTest {
     }
 
     @ParameterizedTest(name = "field={0}")
-    @CsvSource({
-            "AFTERWORD",
-            "JOURNALTITLE",
-            "LOCATION"
-    })
+    @CsvSource({ "AFTERWORD", "JOURNALTITLE", "LOCATION" })
     void biblatexOnlyField(StandardField field) {
         BibEntry entry = new BibEntry().withField(field, "test");
         IntegrityMessage message = new IntegrityMessage("biblatex field only", entry, field);
         List<IntegrityMessage> messages = checker.check(entry);
         assertEquals(List.of(message), messages);
     }
+
 }

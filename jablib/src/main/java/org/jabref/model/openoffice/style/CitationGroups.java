@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 /**
  * CitationGroups : the set of citation groups in the document.
  * <p>
- * This is the main input (as well as output) for creating citation markers and bibliography.
+ * This is the main input (as well as output) for creating citation markers and
+ * bibliography.
  */
 public class CitationGroups {
 
@@ -53,11 +54,10 @@ public class CitationGroups {
     }
 
     /**
-     * For each citation in {@code where} call {@code fun.accept(new Pair(citation, value));}
+     * For each citation in {@code where} call
+     * {@code fun.accept(new Pair(citation, value));}
      */
-    public <T> void distributeToCitations(List<CitationPath> where,
-                                          Consumer<OOPair<Citation, T>> fun,
-                                          T value) {
+    public <T> void distributeToCitations(List<CitationPath> where, Consumer<OOPair<Citation, T>> fun, T value) {
 
         for (CitationPath p : where) {
             CitationGroup group = citationGroupsUnordered.get(p.group);
@@ -80,7 +80,8 @@ public class CitationGroups {
 
         // (1) collect-lookup-distribute
         //
-        // CitationDatabaseLookupResult for the same citation key is the same object. Until we
+        // CitationDatabaseLookupResult for the same citation key is the same object.
+        // Until we
         // insert a new citation from the GUI.
         CitedKeys cks = getCitedKeysUnordered();
         cks.lookupInDatabases(databases);
@@ -88,17 +89,21 @@ public class CitationGroups {
 
         // (2) lookup each citation directly
         //
-        // CitationDatabaseLookupResult for the same citation key may be a different object:
-        // CitedKey.addPath has to use equals, so CitationDatabaseLookupResult has to override
-        // Object.equals, which depends on BibEntry.equals and BibDatabase.equals doing the
-        // right thing. Seems to work. But what we gained from avoiding collect-and-distribute
+        // CitationDatabaseLookupResult for the same citation key may be a different
+        // object:
+        // CitedKey.addPath has to use equals, so CitationDatabaseLookupResult has to
+        // override
+        // Object.equals, which depends on BibEntry.equals and BibDatabase.equals doing
+        // the
+        // right thing. Seems to work. But what we gained from avoiding
+        // collect-and-distribute
         // may be lost in more complicated consistency checking in addPath.
         //
-        ///            for (CitationGroup group : getCitationGroupsUnordered()) {
-        ///                for (Citation cit : group.citationsInStorageOrder) {
-        ///                    cit.lookupInDatabases(databases);
-        ///                }
-        ///            }
+        /// for (CitationGroup group : getCitationGroupsUnordered()) {
+        /// for (Citation cit : group.citationsInStorageOrder) {
+        /// cit.lookupInDatabases(databases);
+        /// }
+        /// }
     }
 
     public List<CitationGroup> getCitationGroupsUnordered() {
@@ -116,7 +121,8 @@ public class CitationGroups {
     }
 
     /**
-     * Impose an order of citation groups by providing the order of their citation group idendifiers.
+     * Impose an order of citation groups by providing the order of their citation group
+     * idendifiers.
      * <p>
      * Also set indexInGlobalOrder for each citation group.
      */
@@ -148,7 +154,8 @@ public class CitationGroups {
     }
 
     /**
-     * Collect citations into a list of cited sources using neither CitationGroup.globalOrder or Citation.localOrder
+     * Collect citations into a list of cited sources using neither
+     * CitationGroup.globalOrder or Citation.localOrder
      */
     public CitedKeys getCitedKeysUnordered() {
         LinkedHashMap<String, CitedKey> res = new LinkedHashMap<>();
@@ -159,7 +166,8 @@ public class CitationGroups {
                 CitationPath path = new CitationPath(group.groupId, storageIndexInGroup);
                 if (res.containsKey(key)) {
                     res.get(key).addPath(path, cit);
-                } else {
+                }
+                else {
                     res.put(key, new CitedKey(key, path, cit));
                 }
                 storageIndexInGroup++;
@@ -183,7 +191,8 @@ public class CitationGroups {
                 CitationPath path = new CitationPath(group.groupId, i);
                 if (res.containsKey(citationKey)) {
                     res.get(citationKey).addPath(path, cit);
-                } else {
+                }
+                else {
                     res.put(citationKey, new CitedKey(citationKey, path, cit));
                 }
             }
@@ -212,8 +221,8 @@ public class CitationGroups {
 
     public void createNumberedBibliographySortedInOrderOfAppearance() {
         if (bibliography.isPresent()) {
-            throw new IllegalStateException("createNumberedBibliographySortedInOrderOfAppearance:"
-                    + " already have a bibliography");
+            throw new IllegalStateException(
+                    "createNumberedBibliographySortedInOrderOfAppearance:" + " already have a bibliography");
         }
         CitedKeys citedKeys = getCitedKeysSortedInOrderOfAppearance();
         citedKeys.numberCitedKeysInCurrentOrder();
@@ -222,7 +231,8 @@ public class CitationGroups {
     }
 
     /**
-     * precondition: database lookup already performed (otherwise we just sort citation keys)
+     * precondition: database lookup already performed (otherwise we just sort citation
+     * keys)
      */
     public void createPlainBibliographySortedByComparator(Comparator<BibEntry> entryComparator) {
         if (bibliography.isPresent()) {
@@ -234,11 +244,13 @@ public class CitationGroups {
     }
 
     /**
-     * precondition: database lookup already performed (otherwise we just sort citation keys)
+     * precondition: database lookup already performed (otherwise we just sort citation
+     * keys)
      */
     public void createNumberedBibliographySortedByComparator(Comparator<BibEntry> entryComparator) {
         if (bibliography.isPresent()) {
-            throw new IllegalStateException("createNumberedBibliographySortedByComparator: already have a bibliography");
+            throw new IllegalStateException(
+                    "createNumberedBibliographySortedByComparator: already have a bibliography");
         }
         CitedKeys citedKeys = getCitedKeysUnordered();
         citedKeys.sortByComparator(entryComparator);
@@ -285,4 +297,5 @@ public class CitationGroups {
 
         bibliography = Optional.empty();
     }
+
 }

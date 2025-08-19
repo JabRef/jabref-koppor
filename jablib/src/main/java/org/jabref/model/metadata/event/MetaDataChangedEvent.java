@@ -21,4 +21,5 @@ public class MetaDataChangedEvent extends BibDatabaseContextChangedEvent {
     public MetaData getMetaData() {
         return this.metaData;
     }
+
 }

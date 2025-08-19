@@ -18,8 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FulltextFetcher implementation that attempts to find a PDF URL at APS. Also see the <a
- * href="https://harvest.aps.org/docs/harvest-api">API</a>, although it isn't currently used.
+ * FulltextFetcher implementation that attempts to find a PDF URL at APS. Also see the
+ * <a href="https://harvest.aps.org/docs/harvest-api">API</a>, although it isn't currently
+ * used.
  */
 public class ApsFetcher implements FulltextFetcher {
 
@@ -27,6 +28,7 @@ public class ApsFetcher implements FulltextFetcher {
 
     // The actual API needs either an API key or a header. This is a workaround.
     private static final String DOI_URL = "https://www.doi.org/";
+
     private static final String PDF_URL = "https://journals.aps.org/prl/pdf/";
 
     @Override
@@ -49,7 +51,8 @@ public class ApsFetcher implements FulltextFetcher {
                 LOGGER.info("Fulltext PDF found @ APS.");
                 try {
                     return Optional.of(URLUtil.create(pdfRequestUrl));
-                } catch (MalformedURLException e) {
+                }
+                catch (MalformedURLException e) {
                     LOGGER.warn("APS returned malformed URL, cannot find PDF.");
                 }
             }
@@ -64,7 +67,6 @@ public class ApsFetcher implements FulltextFetcher {
 
     /**
      * Convert a DOI into an appropriate APS id.
-     *
      * @param doi A case insensitive DOI
      * @return A DOI cased as APS likes it
      */
@@ -84,9 +86,11 @@ public class ApsFetcher implements FulltextFetcher {
             if (urlParts.length == 2) {
                 return Optional.of(urlParts[1]);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Error connecting to APS", e);
         }
         return Optional.empty();
     }
+
 }

@@ -8,16 +8,18 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
 /**
- * Sends attachments for selected entries to the
- * configured Kindle email
+ * Sends attachments for selected entries to the configured Kindle email
  */
 public class SendAsKindleEmailAction extends SendAsEMailAction {
+
     private final GuiPreferences preferences;
 
-    public SendAsKindleEmailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager, TaskExecutor taskExecutor) {
+    public SendAsKindleEmailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            TaskExecutor taskExecutor) {
         super(dialogService, preferences, stateManager, taskExecutor);
         this.preferences = preferences;
-        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager).and(ActionHelper.hasLinkedFileForSelectedEntries(stateManager)));
+        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager)
+            .and(ActionHelper.hasLinkedFileForSelectedEntries(stateManager)));
     }
 
     @Override
@@ -34,4 +36,5 @@ public class SendAsKindleEmailAction extends SendAsEMailAction {
     protected String getBody() {
         return Localization.lang("Send to Kindle");
     }
+
 }

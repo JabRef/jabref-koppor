@@ -10,8 +10,8 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupTreeNode;
 
 /**
- * Converts legacy explicit groups, where the group contained a list of assigned entries, to the new format,
- * where the entry stores a list of groups it belongs to.
+ * Converts legacy explicit groups, where the group contained a list of assigned entries,
+ * to the new format, where the entry stores a list of groups it belongs to.
  */
 public class ConvertLegacyExplicitGroups implements PostOpenMigration {
 
@@ -46,4 +46,5 @@ public class ConvertLegacyExplicitGroups implements PostOpenMigration {
 
         return findings;
     }
+
 }

@@ -6,11 +6,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 /**
- * Component used to display {@link Notification} in AI chat. See the documentation of {@link Notification} for more
- * details.
+ * Component used to display {@link Notification} in AI chat. See the documentation of
+ * {@link Notification} for more details.
  */
 public class NotificationComponent extends VBox {
+
     private final Label title = new Label("Title");
+
     private final Label message = new Label("Message");
 
     public NotificationComponent() {
@@ -30,4 +32,5 @@ public class NotificationComponent extends VBox {
         title.setText(notification.title());
         message.setText(notification.message());
     }
+
 }

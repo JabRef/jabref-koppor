@@ -15,25 +15,12 @@ public class ImportantOptionalFieldsTab extends OptionalFieldsTabBase {
 
     public static final String NAME = "Optional fields";
 
-    public ImportantOptionalFieldsTab(UndoManager undoManager,
-                                      UndoAction undoAction,
-                                      RedoAction redoAction,
-                                      GuiPreferences preferences,
-                                      BibEntryTypesManager entryTypesManager,
-                                      JournalAbbreviationRepository journalAbbreviationRepository,
-                                      StateManager stateManager,
-                                      PreviewPanel previewPanel) {
-        super(
-                Localization.lang("Optional fields"),
-                true,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                entryTypesManager,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
-        );
+    public ImportantOptionalFieldsTab(UndoManager undoManager, UndoAction undoAction, RedoAction redoAction,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository, StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(Localization.lang("Optional fields"), true, undoManager, undoAction, redoAction, preferences,
+                entryTypesManager, journalAbbreviationRepository, stateManager, previewPanel);
     }
+
 }

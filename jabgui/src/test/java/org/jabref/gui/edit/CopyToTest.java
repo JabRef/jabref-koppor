@@ -34,44 +34,53 @@ import static org.mockito.Mockito.when;
 public class CopyToTest {
 
     private final DialogService dialogService = spy(DialogService.class);
+
     private final StateManager stateManager = mock(StateManager.class);
+
     private final GuiPreferences preferences = mock(GuiPreferences.class);
+
     private final ImportHandler importHandler = mock(ImportHandler.class);
 
     private BibEntry entry;
+
     private BibEntry entryWithCrossRef;
+
     private BibEntry referencedEntry;
+
     private List<BibEntry> selectedEntries;
 
     private CopyTo copyTo;
+
     private BibDatabaseContext sourceDatabaseContext;
+
     private BibDatabaseContext targetDatabaseContext;
 
     @BeforeEach
     void setUp() {
         this.entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Beck, Aaron T. and Epstein, Norman and Brown, Gary and Steer, Robert A.")
-                .withField(StandardField.TITLE, "An inventory for measuring clinical anxiety: Psychometric properties.")
-                .withField(StandardField.YEAR, "1988")
-                .withField(StandardField.DOI, "10.1037/0022-006x.56.6.893")
-                .withCitationKey("Beck1988");
+            .withField(StandardField.AUTHOR, "Beck, Aaron T. and Epstein, Norman and Brown, Gary and Steer, Robert A.")
+            .withField(StandardField.TITLE, "An inventory for measuring clinical anxiety: Psychometric properties.")
+            .withField(StandardField.YEAR, "1988")
+            .withField(StandardField.DOI, "10.1037/0022-006x.56.6.893")
+            .withCitationKey("Beck1988");
 
         this.entryWithCrossRef = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Johnson, Emily and Lee, Michael")
-                .withField(StandardField.TITLE, "Advances in Neural Network Architectures")
-                .withField(StandardField.CROSSREF, "InternationalConferenceonMachineLearning2023")
-                .withCitationKey("Johnson2023");
+            .withField(StandardField.AUTHOR, "Johnson, Emily and Lee, Michael")
+            .withField(StandardField.TITLE, "Advances in Neural Network Architectures")
+            .withField(StandardField.CROSSREF, "InternationalConferenceonMachineLearning2023")
+            .withCitationKey("Johnson2023");
 
         this.referencedEntry = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Proceedings of the 40th International Conference on Machine Learning")
-                .withField(StandardField.TITLE, "Doe, John and Smith, Alice")
-                .withField(StandardField.BOOKTITLE, "Springer")
-                .withCitationKey("InternationalConferenceonMachineLearning2023");
+            .withField(StandardField.AUTHOR, "Proceedings of the 40th International Conference on Machine Learning")
+            .withField(StandardField.TITLE, "Doe, John and Smith, Alice")
+            .withField(StandardField.BOOKTITLE, "Springer")
+            .withCitationKey("InternationalConferenceonMachineLearning2023");
 
         this.selectedEntries = FXCollections.observableArrayList();
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        this.sourceDatabaseContext = new BibDatabaseContext(new BibDatabase(List.of(entry, entryWithCrossRef, referencedEntry)));
+        this.sourceDatabaseContext = new BibDatabaseContext(
+                new BibDatabase(List.of(entry, entryWithCrossRef, referencedEntry)));
         this.targetDatabaseContext = new BibDatabaseContext();
 
         CopyToPreferences copyToPreferences = mock(CopyToPreferences.class);
@@ -84,13 +93,15 @@ public class CopyToTest {
         selectedEntries.add(entry);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor
+            .forClass(EntryImportHandlerTracker.class);
         copyTo.copyEntriesWithoutCrossRef(selectedEntries, targetDatabaseContext);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries),
+                trackerCaptor.capture());
     }
 
     @Test
@@ -98,20 +109,24 @@ public class CopyToTest {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor
+            .forClass(EntryImportHandlerTracker.class);
         copyTo.copyEntriesWithCrossRef(selectedEntries, targetDatabaseContext);
 
         List<BibEntry> expectedEntries = new ArrayList<>(selectedEntries);
         expectedEntries.add(referencedEntry);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(expectedEntries), trackerCaptor.capture());
+        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(expectedEntries),
+                trackerCaptor.capture());
     }
 
     @Test
     void executeGetCrossRefEntry() {
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
         BibEntry result = copyTo.getCrossRefEntry(entryWithCrossRef, sourceDatabaseContext).orElse(null);
 
@@ -125,12 +140,15 @@ public class CopyToTest {
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
         when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(false);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor
+            .forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries),
+                trackerCaptor.capture());
     }
 
     @Test
@@ -138,17 +156,22 @@ public class CopyToTest {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
         when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(true);
-        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(), anyString(), any())).thenReturn(true);
+        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(),
+                anyString(), any()))
+            .thenReturn(true);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor
+            .forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
         List<BibEntry> expectedEntries = new ArrayList<>(selectedEntries);
         expectedEntries.add(referencedEntry);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(expectedEntries), trackerCaptor.capture());
+        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(expectedEntries),
+                trackerCaptor.capture());
     }
 
     @Test
@@ -156,13 +179,19 @@ public class CopyToTest {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
         when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(true);
-        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(), anyString(), any())).thenReturn(false);
+        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(),
+                anyString(), any()))
+            .thenReturn(false);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), importHandler,
+                sourceDatabaseContext, targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor
+            .forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler).importEntriesWithDuplicateCheck(eq(targetDatabaseContext), eq(selectedEntries),
+                trackerCaptor.capture());
     }
+
 }

@@ -10,10 +10,11 @@ import java.util.stream.Stream;
 public class ContentSelectorSuggestionProvider extends StringSuggestionProvider {
 
     private final SuggestionProvider<String> suggestionProvider;
+
     private final List<String> contentSelectorValues;
 
     public ContentSelectorSuggestionProvider(SuggestionProvider<String> suggestionProvider,
-                                             List<String> contentSelectorValues) {
+            List<String> contentSelectorValues) {
 
         this.suggestionProvider = suggestionProvider;
         this.contentSelectorValues = contentSelectorValues;
@@ -33,4 +34,5 @@ public class ContentSelectorSuggestionProvider extends StringSuggestionProvider 
         suggestions.addAll(contentSelectorValues);
         return suggestions;
     }
+
 }

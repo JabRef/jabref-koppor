@@ -11,10 +11,15 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 
 public class ExternalFileTypeItemViewModel {
+
     private final ObjectProperty<JabRefIcon> icon = new SimpleObjectProperty<>();
+
     private final StringProperty name = new SimpleStringProperty();
+
     private final StringProperty extension = new SimpleStringProperty();
+
     private final StringProperty mimetype = new SimpleStringProperty();
+
     private final StringProperty application = new SimpleStringProperty();
 
     public ExternalFileTypeItemViewModel(ExternalFileType fileType) {
@@ -57,12 +62,8 @@ public class ExternalFileTypeItemViewModel {
     }
 
     public ExternalFileType toExternalFileType() {
-        return new CustomExternalFileType(
-                this.name.get(),
-                this.extension.get(),
-                this.mimetype.get(),
-                this.application.get(),
-                this.icon.get().name(),
-                this.icon.get());
+        return new CustomExternalFileType(this.name.get(), this.extension.get(), this.mimetype.get(),
+                this.application.get(), this.icon.get().name(), this.icon.get());
     }
+
 }

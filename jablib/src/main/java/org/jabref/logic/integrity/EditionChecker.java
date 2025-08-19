@@ -12,9 +12,12 @@ import org.jabref.model.strings.StringUtil;
 public class EditionChecker implements ValueChecker {
 
     private static final Predicate<String> FIRST_LETTER_CAPITALIZED = Pattern.compile("^[A-Z]").asPredicate();
+
     private static final Predicate<String> ONLY_NUMERALS_OR_LITERALS = Pattern.compile("^([0-9]+|[^0-9].+)$")
-                                                                              .asPredicate();
+        .asPredicate();
+
     private static final Predicate<String> ONLY_NUMERALS = Pattern.compile("[0-9]+").asPredicate();
+
     private static final String FIRST_EDITION = "1";
 
     private final BibDatabaseContext bibDatabaseContextEdition;
@@ -28,11 +31,13 @@ public class EditionChecker implements ValueChecker {
     }
 
     /**
-     * Checks, if field contains only an integer or a literal (biblatex mode) Checks, if the first letter is capitalized
-     * (BibTeX mode) biblatex package documentation: The edition of a printed publication. This must be an integer, not
-     * an ordinal. It is also possible to give the edition as a literal string, for example "Third, revised and expanded
-     * edition". Official BibTeX specification: The edition of a book-for example, "Second". This should be an ordinal,
-     * and should have the first letter capitalized.
+     * Checks, if field contains only an integer or a literal (biblatex mode) Checks, if
+     * the first letter is capitalized (BibTeX mode) biblatex package documentation: The
+     * edition of a printed publication. This must be an integer, not an ordinal. It is
+     * also possible to give the edition as a literal string, for example "Third, revised
+     * and expanded edition". Official BibTeX specification: The edition of a book-for
+     * example, "Second". This should be an ordinal, and should have the first letter
+     * capitalized.
      */
     @Override
     public Optional<String> checkValue(String value) {
@@ -48,7 +53,8 @@ public class EditionChecker implements ValueChecker {
             if (!ONLY_NUMERALS_OR_LITERALS.test(value.trim())) {
                 return Optional.of(Localization.lang("should contain an integer or a literal"));
             }
-        } else {
+        }
+        else {
             if (ONLY_NUMERALS.test(value) && (!allowIntegerEdition)) {
                 return Optional.of(Localization.lang("no integer as values for edition allowed"));
             }
@@ -62,4 +68,5 @@ public class EditionChecker implements ValueChecker {
     boolean isFirstCharDigit(String input) {
         return !StringUtil.isNullOrEmpty(input) && Character.isDigit(input.charAt(0));
     }
+
 }

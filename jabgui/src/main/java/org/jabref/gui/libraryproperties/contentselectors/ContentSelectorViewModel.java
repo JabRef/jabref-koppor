@@ -39,8 +39,11 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     private Map<Field, List<String>> fieldKeywordsMap = new HashMap<>();
 
     private final ListProperty<Field> fields = new SimpleListProperty<>(FXCollections.observableArrayList());
+
     private final ListProperty<String> keywords = new SimpleListProperty<>(FXCollections.observableArrayList());
+
     private final ObjectProperty<Field> selectedField = new SimpleObjectProperty<>();
+
     private final StringProperty selectedKeyword = new SimpleStringProperty();
 
     ContentSelectorViewModel(BibDatabaseContext databaseContext, DialogService dialogService) {
@@ -70,7 +73,8 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
         if (ContentSelectors.isDefaultMap(fieldKeywordsMap)) {
             // Remove all fields of the content selector
             fieldNamesToRemove = metaData.getContentSelectorsSorted().stream().map(ContentSelector::getField).toList();
-        } else {
+        }
+        else {
             fieldNamesToRemove = determineFieldsToRemove();
         }
 
@@ -107,18 +111,19 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     }
 
     void showInputFieldNameDialog() {
-        dialogService.showEditableChoiceDialogAndWait(Localization.lang("Add new field name"),
-                             Localization.lang("Field name"),
-                             Localization.lang("Add"),
-                             FXCollections.observableArrayList(FieldFactory.getStandardFieldsWithCitationKey()),
-                             FieldsUtil.FIELD_STRING_CONVERTER)
-                     .ifPresent(this::addFieldIfUnique);
+        dialogService
+            .showEditableChoiceDialogAndWait(Localization.lang("Add new field name"), Localization.lang("Field name"),
+                    Localization.lang("Add"),
+                    FXCollections.observableArrayList(FieldFactory.getStandardFieldsWithCitationKey()),
+                    FieldsUtil.FIELD_STRING_CONVERTER)
+            .ifPresent(this::addFieldIfUnique);
     }
 
     private void addFieldIfUnique(Field fieldToAdd) {
         boolean exists = fieldKeywordsMap.containsKey(fieldToAdd);
         if (exists) {
-            dialogService.showErrorDialogAndWait(Localization.lang("Field name \"%0\" already exists", fieldToAdd.getDisplayName()));
+            dialogService.showErrorDialogAndWait(
+                    Localization.lang("Field name \"%0\" already exists", fieldToAdd.getDisplayName()));
             return;
         }
 
@@ -132,10 +137,9 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
             return;
         }
 
-        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Remove field name"),
-                Localization.lang("Are you sure you want to remove field name: \"%0\"?", fieldToRemove.getDisplayName())
-        );
+        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Remove field name"),
+                Localization.lang("Are you sure you want to remove field name: \"%0\"?",
+                        fieldToRemove.getDisplayName()));
 
         if (deleteConfirmed) {
             removeFieldName(fieldToRemove);
@@ -156,7 +160,7 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
 
     void showInputKeywordDialog(Field selectedField) {
         dialogService.showInputDialogAndWait(Localization.lang("Add new keyword"), Localization.lang("Keyword:"))
-                     .ifPresent(newKeyword -> addKeywordIfUnique(selectedField, newKeyword));
+            .ifPresent(newKeyword -> addKeywordIfUnique(selectedField, newKeyword));
     }
 
     private void addKeywordIfUnique(Field field, String keywordToAdd) {
@@ -174,7 +178,8 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     }
 
     void showRemoveKeywordConfirmationDialog(Field field, String keywordToRemove) {
-        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Remove keyword"), Localization.lang("Are you sure you want to remove keyword: \"%0\"?", keywordToRemove));
+        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Remove keyword"),
+                Localization.lang("Are you sure you want to remove keyword: \"%0\"?", keywordToRemove));
         if (deleteConfirmed) {
             removeKeyword(field, keywordToRemove);
         }
@@ -189,22 +194,26 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
      * Determines the list of fields to remove in case a non-default map:
      *
      * <ul>
-     *     <li>Fields that are not in the new list of fields and</li>
-     *     <li>>all default fields that have no associated keywords</li>
+     * <li>Fields that are not in the new list of fields and</li>
+     * <li>>all default fields that have no associated keywords</li>
      * </ul>
      */
     private List<Field> determineFieldsToRemove() {
         Set<Field> newlyAddedKeywords = fieldKeywordsMap.keySet();
 
         // Remove all content selectors that are not in the new list
-        List<Field> result = new ArrayList<>(metaData.getContentSelectors().getFieldsWithSelectors().stream()
-                                                   .filter(field -> !newlyAddedKeywords.contains(field))
-                                                   .toList());
+        List<Field> result = new ArrayList<>(metaData.getContentSelectors()
+            .getFieldsWithSelectors()
+            .stream()
+            .filter(field -> !newlyAddedKeywords.contains(field))
+            .toList());
         // Remove all unset default fields
         result.addAll(fieldKeywordsMap.entrySet()
-                                      .stream()
-                                      .filter(entry -> ContentSelectors.DEFAULT_FIELD_NAMES.contains(entry.getKey()) && entry.getValue().isEmpty()).map(Map.Entry::getKey)
-                                      .toList());
+            .stream()
+            .filter(entry -> ContentSelectors.DEFAULT_FIELD_NAMES.contains(entry.getKey())
+                    && entry.getValue().isEmpty())
+            .map(Map.Entry::getKey)
+            .toList());
 
         return result;
     }
@@ -233,4 +242,5 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     private HashSet<String> asHashSet(List<String> listToConvert) {
         return new HashSet<>(listToConvert);
     }
+
 }

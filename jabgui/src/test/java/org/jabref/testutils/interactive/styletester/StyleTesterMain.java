@@ -24,10 +24,8 @@ public class StyleTesterMain extends Application {
         StyleTesterView view = new StyleTesterView();
         DefaultFileUpdateMonitor fileUpdateMonitor = new DefaultFileUpdateMonitor();
         HeadlessExecutorService.INSTANCE.executeInterruptableTask(fileUpdateMonitor, "FileUpdateMonitor");
-        ThemeManager themeManager = new ThemeManager(
-                JabRefGuiPreferences.getInstance().getWorkspacePreferences(),
-                fileUpdateMonitor,
-                Runnable::run);
+        ThemeManager themeManager = new ThemeManager(JabRefGuiPreferences.getInstance().getWorkspacePreferences(),
+                fileUpdateMonitor, Runnable::run);
 
         Scene scene = new Scene(view.getContent());
         themeManager.installCss(scene);
@@ -39,4 +37,5 @@ public class StyleTesterMain extends Application {
     public void stop() {
         HeadlessExecutorService.INSTANCE.shutdownEverything();
     }
+
 }

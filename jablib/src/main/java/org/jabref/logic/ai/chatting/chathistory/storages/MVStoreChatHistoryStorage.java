@@ -20,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MVStoreChatHistoryStorage extends MVStoreBase implements ChatHistoryStorage {
+
     private static final String ENTRY_CHAT_HISTORY_PREFIX = "entry";
+
     private static final String GROUP_CHAT_HISTORY_PREFIX = "group";
 
     private record ChatHistoryRecord(String className, String content) implements Serializable {
@@ -36,14 +38,13 @@ public class MVStoreChatHistoryStorage extends MVStoreBase implements ChatHistor
             String content;
 
             switch (chatMessage) {
-                case AiMessage aiMessage ->
-                        content = aiMessage.text();
-                case UserMessage userMessage ->
-                        content = userMessage.singleText();
-                case ErrorMessage errorMessage ->
-                        content = errorMessage.getText();
+                case AiMessage aiMessage -> content = aiMessage.text();
+                case UserMessage userMessage -> content = userMessage.singleText();
+                case ErrorMessage errorMessage -> content = errorMessage.getText();
                 default -> {
-                    LOGGER.warn("ChatHistoryRecord supports only AI, user. and error messages, but added message has other type: {}", chatMessage.type().name());
+                    LOGGER.warn(
+                            "ChatHistoryRecord supports only AI, user. and error messages, but added message has other type: {}",
+                            chatMessage.type().name());
                     return "";
                 }
             }
@@ -54,12 +55,17 @@ public class MVStoreChatHistoryStorage extends MVStoreBase implements ChatHistor
         public ChatMessage toLangchainMessage() {
             if (className.equals(AiMessage.class.getName())) {
                 return new AiMessage(content);
-            } else if (className.equals(UserMessage.class.getName())) {
+            }
+            else if (className.equals(UserMessage.class.getName())) {
                 return new UserMessage(content);
-            } else if (className.equals(ErrorMessage.class.getName())) {
+            }
+            else if (className.equals(ErrorMessage.class.getName())) {
                 return new ErrorMessage(content);
-            } else {
-                LOGGER.warn("ChatHistoryRecord supports only AI and user messages, but retrieved message has other type: {}. Will treat as an AI message.", className);
+            }
+            else {
+                LOGGER.warn(
+                        "ChatHistoryRecord supports only AI and user messages, but retrieved message has other type: {}. Will treat as an AI message.",
+                        className);
                 return new AiMessage(content);
             }
         }
@@ -90,21 +96,20 @@ public class MVStoreChatHistoryStorage extends MVStoreBase implements ChatHistor
     }
 
     private List<ChatMessage> loadMessagesFromMap(Map<Integer, ChatHistoryRecord> map) {
-        return map
-                .entrySet()
-                // We need to check all keys, because upon deletion, there can be "holes" in the integer.
-                .stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .map(entry -> entry.getValue().toLangchainMessage())
-                .toList();
+        return map.entrySet()
+            // We need to check all keys, because upon deletion, there can be "holes" in
+            // the integer.
+            .stream()
+            .sorted(Comparator.comparingInt(Map.Entry::getKey))
+            .map(entry -> entry.getValue().toLangchainMessage())
+            .toList();
     }
 
     private void storeMessagesForMap(Map<Integer, ChatHistoryRecord> map, List<ChatMessage> messages) {
         map.clear();
 
-        new IntRange(0, messages.size() - 1).forEach(i ->
-                map.put(i, ChatHistoryRecord.fromLangchainMessage(messages.get(i)))
-        );
+        new IntRange(0, messages.size() - 1)
+            .forEach(i -> map.put(i, ChatHistoryRecord.fromLangchainMessage(messages.get(i))));
     }
 
     private Map<Integer, ChatHistoryRecord> getMapForEntry(Path bibDatabasePath, String citationKey) {
@@ -126,6 +131,8 @@ public class MVStoreChatHistoryStorage extends MVStoreBase implements ChatHistor
 
     @Override
     protected String errorMessageForOpeningLocalized() {
-        return Localization.lang("An error occurred while opening chat history storage. Chat history of entries and groups will not be stored in the next session.");
+        return Localization.lang(
+                "An error occurred while opening chat history storage. Chat history of entries and groups will not be stored in the next session.");
     }
+
 }

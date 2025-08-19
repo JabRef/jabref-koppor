@@ -10,11 +10,9 @@ class NormalizeUnicodeFormatterTest {
     private NormalizeUnicodeFormatter formatter = new NormalizeUnicodeFormatter();
 
     @ParameterizedTest
-    @CsvSource({
-            "John, John",
-            "\u00C5, \u0041\u030A"
-    })
+    @CsvSource({ "John, John", "\u00C5, \u0041\u030A" })
     void format(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
+
 }

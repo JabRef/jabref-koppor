@@ -21,20 +21,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sends the selected entries to any specifiable email
- * by populating the email body
+ * Sends the selected entries to any specifiable email by populating the email body
  */
 public class SendAsStandardEmailAction extends SendAsEMailAction {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAsStandardEmailAction.class);
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
+
     private final BibEntryTypesManager entryTypesManager;
 
-    public SendAsStandardEmailAction(DialogService dialogService,
-                                     GuiPreferences preferences,
-                                     StateManager stateManager,
-                                     BibEntryTypesManager entryTypesManager,
-                                     TaskExecutor taskExecutor) {
+    public SendAsStandardEmailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            BibEntryTypesManager entryTypesManager, TaskExecutor taskExecutor) {
         super(dialogService, preferences, stateManager, taskExecutor);
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -59,16 +59,19 @@ public class SendAsStandardEmailAction extends SendAsEMailAction {
         StringWriter rawEntries = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntries, OS.NEWLINE);
 
-        BibEntryWriter bibtexEntryWriter = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
+        BibEntryWriter bibtexEntryWriter = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()),
+                entryTypesManager);
 
         for (BibEntry entry : entries) {
             try {
                 bibtexEntryWriter.write(entry, bibWriter, databaseContext.getMode());
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.warn("Problem creating BibTeX file for mailing.", e);
             }
         }
 
         return rawEntries.toString();
     }
+
 }

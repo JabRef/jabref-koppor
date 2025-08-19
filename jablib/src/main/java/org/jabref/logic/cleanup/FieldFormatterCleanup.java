@@ -19,6 +19,7 @@ import org.jabref.model.entry.field.InternalField;
 public class FieldFormatterCleanup implements CleanupJob {
 
     private final Field field;
+
     private final Formatter formatter;
 
     public FieldFormatterCleanup(Field field, Formatter formatter) {
@@ -30,9 +31,11 @@ public class FieldFormatterCleanup implements CleanupJob {
     public List<FieldChange> cleanup(BibEntry entry) {
         if (InternalField.INTERNAL_ALL_FIELD == field) {
             return cleanupAllFields(entry);
-        } else if (InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD == field) {
+        }
+        else if (InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD == field) {
             return cleanupAllTextFields(entry);
-        } else {
+        }
+        else {
             return cleanupSingleField(field, entry);
         }
     }
@@ -41,9 +44,8 @@ public class FieldFormatterCleanup implements CleanupJob {
      * Runs the formatter on the specified field in the given entry.
      * <p>
      * If the formatter returns an empty string, then the field is removed.
-     *
      * @param fieldKey the field on which to run the formatter
-     * @param entry    the entry to be cleaned up
+     * @param entry the entry to be cleaned up
      * @return a list of changes of the entry
      */
     private List<FieldChange> cleanupSingleField(Field fieldKey, BibEntry entry) {
@@ -57,11 +59,13 @@ public class FieldFormatterCleanup implements CleanupJob {
 
         if (newValue.equals(oldValue)) {
             return List.of();
-        } else {
+        }
+        else {
             if (newValue.isEmpty()) {
                 entry.clearField(fieldKey);
                 newValue = null;
-            } else {
+            }
+            else {
                 entry.setField(fieldKey, newValue, EntriesEventSource.SAVE_ACTION);
             }
             FieldChange change = new FieldChange(entry, fieldKey, oldValue, newValue);
@@ -122,4 +126,5 @@ public class FieldFormatterCleanup implements CleanupJob {
     public String toString() {
         return field + ": " + formatter.getName();
     }
+
 }

@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 class PushToTeXworksTest {
 
     private static final String TEXWORKS_CLIENT_PATH = "/usr/bin/texworks";
+
     private static final String DISPLAY_NAME = "TeXworks";
 
     private GuiPushToTeXworks pushToTeXworks;
@@ -37,7 +38,8 @@ class PushToTeXworksTest {
         // Mock the command path
         Map<String, String> commandPaths = Map.of(DISPLAY_NAME, TEXWORKS_CLIENT_PATH);
         ObservableMap<String, String> observableCommandPaths = FXCollections.observableMap(commandPaths);
-        when(pushToApplicationPreferences.getCommandPaths()).thenReturn(new SimpleMapProperty<>(observableCommandPaths));
+        when(pushToApplicationPreferences.getCommandPaths())
+            .thenReturn(new SimpleMapProperty<>(observableCommandPaths));
 
         // Mock the return value for getCiteCommand()
         CitationCommandString mockCiteCommand = mock(CitationCommandString.class);
@@ -51,8 +53,8 @@ class PushToTeXworksTest {
     }
 
     /**
-     * To verify that the PushToTeXworks class correctly returns its designated display name.
-     * The display name is used to identify the application in the GUI.
+     * To verify that the PushToTeXworks class correctly returns its designated display
+     * name. The display name is used to identify the application in the GUI.
      */
     @Test
     void displayName() {
@@ -60,13 +62,19 @@ class PushToTeXworksTest {
     }
 
     /**
-     * To verify that the PushToTeXworks class correctly returns the command line for TeXworks.
-     * The command line is used to execute the application from the command line.
+     * To verify that the PushToTeXworks class correctly returns the command line for
+     * TeXworks. The command line is used to execute the application from the command
+     * line.
      */
     @Test
     void getCommandLine() {
         String keyString = "TestKey";
-        String[] expectedCommand = new String[] {null, "--insert-text", keyString}; // commandPath is only set in pushEntries
+        String[] expectedCommand = new String[] { null, "--insert-text", keyString }; // commandPath
+                                                                                      // is
+                                                                                      // only
+                                                                                      // set
+                                                                                      // in
+                                                                                      // pushEntries
 
         String[] actualCommand = pushToTeXworks.getCommandLine(keyString);
 
@@ -81,7 +89,7 @@ class PushToTeXworksTest {
         ProcessBuilder processBuilder = mock(ProcessBuilder.class);
 
         String testKey = "TestKey";
-        String[] expectedCommand = new String[] {TEXWORKS_CLIENT_PATH, "--insert-text", testKey};
+        String[] expectedCommand = new String[] { TEXWORKS_CLIENT_PATH, "--insert-text", testKey };
 
         pushToTeXworks.pushEntries(List.of(new BibEntry().withCitationKey(testKey)), processBuilder);
 
@@ -96,4 +104,5 @@ class PushToTeXworksTest {
     void getTooltip() {
         assertEquals("Push entries to external application (TeXworks)", pushToTeXworks.getTooltip());
     }
+
 }

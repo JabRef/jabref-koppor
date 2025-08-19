@@ -8,7 +8,9 @@ import org.jabref.model.openoffice.CitationEntry;
 public class CitationEntryViewModel {
 
     private final StringProperty citation = new SimpleStringProperty("");
+
     private final StringProperty extraInformation = new SimpleStringProperty("");
+
     private final String refMarkName;
 
     public CitationEntryViewModel(String refMarkName, String citation, String extraInfo) {
@@ -36,4 +38,5 @@ public class CitationEntryViewModel {
     public void setExtraInfo(String extraInfo) {
         extraInformation.setValue(extraInfo);
     }
+
 }

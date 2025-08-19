@@ -33,4 +33,5 @@ class RemoveRedundantSpacesFormatterTest {
     void removeAllButOneSpacesIfThree() {
         assertEquals("three spaces", formatter.format("three   spaces"));
     }
+
 }

@@ -11,7 +11,8 @@ import org.jabref.model.entry.BibEntry;
 public class MergeReviewIntoCommentAction implements GUIPostOpenAction {
 
     @Override
-    public boolean isActionNecessary(ParserResult parserResult, DialogService dialogService, CliPreferences preferences) {
+    public boolean isActionNecessary(ParserResult parserResult, DialogService dialogService,
+            CliPreferences preferences) {
         return MergeReviewIntoCommentMigration.needsMigration(parserResult);
     }
 
@@ -21,8 +22,10 @@ public class MergeReviewIntoCommentAction implements GUIPostOpenAction {
 
         migration.performMigration(parserResult);
         List<BibEntry> conflicts = MergeReviewIntoCommentMigration.collectConflicts(parserResult);
-        if (!conflicts.isEmpty() && new MergeReviewIntoCommentConfirmationDialog(dialogService).askUserForMerge(conflicts)) {
+        if (!conflicts.isEmpty()
+                && new MergeReviewIntoCommentConfirmationDialog(dialogService).askUserForMerge(conflicts)) {
             migration.performConflictingMigration(parserResult);
         }
     }
+
 }

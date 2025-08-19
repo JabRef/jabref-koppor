@@ -17,11 +17,10 @@ public class ParserResultWarningDialog {
 
     /**
      * Shows a dialog with the warnings from an import or open of a file
-     *
-     * @param parserResult   - ParserResult for the current import/open
+     * @param parserResult - ParserResult for the current import/open
      */
     public static void showParserResultWarningDialog(final ParserResult parserResult,
-                                                     final DialogService dialogService) {
+            final DialogService dialogService) {
         Objects.requireNonNull(parserResult);
         // Return if no warnings
         if (!parserResult.hasWarnings()) {
@@ -41,11 +40,13 @@ public class ParserResultWarningDialog {
         String dialogTitle;
         if (parserResult.getPath().isEmpty()) {
             dialogTitle = Localization.lang("Warnings");
-        } else {
+        }
+        else {
             dialogTitle = Localization.lang("Warnings") + " (" + parserResult.getPath().get().getFileName() + ")";
         }
 
         // Show dialog
         dialogService.showWarningDialogAndWait(dialogTitle, dialogContent.toString());
     }
+
 }

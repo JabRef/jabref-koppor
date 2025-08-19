@@ -41,13 +41,14 @@ public class AutomaticPersonsGroup extends AutomaticGroup {
     @Override
     public Set<GroupTreeNode> createSubgroups(BibEntry entry) {
         return LastNameGroup.getAsLastNamesLatexFree(field, entry)
-                            .stream()
-                            .map(lastName -> new LastNameGroup(lastName, GroupHierarchyType.INDEPENDENT, field, lastName))
-                            .map(GroupTreeNode::new)
-                            .collect(Collectors.toSet());
+            .stream()
+            .map(lastName -> new LastNameGroup(lastName, GroupHierarchyType.INDEPENDENT, field, lastName))
+            .map(GroupTreeNode::new)
+            .collect(Collectors.toSet());
     }
 
     public Field getField() {
         return field;
     }
+
 }

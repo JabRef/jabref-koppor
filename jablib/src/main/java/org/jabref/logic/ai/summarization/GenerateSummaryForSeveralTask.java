@@ -26,40 +26,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This task generates summaries for several {@link BibEntry}ies (typically used for groups).
- * It will check if summaries were already generated.
- * And it also will store the summaries.
+ * This task generates summaries for several {@link BibEntry}ies (typically used for
+ * groups). It will check if summaries were already generated. And it also will store the
+ * summaries.
  */
 public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateSummaryForSeveralTask.class);
 
     private final StringProperty groupName;
+
     private final List<ProcessingInfo<BibEntry, Summary>> entries;
+
     private final BibDatabaseContext bibDatabaseContext;
+
     private final SummariesStorage summariesStorage;
+
     private final ChatModel chatLanguageModel;
+
     private final AiTemplatesService aiTemplatesService;
+
     private final ReadOnlyBooleanProperty shutdownSignal;
+
     private final AiPreferences aiPreferences;
+
     private final FilePreferences filePreferences;
+
     private final TaskExecutor taskExecutor;
 
     private final ProgressCounter progressCounter = new ProgressCounter();
 
     private String currentFile = "";
 
-    public GenerateSummaryForSeveralTask(
-            StringProperty groupName,
-            List<ProcessingInfo<BibEntry, Summary>> entries,
-            BibDatabaseContext bibDatabaseContext,
-            SummariesStorage summariesStorage,
-            ChatModel chatLanguageModel,
-            AiTemplatesService aiTemplatesService,
-            ReadOnlyBooleanProperty shutdownSignal,
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            TaskExecutor taskExecutor
-    ) {
+    public GenerateSummaryForSeveralTask(StringProperty groupName, List<ProcessingInfo<BibEntry, Summary>> entries,
+            BibDatabaseContext bibDatabaseContext, SummariesStorage summariesStorage, ChatModel chatLanguageModel,
+            AiTemplatesService aiTemplatesService, ReadOnlyBooleanProperty shutdownSignal, AiPreferences aiPreferences,
+            FilePreferences filePreferences, TaskExecutor taskExecutor) {
         this.groupName = groupName;
         this.entries = entries;
         this.bibDatabaseContext = bibDatabaseContext;
@@ -77,7 +79,8 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
     private void configure() {
         showToUser(true);
         titleProperty().set(Localization.lang("Generating summaries for %0", groupName.get()));
-        groupName.addListener((_, _, newValue) -> titleProperty().set(Localization.lang("Generating summaries for %0", newValue)));
+        groupName.addListener(
+                (_, _, newValue) -> titleProperty().set(Localization.lang("Generating summaries for %0", newValue)));
 
         progressCounter.increaseWorkMax(entries.size());
         progressCounter.listenToAllProperties(this::updateProgress);
@@ -90,29 +93,16 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
 
         List<Pair<? extends Future<?>, BibEntry>> futures = new ArrayList<>();
 
-        entries
-                .stream()
-                .map(processingInfo -> {
-                    processingInfo.setState(ProcessingState.PROCESSING);
-                    return new Pair<>(
-                            new GenerateSummaryTask(
-                                    processingInfo.getObject(),
-                                    bibDatabaseContext,
-                                    summariesStorage,
-                                    chatLanguageModel,
-                                    aiTemplatesService,
-                                    shutdownSignal,
-                                    aiPreferences,
-                                    filePreferences
-                            )
-                                    .showToUser(false)
-                                    .onSuccess(processingInfo::setSuccess)
-                                    .onFailure(processingInfo::setException)
-                                    .onFinished(() -> progressCounter.increaseWorkDone(1))
-                                    .executeWith(taskExecutor),
-                            processingInfo.getObject());
-                })
-                .forEach(futures::add);
+        entries.stream().map(processingInfo -> {
+            processingInfo.setState(ProcessingState.PROCESSING);
+            return new Pair<>(new GenerateSummaryTask(processingInfo.getObject(), bibDatabaseContext, summariesStorage,
+                    chatLanguageModel, aiTemplatesService, shutdownSignal, aiPreferences, filePreferences)
+                .showToUser(false)
+                .onSuccess(processingInfo::setSuccess)
+                .onFailure(processingInfo::setException)
+                .onFinished(() -> progressCounter.increaseWorkDone(1))
+                .executeWith(taskExecutor), processingInfo.getObject());
+        }).forEach(futures::add);
 
         for (Pair<? extends Future<?>, BibEntry> pair : futures) {
             currentFile = pair.getValue().getCitationKey().orElse("<no citation key>");
@@ -128,4 +118,5 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
         updateProgress(progressCounter.getWorkDone(), progressCounter.getWorkMax());
         updateMessage(progressCounter.getMessage() + " - " + currentFile + ", ...");
     }
+
 }

@@ -121,8 +121,9 @@ class EndnoteImporterTest {
     @Test
     void importEntries1() throws IOException {
         String medlineString = "%O Artn\\\\s testO\n%A testA,\n%E testE0, testE1";
-        List<BibEntry> bibEntries = importer.importDatabase(new BufferedReader(Reader.of(medlineString))).getDatabase()
-                                            .getEntries();
+        List<BibEntry> bibEntries = importer.importDatabase(new BufferedReader(Reader.of(medlineString)))
+            .getDatabase()
+            .getEntries();
 
         BibEntry entry = bibEntries.getFirst();
 
@@ -153,4 +154,5 @@ class EndnoteImporterTest {
         assertEquals(Optional.of("http://d-nb.info/107601965X"), entry.getField(StandardField.URL));
         assertEquals(Optional.of("2016"), entry.getField(StandardField.YEAR));
     }
+
 }

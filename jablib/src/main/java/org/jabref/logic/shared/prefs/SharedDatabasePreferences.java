@@ -17,24 +17,39 @@ public class SharedDatabasePreferences {
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedDatabasePreferences.class);
 
     private static final String DEFAULT_NODE = "default";
+
     private static final String PREFERENCES_PATH_NAME = "/org/jabref-shared";
 
     private static final String SHARED_DATABASE_TYPE = "sharedDatabaseType";
+
     private static final String SHARED_DATABASE_HOST = "sharedDatabaseHost";
+
     private static final String SHARED_DATABASE_PORT = "sharedDatabasePort";
+
     private static final String SHARED_DATABASE_NAME = "sharedDatabaseName";
+
     private static final String SHARED_DATABASE_USER = "sharedDatabaseUser";
+
     private static final String SHARED_DATABASE_PASSWORD = "sharedDatabasePassword";
+
     private static final String SHARED_DATABASE_FOLDER = "sharedDatabaseFolder";
+
     private static final String SHARED_DATABASE_AUTOSAVE = "sharedDatabaseAutosave";
+
     private static final String SHARED_DATABASE_REMEMBER_PASSWORD = "sharedDatabaseRememberPassword";
+
     private static final String SHARED_DATABASE_USE_SSL = "sharedDatabaseUseSSL";
+
     private static final String SHARED_DATABASE_KEYSTORE_FILE = "sharedDatabaseKeyStoreFile";
+
     private static final String SHARED_DATABASE_SERVER_TIMEZONE = "sharedDatabaseServerTimezone";
+
     private static final String SHARED_DATABASE_EXPERT_MODE = "sharedDatabaseExpertMode";
+
     private static final String SHARED_DATABASE_JDBC_URL = "sharedDatabaseJdbcUrl";
 
-    // This {@link Preferences} is used only for things which should not appear in real JabRefPreferences due to security reasons.
+    // This {@link Preferences} is used only for things which should not appear in real
+    // JabRefPreferences due to security reasons.
     private final Preferences internalPrefs;
 
     public SharedDatabasePreferences() {
@@ -189,8 +204,10 @@ public class SharedDatabasePreferences {
 
         try {
             setPassword(new Password(properties.getPassword().toCharArray(), properties.getUser()).encrypt());
-        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+        }
+        catch (GeneralSecurityException | UnsupportedEncodingException e) {
             LOGGER.error("Could not store the password due to encryption problems.", e);
         }
     }
+
 }

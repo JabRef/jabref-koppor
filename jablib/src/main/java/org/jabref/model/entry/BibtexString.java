@@ -13,38 +13,28 @@ public class BibtexString implements Cloneable {
      * <p>
      * Differentiate a \@String based on its usage:
      * <p>
-     * - {@link #AUTHOR}: prefix "a", for author and editor fields.
-     * - {@link #INSTITUTION}: prefix "i", for institution and organization
-     * field
-     * - {@link #PUBLISHER}: prefix "p", for publisher fields
-     * - {@link #OTHER}: no prefix, for any field
+     * - {@link #AUTHOR}: prefix "a", for author and editor fields. -
+     * {@link #INSTITUTION}: prefix "i", for institution and organization field -
+     * {@link #PUBLISHER}: prefix "p", for publisher fields - {@link #OTHER}: no prefix,
+     * for any field
      * <p>
      * Examples:
      * <p>
-     * \@String { aKahle    = "Kahle, Brewster " } -> author
-     * \@String { aStallman = "Stallman, Richard" } -> author
-     * \@String { iMIT      = "{Massachusetts Institute of Technology ({MIT})}" } -> institution
-     * \@String { pMIT      = "{Massachusetts Institute of Technology ({MIT}) press}" } -> publisher
-     * \@String { anct      = "Anecdote" } -> other
-     * \@String { eg        = "for example" } -> other
-     * \@String { et        = " and " } -> other
-     * \@String { lBigMac   = "Big Mac" } -> other
+     * \@String { aKahle = "Kahle, Brewster " } -> author \@String { aStallman =
+     * "Stallman, Richard" } -> author \@String { iMIT = "{Massachusetts Institute of
+     * Technology ({MIT})}" } -> institution \@String { pMIT = "{Massachusetts Institute
+     * of Technology ({MIT}) press}" } -> publisher \@String { anct = "Anecdote" } ->
+     * other \@String { eg = "for example" } -> other \@String { et = " and " } -> other
+     * \@String { lBigMac = "Big Mac" } -> other
      * <p>
      * Usage:
      * <p>
-     * \@Misc {
-     * title       = "The GNU Project"
-     * author      = aStallman # et # aKahle
-     * institution = iMIT
-     * publisher   = pMIT
-     * note        = "Just " # eg
-     * }
+     * \@Misc { title = "The GNU Project" author = aStallman # et # aKahle institution =
+     * iMIT publisher = pMIT note = "Just " # eg }
      */
     public enum Type {
-        AUTHOR("a"),
-        INSTITUTION("i"),
-        PUBLISHER("p"),
-        OTHER("");
+
+        AUTHOR("a"), INSTITUTION("i"), PUBLISHER("p"), OTHER("");
 
         private final String prefix;
 
@@ -70,19 +60,27 @@ public class BibtexString implements Cloneable {
             }
             return OTHER;
         }
+
     }
 
     private String name;
+
     private String content;
+
     private String id;
+
     private Type type;
+
     private String parsedSerialization;
+
     private boolean hasChanged;
 
     /**
      * Default constructor. Use this if in doubt.
      *
-     * In case this constructor is used - and the library is eventually written, the serialization is generated from scratch (and not some null from parsedSerialization)
+     * In case this constructor is used - and the library is eventually written, the
+     * serialization is generated from scratch (and not some null from
+     * parsedSerialization)
      */
     public BibtexString(String name, String content) {
         this.id = IdGenerator.next();
@@ -93,9 +91,9 @@ public class BibtexString implements Cloneable {
     }
 
     /**
-     * This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX file.
-     * Do not use if not working with reading BibTeX files (or similar actions).     *
-     *
+     * This is used to set the parsed serialization of the string. This is used when the
+     * string is read from a BibTeX file. Do not use if not working with reading BibTeX
+     * files (or similar actions). *
      * @param parsedSerialization The serialization read during parsing
      */
     public BibtexString(String name, String content, String parsedSerialization) {
@@ -151,7 +149,8 @@ public class BibtexString implements Cloneable {
     }
 
     /*
-     * Returns user comments (arbitrary text before the string) if there are any. If not returns the empty string
+     * Returns user comments (arbitrary text before the string) if there are any. If not
+     * returns the empty string
      */
     public String getUserComments() {
         if (parsedSerialization != null) {
@@ -159,8 +158,10 @@ public class BibtexString implements Cloneable {
                 // get the text before the string
                 String prolog = parsedSerialization.substring(0, parsedSerialization.indexOf('@'));
                 return prolog;
-            } catch (StringIndexOutOfBoundsException ignore) {
-                // if this occurs a broken parsed serialization has been set, so just do nothing
+            }
+            catch (StringIndexOutOfBoundsException ignore) {
+                // if this occurs a broken parsed serialization has been set, so just do
+                // nothing
             }
         }
         return "";
@@ -170,8 +171,9 @@ public class BibtexString implements Cloneable {
     public Object clone() {
         BibtexString clone;
         if (parsedSerialization == null) {
-             clone = new BibtexString(name, content);
-        } else {
+            clone = new BibtexString(name, content);
+        }
+        else {
             clone = new BibtexString(name, content, parsedSerialization);
         }
         clone.setId(id);
@@ -192,15 +194,14 @@ public class BibtexString implements Cloneable {
             return false;
         }
         BibtexString that = (BibtexString) o;
-        return Objects.equals(hasChanged, that.hasChanged) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(content, that.content) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(parsedSerialization, that.parsedSerialization);
+        return Objects.equals(hasChanged, that.hasChanged) && Objects.equals(name, that.name)
+                && Objects.equals(content, that.content) && Objects.equals(type, that.type)
+                && Objects.equals(parsedSerialization, that.parsedSerialization);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(hasChanged, name, content, type, parsedSerialization);
     }
+
 }

@@ -5,9 +5,8 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum SystematicLiteratureReviewStudyEntryType implements EntryType {
-    STUDY_ENTRY("Study"),
-    SEARCH_QUERY_ENTRY("SearchQuery"),
-    LIBRARY_ENTRY("Library");
+
+    STUDY_ENTRY("Study"), SEARCH_QUERY_ENTRY("SearchQuery"), LIBRARY_ENTRY("Library");
 
     private final String displayName;
 
@@ -17,8 +16,8 @@ public enum SystematicLiteratureReviewStudyEntryType implements EntryType {
 
     public static Optional<SystematicLiteratureReviewStudyEntryType> fromName(String name) {
         return Arrays.stream(SystematicLiteratureReviewStudyEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override
@@ -30,4 +29,5 @@ public enum SystematicLiteratureReviewStudyEntryType implements EntryType {
     public String getDisplayName() {
         return displayName;
     }
+
 }

@@ -13,12 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PageTest {
+
     private Page<String> page1;
+
     private Page<String> page2;
+
     private final int testPageNumber = 3;
+
     private final String testQuery = "anyQuery";
+
     private Collection<String> testContent = new ArrayList<>();
-    private final String[] testStrings = {"str1", "str2", "str3"};
+
+    private final String[] testStrings = { "str1", "str2", "str3" };
 
     @BeforeEach
     void setup() {
@@ -56,4 +62,5 @@ class PageTest {
     void getSizeTest() {
         assertEquals(testContent.size(), page1.getSize());
     }
+
 }

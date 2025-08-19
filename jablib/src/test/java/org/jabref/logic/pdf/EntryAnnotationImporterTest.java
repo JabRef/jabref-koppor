@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 class EntryAnnotationImporterTest {
 
     private final BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
+
     private BibEntry entry;
 
     @BeforeEach
@@ -36,7 +37,8 @@ class EntryAnnotationImporterTest {
         EntryAnnotationImporter entryAnnotationImporter = new EntryAnnotationImporter(entry);
 
         // when
-        Map<Path, List<FileAnnotation>> annotations = entryAnnotationImporter.importAnnotationsFromFiles(databaseContext, mock(FilePreferences.class));
+        Map<Path, List<FileAnnotation>> annotations = entryAnnotationImporter
+            .importAnnotationsFromFiles(databaseContext, mock(FilePreferences.class));
 
         // then
         int fileCounter = 0;
@@ -48,4 +50,5 @@ class EntryAnnotationImporterTest {
         assertEquals(1, fileCounter);
         assertEquals(2, annotationCounter);
     }
+
 }

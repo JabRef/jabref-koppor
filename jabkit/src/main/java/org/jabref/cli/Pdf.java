@@ -4,14 +4,13 @@ import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.ParentCommand;
 
-@Command(name = "pdf", description = "Manage PDF metadata.",
-        subcommands = {
-                PdfUpdate.class
-                // RemoveComments.class
-                // RemoveEmbedded.class
-                // RemovePrivateFields.class
-        })
+@Command(name = "pdf", description = "Manage PDF metadata.", subcommands = { PdfUpdate.class
+        // RemoveComments.class
+        // RemoveEmbedded.class
+        // RemovePrivateFields.class
+})
 class Pdf implements Runnable {
+
     @ParentCommand
     protected ArgumentProcessor argumentProcessor;
 
@@ -22,4 +21,5 @@ class Pdf implements Runnable {
     public void run() {
         System.out.println("Specify a subcommand (write-xmp, update).");
     }
+
 }

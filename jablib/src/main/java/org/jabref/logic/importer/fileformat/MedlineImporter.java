@@ -46,14 +46,17 @@ import org.slf4j.LoggerFactory;
 /**
  * Importer for the Medline/Pubmed format.
  * <p>
- * check here for details on the format https://www.nlm.nih.gov/bsd/licensee/elements_descriptions.html
+ * check here for details on the format
+ * https://www.nlm.nih.gov/bsd/licensee/elements_descriptions.html
  */
 public class MedlineImporter extends Importer implements Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MedlineImporter.class);
+
     private static final String KEYWORD_SEPARATOR = "; ";
 
     private static final Locale ENGLISH = Locale.ENGLISH;
+
     private final XMLInputFactory xmlInputFactory;
 
     public MedlineImporter() {
@@ -122,7 +125,8 @@ public class MedlineImporter extends Importer implements Parser {
                     }
                 }
             }
-        } catch (XMLStreamException e) {
+        }
+        catch (XMLStreamException e) {
             LOGGER.debug("could not parse document", e);
             return ParserResult.fromError(e);
         }
@@ -333,7 +337,8 @@ public class MedlineImporter extends Importer implements Parser {
             if (isEndXMLEvent(reader) && "Section".equals(reader.getName().getLocalPart())) {
                 if (sectionLevel == 0) {
                     break;
-                } else {
+                }
+                else {
                     sectionLevel--;
                 }
             }
@@ -456,7 +461,8 @@ public class MedlineImporter extends Importer implements Parser {
                             putIfValueNotNull(fields, new UnknownField("references"), reader.getText());
                         }
                     }
-                    case "PersonalNameSubject" -> parsePersonalNameSubject(reader, personalNameSubjectList, elementName);
+                    case "PersonalNameSubject" ->
+                        parsePersonalNameSubject(reader, personalNameSubjectList, elementName);
                     case "OtherID" -> {
                         String otherIdSource = reader.getAttributeValue(null, "Source");
                         reader.next();
@@ -547,8 +553,8 @@ public class MedlineImporter extends Importer implements Parser {
         investigatorList.add(new Investigator(lastName, foreName, affiliationList));
     }
 
-    private void parsePersonalNameSubject(XMLStreamReader reader, List<PersonalNameSubject> personalNameSubjectList, String startElement)
-            throws XMLStreamException {
+    private void parsePersonalNameSubject(XMLStreamReader reader, List<PersonalNameSubject> personalNameSubjectList,
+            String startElement) throws XMLStreamException {
         String lastName = "";
         String foreName = "";
 
@@ -786,13 +792,8 @@ public class MedlineImporter extends Importer implements Parser {
         Optional<String> day = Optional.empty();
 
         // mapping from date XML element to field name
-        Map<String, String> dateFieldMap = Map.of(
-                "DateCreated", "created",
-                "DateCompleted", "completed",
-                "DateRevised", "revised",
-                "ContributionDate", "contribution",
-                "PubDate", ""
-        );
+        Map<String, String> dateFieldMap = Map.of("DateCreated", "created", "DateCompleted", "completed", "DateRevised",
+                "revised", "ContributionDate", "contribution", "PubDate", "");
 
         while (reader.hasNext()) {
             reader.next();
@@ -826,8 +827,8 @@ public class MedlineImporter extends Importer implements Parser {
         }
 
         Optional<Date> date = Date.parse(year, month, day);
-        date.ifPresent(dateValue ->
-                fields.put(new UnknownField(dateFieldMap.get(startElement)), dateValue.getNormalized()));
+        date.ifPresent(
+                dateValue -> fields.put(new UnknownField(dateFieldMap.get(startElement)), dateValue.getNormalized()));
     }
 
     private void addArticleIdList(Map<Field, String> fields, List<ArticleId> articleIdList) {
@@ -836,16 +837,18 @@ public class MedlineImporter extends Importer implements Parser {
             if (!id.idType().isBlank() && !"url".equals(id.idType())) {
                 if ("pubmed".equals(id.idType())) {
                     fields.computeIfAbsent(StandardField.PMID, k -> id.content());
-                } else {
-                    fields.computeIfAbsent(FieldFactory.parseField(StandardEntryType.Article, id.idType()), k -> id.content());
+                }
+                else {
+                    fields.computeIfAbsent(FieldFactory.parseField(StandardEntryType.Article, id.idType()),
+                            k -> id.content());
                 }
             }
         });
 
         articleIdList.stream()
-                .filter(id -> "url".equals(id.idType()))
-                .findFirst()
-                .ifPresent(id -> fields.put(StandardField.URL, id.content()));
+            .filter(id -> "url".equals(id.idType()))
+            .findFirst()
+            .ifPresent(id -> fields.put(StandardField.URL, id.content()));
 
         if (!fields.containsKey(StandardField.URL) && fields.containsKey(StandardField.PMID)) {
             String pmid = fields.get(StandardField.PMID);
@@ -898,7 +901,8 @@ public class MedlineImporter extends Importer implements Parser {
         // Check whether MeshHeadingList exists or not
         if (fields.get(StandardField.KEYWORDS) == null) {
             fields.put(StandardField.KEYWORDS, String.join(KEYWORD_SEPARATOR, keywordList));
-        } else {
+        }
+        else {
             if (!keywordList.isEmpty()) {
                 // if it exists, combine the MeshHeading with the keywords
                 String result = String.join("; ", keywordList);
@@ -953,7 +957,8 @@ public class MedlineImporter extends Importer implements Parser {
         }
     }
 
-    private void addPubDate(XMLStreamReader reader, Map<Field, String> fields, String startElement) throws XMLStreamException {
+    private void addPubDate(XMLStreamReader reader, Map<Field, String> fields, String startElement)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             reader.next();
             if (isStartXMLEvent(reader)) {
@@ -975,7 +980,8 @@ public class MedlineImporter extends Importer implements Parser {
                         reader.next();
                         if (isCharacterXMLEvent(reader)) {
                             Optional<Month> month = Month.parse(reader.getText());
-                            month.ifPresent(monthValue -> fields.put(StandardField.MONTH, monthValue.getJabRefFormat()));
+                            month
+                                .ifPresent(monthValue -> fields.put(StandardField.MONTH, monthValue.getJabRefFormat()));
                         }
                     }
                     case "Season" -> {
@@ -1023,8 +1029,9 @@ public class MedlineImporter extends Importer implements Parser {
     }
 
     /**
-     * Handles text entities that can have inner tags such as {@literal <}i{@literal >}, {@literal <}b{@literal >} etc.
-     * We ignore the tags and return only the characters present in the enclosing parent element.
+     * Handles text entities that can have inner tags such as {@literal <}i{@literal >},
+     * {@literal <}b{@literal >} etc. We ignore the tags and return only the characters
+     * present in the enclosing parent element.
      *
      */
     private void handleTextElement(XMLStreamReader reader, List<String> textList, String startElement)
@@ -1034,21 +1041,23 @@ public class MedlineImporter extends Importer implements Parser {
     }
 
     /**
-     * Handles text entities of abstracts that can have inner tags such as {@literal <}i{@literal >}, {@literal <}b{@literal >} etc.
-     * We ignore the tags and return only the characters present in the enclosing parent element.
+     * Handles text entities of abstracts that can have inner tags such as
+     * {@literal <}i{@literal >}, {@literal <}b{@literal >} etc. We ignore the tags and
+     * return only the characters present in the enclosing parent element.
      *
      */
     private void handleAbstractTextElement(XMLStreamReader reader, List<String> textList, String startElement)
             throws XMLStreamException {
         StringBuilder result = new StringBuilder();
         Optional.ofNullable(reader.getAttributeValue(null, "Label"))
-                .map(String::trim)
-                .filter(label -> !label.isEmpty() && !"UNLABELLED".equals(label))
-                .ifPresent(label -> result.append(label).append(": "));
+            .map(String::trim)
+            .filter(label -> !label.isEmpty() && !"UNLABELLED".equals(label))
+            .ifPresent(label -> result.append(label).append(": "));
         handleText(reader, textList, startElement, result);
     }
 
-    private void handleText(XMLStreamReader reader, List<String> textList, String startElement, StringBuilder result) throws XMLStreamException {
+    private void handleText(XMLStreamReader reader, List<String> textList, String startElement, StringBuilder result)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             reader.next();
             if (isStartXMLEvent(reader)) {
@@ -1062,7 +1071,8 @@ public class MedlineImporter extends Importer implements Parser {
                         }
                     }
                 }
-            } else if (isCharacterXMLEvent(reader)) {
+            }
+            else if (isCharacterXMLEvent(reader)) {
                 result.append(reader.getText().trim()).append(" ");
             }
 
@@ -1102,7 +1112,8 @@ public class MedlineImporter extends Importer implements Parser {
                         reader.next();
                         if (isCharacterXMLEvent(reader)) {
                             endPage = reader.getText();
-                            // but it should not happen, that a endpage appears without startpage
+                            // but it should not happen, that a endpage appears without
+                            // startpage
                             fields.put(StandardField.PAGES, fixPageRange(startPage + "-" + endPage));
                         }
                     }
@@ -1120,7 +1131,8 @@ public class MedlineImporter extends Importer implements Parser {
         return medlineDate.substring(0, 4);
     }
 
-    private void handleAuthorList(XMLStreamReader reader, Map<Field, String> fields, String startElement) throws XMLStreamException {
+    private void handleAuthorList(XMLStreamReader reader, Map<Field, String> fields, String startElement)
+            throws XMLStreamException {
         List<String> authorNames = new ArrayList<>();
 
         while (reader.hasNext()) {
@@ -1197,8 +1209,9 @@ public class MedlineImporter extends Importer implements Parser {
     }
 
     /**
-     * Convert medline page ranges from short form to full form. Medline reports page ranges in a shorthand format.
-     * The last page is reported using only the digits which differ from the first page. i.e. 12345-51 refers to the actual range 12345-12351
+     * Convert medline page ranges from short form to full form. Medline reports page
+     * ranges in a shorthand format. The last page is reported using only the digits which
+     * differ from the first page. i.e. 12345-51 refers to the actual range 12345-12351
      */
     private String fixPageRange(String pageRange) {
         int minusPos = pageRange.indexOf('-');
@@ -1230,11 +1243,14 @@ public class MedlineImporter extends Importer implements Parser {
     @Override
     public List<BibEntry> parseEntries(InputStream inputStream) throws ParseException {
         try {
-            return importDatabase(
-                    new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))).getDatabase().getEntries();
-        } catch (IOException e) {
+            return importDatabase(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
+                .getDatabase()
+                .getEntries();
+        }
+        catch (IOException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
         return List.of();
     }
+
 }

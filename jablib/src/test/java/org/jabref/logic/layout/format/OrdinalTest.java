@@ -50,4 +50,5 @@ class OrdinalTest {
     void letters() {
         assertEquals("abCD eFg", new Ordinal().format("abCD eFg"));
     }
+
 }

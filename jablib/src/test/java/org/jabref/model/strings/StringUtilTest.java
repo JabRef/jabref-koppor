@@ -32,9 +32,10 @@ class StringUtilTest {
         Path path = Path.of("src", "main", "java", StringUtil.class.getName().replace('.', '/') + ".java");
         int lineCount = Files.readAllLines(path, StandardCharsets.UTF_8).size();
 
-        assertTrue(lineCount <= 830, "StringUtil increased in size to " + lineCount + ". "
-                + "We try to keep this class as small as possible. "
-                + "Thus think twice if you add something to StringUtil.");
+        assertTrue(lineCount <= 830,
+                "StringUtil increased in size to " + lineCount + ". "
+                        + "We try to keep this class as small as possible. "
+                        + "Thus think twice if you add something to StringUtil.");
     }
 
     @Test
@@ -129,7 +130,7 @@ class StringUtilTest {
 
     @Test
     void join() {
-        String[] s = {"ab", "cd", "ed"};
+        String[] s = { "ab", "cd", "ed" };
         assertEquals("ab\\cd\\ed", StringUtil.join(s, "\\", 0, s.length));
 
         assertEquals("cd\\ed", StringUtil.join(s, "\\", 1, s.length));
@@ -138,7 +139,7 @@ class StringUtilTest {
 
         assertEquals("", StringUtil.join(s, "\\", 3, s.length));
 
-        assertEquals("", StringUtil.join(new String[]{}, "\\", 0, 0));
+        assertEquals("", StringUtil.join(new String[] {}, "\\", 0, 0));
     }
 
     @Test
@@ -189,11 +190,14 @@ class StringUtilTest {
 
     @Test
     void decodeStringDoubleArray() {
-        assertArrayEquals(new String[][]{{"a", "b"}, {"c", "d"}}, StringUtil.decodeStringDoubleArray("a:b;c:d"));
-        assertArrayEquals(new String[][]{{"a", ""}, {"c", "d"}}, StringUtil.decodeStringDoubleArray("a:;c:d"));
-        // arrays first differed at element [0][1]; expected: null<null> but was: java.lang.String<null>
-        // assertArrayEquals(stringArray2res, StringUtil.decodeStringDoubleArray(encStringArray2));
-        assertArrayEquals(new String[][]{{"a", ":b"}, {"c;", "d"}}, StringUtil.decodeStringDoubleArray("a:\\:b;c\\;:d"));
+        assertArrayEquals(new String[][] { { "a", "b" }, { "c", "d" } }, StringUtil.decodeStringDoubleArray("a:b;c:d"));
+        assertArrayEquals(new String[][] { { "a", "" }, { "c", "d" } }, StringUtil.decodeStringDoubleArray("a:;c:d"));
+        // arrays first differed at element [0][1]; expected: null<null> but was:
+        // java.lang.String<null>
+        // assertArrayEquals(stringArray2res,
+        // StringUtil.decodeStringDoubleArray(encStringArray2));
+        assertArrayEquals(new String[][] { { "a", ":b" }, { "c;", "d" } },
+                StringUtil.decodeStringDoubleArray("a:\\:b;c\\;:d"));
     }
 
     @Test
@@ -296,12 +300,7 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "'Test', 'Test', 20",
-            "'...', 'Test', 3",
-            "'TestTes...', 'TestTestTestTestTest', 10",
-            "'', , 10"
-    })
+    @CsvSource({ "'Test', 'Test', 20", "'...', 'Test', 3", "'TestTes...', 'TestTestTestTestTest', 10", "'', , 10" })
     void limitStringLength(String expected, String input, int maxLength) {
         assertEquals(expected, StringUtil.limitStringLength(input, maxLength));
     }
@@ -323,12 +322,7 @@ class StringUtilTest {
     }
 
     static Stream<Arguments> testRepeatSpacesData() {
-        return Stream.of(
-                Arguments.of("", -1),
-                Arguments.of("", 0),
-                Arguments.of(" ", 1),
-                Arguments.of("       ", 7)
-        );
+        return Stream.of(Arguments.of("", -1), Arguments.of("", 0), Arguments.of(" ", 1), Arguments.of("       ", 7));
     }
 
     @ParameterizedTest
@@ -375,12 +369,8 @@ class StringUtilTest {
     }
 
     private static Stream<Arguments> getQuoteStringIfSpaceIsContainedData() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("\" \"", " "),
-                Arguments.of("world", "world"),
-                Arguments.of("\"hello world\"", "hello world")
-        );
+        return Stream.of(Arguments.of("", ""), Arguments.of("\" \"", " "), Arguments.of("world", "world"),
+                Arguments.of("\"hello world\"", "hello world"));
     }
 
     @ParameterizedTest
@@ -396,19 +386,11 @@ class StringUtilTest {
     }
 
     static Stream<Arguments> containsWhitespace() {
-        return Stream.of(
-                Arguments.of(true, "file url"),
-                Arguments.of(true, "file\nurl"),
-                Arguments.of(true, "file\r\nurl"),
-                Arguments.of(true, "file\rurl"),
-                Arguments.of(true, "file\furl"),
-                Arguments.of(true, "file_url "),
-                Arguments.of(true, "file url\n"),
-                Arguments.of(true, " "),
+        return Stream.of(Arguments.of(true, "file url"), Arguments.of(true, "file\nurl"),
+                Arguments.of(true, "file\r\nurl"), Arguments.of(true, "file\rurl"), Arguments.of(true, "file\furl"),
+                Arguments.of(true, "file_url "), Arguments.of(true, "file url\n"), Arguments.of(true, " "),
 
-                Arguments.of(false, "file_url"),
-                Arguments.of(false, "PascalCase"),
-                Arguments.of(false, ""));
+                Arguments.of(false, "file_url"), Arguments.of(false, "PascalCase"), Arguments.of(false, ""));
     }
 
     @ParameterizedTest
@@ -419,11 +401,8 @@ class StringUtilTest {
 
     @Test
     void alignStringTable() {
-        List<Pair<String, String>> given = List.of(
-                new Pair<>("Apple", "Slice"),
-                new Pair<>("Bread", "Loaf"),
-                new Pair<>("Paper", "Sheet"),
-                new Pair<>("Country", "County"));
+        List<Pair<String, String>> given = List.of(new Pair<>("Apple", "Slice"), new Pair<>("Bread", "Loaf"),
+                new Pair<>("Paper", "Sheet"), new Pair<>("Country", "County"));
 
         String expected = """
                 Apple   : Slice
@@ -434,4 +413,5 @@ class StringUtilTest {
 
         assertEquals(expected, StringUtil.alignStringTable(given));
     }
+
 }

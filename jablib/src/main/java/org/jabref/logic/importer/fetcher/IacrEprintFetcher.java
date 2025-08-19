@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
+
     public static final String NAME = "IACR eprints";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IacrEprintFetcher.class);
@@ -32,9 +33,13 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
     private static final Pattern WITHOUT_LETTERS_SPACE = Pattern.compile("[^0-9/]");
 
     private static final Predicate<String> IDENTIFIER_PREDICATE = Pattern.compile("\\d{4}/\\d{3,5}").asPredicate();
+
     private static final String CITATION_URL_PREFIX = "https://eprint.iacr.org/";
+
     private static final String DESCRIPTION_URL_PREFIX = "https://eprint.iacr.org/";
+
     private static final String FULLTEXT_URL_PREFIX = "https://eprint.iacr.org/";
+
     private static final String VERSION_URL_PREFIX = "https://eprint.iacr.org/archive/versions/";
 
     private final ImportFormatPreferences prefs;
@@ -64,7 +69,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
         URL url;
         try {
             url = URLUtil.create(CITATION_URL_PREFIX + validIdentifier);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Invalid URL", e);
         }
         String bibtexCitationHtml = getHtml(url);
@@ -75,7 +81,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
 
         try {
             return BibtexParser.singleFromString(actualEntry, prefs);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException(Localization.lang("Entry from %0 could not be parsed.", "IACR"), e);
         }
     }
@@ -84,7 +91,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
         URL entryUrl;
         try {
             entryUrl = URLUtil.create(DESCRIPTION_URL_PREFIX + identifier);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Invalid URL", e);
         }
 
@@ -97,7 +105,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
         if (isFromOrAfterYear2000(entry)) {
             try {
                 entryUrl = URLUtil.create(VERSION_URL_PREFIX + identifier);
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 throw new FetcherException("Invalid URL", e);
             }
             String versionHtml = getHtml(entryUrl);
@@ -134,7 +143,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
         String value = StringUtil.substringBetween(haystack, from, to);
         if (value == null) {
             throw new FetcherException(Localization.lang("Entry from %0 could not be parsed.", "IACR"));
-        } else {
+        }
+        else {
             return value;
         }
     }
@@ -161,7 +171,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
             URL url;
             try {
                 url = URLUtil.create(urlField.get());
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 LOGGER.warn("Invalid URL {}", urlField.get(), e);
                 return Optional.empty();
             }
@@ -169,7 +180,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
             String descriptiveHtml = getHtml(url);
             String startOfFulltextLink = "<a class=\"btn btn-sm btn-outline-dark\"";
             String fulltextLinkAsInHtml = getRequiredValueBetween(startOfFulltextLink, ".pdf", descriptiveHtml);
-            // There is an additional "\n           href=\"/archive/" we have to remove - and for some reason,
+            // There is an additional "\n href=\"/archive/" we have to remove - and for
+            // some reason,
             // getRequiredValueBetween refuses to match across the line break.
             fulltextLinkAsInHtml = fulltextLinkAsInHtml.replaceFirst(".*href=\"/", "").trim();
             String fulltextLink = FULLTEXT_URL_PREFIX + fulltextLinkAsInHtml + ".pdf";
@@ -182,4 +194,5 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
     public TrustLevel getTrustLevel() {
         return TrustLevel.PREPRINT;
     }
+
 }

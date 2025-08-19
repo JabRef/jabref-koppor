@@ -19,21 +19,26 @@ import org.jabref.logic.layout.format.MarkdownFormatter;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class SummaryShowingComponent extends VBox {
+
     private static final MarkdownFormatter MARKDOWN_FORMATTER = new MarkdownFormatter();
-    @FXML private Text summaryInfoText;
-    @FXML private CheckBox markdownCheckbox;
+
+    @FXML
+    private Text summaryInfoText;
+
+    @FXML
+    private CheckBox markdownCheckbox;
 
     private WebView contentWebView;
+
     private final Summary summary;
+
     private final Runnable regenerateCallback;
 
     public SummaryShowingComponent(Summary summary, Runnable regenerateCallback) {
         this.summary = summary;
         this.regenerateCallback = regenerateCallback;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -54,26 +59,25 @@ public class SummaryShowingComponent extends VBox {
         String content = summary.content();
         if (isMarkdown) {
             contentWebView.getEngine().loadContent(MARKDOWN_FORMATTER.format(content));
-        } else {
-            contentWebView.getEngine().loadContent(
-                    "<body style='margin: 0; padding: 5px; width: 100vw'>" +
-                            "<div style='white-space: pre-wrap; word-wrap: break-word; width: 100vw'>" +
-                            content +
-                            "</div></body>"
-            );
+        }
+        else {
+            contentWebView.getEngine()
+                .loadContent("<body style='margin: 0; padding: 5px; width: 100vw'>"
+                        + "<div style='white-space: pre-wrap; word-wrap: break-word; width: 100vw'>" + content
+                        + "</div></body>");
         }
     }
 
     private void updateInfoText() {
-        String newInfo = summaryInfoText
-                .getText()
-                .replaceAll("%0", formatTimestamp(summary.timestamp()))
-                .replaceAll("%1", summary.aiProvider().getLabel() + " " + summary.model());
+        String newInfo = summaryInfoText.getText()
+            .replaceAll("%0", formatTimestamp(summary.timestamp()))
+            .replaceAll("%1", summary.aiProvider().getLabel() + " " + summary.model());
         summaryInfoText.setText(newInfo);
     }
 
     private static String formatTimestamp(LocalDateTime timestamp) {
-        return timestamp.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault()));
+        return timestamp
+            .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault()));
     }
 
     @FXML
@@ -85,4 +89,5 @@ public class SummaryShowingComponent extends VBox {
     private void onRegenerateButtonClick() {
         regenerateCallback.run();
     }
+
 }

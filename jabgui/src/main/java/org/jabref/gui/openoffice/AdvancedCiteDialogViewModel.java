@@ -8,7 +8,9 @@ import javafx.beans.property.StringProperty;
 public class AdvancedCiteDialogViewModel {
 
     private final StringProperty pageInfo = new SimpleStringProperty("");
+
     private final BooleanProperty citeInPar = new SimpleBooleanProperty();
+
     private final BooleanProperty citeInText = new SimpleBooleanProperty();
 
     public StringProperty pageInfoProperty() {
@@ -22,4 +24,5 @@ public class AdvancedCiteDialogViewModel {
     public BooleanProperty citeInTextProperty() {
         return citeInText;
     }
+
 }

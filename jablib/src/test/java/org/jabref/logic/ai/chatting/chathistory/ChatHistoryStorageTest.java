@@ -14,7 +14,9 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 abstract class ChatHistoryStorageTest {
-    @TempDir Path tempDir;
+
+    @TempDir
+    Path tempDir;
 
     private ChatHistoryStorage storage;
 
@@ -39,10 +41,7 @@ abstract class ChatHistoryStorageTest {
 
     @Test
     void entryChatHistory() {
-        List<ChatMessage> messages = List.of(
-                new UserMessage("hi!"),
-                new AiMessage("hello!")
-        );
+        List<ChatMessage> messages = List.of(new UserMessage("hi!"), new AiMessage("hello!"));
 
         storage.storeMessagesForEntry(tempDir.resolve("test.bib"), "citationKey", messages);
         reopen();
@@ -51,13 +50,11 @@ abstract class ChatHistoryStorageTest {
 
     @Test
     void groupChatHistory() {
-        List<ChatMessage> messages = List.of(
-                new UserMessage("hi!"),
-                new AiMessage("hello!")
-        );
+        List<ChatMessage> messages = List.of(new UserMessage("hi!"), new AiMessage("hello!"));
 
         storage.storeMessagesForGroup(tempDir.resolve("test.bib"), "group", messages);
         reopen();
         assertEquals(messages, storage.loadMessagesForGroup(tempDir.resolve("test.bib"), "group"));
     }
+
 }

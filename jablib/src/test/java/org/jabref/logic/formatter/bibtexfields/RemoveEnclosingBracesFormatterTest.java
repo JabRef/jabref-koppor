@@ -7,15 +7,15 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class RemoveEnclosingBracesFormatterTest {
 
     private final RemoveEnclosingBracesFormatter formatter = new RemoveEnclosingBracesFormatter();
 
     @ParameterizedTest
-    @CsvSource({
-            "test, {test}", // formatRemovesSingleEnclosingBraces
+    @CsvSource({ "test, {test}", // formatRemovesSingleEnclosingBraces
             "{test, {test", // formatKeepsUnmatchedBracesAtBeginning
             "test}, test}", // formatKeepsUnmatchedBracesAtEnd
             "t, t", // formatKeepsShortString
@@ -26,8 +26,7 @@ class RemoveEnclosingBracesFormatterTest {
             "{A} and {B}, {{A} and {B}}", // formatKeepsNonMatchingBraces
             "{A} and {B}}, {A} and {B}}", // formatRemovesOnlyMatchingBraces
             "Vall{\\'e}e Poussin, {Vall{\\'e}e Poussin}", // formatDoesNotRemoveBracesInBrokenString
-            "Vall{\\'e}e Poussin, Vall{\\'e}e Poussin"
-    })
+            "Vall{\\'e}e Poussin, Vall{\\'e}e Poussin" })
     void format(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
@@ -36,4 +35,5 @@ class RemoveEnclosingBracesFormatterTest {
     void formatExample() {
         assertEquals("In CDMA", formatter.format(formatter.getExampleInput()));
     }
+
 }

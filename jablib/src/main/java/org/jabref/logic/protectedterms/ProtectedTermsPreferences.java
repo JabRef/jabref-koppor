@@ -8,14 +8,15 @@ import javafx.collections.ObservableList;
 public class ProtectedTermsPreferences {
 
     private final ObservableList<String> enabledInternalTermLists;
+
     private final ObservableList<String> enabledExternalTermLists;
+
     private final ObservableList<String> disabledInternalTermLists;
+
     private final ObservableList<String> disabledExternalTermLists;
 
-    public ProtectedTermsPreferences(List<String> enabledInternalTermLists,
-                                     List<String> enabledExternalTermLists,
-                                     List<String> disabledInternalTermLists,
-                                     List<String> disabledExternalTermLists) {
+    public ProtectedTermsPreferences(List<String> enabledInternalTermLists, List<String> enabledExternalTermLists,
+            List<String> disabledInternalTermLists, List<String> disabledExternalTermLists) {
         this.enabledInternalTermLists = FXCollections.observableArrayList(enabledInternalTermLists);
         this.disabledInternalTermLists = FXCollections.observableArrayList(disabledInternalTermLists);
         this.enabledExternalTermLists = FXCollections.observableArrayList(enabledExternalTermLists);
@@ -57,4 +58,5 @@ public class ProtectedTermsPreferences {
         disabledExternalTermLists.clear();
         disabledExternalTermLists.addAll(list);
     }
+
 }

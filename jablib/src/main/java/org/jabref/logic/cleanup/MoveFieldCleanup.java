@@ -14,6 +14,7 @@ import org.jabref.model.util.OptionalUtil;
 public class MoveFieldCleanup implements CleanupJob {
 
     private Field sourceField;
+
     private Field targetField;
 
     public MoveFieldCleanup(Field sourceField, Field targetField) {
@@ -23,9 +24,10 @@ public class MoveFieldCleanup implements CleanupJob {
 
     @Override
     public List<FieldChange> cleanup(BibEntry entry) {
-        Optional<FieldChange> setFieldChange = entry.getField(sourceField).flatMap(
-                value -> entry.setField(targetField, value));
+        Optional<FieldChange> setFieldChange = entry.getField(sourceField)
+            .flatMap(value -> entry.setField(targetField, value));
         Optional<FieldChange> clearFieldChange = entry.clearField(sourceField);
         return OptionalUtil.toList(setFieldChange, clearFieldChange);
     }
+
 }

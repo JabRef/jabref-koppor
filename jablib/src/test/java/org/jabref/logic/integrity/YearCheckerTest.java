@@ -90,4 +90,5 @@ class YearCheckerTest {
     void emptyValue() {
         assertEquals(Optional.empty(), checker.checkValue(""));
     }
+
 }

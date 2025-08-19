@@ -20,4 +20,5 @@ public class HayagrivaType implements LayoutFormatter {
             default -> "Misc";
         };
     }
+
 }

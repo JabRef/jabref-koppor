@@ -31,12 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GitHandlerTest {
+
     @TempDir
     Path repositoryPath;
+
     @TempDir
     Path remoteRepoPath;
+
     @TempDir
     Path clonePath;
+
     private GitHandler gitHandler;
 
     @BeforeEach
@@ -46,10 +50,10 @@ class GitHandlerTest {
         SystemReader.setInstance(new NoopGitSystemReader());
 
         try (Git remoteGit = Git.init()
-                           .setBare(true)
-                           .setDirectory(remoteRepoPath.toFile())
-                           .setInitialBranch("main")
-                           .call()) {
+            .setBare(true)
+            .setDirectory(remoteRepoPath.toFile())
+            .setInitialBranch("main")
+            .call()) {
             // This ensures the remote repository is initialized and properly closed
         }
 
@@ -60,29 +64,24 @@ class GitHandlerTest {
         gitHandler.createCommitOnCurrentBranch("Initial commit", false);
 
         try (Git localGit = Git.open(repositoryPath.toFile())) {
-            localGit.remoteAdd()
-                    .setName("origin")
-                    .setUri(new URIish(remoteRepoPath.toUri().toString()))
-                    .call();
+            localGit.remoteAdd().setName("origin").setUri(new URIish(remoteRepoPath.toUri().toString())).call();
 
-            localGit.push()
-                    .setRemote("origin")
-                    .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
-                    .call();
+            localGit.push().setRemote("origin").setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main")).call();
 
             localGit.branchCreate()
-                    .setName("main")
-                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                    .setStartPoint("origin/main")
-                    .setForce(true)
-                    .call();
+                .setName("main")
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setStartPoint("origin/main")
+                .setForce(true)
+                .call();
         }
     }
 
     @AfterEach
     void cleanUp() {
         // Required by JGit
-        // See https://github.com/eclipse-jgit/jgit/issues/155#issuecomment-2765437816 for details
+        // See https://github.com/eclipse-jgit/jgit/issues/155#issuecomment-2765437816 for
+        // details
         RepositoryCache.clear();
         // See https://github.com/eclipse-jgit/jgit/issues/155#issuecomment-3095957214
         WindowCache.reconfigure(new WindowCacheConfig());
@@ -105,9 +104,7 @@ class GitHandlerTest {
             gitHandler.createCommitOnCurrentBranch("TestCommit", false);
 
             AnyObjectId head = git.getRepository().resolve(Constants.HEAD);
-            Iterator<RevCommit> log = git.log()
-                                         .add(head)
-                                         .call().iterator();
+            Iterator<RevCommit> log = git.log().add(head).call().iterator();
             assertEquals("TestCommit", log.next().getFullMessage());
             assertEquals("Initial commit", log.next().getFullMessage());
         }
@@ -121,9 +118,9 @@ class GitHandlerTest {
     @Test
     void fetchOnCurrentBranch() throws IOException, GitAPIException, JabRefException {
         try (Git cloneGit = Git.cloneRepository()
-                               .setURI(remoteRepoPath.toUri().toString())
-                               .setDirectory(clonePath.toFile())
-                               .call()) {
+            .setURI(remoteRepoPath.toUri().toString())
+            .setDirectory(clonePath.toFile())
+            .call()) {
             Files.writeString(clonePath.resolve("another.txt"), "world");
             cloneGit.add().addFilepattern("another.txt").call();
             cloneGit.commit().setMessage("Second commit").call();
@@ -149,4 +146,5 @@ class GitHandlerTest {
         assertEquals(repositoryPath.toRealPath(), handlerOpt.get().repositoryPath.toRealPath(),
                 "Expected repositoryPath to match Git root");
     }
+
 }

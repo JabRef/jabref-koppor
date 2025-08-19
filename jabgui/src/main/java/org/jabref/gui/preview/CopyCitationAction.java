@@ -22,35 +22,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Copies the selected entries and formats them with the selected citation style (or preview), then it is copied to the clipboard. This worker cannot be reused.
+ * Copies the selected entries and formats them with the selected citation style (or
+ * preview), then it is copied to the clipboard. This worker cannot be reused.
  */
 public class CopyCitationAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CopyCitationAction.class);
 
     private final List<BibEntry> selectedEntries;
+
     private final CitationStyleOutputFormat outputFormat;
 
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final ClipBoardManager clipBoardManager;
+
     private final TaskExecutor taskExecutor;
+
     private final ClipboardContentGenerator clipboardContentGenerator;
 
-    public CopyCitationAction(CitationStyleOutputFormat outputFormat,
-                              DialogService dialogService,
-                              StateManager stateManager,
-                              ClipBoardManager clipBoardManager,
-                              TaskExecutor taskExecutor,
-                              GuiPreferences preferences,
-                              JournalAbbreviationRepository abbreviationRepository) {
+    public CopyCitationAction(CitationStyleOutputFormat outputFormat, DialogService dialogService,
+            StateManager stateManager, ClipBoardManager clipBoardManager, TaskExecutor taskExecutor,
+            GuiPreferences preferences, JournalAbbreviationRepository abbreviationRepository) {
         this.outputFormat = outputFormat;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.selectedEntries = stateManager.getSelectedEntries();
         this.clipBoardManager = clipBoardManager;
         this.taskExecutor = taskExecutor;
-        this.clipboardContentGenerator = new ClipboardContentGenerator(preferences.getPreviewPreferences(), preferences.getLayoutFormatterPreferences(), abbreviationRepository);
+        this.clipboardContentGenerator = new ClipboardContentGenerator(preferences.getPreviewPreferences(),
+                preferences.getLayoutFormatterPreferences(), abbreviationRepository);
 
         this.executable.bind(ActionHelper.needsEntriesSelected(stateManager));
     }
@@ -58,17 +61,19 @@ public class CopyCitationAction extends SimpleCommand {
     @Override
     public void execute() {
         BackgroundTask.wrap(this::generateCitations)
-                      .onFailure(ex -> LOGGER.error("Error while copying citations to the clipboard", ex))
-                      .onSuccess(this::setClipBoardContent)
-                      .executeWith(taskExecutor);
+            .onFailure(ex -> LOGGER.error("Error while copying citations to the clipboard", ex))
+            .onSuccess(this::setClipBoardContent)
+            .executeWith(taskExecutor);
     }
 
     private ClipboardContent generateCitations() throws IOException {
-        return clipboardContentGenerator.generate(selectedEntries, outputFormat, stateManager.getActiveDatabase().get());
+        return clipboardContentGenerator.generate(selectedEntries, outputFormat,
+                stateManager.getActiveDatabase().get());
     }
 
     private void setClipBoardContent(ClipboardContent clipBoardContent) {
         clipBoardManager.setContent(clipBoardContent);
         dialogService.notify(Localization.lang("Copied %0 citations.", String.valueOf(selectedEntries.size())));
     }
+
 }

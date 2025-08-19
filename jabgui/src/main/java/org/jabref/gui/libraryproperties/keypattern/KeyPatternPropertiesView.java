@@ -18,20 +18,25 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
-public class KeyPatternPropertiesView extends AbstractPropertiesTabView<KeyPatternPropertiesViewModel> implements PropertiesTab {
+public class KeyPatternPropertiesView extends AbstractPropertiesTabView<KeyPatternPropertiesViewModel>
+        implements PropertiesTab {
 
-    @FXML private Button keyPatternHelp;
-    @FXML private CitationKeyPatternsPanel bibtexKeyPatternTable;
+    @FXML
+    private Button keyPatternHelp;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private BibEntryTypesManager bibEntryTypesManager;
+    @FXML
+    private CitationKeyPatternsPanel bibtexKeyPatternTable;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private BibEntryTypesManager bibEntryTypesManager;
 
     public KeyPatternPropertiesView(BibDatabaseContext databaseContext) {
         this.databaseContext = databaseContext;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -46,21 +51,26 @@ public class KeyPatternPropertiesView extends AbstractPropertiesTabView<KeyPatte
         bibtexKeyPatternTable.defaultKeyPatternProperty().bindBidirectional(viewModel.defaultKeyPatternProperty());
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP_KEY_PATTERNS, new HelpAction(HelpFile.CITATION_KEY_PATTERN, dialogService, preferences.getExternalApplicationsPreferences()), keyPatternHelp);
+        actionFactory.configureIconButton(StandardActions.HELP_KEY_PATTERNS,
+                new HelpAction(HelpFile.CITATION_KEY_PATTERN, dialogService,
+                        preferences.getExternalApplicationsPreferences()),
+                keyPatternHelp);
     }
 
     @Override
     public void setValues() {
         viewModel.setValues();
         bibtexKeyPatternTable.setValues(
-                bibEntryTypesManager.getAllTypes(databaseContext.getMetaData().getMode()
-                                                                .orElse(preferences.getLibraryPreferences()
-                                                                                   .getDefaultBibDatabaseMode())),
-                databaseContext.getMetaData().getCiteKeyPatterns(preferences.getCitationKeyPatternPreferences().getKeyPatterns()));
+                bibEntryTypesManager.getAllTypes(databaseContext.getMetaData()
+                    .getMode()
+                    .orElse(preferences.getLibraryPreferences().getDefaultBibDatabaseMode())),
+                databaseContext.getMetaData()
+                    .getCiteKeyPatterns(preferences.getCitationKeyPatternPreferences().getKeyPatterns()));
     }
 
     @FXML
     public void resetAllKeyPatterns() {
         bibtexKeyPatternTable.resetAll();
     }
+
 }

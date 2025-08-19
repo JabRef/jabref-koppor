@@ -12,6 +12,7 @@ import org.jabref.model.entry.field.Field;
 public class JournalInAbbreviationListChecker implements EntryChecker {
 
     private final Field field;
+
     private final JournalAbbreviationRepository abbreviationRepository;
 
     public JournalInAbbreviationListChecker(Field field, JournalAbbreviationRepository abbreviationRepository) {
@@ -28,9 +29,11 @@ public class JournalInAbbreviationListChecker implements EntryChecker {
 
         final String journal = value.get();
         if (!abbreviationRepository.isKnownName(journal)) {
-            return List.of(new IntegrityMessage(Localization.lang("journal not found in abbreviation list"), entry, field));
+            return List
+                .of(new IntegrityMessage(Localization.lang("journal not found in abbreviation list"), entry, field));
         }
 
         return List.of();
     }
+
 }

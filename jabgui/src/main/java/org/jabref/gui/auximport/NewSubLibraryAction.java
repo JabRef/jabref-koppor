@@ -15,9 +15,11 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class NewSubLibraryAction extends SimpleCommand {
 
     private final LibraryTabContainer tabContainer;
+
     private final DialogService dialogService;
 
-    public NewSubLibraryAction(LibraryTabContainer tabContainer, StateManager stateManager, DialogService dialogService) {
+    public NewSubLibraryAction(LibraryTabContainer tabContainer, StateManager stateManager,
+            DialogService dialogService) {
         this.tabContainer = tabContainer;
         this.dialogService = dialogService;
 
@@ -28,4 +30,5 @@ public class NewSubLibraryAction extends SimpleCommand {
     public void execute() {
         dialogService.showCustomDialogAndWait(new FromAuxDialog(tabContainer));
     }
+
 }

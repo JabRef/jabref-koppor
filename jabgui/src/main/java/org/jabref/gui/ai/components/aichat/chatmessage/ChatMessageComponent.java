@@ -25,23 +25,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ChatMessageComponent extends HBox {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatMessageComponent.class);
 
     private final ObjectProperty<ChatMessage> chatMessage = new SimpleObjectProperty<>();
+
     private final ObjectProperty<Consumer<ChatMessageComponent>> onDelete = new SimpleObjectProperty<>();
 
-    @FXML private HBox wrapperHBox;
-    @FXML private VBox vBox;
-    @FXML private Label sourceLabel;
-    @FXML private Pane markdownContentPane;
-    @FXML private VBox buttonsVBox;
+    @FXML
+    private HBox wrapperHBox;
+
+    @FXML
+    private VBox vBox;
+
+    @FXML
+    private Label sourceLabel;
+
+    @FXML
+    private Pane markdownContentPane;
+
+    @FXML
+    private VBox buttonsVBox;
 
     private final MarkdownTextFlow markdownTextFlow;
 
     public ChatMessageComponent() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         chatMessage.addListener((_, _, newValue) -> {
             if (newValue != null) {
@@ -98,8 +107,9 @@ public class ChatMessageComponent extends HBox {
                 markdownTextFlow.setMarkdown(errorMessage.getText());
             }
 
-            default ->
-                    LOGGER.error("ChatMessageComponent supports only user, AI, or error messages, but other type was passed: {}", chatMessage.get().type().name());
+            default -> LOGGER.error(
+                    "ChatMessageComponent supports only user, AI, or error messages, but other type was passed: {}",
+                    chatMessage.get().type().name());
         }
     }
 
@@ -117,6 +127,9 @@ public class ChatMessageComponent extends HBox {
     }
 
     private void setColor(String fillColor, String borderColor) {
-        vBox.setStyle("-fx-background-color: " + fillColor + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: " + borderColor + "; -fx-border-width: 3;");
+        vBox.setStyle("-fx-background-color: " + fillColor
+                + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: " + borderColor
+                + "; -fx-border-width: 3;");
     }
+
 }

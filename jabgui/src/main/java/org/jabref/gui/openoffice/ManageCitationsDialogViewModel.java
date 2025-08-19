@@ -14,8 +14,12 @@ import org.jabref.model.openoffice.CitationEntry;
 public class ManageCitationsDialogViewModel {
 
     public final boolean failedToGetCitationEntries;
-    private final ListProperty<CitationEntryViewModel> citations = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<CitationEntryViewModel> citations = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final OOBibBase ooBase;
+
     private final DialogService dialogService;
 
     public ManageCitationsDialogViewModel(OOBibBase ooBase, DialogService dialogService) {
@@ -35,12 +39,14 @@ public class ManageCitationsDialogViewModel {
     }
 
     public void storeSettings() {
-        List<CitationEntry> citationEntries = citations.stream().map(CitationEntryViewModel::toCitationEntry).collect(Collectors.toList());
+        List<CitationEntry> citationEntries = citations.stream()
+            .map(CitationEntryViewModel::toCitationEntry)
+            .collect(Collectors.toList());
         ooBase.guiActionApplyCitationEntries(citationEntries);
     }
 
     public ListProperty<CitationEntryViewModel> citationsProperty() {
         return citations;
     }
-}
 
+}

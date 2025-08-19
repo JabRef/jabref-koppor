@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatter {
 
     public static final NormalizeUnicodeFormatter UNICODE_NORMALIZER = new NormalizeUnicodeFormatter();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UnicodeToLatexFormatter.class);
 
     @Override
@@ -28,7 +29,7 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
 
         // Standard symbols
         for (Map.Entry<String, String> unicodeLatexPair : HTMLUnicodeConversionMaps.UNICODE_LATEX_CONVERSION_MAP
-                .entrySet()) {
+            .entrySet()) {
             result = result.replace(unicodeLatexPair.getKey(), unicodeLatexPair.getValue());
         }
 
@@ -46,11 +47,13 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
                         i++;
                     }
                     sb.appendCodePoint(cpCurrent);
-                } else {
+                }
+                else {
                     sb.append("{\\").append(code).append('{').append((char) cpCurrent).append("}}");
                     consumed = true;
                 }
-            } else {
+            }
+            else {
                 consumed = false;
             }
         }
@@ -88,4 +91,5 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
     public String getKey() {
         return "unicode_to_latex";
     }
+
 }

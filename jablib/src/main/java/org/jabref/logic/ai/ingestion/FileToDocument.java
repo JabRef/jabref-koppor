@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileToDocument {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FileToDocument.class);
 
     private final ReadOnlyBooleanProperty shutdownSignal;
@@ -29,14 +30,16 @@ public class FileToDocument {
     public Optional<Document> fromFile(Path path) {
         if (FileUtil.isPDFFile(path)) {
             return fromPdfFile(path);
-        } else {
+        }
+        else {
             LOGGER.info("Unsupported file type of file: {}. Currently, only PDF files are supported", path);
             return Optional.empty();
         }
     }
 
     private Optional<Document> fromPdfFile(Path path) {
-        // This method is private to ensure that the path is really pointing to PDF file (determined by extension).
+        // This method is private to ensure that the path is really pointing to PDF file
+        // (determined by extension).
 
         try (PDDocument document = new XmpUtilReader().loadWithAutomaticDecryption(path)) {
             int lastPage = document.getNumberOfPages();
@@ -52,7 +55,8 @@ public class FileToDocument {
             }
 
             return fromString(writer.toString());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("An error occurred while reading the PDF file: {}", path, e);
             return Optional.empty();
         }
@@ -61,4 +65,5 @@ public class FileToDocument {
     public Optional<Document> fromString(String content) {
         return Optional.of(new DefaultDocument(content));
     }
+
 }

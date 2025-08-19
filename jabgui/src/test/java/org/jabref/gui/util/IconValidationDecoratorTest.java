@@ -16,11 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
 public class IconValidationDecoratorTest {
+
     static Object[][] decorationTestData() {
-        return new Object[][]{
-                {Severity.ERROR, IconTheme.JabRefIcons.ERROR.getGraphicNode().toString()},
-                {Severity.WARNING, IconTheme.JabRefIcons.WARNING.getGraphicNode().toString()}
-        };
+        return new Object[][] { { Severity.ERROR, IconTheme.JabRefIcons.ERROR.getGraphicNode().toString() },
+                { Severity.WARNING, IconTheme.JabRefIcons.WARNING.getGraphicNode().toString() } };
     }
 
     @ParameterizedTest
@@ -46,4 +45,5 @@ public class IconValidationDecoratorTest {
 
         assertEquals(node.getGraphic().toString(), expectedGraphic);
     }
+
 }

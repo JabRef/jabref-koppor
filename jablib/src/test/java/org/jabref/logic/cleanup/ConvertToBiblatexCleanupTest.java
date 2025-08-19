@@ -101,14 +101,7 @@ class ConvertToBiblatexCleanupTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "2011-11",
-            "2011-11-11",
-            "2010/2011",
-            "0030 BC",
-            "-0876",
-            "2004-22"
-    })
+    @ValueSource(strings = { "2011-11", "2011-11-11", "2010/2011", "0030 BC", "-0876", "2004-22" })
     void fallbackDateParsing_shouldAcceptTypicalBibLatexValues(String fakeYear) {
         BibEntry entry = new BibEntry().withField(StandardField.YEAR, fakeYear);
 
@@ -117,4 +110,5 @@ class ConvertToBiblatexCleanupTest {
         assertEquals(Optional.of(fakeYear), entry.getField(StandardField.DATE));
         assertEquals(Optional.empty(), entry.getField(StandardField.YEAR));
     }
+
 }

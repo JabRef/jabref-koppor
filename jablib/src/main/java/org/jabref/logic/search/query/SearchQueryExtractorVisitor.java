@@ -18,6 +18,7 @@ import org.jabref.search.SearchParser;
 public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQueryNode>> {
 
     private final boolean searchBarRegex;
+
     private boolean isNegated = false;
 
     public SearchQueryExtractorVisitor(EnumSet<SearchFlags> searchFlags) {
@@ -34,7 +35,8 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
         List<List<SearchQueryNode>> children = ctx.expression().stream().map(this::visit).toList();
         if (children.size() == 1) {
             return children.getFirst();
-        } else {
+        }
+        else {
             List<SearchQueryNode> terms = new ArrayList<>();
             for (List<SearchQueryNode> child : children) {
                 terms.addAll(child);
@@ -77,11 +79,8 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
         }
         if (ctx.operator() != null) {
             int operator = ctx.operator().getStart().getType();
-            if (operator == SearchParser.NEQUAL
-                    || operator == SearchParser.NCEQUAL
-                    || operator == SearchParser.NEEQUAL
-                    || operator == SearchParser.NCEEQUAL
-                    || operator == SearchParser.NREQUAL
+            if (operator == SearchParser.NEQUAL || operator == SearchParser.NCEQUAL || operator == SearchParser.NEEQUAL
+                    || operator == SearchParser.NCEEQUAL || operator == SearchParser.NREQUAL
                     || operator == SearchParser.NCREEQUAL) {
                 return List.of();
             }
@@ -120,4 +119,5 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
         }
         return List.of(new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term));
     }
+
 }

@@ -18,10 +18,16 @@ public class ControlHelper {
 
     // Pseudo-classes for drag and drop
     private static PseudoClass dragOverBottom = PseudoClass.getPseudoClass("dragOver-bottom");
+
     private static PseudoClass dragOverCenter = PseudoClass.getPseudoClass("dragOver-center");
+
     private static PseudoClass dragOverTop = PseudoClass.getPseudoClass("dragOver-top");
 
-    public enum EllipsisPosition { BEGINNING, CENTER, ENDING }
+    public enum EllipsisPosition {
+
+        BEGINNING, CENTER, ENDING
+
+    }
 
     public static void setAction(ButtonType buttonType, DialogPane dialogPane, Consumer<Event> consumer) {
         Button button = (Button) dialogPane.lookupButton(buttonType);
@@ -35,7 +41,8 @@ public class ControlHelper {
         return node.isFocused() || node.getChildrenUnmodifiable().stream().anyMatch(child -> {
             if (child instanceof Parent parent) {
                 return childIsFocused(parent);
-            } else {
+            }
+            else {
                 return child.isFocused();
             }
         });
@@ -69,9 +76,11 @@ public class ControlHelper {
     public static DroppingMouseLocation getDroppingMouseLocation(Cell<?> cell, DragEvent event) {
         if ((cell.getHeight() * 0.25) > event.getY()) {
             return DroppingMouseLocation.TOP;
-        } else if ((cell.getHeight() * 0.75) < event.getY()) {
+        }
+        else if ((cell.getHeight() * 0.75) < event.getY()) {
             return DroppingMouseLocation.BOTTOM;
-        } else {
+        }
+        else {
             return DroppingMouseLocation.CENTER;
         }
     }
@@ -101,17 +110,19 @@ public class ControlHelper {
     }
 
     /**
-     * If needed, truncates a given string to <code>maxCharacters</code>, adding <code>ellipsisString</code> instead.
-     *
+     * If needed, truncates a given string to <code>maxCharacters</code>, adding
+     * <code>ellipsisString</code> instead.
      * @param text text which should be truncated, if needed
-     * @param maxCharacters maximum amount of characters which the resulting text should have, including the
-     *                      <code>ellipsisString</code>; if set to -1, then the default length of 75 characters will be
-     *                      used
+     * @param maxCharacters maximum amount of characters which the resulting text should
+     * have, including the <code>ellipsisString</code>; if set to -1, then the default
+     * length of 75 characters will be used
      * @param ellipsisString string which should be used for indicating the truncation
-     * @param ellipsisPosition location in the given text where the truncation should be performed
+     * @param ellipsisPosition location in the given text where the truncation should be
+     * performed
      * @return the new, truncated string
      */
-    public static String truncateString(String text, int maxCharacters, String ellipsisString, EllipsisPosition ellipsisPosition) {
+    public static String truncateString(String text, int maxCharacters, String ellipsisString,
+            EllipsisPosition ellipsisPosition) {
         if (text == null || text.isEmpty()) {
             return text; // return original
         }
@@ -130,10 +141,11 @@ public class ControlHelper {
             // truncation necessary
             return switch (ellipsisPosition) {
                 case BEGINNING ->
-                        ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
+                    ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
                 case CENTER -> {
                     int partialLength = (int) Math.floor((maxCharacters - ellipsisString.length()) / 2f);
-                    yield text.substring(0, partialLength) + ellipsisString + text.substring(text.length() - partialLength);
+                    yield text.substring(0, partialLength) + ellipsisString
+                            + text.substring(text.length() - partialLength);
                 }
                 case ENDING -> text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
             };
@@ -141,4 +153,5 @@ public class ControlHelper {
 
         return text;
     }
+
 }

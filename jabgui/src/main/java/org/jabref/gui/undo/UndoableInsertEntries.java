@@ -11,15 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class represents the removal of entries. The constructor needs
- * references to the database, entries, and a boolean marked true if the undo
- * is from a call to paste().
+ * This class represents the removal of entries. The constructor needs references to the
+ * database, entries, and a boolean marked true if the undo is from a call to paste().
  */
 public class UndoableInsertEntries extends AbstractUndoableJabRefEdit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UndoableInsertEntries.class);
+
     private final BibDatabase database;
+
     private final List<BibEntry> entries;
+
     private final boolean paste;
 
     public UndoableInsertEntries(BibDatabase database, BibEntry entry) {
@@ -41,19 +43,24 @@ public class UndoableInsertEntries extends AbstractUndoableJabRefEdit {
         if (paste) {
             if (entries.size() > 1) {
                 return Localization.lang("paste entries");
-            } else if (entries.size() == 1) {
-                return Localization.lang("paste entry %0",
-                        StringUtil.boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
-            } else {
+            }
+            else if (entries.size() == 1) {
+                return Localization.lang("paste entry %0", StringUtil
+                    .boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
+            }
+            else {
                 return null;
             }
-        } else {
+        }
+        else {
             if (entries.size() > 1) {
                 return Localization.lang("insert entries");
-            } else if (entries.size() == 1) {
-                return Localization.lang("insert entry %0",
-                        StringUtil.boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
-            } else {
+            }
+            else if (entries.size() == 1) {
+                return Localization.lang("insert entry %0", StringUtil
+                    .boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
+            }
+            else {
                 return null;
             }
         }
@@ -65,7 +72,8 @@ public class UndoableInsertEntries extends AbstractUndoableJabRefEdit {
 
         try {
             database.removeEntries(entries);
-        } catch (Throwable ex) {
+        }
+        catch (Throwable ex) {
             LOGGER.warn("Problem undoing `insert entries`", ex);
         }
     }
@@ -75,4 +83,5 @@ public class UndoableInsertEntries extends AbstractUndoableJabRefEdit {
         super.redo();
         database.insertEntries(entries);
     }
+
 }

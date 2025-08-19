@@ -25,4 +25,5 @@ class KeywordTest {
 
         assertEquals(expected, keywordChain.getAllSubchainsAsString('>'));
     }
+
 }

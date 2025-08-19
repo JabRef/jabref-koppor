@@ -19,21 +19,35 @@ import com.airhacks.afterburner.views.ViewLoader;
 import com.dlsc.gemsfx.TagsField;
 
 public class AutoCompletionTab extends AbstractPreferenceTabView<AutoCompletionTabViewModel> implements PreferencesTab {
+
     private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass("focused");
 
-    @FXML private CheckBox enableAutoComplete;
-    @FXML private TagsField<Field> autoCompleteFields;
-    @FXML private RadioButton autoCompleteFirstLast;
-    @FXML private RadioButton autoCompleteLastFirst;
-    @FXML private RadioButton autoCompleteBoth;
-    @FXML private RadioButton firstNameModeAbbreviated;
-    @FXML private RadioButton firstNameModeFull;
-    @FXML private RadioButton firstNameModeBoth;
+    @FXML
+    private CheckBox enableAutoComplete;
+
+    @FXML
+    private TagsField<Field> autoCompleteFields;
+
+    @FXML
+    private RadioButton autoCompleteFirstLast;
+
+    @FXML
+    private RadioButton autoCompleteLastFirst;
+
+    @FXML
+    private RadioButton autoCompleteBoth;
+
+    @FXML
+    private RadioButton firstNameModeAbbreviated;
+
+    @FXML
+    private RadioButton firstNameModeFull;
+
+    @FXML
+    private RadioButton firstNameModeBoth;
 
     public AutoCompletionTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -63,7 +77,10 @@ public class AutoCompletionTab extends AbstractPreferenceTabView<AutoCompletionT
         autoCompleteFields.setOnMouseClicked(event -> autoCompleteFields.getEditor().requestFocus());
         autoCompleteFields.getEditor().getStyleClass().clear();
         autoCompleteFields.getEditor().getStyleClass().add("tags-field-editor");
-        autoCompleteFields.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> autoCompleteFields.pseudoClassStateChanged(FOCUSED, newValue));
+        autoCompleteFields.getEditor()
+            .focusedProperty()
+            .addListener(
+                    (observable, oldValue, newValue) -> autoCompleteFields.pseudoClassStateChanged(FOCUSED, newValue));
     }
 
     private Node createTag(Field field) {
@@ -74,4 +91,5 @@ public class AutoCompletionTab extends AbstractPreferenceTabView<AutoCompletionT
         tagLabel.setContentDisplay(ContentDisplay.RIGHT);
         return tagLabel;
     }
+
 }

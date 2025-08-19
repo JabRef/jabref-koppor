@@ -28,12 +28,15 @@ import static org.mockito.Mockito.when;
 class JStyleLoaderTest {
 
     private static final int NUMBER_OF_INTERNAL_STYLES = 2;
+
     private static final String JSTYLE_NAME = "test.jstyle";
 
     private JStyleLoader loader;
 
     private OpenOfficePreferences preferences;
+
     private LayoutFormatterPreferences layoutPreferences;
+
     private JournalAbbreviationRepository abbreviationRepository;
 
     @TempDir
@@ -54,17 +57,20 @@ class JStyleLoaderTest {
 
     @Test
     void throwNPEWithNullPreferences() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(null, layoutPreferences, abbreviationRepository));
+        assertThrows(NullPointerException.class,
+                () -> loader = new JStyleLoader(null, layoutPreferences, abbreviationRepository));
     }
 
     @Test
     void throwNPEWithNullLayoutPreferences() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), null, abbreviationRepository));
+        assertThrows(NullPointerException.class,
+                () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), null, abbreviationRepository));
     }
 
     @Test
     void throwNPEWithNullAbbreviationRepository() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), layoutPreferences, null));
+        assertThrows(NullPointerException.class,
+                () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), layoutPreferences, null));
     }
 
     @Test
@@ -142,7 +148,8 @@ class JStyleLoaderTest {
         for (JStyle style : toremove) {
             assertTrue(loader.removeStyle(style));
         }
-        // As the prefs are mocked away, the getExternalStyles still returns the initial one
+        // As the prefs are mocked away, the getExternalStyles still returns the initial
+        // one
         assertFalse(preferences.getExternalJStyles().isEmpty());
     }
 
@@ -207,4 +214,5 @@ class JStyleLoaderTest {
         assertFalse(loader.removeStyle(toremove.getFirst()));
         assertEquals(NUMBER_OF_INTERNAL_STYLES, loader.getStyles().size());
     }
+
 }

@@ -42,12 +42,13 @@ import org.tinylog.configuration.Configuration;
 /// - Handle the command line arguments
 /// - Start the JavaFX application
 public class Launcher {
+
     private static Logger LOGGER;
 
     public enum MultipleInstanceAction {
-        CONTINUE,
-        SHUTDOWN,
-        FOCUS
+
+        CONTINUE, SHUTDOWN, FOCUS
+
     }
 
     public static void main(String[] args) {
@@ -57,9 +58,7 @@ public class Launcher {
 
         final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
 
-        ArgumentProcessor argumentProcessor = new ArgumentProcessor(
-                args,
-                ArgumentProcessor.Mode.INITIAL_START,
+        ArgumentProcessor argumentProcessor = new ArgumentProcessor(args, ArgumentProcessor.Mode.INITIAL_START,
                 preferences);
 
         if (!argumentProcessor.getGuiCli().usageHelpRequested) {
@@ -67,10 +66,12 @@ public class Launcher {
             Injector.setModelOrService(GuiPreferences.class, preferences);
 
             // Early exit in case another instance is already running
-            MultipleInstanceAction instanceAction = handleMultipleAppInstances(args, preferences.getRemotePreferences());
+            MultipleInstanceAction instanceAction = handleMultipleAppInstances(args,
+                    preferences.getRemotePreferences());
             if (instanceAction == MultipleInstanceAction.SHUTDOWN) {
                 systemExit();
-            } else if (instanceAction == MultipleInstanceAction.FOCUS) {
+            }
+            else if (instanceAction == MultipleInstanceAction.FOCUS) {
                 // Send focus command to running instance
                 RemotePreferences remotePreferences = preferences.getRemotePreferences();
                 RemoteClient remoteClient = new RemoteClient(remotePreferences.getPort());
@@ -99,26 +100,27 @@ public class Launcher {
     }
 
     /**
-     * This needs to be called as early as possible. After the first log write, it
-     * is not possible to alter the log configuration programmatically anymore.
+     * This needs to be called as early as possible. After the first log write, it is not
+     * possible to alter the log configuration programmatically anymore.
      */
     public static void initLogging(String[] args) {
         // routeLoggingToSlf4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        // We must configure logging as soon as possible, which is why we cannot wait for the usual
+        // We must configure logging as soon as possible, which is why we cannot wait for
+        // the usual
         // argument parsing workflow to parse logging options e.g. --debug
-        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase)
-                ? Level.DEBUG
-                : Level.INFO;
+        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase) ? Level.DEBUG : Level.INFO;
 
         // addLogToDisk
-        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes logging
+        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version`
+        // here, because this initializes logging
         Path directory = Directories.getLogDirectory(new BuildInfo().version);
         try {
             Files.createDirectories(directory);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER = LoggerFactory.getLogger(Launcher.class);
             LOGGER.error("Could not create log directory {}", directory, e);
             return;
@@ -126,15 +128,12 @@ public class Launcher {
 
         // The "Shared File Writer" is explained at
         // https://tinylog.org/v2/configuration/#shared-file-writer
-        Map<String, String> configuration = Map.of(
-                "level", logLevel.name().toLowerCase(),
-                "writerFile", "rolling file",
+        Map<String, String> configuration = Map.of("level", logLevel.name().toLowerCase(), "writerFile", "rolling file",
                 "writerFile.level", logLevel.name().toLowerCase(),
-                // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
+                // We need to manually join the path, because ".resolve" does not work on
+                // Windows, because ":" is not allowed in file names on Windows
                 "writerFile.file", directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt",
-                "writerFile.charset", "UTF-8",
-                "writerFile.policies", "startup",
-                "writerFile.backups", "30");
+                "writerFile.charset", "UTF-8", "writerFile.policies", "startup", "writerFile.backups", "30");
         configuration.forEach(Configuration::set);
 
         LOGGER = LoggerFactory.getLogger(Launcher.class);
@@ -148,9 +147,11 @@ public class Launcher {
     }
 
     /**
-     * @return MultipleInstanceAction: CONTINUE if JabRef should continue starting up, SHUTDOWN if it should quit, FOCUS if it should focus the existing instance.
+     * @return MultipleInstanceAction: CONTINUE if JabRef should continue starting up,
+     * SHUTDOWN if it should quit, FOCUS if it should focus the existing instance.
      */
-    private static MultipleInstanceAction handleMultipleAppInstances(String[] args, RemotePreferences remotePreferences) {
+    private static MultipleInstanceAction handleMultipleAppInstances(String[] args,
+            RemotePreferences remotePreferences) {
         LOGGER.trace("Checking for remote handling...");
 
         if (remotePreferences.useRemoteServer()) {
@@ -159,24 +160,31 @@ public class Launcher {
             if (remoteClient.ping()) {
                 LOGGER.debug("Pinging other instance succeeded.");
                 if (args.length == 0) {
-                    // There is already a server out there, avoid showing log "Passing arguments" while no arguments are provided.
+                    // There is already a server out there, avoid showing log "Passing
+                    // arguments" while no arguments are provided.
                     LOGGER.warn("A JabRef instance is already running. Switching to that instance.");
                     return MultipleInstanceAction.FOCUS;
-                } else {
-                    // We are not alone, there is already a server out there, send command line arguments to other instance
+                }
+                else {
+                    // We are not alone, there is already a server out there, send command
+                    // line arguments to other instance
                     LOGGER.debug("Passing arguments passed on to running JabRef...");
                     if (remoteClient.sendCommandLineArguments(args)) {
                         // So we assume it's all taken care of, and quit.
-                        // Output to both to the log and the screen. Therefore, we do not have an additional System.out.println.
+                        // Output to both to the log and the screen. Therefore, we do not
+                        // have an additional System.out.println.
                         LOGGER.info("Arguments passed on to running JabRef instance. Shutting down.");
                         return MultipleInstanceAction.SHUTDOWN;
-                    } else {
+                    }
+                    else {
                         LOGGER.warn("Could not communicate with other running JabRef instance.");
                     }
                 }
-                // We do not launch a new instance in presence if there is another instance running
+                // We do not launch a new instance in presence if there is another
+                // instance running
                 return MultipleInstanceAction.SHUTDOWN;
-            } else {
+            }
+            else {
                 LOGGER.debug("Could not ping JabRef instance.");
             }
         }
@@ -193,4 +201,5 @@ public class Launcher {
     private static void configureSSL(SSLPreferences sslPreferences) {
         TrustStoreManager.createTruststoreFileIfNotExist(Path.of(sslPreferences.getTruststorePath()));
     }
+
 }

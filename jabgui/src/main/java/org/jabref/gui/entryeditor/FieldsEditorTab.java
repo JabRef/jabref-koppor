@@ -52,12 +52,19 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
     private static final Logger LOGGER = LoggerFactory.getLogger(FieldsEditorTab.class);
 
     protected final Map<Field, FieldEditorFX> editors = new LinkedHashMap<>();
+
     protected GridPane gridPane;
+
     private final boolean isCompressed;
+
     private final UndoAction undoAction;
+
     private final RedoAction redoAction;
+
     private final GuiPreferences preferences;
+
     private final JournalAbbreviationRepository journalAbbreviationRepository;
+
     private final UndoManager undoManager;
 
     private Collection<Field> fields = new ArrayList<>();
@@ -65,14 +72,9 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
     @SuppressWarnings("FieldCanBeLocal")
     private Subscription dividerPositionSubscription;
 
-    public FieldsEditorTab(boolean compressed,
-                           UndoManager undoManager,
-                           UndoAction undoAction,
-                           RedoAction redoAction,
-                           GuiPreferences preferences,
-                           JournalAbbreviationRepository journalAbbreviationRepository,
-                           StateManager stateManager,
-                           PreviewPanel previewPanel) {
+    public FieldsEditorTab(boolean compressed, UndoManager undoManager, UndoAction undoAction, RedoAction redoAction,
+            GuiPreferences preferences, JournalAbbreviationRepository journalAbbreviationRepository,
+            StateManager stateManager, PreviewPanel previewPanel) {
         super(stateManager, previewPanel);
         this.isCompressed = compressed;
         this.undoManager = Objects.requireNonNull(undoManager);
@@ -104,10 +106,9 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
 
         fields = determineFieldsToShow(entry);
 
-        List<Label> labels = fields
-                .stream()
-                .map(field -> createLabelAndEditor(bibDatabaseContext, entry, field))
-                .toList();
+        List<Label> labels = fields.stream()
+            .map(field -> createLabelAndEditor(bibDatabaseContext, entry, field))
+            .toList();
 
         ColumnConstraints columnExpand = new ColumnConstraints();
         columnExpand.setHgrow(Priority.ALWAYS);
@@ -123,11 +124,13 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
             addColumn(gridPane, 4, editors.values().stream().map(FieldEditorFX::getNode).skip(rows));
 
             columnExpand.setPercentWidth(40);
-            gridPane.getColumnConstraints().addAll(columnDoNotContract, columnExpand, new ColumnConstraints(10),
-                    columnDoNotContract, columnExpand);
+            gridPane.getColumnConstraints()
+                .addAll(columnDoNotContract, columnExpand, new ColumnConstraints(10), columnDoNotContract,
+                        columnExpand);
 
             setCompressedRowLayout(gridPane, rows);
-        } else {
+        }
+        else {
             addColumn(gridPane, 0, labels);
             addColumn(gridPane, 1, editors.values().stream().map(FieldEditorFX::getNode));
 
@@ -138,37 +141,26 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
     }
 
     protected Label createLabelAndEditor(BibDatabaseContext databaseContext, BibEntry entry, Field field) {
-        SuggestionProviders suggestionProviders = stateManager.activeTabProperty().get()
-                                                              .map(LibraryTab::getSuggestionProviders)
-                                                              .orElse(new SuggestionProviders());
-        FieldEditorFX fieldEditor = FieldEditors.getForField(
-                field,
-                journalAbbreviationRepository,
-                preferences,
-                databaseContext,
-                entry.getType(),
-                suggestionProviders,
-                undoManager,
-                undoAction,
-                redoAction);
+        SuggestionProviders suggestionProviders = stateManager.activeTabProperty()
+            .get()
+            .map(LibraryTab::getSuggestionProviders)
+            .orElse(new SuggestionProviders());
+        FieldEditorFX fieldEditor = FieldEditors.getForField(field, journalAbbreviationRepository, preferences,
+                databaseContext, entry.getType(), suggestionProviders, undoManager, undoAction, redoAction);
         fieldEditor.bindToEntry(entry);
         editors.put(field, fieldEditor);
         return new FieldNameLabel(field);
     }
 
     private void setRegularRowLayout(GridPane gridPane) {
-        double totalWeight = fields.stream()
-                                   .mapToDouble(field -> editors.get(field).getWeight())
-                                   .sum();
-        List<RowConstraints> constraints = fields
-                .stream()
-                .map(field -> {
-                    RowConstraints rowExpand = new RowConstraints();
-                    rowExpand.setVgrow(Priority.ALWAYS);
-                    rowExpand.setValignment(VPos.TOP);
-                    rowExpand.setPercentHeight(100 * editors.get(field).getWeight() / totalWeight);
-                    return rowExpand;
-                }).toList();
+        double totalWeight = fields.stream().mapToDouble(field -> editors.get(field).getWeight()).sum();
+        List<RowConstraints> constraints = fields.stream().map(field -> {
+            RowConstraints rowExpand = new RowConstraints();
+            rowExpand.setVgrow(Priority.ALWAYS);
+            rowExpand.setValignment(VPos.TOP);
+            rowExpand.setPercentHeight(100 * editors.get(field).getWeight() / totalWeight);
+            return rowExpand;
+        }).toList();
         gridPane.getRowConstraints().addAll(constraints);
     }
 
@@ -178,7 +170,8 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
         rowExpand.setValignment(VPos.TOP);
         if (rows == 0) {
             rowExpand.setPercentHeight(100);
-        } else {
+        }
+        else {
             rowExpand.setPercentHeight(100 / (double) rows);
         }
 
@@ -230,13 +223,16 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
             SplitPane container = new SplitPane(scrollPane);
             setContent(container);
 
-            // Adaption of visible tabs done in {@link org.jabref.gui.entryeditor.EntryEditor.EntryEditor}, where the subscription to
-            // preferences.getPreviewPreferences().showPreviewAsExtraTabProperty() is established
+            // Adaption of visible tabs done in {@link
+            // org.jabref.gui.entryeditor.EntryEditor.EntryEditor}, where the subscription
+            // to
+            // preferences.getPreviewPreferences().showPreviewAsExtraTabProperty() is
+            // established
 
             // save divider position
             dividerPositionSubscription = EasyBind.valueAt(container.getDividers(), 0)
-                                                  .mapObservable(SplitPane.Divider::positionProperty)
-                                                  .subscribeToValues(this::savePreviewWidthDividerPosition);
+                .mapObservable(SplitPane.Divider::positionProperty)
+                .subscribeToValues(this::savePreviewWidthDividerPosition);
         }
     }
 
@@ -246,7 +242,8 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
         // Really ensure it is not already there
         removePreviewPanelFromThisTab();
 
-        if ((this.getContent() instanceof SplitPane splitPane) && !splitPane.getItems().contains(previewPanel) && this.getContent().isVisible()) {
+        if ((this.getContent() instanceof SplitPane splitPane) && !splitPane.getItems().contains(previewPanel)
+                && this.getContent().isVisible()) {
             splitPane.getItems().add(1, previewPanel);
             splitPane.setDividerPositions(preferences.getEntryEditorPreferences().getPreviewWidthDividerPosition());
         }
@@ -256,7 +253,8 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
         assert this.getContent() instanceof SplitPane;
         if (this.getContent() instanceof SplitPane splitPane) {
             splitPane.getItems().remove(previewPanel);
-            // Needed to "redraw" the split pane with one item (because JavaFX does not readjust if it is shown)
+            // Needed to "redraw" the split pane with one item (because JavaFX does not
+            // readjust if it is shown)
             // splitPane.setDividerPositions(1.0);
         }
     }
@@ -268,7 +266,8 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
         if (!preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get()) {
             LOGGER.trace("Focus on preview panel");
 
-            // We need to move the preview panel from the non-visible tab to the visible tab
+            // We need to move the preview panel from the non-visible tab to the visible
+            // tab
             removePreviewPanelFromOtherTabs();
             addPreviewPanel();
         }
@@ -282,5 +281,5 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
             preferences.getEntryEditorPreferences().setPreviewWidthDividerPosition(position.doubleValue());
         }
     }
-}
 
+}

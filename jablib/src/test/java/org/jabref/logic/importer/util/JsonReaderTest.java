@@ -19,7 +19,8 @@ class JsonReaderTest {
 
     @Test
     void invalidJsonThrowsParserException() {
-        assertThrows(ParseException.class, () -> JsonReader.toJsonObject(new ByteArrayInputStream("invalid JSON".getBytes())));
+        assertThrows(ParseException.class,
+                () -> JsonReader.toJsonObject(new ByteArrayInputStream("invalid JSON".getBytes())));
     }
 
     @Test
@@ -40,4 +41,5 @@ class JsonReaderTest {
         JSONObject result = JsonReader.toJsonObject(new ByteArrayInputStream(input.getBytes()));
         assertEquals(input, result.toString());
     }
+
 }

@@ -17,47 +17,55 @@ import org.jabref.model.entry.types.StandardEntryType;
 /**
  * Parse a plain citation using regex rules.
  * <p>
- * TODO: This class is similar to {@link org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter}, we need to unify them.
+ * TODO: This class is similar to
+ * {@link org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter}, we need to
+ * unify them.
  */
 public class RuleBasedPlainCitationParser implements PlainCitationParser {
+
     private static final String AUTHOR_TAG = "[author_tag]";
+
     private static final String URL_TAG = "[url_tag]";
+
     private static final String YEAR_TAG = "[year_tag]";
+
     private static final String PAGES_TAG = "[pages_tag]";
 
     private static final String INITIALS_GROUP = "INITIALS";
+
     private static final String LASTNAME_GROUP = "LASTNAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(
-            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" +
-                    "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*" +
-                    "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" + "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*"
+                    + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern YEAR_PATTERN = Pattern.compile(
-            "\\d{4}",
+    private static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern AUTHOR_PATTERN = Pattern.compile(
-            "(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+),?\\s(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})" +
-                    "\\s*(and|,|\\.)*",
+    private static final Pattern AUTHOR_PATTERN = Pattern.compile("(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+),?\\s(?<"
+            + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})" + "\\s*(and|,|\\.)*",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern AUTHOR_PATTERN_2 = Pattern.compile(
-            "(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+)" +
-                    "\\s*(and|,|\\.)*",
+    private static final Pattern AUTHOR_PATTERN_2 = Pattern.compile("(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})(?<"
+            + LASTNAME_GROUP + ">\\p{Lu}\\w+)" + "\\s*(and|,|\\.)*",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern PAGES_PATTERN = Pattern.compile(
-            "(p.)?\\s?\\d+(-\\d+)?",
+    private static final Pattern PAGES_PATTERN = Pattern.compile("(p.)?\\s?\\d+(-\\d+)?",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private final List<String> urls = new ArrayList<>();
+
     private final List<String> authors = new ArrayList<>();
+
     private String year = "";
+
     private String pages = "";
+
     private String title = "";
+
     private boolean isArticle = true;
+
     private String journalOrPublisher = "";
 
     @Override
@@ -80,7 +88,8 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         extractedEntity.setField(StandardField.TITLE, title);
         if (isArticle) {
             extractedEntity.setField(StandardField.JOURNAL, journalOrPublisher);
-        } else {
+        }
+        else {
             extractedEntity.setField(StandardField.PUBLISHER, journalOrPublisher);
         }
         extractedEntity.setField(StandardField.COMMENT, input);
@@ -134,9 +143,7 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     }
 
     private String fixSpaces(String input) {
-        return input.replaceAll("[,.!?;:]", "$0 ")
-                    .replaceAll("\\p{Lt}", " $0")
-                    .replaceAll("\\s+", " ").trim();
+        return input.replaceAll("[,.!?;:]", "$0 ").replaceAll("\\p{Lt}", " $0").replaceAll("\\s+", " ").trim();
     }
 
     private String findParts(String input) {
@@ -144,16 +151,17 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         int afterAuthorsIndex = input.lastIndexOf(AUTHOR_TAG);
         if (afterAuthorsIndex == -1) {
             return input;
-        } else {
+        }
+        else {
             afterAuthorsIndex += AUTHOR_TAG.length();
         }
         int delimiterIndex = input.lastIndexOf("//");
         if (delimiterIndex != -1) {
-            lastParts.add(input.substring(afterAuthorsIndex, delimiterIndex)
-                               .replace(YEAR_TAG, "")
-                               .replace(PAGES_TAG, ""));
+            lastParts
+                .add(input.substring(afterAuthorsIndex, delimiterIndex).replace(YEAR_TAG, "").replace(PAGES_TAG, ""));
             lastParts.addAll(Arrays.asList(input.substring(delimiterIndex + 2).split(",|\\.")));
-        } else {
+        }
+        else {
             lastParts.addAll(Arrays.asList(input.substring(afterAuthorsIndex).split(",|\\.")));
         }
         int nonDigitParts = 0;
@@ -174,4 +182,5 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         }
         return fixSpaces(input);
     }
+
 }

@@ -14,8 +14,8 @@ class BiblioscapeImporterFilesTest {
     private static final String FILE_ENDING = ".txt";
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("BiblioscapeImporterTest")
-                && name.endsWith(FILE_ENDING) && !name.contains("Corrupt");
+        Predicate<String> fileName = name -> name.startsWith("BiblioscapeImporterTest") && name.endsWith(FILE_ENDING)
+                && !name.contains("Corrupt");
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -30,4 +30,5 @@ class BiblioscapeImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(new BiblioscapeImporter(), fileName, FILE_ENDING);
     }
+
 }

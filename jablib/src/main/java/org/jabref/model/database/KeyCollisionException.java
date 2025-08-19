@@ -24,4 +24,5 @@ public class KeyCollisionException extends RuntimeException {
     public String getId() {
         return id;
     }
+
 }

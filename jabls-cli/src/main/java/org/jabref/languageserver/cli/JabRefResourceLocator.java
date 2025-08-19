@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 // TODO: Code duplication of org.jabref.gui.util.JabRefResourceLocator - should be streamlined
 // Reason for duplication: The CLI does not depend on the GUI module, so it cannot use the GUI's JabRefResourceLocator directly.
 public class JabRefResourceLocator implements ResourceLocator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefResourceLocator.class);
 
     @Override
@@ -19,4 +20,5 @@ public class JabRefResourceLocator implements ResourceLocator {
 
         return Localization.getMessages();
     }
+
 }

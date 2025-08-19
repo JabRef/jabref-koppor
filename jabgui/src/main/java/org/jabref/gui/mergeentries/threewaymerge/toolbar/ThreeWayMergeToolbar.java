@@ -27,6 +27,7 @@ import com.tobiasdiez.easybind.EasyBinding;
 import jakarta.inject.Inject;
 
 public class ThreeWayMergeToolbar extends AnchorPane {
+
     @FXML
     private RadioButton highlightCharactersRadioButtons;
 
@@ -58,19 +59,21 @@ public class ThreeWayMergeToolbar extends AnchorPane {
     private GuiPreferences preferences;
 
     private final ObjectProperty<DiffMethod> diffHighlightingMethod = new SimpleObjectProperty<>();
+
     private final BooleanProperty onlyShowChangedFields = new SimpleBooleanProperty();
+
     private final BooleanProperty applyToAllEntries = new SimpleBooleanProperty();
+
     private EasyBinding<Boolean> showDiff;
 
     public ThreeWayMergeToolbar() {
-        ViewLoader.view(this)
-                .root(this)
-                .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
     public void initialize() {
-        showDiff = EasyBind.map(plainTextOrDiffComboBox.valueProperty(), plainTextOrDiff -> plainTextOrDiff == PlainTextOrDiff.Diff);
+        showDiff = EasyBind.map(plainTextOrDiffComboBox.valueProperty(),
+                plainTextOrDiff -> plainTextOrDiff == PlainTextOrDiff.Diff);
         plainTextOrDiffComboBox.getItems().addAll(PlainTextOrDiff.values());
 
         plainTextOrDiffComboBox.setConverter(new StringConverter<>() {
@@ -106,15 +109,18 @@ public class ThreeWayMergeToolbar extends AnchorPane {
         diffHighlightingMethodToggleGroup.selectedToggleProperty().addListener(observable -> {
             if (diffHighlightingMethodToggleGroup.getSelectedToggle().equals(highlightCharactersRadioButtons)) {
                 diffHighlightingMethod.set(BasicDiffMethod.CHARS);
-            } else {
+            }
+            else {
                 diffHighlightingMethod.set(BasicDiffMethod.WORDS);
             }
         });
 
-        onlyShowChangedFieldsCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences().mergeShowChangedFieldOnlyProperty());
+        onlyShowChangedFieldsCheck.selectedProperty()
+            .bindBidirectional(preferences.getMergeDialogPreferences().mergeShowChangedFieldOnlyProperty());
         onlyShowChangedFields.bind(onlyShowChangedFieldsCheck.selectedProperty());
 
-        applyToAllEntriesCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences().mergeApplyToAllEntriesProperty());
+        applyToAllEntriesCheck.selectedProperty()
+            .bindBidirectional(preferences.getMergeDialogPreferences().mergeApplyToAllEntriesProperty());
         applyToAllEntries.bind(applyToAllEntriesCheck.selectedProperty());
 
         loadSavedConfiguration();
@@ -123,20 +129,26 @@ public class ThreeWayMergeToolbar extends AnchorPane {
     private void loadSavedConfiguration() {
         MergeDialogPreferences mergeDialogPreferences = preferences.getMergeDialogPreferences();
 
-        PlainTextOrDiff plainTextOrDiffPreference = mergeDialogPreferences.getMergeShouldShowDiff() ? PlainTextOrDiff.Diff : PlainTextOrDiff.PLAIN_TEXT;
+        PlainTextOrDiff plainTextOrDiffPreference = mergeDialogPreferences.getMergeShouldShowDiff()
+                ? PlainTextOrDiff.Diff : PlainTextOrDiff.PLAIN_TEXT;
         plainTextOrDiffComboBox.getSelectionModel().select(plainTextOrDiffPreference);
 
-        DiffView diffViewPreference = mergeDialogPreferences.getMergeShouldShowUnifiedDiff() ? DiffView.UNIFIED : DiffView.SPLIT;
+        DiffView diffViewPreference = mergeDialogPreferences.getMergeShouldShowUnifiedDiff() ? DiffView.UNIFIED
+                : DiffView.SPLIT;
         diffViewComboBox.getSelectionModel().select(diffViewPreference);
 
-        diffHighlightingMethodToggleGroup.selectToggle(mergeDialogPreferences.getMergeHighlightWords() ? highlightWordsRadioButton : highlightCharactersRadioButtons);
+        diffHighlightingMethodToggleGroup.selectToggle(mergeDialogPreferences.getMergeHighlightWords()
+                ? highlightWordsRadioButton : highlightCharactersRadioButtons);
     }
 
     public void saveToolbarConfiguration() {
-        preferences.getMergeDialogPreferences().setMergeShouldShowDiff(plainTextOrDiffComboBox.getValue() == PlainTextOrDiff.Diff);
-        preferences.getMergeDialogPreferences().setMergeShouldShowUnifiedDiff(diffViewComboBox.getValue() == DiffView.UNIFIED);
+        preferences.getMergeDialogPreferences()
+            .setMergeShouldShowDiff(plainTextOrDiffComboBox.getValue() == PlainTextOrDiff.Diff);
+        preferences.getMergeDialogPreferences()
+            .setMergeShouldShowUnifiedDiff(diffViewComboBox.getValue() == DiffView.UNIFIED);
 
-        boolean highlightWordsRadioButtonValue = diffHighlightingMethodToggleGroup.getSelectedToggle().equals(highlightWordsRadioButton);
+        boolean highlightWordsRadioButtonValue = diffHighlightingMethodToggleGroup.getSelectedToggle()
+            .equals(highlightWordsRadioButton);
         preferences.getMergeDialogPreferences().setMergeHighlightWords(highlightWordsRadioButtonValue);
     }
 
@@ -172,8 +184,8 @@ public class ThreeWayMergeToolbar extends AnchorPane {
      * Convenience method used to disable diff related views when diff is not selected.
      *
      * <p>
-     * This method is required because {@link EasyBinding} class doesn't have a method to invert a boolean property,
-     * like {@link BooleanExpression#not()}
+     * This method is required because {@link EasyBinding} class doesn't have a method to
+     * invert a boolean property, like {@link BooleanExpression#not()}
      * </p>
      */
     public EasyBinding<Boolean> notShowDiffProperty() {
@@ -205,6 +217,7 @@ public class ThreeWayMergeToolbar extends AnchorPane {
     }
 
     public enum PlainTextOrDiff {
+
         PLAIN_TEXT(Localization.lang("Plain Text")), Diff(Localization.lang("Show Diff"));
 
         private final String value;
@@ -224,11 +237,13 @@ public class ThreeWayMergeToolbar extends AnchorPane {
         public static PlainTextOrDiff fromString(String str) {
             return Enum.valueOf(PlainTextOrDiff.class, str);
         }
+
     }
 
     public enum DiffView {
-        UNIFIED(Localization.lang("Unified View")),
-        SPLIT(Localization.lang("Split View"));
+
+        UNIFIED(Localization.lang("Unified View")), SPLIT(Localization.lang("Split View"));
+
         private final String value;
 
         DiffView(String value) {
@@ -246,5 +261,7 @@ public class ThreeWayMergeToolbar extends AnchorPane {
         public static DiffView fromString(String str) {
             return Enum.valueOf(DiffView.class, str);
         }
+
     }
+
 }

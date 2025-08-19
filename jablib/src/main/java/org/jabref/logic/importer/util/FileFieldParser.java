@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileFieldParser {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FileFieldParser.class);
 
     private final String value;
@@ -24,7 +25,8 @@ public class FileFieldParser {
     public FileFieldParser(String value) {
         if (value == null) {
             this.value = null;
-        } else {
+        }
+        else {
             this.value = value.replace("$\\backslash$", "\\");
         }
     }
@@ -32,19 +34,21 @@ public class FileFieldParser {
     /**
      * Converts the string representation of LinkedFileData to a List of LinkedFile
      *
-     * The syntax of one element is description:path:type
-     * Multiple elements are concatenated with ;
+     * The syntax of one element is description:path:type Multiple elements are
+     * concatenated with ;
      *
      * The main challenges of the implementation are:
      *
      * <ul>
-     *     <li>that XML characters might be included (thus one cannot simply split on ";")</li>
-     *     <li>some characters might be escaped</li>
-     *     <li>Windows absolute paths might be included without escaping</li>
+     * <li>that XML characters might be included (thus one cannot simply split on
+     * ";")</li>
+     * <li>some characters might be escaped</li>
+     * <li>Windows absolute paths might be included without escaping</li>
      * </ul>
      */
     public static List<LinkedFile> parse(String value) {
-        // We need state to have a more clean code. Thus, we instantiate the class and then return the result
+        // We need state to have a more clean code. Thus, we instantiate the class and
+        // then return the result
         FileFieldParser fileFieldParser = new FileFieldParser(value);
         return fileFieldParser.parse();
     }
@@ -60,7 +64,8 @@ public class FileFieldParser {
             // needs to be modifiable
             try {
                 return List.of(new LinkedFile(URLUtil.create(value), ""));
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 LOGGER.error("invalid url", e);
                 return files;
             }
@@ -79,46 +84,57 @@ public class FileFieldParser {
                 if (windowsPath) {
                     charactersOfCurrentElement.append(c);
                     continue;
-                } else {
+                }
+                else {
                     escaped = true;
                     continue;
                 }
-            } else if (!escaped && (c == '&') && !inXmlChar) {
+            }
+            else if (!escaped && (c == '&') && !inXmlChar) {
                 // Check if we are entering an XML special character construct such
                 // as "&#44;", because we need to know in order to ignore the semicolon.
                 charactersOfCurrentElement.append(c);
                 if ((value.length() > (i + 1)) && (value.charAt(i + 1) == '#')) {
                     inXmlChar = true;
                 }
-            } else if (!escaped && inXmlChar && (c == ';')) {
+            }
+            else if (!escaped && inXmlChar && (c == ';')) {
                 // Check if we are exiting an XML special character construct:
                 charactersOfCurrentElement.append(c);
                 inXmlChar = false;
-            } else if (!escaped && (c == ':')) {
+            }
+            else if (!escaped && (c == ':')) {
                 if ((linkedFileData.size() == 1) && // we already parsed the description
-                        (charactersOfCurrentElement.length() == 1)) { // we parsed one character
+                        (charactersOfCurrentElement.length() == 1)) { // we parsed one
+                                                                      // character
                     // special case of Windows paths
                     // Example: ":c:\test.pdf:PDF"
-                    // We are at the second : (position 3 in the example) and "just" add it to the current element
+                    // We are at the second : (position 3 in the example) and "just" add
+                    // it to the current element
                     charactersOfCurrentElement.append(c);
                     windowsPath = true;
-                    // special case for zotero absolute path on windows that do not have a colon in front
+                    // special case for zotero absolute path on windows that do not have a
+                    // colon in front
                     // e.g. A:\zotero\paper.pdf
-                } else if (charactersOfCurrentElement.length() == 1 && value.charAt(i + 1) == '\\') {
+                }
+                else if (charactersOfCurrentElement.length() == 1 && value.charAt(i + 1) == '\\') {
                     charactersOfCurrentElement.append(c);
                     windowsPath = true;
-                } else {
+                }
+                else {
                     // We are in the next LinkedFile data element
                     linkedFileData.add(charactersOfCurrentElement.toString());
                     resetDataStructuresForNextElement();
                 }
-            } else if (!escaped && (c == ';') && !inXmlChar) {
+            }
+            else if (!escaped && (c == ';') && !inXmlChar) {
                 linkedFileData.add(charactersOfCurrentElement.toString());
                 files.add(convert(linkedFileData));
 
                 // next iteration
                 resetDataStructuresForNextElement();
-            } else {
+            }
+            else {
                 charactersOfCurrentElement.append(c);
             }
             escaped = false;
@@ -142,9 +158,9 @@ public class FileFieldParser {
      *
      * SIDE EFFECT: The given entry list is cleared upon completion
      *
-     * Expected format is: description:link:fileType:sourceURL
-     * fileType is an {@link org.jabref.gui.externalfiletype.ExternalFileType}, which contains a name and a mime type
-     *
+     * Expected format is: description:link:fileType:sourceURL fileType is an
+     * {@link org.jabref.gui.externalfiletype.ExternalFileType}, which contains a name and
+     * a mime type
      * @param entry the list of elements in the linked file textual representation
      * @return a LinkedFile object
      */
@@ -158,21 +174,26 @@ public class FileFieldParser {
         if (LinkedFile.isOnlineLink(entry.get(1))) {
             try {
                 field = new LinkedFile(entry.getFirst(), URLUtil.create(entry.get(1)), entry.get(2));
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 // in case the URL is malformed, store it nevertheless
                 field = new LinkedFile(entry.getFirst(), entry.get(1), entry.get(2));
             }
-        } else {
+        }
+        else {
             String pathStr = entry.get(1);
             if (pathStr.contains("//")) {
-                // In case the path contains //, we assume it is a malformed URL, not a malformed path.
+                // In case the path contains //, we assume it is a malformed URL, not a
+                // malformed path.
                 // On linux, the double slash would be converted to a single slash.
                 field = new LinkedFile(entry.getFirst(), pathStr, entry.get(2));
-            } else {
+            }
+            else {
                 try {
                     // there is no Path.isValidPath(String) method
                     field = new LinkedFile(entry.getFirst(), Path.of(pathStr), entry.get(2));
-                } catch (InvalidPathException e) {
+                }
+                catch (InvalidPathException e) {
                     // Ignored
                     LOGGER.debug("Invalid path object, continuing with string", e);
                     field = new LinkedFile(entry.getFirst(), pathStr, entry.get(2));
@@ -187,10 +208,12 @@ public class FileFieldParser {
         // link is the only mandatory field
         if (field.getDescription().isEmpty() && field.getLink().isEmpty() && !field.getFileType().isEmpty()) {
             field = new LinkedFile("", Path.of(field.getFileType()), "");
-        } else if (!field.getDescription().isEmpty() && field.getLink().isEmpty() && field.getFileType().isEmpty()) {
+        }
+        else if (!field.getDescription().isEmpty() && field.getLink().isEmpty() && field.getFileType().isEmpty()) {
             field = new LinkedFile("", Path.of(field.getDescription()), "");
         }
         entry.clear();
         return field;
     }
+
 }

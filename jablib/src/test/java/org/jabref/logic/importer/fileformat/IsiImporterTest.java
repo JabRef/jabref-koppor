@@ -26,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IsiImporterTest {
 
     private static final String FILE_ENDING = ".isi";
+
     private final IsiImporter importer = new IsiImporter();
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("IsiImporterTest")
-                && !name.contains("Empty")
+        Predicate<String> fileName = name -> name.startsWith("IsiImporterTest") && !name.contains("Empty")
                 && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
@@ -126,9 +126,8 @@ class IsiImporterTest {
         assertEquals(1, entries.size());
         assertEquals(Optional.of("Optical properties of MgO doped LiNbO$_3$ single crystals"),
                 entry.getField(StandardField.TITLE));
-        assertEquals(
-                Optional.of(
-                        "James Brown and James Marc Brown and Brown, J. M. and Brown, J. and Brown, J. M. and Brown, J."),
+        assertEquals(Optional
+            .of("James Brown and James Marc Brown and Brown, J. M. and Brown, J. and Brown, J. M. and Brown, J."),
                 entry.getField(StandardField.AUTHOR));
         assertEquals(StandardEntryType.Article, entry.getType());
         assertEquals(Optional.of("Optical Materials"), entry.getField(StandardField.JOURNAL));
@@ -163,17 +162,17 @@ class IsiImporterTest {
         BibEntry first = entries.getFirst();
         BibEntry second = entries.get(1);
 
-        if (first.getField(StandardField.TITLE).equals(
-                Optional.of("Optical and photoelectric spectroscopy of photorefractive Sn$_2$P$_2$S$_6$ crystals"))) {
+        if (first.getField(StandardField.TITLE)
+            .equals(Optional
+                .of("Optical and photoelectric spectroscopy of photorefractive Sn$_2$P$_2$S$_6$ crystals"))) {
             BibEntry tmp = first;
             first = second;
             second = tmp;
         }
 
         assertEquals(2, entries.size());
-        assertEquals(
-                Optional.of(
-                        "Second harmonic generation of continuous wave ultraviolet light and production of beta -BaB$_2$O$_4$ optical waveguides"),
+        assertEquals(Optional
+            .of("Second harmonic generation of continuous wave ultraviolet light and production of beta -BaB$_2$O$_4$ optical waveguides"),
                 first.getField(StandardField.TITLE));
         assertEquals(StandardEntryType.Article, first.getType());
 
@@ -186,8 +185,7 @@ class IsiImporterTest {
         assertEquals(Optional.of("4"), first.getField(StandardField.NUMBER));
         assertEquals(Optional.of("Lorem ipsum abstract"), first.getField(StandardField.ABSTRACT));
         assertEquals(Optional.of("Aip"), first.getField(StandardField.PUBLISHER));
-        assertEquals(
-                Optional.of("Optical and photoelectric spectroscopy of photorefractive Sn$_2$P$_2$S$_6$ crystals"),
+        assertEquals(Optional.of("Optical and photoelectric spectroscopy of photorefractive Sn$_2$P$_2$S$_6$ crystals"),
                 second.getField(StandardField.TITLE));
         assertEquals(StandardEntryType.Article, second.getType());
     }
@@ -212,8 +210,7 @@ class IsiImporterTest {
 
     @Test
     void isiAuthorsConvert() {
-        assertEquals(
-                "James Brown and James Marc Brown and Brown, J. M. and Brown, J. and Brown, J. M. and Brown, J.",
+        assertEquals("James Brown and James Marc Brown and Brown, J. M. and Brown, J. and Brown, J. M. and Brown, J.",
                 IsiImporter.isiAuthorsConvert(
                         "James Brown and James Marc Brown and Brown, J.M. and Brown, J. and Brown, J.M. and Brown, J."));
 
@@ -258,7 +255,7 @@ class IsiImporterTest {
         assertEquals(StandardEntryType.Article, entry.getType());
         assertEquals(Optional.of("Geoscience and Remote Sensing Letters, IEEE"), entry.getField(StandardField.JOURNAL));
         assertEquals(Optional.of("Improving Urban Road Extraction in High-Resolution "
-                        + "Images Exploiting Directional Filtering, Perceptual " + "Grouping, and Simple Topological Concepts"),
+                + "Images Exploiting Directional Filtering, Perceptual " + "Grouping, and Simple Topological Concepts"),
                 entry.getField(StandardField.TITLE));
         assertEquals(Optional.of("4"), entry.getField(StandardField.VOLUME));
         assertEquals(Optional.of("3"), entry.getField(StandardField.NUMBER));
@@ -280,9 +277,8 @@ class IsiImporterTest {
         assertEquals(1, entries.size());
         assertEquals(StandardEntryType.Article, entry.getType());
         assertEquals(Optional.of("Geoscience and Remote Sensing Letters, IEEE"), entry.getField(StandardField.JOURNAL));
-        assertEquals(
-                Optional.of(
-                        "Improving Urban Road Extraction in High-Resolution Images Exploiting Directional Filtering, Perceptual Grouping, and Simple Topological Concepts"),
+        assertEquals(Optional
+            .of("Improving Urban Road Extraction in High-Resolution Images Exploiting Directional Filtering, Perceptual Grouping, and Simple Topological Concepts"),
                 entry.getField(StandardField.TITLE));
         assertEquals(Optional.of("4"), entry.getField(StandardField.VOLUME));
         assertEquals(Optional.of("3"), entry.getField(StandardField.NUMBER));
@@ -315,13 +311,11 @@ class IsiImporterTest {
         assertEquals(Optional.of("20"), first.getField(StandardField.NUMBER));
         assertEquals(Optional.of("2457--71"), first.getField(StandardField.PAGES));
         assertEquals(StandardEntryType.Article, first.getType());
-        assertEquals(
-                Optional.of(
-                        "Estrogen therapy selectively enhances prefrontal cognitive processes: a randomized, double-blind, placebo-controlled study with functional magnetic resonance imaging in perimenopausal and recently postmenopausal women."),
+        assertEquals(Optional
+            .of("Estrogen therapy selectively enhances prefrontal cognitive processes: a randomized, double-blind, placebo-controlled study with functional magnetic resonance imaging in perimenopausal and recently postmenopausal women."),
                 second.getField(StandardField.TITLE));
-        assertEquals(
-                Optional.of(
-                        "Joffe, Hadine and Hall, Janet E. and Gruber, Staci and Sarmiento, Ingrid A. and Cohen, Lee S. and Yurgelun-Todd, Deborah and Martin, Kathryn A."),
+        assertEquals(Optional
+            .of("Joffe, Hadine and Hall, Janet E. and Gruber, Staci and Sarmiento, Ingrid A. and Cohen, Lee S. and Yurgelun-Todd, Deborah and Martin, Kathryn A."),
                 second.getField(StandardField.AUTHOR));
         assertEquals(Optional.of("2006"), second.getField(StandardField.YEAR));
         assertEquals(Optional.of(Month.MAY), second.getMonth());
@@ -339,4 +333,5 @@ class IsiImporterTest {
 
         assertEquals(1, entries.size());
     }
+
 }

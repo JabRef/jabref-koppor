@@ -18,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import static org.jabref.model.search.PostgreConstants.ENTRY_ID;
 
 public class BibFieldsSearcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibFieldsSearcher.class);
 
     private final Connection connection;
+
     private final String tableName;
 
     public BibFieldsSearcher(Connection connection, String tableName) {
@@ -34,7 +36,8 @@ public class BibFieldsSearcher {
     }
 
     private static SearchQuery createBooleanQueryForEntry(BibEntry entry, SearchQuery oldSearchQuery) {
-        String newSearchExpression = "( " + ENTRY_ID + "= " + entry.getId() + ") AND (" + oldSearchQuery.getSearchExpression() + " )";
+        String newSearchExpression = "( " + ENTRY_ID + "= " + entry.getId() + ") AND ("
+                + oldSearchQuery.getSearchExpression() + " )";
         return new SearchQuery(newSearchExpression, oldSearchQuery.getSearchFlags());
     }
 
@@ -54,9 +57,11 @@ public class BibFieldsSearcher {
                 String entryId = resultSet.getString(1);
                 searchResults.addSearchResult(entryId, new SearchResult());
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Error during bib fields search execution", e);
         }
         return searchResults;
     }
+
 }

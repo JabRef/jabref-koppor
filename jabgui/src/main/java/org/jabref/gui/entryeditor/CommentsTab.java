@@ -34,30 +34,28 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
 
 public class CommentsTab extends FieldsEditorTab {
+
     public static final String NAME = "Comments";
 
     private final String defaultOwner;
+
     private final UserSpecificCommentField userSpecificCommentField;
+
     private final EntryEditorPreferences entryEditorPreferences;
+
     private boolean isFieldCurrentlyVisible;
+
     private boolean shouldShowHideButton;
 
-    public CommentsTab(GuiPreferences preferences,
-                       UndoManager undoManager,
-                       UndoAction undoAction,
-                       RedoAction redoAction,
-                       JournalAbbreviationRepository journalAbbreviationRepository,
-                       StateManager stateManager,
-                       PreviewPanel previewPanel) {
-        super(false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
+    public CommentsTab(GuiPreferences preferences, UndoManager undoManager, UndoAction undoAction,
+            RedoAction redoAction, JournalAbbreviationRepository journalAbbreviationRepository,
+            StateManager stateManager, PreviewPanel previewPanel) {
+        super(false, undoManager, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager,
                 previewPanel);
-        this.defaultOwner = preferences.getOwnerPreferences().getDefaultOwner().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "-");
+        this.defaultOwner = preferences.getOwnerPreferences()
+            .getDefaultOwner()
+            .toLowerCase(Locale.ROOT)
+            .replaceAll("[^a-z0-9]", "-");
         setText(Localization.lang("Comments"));
         setGraphic(IconTheme.JabRefIcons.COMMENT.getGraphicNode());
 
@@ -79,11 +77,12 @@ public class CommentsTab extends FieldsEditorTab {
         }
 
         // Show all non-empty comment fields (otherwise, they are completely hidden)
-        comments.addAll(entry.getFields().stream()
-                             .filter(field -> (field instanceof UserSpecificCommentField && !field.equals(userSpecificCommentField))
-                                     || field.getName().toLowerCase().contains("comment"))
-                             .sorted(Comparator.comparing(Field::getName))
-                             .collect(Collectors.toCollection(LinkedHashSet::new)));
+        comments.addAll(entry.getFields()
+            .stream()
+            .filter(field -> (field instanceof UserSpecificCommentField && !field.equals(userSpecificCommentField))
+                    || field.getName().toLowerCase().contains("comment"))
+            .sorted(Comparator.comparing(Field::getName))
+            .collect(Collectors.toCollection(LinkedHashSet::new)));
 
         return comments;
     }
@@ -119,7 +118,11 @@ public class CommentsTab extends FieldsEditorTab {
     protected void setupPanel(BibDatabaseContext bibDatabaseContext, BibEntry entry, boolean compressed) {
         super.setupPanel(bibDatabaseContext, entry, compressed);
 
-        Optional<FieldEditorFX> fieldEditorForUserDefinedComment = editors.entrySet().stream().filter(f -> f.getKey().getName().contains(defaultOwner)).map(Map.Entry::getValue).findFirst();
+        Optional<FieldEditorFX> fieldEditorForUserDefinedComment = editors.entrySet()
+            .stream()
+            .filter(f -> f.getKey().getName().contains(defaultOwner))
+            .map(Map.Entry::getValue)
+            .findFirst();
 
         for (Map.Entry<Field, FieldEditorFX> fieldEditorEntry : editors.entrySet()) {
             Field field = fieldEditorEntry.getKey();
@@ -135,11 +138,12 @@ public class CommentsTab extends FieldsEditorTab {
             // Show "Hide" button only if user-specific comment field is empty
             if (!entry.hasField(userSpecificCommentField)) {
                 if (shouldShowHideButton) {
-                    Button hideDefaultOwnerCommentButton = new Button(Localization.lang("Hide user-specific comments field"));
+                    Button hideDefaultOwnerCommentButton = new Button(
+                            Localization.lang("Hide user-specific comments field"));
                     hideDefaultOwnerCommentButton.setOnAction(e -> {
-                        gridPane.getChildren().removeIf(node ->
-                                (node instanceof FieldNameLabel fieldNameLabel && fieldNameLabel.getText().equals(userSpecificCommentField.getName()))
-                        );
+                        gridPane.getChildren()
+                            .removeIf(node -> (node instanceof FieldNameLabel fieldNameLabel
+                                    && fieldNameLabel.getText().equals(userSpecificCommentField.getName())));
                         fieldEditorForUserDefinedComment.ifPresent(f -> gridPane.getChildren().remove(f.getNode()));
                         editors.remove(userSpecificCommentField);
                         entry.clearField(userSpecificCommentField);
@@ -149,9 +153,11 @@ public class CommentsTab extends FieldsEditorTab {
                     });
                     gridPane.add(hideDefaultOwnerCommentButton, 1, gridPane.getRowCount(), 2, 1);
                     setCompressedRowLayout();
-                } else {
+                }
+                else {
                     // Show "Show" button when user comments field is hidden
-                    Button showDefaultOwnerCommentButton = new Button(Localization.lang("Show user-specific comments field"));
+                    Button showDefaultOwnerCommentButton = new Button(
+                            Localization.lang("Show user-specific comments field"));
                     showDefaultOwnerCommentButton.setOnAction(e -> {
                         shouldShowHideButton = true;
                         setupPanel(bibDatabaseContext, entry, false);
@@ -162,4 +168,5 @@ public class CommentsTab extends FieldsEditorTab {
             }
         }
     }
+
 }

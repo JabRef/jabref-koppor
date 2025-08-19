@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SemanticMergerTest {
+
     private ImportFormatPreferences importFormatPreferences;
 
     @BeforeEach
@@ -36,7 +37,8 @@ public class SemanticMergerTest {
 
     @ParameterizedTest
     @MethodSource
-    void patchDatabase(String description, String base, String local, String remote, String expectedAuthor) throws Exception {
+    void patchDatabase(String description, String base, String local, String remote, String expectedAuthor)
+            throws Exception {
         BibDatabaseContext baseDatabaseContext = BibDatabaseContext.of(base, importFormatPreferences);
         BibDatabaseContext localDatabaseContext = BibDatabaseContext.of(local, importFormatPreferences);
         BibDatabaseContext remoteDatabaseContext = BibDatabaseContext.of(remote, importFormatPreferences);
@@ -47,97 +49,74 @@ public class SemanticMergerTest {
         BibEntry patched = localDatabaseContext.getDatabase().getEntryByCitationKey("a").orElseThrow();
         if (expectedAuthor == null) {
             assertTrue(patched.getField(StandardField.AUTHOR).isEmpty());
-        } else {
+        }
+        else {
             assertEquals(Optional.of(expectedAuthor), patched.getField(StandardField.AUTHOR));
         }
     }
 
     // These test cases are based on documented scenarios from docs/code-howtos/git.md.
     static Stream<Arguments> patchDatabase() {
-        return Stream.of(
-                Arguments.of("T1 - remote changed a field, local unchanged",
-                        """
-                         @article{a,
-                             author = {TestAuthor},
-                             doi = {ExampleDoi}
-                         }
-                         """,
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {bob},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        "bob"
-                ),
-                Arguments.of("T2 - local changed a field, remote unchanged",
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {alice},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        "alice"
-                ),
-                Arguments.of("T3 - both changed to same value",
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {bob},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {bob},
-                            doi = {ExampleDoi}
-                        }
-                        """,
-                        "bob"
-                ),
-                Arguments.of("T4 - field removed in remote, unchanged in local",
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi},
-                        }
-                        """,
-                        """
-                        @article{a,
-                            author = {TestAuthor},
-                            doi = {ExampleDoi},
-                        }
-                        """,
-                        """
-                        @article{a,
-                            doi = {ExampleDoi},
-                        }
-                        """,
-                        null
-                )
-        );
+        return Stream.of(Arguments.of("T1 - remote changed a field, local unchanged", """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {bob},
+                    doi = {ExampleDoi}
+                }
+                """, "bob"), Arguments.of("T2 - local changed a field, remote unchanged", """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {alice},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi}
+                }
+                """, "alice"), Arguments.of("T3 - both changed to same value", """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {bob},
+                    doi = {ExampleDoi}
+                }
+                """, """
+                @article{a,
+                    author = {bob},
+                    doi = {ExampleDoi}
+                }
+                """, "bob"), Arguments.of("T4 - field removed in remote, unchanged in local", """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi},
+                }
+                """, """
+                @article{a,
+                    author = {TestAuthor},
+                    doi = {ExampleDoi},
+                }
+                """, """
+                @article{a,
+                    doi = {ExampleDoi},
+                }
+                """, null));
     }
+
 }

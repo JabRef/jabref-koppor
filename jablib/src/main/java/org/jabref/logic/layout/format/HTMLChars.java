@@ -14,14 +14,16 @@ import org.jabref.model.strings.StringUtil;
 public class HTMLChars implements ParamLayoutFormatter {
 
     private static final Map<String, String> HTML_CHARS = HTMLUnicodeConversionMaps.LATEX_HTML_CONVERSION_MAP;
+
     /**
      * This regex matches '<b>&</b>' that DO NOT BEGIN an HTML entity.
      * <p>
      * <b>&</b>{@literal amp;} <b>Not Matched</b><br>
      * <b>&</b>{@literal #34;} <b>Not Matched</b><br>
      * <b>&</b>Hey <b>Matched</b>
-     * */
-    private static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&(?!(?:[a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});)");
+     */
+    private static final Pattern HTML_ENTITY_PATTERN = Pattern
+        .compile("&(?!(?:[a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});)");
 
     private boolean keepCurlyBraces = false;
 
@@ -48,7 +50,8 @@ public class HTMLChars implements ParamLayoutFormatter {
             if (escaped && (c == '\\')) {
                 sb.append('\\');
                 escaped = false;
-            } else if (c == '\\') {
+            }
+            else if (c == '\\') {
                 if (incommand) {
                     /* Close Command */
                     String command = currentCommand.toString();
@@ -58,17 +61,19 @@ public class HTMLChars implements ParamLayoutFormatter {
                 escaped = true;
                 incommand = true;
                 currentCommand = new StringBuilder();
-            } else if (!this.keepCurlyBraces && !incommand && ((c == '{') || (c == '}'))) {
+            }
+            else if (!this.keepCurlyBraces && !incommand && ((c == '{') || (c == '}'))) {
                 // Swallow the brace.
-            } else if (Character.isLetter(c) || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))) {
+            }
+            else if (Character.isLetter(c) || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))) {
                 escaped = false;
 
                 if (!incommand) {
                     sb.append(c);
-                } else {
+                }
+                else {
                     currentCommand.append(c);
-                    testCharCom:
-                    if ((currentCommand.length() == 1)
+                    testCharCom: if ((currentCommand.length() == 1)
                             && StringUtil.SPECIAL_COMMAND_CHARS.contains(currentCommand.toString())) {
                         // This indicates that we are in a command of the type
                         // \^o or \~{n}
@@ -84,7 +89,8 @@ public class HTMLChars implements ParamLayoutFormatter {
                             String part = StringUtil.getPart(field, i, false);
                             i += this.keepCurlyBraces ? part.length() + 1 : part.length();
                             commandBody = part;
-                        } else {
+                        }
+                        else {
                             commandBody = field.substring(i, i + 1);
                         }
                         String result = HTML_CHARS.get(command + commandBody);
@@ -92,23 +98,26 @@ public class HTMLChars implements ParamLayoutFormatter {
                         sb.append(Objects.requireNonNullElse(result, commandBody));
 
                         incommand = false;
-                    } else {
+                    }
+                    else {
                         // Are we already at the end of the string?
                         if ((i + 1) == field.length()) {
                             String command = currentCommand.toString();
                             String result = HTML_CHARS.get(command);
-                            /* If found, then use translated version. If not,
-                             * then keep
+                            /*
+                             * If found, then use translated version. If not, then keep
                              * the text of the parameter intact.
                              */
                             sb.append(Objects.requireNonNullElse(result, command));
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 if (!incommand) {
                     sb.append(c);
-                } else if (Character.isWhitespace(c) || (c == '{') || (c == '}')) {
+                }
+                else if (Character.isWhitespace(c) || (c == '{') || (c == '}')) {
                     String command = currentCommand.toString();
 
                     // Test if we are dealing with a formatting
@@ -122,7 +131,8 @@ public class HTMLChars implements ParamLayoutFormatter {
                         }
                         i += part.length();
                         sb.append('<').append(tag).append('>').append(part).append("</").append(tag).append('>');
-                    } else if (c == '{') {
+                    }
+                    else if (c == '{') {
                         String argument = StringUtil.getPart(field, i, true);
                         i += this.keepCurlyBraces ? argument.length() + 1 : argument.length();
                         // handle common case of general latex command
@@ -134,14 +144,17 @@ public class HTMLChars implements ParamLayoutFormatter {
                             if (argument.isEmpty()) {
                                 // Maybe a separator, such as in \LaTeX{}, so use command
                                 sb.append(command);
-                            } else {
+                            }
+                            else {
                                 // Otherwise, use argument
                                 sb.append(argument);
                             }
-                        } else {
+                        }
+                        else {
                             sb.append(result);
                         }
-                    } else if (c == '}') {
+                    }
+                    else if (c == '}') {
                         // This end brace terminates a command. This can be the case in
                         // constructs like {\aa}. The correct behaviour should be to
                         // substitute the evaluated command.
@@ -152,20 +165,21 @@ public class HTMLChars implements ParamLayoutFormatter {
                         if (this.keepCurlyBraces) {
                             sb.append(c);
                         }
-                    } else {
+                    }
+                    else {
                         String result = HTML_CHARS.get(command);
                         sb.append(Objects.requireNonNullElse(result, command));
                         sb.append(' ');
                     }
-                } else {
+                }
+                else {
                     sb.append(c);
                     /*
-                     * TODO: this point is reached, apparently, if a command is
-                     * terminated in a strange way, such as with "$\omega$".
-                     * Also, the command "\&" causes us to get here. The former
-                     * issue is maybe a little difficult to address, since it
-                     * involves the LaTeX math mode. We don't have a complete
-                     * LaTeX parser, so maybe it's better to ignore these
+                     * TODO: this point is reached, apparently, if a command is terminated
+                     * in a strange way, such as with "$\omega$". Also, the command "\&"
+                     * causes us to get here. The former issue is maybe a little difficult
+                     * to address, since it involves the LaTeX math mode. We don't have a
+                     * complete LaTeX parser, so maybe it's better to ignore these
                      * commands?
                      */
                 }
@@ -175,17 +189,21 @@ public class HTMLChars implements ParamLayoutFormatter {
             }
         }
 
-        return sb.toString().replace("~", "&nbsp;"); // Replace any remaining ~ with &nbsp; (non-breaking spaces)
+        return sb.toString().replace("~", "&nbsp;"); // Replace any remaining ~ with
+                                                     // &nbsp; (non-breaking spaces)
     }
 
     private String normalizedField(String inField) {
-        // Cannot use StringEscapeUtils#escapeHtml4 because it does not handle LaTeX characters and commands.
-        return HTML_ENTITY_PATTERN.matcher(inField).replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML entity
-                                  .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
-                                  .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
-                                  .replace("\n", "<br>") // Replace single line breaks with <br>
-                                  .replace("\\$", "&dollar;") // Replace \$ with &dollar;
-                                  .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
+        // Cannot use StringEscapeUtils#escapeHtml4 because it does not handle LaTeX
+        // characters and commands.
+        return HTML_ENTITY_PATTERN.matcher(inField)
+            .replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML
+                                 // entity
+            .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
+            .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
+            .replace("\n", "<br>") // Replace single line breaks with <br>
+            .replace("\\$", "&dollar;") // Replace \$ with &dollar;
+            .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
     }
 
     private String getHTMLTag(String latexCommand) {
@@ -210,7 +228,8 @@ public class HTMLChars implements ParamLayoutFormatter {
             case "underline":
                 result = "u";
                 break;
-            // Strikeout, sout is the "standard" command, although it is actually based on the package ulem
+            // Strikeout, sout is the "standard" command, although it is actually based on
+            // the package ulem
             case "sout":
                 result = "s";
                 break;
@@ -231,4 +250,5 @@ public class HTMLChars implements ParamLayoutFormatter {
         }
         return result;
     }
+
 }

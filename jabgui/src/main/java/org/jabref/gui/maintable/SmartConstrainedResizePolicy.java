@@ -14,10 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This resize policy is almost the same as {@link TableView#CONSTRAINED_RESIZE_POLICY}
- * We make sure that the width of all columns sums up to the total width of the table.
- * However, in contrast to {@link TableView#CONSTRAINED_RESIZE_POLICY} we size the columns initially by their preferred width.
- * Although {@link TableView#CONSTRAINED_RESIZE_POLICY} is deprecated, this policy maintains a similar resizing behavior.
+ * This resize policy is almost the same as {@link TableView#CONSTRAINED_RESIZE_POLICY} We
+ * make sure that the width of all columns sums up to the total width of the table.
+ * However, in contrast to {@link TableView#CONSTRAINED_RESIZE_POLICY} we size the columns
+ * initially by their preferred width. Although
+ * {@link TableView#CONSTRAINED_RESIZE_POLICY} is deprecated, this policy maintains a
+ * similar resizing behavior.
  */
 public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFeatures, Boolean> {
 
@@ -27,7 +29,8 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
     public Boolean call(TableView.ResizeFeatures prop) {
         if (prop.getColumn() == null) {
             return initColumnSize(prop.getTable());
-        } else {
+        }
+        else {
             return constrainedResize(prop);
         }
     }
@@ -45,7 +48,8 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
                     double share = col.getPrefWidth() / totalPrefWidth;
                     double newSize = tableWidth * share;
 
-                    // Just to make sure that we are staying under the total table width (due to rounding errors)
+                    // Just to make sure that we are staying under the total table width
+                    // (due to rounding errors)
                     currPrefWidth += newSize;
                     if (currPrefWidth > tableWidth) {
                         newSize -= currPrefWidth - tableWidth;
@@ -68,7 +72,8 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
             Method constrainedResize = clazz.getDeclaredMethod("resize", TableColumnBase.class, double.class);
             constrainedResize.setAccessible(true);
             constrainedResize.invoke(null, column, delta);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+        }
+        catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             LOGGER.error("Could not invoke resize in TableUtil", e);
         }
     }
@@ -76,22 +81,22 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
     private Boolean constrainedResize(TableView.ResizeFeatures<?> prop) {
         TableView<?> table = prop.getTable();
         List<? extends TableColumnBase<?, ?>> visibleLeafColumns = table.getVisibleLeafColumns();
-        return constrainedResize(prop,
-                false,
-                getContentWidth(table) - 2,
-                visibleLeafColumns);
+        return constrainedResize(prop, false, getContentWidth(table) - 2, visibleLeafColumns);
     }
 
-    private Boolean constrainedResize(TableView.ResizeFeatures<?> prop, Boolean isFirstRun, Double contentWidth, List<? extends TableColumnBase<?, ?>> visibleLeafColumns) {
+    private Boolean constrainedResize(TableView.ResizeFeatures<?> prop, Boolean isFirstRun, Double contentWidth,
+            List<? extends TableColumnBase<?, ?>> visibleLeafColumns) {
         // We have to use reflection since TableUtil is not visible to us
         try {
             // TODO: reflective access, should be removed
             Class<?> clazz = Class.forName("javafx.scene.control.TableUtil");
-            Method constrainedResize = clazz.getDeclaredMethod("constrainedResize", ResizeFeaturesBase.class, Boolean.TYPE, Double.TYPE, List.class);
+            Method constrainedResize = clazz.getDeclaredMethod("constrainedResize", ResizeFeaturesBase.class,
+                    Boolean.TYPE, Double.TYPE, List.class);
             constrainedResize.setAccessible(true);
             Object returnValue = constrainedResize.invoke(null, prop, isFirstRun, contentWidth, visibleLeafColumns);
             return (Boolean) returnValue;
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+        }
+        catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             LOGGER.error("Could not invoke constrainedResize in TableUtil", e);
             return false;
         }
@@ -103,8 +108,10 @@ public class SmartConstrainedResizePolicy implements Callback<TableView.ResizeFe
             Field privateStringField = TableView.class.getDeclaredField("contentWidth");
             privateStringField.setAccessible(true);
             return (Double) privateStringField.get(table);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        }
+        catch (IllegalAccessException | NoSuchFieldException e) {
             return 0d;
         }
     }
+
 }

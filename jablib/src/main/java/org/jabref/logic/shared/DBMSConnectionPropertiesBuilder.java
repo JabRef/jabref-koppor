@@ -1,17 +1,29 @@
 package org.jabref.logic.shared;
 
 public class DBMSConnectionPropertiesBuilder {
+
     private DBMSType type;
+
     private String host;
+
     private int port = -1;
+
     private String database;
+
     private String user;
+
     private String password;
+
     private boolean useSSL;
+
     private boolean allowPublicKeyRetrieval;
+
     private String serverTimezone = "";
+
     private String keyStore;
+
     private boolean expertMode = false;
+
     private String jdbcUrl = "";
 
     public DBMSConnectionPropertiesBuilder setType(DBMSType type) {
@@ -78,6 +90,8 @@ public class DBMSConnectionPropertiesBuilder {
         if (port == -1) {
             port = type.getDefaultPort();
         }
-        return new DBMSConnectionProperties(type, host, port, database, user, password, useSSL, allowPublicKeyRetrieval, serverTimezone, keyStore, jdbcUrl, expertMode);
+        return new DBMSConnectionProperties(type, host, port, database, user, password, useSSL, allowPublicKeyRetrieval,
+                serverTimezone, keyStore, jdbcUrl, expertMode);
     }
+
 }

@@ -9,7 +9,8 @@ import jakarta.ws.rs.QueryParam;
 
 public class CAYWQueryParams {
 
-    /// See documentation here https://retorque.re/zotero-better-bibtex/citing/cayw/index.html#diy
+    /// See documentation here
+    /// https://retorque.re/zotero-better-bibtex/citing/cayw/index.html#diy
 
     @QueryParam("probe")
     private String probe;
@@ -92,4 +93,5 @@ public class CAYWQueryParams {
         }
         return PushApplications.getApplicationById(application);
     }
+
 }

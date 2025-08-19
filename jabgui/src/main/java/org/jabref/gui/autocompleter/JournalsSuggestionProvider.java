@@ -22,4 +22,5 @@ public class JournalsSuggestionProvider extends FieldValueSuggestionProvider {
     public Stream<String> getSource() {
         return Streams.concat(super.getSource(), repository.getFullNames().stream());
     }
+
 }

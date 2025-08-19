@@ -31,8 +31,9 @@ class BiblioscapeImporterTest {
 
     @Test
     void getDescription() {
-        assertEquals("Imports a Biblioscape Tag File.\n" +
-                "Several Biblioscape field types are ignored. Others are only included in the BibTeX field \"comment\".", importer.getDescription());
+        assertEquals("Imports a Biblioscape Tag File.\n"
+                + "Several Biblioscape field types are ignored. Others are only included in the BibTeX field \"comment\".",
+                importer.getDescription());
     }
 
     @Test
@@ -43,7 +44,7 @@ class BiblioscapeImporterTest {
     @Test
     void importEntriesAbortion() throws Throwable {
         Path file = Path.of(BiblioscapeImporter.class.getResource("BiblioscapeImporterTestCorrupt.txt").toURI());
-        assertEquals(List.of(),
-                importer.importDatabase(file).getDatabase().getEntries());
+        assertEquals(List.of(), importer.importDatabase(file).getDatabase().getEntries());
     }
+
 }

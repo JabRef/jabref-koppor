@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExplicitGroupTest {
 
     private ExplicitGroup group;
+
     private ExplicitGroup group2;
 
     private BibEntry entry;
@@ -54,7 +55,7 @@ class ExplicitGroupTest {
     }
 
     @Test
-        // For https://github.com/JabRef/jabref/issues/2334
+    // For https://github.com/JabRef/jabref/issues/2334
     void removeDoesNotChangeFieldIfContainsNameAsPart() {
         entry.setField(StandardField.GROUPS, "myExplicitGroup_alternative");
         group.remove(entry);
@@ -62,7 +63,7 @@ class ExplicitGroupTest {
     }
 
     @Test
-        // For https://github.com/JabRef/jabref/issues/2334
+    // For https://github.com/JabRef/jabref/issues/2334
     void removeDoesNotChangeFieldIfContainsNameAsWord() {
         entry.setField(StandardField.GROUPS, "myExplicitGroup alternative");
         group.remove(entry);
@@ -71,14 +72,14 @@ class ExplicitGroupTest {
     }
 
     @Test
-        // For https://github.com/JabRef/jabref/issues/1873
+    // For https://github.com/JabRef/jabref/issues/1873
     void containsOnlyMatchesCompletePhraseWithWhitespace() {
         entry.setField(StandardField.GROUPS, "myExplicitGroup b");
         assertFalse(group.contains(entry));
     }
 
     @Test
-        // For https://github.com/JabRef/jabref/issues/1873
+    // For https://github.com/JabRef/jabref/issues/1873
     void containsOnlyMatchesCompletePhraseWithSlash() {
         entry.setField(StandardField.GROUPS, "myExplicitGroup/b");
 
@@ -86,11 +87,12 @@ class ExplicitGroupTest {
     }
 
     @Test
-        // For https://github.com/JabRef/jabref/issues/2394
+    // For https://github.com/JabRef/jabref/issues/2394
     void containsMatchesPhraseWithBrackets() {
         entry.setField(StandardField.GROUPS, "[aa] Subgroup1");
         ExplicitGroup explicitGroup = new ExplicitGroup("[aa] Subgroup1", GroupHierarchyType.INCLUDING, ',');
 
         assertTrue(explicitGroup.contains(entry));
     }
+
 }

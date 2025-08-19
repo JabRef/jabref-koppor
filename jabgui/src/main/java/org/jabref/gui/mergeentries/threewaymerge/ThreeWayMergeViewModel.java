@@ -22,9 +22,13 @@ import org.jabref.model.entry.field.InternalField;
 public class ThreeWayMergeViewModel extends AbstractViewModel {
 
     private final ObjectProperty<BibEntry> leftEntry = new SimpleObjectProperty<>();
+
     private final ObjectProperty<BibEntry> rightEntry = new SimpleObjectProperty<>();
+
     private final ObjectProperty<BibEntry> mergedEntry = new SimpleObjectProperty<>();
+
     private final StringProperty leftHeader = new SimpleStringProperty();
+
     private final StringProperty rightHeader = new SimpleStringProperty();
 
     private final ObservableList<Field> visibleFields = FXCollections.observableArrayList();
@@ -42,9 +46,8 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
 
         mergedEntry.set(new BibEntry());
 
-        setVisibleFields(Stream.concat(
-                leftEntry.getFields().stream(),
-                rightEntry.getFields().stream()).collect(Collectors.toSet()));
+        setVisibleFields(Stream.concat(leftEntry.getFields().stream(), rightEntry.getFields().stream())
+            .collect(Collectors.toSet()));
     }
 
     public StringProperty leftHeaderProperty() {
@@ -96,7 +99,8 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
     }
 
     /**
-     * Convince method to determine the total number of fields in the union of the left and right fields.
+     * Convince method to determine the total number of fields in the union of the left
+     * and right fields.
      */
     public int numberOfVisibleFields() {
         return visibleFields.size();
@@ -113,4 +117,5 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
         // Add the entry type field as the first field to display
         visibleFields.addFirst(InternalField.TYPE_HEADER);
     }
+
 }

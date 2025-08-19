@@ -15,17 +15,16 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 
 public class ISBNIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<ISBN> {
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
 
-    public ISBNIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
-                                         FieldCheckers fieldCheckers,
-                                         DialogService dialogService,
-                                         TaskExecutor taskExecutor,
-                                         GuiPreferences preferences,
-                                         UndoManager undoManager,
-                                         StateManager stateManager) {
-        super(StandardField.ISBN, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager);
+    public ISBNIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            DialogService dialogService, TaskExecutor taskExecutor, GuiPreferences preferences, UndoManager undoManager,
+            StateManager stateManager) {
+        super(StandardField.ISBN, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences,
+                undoManager);
         this.undoManager = undoManager;
         this.stateManager = stateManager;
         configure(true, false, false);
@@ -33,10 +32,12 @@ public class ISBNIdentifierEditorViewModel extends BaseIdentifierEditorViewModel
 
     @Override
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager)
+        stateManager.getActiveDatabase()
+            .ifPresentOrElse(
+                    databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService,
+                            undoManager)
                         .fetchAndMerge(entry, field),
-                () -> dialogService.notify(Localization.lang("No library selected"))
-        );
+                    () -> dialogService.notify(Localization.lang("No library selected")));
     }
+
 }

@@ -9,72 +9,97 @@ import org.jabref.model.strings.LatexToUnicodeAdapter;
 import org.jabref.model.strings.StringUtil;
 
 /**
- * This is an immutable class that keeps information regarding single author. It is just a container for the information, with very simple methods to access it.
+ * This is an immutable class that keeps information regarding single author. It is just a
+ * container for the information, with very simple methods to access it.
  * <p>
- * Current usage: only methods <code>getLastOnly</code>, <code>getFirstLast</code>, and <code>getLastFirst</code> are used; all other methods are provided for completeness.
+ * Current usage: only methods <code>getLastOnly</code>, <code>getFirstLast</code>, and
+ * <code>getLastFirst</code> are used; all other methods are provided for completeness.
  */
 @AllowedToUseLogic("because it needs to use formatter")
 public class Author {
 
     /**
-     * Object indicating the <code>others</code> author. This is a BibTeX feature mostly rendered in "et al." in LaTeX.
-     * Example: <code>authors = {Oliver Kopp and others}</code>. This is then appearing as "Oliver Kopp et al.".
-     * In the context of BibTeX key generation, this is "Kopp+" (<code>+</code> for "et al.") and not "KO".
+     * Object indicating the <code>others</code> author. This is a BibTeX feature mostly
+     * rendered in "et al." in LaTeX. Example:
+     * <code>authors = {Oliver Kopp and others}</code>. This is then appearing as "Oliver
+     * Kopp et al.". In the context of BibTeX key generation, this is "Kopp+"
+     * (<code>+</code> for "et al.") and not "KO".
      */
     public static final Author OTHERS = new Author("", "", null, "others", null);
 
     public static final RemoveWordEnclosingAndOuterEnclosingBracesFormatter FORMATTER = new RemoveWordEnclosingAndOuterEnclosingBracesFormatter();
 
     private final String givenName;
+
     private final String givenNameAbbreviated;
+
     private final String namePrefix;
+
     private final String familyName;
+
     private final String nameSuffix;
+
     private Author latexFreeAuthor;
 
     /**
-     * Creates the Author object. If any part of the name is absent, <CODE>null</CODE> must be passed; otherwise other methods may return erroneous results.
+     * Creates the Author object. If any part of the name is absent, <CODE>null</CODE>
+     * must be passed; otherwise other methods may return erroneous results.
      * <p>
      * In case only the last part is passed, enclosing braces are
-     *
-     * @param givenName     the first name of the author (may consist of several tokens, like "Charles Louis Xavier Joseph" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
-     * @param givenNameAbbreviated the abbreviated first name of the author (may consist of several tokens, like "C. L. X. J." in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin"). It is a responsibility of the caller to create a reasonable abbreviation of the first name.
-     * @param namePrefix       the von part of the author's name (may consist of several tokens, like "de la" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
-     * @param familyName      the last name of the author (may consist of several tokens, like "Vall{\'e}e Poussin" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
-     * @param nameSuffix        the junior part of the author's name (may consist of several tokens, like "Jr. III" in "Smith, Jr. III, John")
+     * @param givenName the first name of the author (may consist of several tokens, like
+     * "Charles Louis Xavier Joseph" in "Charles Louis Xavier Joseph de la Vall{\'e}e
+     * Poussin")
+     * @param givenNameAbbreviated the abbreviated first name of the author (may consist
+     * of several tokens, like "C. L. X. J." in "Charles Louis Xavier Joseph de la
+     * Vall{\'e}e Poussin"). It is a responsibility of the caller to create a reasonable
+     * abbreviation of the first name.
+     * @param namePrefix the von part of the author's name (may consist of several tokens,
+     * like "de la" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
+     * @param familyName the last name of the author (may consist of several tokens, like
+     * "Vall{\'e}e Poussin" in "Charles Louis Xavier Joseph de la Vall{\'e}e Poussin")
+     * @param nameSuffix the junior part of the author's name (may consist of several
+     * tokens, like "Jr. III" in "Smith, Jr. III, John")
      */
-    public Author(String givenName, String givenNameAbbreviated, String namePrefix, String familyName, String nameSuffix) {
-        boolean keepBracesAtLastPart = StringUtil.isBlank(givenName) && StringUtil.isBlank(givenNameAbbreviated) && StringUtil.isBlank(namePrefix) && !StringUtil.isBlank(familyName) && StringUtil.isBlank(nameSuffix);
+    public Author(String givenName, String givenNameAbbreviated, String namePrefix, String familyName,
+            String nameSuffix) {
+        boolean keepBracesAtLastPart = StringUtil.isBlank(givenName) && StringUtil.isBlank(givenNameAbbreviated)
+                && StringUtil.isBlank(namePrefix) && !StringUtil.isBlank(familyName) && StringUtil.isBlank(nameSuffix);
 
         if (!StringUtil.isBlank(givenName)) {
             this.givenName = addDotIfAbbreviation(FORMATTER.format(givenName));
-        } else {
+        }
+        else {
             this.givenName = null;
         }
         if (!StringUtil.isBlank(givenNameAbbreviated)) {
             this.givenNameAbbreviated = FORMATTER.format(givenNameAbbreviated);
-        } else {
+        }
+        else {
             this.givenNameAbbreviated = null;
         }
         if (!StringUtil.isBlank(namePrefix)) {
             this.namePrefix = FORMATTER.format(namePrefix);
-        } else {
+        }
+        else {
             this.namePrefix = null;
         }
         if (keepBracesAtLastPart) {
             // We do not remove braces here to keep institutions protected
             // https://github.com/JabRef/jabref/issues/10031
             this.familyName = familyName;
-        } else {
+        }
+        else {
             if (!StringUtil.isBlank(familyName)) {
                 this.familyName = FORMATTER.format(familyName);
-            } else {
+            }
+            else {
                 this.familyName = null;
             }
         }
         if (!StringUtil.isBlank(nameSuffix)) {
             this.nameSuffix = FORMATTER.format(nameSuffix);
-        } else {
+        }
+        else {
             this.nameSuffix = null;
         }
     }
@@ -84,8 +109,7 @@ public class Author {
             return name;
         }
         // If only one character (uppercase letter), add a dot and return immediately:
-        if ((name.length() == 1) && Character.isLetter(name.charAt(0)) &&
-                Character.isUpperCase(name.charAt(0))) {
+        if ((name.length() == 1) && Character.isLetter(name.charAt(0)) && Character.isUpperCase(name.charAt(0))) {
             return name + ".";
         }
 
@@ -113,7 +137,8 @@ public class Author {
 
             boolean lastIsLowercaseLetter = Character.isLetter(lastChar) && Character.isLowerCase(lastChar);
             if (lastIsLowercaseLetter) {
-                // previous character was lowercase (probably an acronym like JabRef) -> don't change anything
+                // previous character was lowercase (probably an acronym like JabRef) ->
+                // don't change anything
                 continue;
             }
 
@@ -140,12 +165,14 @@ public class Author {
             char furtherChar = Character.MIN_VALUE;
             for (int j = i + 1; j < name.length(); j++) {
                 furtherChar = name.charAt(j);
-                if (Character.isWhitespace(furtherChar) || (furtherChar == '-') || (furtherChar == '~') || (furtherChar == '.')) {
+                if (Character.isWhitespace(furtherChar) || (furtherChar == '-') || (furtherChar == '~')
+                        || (furtherChar == '.')) {
                     // end of word
                     break;
                 }
 
-                boolean furtherIsUppercaseLetter = Character.isLetter(furtherChar) && Character.isUpperCase(furtherChar);
+                boolean furtherIsUppercaseLetter = Character.isLetter(furtherChar)
+                        && Character.isUpperCase(furtherChar);
                 if (!furtherIsUppercaseLetter) {
                     nextWordIsUppercase = false;
                     break;
@@ -154,7 +181,8 @@ public class Author {
             if (nextWordIsUppercase) {
                 if (Character.isWhitespace(furtherChar)) {
                     sb.append(".");
-                } else {
+                }
+                else {
                     sb.append(". ");
                 }
             }
@@ -170,8 +198,8 @@ public class Author {
 
     /**
      * Compare this object with the given one.
-     *
-     * @return `true` iff the other object is an Author and all fields are `Objects.equals`.
+     * @return `true` iff the other object is an Author and all fields are
+     * `Objects.equals`.
      */
     @Override
     public boolean equals(Object other) {
@@ -182,8 +210,7 @@ public class Author {
         if (other instanceof Author that) {
             return Objects.equals(givenName, that.givenName)
                     && Objects.equals(givenNameAbbreviated, that.givenNameAbbreviated)
-                    && Objects.equals(namePrefix, that.namePrefix)
-                    && Objects.equals(familyName, that.familyName)
+                    && Objects.equals(namePrefix, that.namePrefix) && Objects.equals(familyName, that.familyName)
                     && Objects.equals(nameSuffix, that.nameSuffix);
         }
 
@@ -192,7 +219,6 @@ public class Author {
 
     /**
      * Returns the first name of the author stored in this object ("First").
-     *
      * @return first name of the author (may consist of several tokens)
      */
     public Optional<String> getGivenName() {
@@ -201,7 +227,6 @@ public class Author {
 
     /**
      * Returns the abbreviated first name of the author stored in this object ("F.").
-     *
      * @return abbreviated first name of the author (may consist of several tokens)
      */
     public Optional<String> getGivenNameAbbreviated() {
@@ -209,8 +234,8 @@ public class Author {
     }
 
     /**
-     * Returns the von part of the author's name stored in this object ("von", "name prefix").
-     *
+     * Returns the von part of the author's name stored in this object ("von", "name
+     * prefix").
      * @return von part of the author's name (may consist of several tokens)
      */
     public Optional<String> getNamePrefix() {
@@ -219,7 +244,6 @@ public class Author {
 
     /**
      * Returns the last name of the author stored in this object ("Last").
-     *
      * @return last name of the author (may consist of several tokens)
      */
     public Optional<String> getFamilyName() {
@@ -227,55 +251,63 @@ public class Author {
     }
 
     /**
-     * Returns the name suffix ("junior") part of the author's name stored in this object ("Jr").
-     *
-     * @return junior part of the author's name (may consist of several tokens) or null if the author does not have a Jr. Part
+     * Returns the name suffix ("junior") part of the author's name stored in this object
+     * ("Jr").
+     * @return junior part of the author's name (may consist of several tokens) or null if
+     * the author does not have a Jr. Part
      */
     public Optional<String> getNameSuffix() {
         return Optional.ofNullable(nameSuffix);
     }
 
     /**
-     * Returns von-part followed by last name ("von Last"). If both fields were specified as <CODE>null</CODE>, the empty string <CODE>""</CODE> is returned.
-     *
+     * Returns von-part followed by last name ("von Last"). If both fields were specified
+     * as <CODE>null</CODE>, the empty string <CODE>""</CODE> is returned.
      * @return 'von Last'
      */
     public String getNamePrefixAndFamilyName() {
         if (namePrefix == null || namePrefix.isEmpty()) {
             return getFamilyName().orElse("");
-        } else {
+        }
+        else {
             return familyName == null ? namePrefix : namePrefix + ' ' + familyName;
         }
     }
 
     /**
-     * Returns the author's name in form 'von Last, Jr., First' with the first name full or abbreviated depending on parameter.
-     *
-     * @param abbr <CODE>true</CODE> - abbreviate first name, <CODE>false</CODE> - do not abbreviate
-     * @return 'von Last, Jr., First' (if <CODE>abbr==false</CODE>) or 'von Last, Jr., F.' (if <CODE>abbr==true</CODE>)
+     * Returns the author's name in form 'von Last, Jr., First' with the first name full
+     * or abbreviated depending on parameter.
+     * @param abbr <CODE>true</CODE> - abbreviate first name, <CODE>false</CODE> - do not
+     * abbreviate
+     * @return 'von Last, Jr., First' (if <CODE>abbr==false</CODE>) or 'von Last, Jr., F.'
+     * (if <CODE>abbr==true</CODE>)
      */
     public String getFamilyGiven(boolean abbr) {
         StringBuilder res = new StringBuilder(getNamePrefixAndFamilyName());
         getNameSuffix().ifPresent(jr -> res.append(", ").append(jr));
         if (abbr) {
             getGivenNameAbbreviated().ifPresent(firstA -> res.append(", ").append(firstA));
-        } else {
+        }
+        else {
             getGivenName().ifPresent(first -> res.append(", ").append(first));
         }
         return res.toString();
     }
 
     /**
-     * Returns the author's name in form 'First von Last, Jr.' with the first name full or abbreviated depending on parameter.
-     *
-     * @param abbr <CODE>true</CODE> - abbreviate first name, <CODE>false</CODE> - do not abbreviate
-     * @return 'First von Last, Jr.' (if <CODE>abbr==false</CODE>) or 'F. von Last, Jr.' (if <CODE>abbr==true</CODE>)
+     * Returns the author's name in form 'First von Last, Jr.' with the first name full or
+     * abbreviated depending on parameter.
+     * @param abbr <CODE>true</CODE> - abbreviate first name, <CODE>false</CODE> - do not
+     * abbreviate
+     * @return 'First von Last, Jr.' (if <CODE>abbr==false</CODE>) or 'F. von Last, Jr.'
+     * (if <CODE>abbr==true</CODE>)
      */
     public String getGivenFamily(boolean abbr) {
         StringBuilder res = new StringBuilder();
         if (abbr) {
             getGivenNameAbbreviated().map(firstA -> firstA + ' ').ifPresent(res::append);
-        } else {
+        }
+        else {
             getGivenName().map(first -> first + ' ').ifPresent(res::append);
         }
         res.append(getNamePrefixAndFamilyName());
@@ -285,17 +317,14 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Author{" + "givenName='" + givenName + '\'' +
-                ", givenNameAbbreviated='" + givenNameAbbreviated + '\'' +
-                ", namePrefix='" + namePrefix + '\'' +
-                ", familyName='" + familyName + '\'' +
-                ", nameSuffix='" + nameSuffix + '\'' +
-                '}';
+        return "Author{" + "givenName='" + givenName + '\'' + ", givenNameAbbreviated='" + givenNameAbbreviated + '\''
+                + ", namePrefix='" + namePrefix + '\'' + ", familyName='" + familyName + '\'' + ", nameSuffix='"
+                + nameSuffix + '\'' + '}';
     }
 
     /**
-     * Returns the name as "Last, Jr, F." omitting the von-part and removing starting braces.
-     *
+     * Returns the name as "Last, Jr, F." omitting the von-part and removing starting
+     * braces.
      * @return "Last, Jr, F." as described above or "" if all these parts are empty.
      */
     public String getNameForAlphabetization() {
@@ -324,4 +353,5 @@ public class Author {
         }
         return latexFreeAuthor;
     }
+
 }

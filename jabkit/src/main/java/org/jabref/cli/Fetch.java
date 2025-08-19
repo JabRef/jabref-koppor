@@ -23,9 +23,11 @@ import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "fetch", description = "Fetch entries from a provider.")
 class Fetch implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Fetch.class);
 
-    record Provider(String name, String query) { }
+    record Provider(String name, String query) {
+    }
 
     @ParentCommand
     private ArgumentProcessor argumentProcessor;
@@ -48,8 +50,8 @@ class Fetch implements Runnable {
                 argumentProcessor.cliPreferences.getImportFormatPreferences(),
                 argumentProcessor.cliPreferences.getImporterPreferences());
         Optional<SearchBasedFetcher> selectedFetcher = fetchers.stream()
-                                                               .filter(fetcher -> fetcher.getName().equalsIgnoreCase(provider))
-                                                               .findFirst();
+            .filter(fetcher -> fetcher.getName().equalsIgnoreCase(provider))
+            .findFirst();
         if (selectedFetcher.isEmpty()) {
             System.out.println(Localization.lang("Could not find fetcher '%0'", provider));
             return;
@@ -72,16 +74,16 @@ class Fetch implements Runnable {
             }
 
             if (outputFile != null) {
-                ArgumentProcessor.saveDatabase(
-                        argumentProcessor.cliPreferences,
-                        argumentProcessor.entryTypesManager,
-                        new BibDatabase(matches),
-                        outputFile);
-            } else {
+                ArgumentProcessor.saveDatabase(argumentProcessor.cliPreferences, argumentProcessor.entryTypesManager,
+                        new BibDatabase(matches), outputFile);
+            }
+            else {
                 System.out.println(matches.stream().map(BibEntry::toString).collect(Collectors.joining("\n\n")));
             }
-        } catch (FetcherException e) {
+        }
+        catch (FetcherException e) {
             LOGGER.error("Error while fetching", e);
         }
     }
+
 }

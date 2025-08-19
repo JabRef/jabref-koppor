@@ -8,6 +8,7 @@ import org.jabref.logic.layout.LayoutFormatter;
  * Useful for formatting Latex code.
  */
 public class RemoveTilde implements LayoutFormatter {
+
     @Override
     public String format(String fieldText) {
         StringBuilder result = new StringBuilder(fieldText.length());
@@ -17,7 +18,8 @@ public class RemoveTilde implements LayoutFormatter {
         for (int i = 0; i < c.length; i++) {
             if (c[i] == '~') {
                 result.append(' ');
-            } else {
+            }
+            else {
                 result.append(c[i]);
                 // Skip the next character if the current one is a backslash
                 if ((c[i] == '\\') && ((i + 1) < c.length)) {
@@ -28,4 +30,5 @@ public class RemoveTilde implements LayoutFormatter {
         }
         return result.toString();
     }
+
 }

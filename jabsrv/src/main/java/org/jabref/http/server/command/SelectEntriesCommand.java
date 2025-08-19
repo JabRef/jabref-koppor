@@ -25,8 +25,10 @@ public class SelectEntriesCommand implements Command {
 
     @JsonProperty
     private String libraryId = "";
+
     @JsonProperty
     private List<String> citationKeys = new ArrayList<>();
+
     @JsonProperty
     private List<String> entryIds = new ArrayList<>();
 
@@ -37,28 +39,31 @@ public class SelectEntriesCommand implements Command {
     public Response execute() {
         if (getSrvStateManager() instanceof JabRefSrvStateManager) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("This command is not supported in CLI mode.")
-                           .build();
+                .entity("This command is not supported in CLI mode.")
+                .build();
         }
 
         Optional<CommandSelectionTab> activeTab = getSrvStateManager().getActiveSelectionTabProperty().getValue();
         if (activeTab.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("This command cannot be executed because no library is opened.")
-                           .build();
+                .entity("This command cannot be executed because no library is opened.")
+                .build();
         }
 
         CommandSelectionTab commandSelectionTab = activeTab.get();
 
         if (!getLibraryIdFromContext(commandSelectionTab.getBibDatabaseContext()).equals(libraryId)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("This command cannot be executed because the libraryId does not match the active selection tab.")
-                           .build();
+                .entity("This command cannot be executed because the libraryId does not match the active selection tab.")
+                .build();
         }
 
-        List<BibEntry> entries = commandSelectionTab.getBibDatabaseContext().getEntries().stream()
-                                                    .filter(entry -> citationKeys.contains(entry.getCitationKey().orElse(null)) || entryIds.contains(entry.getId()))
-                                                    .collect(Collectors.toList());
+        List<BibEntry> entries = commandSelectionTab.getBibDatabaseContext()
+            .getEntries()
+            .stream()
+            .filter(entry -> citationKeys.contains(entry.getCitationKey().orElse(null))
+                    || entryIds.contains(entry.getId()))
+            .collect(Collectors.toList());
 
         commandSelectionTab.clearAndSelect(entries);
 
@@ -67,8 +72,8 @@ public class SelectEntriesCommand implements Command {
 
     private String getLibraryIdFromContext(BibDatabaseContext bibDatabaseContext) {
         return bibDatabaseContext.getDatabasePath()
-                                 .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
-                                 .orElse("");
+            .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
+            .orElse("");
     }
 
     @Override
@@ -104,4 +109,5 @@ public class SelectEntriesCommand implements Command {
     public void setEntryIds(List<String> entryIds) {
         this.entryIds = entryIds;
     }
+
 }

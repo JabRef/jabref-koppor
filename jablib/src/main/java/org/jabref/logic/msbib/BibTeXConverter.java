@@ -108,7 +108,8 @@ public class BibTeXConverter {
         map.put(field, allAuthors);
     }
 
-    private static void parseSingleStandardNumber(String type, Field field, String standardNum, Map<Field, String> map) {
+    private static void parseSingleStandardNumber(String type, Field field, String standardNum,
+            Map<Field, String> map) {
         Pattern pattern = Pattern.compile(':' + type + ":(.[^:]+)");
         Matcher matcher = pattern.matcher(standardNum);
         if (matcher.matches()) {
@@ -126,4 +127,5 @@ public class BibTeXConverter {
         parseSingleStandardNumber("MRN", StandardField.MR_NUMBER, standardNum, map);
         parseSingleStandardNumber("DOI", StandardField.DOI, standardNum, map);
     }
+
 }

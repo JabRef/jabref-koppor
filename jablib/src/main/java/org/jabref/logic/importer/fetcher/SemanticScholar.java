@@ -41,12 +41,15 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserFetcher, EntryBasedFetcher, CustomizableKeyFetcher {
+public class SemanticScholar
+        implements FulltextFetcher, PagedSearchBasedParserFetcher, EntryBasedFetcher, CustomizableKeyFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticScholar.class);
 
     private static final String SOURCE_ID_SEARCH = "https://api.semanticscholar.org/v1/paper/";
+
     private static final String SOURCE_WEB_SEARCH = "https://api.semanticscholar.org/graph/v1/paper/search?";
+
     private final ImporterPreferences importerPreferences;
 
     public SemanticScholar(ImporterPreferences importerPreferences) {
@@ -57,10 +60,9 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
      * Tries to find a fulltext URL for a given BibTex entry.
      * <p>
      * Uses the DOI if present, otherwise the arXiv identifier.
-     *
      * @param entry The Bibtex entry
      * @return The fulltext PDF URL Optional, if found, or an empty Optional if not found.
-     * @throws IOException      if a page could not be fetched correctly
+     * @throws IOException if a page could not be fetched correctly
      * @throws FetcherException if the received page differs from what was expected
      */
     @Override
@@ -76,14 +78,14 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
                 // Retrieve PDF link
                 String source = SOURCE_ID_SEARCH + doi.get().asString();
                 Connection jsoupRequest = Jsoup.connect(getURLBySource(source))
-                                               .userAgent(URLDownload.USER_AGENT)
-                                               .header("Accept", "text/html; charset=utf-8")
-                                               .referrer("https://www.google.com")
-                                               .ignoreHttpErrors(true);
-                importerPreferences.getApiKey(getName()).ifPresent(
-                        key -> jsoupRequest.header("x-api-key", key));
+                    .userAgent(URLDownload.USER_AGENT)
+                    .header("Accept", "text/html; charset=utf-8")
+                    .referrer("https://www.google.com")
+                    .ignoreHttpErrors(true);
+                importerPreferences.getApiKey(getName()).ifPresent(key -> jsoupRequest.header("x-api-key", key));
                 html = jsoupRequest.get();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.info("Error for pdf lookup with DOI");
             }
         }
@@ -95,12 +97,11 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
             }
             String source = SOURCE_ID_SEARCH + arXivString;
             Connection jsoupRequest = Jsoup.connect(getURLBySource(source))
-                                    .userAgent(URLDownload.USER_AGENT)
-                                    .referrer("https://www.google.com")
-                                    .header("Accept", "text/html; charset=utf-8")
-                                    .ignoreHttpErrors(true);
-            importerPreferences.getApiKey(getName()).ifPresent(
-                    key -> jsoupRequest.header("x-api-key", key));
+                .userAgent(URLDownload.USER_AGENT)
+                .referrer("https://www.google.com")
+                .header("Accept", "text/html; charset=utf-8")
+                .ignoreHttpErrors(true);
+            importerPreferences.getApiKey(getName()).ifPresent(key -> jsoupRequest.header("x-api-key", key));
             html = jsoupRequest.get();
         }
         if (html == null) {
@@ -163,7 +164,8 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
             int total = response.getInt("total");
             if (total == 0) {
                 return List.of();
-            } else if (response.has("next")) {
+            }
+            else if (response.has("next")) {
                 total = Math.min(total, response.getInt("next") - response.getInt("offset"));
             }
 
@@ -182,7 +184,6 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
 
     /**
      * This is copy-paste from CrossRef, need to be checked.
-     *
      * @param item an entry received, needs to be parsed into a BibEntry
      * @return The BibEntry that corresponds to the received object
      * @throws ParseException if the JSONObject could not be parsed
@@ -198,9 +199,9 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
 
             entry.setField(StandardField.AUTHOR,
                     IntStream.range(0, item.optJSONArray("authors").length())
-                             .mapToObj(item.optJSONArray("authors")::getJSONObject)
-                             .map(author -> author.has("name") ? author.getString("name") : "")
-                             .collect(Collectors.joining(" and ")));
+                        .mapToObj(item.optJSONArray("authors")::getJSONObject)
+                        .map(author -> author.has("name") ? author.getString("name") : "")
+                        .collect(Collectors.joining(" and ")));
 
             JSONObject externalIds = item.optJSONObject("externalIds");
             entry.setField(StandardField.DOI, externalIds.optString("DOI"));
@@ -210,14 +211,15 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
             }
             entry.setField(StandardField.PMID, externalIds.optString("PubMed"));
             return entry;
-        } catch (JSONException exception) {
+        }
+        catch (JSONException exception) {
             throw new ParseException("SemanticScholar API JSON format has changed", exception);
         }
     }
 
     /**
-     * Returns the localized name of this fetcher. The title can be used to display the fetcher in the menu and in the side pane.
-     *
+     * Returns the localized name of this fetcher. The title can be used to display the
+     * fetcher in the menu and in the side pane.
      * @return the localized name
      */
     @Override
@@ -227,7 +229,6 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
 
     /**
      * Looks for hits which are matched by the given {@link BibEntry}.
-     *
      * @param entry entry to search bibliographic information for
      * @return a list of {@link BibEntry}, which are matched by the query (may be empty)
      * @throws FetcherException if an error linked to the Fetcher applies
@@ -240,4 +241,5 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         }
         return performSearch(title.get());
     }
+
 }

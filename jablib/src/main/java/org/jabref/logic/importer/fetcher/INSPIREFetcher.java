@@ -35,7 +35,9 @@ import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 public class INSPIREFetcher implements SearchBasedParserFetcher, EntryBasedFetcher {
 
     private static final String INSPIRE_HOST = "https://inspirehep.net/api/literature/";
+
     private static final String INSPIRE_DOI_HOST = "https://inspirehep.net/api/doi/";
+
     private static final String INSPIRE_ARXIV_HOST = "https://inspirehep.net/api/arxiv/";
 
     private final ImportFormatPreferences importFormatPreferences;
@@ -93,16 +95,19 @@ public class INSPIREFetcher implements SearchBasedParserFetcher, EntryBasedFetch
         String urlString;
         if (archiveprefix.filter("arxiv"::equals).isPresent() && eprint.isPresent()) {
             urlString = INSPIRE_ARXIV_HOST + eprint.get();
-        } else if (doi.isPresent()) {
+        }
+        else if (doi.isPresent()) {
             urlString = INSPIRE_DOI_HOST + doi.get();
-        } else {
+        }
+        else {
             return List.of();
         }
 
         URL url;
         try {
             url = new URI(urlString).toURL();
-        } catch (MalformedURLException | URISyntaxException e) {
+        }
+        catch (MalformedURLException | URISyntaxException e) {
             throw new FetcherException("Invalid URL", e);
         }
 
@@ -111,8 +116,10 @@ public class INSPIREFetcher implements SearchBasedParserFetcher, EntryBasedFetch
             List<BibEntry> results = getParser().parseEntries(download.asInputStream());
             results.forEach(this::doPostCleanup);
             return results;
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException(url, e);
         }
     }
+
 }

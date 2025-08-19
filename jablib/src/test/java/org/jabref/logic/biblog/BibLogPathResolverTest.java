@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BibLogPathResolverTest {
+
     private static final String TEST_USER = "testUser";
 
     @Test
@@ -39,4 +40,5 @@ public class BibLogPathResolverTest {
         Optional<Path> result = BibLogPathResolver.resolve(metaData, Optional.empty(), TEST_USER);
         assertEquals(Optional.empty(), result);
     }
+
 }

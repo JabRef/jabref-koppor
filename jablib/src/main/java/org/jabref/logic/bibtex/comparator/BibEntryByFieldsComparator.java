@@ -10,6 +10,7 @@ import org.jabref.model.entry.field.Field;
  * Sorts entries by the number of fields and then by the field names.
  */
 public class BibEntryByFieldsComparator implements Comparator<BibEntry> {
+
     @Override
     public int compare(BibEntry e1, BibEntry e2) {
         int sizeComparison = e1.getFields().size() - e2.getFields().size();
@@ -27,4 +28,5 @@ public class BibEntryByFieldsComparator implements Comparator<BibEntry> {
         assert !it1.hasNext() && !it2.hasNext();
         return 0;
     }
+
 }

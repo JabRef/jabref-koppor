@@ -15,10 +15,15 @@ import org.jabref.logic.l10n.Localization;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class EntryTableConfigurationDialog extends FXDialog {
-    @FXML private CheckBox showCitationKeyBox;
-    @FXML private HelpButton helpButton;
+
+    @FXML
+    private CheckBox showCitationKeyBox;
+
+    @FXML
+    private HelpButton helpButton;
 
     private EntryTableConfigurationDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
 
     public EntryTableConfigurationDialog(GuiPreferences preferences, ThemeManager themeManager) {
@@ -29,9 +34,7 @@ public class EntryTableConfigurationDialog extends FXDialog {
 
         this.setHeaderText(Localization.lang("Configure which columns are displayed in the entry table"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -49,4 +52,5 @@ public class EntryTableConfigurationDialog extends FXDialog {
 
         helpButton.setHelpPage(URLs.ENTRY_TABLE_COLUMNS_DOC);
     }
+
 }

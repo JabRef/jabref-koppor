@@ -47,6 +47,7 @@ import org.jabref.logic.layout.format.LatexToUnicodeFormatter;
 import org.jabref.logic.layout.format.ReplaceUnicodeLigaturesFormatter;
 
 public class Formatters {
+
     private static final Pattern TRUNCATE_PATTERN = Pattern.compile("\\Atruncate\\d+\\z");
 
     private static Map<String, Formatter> keyToFormatterMap;
@@ -59,55 +60,27 @@ public class Formatters {
     }
 
     public static List<Formatter> getConverters() {
-        return Arrays.asList(
-                new HtmlToLatexFormatter(),
-                new HtmlToUnicodeFormatter(),
-                new LatexToUnicodeFormatter(),
-                new UnicodeToLatexFormatter(),
-                new ConvertMSCCodesFormatter()
-        );
+        return Arrays.asList(new HtmlToLatexFormatter(), new HtmlToUnicodeFormatter(), new LatexToUnicodeFormatter(),
+                new UnicodeToLatexFormatter(), new ConvertMSCCodesFormatter());
     }
 
     public static List<Formatter> getCaseChangers() {
-        return Arrays.asList(
-                new CapitalizeFormatter(),
-                new LowerCaseFormatter(),
-                new SentenceCaseFormatter(),
-                new TitleCaseFormatter(),
-                new UpperCaseFormatter()
-        );
+        return Arrays.asList(new CapitalizeFormatter(), new LowerCaseFormatter(), new SentenceCaseFormatter(),
+                new TitleCaseFormatter(), new UpperCaseFormatter());
     }
 
     public static List<Formatter> getOthers() {
-        return Arrays.asList(
-                new ClearFormatter(),
-                new CleanupUrlFormatter(),
-                new LatexCleanupFormatter(),
-                new MinifyNameListFormatter(),
-                new NormalizeDateFormatter(),
-                new NormalizeMonthFormatter(),
-                new NormalizeNamesFormatter(),
-                new NormalizePagesFormatter(),
-                new OrdinalsToSuperscriptFormatter(),
-                new RemoveEnclosingBracesFormatter(),
-                new RemoveWordEnclosingAndOuterEnclosingBracesFormatter(),
-                new UnitsToLatexFormatter(),
-                new EscapeUnderscoresFormatter(),
-                new EscapeAmpersandsFormatter(),
-                new EscapeDollarSignFormatter(),
-                new ShortenDOIFormatter(),
-                new NormalizeUnicodeFormatter(),
-                new ReplaceUnicodeLigaturesFormatter(),
-                new UnprotectTermsFormatter()
-        );
+        return Arrays.asList(new ClearFormatter(), new CleanupUrlFormatter(), new LatexCleanupFormatter(),
+                new MinifyNameListFormatter(), new NormalizeDateFormatter(), new NormalizeMonthFormatter(),
+                new NormalizeNamesFormatter(), new NormalizePagesFormatter(), new OrdinalsToSuperscriptFormatter(),
+                new RemoveEnclosingBracesFormatter(), new RemoveWordEnclosingAndOuterEnclosingBracesFormatter(),
+                new UnitsToLatexFormatter(), new EscapeUnderscoresFormatter(), new EscapeAmpersandsFormatter(),
+                new EscapeDollarSignFormatter(), new ShortenDOIFormatter(), new NormalizeUnicodeFormatter(),
+                new ReplaceUnicodeLigaturesFormatter(), new UnprotectTermsFormatter());
     }
 
     public static List<Formatter> getTitleChangers() {
-        return Arrays.asList(
-                new VeryShortTitleFormatter(),
-                new ShortTitleFormatter(),
-                new CamelFormatter()
-        );
+        return Arrays.asList(new VeryShortTitleFormatter(), new ShortTitleFormatter(), new CamelFormatter());
     }
 
     public static List<Formatter> getAll() {
@@ -148,18 +121,23 @@ public class Formatters {
             modifier = modifier.replace("camel", "");
             if (modifier.isEmpty()) {
                 return Optional.of(new CamelFormatter());
-            } else {
+            }
+            else {
                 int length = Integer.parseInt(modifier);
                 return Optional.of(new CamelNFormatter(length));
             }
-        } else if (modifier.startsWith(RegexFormatter.KEY)) {
+        }
+        else if (modifier.startsWith(RegexFormatter.KEY)) {
             String regex = modifier.substring(RegexFormatter.KEY.length());
             return Optional.of(new RegexFormatter(regex));
-        } else if (TRUNCATE_PATTERN.matcher(modifier).matches()) {
+        }
+        else if (TRUNCATE_PATTERN.matcher(modifier).matches()) {
             int truncateAfter = Integer.parseInt(modifier.substring(8));
             return Optional.of(new TruncateFormatter(truncateAfter));
-        } else {
+        }
+        else {
             return getFormatterForKey(modifier);
         }
     }
+
 }

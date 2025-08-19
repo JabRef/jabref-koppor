@@ -23,9 +23,11 @@ import kong.unirest.core.json.JSONObject;
 import org.apache.hc.core5.net.URIBuilder;
 
 /**
- * Fetcher for ISBN using <a href="https://doi-to-bibtex-converter.herokuapp.com">doi-to-bibtex-converter.herokuapp</a>.
+ * Fetcher for ISBN using <a href=
+ * "https://doi-to-bibtex-converter.herokuapp.com">doi-to-bibtex-converter.herokuapp</a>.
  */
 public class DoiToBibtexConverterComIsbnFetcher extends AbstractIsbnFetcher {
+
     private static final String BASE_URL = "https://doi-to-bibtex-converter.herokuapp.com";
 
     public DoiToBibtexConverterComIsbnFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -40,12 +42,11 @@ public class DoiToBibtexConverterComIsbnFetcher extends AbstractIsbnFetcher {
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
         this.ensureThatIsbnIsValid(identifier);
-        return new URIBuilder(BASE_URL)
-                .setPathSegments("getInfo.php")
-                .setParameter("query", identifier)
-                .setParameter("format", "json")
-                .build()
-                .toURL();
+        return new URIBuilder(BASE_URL).setPathSegments("getInfo.php")
+            .setParameter("query", identifier)
+            .setParameter("format", "json")
+            .build()
+            .toURL();
     }
 
     @Override
@@ -84,23 +85,25 @@ public class DoiToBibtexConverterComIsbnFetcher extends AbstractIsbnFetcher {
             entry.setField(StandardField.MONTH, getElementFromJSONArrayByKey(data, "month"));
             entry.setField(StandardField.DAY, getElementFromJSONArrayByKey(data, "day"));
             return entry;
-        } catch (JSONException exception) {
+        }
+        catch (JSONException exception) {
             throw new ParseException("CrossRef API JSON format has changed", exception);
         }
     }
 
     private String getElementFromJSONArrayByKey(JSONArray jsonArray, String key) {
         return IntStream.range(0, jsonArray.length())
-                        .mapToObj(jsonArray::getJSONObject)
-                        .map(obj -> obj.getString(key))
-                        .findFirst()
-                        .orElse("");
+            .mapToObj(jsonArray::getJSONObject)
+            .map(obj -> obj.getString(key))
+            .findFirst()
+            .orElse("");
     }
 
     private StandardEntryType evaluateBibEntryTypeFromString(String type) {
         return Stream.of(StandardEntryType.values())
-                     .filter(entryType -> entryType.name().equalsIgnoreCase(type))
-                     .findAny()
-                     .orElse(StandardEntryType.Book);
+            .filter(entryType -> entryType.name().equalsIgnoreCase(type))
+            .findAny()
+            .orElse(StandardEntryType.Book);
     }
+
 }

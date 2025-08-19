@@ -9,6 +9,7 @@ import org.jabref.logic.l10n.Localization;
  * Replaces three or more authors with and others
  */
 public class MinifyNameListFormatter extends Formatter {
+
     @Override
     public String getName() {
         return Localization.lang("Minify list of person names");
@@ -22,8 +23,7 @@ public class MinifyNameListFormatter extends Formatter {
     /**
      * Replaces three or more authors with and others.
      *
-     * <h4>Example</h4>
-     * <pre>{@code
+     * <h4>Example</h4> <pre>{@code
      *     Stefan Kolb -> Stefan Kolb
      *     Stefan Kolb and Simon Harrer -> Stefan Kolb and Simon Harrer
      *     Stefan Kolb and Simon Harrer and Jörg Lenhard -> Stefan Kolb and others
@@ -78,4 +78,5 @@ public class MinifyNameListFormatter extends Formatter {
 
         return authors[0] + authorSeparator + "others";
     }
+
 }

@@ -19,4 +19,5 @@ public class IntegrityCheckDialogViewModel extends AbstractViewModel {
     public ObservableList<IntegrityMessage> getMessages() {
         return messages;
     }
+
 }

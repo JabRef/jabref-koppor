@@ -13,11 +13,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RankingFieldComparatorTest {
 
     private RankingFieldComparator comparator;
+
     private final SpecialFieldValue value1 = SpecialFieldValue.RANK_1;
+
     private final SpecialFieldValue value2 = SpecialFieldValue.RANK_2;
+
     private final SpecialFieldValue value3 = SpecialFieldValue.RANK_3;
+
     private final Optional<SpecialFieldValueViewModel> rank1 = Optional.of(new SpecialFieldValueViewModel(value1));
+
     private final Optional<SpecialFieldValueViewModel> rank2 = Optional.of(new SpecialFieldValueViewModel(value2));
+
     private final Optional<SpecialFieldValueViewModel> rank3 = Optional.of(new SpecialFieldValueViewModel(value3));
 
     @BeforeEach
@@ -56,4 +62,5 @@ class RankingFieldComparatorTest {
     void compareTwoInputsWithSecondEmpty() {
         assertEquals(-1, comparator.compare(rank1, Optional.empty()));
     }
+
 }

@@ -15,11 +15,15 @@ import org.jabref.model.entry.BibEntry;
 public class MainTableTooltip extends Tooltip {
 
     private final PreviewViewer preview;
+
     private final GuiPreferences preferences;
+
     private final VBox tooltipContent = new VBox();
+
     private final Label fieldValueLabel = new Label();
 
-    public MainTableTooltip(DialogService dialogService, GuiPreferences preferences, ThemeManager themeManager, TaskExecutor taskExecutor) {
+    public MainTableTooltip(DialogService dialogService, GuiPreferences preferences, ThemeManager themeManager,
+            TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.preview = new PreviewViewer(dialogService, preferences, themeManager, taskExecutor);
         this.tooltipContent.getChildren().addAll(fieldValueLabel, preview);
@@ -32,9 +36,11 @@ public class MainTableTooltip extends Tooltip {
             preview.setDatabaseContext(databaseContext);
             preview.setEntry(entry);
             this.setGraphic(tooltipContent);
-        } else {
+        }
+        else {
             this.setGraphic(fieldValueLabel);
         }
         return this;
     }
+
 }

@@ -12,12 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SemanticMerger {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticMerger.class);
 
     /**
-     * Implementation-only merge logic: applies changes from remote (relative to base) to local.
-     * does not check for "modifications" or "conflicts"
-     * all decisions should be handled in advance by the {@link SemanticConflictDetector}
+     * Implementation-only merge logic: applies changes from remote (relative to base) to
+     * local. does not check for "modifications" or "conflicts" all decisions should be
+     * handled in advance by the {@link SemanticConflictDetector}
      */
     public static void applyMergePlan(BibDatabaseContext local, MergePlan plan) {
         applyPatchToDatabase(local, plan.fieldPatches());
@@ -25,17 +26,15 @@ public class SemanticMerger {
         for (BibEntry newEntry : plan.newEntries()) {
             BibEntry clone = new BibEntry(newEntry);
 
-            clone.getCitationKey().ifPresent(citationKey ->
-                    local.getDatabase().getEntryByCitationKey(citationKey).ifPresent(existing -> {
-                        local.getDatabase().removeEntry(existing);
-                        LOGGER.debug("Removed existing entry '{}' before re-inserting", citationKey);
-                    })
-            );
+            clone.getCitationKey()
+                .ifPresent(citationKey -> local.getDatabase().getEntryByCitationKey(citationKey).ifPresent(existing -> {
+                    local.getDatabase().removeEntry(existing);
+                    LOGGER.debug("Removed existing entry '{}' before re-inserting", citationKey);
+                }));
 
             local.getDatabase().insertEntry(clone);
             LOGGER.debug("Inserted (or replaced) entry '{}', fields={}, marked as changed",
-                    clone.getCitationKey().orElse("?"),
-                    clone.getFieldMap());
+                    clone.getCitationKey().orElse("?"), clone.getFieldMap());
         }
     }
 
@@ -64,10 +63,12 @@ public class SemanticMerger {
             if (newValue == null) {
                 localEntry.clearField(field);
                 LOGGER.debug("Cleared field '{}' (was '{}')", field.getName(), oldValue);
-            } else {
+            }
+            else {
                 localEntry.setField(field, newValue);
                 LOGGER.debug("Set field '{}' to '{}', replacing '{}'", field.getName(), newValue, oldValue);
             }
         }
     }
+
 }

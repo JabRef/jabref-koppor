@@ -49,10 +49,7 @@ class ISSNCheckerTest {
     }
 
     private static Stream<Arguments> provideIncorrectFormatArguments() {
-        return Stream.of(
-                Arguments.of("020-721"),
-                Arguments.of("0020-72109"),
-                Arguments.of("0020~72109")
-        );
+        return Stream.of(Arguments.of("020-721"), Arguments.of("0020-72109"), Arguments.of("0020~72109"));
     }
+
 }

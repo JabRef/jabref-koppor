@@ -66,4 +66,5 @@ class OOPreFormatterTest {
         assertEquals("<sup>kkk</sup>", new OOPreFormatter().format("\\textsuperscript{kkk}"));
         assertEquals("<sub>kkk</sub>", new OOPreFormatter().format("\\textsubscript{kkk}"));
     }
+
 }

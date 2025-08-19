@@ -5,8 +5,8 @@ import java.util.Objects;
 import org.jabref.model.entry.field.StandardField;
 
 /**
- * This group contains entries, which were automatically assigned to it.
- * Assignments are stored in the {@link StandardField#GROUPS} field.
+ * This group contains entries, which were automatically assigned to it. Assignments are
+ * stored in the {@link StandardField#GROUPS} field.
  */
 public class SmartGroup extends WordKeywordGroup {
 
@@ -36,8 +36,7 @@ public class SmartGroup extends WordKeywordGroup {
                 && Objects.equals(getHierarchicalContext(), other.getHierarchicalContext())
                 && Objects.equals(getIconName(), other.getIconName())
                 && Objects.equals(getDescription(), other.getDescription())
-                && Objects.equals(getColor(), other.getColor())
-                && Objects.equals(isExpanded(), other.isExpanded());
+                && Objects.equals(getColor(), other.getColor()) && Objects.equals(isExpanded(), other.isExpanded());
     }
 
     @Override
@@ -49,4 +48,5 @@ public class SmartGroup extends WordKeywordGroup {
     public int hashCode() {
         return Objects.hash(name.getValue(), context, iconName, color, description, isExpanded);
     }
+
 }

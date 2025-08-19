@@ -35,7 +35,8 @@ class PdfGrobidImporterTest {
         when(grobidPreferences.isGrobidEnabled()).thenReturn(true);
         when(grobidPreferences.getGrobidURL()).thenReturn("http://grobid.jabref.org:8070");
 
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         when(importFormatPreferences.grobidPreferences()).thenReturn(grobidPreferences);
 
@@ -77,4 +78,5 @@ class PdfGrobidImporterTest {
     void getCommandLineId() {
         assertEquals("pdfGrobid", importer.getId());
     }
+
 }

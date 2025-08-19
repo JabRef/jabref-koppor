@@ -35,45 +35,48 @@ class LOBIDFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     @Test
     void searchByQueryFindsEntry() throws FetcherException {
         BibEntry firstArticle = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Nichols, Cathrine and Blume, Eugen and DruckVerlag Kettler GmbH")
-                .withField(StandardField.PUBLISHER, "Verlag Kettler")
-                .withField(StandardField.DATE, "2016")
-                .withField(StandardField.ISBN, "9783862065752")
-                .withField(StandardField.KEYWORDS, "(Produktform)Hardback, Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, (Produktgruppe)Ausst: Ausstellungskatalog, (VLB-WN)1580: Hardcover, Softcover / Kunst")
-                .withField(StandardField.LANGUAGE, "Deutsch")
-                .withField(StandardField.LOCATION, "Dortmund")
-                .withField(StandardField.TITLE, "Das Kapital")
-                .withField(StandardField.TITLEADDON, "Schuld, Territorium, Utopie")
-                .withField(StandardField.TYPE, "BibliographicResource, Book")
-                .withField(StandardField.URL, "http://lobid.org/resources/991002500969706485")
-                .withField(StandardField.YEAR, "2016");
+            .withField(StandardField.AUTHOR, "Nichols, Cathrine and Blume, Eugen and DruckVerlag Kettler GmbH")
+            .withField(StandardField.PUBLISHER, "Verlag Kettler")
+            .withField(StandardField.DATE, "2016")
+            .withField(StandardField.ISBN, "9783862065752")
+            .withField(StandardField.KEYWORDS,
+                    "(Produktform)Hardback, Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, (Produktgruppe)Ausst: Ausstellungskatalog, (VLB-WN)1580: Hardcover, Softcover / Kunst")
+            .withField(StandardField.LANGUAGE, "Deutsch")
+            .withField(StandardField.LOCATION, "Dortmund")
+            .withField(StandardField.TITLE, "Das Kapital")
+            .withField(StandardField.TITLEADDON, "Schuld, Territorium, Utopie")
+            .withField(StandardField.TYPE, "BibliographicResource, Book")
+            .withField(StandardField.URL, "http://lobid.org/resources/991002500969706485")
+            .withField(StandardField.YEAR, "2016");
 
         BibEntry secondArticle = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Nielsen, Cathrin")
-                .withField(StandardField.TITLE, "\"... und die Substanz ist natürlich allein schon ein seelischer Prozeß\"")
-                .withField(StandardField.JOURNAL, "Beuys. Die Revolution sind wir")
-                .withField(StandardField.DATE, "2008")
-                .withField(StandardField.KEYWORDS, "Beuys, Joseph, Physis")
-                .withField(StandardField.LANGUAGE, "Deutsch")
-                .withField(StandardField.TYPE, "BibliographicResource, Article")
-                .withField(StandardField.URL, "http://lobid.org/resources/990173112890206441")
-                .withField(StandardField.YEAR, "2008");
+            .withField(StandardField.AUTHOR, "Nielsen, Cathrin")
+            .withField(StandardField.TITLE, "\"... und die Substanz ist natürlich allein schon ein seelischer Prozeß\"")
+            .withField(StandardField.JOURNAL, "Beuys. Die Revolution sind wir")
+            .withField(StandardField.DATE, "2008")
+            .withField(StandardField.KEYWORDS, "Beuys, Joseph, Physis")
+            .withField(StandardField.LANGUAGE, "Deutsch")
+            .withField(StandardField.TYPE, "BibliographicResource, Article")
+            .withField(StandardField.URL, "http://lobid.org/resources/990173112890206441")
+            .withField(StandardField.YEAR, "2008");
 
-        BibEntry thirdArticle = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Nichols, Catherine and Blume, Eugen and Hamburger Bahnhof - Museum für Gegenwart - Berlin and Nationalgalerie (Berlin) and DruckVerlag Kettler GmbH")
-                .withField(StandardField.ABSTRACT, "Impresum: \"Diese Publikation erscheint anlässlich der Ausstellung Das Kapital. Schuld-Territorium-Utopie. Eine Ausstellung der Nationalgalerie im Hamburger Bahnhof - Museum für Gegenwart - Berlin, 2. Juli-6. November 2016\"")
-                .withField(StandardField.PUBLISHER, "Verlag Kettler")
-                .withField(StandardField.DATE, "2016")
-                .withField(StandardField.EDITION, "1. Auflage")
-                .withField(StandardField.ISBN, "9783862065752")
-                .withField(StandardField.KEYWORDS, "Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, Beuys, Joseph: Das Kapital Raum 1970-1977, Kunst, Kapitalismus (Motiv), Geschichte")
-                .withField(StandardField.LANGUAGE, "Deutsch")
-                .withField(StandardField.LOCATION, "Dortmund")
-                .withField(StandardField.TITLE, "Das Kapital")
-                .withField(StandardField.TITLEADDON, "Schuld - Territorium - Utopie")
-                .withField(StandardField.TYPE, "BibliographicResource, Book")
-                .withField(StandardField.URL, "http://lobid.org/resources/990212549810206441")
-                .withField(StandardField.YEAR, "2016");
+        BibEntry thirdArticle = new BibEntry(StandardEntryType.Book).withField(StandardField.AUTHOR,
+                "Nichols, Catherine and Blume, Eugen and Hamburger Bahnhof - Museum für Gegenwart - Berlin and Nationalgalerie (Berlin) and DruckVerlag Kettler GmbH")
+            .withField(StandardField.ABSTRACT,
+                    "Impresum: \"Diese Publikation erscheint anlässlich der Ausstellung Das Kapital. Schuld-Territorium-Utopie. Eine Ausstellung der Nationalgalerie im Hamburger Bahnhof - Museum für Gegenwart - Berlin, 2. Juli-6. November 2016\"")
+            .withField(StandardField.PUBLISHER, "Verlag Kettler")
+            .withField(StandardField.DATE, "2016")
+            .withField(StandardField.EDITION, "1. Auflage")
+            .withField(StandardField.ISBN, "9783862065752")
+            .withField(StandardField.KEYWORDS,
+                    "Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, Beuys, Joseph: Das Kapital Raum 1970-1977, Kunst, Kapitalismus (Motiv), Geschichte")
+            .withField(StandardField.LANGUAGE, "Deutsch")
+            .withField(StandardField.LOCATION, "Dortmund")
+            .withField(StandardField.TITLE, "Das Kapital")
+            .withField(StandardField.TITLEADDON, "Schuld - Territorium - Utopie")
+            .withField(StandardField.TYPE, "BibliographicResource, Book")
+            .withField(StandardField.URL, "http://lobid.org/resources/990212549810206441")
+            .withField(StandardField.YEAR, "2016");
 
         List<BibEntry> fetchedEntries = fetcher.performSearch("Cathrine Nichols");
         assertEquals(List.of(firstArticle, secondArticle, thirdArticle), fetchedEntries);
@@ -115,4 +118,5 @@ class LOBIDFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     public String getTestJournal() {
         return "Kontinuität und Diskontinuität";
     }
+
 }

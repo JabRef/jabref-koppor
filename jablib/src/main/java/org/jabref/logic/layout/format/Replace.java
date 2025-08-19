@@ -30,6 +30,7 @@ import org.jabref.logic.layout.AbstractParamLayoutFormatter;
 public class Replace extends AbstractParamLayoutFormatter {
 
     private String regex;
+
     private String replaceWith;
 
     @Override
@@ -46,8 +47,10 @@ public class Replace extends AbstractParamLayoutFormatter {
     @Override
     public String format(String fieldText) {
         if ((fieldText == null) || (regex == null)) {
-            return fieldText; // TODO: argument missing or invalid. Print an error message here?
+            return fieldText; // TODO: argument missing or invalid. Print an error message
+                              // here?
         }
         return fieldText.replaceAll(regex, replaceWith);
     }
+
 }

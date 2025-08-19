@@ -23,9 +23,8 @@ import org.jabref.model.entry.field.InternalField;
 /// - Consider defining a proper interface (e.g., IntegrityMessageWithField / WithoutField)
 ///   to support warnings without fields cleanly.
 public class BibWarningToIntegrityMessageConverter {
-    public static List<IntegrityMessage> convert(
-            List<BibWarning> bibWarnings,
-            BibDatabaseContext context) {
+
+    public static List<IntegrityMessage> convert(List<BibWarning> bibWarnings, BibDatabaseContext context) {
         if (bibWarnings.isEmpty()) {
             return List.of();
         }
@@ -38,16 +37,12 @@ public class BibWarningToIntegrityMessageConverter {
 
             BibEntry entry = context.getDatabase().getEntryByCitationKey(bibWarning.entryKey()).get();
 
-            Field field = bibWarning.getFieldName()
-                                    .map(FieldFactory::parseField)
-                                    .orElse(InternalField.KEY_FIELD);
+            Field field = bibWarning.getFieldName().map(FieldFactory::parseField).orElse(InternalField.KEY_FIELD);
 
-            IntegrityMessage message = new IntegrityMessage(
-                    bibWarning.message(),
-                    entry,
-                    field);
+            IntegrityMessage message = new IntegrityMessage(bibWarning.message(), entry, field);
             messages.add(message);
         }
         return messages;
     }
+
 }

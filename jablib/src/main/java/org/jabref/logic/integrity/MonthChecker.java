@@ -11,11 +11,11 @@ import org.jabref.model.strings.StringUtil;
 
 public class MonthChecker implements ValueChecker {
 
-    private static final Predicate<String> ONLY_AN_INTEGER = Pattern.compile("[1-9]|10|11|12")
-                                                                    .asPredicate();
+    private static final Predicate<String> ONLY_AN_INTEGER = Pattern.compile("[1-9]|10|11|12").asPredicate();
+
     private static final Predicate<String> MONTH_NORMALIZED = Pattern
-            .compile("#jan#|#feb#|#mar#|#apr#|#may#|#jun#|#jul#|#aug#|#sep#|#oct#|#nov#|#dec#")
-            .asPredicate();
+        .compile("#jan#|#feb#|#mar#|#apr#|#may#|#jun#|#jul#|#aug#|#sep#|#oct#|#nov#|#dec#")
+        .asPredicate();
 
     private final BibDatabaseContext bibDatabaseContextMonth;
 
@@ -24,12 +24,12 @@ public class MonthChecker implements ValueChecker {
     }
 
     /**
-     * biblatex package documentation (Section 2.3.9):
-     * The month field is an integer field.
-     * The bibliography style converts the month to a language-dependent string as required.
-     * For backwards compatibility, you may also use the following three-letter abbreviations in the month field:
-     * jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec.
-     * Note that these abbreviations are BibTeX strings which must be given without any braces or quotes.
+     * biblatex package documentation (Section 2.3.9): The month field is an integer
+     * field. The bibliography style converts the month to a language-dependent string as
+     * required. For backwards compatibility, you may also use the following three-letter
+     * abbreviations in the month field: jan, feb, mar, apr, may, jun, jul, aug, sep, oct,
+     * nov, dec. Note that these abbreviations are BibTeX strings which must be given
+     * without any braces or quotes.
      */
     @Override
     public Optional<String> checkValue(String value) {
@@ -50,4 +50,5 @@ public class MonthChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

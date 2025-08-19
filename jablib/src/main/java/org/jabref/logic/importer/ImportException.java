@@ -15,4 +15,5 @@ public class ImportException extends JabRefException {
     public ImportException(Exception cause) {
         super(cause);
     }
+
 }

@@ -23,38 +23,32 @@ class KeywordListTest {
 
     @Test
     void parseOneWordReturnsOneKeyword() {
-        assertEquals(new KeywordList("keywordOne"),
-                KeywordList.parse("keywordOne", ','));
+        assertEquals(new KeywordList("keywordOne"), KeywordList.parse("keywordOne", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywords() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne, keywordTwo", ','));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne, keywordTwo", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywordsWithoutSpace() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne,keywordTwo", ','));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne,keywordTwo", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywordsWithDifferentDelimiter() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne| keywordTwo", '|'));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne| keywordTwo", '|'));
     }
 
     @Test
     void parseWordsWithWhitespaceReturnsOneKeyword() {
-        assertEquals(new KeywordList("keyword and one"),
-                KeywordList.parse("keyword and one", ','));
+        assertEquals(new KeywordList("keyword and one"), KeywordList.parse("keyword and one", ','));
     }
 
     @Test
     void parseWordsWithWhitespaceAndCommaReturnsTwoKeyword() {
-        assertEquals(new KeywordList("keyword and one", "and two"),
-                KeywordList.parse("keyword and one, and two", ','));
+        assertEquals(new KeywordList("keyword and one", "and two"), KeywordList.parse("keyword and one, and two", ','));
     }
 
     @Test
@@ -113,6 +107,8 @@ class KeywordListTest {
 
     @Test
     void mergeTwoListsOfKeywordsShouldReturnTheKeywordsMerged() {
-        assertEquals(new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"), KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
+        assertEquals(new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"),
+                KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
     }
+
 }

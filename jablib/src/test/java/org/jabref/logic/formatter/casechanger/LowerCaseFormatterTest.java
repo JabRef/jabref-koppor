@@ -11,7 +11,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class LowerCaseFormatterTest {
 
@@ -29,16 +30,13 @@ class LowerCaseFormatterTest {
     }
 
     private static Stream<Arguments> provideStringsForFormat() {
-        return Stream.of(
-                Arguments.of("lower", "lower"),
-                Arguments.of("lower", "LOWER"),
-                Arguments.of("lower {UPPER}", "LOWER {UPPER}"),
-                Arguments.of("lower {U}pper", "LOWER {U}PPER")
-        );
+        return Stream.of(Arguments.of("lower", "lower"), Arguments.of("lower", "LOWER"),
+                Arguments.of("lower {UPPER}", "LOWER {UPPER}"), Arguments.of("lower {U}pper", "LOWER {U}PPER"));
     }
 
     @Test
     void formatExample() {
         assertEquals("kde {Amarok}", formatter.format(formatter.getExampleInput()));
     }
+
 }

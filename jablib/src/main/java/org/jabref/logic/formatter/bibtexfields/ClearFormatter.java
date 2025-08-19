@@ -32,4 +32,5 @@ public class ClearFormatter extends Formatter {
     public String getExampleInput() {
         return "Obsolete text";
     }
+
 }

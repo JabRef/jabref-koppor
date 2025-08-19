@@ -18,4 +18,5 @@ public class DefaultGroupsFactory {
         group.setIconName(ALL_ENTRIES_GROUP_DEFAULT_ICON);
         return group;
     }
+
 }

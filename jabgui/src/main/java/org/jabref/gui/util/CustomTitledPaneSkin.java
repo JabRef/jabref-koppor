@@ -31,16 +31,17 @@ import static javafx.css.StyleConverter.getEnumConverter;
 public class CustomTitledPaneSkin extends TitledPaneSkin {
 
     public enum ArrowSide {
+
         LEFT, RIGHT
+
     }
 
-    /* ********************************************************
-     *                                                        *
-     * Properties                                             *
-     *                                                        *
+    /*
+     * ******************************************************** * Properties * *
      **********************************************************/
 
-    private final StyleableObjectProperty<ArrowSide> arrowSide = new SimpleStyleableObjectProperty<>(StyleableProperties.ARROW_SIDE, this, "arrowSide", ArrowSide.LEFT) {
+    private final StyleableObjectProperty<ArrowSide> arrowSide = new SimpleStyleableObjectProperty<>(
+            StyleableProperties.ARROW_SIDE, this, "arrowSide", ArrowSide.LEFT) {
 
         @Override
         protected void invalidated() {
@@ -60,25 +61,26 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
         return arrowSide;
     }
 
-    /* ********************************************************
-     *                                                        *
-     * Instance Fields                                        *
-     *                                                        *
+    /*
+     * ******************************************************** * Instance Fields * *
      **********************************************************/
 
     private final Region title;
+
     private final Region arrowButton;
+
     private final Region arrow;
+
     private final Text text;
 
     private DoubleBinding arrowTranslateBinding;
+
     private DoubleBinding textGraphicTranslateBinding;
+
     private Node graphic;
 
-    /* ********************************************************
-     *                                                        *
-     * Constructors                                           *
-     *                                                        *
+    /*
+     * ******************************************************** * Constructors * *
      **********************************************************/
 
     public CustomTitledPaneSkin(TitledPane control) {
@@ -92,20 +94,15 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
         Rotate rotate = new Rotate();
         rotate.pivotXProperty().bind(arrow.widthProperty().divide(2.0));
         rotate.pivotYProperty().bind(arrow.heightProperty().divide(2.0));
-        rotate.angleProperty().bind(
-                Bindings.when(control.expandedProperty())
-                        .then(-180.0)
-                        .otherwise(90.0));
+        rotate.angleProperty().bind(Bindings.when(control.expandedProperty()).then(-180.0).otherwise(90.0));
 
         arrow.getTransforms().add(rotate);
 
         registerChangeListener(control.graphicProperty(), ov -> adjustTitleLayout());
     }
 
-    /* ********************************************************
-     *                                                        *
-     * Skin Stuff                                             *
-     *                                                        *
+    /*
+     * ******************************************************** * Skin Stuff * *
      **********************************************************/
 
     private void adjustTitleLayout() {
@@ -121,11 +118,10 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
         }, title.paddingProperty(), title.widthProperty(), arrowButton.widthProperty(), arrowButton.layoutXProperty());
         arrowButton.translateXProperty().bind(arrowTranslateBinding);
 
-        textGraphicTranslateBinding = Bindings.createDoubleBinding(
-                () -> switch (getSkinnable().getAlignment()) {
-                    case TOP_CENTER, CENTER, BOTTOM_CENTER, BASELINE_CENTER -> 0.0;
-                    default -> -arrowButton.getWidth();
-                }, getSkinnable().alignmentProperty(), arrowButton.widthProperty());
+        textGraphicTranslateBinding = Bindings.createDoubleBinding(() -> switch (getSkinnable().getAlignment()) {
+            case TOP_CENTER, CENTER, BOTTOM_CENTER, BASELINE_CENTER -> 0.0;
+            default -> -arrowButton.getWidth();
+        }, getSkinnable().alignmentProperty(), arrowButton.widthProperty());
         text.translateXProperty().bind(textGraphicTranslateBinding);
 
         graphic = getSkinnable().getGraphic();
@@ -161,10 +157,8 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
         super.dispose();
     }
 
-    /* ********************************************************
-     *                                                        *
-     * Stylesheet Handling                                    *
-     *                                                        *
+    /*
+     * ******************************************************** * Stylesheet Handling * *
      **********************************************************/
 
     public static List<CssMetaData<?, ?>> getClassCssMetaData() {
@@ -178,7 +172,8 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
 
     private static class StyleableProperties {
 
-        private static final CssMetaData<TitledPane, ArrowSide> ARROW_SIDE = new CssMetaData<>("-fx-arrow-side", getEnumConverter(ArrowSide.class), ArrowSide.LEFT) {
+        private static final CssMetaData<TitledPane, ArrowSide> ARROW_SIDE = new CssMetaData<>("-fx-arrow-side",
+                getEnumConverter(ArrowSide.class), ArrowSide.LEFT) {
 
             @Override
             public boolean isSettable(TitledPane styleable) {
@@ -207,4 +202,5 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
         }
 
     }
+
 }

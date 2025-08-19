@@ -35,8 +35,7 @@ public class PagesCheckerBibtexTest {
                 // bibTexAcceptsNoSimpleRangeOfNumbers
                 "43+",
                 // bibTexAcceptsMorePageNumbersWithRangeOfNumbers
-                "7+,41--43,73"
-                );
+                "7+,41--43,73");
     }
 
     @ParameterizedTest
@@ -54,8 +53,7 @@ public class PagesCheckerBibtexTest {
                 // bibTexDoesNotAcceptMorePageNumbersWithoutComma
                 "1 2",
                 // bibTexDoesNotAcceptBrackets
-                "{1}-{2}"
-                );
+                "{1}-{2}");
     }
 
     @ParameterizedTest
@@ -63,4 +61,5 @@ public class PagesCheckerBibtexTest {
     void bibtexRejects(String source) {
         assertNotEquals(Optional.empty(), checker.checkValue(source));
     }
+
 }

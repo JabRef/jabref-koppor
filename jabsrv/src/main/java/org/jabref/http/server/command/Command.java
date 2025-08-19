@@ -7,12 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.hk2.api.ServiceLocator;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "commandId")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = SelectEntriesCommand.class, name = "selectentries")
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "commandId")
+@JsonSubTypes({ @JsonSubTypes.Type(value = SelectEntriesCommand.class, name = "selectentries") })
 public interface Command {
 
     default Response execute() {
@@ -26,4 +22,5 @@ public interface Command {
     default SrvStateManager getSrvStateManager() {
         return getServiceLocator().getService(SrvStateManager.class);
     }
+
 }

@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class PersonNamesCheckerTest {
 
     private PersonNamesChecker checker;
+
     private PersonNamesChecker checkerb;
 
     @BeforeEach
@@ -36,19 +37,18 @@ class PersonNamesCheckerTest {
     }
 
     private static Stream<String> provideValidNames() {
-        return Stream.of(
-                "Kolb, Stefan",                     // single [Name, Firstname]
-                "Kolb, Stefan and Harrer, Simon",   // multiple [Name, Firstname]
-                "Stefan Kolb",                      // single [Firstname Name]
-                "Stefan Kolb and Simon Harrer",     // multiple [Firstname Name]
+        return Stream.of("Kolb, Stefan", // single [Name, Firstname]
+                "Kolb, Stefan and Harrer, Simon", // multiple [Name, Firstname]
+                "Stefan Kolb", // single [Firstname Name]
+                "Stefan Kolb and Simon Harrer", // multiple [Firstname Name]
 
-                "M. J. Gotay",                      // second name in front
+                "M. J. Gotay", // second name in front
 
-                "{JabRef}",                         // corporate name in brackets
-                "{JabRef} and Stefan Kolb",         // mixed corporate name with name
+                "{JabRef}", // corporate name in brackets
+                "{JabRef} and Stefan Kolb", // mixed corporate name with name
                 "{JabRef} and Kolb, Stefan",
 
-                "hugo Para{\\~n}os"                 // tilde in name
+                "hugo Para{\\~n}os" // tilde in name
         );
     }
 
@@ -71,19 +71,13 @@ class PersonNamesCheckerTest {
     }
 
     private static Stream<String> provideCorrectFormats() {
-        return Stream.of(
-                "",
-                "Knuth",
-                "Donald E. Knuth and Kurt Cobain and A. Einstein");
+        return Stream.of("", "Knuth", "Donald E. Knuth and Kurt Cobain and A. Einstein");
     }
 
     private static Stream<String> provideIncorrectFormats() {
-        return Stream.of(
-                "   Knuth, Donald E. ",
-                "Knuth, Donald E. and Kurt Cobain and A. Einstein",
-                ", and Kurt Cobain and A. Einstein",
-                "Donald E. Knuth and Kurt Cobain and ,",
-                "and Kurt Cobain and A. Einstein",
-                "Donald E. Knuth and Kurt Cobain and");
+        return Stream.of("   Knuth, Donald E. ", "Knuth, Donald E. and Kurt Cobain and A. Einstein",
+                ", and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and ,",
+                "and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and");
     }
+
 }

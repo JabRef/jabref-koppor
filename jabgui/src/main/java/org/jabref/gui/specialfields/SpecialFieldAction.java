@@ -28,28 +28,32 @@ import org.slf4j.LoggerFactory;
 public class SpecialFieldAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpecialFieldAction.class);
+
     private final Supplier<LibraryTab> tabSupplier;
+
     private final SpecialField specialField;
+
     private final String value;
+
     private final boolean nullFieldIfValueIsTheSame;
+
     private final String undoText;
+
     private final DialogService dialogService;
+
     private final CliPreferences preferences;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
 
     /**
-     * @param nullFieldIfValueIsTheSame - false also causes that doneTextPattern has two place holders %0 for the value and %1 for the sum of entries
+     * @param nullFieldIfValueIsTheSame - false also causes that doneTextPattern has two
+     * place holders %0 for the value and %1 for the sum of entries
      */
-    public SpecialFieldAction(Supplier<LibraryTab> tabSupplier,
-                              SpecialField specialField,
-                              String value,
-                              boolean nullFieldIfValueIsTheSame,
-                              String undoText,
-                              DialogService dialogService,
-                              CliPreferences preferences,
-                              UndoManager undoManager,
-                              StateManager stateManager) {
+    public SpecialFieldAction(Supplier<LibraryTab> tabSupplier, SpecialField specialField, String value,
+            boolean nullFieldIfValueIsTheSame, String undoText, DialogService dialogService, CliPreferences preferences,
+            UndoManager undoManager, StateManager stateManager) {
         this.tabSupplier = tabSupplier;
         this.specialField = specialField;
         this.value = value;
@@ -73,8 +77,10 @@ public class SpecialFieldAction extends SimpleCommand {
             NamedCompound ce = new NamedCompound(undoText);
             List<BibEntry> besCopy = new ArrayList<>(bes);
             for (BibEntry bibEntry : besCopy) {
-                // if (value==null) and then call nullField has been omitted as updatefield also handles value==null
-                Optional<FieldChange> change = UpdateField.updateField(bibEntry, specialField, value, nullFieldIfValueIsTheSame);
+                // if (value==null) and then call nullField has been omitted as
+                // updatefield also handles value==null
+                Optional<FieldChange> change = UpdateField.updateField(bibEntry, specialField, value,
+                        nullFieldIfValueIsTheSame);
 
                 change.ifPresent(fieldChange -> ce.addEdit(new UndoableFieldChange(fieldChange)));
             }
@@ -85,14 +91,17 @@ public class SpecialFieldAction extends SimpleCommand {
                 String outText;
                 if (nullFieldIfValueIsTheSame || value == null) {
                     outText = getTextDone(specialField, Integer.toString(bes.size()));
-                } else {
+                }
+                else {
                     outText = getTextDone(specialField, value, Integer.toString(bes.size()));
                 }
                 dialogService.notify(outText);
             }
 
-            // if user does not change anything with his action, we do not do anything either, even no output message
-        } catch (Throwable ex) {
+            // if user does not change anything with his action, we do not do anything
+            // either, even no output message
+        }
+        catch (Throwable ex) {
             LOGGER.error("Problem setting special fields", ex);
         }
     }
@@ -105,16 +114,21 @@ public class SpecialFieldAction extends SimpleCommand {
         if (field.isSingleValueField() && (params.length == 1) && (params[0] != null)) {
             // Single value fields can be toggled only
             return Localization.lang("Toggled '%0' for %1 entries", viewModel.getLocalization(), params[0]);
-        } else if (!field.isSingleValueField() && (params.length == 2) && (params[0] != null) && (params[1] != null)) {
+        }
+        else if (!field.isSingleValueField() && (params.length == 2) && (params[0] != null) && (params[1] != null)) {
             // setting a multi value special field - the set value is displayed, too
-            return Localization.lang("Set '%0' to '%1' for %2 entries", viewModel.getLocalization(), params[0], params[1]);
-        } else if (!field.isSingleValueField() && (params.length == 1) && (params[0] != null)) {
+            return Localization.lang("Set '%0' to '%1' for %2 entries", viewModel.getLocalization(), params[0],
+                    params[1]);
+        }
+        else if (!field.isSingleValueField() && (params.length == 1) && (params[0] != null)) {
             // clearing a multi value specialfield
             return Localization.lang("Cleared '%0' for %1 entries", viewModel.getLocalization(), params[0]);
-        } else {
+        }
+        else {
             // invalid usage
             LOGGER.info("Creation of special field status change message failed: illegal argument combination.");
             return "";
         }
     }
+
 }

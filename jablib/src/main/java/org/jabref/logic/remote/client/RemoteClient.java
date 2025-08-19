@@ -34,13 +34,17 @@ public class RemoteClient {
 
             if ((response.getKey() == RemoteMessage.PONG) && Protocol.IDENTIFIER.equals(response.getValue())) {
                 return true;
-            } else {
+            }
+            else {
                 String port = String.valueOf(this.port);
-                String errorMessage = Localization.lang("Cannot use port %0 for remote operation; another application may be using it. Try specifying another port.", port);
+                String errorMessage = Localization.lang(
+                        "Cannot use port %0 for remote operation; another application may be using it. Try specifying another port.",
+                        port);
                 LOGGER.error(errorMessage);
                 return false;
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.debug("Could not ping server at port {}", port, e);
             return false;
         }
@@ -48,7 +52,6 @@ public class RemoteClient {
 
     /**
      * Attempt to send command line arguments to already running JabRef instance.
-     *
      * @param args command line arguments.
      * @return true if successful, false otherwise.
      */
@@ -57,7 +60,8 @@ public class RemoteClient {
             protocol.sendMessage(RemoteMessage.SEND_COMMAND_LINE_ARGUMENTS, args);
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
             return response.getKey() == RemoteMessage.OK;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.debug("Could not send args {} to the server at port {}", String.join(", ", args), port, e);
             return false;
         }
@@ -65,7 +69,6 @@ public class RemoteClient {
 
     /**
      * Attempt to send a focus command to already running JabRef instance.
-     *
      * @return true if successful, false otherwise.
      */
     public boolean sendFocus() {
@@ -73,7 +76,8 @@ public class RemoteClient {
             protocol.sendMessage(RemoteMessage.FOCUS);
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
             return response.getKey() == RemoteMessage.OK;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.debug("Could not send focus command to the server at port {}", port, e);
             return false;
         }
@@ -85,4 +89,5 @@ public class RemoteClient {
         socket.connect(new InetSocketAddress(RemotePreferences.getIpAddress(), port), TIMEOUT);
         return new Protocol(socket);
     }
+
 }

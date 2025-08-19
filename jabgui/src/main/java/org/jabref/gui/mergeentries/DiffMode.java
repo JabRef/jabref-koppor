@@ -4,10 +4,8 @@ import org.jabref.logic.l10n.Localization;
 
 public enum DiffMode {
 
-    PLAIN(Localization.lang("None")),
-    WORD(Localization.lang("Word by word")),
-    CHARACTER(Localization.lang("Character by character")),
-    WORD_SYMMETRIC(Localization.lang("Symmetric word by word")),
+    PLAIN(Localization.lang("None")), WORD(Localization.lang("Word by word")),
+    CHARACTER(Localization.lang("Character by character")), WORD_SYMMETRIC(Localization.lang("Symmetric word by word")),
     CHARACTER_SYMMETRIC(Localization.lang("Symmetric character by character"));
 
     private final String text;
@@ -19,7 +17,8 @@ public enum DiffMode {
     public static DiffMode parse(String name) {
         try {
             return DiffMode.valueOf(name);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return WORD; // default
         }
     }
@@ -27,4 +26,5 @@ public enum DiffMode {
     public String getDisplayText() {
         return text;
     }
+
 }

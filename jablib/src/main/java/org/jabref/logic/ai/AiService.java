@@ -27,78 +27,80 @@ import org.jabref.model.database.BibDatabaseContext;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
- *  The main class for the AI functionality.
- *  <p>
- *  Holds all the AI components: LLM and embedding model, chat history and embeddings cache.
+ * The main class for the AI functionality.
+ * <p>
+ * Holds all the AI components: LLM and embedding model, chat history and embeddings
+ * cache.
  */
 public class AiService implements AutoCloseable {
+
     public static final String VERSION = "1";
 
     private static final String EMBEDDINGS_FILE_NAME = "embeddings.mv";
+
     private static final String FULLY_INGESTED_FILE_NAME = "fully-ingested.mv";
+
     private static final String SUMMARIES_FILE_NAME = "summaries.mv";
+
     private static final String CHAT_HISTORY_FILE_NAME = "chat-histories.mv";
 
     // This field is used to shut down AI-related background tasks.
-    // If a background task processes a big document and has a loop, then the task should check the status
+    // If a background task processes a big document and has a loop, then the task should
+    // check the status
     // of this property for being true. If it's true, then it should abort the cycle.
     private final BooleanProperty shutdownSignal = new SimpleBooleanProperty(false);
 
-    private final ExecutorService cachedThreadPool = Executors.newCachedThreadPool(
-            new ThreadFactoryBuilder().setNameFormat("ai-retrieval-pool-%d").build()
-    );
+    private final ExecutorService cachedThreadPool = Executors
+        .newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ai-retrieval-pool-%d").build());
 
     private final MVStoreChatHistoryStorage mvStoreChatHistoryStorage;
+
     private final MVStoreEmbeddingStore mvStoreEmbeddingStore;
+
     private final MVStoreFullyIngestedDocumentsTracker mvStoreFullyIngestedDocumentsTracker;
+
     private final MVStoreSummariesStorage mvStoreSummariesStorage;
 
     private final AiTemplatesService templatesService;
+
     private final ChatHistoryService chatHistoryService;
+
     private final JabRefChatLanguageModel jabRefChatLanguageModel;
+
     private final JabRefEmbeddingModel jabRefEmbeddingModel;
+
     private final AiChatService aiChatService;
+
     private final IngestionService ingestionService;
+
     private final SummariesService summariesService;
 
-    public AiService(AiPreferences aiPreferences,
-                     FilePreferences filePreferences,
-                     CitationKeyPatternPreferences citationKeyPatternPreferences,
-                     NotificationService notificationService,
-                     TaskExecutor taskExecutor
-    ) {
+    public AiService(AiPreferences aiPreferences, FilePreferences filePreferences,
+            CitationKeyPatternPreferences citationKeyPatternPreferences, NotificationService notificationService,
+            TaskExecutor taskExecutor) {
 
-        this.mvStoreChatHistoryStorage = new MVStoreChatHistoryStorage(Directories.getAiFilesDirectory().resolve(CHAT_HISTORY_FILE_NAME), notificationService);
-        this.mvStoreEmbeddingStore = new MVStoreEmbeddingStore(Directories.getAiFilesDirectory().resolve(EMBEDDINGS_FILE_NAME), notificationService);
-        this.mvStoreFullyIngestedDocumentsTracker = new MVStoreFullyIngestedDocumentsTracker(Directories.getAiFilesDirectory().resolve(FULLY_INGESTED_FILE_NAME), notificationService);
-        this.mvStoreSummariesStorage = new MVStoreSummariesStorage(Directories.getAiFilesDirectory().resolve(SUMMARIES_FILE_NAME), notificationService);
+        this.mvStoreChatHistoryStorage = new MVStoreChatHistoryStorage(
+                Directories.getAiFilesDirectory().resolve(CHAT_HISTORY_FILE_NAME), notificationService);
+        this.mvStoreEmbeddingStore = new MVStoreEmbeddingStore(
+                Directories.getAiFilesDirectory().resolve(EMBEDDINGS_FILE_NAME), notificationService);
+        this.mvStoreFullyIngestedDocumentsTracker = new MVStoreFullyIngestedDocumentsTracker(
+                Directories.getAiFilesDirectory().resolve(FULLY_INGESTED_FILE_NAME), notificationService);
+        this.mvStoreSummariesStorage = new MVStoreSummariesStorage(
+                Directories.getAiFilesDirectory().resolve(SUMMARIES_FILE_NAME), notificationService);
 
         this.templatesService = new AiTemplatesService(aiPreferences);
         this.chatHistoryService = new ChatHistoryService(citationKeyPatternPreferences, mvStoreChatHistoryStorage);
         this.jabRefChatLanguageModel = new JabRefChatLanguageModel(aiPreferences);
         this.jabRefEmbeddingModel = new JabRefEmbeddingModel(aiPreferences, notificationService, taskExecutor);
 
-        this.aiChatService = new AiChatService(aiPreferences, jabRefChatLanguageModel, jabRefEmbeddingModel, mvStoreEmbeddingStore, templatesService);
+        this.aiChatService = new AiChatService(aiPreferences, jabRefChatLanguageModel, jabRefEmbeddingModel,
+                mvStoreEmbeddingStore, templatesService);
 
-        this.ingestionService = new IngestionService(
-                aiPreferences,
-                shutdownSignal,
-                jabRefEmbeddingModel,
-                mvStoreEmbeddingStore,
-                mvStoreFullyIngestedDocumentsTracker,
-                filePreferences,
-                taskExecutor
-        );
+        this.ingestionService = new IngestionService(aiPreferences, shutdownSignal, jabRefEmbeddingModel,
+                mvStoreEmbeddingStore, mvStoreFullyIngestedDocumentsTracker, filePreferences, taskExecutor);
 
-        this.summariesService = new SummariesService(
-                aiPreferences,
-                mvStoreSummariesStorage,
-                jabRefChatLanguageModel,
-                templatesService,
-                shutdownSignal,
-                filePreferences,
-                taskExecutor
-        );
+        this.summariesService = new SummariesService(aiPreferences, mvStoreSummariesStorage, jabRefChatLanguageModel,
+                templatesService, shutdownSignal, filePreferences, taskExecutor);
     }
 
     public JabRefChatLanguageModel getChatLanguageModel() {
@@ -147,4 +149,5 @@ public class AiService implements AutoCloseable {
         mvStoreEmbeddingStore.close();
         mvStoreSummariesStorage.close();
     }
+
 }

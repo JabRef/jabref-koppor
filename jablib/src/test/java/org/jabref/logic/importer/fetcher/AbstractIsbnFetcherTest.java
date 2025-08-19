@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public abstract class AbstractIsbnFetcherTest {
 
     protected AbstractIsbnFetcher fetcher;
+
     protected BibEntry bibEntryEffectiveJava;
 
     public abstract void testName();
@@ -49,4 +50,5 @@ public abstract class AbstractIsbnFetcherTest {
     public void searchByIdThrowsExceptionForInvalidISBN() {
         assertThrows(FetcherException.class, () -> fetcher.performSearchById("jabref-4-ever"));
     }
+
 }

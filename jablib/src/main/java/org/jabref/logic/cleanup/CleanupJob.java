@@ -12,4 +12,5 @@ public interface CleanupJob {
      * Cleanup the entry.
      */
     List<FieldChange> cleanup(BibEntry entry);
+
 }

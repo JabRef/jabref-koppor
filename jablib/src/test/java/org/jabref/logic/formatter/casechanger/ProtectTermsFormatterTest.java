@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class ProtectTermsFormatterTest {
 
@@ -19,9 +20,8 @@ class ProtectTermsFormatterTest {
 
     @BeforeEach
     void setUp() {
-        formatter = new ProtectTermsFormatter(
-                new ProtectedTermsLoader(new ProtectedTermsPreferences(ProtectedTermsLoader.getInternalLists(),
-                        List.of(), List.of(), List.of())));
+        formatter = new ProtectTermsFormatter(new ProtectedTermsLoader(new ProtectedTermsPreferences(
+                ProtectedTermsLoader.getInternalLists(), List.of(), List.of(), List.of())));
     }
 
     @Test
@@ -56,4 +56,5 @@ class ProtectTermsFormatterTest {
         assertEquals("{Testing {BPEL} Engine Performance: A Survey}",
                 formatter.format("{Testing BPEL Engine Performance: A Survey}"));
     }
+
 }

@@ -17,11 +17,15 @@ import org.jabref.logic.util.io.FileHistory;
 public class FileHistoryMenu extends Menu {
 
     protected final MenuItem clearRecentLibraries;
+
     private final FileHistory history;
+
     private final DialogService dialogService;
+
     private final OpenDatabaseAction openDatabaseAction;
 
-    public FileHistoryMenu(FileHistory fileHistory, DialogService dialogService, OpenDatabaseAction openDatabaseAction) {
+    public FileHistoryMenu(FileHistory fileHistory, DialogService dialogService,
+            OpenDatabaseAction openDatabaseAction) {
         setText(Localization.lang("Recent libraries"));
 
         this.clearRecentLibraries = new MenuItem();
@@ -33,7 +37,8 @@ public class FileHistoryMenu extends Menu {
         this.openDatabaseAction = openDatabaseAction;
         if (history.isEmpty()) {
             setDisable(true);
-        } else {
+        }
+        else {
             setItems();
         }
         history.addListener((InvalidationListener) obs -> setItems());
@@ -41,7 +46,6 @@ public class FileHistoryMenu extends Menu {
 
     /**
      * This method is to use typed letters to access recent libraries in menu.
-     *
      * @param keyEvent a KeyEvent.
      * @return false if typed char is invalid or not a number.
      */
@@ -59,8 +63,8 @@ public class FileHistoryMenu extends Menu {
     }
 
     /**
-     * Adds the filename to the top of the menu. If it already is in
-     * the menu, it is merely moved to the top.
+     * Adds the filename to the top of the menu. If it already is in the menu, it is
+     * merely moved to the top.
      */
     public void newFile(Path file) {
         history.newFile(file);
@@ -73,20 +77,21 @@ public class FileHistoryMenu extends Menu {
         for (int index = 0; index < history.size(); index++) {
             addItem(history.get(index), index + 1);
         }
-        getItems().addAll(
-                new SeparatorMenuItem(),
-                clearRecentLibraries
-        );
+        getItems().addAll(new SeparatorMenuItem(), clearRecentLibraries);
     }
 
     private void addItem(Path file, int num) {
         String number = Integer.toString(num);
         MenuItem item = new MenuItem(number + ". " + file);
-        // By default mnemonic parsing is set to true for anything that is Labeled, if an underscore character
-        // is present, it would create a key combination ALT+the succeeding character (at least for Windows OS)
+        // By default mnemonic parsing is set to true for anything that is Labeled, if an
+        // underscore character
+        // is present, it would create a key combination ALT+the succeeding character (at
+        // least for Windows OS)
         // and the underscore character will be parsed (deleted).
-        // i.e if the file name was called "bib_test.bib", a key combination "ALT+t" will be created
-        // so to avoid this, mnemonic parsing should be set to false to print normally the underscore character.
+        // i.e if the file name was called "bib_test.bib", a key combination "ALT+t" will
+        // be created
+        // so to avoid this, mnemonic parsing should be set to false to print normally the
+        // underscore character.
         item.setMnemonicParsing(false);
         item.setOnAction(event -> openFile(file));
         getItems().add(item);
@@ -94,8 +99,7 @@ public class FileHistoryMenu extends Menu {
 
     public void openFile(Path file) {
         if (!Files.exists(file)) {
-            this.dialogService.showErrorDialogAndWait(
-                    Localization.lang("File not found"),
+            this.dialogService.showErrorDialogAndWait(Localization.lang("File not found"),
                     Localization.lang("File not found") + ": " + file);
             return;
         }
@@ -106,4 +110,5 @@ public class FileHistoryMenu extends Menu {
         history.clear();
         setDisable(true);
     }
+
 }

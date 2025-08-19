@@ -25,4 +25,5 @@ class UiThreadInvalidationListener implements InvalidationListener {
     public int hashCode() {
         return delegate.hashCode();
     }
+
 }

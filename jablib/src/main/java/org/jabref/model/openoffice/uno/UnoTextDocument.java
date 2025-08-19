@@ -30,7 +30,8 @@ public class UnoTextDocument {
         if (!missing) {
             try {
                 UnoReferenceMark.getNameAccess(doc);
-            } catch (NoDocumentException | DisposedException ex) {
+            }
+            catch (NoDocumentException | DisposedException ex) {
                 missing = true;
             }
         }
@@ -71,7 +72,8 @@ public class UnoTextDocument {
             }
             String frameTitleString = String.valueOf(frameTitleObj.get());
             return Optional.ofNullable(frameTitleString);
-        } catch (WrappedTargetException e) {
+        }
+        catch (WrappedTargetException e) {
             LOGGER.warn("Could not get document title", e);
             return Optional.empty();
         }
@@ -79,8 +81,8 @@ public class UnoTextDocument {
 
     static Optional<XDocumentProperties> getDocumentProperties(XTextDocument doc) {
         return Optional.ofNullable(doc)
-                        .flatMap(e -> UnoCast.cast(XDocumentPropertiesSupplier.class, e))
-                        .map(XDocumentPropertiesSupplier::getDocumentProperties);
+            .flatMap(e -> UnoCast.cast(XDocumentPropertiesSupplier.class, e))
+            .map(XDocumentPropertiesSupplier::getDocumentProperties);
     }
-}
 
+}

@@ -30,19 +30,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughOverlay {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughOverlay.class);
 
     private final Map<Window, WindowOverlay> overlays = new HashMap<>();
+
     private final Stage stage;
+
     private final Walkthrough walkthrough;
+
     private final WalkthroughHighlighter walkthroughHighlighter;
+
     private final WalkthroughReverter walkthroughReverter;
+
     private final SideEffectExecutor sideEffectExecutor;
 
     private @Nullable WalkthroughScroller scroller;
+
     private @Nullable WalkthroughResolver resolver;
 
     private Window resolvedWindow;
+
     private Node resolvedNode;
 
     public WalkthroughOverlay(Stage stage, Walkthrough walkthrough) {
@@ -64,7 +72,8 @@ public class WalkthroughOverlay {
 
                 if (sideEffectExecutor.executeForward(sideEffect, walkthrough)) {
                     walkthrough.nextStep();
-                } else {
+                }
+                else {
                     LOGGER.error("Failed to execute side effect: {}", sideEffect.description());
                     LOGGER.warn("Side effect failed for step: {}", title);
                     revertToPreviousStep();
@@ -72,9 +81,7 @@ public class WalkthroughOverlay {
             }
             case VisibleComponent component -> {
                 WindowResolver windowResolver = component.windowResolver().orElse(() -> Optional.of(stage));
-                resolver = new WalkthroughResolver(
-                        windowResolver,
-                        component.nodeResolver().orElse(null),
+                resolver = new WalkthroughResolver(windowResolver, component.nodeResolver().orElse(null),
                         this::handleResolutionResult);
                 resolver.startResolution();
             }
@@ -92,15 +99,14 @@ public class WalkthroughOverlay {
     public void showQuitConfirmationAndQuit() {
         hide();
         DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
-        boolean shouldQuit = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Quit walkthrough"),
+        boolean shouldQuit = dialogService.showConfirmationDialogAndWait(Localization.lang("Quit walkthrough"),
                 Localization.lang("Are you sure you want to quit the walkthrough?"),
-                Localization.lang("Quit walkthrough"),
-                Localization.lang("Continue walkthrough"));
+                Localization.lang("Quit walkthrough"), Localization.lang("Continue walkthrough"));
 
         if (shouldQuit) {
             walkthrough.quit();
-        } else {
+        }
+        else {
             show(walkthrough.getCurrentStep());
         }
     }
@@ -112,7 +118,8 @@ public class WalkthroughOverlay {
     private void handleResolutionResult(WalkthroughResult result) {
         if (result.wasSuccessful()) {
             displayWalkthroughStep(result);
-        } else {
+        }
+        else {
             LOGGER.error("Failed to resolve node for step '{}'. Reverting.", walkthrough.getCurrentStep().title());
             revertToPreviousStep();
         }
@@ -134,9 +141,7 @@ public class WalkthroughOverlay {
             this.scroller = new WalkthroughScroller(resolvedNode);
         }
 
-        walkthroughHighlighter.applyHighlight(
-                component.highlight().orElse(null),
-                resolvedWindow.getScene(),
+        walkthroughHighlighter.applyHighlight(component.highlight().orElse(null), resolvedWindow.getScene(),
                 resolvedNode);
         WindowOverlay overlay = overlays.computeIfAbsent(resolvedWindow,
                 w -> new WindowOverlay(w, WalkthroughPane.getInstance(w), walkthrough));
@@ -174,22 +179,28 @@ public class WalkthroughOverlay {
 
     /// Called before the Navigation to next step occur.
     ///
-    /// 1. Note sometimes node disappear when you click on it (even it's window), consider a menu button on a context
+    /// 1. Note sometimes node disappear when you click on it (even it's window), consider
+    /// a menu button on a context
     /// menu. This lead to moving to next step results in revert to previous step.
-    /// 2. Hide is necessary because [WindowOverlay] have a hack---automatically recover PopOver throughout the course
+    /// 2. Hide is necessary because [WindowOverlay] have a hack---automatically recover
+    /// PopOver throughout the course
     /// when it's supposed to be displayed. That seems harmless, but since we used
-    /// [org.jabref.gui.walkthrough.utils.WalkthroughUtils#debounced(Runnable, long)], the following "race condition"
+    /// [org.jabref.gui.walkthrough.utils.WalkthroughUtils#debounced(Runnable, long)], the
+    /// following "race condition"
     /// can occur:
-    ///     - [#prepareForNavigation()] ran
-    ///     - node hid (original event dispatcher ran)
-    ///     - popover hid
-    ///     - popover restoration scheduled in next 50ms
-    ///     - timeout/delayed execution of walkthrough logic started and finished in 50ms, set popover to hide
-    ///     - new popover show, ALONG WITH the 50ms delayed one -> two popover at once.
+    /// - [#prepareForNavigation()] ran
+    /// - node hid (original event dispatcher ran)
+    /// - popover hid
+    /// - popover restoration scheduled in next 50ms
+    /// - timeout/delayed execution of walkthrough logic started and finished in 50ms, set
+    /// popover to hide
+    /// - new popover show, ALONG WITH the 50ms delayed one -> two popover at once.
     ///
-    /// So the current hack is we will hide [WindowOverlay] so that they won't get hacked restored.
+    /// So the current hack is we will hide [WindowOverlay] so that they won't get hacked
+    /// restored.
     private void prepareForNavigation() {
         walkthroughReverter.detach();
         hide();
     }
+
 }

@@ -6,7 +6,9 @@ import javafx.beans.property.StringProperty;
 import org.jabref.logic.layout.format.NameFormatter;
 
 public class NameFormatterItemModel {
+
     private final StringProperty name = new SimpleStringProperty("");
+
     private final StringProperty format = new SimpleStringProperty("");
 
     NameFormatterItemModel() {
@@ -50,4 +52,5 @@ public class NameFormatterItemModel {
     public String toString() {
         return "[" + name.getValue() + "," + format.getValue() + "]";
     }
+
 }

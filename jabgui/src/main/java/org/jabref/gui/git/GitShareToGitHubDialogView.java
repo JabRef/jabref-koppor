@@ -23,20 +23,37 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;
 
 public class GitShareToGitHubDialogView extends BaseDialog<Void> {
-    private static final String GITHUB_PAT_DOCS_URL =
-            "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens";
+
+    private static final String GITHUB_PAT_DOCS_URL = "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens";
 
     private static final String GITHUB_NEW_REPO_URL = "https://github.com/new";
 
-    @FXML private TextField repositoryUrl;
-    @FXML private TextField username;
-    @FXML private PasswordField personalAccessToken;
-    @FXML private ButtonType shareButton;
-    @FXML private Label patHelpIcon;
-    @FXML private Tooltip patHelpTooltip;
-    @FXML private CheckBox rememberSettingsCheck;
-    @FXML private Label repoHelpIcon;
-    @FXML private Tooltip repoHelpTooltip;
+    @FXML
+    private TextField repositoryUrl;
+
+    @FXML
+    private TextField username;
+
+    @FXML
+    private PasswordField personalAccessToken;
+
+    @FXML
+    private ButtonType shareButton;
+
+    @FXML
+    private Label patHelpIcon;
+
+    @FXML
+    private Tooltip patHelpTooltip;
+
+    @FXML
+    private CheckBox rememberSettingsCheck;
+
+    @FXML
+    private Label repoHelpIcon;
+
+    @FXML
+    private Tooltip repoHelpTooltip;
 
     private GitShareToGitHubDialogViewModel viewModel;
 
@@ -55,14 +72,13 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
 
     public GitShareToGitHubDialogView() {
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
     }
 
     @FXML
     private void initialize() {
-        this.viewModel = new GitShareToGitHubDialogViewModel(preferences.getGitPreferences(), stateManager, dialogService, taskExecutor);
+        this.viewModel = new GitShareToGitHubDialogViewModel(preferences.getGitPreferences(), stateManager,
+                dialogService, taskExecutor);
 
         this.setTitle(Localization.lang("Share this Library to GitHub"));
 
@@ -78,33 +94,20 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
             return null;
         });
 
-        patHelpTooltip.setText(
-                Localization.lang("Click to open GitHub Personal Access Token documentation")
-        );
+        patHelpTooltip.setText(Localization.lang("Click to open GitHub Personal Access Token documentation"));
 
         username.setPromptText(Localization.lang("Your GitHub username"));
         personalAccessToken.setPromptText(Localization.lang("PAT with repo access"));
 
-        repoHelpTooltip.setText(
-                Localization.lang("Create an empty repository on GitHub, then copy the HTTPS URL (ends with .git). Click to open GitHub.")
-        );
+        repoHelpTooltip.setText(Localization.lang(
+                "Create an empty repository on GitHub, then copy the HTTPS URL (ends with .git). Click to open GitHub."));
         Tooltip.install(repoHelpIcon, repoHelpTooltip);
-        repoHelpIcon.setOnMouseClicked(e ->
-                NativeDesktop.openBrowserShowPopup(
-                        GITHUB_NEW_REPO_URL,
-                        dialogService,
-                        preferences.getExternalApplicationsPreferences()
-                )
-        );
+        repoHelpIcon.setOnMouseClicked(e -> NativeDesktop.openBrowserShowPopup(GITHUB_NEW_REPO_URL, dialogService,
+                preferences.getExternalApplicationsPreferences()));
 
         Tooltip.install(patHelpIcon, patHelpTooltip);
-        patHelpIcon.setOnMouseClicked(e ->
-                NativeDesktop.openBrowserShowPopup(
-                        GITHUB_PAT_DOCS_URL,
-                        dialogService,
-                        preferences.getExternalApplicationsPreferences()
-                )
-        );
+        patHelpIcon.setOnMouseClicked(e -> NativeDesktop.openBrowserShowPopup(GITHUB_PAT_DOCS_URL, dialogService,
+                preferences.getExternalApplicationsPreferences()));
 
         repositoryUrl.textProperty().bindBidirectional(viewModel.repositoryUrlProperty());
         username.textProperty().bindBidirectional(viewModel.usernameProperty());
@@ -126,4 +129,5 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
     private void shareToGitHub() {
         viewModel.shareToGitHub(() -> this.close());
     }
+
 }

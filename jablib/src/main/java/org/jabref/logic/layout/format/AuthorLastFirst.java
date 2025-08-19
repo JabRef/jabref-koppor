@@ -9,4 +9,5 @@ public class AuthorLastFirst implements LayoutFormatter {
     public String format(String fieldText) {
         return AuthorList.fixAuthorLastNameFirst(fieldText);
     }
+
 }

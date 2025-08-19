@@ -11,6 +11,7 @@ import com.google.common.collect.Multimap;
 public class LatexBibEntriesResolverResult {
 
     private final LatexParserResults latexParserResults;
+
     private final Set<BibEntry> newEntries;
 
     public LatexBibEntriesResolverResult(LatexParserResults latexParserResults) {
@@ -32,8 +33,7 @@ public class LatexBibEntriesResolverResult {
 
     @Override
     public String toString() {
-        return "TexBibEntriesResolverResult{latexParserResults=%s, newEntries=%s}".formatted(
-                this.latexParserResults,
+        return "TexBibEntriesResolverResult{latexParserResults=%s, newEntries=%s}".formatted(this.latexParserResults,
                 this.newEntries);
     }
 
@@ -57,4 +57,5 @@ public class LatexBibEntriesResolverResult {
     public int hashCode() {
         return Objects.hash(latexParserResults, newEntries);
     }
+
 }

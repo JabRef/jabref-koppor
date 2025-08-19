@@ -32,6 +32,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 public class RisImporter extends Importer {
 
     private static final Pattern RECOGNIZED_FORMAT_PATTERN = Pattern.compile("TY {2}- .*");
+
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
 
     @Override
@@ -56,7 +57,7 @@ public class RisImporter extends Importer {
 
     @Override
     public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
-        // Our strategy is to look for the "TY  - *" line.
+        // Our strategy is to look for the "TY - *" line.
         return reader.lines().anyMatch(line -> RECOGNIZED_FORMAT_PATTERN.matcher(line).find());
     }
 
@@ -67,8 +68,10 @@ public class RisImporter extends Importer {
         // use optional here, so that no exception will be thrown if the file is empty
         String linesAsString = reader.lines().reduce((line, nextline) -> line + "\n" + nextline).orElse("");
 
-        String[] entries = linesAsString.replace("\u2013", "-").replace("\u2014", "--").replace("\u2015", "--")
-                                        .split("ER {2}-.*(\\n)*");
+        String[] entries = linesAsString.replace("\u2013", "-")
+            .replace("\u2014", "--")
+            .replace("\u2015", "--")
+            .split("ER {2}-.*(\\n)*");
 
         // stores all the date tags from highest to lowest priority
         List<String> dateTags = Arrays.asList("Y1", "PY", "DA", "Y2");
@@ -103,14 +106,16 @@ public class RisImporter extends Importer {
                         }
                         current.append(lines[j + 1]);
                         j++;
-                    } else {
+                    }
+                    else {
                         done = true;
                     }
                 }
                 String entry = current.toString();
                 if (entry.length() < 6) {
                     continue;
-                } else {
+                }
+                else {
                     String tag = entry.substring(0, 2);
                     String value = entry.substring(6).trim();
                     if ("TY".equals(tag)) {
@@ -125,135 +130,189 @@ public class RisImporter extends Importer {
                             case "PAT" -> IEEETranEntryType.Patent;
                             default -> StandardEntryType.Misc;
                         };
-                    } else if ("T1".equals(tag) || "TI".equals(tag)) {
+                    }
+                    else if ("T1".equals(tag) || "TI".equals(tag)) {
                         String oldVal = fields.get(StandardField.TITLE);
                         if (oldVal == null) {
                             fields.put(StandardField.TITLE, value);
-                        } else {
+                        }
+                        else {
                             if (oldVal.endsWith(":") || oldVal.endsWith(".") || oldVal.endsWith("?")) {
                                 fields.put(StandardField.TITLE, oldVal + " " + value);
-                            } else {
+                            }
+                            else {
                                 fields.put(StandardField.TITLE, oldVal + ": " + value);
                             }
                         }
-                        fields.put(StandardField.TITLE, fields.get(StandardField.TITLE).replaceAll("\\s+", " ")); // Normalize whitespaces
-                    } else if ("BT".equals(tag)) {
+                        fields.put(StandardField.TITLE, fields.get(StandardField.TITLE).replaceAll("\\s+", " ")); // Normalize
+                                                                                                                  // whitespaces
+                    }
+                    else if ("BT".equals(tag)) {
                         fields.put(StandardField.BOOKTITLE, value);
-                    } else if (("T2".equals(tag) || "J2".equals(tag) || "JA".equals(tag)) && ((fields.get(StandardField.JOURNAL) == null) || "".equals(fields.get(StandardField.JOURNAL)))) {
-                        // if there is no journal title, then put second title as journal title
+                    }
+                    else if (("T2".equals(tag) || "J2".equals(tag) || "JA".equals(tag))
+                            && ((fields.get(StandardField.JOURNAL) == null)
+                                    || "".equals(fields.get(StandardField.JOURNAL)))) {
+                        // if there is no journal title, then put second title as journal
+                        // title
                         fields.put(StandardField.JOURNAL, value);
-                    } else if ("JO".equals(tag) || "J1".equals(tag) || "JF".equals(tag)) {
+                    }
+                    else if ("JO".equals(tag) || "J1".equals(tag) || "JF".equals(tag)) {
                         // if this field appears then this should be the journal title
                         fields.put(StandardField.JOURNAL, value);
-                    } else if ("T3".equals(tag)) {
+                    }
+                    else if ("T3".equals(tag)) {
                         fields.put(StandardField.SERIES, value);
-                    } else if ("AU".equals(tag) || "A1".equals(tag) || "A2".equals(tag) || "A3".equals(tag) || "A4".equals(tag)) {
+                    }
+                    else if ("AU".equals(tag) || "A1".equals(tag) || "A2".equals(tag) || "A3".equals(tag)
+                            || "A4".equals(tag)) {
                         if ("".equals(author)) {
                             author = value;
-                        } else {
+                        }
+                        else {
                             author += " and " + value;
                         }
-                    } else if ("ED".equals(tag)) {
+                    }
+                    else if ("ED".equals(tag)) {
                         if (editor.isEmpty()) {
                             editor = value;
-                        } else {
+                        }
+                        else {
                             editor += " and " + value;
                         }
-                    } else if ("JA".equals(tag) || "JF".equals(tag)) {
+                    }
+                    else if ("JA".equals(tag) || "JF".equals(tag)) {
                         if (type.equals(StandardEntryType.InProceedings)) {
                             fields.put(StandardField.BOOKTITLE, value);
-                        } else {
+                        }
+                        else {
                             fields.put(StandardField.JOURNAL, value);
                         }
-                    } else if ("LA".equals(tag)) {
+                    }
+                    else if ("LA".equals(tag)) {
                         fields.put(StandardField.LANGUAGE, value);
-                    } else if ("CA".equals(tag)) {
+                    }
+                    else if ("CA".equals(tag)) {
                         fields.put(new UnknownField("caption"), value);
-                    } else if ("DB".equals(tag)) {
+                    }
+                    else if ("DB".equals(tag)) {
                         fields.put(new UnknownField("database"), value);
-                    } else if ("IS".equals(tag) || "AN".equals(tag) || "C7".equals(tag) || "M1".equals(tag)) {
+                    }
+                    else if ("IS".equals(tag) || "AN".equals(tag) || "C7".equals(tag) || "M1".equals(tag)) {
                         fields.put(StandardField.NUMBER, value);
-                    } else if ("SP".equals(tag)) {
+                    }
+                    else if ("SP".equals(tag)) {
                         startPage = value;
-                    } else if ("PB".equals(tag)) {
+                    }
+                    else if ("PB".equals(tag)) {
                         if (type.equals(StandardEntryType.PhdThesis)) {
                             fields.put(StandardField.SCHOOL, value);
-                        } else {
+                        }
+                        else {
                             fields.put(StandardField.PUBLISHER, value);
                         }
-                    } else if ("AD".equals(tag) || "CY".equals(tag) || "PP".equals(tag)) {
+                    }
+                    else if ("AD".equals(tag) || "CY".equals(tag) || "PP".equals(tag)) {
                         fields.put(StandardField.ADDRESS, value);
-                    } else if ("EP".equals(tag)) {
+                    }
+                    else if ("EP".equals(tag)) {
                         endPage = value;
                         if (!endPage.isEmpty()) {
                             endPage = "--" + endPage;
                         }
-                    } else if ("ET".equals(tag)) {
+                    }
+                    else if ("ET".equals(tag)) {
                         fields.put(StandardField.EDITION, value);
-                    } else if ("SN".equals(tag)) {
+                    }
+                    else if ("SN".equals(tag)) {
                         fields.put(StandardField.ISSN, value);
-                    } else if ("VL".equals(tag)) {
+                    }
+                    else if ("VL".equals(tag)) {
                         fields.put(StandardField.VOLUME, value);
-                    } else if ("N2".equals(tag) || "AB".equals(tag)) {
+                    }
+                    else if ("N2".equals(tag) || "AB".equals(tag)) {
                         if (!abstractContent.toString().equals(value)) {
                             abstractContent.add(value);
                         }
-                    } else if ("UR".equals(tag) || "L2".equals(tag) || "LK".equals(tag)) {
+                    }
+                    else if ("UR".equals(tag) || "L2".equals(tag) || "LK".equals(tag)) {
                         fields.put(StandardField.URL, value);
-                    } else if (((tagPriority = dateTags.indexOf(tag)) != -1) && (value.length() >= 4)) {
+                    }
+                    else if (((tagPriority = dateTags.indexOf(tag)) != -1) && (value.length() >= 4)) {
                         if (tagPriority < datePriority) {
                             String readYear = value.substring(0, 4);
                             try {
                                 Year.parse(readYear, YEAR_FORMATTER);
-                                // if the year is parseable we have found a higher priority date
+                                // if the year is parseable we have found a higher
+                                // priority date
                                 dateTag = tag;
                                 dateValue = value;
                                 datePriority = tagPriority;
-                            } catch (DateTimeParseException ex) {
+                            }
+                            catch (DateTimeParseException ex) {
                                 // We cannot parse the year, we store as is
                                 year = readYear;
                             }
                         }
-                    } else if ("KW".equals(tag)) {
+                    }
+                    else if ("KW".equals(tag)) {
                         if (fields.containsKey(StandardField.KEYWORDS)) {
                             fields.compute(StandardField.KEYWORDS, (_, kw) -> kw + ", " + value);
-                        } else {
+                        }
+                        else {
                             fields.put(StandardField.KEYWORDS, value);
                         }
-                    } else if ("U1".equals(tag) || "U2".equals(tag) || "N1".equals(tag)) {
+                    }
+                    else if ("U1".equals(tag) || "U2".equals(tag) || "N1".equals(tag)) {
                         comment.add(value);
-                    } else if ("M3".equals(tag) || "DO".equals(tag)) {
+                    }
+                    else if ("M3".equals(tag) || "DO".equals(tag)) {
                         addDoi(fields, value);
-                    } else if ("C3".equals(tag)) {
+                    }
+                    else if ("C3".equals(tag)) {
                         fields.put(StandardField.EVENTTITLE, value);
-                    } else if ("N1".equals(tag) || "RN".equals(tag)) {
+                    }
+                    else if ("N1".equals(tag) || "RN".equals(tag)) {
                         fields.put(StandardField.NOTE, value);
-                    } else if ("ST".equals(tag)) {
+                    }
+                    else if ("ST".equals(tag)) {
                         fields.put(StandardField.SHORTTITLE, value);
-                    } else if ("C2".equals(tag)) {
+                    }
+                    else if ("C2".equals(tag)) {
                         fields.put(StandardField.EPRINT, value);
                         fields.put(StandardField.EPRINTTYPE, "pubmed");
-                    } else if ("TA".equals(tag)) {
+                    }
+                    else if ("TA".equals(tag)) {
                         fields.put(StandardField.TRANSLATOR, value);
 
-                        // fields for which there is no direct mapping in the bibtext standard
-                    } else if ("AV".equals(tag)) {
+                        // fields for which there is no direct mapping in the bibtext
+                        // standard
+                    }
+                    else if ("AV".equals(tag)) {
                         fields.put(new UnknownField("archive_location"), value);
-                    } else if ("CN".equals(tag) || "VO".equals(tag)) {
+                    }
+                    else if ("CN".equals(tag) || "VO".equals(tag)) {
                         fields.put(new UnknownField("call-number"), value);
-                    } else if ("DB".equals(tag)) {
+                    }
+                    else if ("DB".equals(tag)) {
                         fields.put(new UnknownField("archive"), value);
-                    } else if ("NV".equals(tag)) {
+                    }
+                    else if ("NV".equals(tag)) {
                         fields.put(new UnknownField("number-of-volumes"), value);
-                    } else if ("OP".equals(tag)) {
+                    }
+                    else if ("OP".equals(tag)) {
                         fields.put(new UnknownField("original-title"), value);
-                    } else if ("RI".equals(tag)) {
+                    }
+                    else if ("RI".equals(tag)) {
                         fields.put(new UnknownField("reviewed-title"), value);
-                    } else if ("RP".equals(tag)) {
+                    }
+                    else if ("RP".equals(tag)) {
                         fields.put(new UnknownField("status"), value);
-                    } else if ("SE".equals(tag)) {
+                    }
+                    else if ("SE".equals(tag)) {
                         fields.put(new UnknownField("section"), value);
-                    } else if ("ID".equals(tag)) {
+                    }
+                    else if ("ID".equals(tag)) {
                         fields.put(new UnknownField("refid"), value);
                     }
                 }
@@ -283,11 +342,13 @@ public class RisImporter extends Importer {
                     try {
                         int monthNumber = Integer.parseInt(parts[1]);
                         month = Month.getMonthByNumber(monthNumber);
-                    } catch (NumberFormatException ex) {
+                    }
+                    catch (NumberFormatException ex) {
                         // The month part is unparseable, so we ignore it.
                     }
                 }
-            } else if (!year.isEmpty()) {
+            }
+            else if (!year.isEmpty()) {
                 fields.put(StandardField.YEAR, year);
             }
 
@@ -297,15 +358,17 @@ public class RisImporter extends Importer {
             // Create final entry
             BibEntry entry = new BibEntry(type);
             entry.setField(fields);
-            // month has a special treatment as we use the separate method "setMonth" of BibEntry instead of directly setting the value
+            // month has a special treatment as we use the separate method "setMonth" of
+            // BibEntry instead of directly setting the value
             month.ifPresent(entry::setMonth);
             bibEntries.add(entry);
         }
         return new ParserResult(bibEntries);
     }
 
-  private void addDoi(Map<Field, String> hm, String val) {
-      Optional<DOI> parsedDoi = DOI.parse(val);
-      parsedDoi.ifPresent(doi -> hm.put(StandardField.DOI, doi.asString()));
-  }
+    private void addDoi(Map<Field, String> hm, String val) {
+        Optional<DOI> parsedDoi = DOI.parse(val);
+        parsedDoi.ifPresent(doi -> hm.put(StandardField.DOI, doi.asString()));
+    }
+
 }

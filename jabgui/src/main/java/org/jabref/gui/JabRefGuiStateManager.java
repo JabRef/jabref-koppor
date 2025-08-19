@@ -52,43 +52,80 @@ import org.slf4j.LoggerFactory;
  * This class manages the GUI-state of JabRef, including:
  *
  * <ul>
- *   <li>currently selected database</li>
- *   <li>currently selected group</li>
- *   <li>active search</li>
- *   <li>active number of search results</li>
- *   <li>focus owner</li>
- *   <li>dialog window sizes/positions</li>
- *   <li>opened AI chat window (controlled by {@link org.jabref.logic.ai.AiService})</li>
+ * <li>currently selected database</li>
+ * <li>currently selected group</li>
+ * <li>active search</li>
+ * <li>active number of search results</li>
+ * <li>focus owner</li>
+ * <li>dialog window sizes/positions</li>
+ * <li>opened AI chat window (controlled by {@link org.jabref.logic.ai.AiService})</li>
  * </ul>
  */
 public class JabRefGuiStateManager implements StateManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefGuiStateManager.class);
+
     private final CustomLocalDragboard localDragboard = new CustomLocalDragboard();
+
     private final ObservableList<BibDatabaseContext> openDatabases = FXCollections.observableArrayList();
+
     private final OptionalObjectProperty<BibDatabaseContext> activeDatabase = OptionalObjectProperty.empty();
+
     private final OptionalObjectProperty<LibraryTab> activeTab = OptionalObjectProperty.empty();
+
     private final ObservableList<BibEntry> selectedEntries = FXCollections.observableArrayList();
-    private final ObservableMap<String, ObservableList<GroupTreeNode>> selectedGroups = FXCollections.observableHashMap();
+
+    private final ObservableMap<String, ObservableList<GroupTreeNode>> selectedGroups = FXCollections
+        .observableHashMap();
+
     private final ObservableMap<String, IndexManager> indexManagers = FXCollections.observableHashMap();
+
     private final OptionalObjectProperty<SearchQuery> activeSearchQuery = OptionalObjectProperty.empty();
+
     private final OptionalObjectProperty<SearchQuery> activeGlobalSearchQuery = OptionalObjectProperty.empty();
+
     private final StringProperty searchQueryProperty = new SimpleStringProperty();
+
     private final IntegerProperty searchResultSize = new SimpleIntegerProperty(0);
+
     private final IntegerProperty globalSearchResultSize = new SimpleIntegerProperty(0);
+
     private final OptionalObjectProperty<Node> focusOwner = OptionalObjectProperty.empty();
-    private final ObservableList<Pair<BackgroundTask<?>, Task<?>>> backgroundTasksPairs = FXCollections.observableArrayList(task -> new Observable[] {task.getValue().progressProperty(), task.getValue().runningProperty()});
+
+    private final ObservableList<Pair<BackgroundTask<?>, Task<?>>> backgroundTasksPairs = FXCollections
+        .observableArrayList(
+                task -> new Observable[] { task.getValue().progressProperty(), task.getValue().runningProperty() });
+
     private final ObservableList<Task<?>> backgroundTasks = EasyBind.map(backgroundTasksPairs, Pair::getValue);
+
     private final FilteredList<Task<?>> runningBackgroundTasks = new FilteredList<>(backgroundTasks, Task::isRunning);
-    private final BooleanBinding anyTaskRunning = Bindings.createBooleanBinding(() -> !runningBackgroundTasks.isEmpty(), runningBackgroundTasks);
-    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(backgroundTasksPairs, tasks -> tasks.anyMatch(task -> !task.getKey().willBeRecoveredAutomatically() && task.getValue().isRunning()));
-    private final EasyBinding<Double> tasksProgress = EasyBind.reduce(backgroundTasksPairs, tasks -> tasks.map(Pair::getValue).filter(Task::isRunning).mapToDouble(Task::getProgress).average().orElse(1));
+
+    private final BooleanBinding anyTaskRunning = Bindings.createBooleanBinding(() -> !runningBackgroundTasks.isEmpty(),
+            runningBackgroundTasks);
+
+    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(backgroundTasksPairs,
+            tasks -> tasks
+                .anyMatch(task -> !task.getKey().willBeRecoveredAutomatically() && task.getValue().isRunning()));
+
+    private final EasyBinding<Double> tasksProgress = EasyBind.reduce(backgroundTasksPairs,
+            tasks -> tasks.map(Pair::getValue)
+                .filter(Task::isRunning)
+                .mapToDouble(Task::getProgress)
+                .average()
+                .orElse(1));
+
     private final ObservableMap<String, DialogWindowState> dialogWindowStates = FXCollections.observableHashMap();
+
     private final ObservableList<SidePaneType> visibleSidePanes = FXCollections.observableArrayList();
+
     private final ObjectProperty<LastAutomaticFieldEditorEdit> lastAutomaticFieldEditorEdit = new SimpleObjectProperty<>();
+
     private final ObservableList<String> searchHistory = FXCollections.observableArrayList();
+
     private final List<AiChatWindow> aiChatWindows = new ArrayList<>();
+
     private final BooleanProperty editorShowing = new SimpleBooleanProperty(false);
+
     private final OptionalObjectProperty<Walkthrough> activeWalkthrough = OptionalObjectProperty.empty();
 
     @Override
@@ -144,7 +181,8 @@ public class JabRefGuiStateManager implements StateManager {
     @Override
     public void setSelectedGroups(BibDatabaseContext context, List<GroupTreeNode> newSelectedGroups) {
         Objects.requireNonNull(newSelectedGroups);
-        selectedGroups.computeIfAbsent(context.getUid(), k -> FXCollections.observableArrayList()).setAll(newSelectedGroups);
+        selectedGroups.computeIfAbsent(context.getUid(), k -> FXCollections.observableArrayList())
+            .setAll(newSelectedGroups);
     }
 
     @Override
@@ -177,7 +215,8 @@ public class JabRefGuiStateManager implements StateManager {
         if (database == null) {
             LOGGER.info("No open database detected");
             activeDatabaseProperty().set(Optional.empty());
-        } else {
+        }
+        else {
             activeDatabaseProperty().set(Optional.of(database));
         }
     }
@@ -246,10 +285,9 @@ public class JabRefGuiStateManager implements StateManager {
     public List<String> getAllDatabasePaths() {
         List<String> list = new ArrayList<>();
         getOpenDatabases().stream()
-                          .map(BibDatabaseContext::getDatabasePath)
-                          .forEachOrdered(pathOptional -> pathOptional.ifPresentOrElse(
-                                  path -> list.add(path.toAbsolutePath().toString()),
-                                  () -> list.add("")));
+            .map(BibDatabaseContext::getDatabasePath)
+            .forEachOrdered(pathOptional -> pathOptional
+                .ifPresentOrElse(path -> list.add(path.toAbsolutePath().toString()), () -> list.add("")));
         return list;
     }
 
@@ -307,4 +345,5 @@ public class JabRefGuiStateManager implements StateManager {
     public Optional<Walkthrough> getActiveWalkthrough() {
         return activeWalkthrough.get();
     }
+
 }

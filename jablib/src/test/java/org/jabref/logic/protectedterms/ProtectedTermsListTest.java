@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ProtectedTermsListTest {
 
     private ProtectedTermsList internalList;
+
     private ProtectedTermsList externalList;
 
     @BeforeEach
@@ -97,4 +98,5 @@ class ProtectedTermsListTest {
         externalList.addProtectedTerm("CCC");
         assertTrue(externalList.getTermList().contains("CCC"));
     }
+
 }

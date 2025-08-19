@@ -27,55 +27,57 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * This tests the writing to a PDF. If the creation of the RDF content should be checked, please head to {@link org.jabref.logic.exporter.XmpExporterTest}
+ * This tests the writing to a PDF. If the creation of the RDF content should be checked,
+ * please head to {@link org.jabref.logic.exporter.XmpExporterTest}
  */
 class XmpUtilWriterTest {
 
     @TempDir
     private Path tempDir;
 
-    private final BibEntry olly2018 = new BibEntry(StandardEntryType.Article)
-            .withCitationKey("Olly2018")
-            .withField(StandardField.AUTHOR, "Olly and Johannes")
-            .withField(StandardField.TITLE, "Stefan's palace")
-            .withField(StandardField.JOURNAL, "Test Journal")
-            .withField(StandardField.VOLUME, "1")
-            .withField(StandardField.NUMBER, "1")
-            .withField(StandardField.PAGES, "1-2")
-            .withMonth(Month.MARCH)
-            .withField(StandardField.ISSN, "978-123-123")
-            .withField(StandardField.NOTE, "NOTE")
-            .withField(StandardField.ABSTRACT, "ABSTRACT")
-            .withField(StandardField.COMMENT, "COMMENT")
-            .withField(StandardField.DOI, "10/3212.3123")
-            .withField(StandardField.FILE, ":article_dublinCore.pdf:PDF")
-            .withField(StandardField.GROUPS, "NO")
-            .withField(StandardField.HOWPUBLISHED, "online")
-            .withField(StandardField.KEYWORDS, "k1, k2")
-            .withField(StandardField.OWNER, "me")
-            .withField(StandardField.REVIEW, "review")
-            .withField(StandardField.URL, "https://www.olly2018.edu");
+    private final BibEntry olly2018 = new BibEntry(StandardEntryType.Article).withCitationKey("Olly2018")
+        .withField(StandardField.AUTHOR, "Olly and Johannes")
+        .withField(StandardField.TITLE, "Stefan's palace")
+        .withField(StandardField.JOURNAL, "Test Journal")
+        .withField(StandardField.VOLUME, "1")
+        .withField(StandardField.NUMBER, "1")
+        .withField(StandardField.PAGES, "1-2")
+        .withMonth(Month.MARCH)
+        .withField(StandardField.ISSN, "978-123-123")
+        .withField(StandardField.NOTE, "NOTE")
+        .withField(StandardField.ABSTRACT, "ABSTRACT")
+        .withField(StandardField.COMMENT, "COMMENT")
+        .withField(StandardField.DOI, "10/3212.3123")
+        .withField(StandardField.FILE, ":article_dublinCore.pdf:PDF")
+        .withField(StandardField.GROUPS, "NO")
+        .withField(StandardField.HOWPUBLISHED, "online")
+        .withField(StandardField.KEYWORDS, "k1, k2")
+        .withField(StandardField.OWNER, "me")
+        .withField(StandardField.REVIEW, "review")
+        .withField(StandardField.URL, "https://www.olly2018.edu");
 
     private final BibEntry toral2006 = new BibEntry(StandardEntryType.InProceedings)
-            .withField(StandardField.AUTHOR, "Antonio Toral and Rafael Munoz")
-            .withField(StandardField.TITLE, "A proposal to automatically build and maintain gazetteers for Named Entity Recognition by using Wikipedia")
-            .withField(StandardField.BOOKTITLE, "Proceedings of EACL")
-            .withField(StandardField.PAGES, "56--61")
-            .withField(StandardField.EPRINTTYPE, "asdf")
-            .withField(StandardField.OWNER, "Ich")
-            .withField(StandardField.URL, "www.url.de");
-    private final BibEntry vapnik2000 = new BibEntry(StandardEntryType.Book)
-            .withCitationKey("vapnik2000")
-            .withField(StandardField.TITLE, "The Nature of Statistical Learning Theory")
-            .withField(StandardField.PUBLISHER, "Springer Science + Business Media")
-            .withField(StandardField.AUTHOR, "Vladimir N. Vapnik")
-            .withField(StandardField.DOI, "10.1007/978-1-4757-3264-1")
-            .withField(StandardField.OWNER, "Ich")
-            .withField(StandardField.LANGUAGE, "English, Japanese")
-            .withDate(new Date(2000, 5))
-            .withField(new UnknownField(DC_COVERAGE), "coverageField")
-            .withField(new UnknownField(DC_SOURCE), "JabRef")
-            .withField(new UnknownField(DC_RIGHTS), "Right To X");
+        .withField(StandardField.AUTHOR, "Antonio Toral and Rafael Munoz")
+        .withField(StandardField.TITLE,
+                "A proposal to automatically build and maintain gazetteers for Named Entity Recognition by using Wikipedia")
+        .withField(StandardField.BOOKTITLE, "Proceedings of EACL")
+        .withField(StandardField.PAGES, "56--61")
+        .withField(StandardField.EPRINTTYPE, "asdf")
+        .withField(StandardField.OWNER, "Ich")
+        .withField(StandardField.URL, "www.url.de");
+
+    private final BibEntry vapnik2000 = new BibEntry(StandardEntryType.Book).withCitationKey("vapnik2000")
+        .withField(StandardField.TITLE, "The Nature of Statistical Learning Theory")
+        .withField(StandardField.PUBLISHER, "Springer Science + Business Media")
+        .withField(StandardField.AUTHOR, "Vladimir N. Vapnik")
+        .withField(StandardField.DOI, "10.1007/978-1-4757-3264-1")
+        .withField(StandardField.OWNER, "Ich")
+        .withField(StandardField.LANGUAGE, "English, Japanese")
+        .withDate(new Date(2000, 5))
+        .withField(new UnknownField(DC_COVERAGE), "coverageField")
+        .withField(new UnknownField(DC_SOURCE), "JabRef")
+        .withField(new UnknownField(DC_RIGHTS), "Right To X");
+
     private XmpPreferences xmpPreferences;
 
     @BeforeEach
@@ -125,7 +127,8 @@ class XmpUtilWriterTest {
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), entries, null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
 
-        // the file field is not written - and the read file field contains the PDF file name
+        // the file field is not written - and the read file field contains the PDF file
+        // name
         // thus, we do not need to compare
         entries.forEach(entry -> entry.clearField(StandardField.FILE));
         entryList.forEach(entry -> entry.clearField(StandardField.FILE));
@@ -140,7 +143,8 @@ class XmpUtilWriterTest {
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), entries, null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
 
-        // the file field is not written - and the read file field contains the PDF file name
+        // the file field is not written - and the read file field contains the PDF file
+        // name
         // thus, we do not need to compare
         entries.forEach(entry -> entry.clearField(StandardField.FILE));
         entryList.forEach(entry -> entry.clearField(StandardField.FILE));
@@ -151,23 +155,20 @@ class XmpUtilWriterTest {
     @Test
     void proctingBracesAreRemovedAtTitle(@TempDir Path tempDir) throws IOException, TransformerException {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
-        BibEntry original = new BibEntry()
-                .withField(StandardField.TITLE, "Some {P}rotected {T}erm");
+        BibEntry original = new BibEntry().withField(StandardField.TITLE, "Some {P}rotected {T}erm");
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), List.of(original), null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
 
         entryList.forEach(entry -> entry.clearField(StandardField.FILE));
 
-        BibEntry expected = new BibEntry()
-                .withField(StandardField.TITLE, "Some Protected Term");
+        BibEntry expected = new BibEntry().withField(StandardField.TITLE, "Some Protected Term");
         assertEquals(List.of(expected), entryList);
     }
 
     @Test
     void proctingBracesAreKeptAtPages(@TempDir Path tempDir) throws IOException, TransformerException {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
-        BibEntry original = new BibEntry()
-                .withField(StandardField.PAGES, "{55}-{99}");
+        BibEntry original = new BibEntry().withField(StandardField.PAGES, "{55}-{99}");
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), List.of(original), null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
 
@@ -179,8 +180,7 @@ class XmpUtilWriterTest {
     @Test
     void doubleDashAtPageNumberIsKept(@TempDir Path tempDir) throws IOException, TransformerException {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
-        BibEntry original = new BibEntry()
-                .withField(StandardField.PAGES, "2--33");
+        BibEntry original = new BibEntry().withField(StandardField.PAGES, "2--33");
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), List.of(original), null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
 
@@ -213,4 +213,5 @@ class XmpUtilWriterTest {
         }
         return pdfFile;
     }
+
 }

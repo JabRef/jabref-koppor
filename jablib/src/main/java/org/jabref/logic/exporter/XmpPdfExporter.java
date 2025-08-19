@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class XmpPdfExporter extends Exporter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(XmpPdfExporter.class);
 
     private final XmpPreferences xmpPreferences;
@@ -34,7 +35,8 @@ public class XmpPdfExporter extends Exporter {
     }
 
     @Override
-    public void export(BibDatabaseContext databaseContext, Path pdfFile, List<BibEntry> entries) throws IOException, TransformerException {
+    public void export(BibDatabaseContext databaseContext, Path pdfFile, List<BibEntry> entries)
+            throws IOException, TransformerException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(pdfFile);
         Objects.requireNonNull(entries);
@@ -50,14 +52,17 @@ public class XmpPdfExporter extends Exporter {
                     contentStream.beginText();
                     contentStream.newLineAtOffset(25, 500);
                     contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                    contentStream.showText("This PDF was created by JabRef. It demonstrates the embedding of XMP data in PDF files. Please open the file metadata view of your PDF viewer to see the attached files. Note that the normal usage is to embed the BibTeX data in an existing PDF.");
+                    contentStream.showText(
+                            "This PDF was created by JabRef. It demonstrates the embedding of XMP data in PDF files. Please open the file metadata view of your PDF viewer to see the attached files. Note that the normal usage is to embed the BibTeX data in an existing PDF.");
                     contentStream.endText();
                 }
                 document.save(filePath.toString());
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Could not create PDF file", e);
             }
             new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile, entries, databaseContext.getDatabase());
         }
     }
+
 }

@@ -29,23 +29,30 @@ public class StringUtil {
 
     // Non-letters which are used to denote accents in LaTeX-commands, e.g., in {\"{a}}
     public static final String SPECIAL_COMMAND_CHARS = "\"`^~'=.|";
+
     // contains all possible line breaks, not omitting any break such as "\\n"
     private static final Pattern LINE_BREAKS = Pattern.compile("\\r\\n|\\r|\\n");
+
     private static final Pattern BRACED_TITLE_CAPITAL_PATTERN = Pattern.compile("\\{[A-Z]+\\}");
 
     /**
      * Pattern for normalizing whitespace and punctuation using named capture groups
      */
-    private static final Pattern NORMALIZE_PATTERN = Pattern.compile(
-            "(?<whitespace>\\s+)|" +                   // multiple whitespace
-                    "(?<hyphen>\\s*-+\\s*)|" +         // hyphens with surrounding spaces
-                    "(?<comma>\\s*,\\s*)|" +           // commas with surrounding spaces
-                    "(?<semicolon>\\s*;\\s*)|" +       // semicolons with surrounding spaces
-                    "(?<colon>\\s*:\\s*)"              // colons with surrounding spaces
+    private static final Pattern NORMALIZE_PATTERN = Pattern.compile("(?<whitespace>\\s+)|" + // multiple
+                                                                                              // whitespace
+            "(?<hyphen>\\s*-+\\s*)|" + // hyphens with surrounding spaces
+            "(?<comma>\\s*,\\s*)|" + // commas with surrounding spaces
+            "(?<semicolon>\\s*;\\s*)|" + // semicolons with surrounding spaces
+            "(?<colon>\\s*:\\s*)" // colons with surrounding spaces
     );
 
     private static final UnicodeToReadableCharMap UNICODE_CHAR_MAP = new UnicodeToReadableCharMap();
-    private static final String WRAPPED_LINE_PREFIX = ""; // If a line break is added, this prefix will be inserted at the beginning of the next line
+
+    private static final String WRAPPED_LINE_PREFIX = ""; // If a line break is added,
+                                                          // this prefix will be inserted
+                                                          // at the beginning of the next
+                                                          // line
+
     private static final String STRING_TABLE_DELIMITER = " : ";
 
     public static String booleanToBinaryString(boolean expression) {
@@ -54,11 +61,12 @@ public class StringUtil {
 
     /**
      * Quote special characters.
-     *
-     * @param toQuote   The String which may contain special characters.
-     * @param specials  A String containing all special characters except the quoting character itself, which is automatically quoted.
+     * @param toQuote The String which may contain special characters.
+     * @param specials A String containing all special characters except the quoting
+     * character itself, which is automatically quoted.
      * @param quoteChar The quoting character.
-     * @return A String with every special character (including the quoting character itself) quoted.
+     * @return A String with every special character (including the quoting character
+     * itself) quoted.
      */
     public static String quote(String toQuote, String specials, char quoteChar) {
         if (toQuote == null) {
@@ -107,7 +115,8 @@ public class StringUtil {
             }
             if ((c == '}') && (--count < 0)) {
                 break;
-            } else if (c == '{') {
+            }
+            else if (c == '{') {
                 count++;
             }
             part.append(c);
@@ -117,8 +126,8 @@ public class StringUtil {
     }
 
     /**
-     * Returns the string, after shaving off whitespace at the beginning and end,
-     * and removing (at most) one pair of braces or " surrounding it.
+     * Returns the string, after shaving off whitespace at the beginning and end, and
+     * removing (at most) one pair of braces or " surrounding it.
      */
     public static String shaveString(String toShave) {
         if ((toShave == null) || (toShave.isEmpty())) {
@@ -132,15 +141,13 @@ public class StringUtil {
     }
 
     /**
-     * Concatenate all strings in the array from index 'from' to 'to' (excluding
-     * to) with the given separator.
+     * Concatenate all strings in the array from index 'from' to 'to' (excluding to) with
+     * the given separator.
      * <p>
      * Example:
      * <p>
-     * String[] s = "ab/cd/ed".split("/"); join(s, "\\", 0, s.length) ->
-     * "ab\\cd\\ed"
-     *
-     * @param to        Excluding strings[to]
+     * String[] s = "ab/cd/ed".split("/"); join(s, "\\", 0, s.length) -> "ab\\cd\\ed"
+     * @param to Excluding strings[to]
      */
     public static String join(String[] strings, String separator, int from, int to) {
         if ((strings.length == 0) || (from >= to)) {
@@ -168,8 +175,7 @@ public class StringUtil {
     }
 
     /**
-     * extends the filename with a default Extension, if no Extension '.x' could
-     * be found
+     * extends the filename with a default Extension, if no Extension '.x' could be found
      */
     public static String getCorrectFileName(String orgName, String defaultExtension) {
         if (orgName == null) {
@@ -189,29 +195,31 @@ public class StringUtil {
     }
 
     /**
-     * Formats field contents for output. Must be "symmetric" with the parse method above, so stored and reloaded fields
-     * are not mangled.
-     *
-     * @param in         the string to wrap
+     * Formats field contents for output. Must be "symmetric" with the parse method above,
+     * so stored and reloaded fields are not mangled.
+     * @param in the string to wrap
      * @param wrapAmount the number of characters belonging to a line of text
-     * @param newline    the newline character(s)
+     * @param newline the newline character(s)
      * @return the wrapped string
      */
     public static String wrap(String in, int wrapAmount, String newline) {
         String[] lines = in.split("\n");
         StringBuilder result = new StringBuilder();
-        // remove all whitespace at the end of the string, this especially includes \r created when the field content has \r\n as line separator
+        // remove all whitespace at the end of the string, this especially includes \r
+        // created when the field content has \r\n as line separator
         addWrappedLine(result, CharMatcher.whitespace().trimTrailingFrom(lines[0]), wrapAmount, newline);
         for (int i = 1; i < lines.length; i++) {
             if (lines[i].trim().isEmpty()) {
                 result.append(newline);
                 result.append('\t');
-            } else {
+            }
+            else {
                 result.append(newline);
                 result.append('\t');
                 result.append(newline);
                 result.append('\t');
-                // remove all whitespace at the end of the string, this especially includes \r created when the field content has \r\n as line separator
+                // remove all whitespace at the end of the string, this especially
+                // includes \r created when the field content has \r\n as line separator
                 String line = CharMatcher.whitespace().trimTrailingFrom(lines[i]);
                 addWrappedLine(result, line, wrapAmount, newline);
             }
@@ -220,11 +228,10 @@ public class StringUtil {
     }
 
     /**
-     * Appends a text to a string builder. Wraps the text so that each line is approx wrapAmount characters long.
-     * Wrapping is done using newline and tab character.
-     *
-     * @param line          the line of text to be wrapped and appended
-     * @param wrapAmount    the number of characters belonging to a line of text
+     * Appends a text to a string builder. Wraps the text so that each line is approx
+     * wrapAmount characters long. Wrapping is done using newline and tab character.
+     * @param line the line of text to be wrapped and appended
+     * @param wrapAmount the number of characters belonging to a line of text
      * @param newlineString a string containing the newline character(s)
      */
     private static void addWrappedLine(StringBuilder result, String line, int wrapAmount, String newlineString) {
@@ -233,7 +240,8 @@ public class StringUtil {
         // Add the line, unmodified:
         result.append(line);
 
-        // insert newlines and one tab character at each position, where wrapping is necessary
+        // insert newlines and one tab character at each position, where wrapping is
+        // necessary
         while (length < result.length()) {
             int current = result.indexOf(" ", length + wrapAmount);
             if ((current < 0) || (current >= result.length())) {
@@ -247,8 +255,8 @@ public class StringUtil {
     }
 
     /**
-     * Quotes each and every character, e.g. '!' as &#33;. Used for verbatim
-     * display of arbitrary strings that may contain HTML entities.
+     * Quotes each and every character, e.g. '!' as &#33;. Used for verbatim display of
+     * arbitrary strings that may contain HTML entities.
      */
     public static String quoteForHTML(String toQuote) {
         StringBuilder result = new StringBuilder();
@@ -259,10 +267,8 @@ public class StringUtil {
     }
 
     /**
-     * Decodes an encoded double String array back into array form. The array
-     * is assumed to be square, and delimited by the characters ';' (first dim) and
-     * ':' (second dim).
-     *
+     * Decodes an encoded double String array back into array form. The array is assumed
+     * to be square, and delimited by the characters ';' (first dim) and ':' (second dim).
      * @param value The encoded String to be decoded.
      * @return The decoded String array.
      */
@@ -276,15 +282,18 @@ public class StringUtil {
             if (!escaped && (c == '\\')) {
                 escaped = true;
                 continue;
-            } else if (!escaped && (c == ':')) {
+            }
+            else if (!escaped && (c == ':')) {
                 thisEntry.add(sb.toString());
                 sb = new StringBuilder();
-            } else if (!escaped && (c == ';')) {
+            }
+            else if (!escaped && (c == ';')) {
                 thisEntry.add(sb.toString());
                 sb = new StringBuilder();
                 newList.add(thisEntry);
                 thisEntry = new ArrayList<>();
-            } else {
+            }
+            else {
                 sb.append(c);
             }
             escaped = false;
@@ -308,10 +317,9 @@ public class StringUtil {
     }
 
     /**
-     * Wrap all uppercase letters, or sequences of uppercase letters, in curly
-     * braces. Ignore letters within a pair of # character, as these are part of
-     * a string label that should not be modified.
-     *
+     * Wrap all uppercase letters, or sequences of uppercase letters, in curly braces.
+     * Ignore letters within a pair of # character, as these are part of a string label
+     * that should not be modified.
      * @param s The string to modify.
      * @return The resulting string after wrapping capitals.
      */
@@ -326,9 +334,11 @@ public class StringUtil {
             int c = s.charAt(i);
             if (c == '{') {
                 inBrace++;
-            } else if (c == '}') {
+            }
+            else if (c == '}') {
                 inBrace--;
-            } else if (!escaped && (c == FieldWriter.BIBTEX_STRING_START_END_SYMBOL)) {
+            }
+            else if (!escaped && (c == FieldWriter.BIBTEX_STRING_START_END_SYMBOL)) {
                 inString = !inString;
             }
 
@@ -360,10 +370,9 @@ public class StringUtil {
     }
 
     /**
-     * This method looks for occurrences of capital letters enclosed in an
-     * arbitrary number of pairs of braces, e.g. "{AB}" or "{{T}}". All of these
-     * pairs of braces are removed.
-     *
+     * This method looks for occurrences of capital letters enclosed in an arbitrary
+     * number of pairs of braces, e.g. "{AB}" or "{{T}}". All of these pairs of braces are
+     * removed.
      * @param s The String to analyze.
      * @return A new String with braces removed.
      */
@@ -377,10 +386,9 @@ public class StringUtil {
     }
 
     /**
-     * This method looks for occurrences of capital letters enclosed in one pair
-     * of braces, e.g. "{AB}". All these are replaced by only the capitals in
-     * between the braces.
-     *
+     * This method looks for occurrences of capital letters enclosed in one pair of
+     * braces, e.g. "{AB}". All these are replaced by only the capitals in between the
+     * braces.
      * @param s The String to analyze.
      * @return A new String with braces removed.
      */
@@ -396,17 +404,16 @@ public class StringUtil {
     }
 
     /**
-     * Replaces all platform-dependent line breaks by OS.NEWLINE line breaks.
-     * AKA normalize newlines
+     * Replaces all platform-dependent line breaks by OS.NEWLINE line breaks. AKA
+     * normalize newlines
      * <p>
-     * We do NOT use UNIX line breaks as the user explicitly configures its linebreaks and this method is used in bibtex field writing
+     * We do NOT use UNIX line breaks as the user explicitly configures its linebreaks and
+     * this method is used in bibtex field writing
      *
-     * <h4>Example</h4>
-     * <pre>{@code
+     * <h4>Example</h4> <pre>{@code
      * Legacy Macintosh \r -> OS.NEWLINE
      * Windows \r\n -> OS.NEWLINE
      * }</pre>
-     *
      * @return a String with only OS.NEWLINE as line breaks
      */
     public static String unifyLineBreaks(String s, String newline) {
@@ -415,8 +422,8 @@ public class StringUtil {
 
     /**
      * Checks if the given String has exactly one pair of surrounding curly braces <br>
-     * Strings with escaped characters in curly braces at the beginning and end are respected, too
-     *
+     * Strings with escaped characters in curly braces at the beginning and end are
+     * respected, too
      * @param toCheck The string to check
      * @return True, if the check was successful. False otherwise.
      */
@@ -425,7 +432,8 @@ public class StringUtil {
         int brackets = 0;
         if ((toCheck == null) || toCheck.isEmpty()) {
             return false;
-        } else {
+        }
+        else {
             if ((toCheck.charAt(0) == '{') && (toCheck.charAt(toCheck.length() - 1) == '}')) {
                 for (char c : toCheck.toCharArray()) {
                     if (c == '{') {
@@ -433,7 +441,8 @@ public class StringUtil {
                             count++;
                         }
                         brackets++;
-                    } else if (c == '}') {
+                    }
+                    else if (c == '}') {
                         brackets--;
                     }
                 }
@@ -447,7 +456,8 @@ public class StringUtil {
     public static boolean isInSquareBrackets(String toCheck) {
         if ((toCheck == null) || toCheck.isEmpty()) {
             return false; // In case of null or empty string
-        } else {
+        }
+        else {
             return (toCheck.charAt(0) == '[') && (toCheck.charAt(toCheck.length() - 1) == ']');
         }
     }
@@ -455,7 +465,8 @@ public class StringUtil {
     public static boolean isInCitationMarks(String toCheck) {
         if ((toCheck == null) || (toCheck.length() <= 1)) {
             return false; // In case of null, empty string, or a single citation mark
-        } else {
+        }
+        else {
             return (toCheck.charAt(0) == '"') && (toCheck.charAt(toCheck.length() - 1) == '"');
         }
     }
@@ -463,8 +474,8 @@ public class StringUtil {
     /**
      * Optimized method for converting a String into an Integer
      * <p>
-     * From http://stackoverflow.com/questions/1030479/most-efficient-way-of-converting-string-to-integer-in-java
-     *
+     * From
+     * http://stackoverflow.com/questions/1030479/most-efficient-way-of-converting-string-to-integer-in-java
      * @param str the String holding an Integer value
      * @return the int value of str
      * @throws NumberFormatException if str cannot be parsed to an int
@@ -475,12 +486,13 @@ public class StringUtil {
         boolean sign = false;
         char ch;
 
-        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9')) && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
+        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
             throw new NumberFormatException(str);
         }
 
         int ival = 0;
-        for (; ; ival *= 10) {
+        for (;; ival *= 10) {
             ival += '0' - ch;
             if (++idx == end) {
                 return sign ? ival : -ival;
@@ -494,8 +506,8 @@ public class StringUtil {
     /**
      * Optimized method for converting a String into an Integer
      * <p>
-     * From http://stackoverflow.com/questions/1030479/most-efficient-way-of-converting-string-to-integer-in-java
-     *
+     * From
+     * http://stackoverflow.com/questions/1030479/most-efficient-way-of-converting-string-to-integer-in-java
      * @param str the String holding an Integer value
      * @return the int value of str or Optional.empty() if not possible
      */
@@ -505,12 +517,13 @@ public class StringUtil {
         boolean sign = false;
         char ch;
 
-        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9')) && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
+        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
             return Optional.empty();
         }
 
         int ival = 0;
-        for (; ; ival *= 10) {
+        for (;; ival *= 10) {
             ival += '0' - ch;
             if (++idx == end) {
                 return Optional.of(sign ? ival : -ival);
@@ -522,15 +535,12 @@ public class StringUtil {
     }
 
     /**
-     * This method ensures that the output String has only
-     * valid XML unicode characters as specified by the
-     * XML 1.0 standard. For reference, please see
-     * <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
-     * standard</a>. This method will return an empty
-     * String if the input is null or empty.
+     * This method ensures that the output String has only valid XML unicode characters as
+     * specified by the XML 1.0 standard. For reference, please see
+     * <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the standard</a>. This
+     * method will return an empty String if the input is null or empty.
      * <p>
      * URL: http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
-     *
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
      */
@@ -542,7 +552,8 @@ public class StringUtil {
         char current; // Used to reference the current character.
 
         for (int i = 0; i < in.length(); i++) {
-            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
+            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it
+                                    // should not happen.
             if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
                     || ((current >= 0xE000) && (current <= 0xFFFD))) {
                 out.append(current);
@@ -552,9 +563,11 @@ public class StringUtil {
     }
 
     /*
-     * @param  buf       String to be tokenized
-     * @param  delimstr  Delimiter string
-     * @return list      {@link java.util.List} of <tt>String</tt>
+     * @param buf String to be tokenized
+     *
+     * @param delimstr Delimiter string
+     *
+     * @return list {@link java.util.List} of <tt>String</tt>
      */
     public static List<String> tokenizeToList(String buf, String delimstr) {
         List<String> list = new ArrayList<>();
@@ -571,7 +584,9 @@ public class StringUtil {
 
     /// Limits the length of a string to a maximum length.
     ///
-    /// Note the implementation is different from [StringUtils.substring](https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringUtils.html#substring%28java.lang.String,%20int,%20int%29), because it accepts parameters smaller than 4.
+    /// Note the implementation is different from
+    /// [StringUtils.substring](https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringUtils.html#substring%28java.lang.String,%20int,%20int%29),
+    /// because it accepts parameters smaller than 4.
     ///
     /// @param maxLength the maximum length of the string - <= 0 means no limit
     public static String limitStringLength(String s, int maxLength) {
@@ -587,15 +602,22 @@ public class StringUtil {
     }
 
     /**
-     * Replace non-English characters like umlauts etc. with a sensible letter or letter combination that bibtex can
-     * accept. The basis for replacement is the HashMap UnicodeToReadableCharMap.
+     * Replace non-English characters like umlauts etc. with a sensible letter or letter
+     * combination that bibtex can accept. The basis for replacement is the HashMap
+     * UnicodeToReadableCharMap.
      */
     public static String replaceSpecialCharacters(String s) {
-        /* Some unicode characters can be encoded in multiple ways. This uses <a href="https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/text/Normalizer.Form.html#NFC">NFC</a>
-         * to re-encode the characters so that these characters can be found.
-         * Most people expect Unicode to work similar to NFC, i.e., if characters looks the same, it is likely that they are equivalent.
-         * Hence, if someone debugs issues in the `UNICODE_CHAR_MAP`, they will expect NFC.
-         * A more holistic approach should likely start with the <a href="http://unicode.org/reports/tr15/#Compatibility_Equivalence_Figure">compatibility equivalence</a>. */
+        /*
+         * Some unicode characters can be encoded in multiple ways. This uses <a href=
+         * "https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/text/Normalizer.Form.html#NFC"
+         * >NFC</a> to re-encode the characters so that these characters can be found.
+         * Most people expect Unicode to work similar to NFC, i.e., if characters looks
+         * the same, it is likely that they are equivalent. Hence, if someone debugs
+         * issues in the `UNICODE_CHAR_MAP`, they will expect NFC. A more holistic
+         * approach should likely start with the <a
+         * href="http://unicode.org/reports/tr15/#Compatibility_Equivalence_Figure">
+         * compatibility equivalence</a>.
+         */
         String result = Normalizer.normalize(s, Normalizer.Form.NFC);
         for (Map.Entry<String, String> chrAndReplace : UNICODE_CHAR_MAP.entrySet()) {
             result = result.replace(chrAndReplace.getKey(), chrAndReplace.getValue());
@@ -605,7 +627,6 @@ public class StringUtil {
 
     /**
      * Return a String with n spaces
-     *
      * @param n Number of spaces
      * @return String with n spaces
      */
@@ -615,7 +636,6 @@ public class StringUtil {
 
     /**
      * Return a String with n copies of the char c
-     *
      * @param n Number of copies
      * @param c char to copy
      * @return String with n copies of c
@@ -661,7 +681,8 @@ public class StringUtil {
     }
 
     /**
-     * Return string enclosed in HTML bold tags  if not null, otherwise return alternative text in HTML bold tags
+     * Return string enclosed in HTML bold tags if not null, otherwise return alternative
+     * text in HTML bold tags
      */
     public static String boldHTML(String input, String alternative) {
         if (input == null) {
@@ -672,7 +693,6 @@ public class StringUtil {
 
     /**
      * Unquote special characters.
-     *
      * @param toUnquote The String which may contain quoted special characters.
      * @param quoteChar The quoting character.
      * @return A String with all quoted characters unquoted.
@@ -688,10 +708,12 @@ public class StringUtil {
                     result.append(c);
                 }
                 quoted = false;
-            } else if (c == quoteChar) {
+            }
+            else if (c == quoteChar) {
                 // quote char
                 quoted = true;
-            } else {
+            }
+            else {
                 result.append(c);
             }
         }
@@ -710,15 +732,15 @@ public class StringUtil {
         if (toCapitalize.length() > 1) {
             return toCapitalize.substring(0, 1).toUpperCase(Locale.ROOT)
                     + toCapitalize.substring(1).toLowerCase(Locale.ROOT);
-        } else {
+        }
+        else {
             return toCapitalize.toUpperCase(Locale.ROOT);
         }
     }
 
     /**
-     * Returns a list of words contained in the given text.
-     * Whitespace, comma and semicolon are considered as separator between words.
-     *
+     * Returns a list of words contained in the given text. Whitespace, comma and
+     * semicolon are considered as separator between words.
      * @param text the input
      * @return a list of words
      */
@@ -730,8 +752,10 @@ public class StringUtil {
      * Returns a list of sentences contained in the given text.
      */
     public static List<String> getStringAsSentences(String text) {
-        // A sentence ends with a .?!;, but not in the case of "Mr.", "Ms.", "Mrs.", "Dr.", "st.", "jr.", "co.", "inc.", and "ltd."
-        Pattern splitTextPattern = Pattern.compile("(?<=[\\.!;\\?])(?<![Mm](([Rr]|[Rr][Ss])|[Ss])\\.|[Dd][Rr]\\.|[Ss][Tt]\\.|[Jj][Rr]\\.|[Cc][Oo]\\.|[Ii][Nn][Cc]\\.|[Ll][Tt][Dd]\\.)\\s+");
+        // A sentence ends with a .?!;, but not in the case of "Mr.", "Ms.", "Mrs.",
+        // "Dr.", "st.", "jr.", "co.", "inc.", and "ltd."
+        Pattern splitTextPattern = Pattern.compile(
+                "(?<=[\\.!;\\?])(?<![Mm](([Rr]|[Rr][Ss])|[Ss])\\.|[Dd][Rr]\\.|[Ss][Tt]\\.|[Jj][Rr]\\.|[Cc][Oo]\\.|[Ii][Nn][Cc]\\.|[Ll][Tt][Dd]\\.)\\s+");
         return Arrays.asList(splitTextPattern.split(text));
     }
 
@@ -747,8 +771,8 @@ public class StringUtil {
         if (stringOne.isEmpty() || stringTwo.isEmpty()) {
             return false;
         }
-        return StringUtil.unifyLineBreaks(stringOne.get(), OS.NEWLINE).equals(
-                StringUtil.unifyLineBreaks(stringTwo.get(), OS.NEWLINE));
+        return StringUtil.unifyLineBreaks(stringOne.get(), OS.NEWLINE)
+            .equals(StringUtil.unifyLineBreaks(stringTwo.get(), OS.NEWLINE));
     }
 
     public static String substringBetween(String str, String open, String close) {
@@ -761,24 +785,25 @@ public class StringUtil {
 
     /**
      * Encloses the given string with " if there is a space contained
-     *
      * @return Returns a string
      */
     public static String quoteStringIfSpaceIsContained(String string) {
         if (string.contains(" ")) {
             return "\"" + string + "\"";
-        } else {
+        }
+        else {
             return string;
         }
     }
 
     /**
-     * Checks if the given string contains any whitespace characters. The supported whitespace characters
-     * are the set of characters matched by {@code \s} in regular expressions, which are {@code [ \t\n\x0B\f\r]}.
-     *
+     * Checks if the given string contains any whitespace characters. The supported
+     * whitespace characters are the set of characters matched by {@code \s} in regular
+     * expressions, which are {@code [ \t\n\x0B\f\r]}.
      * @param s The string to check
-     * @return {@code True} if the given string does contain at least one whitespace character, {@code False} otherwise
-     * */
+     * @return {@code True} if the given string does contain at least one whitespace
+     * character, {@code False} otherwise
+     */
     public static boolean containsWhitespace(String s) {
         return s.chars().anyMatch(Character::isWhitespace);
     }
@@ -797,8 +822,9 @@ public class StringUtil {
         StringBuilder sb = new StringBuilder();
 
         int maxLength = table.stream()
-                             .mapToInt(pair -> Objects.requireNonNullElse(pair.getKey(), "").length())
-                             .max().orElse(0);
+            .mapToInt(pair -> Objects.requireNonNullElse(pair.getKey(), "").length())
+            .max()
+            .orElse(0);
 
         for (Pair<String, String> pair : table) {
             int padding = Math.max(0, maxLength - pair.getKey().length());
@@ -814,4 +840,5 @@ public class StringUtil {
 
         return sb.toString();
     }
+
 }

@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @FetcherTest
 class PicaXmlParserTest {
 
-    private void doTest(String xmlName, int expectedSize, List<String> resourceNames) throws ParseException, IOException {
+    private void doTest(String xmlName, int expectedSize, List<String> resourceNames)
+            throws ParseException, IOException {
         try (InputStream is = PicaXmlParserTest.class.getResourceAsStream(xmlName)) {
             PicaXmlParser parser = new PicaXmlParser();
             List<BibEntry> entries = parser.parseEntries(is);
@@ -65,4 +66,5 @@ class PicaXmlParserTest {
             assertEquals(Optional.of("Word1 word2"), entries.get(4).getField(StandardField.SUBTITLE));
         }
     }
+
 }

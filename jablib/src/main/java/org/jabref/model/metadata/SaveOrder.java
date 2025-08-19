@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  * Format: &lt;choice> ({@link OrderType}, a pair of {@link Field} + descending (boolean)
  * </p>
  * <p>
- * Note that {@link OrderType#TABLE} can only be used as "intermediate" setting. When passing <code>SaveOrder</code>
- * to {@link org.jabref.logic.exporter.BibDatabaseWriter}, the orderType must be different. Reason: The writer
- * does not have access to the UI.
+ * Note that {@link OrderType#TABLE} can only be used as "intermediate" setting. When
+ * passing <code>SaveOrder</code> to {@link org.jabref.logic.exporter.BibDatabaseWriter},
+ * the orderType must be different. Reason: The writer does not have access to the UI.
  * </p>
  */
 public class SaveOrder {
@@ -26,6 +26,7 @@ public class SaveOrder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveOrder.class);
 
     private final OrderType orderType;
+
     private final List<SortCriterion> sortCriteria;
 
     public SaveOrder(OrderType orderType, List<SortCriterion> sortCriteria) {
@@ -43,11 +44,13 @@ public class SaveOrder {
         OrderType orderType;
         try {
             orderType = OrderType.valueOf(data.getFirst().toUpperCase());
-        } catch (IllegalArgumentException ex) {
+        }
+        catch (IllegalArgumentException ex) {
             if (data.size() > 1 && data.size() % 2 == 1) {
                 LOGGER.warn("Could not parse sort order: {} - trying to parse the sort criteria", data.getFirst());
                 orderType = OrderType.SPECIFIED;
-            } else {
+            }
+            else {
                 LOGGER.warn("Could not parse sort order: {}", data.getFirst());
                 this.sortCriteria = List.of();
                 this.orderType = OrderType.ORIGINAL;
@@ -85,8 +88,7 @@ public class SaveOrder {
             return true;
         }
         if (o instanceof SaveOrder that) {
-            return Objects.equals(sortCriteria, that.sortCriteria) &&
-                    Objects.equals(orderType, that.orderType);
+            return Objects.equals(sortCriteria, that.sortCriteria) && Objects.equals(orderType, that.orderType);
         }
         return false;
     }
@@ -98,9 +100,7 @@ public class SaveOrder {
 
     @Override
     public String toString() {
-        return "SaveOrderConfig{" + "orderType=" + orderType.toString() +
-                ", sortCriteria=" + sortCriteria +
-                '}';
+        return "SaveOrderConfig{" + "orderType=" + orderType.toString() + ", sortCriteria=" + sortCriteria + '}';
     }
 
     /**
@@ -147,9 +147,7 @@ public class SaveOrder {
 
         @Override
         public String toString() {
-            return "SortCriterion{" + "field='" + field + '\'' +
-                    ", descending=" + descending +
-                    '}';
+            return "SortCriterion{" + "field='" + field + '\'' + ", descending=" + descending + '}';
         }
 
         @Override
@@ -161,20 +159,19 @@ public class SaveOrder {
                 return false;
             }
             SortCriterion that = (SortCriterion) o;
-            return Objects.equals(descending, that.descending) &&
-                    Objects.equals(field, that.field);
+            return Objects.equals(descending, that.descending) && Objects.equals(field, that.field);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(field, descending);
         }
+
     }
 
     public enum OrderType {
-        SPECIFIED("specified"),
-        ORIGINAL("original"),
-        TABLE("table");
+
+        SPECIFIED("specified"), ORIGINAL("original"), TABLE("table");
 
         private final String name;
 
@@ -191,11 +188,14 @@ public class SaveOrder {
             SaveOrder.OrderType orderType = SaveOrder.OrderType.TABLE;
             if (saveInSpecifiedOrder) {
                 orderType = SaveOrder.OrderType.SPECIFIED;
-            } else if (saveInOriginalOrder) {
+            }
+            else if (saveInOriginalOrder) {
                 orderType = SaveOrder.OrderType.ORIGINAL;
             }
 
             return orderType;
         }
+
     }
+
 }

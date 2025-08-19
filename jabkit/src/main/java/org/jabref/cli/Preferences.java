@@ -16,13 +16,10 @@ import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.Parameters;
 import static picocli.CommandLine.ParentCommand;
 
-@Command(name = "preferences", description = "Manage JabKit preferences.",
-        subcommands = {
-                Preferences.PreferencesReset.class,
-                Preferences.PreferencesImport.class,
-                Preferences.PreferencesExport.class
-        })
+@Command(name = "preferences", description = "Manage JabKit preferences.", subcommands = {
+        Preferences.PreferencesReset.class, Preferences.PreferencesImport.class, Preferences.PreferencesExport.class })
 class Preferences implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Preferences.class);
 
     @ParentCommand
@@ -38,18 +35,21 @@ class Preferences implements Runnable {
 
     @Command(name = "reset", description = "Reset preferences.")
     class PreferencesReset implements Callable<Integer> {
+
         @Override
         public Integer call() {
             try {
                 System.out.println(Localization.lang("Setting all preferences to default values."));
                 argumentProcessor.cliPreferences.clear();
                 new SharedDatabasePreferences().clear();
-            } catch (BackingStoreException e) {
+            }
+            catch (BackingStoreException e) {
                 System.err.println(Localization.lang("Unable to clear preferences."));
                 LOGGER.error("Unable to clear preferences", e);
             }
             return 0;
         }
+
     }
 
     @Command(name = "import", description = "Import preferences from a file.")
@@ -63,11 +63,13 @@ class Preferences implements Runnable {
             try {
                 argumentProcessor.cliPreferences.importPreferences(inputFile);
                 argumentProcessor.cliPreferences.flush();
-            } catch (JabRefException ex) {
+            }
+            catch (JabRefException ex) {
                 LOGGER.error("Cannot import preferences", ex);
             }
             return 0;
         }
+
     }
 
     @Command(name = "export", description = "Export preferences to a file.")
@@ -80,10 +82,13 @@ class Preferences implements Runnable {
         public Integer call() {
             try {
                 argumentProcessor.cliPreferences.exportPreferences(outputFile);
-            } catch (JabRefException ex) {
+            }
+            catch (JabRefException ex) {
                 LOGGER.error("Cannot export preferences", ex);
             }
             return 0;
         }
+
     }
+
 }

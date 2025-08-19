@@ -29,10 +29,12 @@ class KeyBindingViewModelTest {
         when(preferences.getKeyBindingRepository()).thenReturn(keyBindingRepository);
         Injector.setModelOrService(CliPreferences.class, preferences);
 
-        KeyBindingsTabViewModel keyBindingsTabViewModel = new KeyBindingsTabViewModel(keyBindingRepository, mock(DialogService.class), preferences);
+        KeyBindingsTabViewModel keyBindingsTabViewModel = new KeyBindingsTabViewModel(keyBindingRepository,
+                mock(DialogService.class), preferences);
         KeyBinding binding = KeyBinding.ABBREVIATE;
 
-        KeyBindingViewModel viewModel = new KeyBindingViewModel(keyBindingRepository, binding, binding.getDefaultKeyBinding());
+        KeyBindingViewModel viewModel = new KeyBindingViewModel(keyBindingRepository, binding,
+                binding.getDefaultKeyBinding());
         keyBindingsTabViewModel.selectedKeyBindingProperty().set(Optional.of(viewModel));
 
         KeyEvent shortcutKeyEvent = new KeyEvent(KeyEvent.KEY_PRESSED, "F1", "F1", KeyCode.F1, true, false, false,
@@ -50,4 +52,5 @@ class KeyBindingViewModelTest {
 
         assertFalse(keyBindingRepository.checkKeyCombinationEquality(KeyBinding.ABBREVIATE, shortcutKeyEvent));
     }
+
 }

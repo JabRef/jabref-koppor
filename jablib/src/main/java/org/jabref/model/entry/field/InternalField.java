@@ -5,9 +5,11 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 /**
- * JabRef internal fields. These are not normal fields but mostly placeholders with special functions.
+ * JabRef internal fields. These are not normal fields but mostly placeholders with
+ * special functions.
  */
 public enum InternalField implements Field {
+
     /**
      * The BibTeX key (which is used at \cite{key} in LaTeX
      */
@@ -36,12 +38,14 @@ public enum InternalField implements Field {
     BIBTEX_STRING("__string"),
 
     /**
-     * virtual field to denote "all fields". Used in the metadata serialization for save actions.
+     * virtual field to denote "all fields". Used in the metadata serialization for save
+     * actions.
      */
     INTERNAL_ALL_FIELD("all"),
 
     /**
-     * virtual field to denote "all text fields". Used in the metadata serialization for save actions.
+     * virtual field to denote "all text fields". Used in the metadata serialization for
+     * save actions.
      */
     INTERNAL_ALL_TEXT_FIELDS_FIELD("all-text-fields"),
 
@@ -51,6 +55,7 @@ public enum InternalField implements Field {
     INTERNAL_ID_FIELD("JabRef-internal-id");
 
     private final String name;
+
     private final EnumSet<FieldProperty> properties;
 
     InternalField(String name) {
@@ -69,9 +74,7 @@ public enum InternalField implements Field {
             return Optional.of(InternalField.KEY_FIELD);
         }
 
-        return Arrays.stream(InternalField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+        return Arrays.stream(InternalField.values()).filter(field -> field.getName().equalsIgnoreCase(name)).findAny();
     }
 
     @Override
@@ -88,4 +91,5 @@ public enum InternalField implements Field {
     public boolean isStandardField() {
         return false;
     }
+
 }

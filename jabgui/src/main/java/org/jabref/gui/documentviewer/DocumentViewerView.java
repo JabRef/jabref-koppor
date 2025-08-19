@@ -23,27 +23,39 @@ import jakarta.inject.Inject;
 
 public class DocumentViewerView extends BaseDialog<Void> {
 
-    @FXML private ComboBox<LinkedFile> fileChoice;
-    @FXML private BorderPane mainPane;
-    @FXML private ToggleGroup toggleGroupMode;
-    @FXML private ToggleButton modeLive;
-    @FXML private ToggleButton modeLock;
+    @FXML
+    private ComboBox<LinkedFile> fileChoice;
 
-    @Inject private StateManager stateManager;
-    @Inject private CliPreferences preferences;
+    @FXML
+    private BorderPane mainPane;
+
+    @FXML
+    private ToggleGroup toggleGroupMode;
+
+    @FXML
+    private ToggleButton modeLive;
+
+    @FXML
+    private ToggleButton modeLock;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private CliPreferences preferences;
 
     private final PdfDocumentViewer viewer = new PdfDocumentViewer();
+
     private DocumentViewerViewModel viewModel;
 
     public DocumentViewerView() {
         this.setTitle(Localization.lang("Document viewer"));
         this.initModality(Modality.NONE);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
-        // Remove button bar at bottom, but add close button to keep the dialog closable by clicking the "x" window symbol
+        // Remove button bar at bottom, but add close button to keep the dialog closable
+        // by clicking the "x" window symbol
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         getDialogPane().getChildren().removeIf(ButtonBar.class::isInstance);
     }
@@ -81,15 +93,14 @@ public class DocumentViewerView extends BaseDialog<Void> {
 
     private void setupFileChoice() {
         ViewModelListCellFactory<LinkedFile> cellFactory = new ViewModelListCellFactory<LinkedFile>()
-                .withText(LinkedFile::getLink);
+            .withText(LinkedFile::getLink);
         fileChoice.setButtonCell(cellFactory.call(null));
         fileChoice.setCellFactory(cellFactory);
-        fileChoice.getSelectionModel().selectedItemProperty().addListener(
-                (_, _, newValue) -> {
-                    if (newValue != null && !fileChoice.getItems().isEmpty()) {
-                        viewModel.switchToFile(newValue);
-                    }
-                });
+        fileChoice.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+            if (newValue != null && !fileChoice.getItems().isEmpty()) {
+                viewModel.switchToFile(newValue);
+            }
+        });
 
         fileChoice.itemsProperty().addListener((_, _, newValue) -> {
             if (newValue != null && !newValue.isEmpty()) {
@@ -103,7 +114,7 @@ public class DocumentViewerView extends BaseDialog<Void> {
 
     private void setupViewer() {
         viewModel.currentDocumentProperty().addListener((_, _, newDocument) -> {
-                viewer.show(newDocument);
+            viewer.show(newDocument);
         });
         viewModel.currentPageProperty().bindBidirectional(viewer.currentPageProperty());
         viewModel.highlightTextProperty().bindBidirectional(viewer.highlightTextProperty());
@@ -125,4 +136,5 @@ public class DocumentViewerView extends BaseDialog<Void> {
     public void highlightText(String text) {
         viewModel.highlightText(text);
     }
+
 }

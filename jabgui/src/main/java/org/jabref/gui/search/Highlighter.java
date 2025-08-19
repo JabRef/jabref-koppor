@@ -28,13 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Highlighter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Highlighter.class);
 
     /**
      * Functions defined in {@link PostgreConstants#POSTGRES_FUNCTIONS}
      */
     private static final String REGEXP_MARK = "SELECT regexp_mark(?, ?)";
+
     private static final String REGEXP_POSITIONS = "SELECT * FROM regexp_positions(?, ?)";
+
     private static Connection connection;
 
     private Highlighter() {
@@ -58,7 +61,8 @@ public class Highlighter {
                 String highlightedText = highlightNode(textNode.text(), searchPattern);
                 textNode.text("");
                 textNode.after(highlightedText);
-            } else if (node instanceof Element element1) {
+            }
+            else if (node instanceof Element element1) {
                 highlightTextNodes(element1, searchPattern);
             }
         }
@@ -78,7 +82,8 @@ public class Highlighter {
                     return resultSet.getString(1);
                 }
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Error highlighting search terms in text", e);
         }
         return text;
@@ -100,7 +105,8 @@ public class Highlighter {
                 }
                 return positions;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Error getting match positions in text", e);
         }
         return List.of();
@@ -124,9 +130,7 @@ public class Highlighter {
             return Optional.empty();
         }
 
-        List<String> terms = getSearchQueryNodes(searchQuery).stream()
-                                                             .map(SearchQueryNode::term)
-                                                             .toList();
+        List<String> terms = getSearchQueryNodes(searchQuery).stream().map(SearchQueryNode::term).toList();
         return buildSearchPattern(terms);
     }
 
@@ -137,4 +141,5 @@ public class Highlighter {
     public static Optional<String> buildSearchPattern(List<String> terms) {
         return terms.isEmpty() ? Optional.empty() : Optional.of(String.join("|", terms));
     }
+
 }

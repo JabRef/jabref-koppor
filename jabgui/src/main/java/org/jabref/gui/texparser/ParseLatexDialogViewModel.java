@@ -45,33 +45,46 @@ import org.slf4j.LoggerFactory;
 public class ParseLatexDialogViewModel extends AbstractViewModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParseLatexDialogViewModel.class);
+
     private static final String TEX_EXT = ".tex";
+
     private final BibDatabaseContext databaseContext;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
+
     private final CliPreferences preferences;
+
     private final FileUpdateMonitor fileMonitor;
+
     private final StringProperty latexFileDirectory;
+
     private final Validator latexDirectoryValidator;
+
     private final ObjectProperty<FileNodeViewModel> root;
+
     private final ObservableList<TreeItem<FileNodeViewModel>> checkedFileList;
+
     private final BooleanProperty noFilesFound;
+
     private final BooleanProperty searchInProgress;
+
     private final BooleanProperty successfulSearch;
 
-    public ParseLatexDialogViewModel(BibDatabaseContext databaseContext,
-                                     DialogService dialogService,
-                                     TaskExecutor taskExecutor,
-                                     CliPreferences preferences,
-                                     FileUpdateMonitor fileMonitor) {
+    public ParseLatexDialogViewModel(BibDatabaseContext databaseContext, DialogService dialogService,
+            TaskExecutor taskExecutor, CliPreferences preferences, FileUpdateMonitor fileMonitor) {
         this.databaseContext = databaseContext;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
         this.fileMonitor = fileMonitor;
-        this.latexFileDirectory = new SimpleStringProperty(databaseContext.getMetaData().getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
-                                                                          .orElse(FileUtil.getInitialDirectory(databaseContext, preferences.getFilePreferences().getWorkingDirectory()))
-                                                                          .toAbsolutePath().toString());
+        this.latexFileDirectory = new SimpleStringProperty(databaseContext.getMetaData()
+            .getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
+            .orElse(FileUtil.getInitialDirectory(databaseContext,
+                    preferences.getFilePreferences().getWorkingDirectory()))
+            .toAbsolutePath()
+            .toString());
         this.root = new SimpleObjectProperty<>();
         this.checkedFileList = FXCollections.observableArrayList();
         this.noFilesFound = new SimpleBooleanProperty(true);
@@ -113,7 +126,8 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
 
     public void browseButtonClicked() {
         DirectoryDialogConfiguration directoryDialogConfiguration = new DirectoryDialogConfiguration.Builder()
-                .withInitialDirectory(Path.of(latexFileDirectory.get())).build();
+            .withInitialDirectory(Path.of(latexFileDirectory.get()))
+            .build();
 
         dialogService.showDirectorySelectionDialog(directoryDialogConfiguration).ifPresent(selectedDirectory -> {
             latexFileDirectory.set(selectedDirectory.toAbsolutePath().toString());
@@ -125,28 +139,27 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
      * Run a recursive search in a background task.
      */
     public void searchButtonClicked() {
-        BackgroundTask.wrap(() -> searchDirectory(Path.of(latexFileDirectory.get())))
-                      .onRunning(() -> {
-                          root.set(null);
-                          noFilesFound.set(true);
-                          searchInProgress.set(true);
-                          successfulSearch.set(false);
-                      })
-                      .onFinished(() -> searchInProgress.set(false))
-                      .onSuccess(newRoot -> {
-                          root.set(newRoot);
-                          noFilesFound.set(false);
-                          successfulSearch.set(true);
-                      })
-                      .onFailure(this::handleFailure)
-                      .executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> searchDirectory(Path.of(latexFileDirectory.get()))).onRunning(() -> {
+            root.set(null);
+            noFilesFound.set(true);
+            searchInProgress.set(true);
+            successfulSearch.set(false);
+        }).onFinished(() -> searchInProgress.set(false)).onSuccess(newRoot -> {
+            root.set(newRoot);
+            noFilesFound.set(false);
+            successfulSearch.set(true);
+        }).onFailure(this::handleFailure).executeWith(taskExecutor);
     }
 
     private void handleFailure(Exception exception) {
-        final boolean permissionProblem = (exception instanceof IOException) && (exception.getCause() instanceof FileSystemException) && exception.getCause().getMessage().endsWith("Operation not permitted");
+        final boolean permissionProblem = (exception instanceof IOException)
+                && (exception.getCause() instanceof FileSystemException)
+                && exception.getCause().getMessage().endsWith("Operation not permitted");
         if (permissionProblem) {
-            dialogService.showErrorDialogAndWait(Localization.lang("JabRef does not have permission to access %s").formatted(exception.getCause().getMessage()));
-        } else {
+            dialogService.showErrorDialogAndWait(Localization.lang("JabRef does not have permission to access %s")
+                .formatted(exception.getCause().getMessage()));
+        }
+        else {
             dialogService.showErrorDialogAndWait(exception);
         }
     }
@@ -161,16 +174,17 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
 
         try (Stream<Path> filesStream = Files.list(directory)) {
             fileListPartition = filesStream.collect(Collectors.partitioningBy(path -> path.toFile().isDirectory()));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error searching files", e);
             return parent;
         }
 
         List<Path> subDirectories = fileListPartition.get(true);
         List<Path> files = fileListPartition.get(false)
-                                            .stream()
-                                            .filter(path -> path.toString().endsWith(TEX_EXT))
-                                            .toList();
+            .stream()
+            .filter(path -> path.toString().endsWith(TEX_EXT))
+            .toList();
         int fileCount = 0;
 
         for (Path subDirectory : subDirectories) {
@@ -183,9 +197,7 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
         }
 
         parent.setFileCount(files.size() + fileCount);
-        parent.getChildren().addAll(files.stream()
-                                         .map(FileNodeViewModel::new)
-                                         .toList());
+        parent.getChildren().addAll(files.stream().map(FileNodeViewModel::new).toList());
         return parent;
     }
 
@@ -194,25 +206,24 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
      */
     public void parseButtonClicked() {
         List<Path> fileList = checkedFileList.stream()
-                                             .map(item -> item.getValue().getPath())
-                                             .filter(path -> path.toFile().isFile())
-                                             .toList();
+            .map(item -> item.getValue().getPath())
+            .filter(path -> path.toFile().isFile())
+            .toList();
         if (fileList.isEmpty()) {
             LOGGER.warn("There are no valid files checked");
             return;
         }
 
-        TexBibEntriesResolver entriesResolver = new TexBibEntriesResolver(
-                databaseContext.getDatabase(),
-                preferences.getImportFormatPreferences(),
-                fileMonitor);
+        TexBibEntriesResolver entriesResolver = new TexBibEntriesResolver(databaseContext.getDatabase(),
+                preferences.getImportFormatPreferences(), fileMonitor);
 
         BackgroundTask.wrap(() -> entriesResolver.resolve(new DefaultLatexParser().parse(fileList)))
-                      .onRunning(() -> searchInProgress.set(true))
-                      .onFinished(() -> searchInProgress.set(false))
-                      .onSuccess(result -> dialogService.showCustomDialogAndWait(
-                              new ParseLatexResultView(result, databaseContext, Path.of(latexFileDirectory.get()))))
-                      .onFailure(dialogService::showErrorDialogAndWait)
-                      .executeWith(taskExecutor);
+            .onRunning(() -> searchInProgress.set(true))
+            .onFinished(() -> searchInProgress.set(false))
+            .onSuccess(result -> dialogService.showCustomDialogAndWait(
+                    new ParseLatexResultView(result, databaseContext, Path.of(latexFileDirectory.get()))))
+            .onFailure(dialogService::showErrorDialogAndWait)
+            .executeWith(taskExecutor);
     }
+
 }

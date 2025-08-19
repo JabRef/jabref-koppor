@@ -29,23 +29,30 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BibEntrySerializer.class);
 
     private final BibEntryTypesManager entryTypesManager;
+
     private final ImportFormatPreferences importFormatPreferences;
+
     private final FieldPreferences fieldPreferences;
 
-    public BibEntrySerializer(BibEntryTypesManager entryTypesManager, ImportFormatPreferences importFormatPreferences, FieldPreferences fieldPreferences) {
+    public BibEntrySerializer(BibEntryTypesManager entryTypesManager, ImportFormatPreferences importFormatPreferences,
+            FieldPreferences fieldPreferences) {
         this.entryTypesManager = entryTypesManager;
         this.importFormatPreferences = importFormatPreferences;
         this.fieldPreferences = fieldPreferences;
     }
 
     private String toString(BibEntry entry) {
-        // BibEntry is not Java serializable. Thus, we need to do the serialization manually
-        // At reading of the clipboard in JabRef, we parse the plain string in all cases, so we don't need to flag we put BibEntries here
-        // Furthermore, storing a string also enables other applications to work wih the data
+        // BibEntry is not Java serializable. Thus, we need to do the serialization
+        // manually
+        // At reading of the clipboard in JabRef, we parse the plain string in all cases,
+        // so we don't need to flag we put BibEntries here
+        // Furthermore, storing a string also enables other applications to work wih the
+        // data
         BibEntryWriter writer = new BibEntryWriter(new FieldWriter(fieldPreferences), entryTypesManager);
         try {
             return writer.serializeAll(List.of(entry), BibDatabaseMode.BIBTEX);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not write entry", e);
             return entry.toString();
         }
@@ -54,7 +61,8 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
     private Optional<BibEntry> fromString(String serializedString) {
         try {
             return BibtexParser.singleFromString(serializedString, importFormatPreferences);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             LOGGER.error("An error occurred while parsing from relation MV store.", e);
             return Optional.empty();
         }
@@ -99,4 +107,5 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
     public boolean isMemoryEstimationAllowed() {
         return false;
     }
+
 }

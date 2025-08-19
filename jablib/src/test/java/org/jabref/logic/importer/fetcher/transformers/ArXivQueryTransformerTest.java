@@ -41,10 +41,12 @@ class ArXivQueryTransformerTest extends YearRangeByFilteringQueryTransformerTest
     public void convertYearField() throws QueryNodeParseException {
         ArXivQueryTransformer transformer = getTransformer();
         String queryString = "year:2018";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         Optional<String> query = transformer.transformLuceneQuery(luceneQuery);
         assertEquals(Optional.of("2018"), query);
         assertEquals(Optional.of(2018), transformer.getStartYear());
         assertEquals(Optional.of(2018), transformer.getEndYear());
     }
+
 }

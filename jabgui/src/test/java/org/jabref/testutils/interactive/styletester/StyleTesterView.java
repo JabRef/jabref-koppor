@@ -8,21 +8,38 @@ import javafx.scene.control.Button;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class StyleTesterView {
-    @FXML private Button normalButtonHover;
-    @FXML private Button normalButtonPressed;
-    @FXML private Button normalButtonFocused;
-    @FXML private Button textButtonHover;
-    @FXML private Button textButtonPressed;
-    @FXML private Button textButtonFocused;
-    @FXML private Button containedButtonHover;
-    @FXML private Button containedButtonPressed;
-    @FXML private Button containedButtonFocused;
+
+    @FXML
+    private Button normalButtonHover;
+
+    @FXML
+    private Button normalButtonPressed;
+
+    @FXML
+    private Button normalButtonFocused;
+
+    @FXML
+    private Button textButtonHover;
+
+    @FXML
+    private Button textButtonPressed;
+
+    @FXML
+    private Button textButtonFocused;
+
+    @FXML
+    private Button containedButtonHover;
+
+    @FXML
+    private Button containedButtonPressed;
+
+    @FXML
+    private Button containedButtonFocused;
+
     private Parent content;
 
     StyleTesterView() {
-        content = ViewLoader.view(this)
-                            .load()
-                            .getView();
+        content = ViewLoader.view(this).load().getView();
 
         setStates();
     }
@@ -47,4 +64,5 @@ public class StyleTesterView {
     public Parent getContent() {
         return content;
     }
+
 }

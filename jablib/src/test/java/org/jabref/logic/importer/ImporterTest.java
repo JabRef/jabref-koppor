@@ -78,27 +78,19 @@ public class ImporterTest {
     }
 
     public static Stream<Importer> instancesToTest() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         XmpPreferences xmpPreferences = mock(XmpPreferences.class);
         return Stream.of(
                 // all classes implementing {@link Importer}
                 // sorted alphabetically
-                new BiblioscapeImporter(),
-                new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor()),
-                new CitaviXmlImporter(),
-                new CopacImporter(),
-                new EndnoteImporter(),
-                new InspecImporter(),
-                new IsiImporter(),
-                new MedlineImporter(),
-                new MedlinePlainImporter(importFormatPreferences),
-                new ModsImporter(importFormatPreferences),
-                new MsBibImporter(),
-                new OvidImporter(),
-                new PdfMergeMetadataImporter(importFormatPreferences),
-                new RepecNepImporter(importFormatPreferences),
-                new RisImporter()
-        );
+                new BiblioscapeImporter(), new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor()),
+                new CitaviXmlImporter(), new CopacImporter(), new EndnoteImporter(), new InspecImporter(),
+                new IsiImporter(), new MedlineImporter(), new MedlinePlainImporter(importFormatPreferences),
+                new ModsImporter(importFormatPreferences), new MsBibImporter(), new OvidImporter(),
+                new PdfMergeMetadataImporter(importFormatPreferences), new RepecNepImporter(importFormatPreferences),
+                new RisImporter());
     }
+
 }

@@ -37,4 +37,5 @@ public class BashKeyBindingPreset implements KeyBindingPreset {
 
         return keyBindings;
     }
+
 }

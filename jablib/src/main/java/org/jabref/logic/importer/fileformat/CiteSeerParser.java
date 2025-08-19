@@ -27,10 +27,9 @@ public class CiteSeerParser {
     }
 
     /***
-     * WARNING: The DOI for each parsed BibEntry is not a valid DOI.
-     * Cite Seer associates an id with each response as a unique hash.
-     * However, it is not a valid variation of a DOI value.
-     *
+     * WARNING: The DOI for each parsed BibEntry is not a valid DOI. Cite Seer associates
+     * an id with each response as a unique hash. However, it is not a valid variation of
+     * a DOI value.
      * @param jsonObj Search response as a JSON Object
      * @return BibEntry
      */
@@ -61,4 +60,5 @@ public class CiteSeerParser {
         authorsStringBuilder.append(authorsArray.getString(authorsArray.length() - 1));
         return new AuthorListParser().parse(authorsStringBuilder.toString()).getAsLastFirstNamesWithAnd(false);
     }
+
 }

@@ -22,13 +22,15 @@ import static org.mockito.Mockito.mock;
 class ModsExportFormatTest {
 
     private ModsExporter modsExportFormat;
+
     private BibDatabaseContext databaseContext;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
         databaseContext = new BibDatabaseContext();
         modsExportFormat = new ModsExporter();
-        new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
+        new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                new DummyFileUpdateMonitor());
         Path.of(ModsExportFormatTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI());
     }
 
@@ -39,4 +41,5 @@ class ModsExportFormatTest {
         modsExportFormat.export(databaseContext, tempFile, List.of());
         assertEquals(List.of(), Files.readAllLines(file));
     }
+
 }

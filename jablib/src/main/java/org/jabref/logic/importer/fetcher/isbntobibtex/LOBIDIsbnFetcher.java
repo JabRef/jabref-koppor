@@ -32,4 +32,5 @@ public class LOBIDIsbnFetcher extends AbstractIsbnFetcher {
     public Parser getParser() {
         return lobidFetcher.getParser();
     }
+
 }

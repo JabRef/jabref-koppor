@@ -11,7 +11,9 @@ import org.jabref.model.texparser.Citation;
 public class ReferenceViewModel {
 
     private final String entry;
+
     private final boolean highlighted;
+
     private final ObservableList<Citation> citationList;
 
     public ReferenceViewModel(String entry, boolean highlighted, Collection<Citation> citationColl) {
@@ -39,9 +41,8 @@ public class ReferenceViewModel {
 
     @Override
     public String toString() {
-        return "ReferenceViewModel{entry='%s', highlighted=%s, citationList=%s}".formatted(
-                this.entry,
-                this.highlighted,
+        return "ReferenceViewModel{entry='%s', highlighted=%s, citationList=%s}".formatted(this.entry, this.highlighted,
                 this.citationList);
     }
+
 }

@@ -18,4 +18,5 @@ public class EntryTypeFormatter implements LayoutFormatter {
     public String format(String entryType) {
         return EntryTypeFactory.parse(entryType).getDisplayName();
     }
+
 }

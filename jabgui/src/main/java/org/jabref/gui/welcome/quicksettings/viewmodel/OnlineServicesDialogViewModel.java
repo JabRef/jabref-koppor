@@ -22,14 +22,19 @@ import org.jabref.logic.importer.fetcher.CompositeSearchBasedFetcher;
 import org.jspecify.annotations.NonNull;
 
 public class OnlineServicesDialogViewModel extends AbstractViewModel {
+
     private final BooleanProperty versionCheckProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty webSearchProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty dlibEnabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty grobidEnabledProperty = new SimpleBooleanProperty();
+
     private final StringProperty grobidUrlProperty = new SimpleStringProperty("");
 
-    private final ListProperty<StudyCatalogItem> fetchersProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<StudyCatalogItem> fetchersProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
 
     private final GuiPreferences preferences;
 
@@ -50,15 +55,15 @@ public class OnlineServicesDialogViewModel extends AbstractViewModel {
 
     private void initializeFetchers() {
         List<StudyCatalogItem> availableFetchers = WebFetchers
-                .getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences())
-                .stream()
-                .map(SearchBasedFetcher::getName)
-                .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
-                .map(name -> {
-                    boolean enabled = preferences.getImporterPreferences().getCatalogs().contains(name);
-                    return new StudyCatalogItem(name, enabled);
-                })
-                .toList();
+            .getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences())
+            .stream()
+            .map(SearchBasedFetcher::getName)
+            .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
+            .map(name -> {
+                boolean enabled = preferences.getImporterPreferences().getCatalogs().contains(name);
+                return new StudyCatalogItem(name, enabled);
+            })
+            .toList();
 
         fetchersProperty.setAll(availableFetchers);
     }
@@ -100,7 +105,11 @@ public class OnlineServicesDialogViewModel extends AbstractViewModel {
     }
 
     public @NonNull String getGrobidUrl() {
-        return Objects.requireNonNull(grobidUrlProperty.get()); // In every sensible use case (unless someone intentionally set this property to null), this should not be null.
+        return Objects.requireNonNull(grobidUrlProperty.get()); // In every sensible use
+                                                                // case (unless someone
+                                                                // intentionally set this
+                                                                // property to null), this
+                                                                // should not be null.
     }
 
     public ListProperty<StudyCatalogItem> fetchersProperty() {
@@ -122,4 +131,5 @@ public class OnlineServicesDialogViewModel extends AbstractViewModel {
         }
         preferences.getImporterPreferences().setCatalogs(enabledFetchers);
     }
+
 }

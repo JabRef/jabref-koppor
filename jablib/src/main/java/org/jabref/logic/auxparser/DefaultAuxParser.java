@@ -21,25 +21,29 @@ import org.slf4j.LoggerFactory;
 /**
  * LaTeX Aux to BibTeX Parser
  * <p>
- * Extracts a subset of BibTeX entries from a BibDatabase that are included in an AUX file. Also supports nested AUX
- * files (latex \\include).
+ * Extracts a subset of BibTeX entries from a BibDatabase that are included in an AUX
+ * file. Also supports nested AUX files (latex \\include).
  *
- * There exists no specification of the AUX file. Every package, class or document can write to the AUX file. The AUX
- * file consists of LaTeX macros and is read at the \begin{document} and again at the \end{document}.
+ * There exists no specification of the AUX file. Every package, class or document can
+ * write to the AUX file. The AUX file consists of LaTeX macros and is read at the
+ * \begin{document} and again at the \end{document}.
  *
- * BibTeX citation: \citation{x,y,z} Biblatex citation: \abx@aux@cite{x,y,z} Nested AUX files: \@input{x}
+ * BibTeX citation: \citation{x,y,z} Biblatex citation: \abx@aux@cite{x,y,z} Nested AUX
+ * files: \@input{x}
  */
 public class DefaultAuxParser implements AuxParser {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAuxParser.class);
 
-    private static final Pattern CITE_PATTERN = Pattern.compile("\\\\(citation|abx@aux@cite)(\\{\\d+\\})?\\{(?<citationkey>.+)\\}");
+    private static final Pattern CITE_PATTERN = Pattern
+        .compile("\\\\(citation|abx@aux@cite)(\\{\\d+\\})?\\{(?<citationkey>.+)\\}");
+
     private static final Pattern INPUT_PATTERN = Pattern.compile("\\\\@input\\{(.+)\\}");
 
     private final BibDatabase masterDatabase;
 
     /**
      * Generates a database based on the given AUX file and BibTeX database
-     *
      * @param database BibTeX database
      */
     public DefaultAuxParser(BibDatabase database) {
@@ -66,9 +70,11 @@ public class DefaultAuxParser implements AuxParser {
                     matchCitation(result, line);
                     matchNestedAux(auxFile, result, fileList, line);
                 }
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e) {
                 LOGGER.warn("Cannot locate input file", e);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.warn("Problem opening file", e);
             }
 
@@ -89,7 +95,8 @@ public class DefaultAuxParser implements AuxParser {
             Path rootPath = baseAuxFile.getParent();
             if (rootPath != null) {
                 inputFile = rootPath.resolve(inputString);
-            } else {
+            }
+            else {
                 inputFile = Path.of(inputString);
             }
 
@@ -114,8 +121,8 @@ public class DefaultAuxParser implements AuxParser {
     }
 
     /**
-     * Try to find an equivalent BibTeX entry inside the reference database for all keys inside the AUX file.
-     *
+     * Try to find an equivalent BibTeX entry inside the reference database for all keys
+     * inside the AUX file.
      * @param result AUX file
      */
     private void resolveTags(AuxParserResult result) {
@@ -126,7 +133,8 @@ public class DefaultAuxParser implements AuxParser {
                 Optional<BibEntry> entry = masterDatabase.getEntryByCitationKey(key);
                 if (entry.isPresent()) {
                     entriesToInsert.add(entry.get());
-                } else {
+                }
+                else {
                     result.getUnresolvedKeys().add(key);
                 }
             }
@@ -142,8 +150,8 @@ public class DefaultAuxParser implements AuxParser {
     }
 
     /**
-     * Resolves and adds CrossRef entries to insert them in addition to the original entries
-     *
+     * Resolves and adds CrossRef entries to insert them in addition to the original
+     * entries
      * @param entries Entries to check for CrossRefs
      * @param result AUX file
      */
@@ -159,7 +167,8 @@ public class DefaultAuxParser implements AuxParser {
                             entriesToInsert.add(refEntry.get());
                             result.increaseCrossRefEntriesCounter();
                         }
-                    } else {
+                    }
+                    else {
                         result.getUnresolvedKeys().add(crossref);
                     }
                 }
@@ -170,7 +179,6 @@ public class DefaultAuxParser implements AuxParser {
 
     /**
      * Insert a clone of each given entry. The clones are each given a new unique ID.
-     *
      * @param entries Entries to be cloned
      * @param result the parser result (representing the AUX file)
      */
@@ -184,4 +192,5 @@ public class DefaultAuxParser implements AuxParser {
         }
         result.getGeneratedBibDatabase().insertEntries(clonedEntries);
     }
+
 }

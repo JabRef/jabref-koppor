@@ -19,13 +19,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RenamePdfCleanup implements CleanupJob {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RenamePdfCleanup.class);
 
     private final Supplier<BibDatabaseContext> databaseContext;
+
     private final boolean onlyRelativePaths;
+
     private final FilePreferences filePreferences;
 
-    public RenamePdfCleanup(boolean onlyRelativePaths, Supplier<BibDatabaseContext> databaseContext, FilePreferences filePreferences) {
+    public RenamePdfCleanup(boolean onlyRelativePaths, Supplier<BibDatabaseContext> databaseContext,
+            FilePreferences filePreferences) {
         this.databaseContext = Objects.requireNonNull(databaseContext);
         this.onlyRelativePaths = onlyRelativePaths;
         this.filePreferences = filePreferences;
@@ -47,7 +51,8 @@ public class RenamePdfCleanup implements CleanupJob {
                 if (changedFile) {
                     changed = true;
                 }
-            } catch (IOException exception) {
+            }
+            catch (IOException exception) {
                 LOGGER.error("Error while renaming file {}", file.getLink(), exception);
             }
         }
@@ -59,4 +64,5 @@ public class RenamePdfCleanup implements CleanupJob {
 
         return List.of();
     }
+
 }

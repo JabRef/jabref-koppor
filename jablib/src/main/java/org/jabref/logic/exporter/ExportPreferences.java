@@ -15,14 +15,15 @@ import org.jabref.model.metadata.SaveOrder;
 public class ExportPreferences {
 
     private final StringProperty lastExportExtension;
+
     private final ObjectProperty<Path> exportWorkingDirectory;
+
     private final ObjectProperty<SaveOrder> exportSaveOrder;
+
     private final ObservableList<TemplateExporter> customExporters;
 
-    public ExportPreferences(String lastExportExtension,
-                             Path exportWorkingDirectory,
-                             SaveOrder exportSaveOrder,
-                             List<TemplateExporter> customExporters) {
+    public ExportPreferences(String lastExportExtension, Path exportWorkingDirectory, SaveOrder exportSaveOrder,
+            List<TemplateExporter> customExporters) {
         this.lastExportExtension = new SimpleStringProperty(lastExportExtension);
         this.exportWorkingDirectory = new SimpleObjectProperty<>(exportWorkingDirectory);
         this.exportSaveOrder = new SimpleObjectProperty<>(exportSaveOrder);
@@ -73,4 +74,5 @@ public class ExportPreferences {
         customExporters.clear();
         customExporters.addAll(exporters);
     }
+
 }

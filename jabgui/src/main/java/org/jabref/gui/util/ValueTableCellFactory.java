@@ -18,7 +18,8 @@ import javafx.util.Callback;
 import org.jabref.model.strings.StringUtil;
 
 /**
- * Constructs a {@link TableCell} based on the value of the cell and a bunch of specified converter methods.
+ * Constructs a {@link TableCell} based on the value of the cell and a bunch of specified
+ * converter methods.
  *
  * @param <S> view model of table row
  * @param <T> cell value
@@ -26,14 +27,23 @@ import org.jabref.model.strings.StringUtil;
 public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
 
     private Function<T, String> toText;
+
     private BiFunction<S, T, Node> toGraphic;
+
     private BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent;
+
     private BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseEnterEvent;
+
     private Function<T, BooleanExpression> toDisableExpression;
+
     private Function<T, BooleanExpression> toVisibleExpression;
+
     private BiFunction<S, T, String> toTooltip;
+
     private BiFunction<S, T, Tooltip> tooltip;
+
     private Function<T, ContextMenu> contextMenuFactory;
+
     private BiFunction<S, T, ContextMenu> menuFactory;
 
     public ValueTableCellFactory<S, T> withText(Function<T, String> toText) {
@@ -66,12 +76,14 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
         return this;
     }
 
-    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
+    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(
+            BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = toOnMouseClickedEvent;
         return this;
     }
 
-    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(Function<T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
+    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(
+            Function<T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = (rowItem, value) -> toOnMouseClickedEvent.apply(value);
         return this;
     }
@@ -108,7 +120,8 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
                     setGraphic(null);
                     setOnMouseClicked(null);
                     setTooltip(null);
-                } else {
+                }
+                else {
                     S rowItem = getTableRow().getItem();
 
                     if (toText != null) {
@@ -143,7 +156,8 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
                     setOnMouseEntered(event -> {
                         int rowIndex = getTableRow().getIndex();
                         int totalItems = getTableView().getItems().size();
-                        // tooltip is != null even for empty lines. Not easy to fix, therefore, there is a check if the current line is a real entry
+                        // tooltip is != null even for empty lines. Not easy to fix,
+                        // therefore, there is a check if the current line is a real entry
                         if (tooltip != null && rowIndex < totalItems) {
                             setTooltip(tooltip.apply(rowItem, item));
                         }
@@ -180,4 +194,5 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
     public void install(TableColumn<S, T> column) {
         column.setCellFactory(this);
     }
+
 }

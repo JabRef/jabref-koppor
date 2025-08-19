@@ -14,16 +14,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The inverse operation is "somehow" contained in {@link org.jabref.logic.openoffice.style.OOPreFormatter}
+ * The inverse operation is "somehow" contained in
+ * {@link org.jabref.logic.openoffice.style.OOPreFormatter}
  */
 public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlToLatexFormatter.class);
 
     private static final Pattern REMOVE_TAGS_PATTERN = Pattern.compile("<[^>]{1,100}>");
+
     private static final Pattern ESCAPED_PATTERN = Pattern.compile("&#([x]*)([0]*)(\\p{XDigit}+);");
+
     private static final Pattern ESCAPED_PATTERN2 = Pattern.compile("(.)&#([x]*)([0]*)(\\p{XDigit}+);");
+
     private static final Pattern ESCAPED_PATTERN3 = Pattern.compile("&#([x]*)([0]*)(\\p{XDigit}+);");
+
     private static final Pattern ESCAPED_PATTERN4 = Pattern.compile("&(\\w+);");
 
     @Override
@@ -37,7 +42,8 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
         // Deal with the form <sup>k</sup>and <sub>k</sub>
         result = result.replaceAll("<[ ]?sup>([^<]+)</sup>", "\\\\textsuperscript\\{$1\\}");
         result = result.replaceAll("<[ ]?sub>([^<]+)</sub>", "\\\\textsubscript\\{$1\\}");
-        // Note that (at least) the IEEE Xplore fetcher must be fixed as it relies on the current way to
+        // Note that (at least) the IEEE Xplore fetcher must be fixed as it relies on the
+        // current way to
         // remove tags for its image alt-tag to equation converter
         result = REMOVE_TAGS_PATTERN.matcher(result).replaceAll("");
 
@@ -65,10 +71,12 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
                 if ("i".equals(m.group(1))) {
                     result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{\\i}}");
-                } else if ("j".equals(m.group(1))) {
+                }
+                else if ("j".equals(m.group(1))) {
                     result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{\\j}}");
-                } else {
+                }
+                else {
                     result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{" + m.group(1) + "}}");
                 }
@@ -113,4 +121,5 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
     public String getKey() {
         return "html_to_latex";
     }
+
 }

@@ -30,7 +30,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     public void convertYearField() throws QueryNodeParseException {
         String queryString = "year:2023";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -44,7 +45,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     public void convertYearRangeField() throws QueryNodeParseException {
         String queryString = "year-range:2019-2023";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -57,7 +59,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     void convertPageField() throws QueryNodeParseException {
         String queryString = "page:2";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -68,7 +71,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     void convertPageSizeField() throws QueryNodeParseException {
         String queryString = "pageSize:20";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -79,7 +83,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     void convertSortByField() throws QueryNodeParseException {
         String queryString = "sortBy:relevance";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -90,7 +95,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     @Test
     void convertMultipleAuthors() throws QueryNodeParseException {
         String queryString = "author:\"Wang Wei\" author:\"Zhang Pingwen\" author:\"Zhang Zhifei\"";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         CiteSeerQueryTransformer transformer = getTransformer();
         transformer.transformLuceneQuery(luceneQuery);
 
@@ -102,9 +108,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
     private static Stream<Arguments> getJSONWithYearVariations() {
         String baseString = "title:Ericksen-Leslie page:1 pageSize:20 must_have_pdf:false sortBy:relevance";
         List<String> withYearAndYearRange = List.of(
-                StringUtil.join(new String[]{baseString, "year:2020"}, " ", 0, 2),
-                StringUtil.join(new String[]{baseString, "year-range:2019-2023"}, " ", 0, 2)
-        );
+                StringUtil.join(new String[] { baseString, "year:2020" }, " ", 0, 2),
+                StringUtil.join(new String[] { baseString, "year-range:2019-2023" }, " ", 0, 2));
 
         JSONObject expectedJson = new JSONObject();
         expectedJson.put("queryString", "Ericksen-Leslie");
@@ -118,7 +123,8 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
             QueryNode luceneQuery;
             try {
                 luceneQuery = new StandardSyntaxParser().parse(requestStr, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
-            } catch (QueryNodeParseException e) {
+            }
+            catch (QueryNodeParseException e) {
                 throw new RuntimeException(e);
             }
             CiteSeerQueryTransformer transformer = new CiteSeerQueryTransformer();
@@ -127,19 +133,19 @@ class CiteSeerQueryTransformerTest extends InfixTransformerTest<CiteSeerQueryTra
         });
 
         Iterator<JSONObject> jsonObjectIterator = actualJSONObjects.iterator();
-        return Stream.of(
-                Arguments.of(expectedJson, 2020, 2020, jsonObjectIterator.next()),
-                Arguments.of(expectedJson, 2019, 2023, jsonObjectIterator.next())
-        );
+        return Stream.of(Arguments.of(expectedJson, 2020, 2020, jsonObjectIterator.next()),
+                Arguments.of(expectedJson, 2019, 2023, jsonObjectIterator.next()));
     }
 
     @ParameterizedTest
     @MethodSource("getJSONWithYearVariations")
-    void compareJSONRequestsWithYearVariations(JSONObject expected, Integer yearStart, Integer yearEnd, JSONObject actual) {
+    void compareJSONRequestsWithYearVariations(JSONObject expected, Integer yearStart, Integer yearEnd,
+            JSONObject actual) {
         expected.put("yearStart", yearStart);
         expected.put("yearEnd", yearEnd);
         assertEquals(expected, actual);
         expected.remove("yearStart");
         expected.remove("yearEnd");
     }
+
 }

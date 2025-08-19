@@ -18,7 +18,8 @@ public class GuiPushToVim extends PushToVim implements GuiPushToApplication {
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences preferences) {
+    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences preferences) {
         return new GuiPushToVimSettings(application, dialogService, filePreferences, preferences);
     }
 
@@ -31,4 +32,5 @@ public class GuiPushToVim extends PushToVim implements GuiPushToApplication {
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

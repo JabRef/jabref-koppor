@@ -27,4 +27,5 @@ public class ISSNChecker implements ValueChecker {
         }
         return Optional.empty();
     }
+
 }

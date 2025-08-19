@@ -20,17 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BiblioscapeImporterTypesTest {
 
     private static Stream<Arguments> types() {
-        return Stream.of(
-                Arguments.of("journal", StandardEntryType.Article),
-                Arguments.of("book section", StandardEntryType.InBook),
-                Arguments.of("book", StandardEntryType.Book),
+        return Stream.of(Arguments.of("journal", StandardEntryType.Article),
+                Arguments.of("book section", StandardEntryType.InBook), Arguments.of("book", StandardEntryType.Book),
                 Arguments.of("conference", StandardEntryType.InProceedings),
                 Arguments.of("proceedings", StandardEntryType.InProceedings),
                 Arguments.of("report", StandardEntryType.TechReport),
                 Arguments.of("master thesis", StandardEntryType.MastersThesis),
-                Arguments.of("thesis", StandardEntryType.PhdThesis),
-                Arguments.of("master", StandardEntryType.Misc)
-        );
+                Arguments.of("thesis", StandardEntryType.PhdThesis), Arguments.of("master", StandardEntryType.Misc));
     }
 
     @ParameterizedTest
@@ -40,7 +36,8 @@ class BiblioscapeImporterTypesTest {
                 + "--RT-- " + biblioscapeType + "\n" + "------";
 
         List<BibEntry> bibEntries = new BiblioscapeImporter().importDatabase(new BufferedReader(Reader.of(bsInput)))
-                                                             .getDatabase().getEntries();
+            .getDatabase()
+            .getEntries();
 
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.AUTHOR, "Baklouti, F.");
@@ -51,4 +48,5 @@ class BiblioscapeImporterTypesTest {
 
         assertEquals(List.of(entry), bibEntries);
     }
+
 }

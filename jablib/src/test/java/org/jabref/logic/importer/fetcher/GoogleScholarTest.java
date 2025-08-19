@@ -27,11 +27,13 @@ import static org.mockito.Mockito.mock;
 class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcherTest {
 
     private GoogleScholar finder;
+
     private BibEntry entry;
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         finder = new GoogleScholar(importFormatPreferences);
         entry = new BibEntry();
     }
@@ -40,15 +42,15 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     void linkFound() throws IOException, FetcherException {
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service");
 
-        assertEquals(
-                Optional.of(URLUtil.create("https://www.uni-bamberg.de/fileadmin/uni/fakultaeten/wiai_lehrstuehle/praktische_informatik/Dateien/Publikationen/sose14-towards-application-portability-in-paas.pdf")),
-                finder.findFullText(entry)
-        );
+        assertEquals(Optional.of(URLUtil.create(
+                "https://www.uni-bamberg.de/fileadmin/uni/fakultaeten/wiai_lehrstuehle/praktische_informatik/Dateien/Publikationen/sose14-towards-application-portability-in-paas.pdf")),
+                finder.findFullText(entry));
     }
 
     @Test
     void noLinkFound() throws IOException, FetcherException {
-        entry.setField(StandardField.TITLE, "Curriculum programme of career-oriented java specialty guided by principles of software engineering");
+        entry.setField(StandardField.TITLE,
+                "Curriculum programme of career-oriented java specialty guided by principles of software engineering");
 
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
@@ -57,13 +59,15 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     void findSingleEntry() throws FetcherException {
         entry.setType(StandardEntryType.InProceedings);
         entry.setCitationKey("geiger2013detecting");
-        entry.setField(StandardField.TITLE, "Detecting Interoperability and Correctness Issues in BPMN 2.0 Process Models.");
+        entry.setField(StandardField.TITLE,
+                "Detecting Interoperability and Correctness Issues in BPMN 2.0 Process Models.");
         entry.setField(StandardField.AUTHOR, "Geiger, Matthias and Wirtz, Guido");
         entry.setField(StandardField.BOOKTITLE, "ZEUS");
         entry.setField(StandardField.YEAR, "2013");
         entry.setField(StandardField.PAGES, "41--44");
 
-        List<BibEntry> foundEntries = finder.performSearch("Detecting Interoperability and Correctness Issues in BPMN 2.0 Process Models");
+        List<BibEntry> foundEntries = finder
+            .performSearch("Detecting Interoperability and Correctness Issues in BPMN 2.0 Process Models");
 
         assertEquals(List.of(entry), foundEntries);
     }
@@ -94,4 +98,5 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     public String getTestJournal() {
         return "Nature";
     }
+
 }

@@ -3,6 +3,7 @@ package org.jabref.logic.importer.fetcher.transformers;
 import java.util.Optional;
 
 public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer {
+
     @Override
     protected String getLogicalAndOperator() {
         return " AND ";
@@ -34,7 +35,8 @@ public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer 
     }
 
     /**
-     * Manual testing shows that this works if added as an unfielded term, might lead to false positives
+     * Manual testing shows that this works if added as an unfielded term, might lead to
+     * false positives
      */
     @Override
     protected String handleYear(String year) {
@@ -47,4 +49,5 @@ public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer 
     protected Optional<String> handleUnFieldedTerm(String term) {
         return Optional.of(createKeyValuePair("all", term));
     }
+
 }

@@ -16,6 +16,7 @@ import java.util.function.Function;
 public class OOResult<R, E> {
 
     private final Optional<R> result;
+
     private final Optional<E> error;
 
     /**
@@ -78,7 +79,8 @@ public class OOResult<R, E> {
     public <S> OOResult<S, E> map(Function<R, S> fun) {
         if (isError()) {
             return error(getError());
-        } else {
+        }
+        else {
             return ok(fun.apply(get()));
         }
     }
@@ -86,7 +88,8 @@ public class OOResult<R, E> {
     public <F> OOResult<R, F> mapError(Function<E, F> fun) {
         if (isError()) {
             return error(fun.apply(getError()));
-        } else {
+        }
+        else {
             return ok(get());
         }
     }
@@ -104,9 +107,10 @@ public class OOResult<R, E> {
     public OOVoidResult<E> asVoidResult() {
         if (isError()) {
             return OOVoidResult.error(getError());
-        } else {
+        }
+        else {
             return OOVoidResult.ok();
         }
     }
-}
 
+}

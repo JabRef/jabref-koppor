@@ -8,4 +8,5 @@ public class AuthorAndToSemicolonReplacer implements LayoutFormatter {
     public String format(String fieldText) {
         return fieldText.replace(" and ", "; ");
     }
+
 }

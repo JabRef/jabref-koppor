@@ -18,18 +18,23 @@ import org.slf4j.LoggerFactory;
 public class OpenConsoleAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenConsoleAction.class);
+
     private final Supplier<BibDatabaseContext> databaseContext;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
 
     /**
-     * Creates a command that opens the console at the path of the supplied database,
-     * or defaults to the active database. Use
-     * {@link #OpenConsoleAction(StateManager, GuiPreferences, DialogService)} if not supplying
-     * another database.
+     * Creates a command that opens the console at the path of the supplied database, or
+     * defaults to the active database. Use
+     * {@link #OpenConsoleAction(StateManager, GuiPreferences, DialogService)} if not
+     * supplying another database.
      */
-    public OpenConsoleAction(Supplier<BibDatabaseContext> databaseContext, StateManager stateManager, GuiPreferences preferences, DialogService dialogService) {
+    public OpenConsoleAction(Supplier<BibDatabaseContext> databaseContext, StateManager stateManager,
+            GuiPreferences preferences, DialogService dialogService) {
         this.databaseContext = databaseContext;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -47,12 +52,17 @@ public class OpenConsoleAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        Optional.ofNullable(databaseContext.get()).or(stateManager::getActiveDatabase).flatMap(BibDatabaseContext::getDatabasePath).ifPresent(path -> {
-            try {
-                NativeDesktop.openConsole(path, preferences, dialogService);
-            } catch (IOException e) {
-                LOGGER.info("Could not open console", e);
-            }
-        });
+        Optional.ofNullable(databaseContext.get())
+            .or(stateManager::getActiveDatabase)
+            .flatMap(BibDatabaseContext::getDatabasePath)
+            .ifPresent(path -> {
+                try {
+                    NativeDesktop.openConsole(path, preferences, dialogService);
+                }
+                catch (IOException e) {
+                    LOGGER.info("Could not open console", e);
+                }
+            });
     }
+
 }

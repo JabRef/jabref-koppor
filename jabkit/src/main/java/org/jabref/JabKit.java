@@ -53,7 +53,9 @@ import picocli.CommandLine;
 ///
 /// Does not do any preference migrations.
 public class JabKit {
-    // J.U.L. bridge to SLF4J must be initialized before any logger is created, see initLogging()
+
+    // J.U.L. bridge to SLF4J must be initialized before any logger is created, see
+    // initLogging()
     private static Logger LOGGER;
 
     private static final String JABKIT_BRAND = "JabKit - command line toolkit for JabRef";
@@ -75,10 +77,9 @@ public class JabKit {
             CommandLine commandLine = new CommandLine(argumentProcessor);
             String usageHeader = BuildInfo.JABREF_BANNER.formatted(buildInfo.version) + "\n" + JABKIT_BRAND;
             commandLine.getCommandSpec().usageMessage().header(usageHeader);
-            applyUsageFooters(commandLine,
-                    ArgumentProcessor.getAvailableImportFormats(preferences),
-                    ArgumentProcessor.getAvailableExportFormats(preferences),
-                    WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
+            applyUsageFooters(commandLine, ArgumentProcessor.getAvailableImportFormats(preferences),
+                    ArgumentProcessor.getAvailableExportFormats(preferences), WebFetchers.getSearchBasedFetchers(
+                            preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
 
             // Show help when no arguments are given. Placed after header and footer setup
             // to ensure output matches --help command
@@ -88,8 +89,10 @@ public class JabKit {
             }
 
             // Heavy initialization only needed when actually executing a command
-            Injector.setModelOrService(JournalAbbreviationRepository.class, JournalAbbreviationLoader.loadRepository(preferences.getJournalAbbreviationPreferences()));
-            Injector.setModelOrService(ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
+            Injector.setModelOrService(JournalAbbreviationRepository.class,
+                    JournalAbbreviationLoader.loadRepository(preferences.getJournalAbbreviationPreferences()));
+            Injector.setModelOrService(ProtectedTermsLoader.class,
+                    new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
 
             configureProxy(preferences.getProxyPreferences());
             configureSSL(preferences.getSSLPreferences());
@@ -98,27 +101,28 @@ public class JabKit {
 
             int result = commandLine.execute(args);
             System.exit(result);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             LOGGER.error("Unexpected exception", ex);
         }
     }
 
-    private static void applyUsageFooters(CommandLine commandLine,
-                                          List<Pair<String, String>> inputFormats,
-                                          List<Pair<String, String>> outputFormats,
-                                          Set<SearchBasedFetcher> fetchers) {
-        String inputFooter = "\n"
-                + Localization.lang("Available import formats:") + "\n"
+    private static void applyUsageFooters(CommandLine commandLine, List<Pair<String, String>> inputFormats,
+            List<Pair<String, String>> outputFormats, Set<SearchBasedFetcher> fetchers) {
+        String inputFooter = "\n" + Localization.lang("Available import formats:") + "\n"
                 + StringUtil.alignStringTable(inputFormats);
-        String outputFooter = "\n"
-                + Localization.lang("Available export formats:") + "\n"
+        String outputFooter = "\n" + Localization.lang("Available export formats:") + "\n"
                 + StringUtil.alignStringTable(outputFormats);
 
         commandLine.getSubcommands().values().forEach(subCommand -> {
-            boolean hasInputOption = subCommand.getCommandSpec().options().stream()
-                                               .anyMatch(opt -> Arrays.asList(opt.names()).contains("--input-format"));
-            boolean hasOutputOption = subCommand.getCommandSpec().options().stream()
-                                                .anyMatch(opt -> Arrays.asList(opt.names()).contains("--output-format"));
+            boolean hasInputOption = subCommand.getCommandSpec()
+                .options()
+                .stream()
+                .anyMatch(opt -> Arrays.asList(opt.names()).contains("--input-format"));
+            boolean hasOutputOption = subCommand.getCommandSpec()
+                .options()
+                .stream()
+                .anyMatch(opt -> Arrays.asList(opt.names()).contains("--output-format"));
 
             String footerText = "";
             footerText += hasInputOption ? inputFooter : "";
@@ -126,12 +130,15 @@ public class JabKit {
             subCommand.getCommandSpec().usageMessage().footer(footerText);
         });
 
-        commandLine.getSubcommands().get("fetch")
-                   .getCommandSpec().usageMessage().footer(Localization.lang("The following providers are available:") + "\n"
-                           + fetchers.stream()
-                                     .map(WebFetcher::getName)
-                                     .filter(name -> !"Search pre-configured".equals(name))
-                                     .collect(Collectors.joining(", ")));
+        commandLine.getSubcommands()
+            .get("fetch")
+            .getCommandSpec()
+            .usageMessage()
+            .footer(Localization.lang("The following providers are available:") + "\n"
+                    + fetchers.stream()
+                        .map(WebFetcher::getName)
+                        .filter(name -> !"Search pre-configured".equals(name))
+                        .collect(Collectors.joining(", ")));
     }
 
     /// This needs to be called as early as possible. After the first log writing, it
@@ -141,23 +148,28 @@ public class JabKit {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        // We must configure logging as soon as possible, which is why we cannot wait for the usual
+        // We must configure logging as soon as possible, which is why we cannot wait for
+        // the usual
         // argument parsing workflow to parse logging options e.g. --debug or --porcelain
         Level logLevel;
         if (Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase)) {
             logLevel = Level.DEBUG;
-        } else if (Arrays.stream(args).anyMatch("--porcelain"::equalsIgnoreCase)) {
+        }
+        else if (Arrays.stream(args).anyMatch("--porcelain"::equalsIgnoreCase)) {
             logLevel = Level.ERROR;
-        } else {
+        }
+        else {
             logLevel = Level.INFO;
         }
 
         // addLogToDisk
-        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes logging
+        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version`
+        // here, because this initializes logging
         Path directory = Directories.getLogDirectory(new BuildInfo().version);
         try {
             Files.createDirectories(directory);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER = LoggerFactory.getLogger(JabKit.class);
             LOGGER.error("Could not create log directory {}", directory, e);
             return;
@@ -165,15 +177,12 @@ public class JabKit {
 
         // The "Shared File Writer" is explained at
         // https://tinylog.org/v2/configuration/#shared-file-writer
-        Map<String, String> configuration = Map.of(
-                "level", logLevel.name().toLowerCase(),
-                "writerFile", "rolling file",
+        Map<String, String> configuration = Map.of("level", logLevel.name().toLowerCase(), "writerFile", "rolling file",
                 "writerFile.logLevel", logLevel == Level.DEBUG ? "debug" : "info",
-                // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
+                // We need to manually join the path, because ".resolve" does not work on
+                // Windows, because ":" is not allowed in file names on Windows
                 "writerFile.file", directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt",
-                "writerFile.charset", "UTF-8",
-                "writerFile.policies", "startup",
-                "writerFile.backups", "30");
+                "writerFile.charset", "UTF-8", "writerFile.policies", "startup", "writerFile.backups", "30");
         configuration.forEach(Configuration::set);
 
         LOGGER = LoggerFactory.getLogger(JabKit.class);
@@ -189,4 +198,5 @@ public class JabKit {
     private static void configureSSL(SSLPreferences sslPreferences) {
         TrustStoreManager.createTruststoreFileIfNotExist(Path.of(sslPreferences.getTruststorePath()));
     }
+
 }

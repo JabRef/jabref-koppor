@@ -22,11 +22,17 @@ import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 public class QuickSettingsDialog {
+
     private final Dialog<ButtonType> dialog;
+
     private final VBox content;
+
     private BooleanSupplier validationSupplier = () -> true;
+
     private List<ObservableValue<?>> dependencies = List.of();
+
     private final DialogService dialogService;
+
     private final ThemeManager themeManager;
 
     public QuickSettingsDialog() {
@@ -67,7 +73,8 @@ public class QuickSettingsDialog {
     public Optional<ButtonType> show() {
         Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         okButton.setDisable(!validationSupplier.getAsBoolean());
-        dependencies.forEach(obs -> obs.addListener((_, _, _) -> okButton.setDisable(!validationSupplier.getAsBoolean())));
+        dependencies
+            .forEach(obs -> obs.addListener((_, _, _) -> okButton.setDisable(!validationSupplier.getAsBoolean())));
 
         themeManager.updateFontStyle(dialog.getDialogPane().getScene());
         return dialogService.showCustomDialogAndWait(dialog);
@@ -78,4 +85,5 @@ public class QuickSettingsDialog {
         headerLabel.setWrapText(true);
         return new HBox(headerLabel, new HelpButton(helpUrl));
     }
+
 }

@@ -15,15 +15,20 @@ import static org.jabref.logic.citationkeypattern.CitationKeyGenerator.DEFAULT_U
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Bracketed patterns themselves are tested at {@link org.jabref.logic.citationkeypattern.BracketedPatternTest}.
+ * Bracketed patterns themselves are tested at
+ * {@link org.jabref.logic.citationkeypattern.BracketedPatternTest}.
  */
 @Execution(ExecutionMode.CONCURRENT)
 class MakeLabelWithDatabaseTest {
 
     private BibDatabase database;
+
     private CitationKeyPatternPreferences preferences;
+
     private GlobalCitationKeyPatterns pattern;
+
     private DatabaseCitationKeyPatterns bibtexKeyPattern;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -37,16 +42,8 @@ class MakeLabelWithDatabaseTest {
         database.insertEntry(entry);
         pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
         bibtexKeyPattern = new DatabaseCitationKeyPatterns(pattern);
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A, "", "", DEFAULT_UNWANTED_CHARACTERS, pattern, "",
                 ',');
     }
 
@@ -69,17 +66,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlwaysLetter() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.ALWAYS,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
-                ',');
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.ALWAYS, "", "", DEFAULT_UNWANTED_CHARACTERS, pattern, "", ',');
 
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
         assertEquals(Optional.of("Doe2016a"), entry.getCitationKey());
@@ -87,17 +75,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlwaysLetterAlreadyExistsDuplicatesStartAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.ALWAYS,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
-                ',');
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.ALWAYS, "", "", DEFAULT_UNWANTED_CHARACTERS, pattern, "", ',');
 
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(bibtexKeyPattern, database, preferences);
         keyGenerator.generateAndSetKey(entry);
@@ -110,16 +89,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyStartDuplicatesAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B, "", "", DEFAULT_UNWANTED_CHARACTERS, pattern, "",
                 ',');
 
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
@@ -128,16 +99,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlreadyExistsDuplicatesStartAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B, "", "", DEFAULT_UNWANTED_CHARACTERS, pattern, "",
                 ',');
 
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(bibtexKeyPattern, database, preferences);
@@ -429,17 +392,9 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateKeyRegExReplace() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "2",
-                "3",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                "",
-                ',');
+        preferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A, "2", "3", DEFAULT_UNWANTED_CHARACTERS, pattern,
+                "", ',');
 
         bibtexKeyPattern.setDefaultValue("[auth][year]");
         entry.setField(StandardField.AUTHOR, "John Doe and Donald Smith and Will Wonder");
@@ -465,9 +420,13 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateKeyTitleRegex() {
-        // Note that TITLE is written in upper case to have the verbatim value of the title field
-        // See https://github.com/JabRef/user-documentation/blob/main/en/setup/citationkeypatterns.md#bibentry-fields for information on that.
-        // We cannot use "-", because this is in the set of unwanted characters and removed after the RegEx is applied
+        // Note that TITLE is written in upper case to have the verbatim value of the
+        // title field
+        // See
+        // https://github.com/JabRef/user-documentation/blob/main/en/setup/citationkeypatterns.md#bibentry-fields
+        // for information on that.
+        // We cannot use "-", because this is in the set of unwanted characters and
+        // removed after the RegEx is applied
         bibtexKeyPattern.setDefaultValue("[TITLE:regex(\" \",\"X\")]"); // regex(" ", "-")
         entry.setField(StandardField.TITLE, "Please replace the spaces");
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
@@ -523,4 +482,5 @@ class MakeLabelWithDatabaseTest {
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
         assertEquals(Optional.of("Aapoj"), entry.getCitationKey());
     }
+
 }

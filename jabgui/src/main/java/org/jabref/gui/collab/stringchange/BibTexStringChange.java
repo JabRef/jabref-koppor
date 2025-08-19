@@ -12,12 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BibTexStringChange extends DatabaseChange {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibTexStringChange.class);
 
     private final BibtexString oldString;
+
     private final BibtexString newString;
 
-    public BibTexStringChange(BibtexString oldString, BibtexString newString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringChange(BibtexString oldString, BibtexString newString, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.oldString = oldString;
         this.newString = newString;
@@ -40,4 +43,5 @@ public final class BibTexStringChange extends DatabaseChange {
     public BibtexString getNewString() {
         return newString;
     }
+
 }

@@ -7,4 +7,5 @@ public @interface AllowedToUseLogic {
 
     // The rationale
     String value();
+
 }

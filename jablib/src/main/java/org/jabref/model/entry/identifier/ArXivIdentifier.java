@@ -16,11 +16,15 @@ import org.slf4j.LoggerFactory;
  * Identifier for the arXiv. See https://arxiv.org/help/arxiv_identifier
  */
 public class ArXivIdentifier extends EprintIdentifier {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ArXivIdentifier.class);
 
     private static final String ARXIV_PREFIX = "http(s)?://arxiv.org/(abs|pdf)/|arxiv|arXiv";
+
     private final String identifier;
+
     private final String classification;
+
     private final String version;
 
     ArXivIdentifier(String identifier) {
@@ -39,13 +43,15 @@ public class ArXivIdentifier extends EprintIdentifier {
 
     public static Optional<ArXivIdentifier> parse(String value) {
         String identifier = value.replace(" ", "");
-        Pattern identifierPattern = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?");
+        Pattern identifierPattern = Pattern.compile("(" + ARXIV_PREFIX
+                + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?");
         Matcher identifierMatcher = identifierPattern.matcher(identifier);
         if (identifierMatcher.matches()) {
             return getArXivIdentifier(identifierMatcher);
         }
 
-        Pattern oldIdentifierPattern = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?");
+        Pattern oldIdentifierPattern = Pattern.compile("(" + ARXIV_PREFIX
+                + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?");
         Matcher oldIdentifierMatcher = oldIdentifierPattern.matcher(identifier);
         if (oldIdentifierMatcher.matches()) {
             return getArXivIdentifier(oldIdentifierMatcher);
@@ -70,19 +76,20 @@ public class ArXivIdentifier extends EprintIdentifier {
     public Optional<String> getClassification() {
         if (classification.isEmpty()) {
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.of(classification);
         }
     }
 
     /**
-     * ArXiV articles are assigned DOIs automatically, which starts with a DOI prefix '10.48550/' followed by the ArXiV
-     * ID (replacing the colon with a period).
-     *<p>
-     * For more information:
-     * <a href="https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/">
-     *     new-arxiv-articles-are-now-automatically-assigned-dois</a>
-     * */
+     * ArXiV articles are assigned DOIs automatically, which starts with a DOI prefix
+     * '10.48550/' followed by the ArXiV ID (replacing the colon with a period).
+     * <p>
+     * For more information: <a href=
+     * "https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/">
+     * new-arxiv-articles-are-now-automatically-assigned-dois</a>
+     */
     public Optional<DOI> inferDOI() {
         if (StringUtil.isBlank(identifier)) {
             return Optional.empty();
@@ -93,10 +100,8 @@ public class ArXivIdentifier extends EprintIdentifier {
 
     @Override
     public String toString() {
-        return "ArXivIdentifier{" +
-                "identifier='" + identifier + '\'' +
-                ", classification='" + classification + '\'' +
-                '}';
+        return "ArXivIdentifier{" + "identifier='" + identifier + '\'' + ", classification='" + classification + '\''
+                + '}';
     }
 
     @Override
@@ -109,8 +114,7 @@ public class ArXivIdentifier extends EprintIdentifier {
         }
 
         ArXivIdentifier that = (ArXivIdentifier) o;
-        return Objects.equals(identifier, that.identifier) &&
-                Objects.equals(classification, that.classification);
+        return Objects.equals(identifier, that.identifier) && Objects.equals(classification, that.classification);
     }
 
     @Override
@@ -122,7 +126,8 @@ public class ArXivIdentifier extends EprintIdentifier {
     public String asString() {
         if (StringUtil.isNotBlank(version)) {
             return identifier + "v" + version;
-        } else {
+        }
+        else {
             return identifier;
         }
     }
@@ -135,8 +140,10 @@ public class ArXivIdentifier extends EprintIdentifier {
     public Optional<URI> getExternalURI() {
         try {
             return Optional.of(new URI("https://arxiv.org/abs/" + asString()));
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e) {
             return Optional.empty();
         }
     }
+
 }

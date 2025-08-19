@@ -7,7 +7,8 @@ import org.jabref.logic.openoffice.style.OOStyle;
 
 /**
  * Representation of a CitationStyle. Stores its name, the file path and the style itself.
- * This is a pure model class. For loading/parsing functionality, see {@link CSLStyleUtils} and {@link CSLStyleLoader}.
+ * This is a pure model class. For loading/parsing functionality, see
+ * {@link CSLStyleUtils} and {@link CSLStyleLoader}.
  */
 public class CitationStyle implements OOStyle {
 
@@ -15,15 +16,37 @@ public class CitationStyle implements OOStyle {
     private static final String ALPHANUMERIC_STYLE = "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690";
 
     private final String filePath;
+
     private final String title;
+
     private final boolean isNumericStyle;
+
     private final boolean hasBibliography;
+
     private final boolean usesHangingIndent;
+
     private final String source;
+
     private final boolean isInternalStyle;
 
-    public CitationStyle(String filePath, String title, boolean isNumericStyle, boolean hasBibliography, boolean usesHangingIndent, String source, boolean isInternalStyle) {
-        this.filePath = Path.of(Objects.requireNonNull(filePath)).toString(); // wrapping with Path.of takes care of extra slashes in path due to subsequent storage and retrieval (observed on Windows)
+    public CitationStyle(String filePath, String title, boolean isNumericStyle, boolean hasBibliography,
+            boolean usesHangingIndent, String source, boolean isInternalStyle) {
+        this.filePath = Path.of(Objects.requireNonNull(filePath)).toString(); // wrapping
+                                                                              // with
+                                                                              // Path.of
+                                                                              // takes
+                                                                              // care of
+                                                                              // extra
+                                                                              // slashes
+                                                                              // in path
+                                                                              // due to
+                                                                              // subsequent
+                                                                              // storage
+                                                                              // and
+                                                                              // retrieval
+                                                                              // (observed
+                                                                              // on
+                                                                              // Windows)
         this.title = Objects.requireNonNull(title);
         this.isNumericStyle = isNumericStyle;
         this.hasBibliography = hasBibliography;
@@ -35,8 +58,10 @@ public class CitationStyle implements OOStyle {
     /**
      * Creates a new citation style with an auto-determined internal/external state.
      */
-    public CitationStyle(String filePath, String title, boolean isNumericStyle, boolean hasBibliography, boolean usesHangingIndent, String source) {
-        this(filePath, title, isNumericStyle, hasBibliography, usesHangingIndent, source, !Path.of(filePath).isAbsolute());
+    public CitationStyle(String filePath, String title, boolean isNumericStyle, boolean hasBibliography,
+            boolean usesHangingIndent, String source) {
+        this(filePath, title, isNumericStyle, hasBibliography, usesHangingIndent, source,
+                !Path.of(filePath).isAbsolute());
     }
 
     public String getTitle() {
@@ -56,9 +81,10 @@ public class CitationStyle implements OOStyle {
     }
 
     /**
-     * Currently, we have support for one alphanumeric CSL style.
-     * There is no tag or field in .csl style files that can be parsed to determine if it is an alphanumeric style.
-     * Thus, to determine alphanumeric nature, we currently manually check for equality with "DIN 1505-2".
+     * Currently, we have support for one alphanumeric CSL style. There is no tag or field
+     * in .csl style files that can be parsed to determine if it is an alphanumeric style.
+     * Thus, to determine alphanumeric nature, we currently manually check for equality
+     * with "DIN 1505-2".
      */
     public boolean isAlphanumericStyle() {
         return ALPHANUMERIC_STYLE.equals(this.title);
@@ -109,4 +135,5 @@ public class CitationStyle implements OOStyle {
     public String getPath() {
         return getFilePath();
     }
+
 }

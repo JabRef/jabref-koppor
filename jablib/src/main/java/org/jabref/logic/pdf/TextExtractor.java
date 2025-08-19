@@ -20,10 +20,11 @@ import org.apache.pdfbox.text.PDFTextStripperByArea;
 public final class TextExtractor {
 
     private final COSArray boundingBoxes;
+
     private final PDPage page;
 
     /**
-     * @param page          the page the annotation is on, must not be null
+     * @param page the page the annotation is on, must not be null
      * @param boundingBoxes the raw annotation, must not be null
      */
     public TextExtractor(PDPage page, COSArray boundingBoxes) {
@@ -32,8 +33,8 @@ public final class TextExtractor {
     }
 
     /**
-     * Extracts the text of a marked annotation such as highlights, underlines, strikeouts etc.
-     *
+     * Extracts the text of a marked annotation such as highlights, underlines, strikeouts
+     * etc.
      * @return The text of the annotation
      * @throws IOException If the PDFTextStripperByArea fails to initialize.
      */
@@ -42,15 +43,18 @@ public final class TextExtractor {
         PDFTextStripperByArea stripperByArea = new PDFTextStripperByArea();
         String markedText = "";
 
-        // Iterates over the array of segments. Each segment consists of 8 points forming a bounding box.
+        // Iterates over the array of segments. Each segment consists of 8 points forming
+        // a bounding box.
         int totalSegments = boundingBoxes.size() / 8;
-        for (int currentSegment = 1, segmentPointer = 0; currentSegment <= totalSegments; currentSegment++, segmentPointer += 8) {
+        for (int currentSegment = 1,
+                segmentPointer = 0; currentSegment <= totalSegments; currentSegment++, segmentPointer += 8) {
             try {
                 stripperByArea.addRegion("markedRegion", calculateSegmentBoundingBox(boundingBoxes, segmentPointer));
                 stripperByArea.extractRegions(page);
 
                 markedText = markedText.concat(stripperByArea.getTextForRegion("markedRegion"));
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e) {
                 throw new IOException("Cannot read annotation coordinates!", e);
             }
         }
@@ -86,4 +90,5 @@ public final class TextExtractor {
         }
         throw new IllegalArgumentException("The number type of the annotation is not supported!");
     }
+
 }

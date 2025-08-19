@@ -12,15 +12,20 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class GroupsTab extends AbstractPreferenceTabView<GroupsTabViewModel> implements PreferencesTab {
 
-    @FXML private RadioButton groupViewModeIntersection;
-    @FXML private RadioButton groupViewModeUnion;
-    @FXML private CheckBox autoAssignGroup;
-    @FXML private CheckBox displayGroupCount;
+    @FXML
+    private RadioButton groupViewModeIntersection;
+
+    @FXML
+    private RadioButton groupViewModeUnion;
+
+    @FXML
+    private CheckBox autoAssignGroup;
+
+    @FXML
+    private CheckBox displayGroupCount;
 
     public GroupsTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -36,4 +41,5 @@ public class GroupsTab extends AbstractPreferenceTabView<GroupsTabViewModel> imp
         autoAssignGroup.selectedProperty().bindBidirectional(viewModel.autoAssignGroupProperty());
         displayGroupCount.selectedProperty().bindBidirectional(viewModel.displayGroupCount());
     }
+
 }

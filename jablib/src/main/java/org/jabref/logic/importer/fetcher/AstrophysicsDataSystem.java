@@ -42,16 +42,20 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 
 /**
- * Fetches data from the SAO/NASA Astrophysics Data System (<a href="https://ui.adsabs.harvard.edu/">https://ui.adsabs.harvard.edu/</a>)
+ * Fetches data from the SAO/NASA Astrophysics Data System
+ * (<a href="https://ui.adsabs.harvard.edu/">https://ui.adsabs.harvard.edu/</a>)
  */
-public class AstrophysicsDataSystem
-        implements IdBasedParserFetcher, PagedSearchBasedParserFetcher, EntryBasedParserFetcher, CustomizableKeyFetcher {
+public class AstrophysicsDataSystem implements IdBasedParserFetcher, PagedSearchBasedParserFetcher,
+        EntryBasedParserFetcher, CustomizableKeyFetcher {
+
     public static final String FETCHER_NAME = "SAO/NASA ADS";
 
     private static final String API_SEARCH_URL = "https://api.adsabs.harvard.edu/v1/search/query";
+
     private static final String API_EXPORT_URL = "https://api.adsabs.harvard.edu/v1/export/bibtexabs";
 
     private final ImportFormatPreferences preferences;
+
     private final ImporterPreferences importerPreferences;
 
     public AstrophysicsDataSystem(ImportFormatPreferences preferences, ImporterPreferences importerPreferences) {
@@ -106,10 +110,9 @@ public class AstrophysicsDataSystem
         Optional<String> author = entry.getFieldOrAlias(StandardField.AUTHOR).map(a -> "author:\"" + a + "\"");
 
         if (title.isPresent()) {
-            stringBuilder.append(title.get())
-                         .append(author.map(s -> " AND " + s)
-                                       .orElse(""));
-        } else {
+            stringBuilder.append(title.get()).append(author.map(s -> " AND " + s).orElse(""));
+        }
+        else {
             stringBuilder.append(author.orElse(""));
         }
         String query = stringBuilder.toString().trim();
@@ -157,28 +160,30 @@ public class AstrophysicsDataSystem
         // Move adsurl to url field
         new MoveFieldCleanup(new UnknownField("adsurl"), StandardField.URL).cleanup(entry);
         entry.getField(StandardField.ABSTRACT)
-             .filter("Not Available <P />"::equals)
-             .ifPresent(abstractText -> entry.clearField(StandardField.ABSTRACT));
+            .filter("Not Available <P />"::equals)
+            .ifPresent(abstractText -> entry.clearField(StandardField.ABSTRACT));
 
         entry.getField(StandardField.ABSTRACT)
-             .map(abstractText -> abstractText.replace("<P />", ""))
-             .map(abstractText -> abstractText.replace("\\textbackslash", ""))
-             .map(String::trim)
-             .ifPresent(abstractText -> entry.setField(StandardField.ABSTRACT, abstractText));
+            .map(abstractText -> abstractText.replace("<P />", ""))
+            .map(abstractText -> abstractText.replace("\\textbackslash", ""))
+            .map(String::trim)
+            .ifPresent(abstractText -> entry.setField(StandardField.ABSTRACT, abstractText));
         // The fetcher adds some garbage (number of found entries etc before)
         entry.setCommentsBeforeEntry("");
     }
 
     @Override
     public List<BibEntry> performSearch(BibEntry entry) throws FetcherException {
-        if (entry.getFieldOrAlias(StandardField.TITLE).isEmpty() && entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()) {
+        if (entry.getFieldOrAlias(StandardField.TITLE).isEmpty()
+                && entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()) {
             return List.of();
         }
 
         URL urlForEntry;
         try {
             urlForEntry = getURLForEntry(entry);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
 
@@ -201,7 +206,8 @@ public class AstrophysicsDataSystem
                 bibcodes.add(codes.getJSONObject(i).getString("bibcode"));
             }
             return bibcodes;
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             LOGGER.error("Error while parsing JSON", e);
             return List.of();
         }
@@ -216,7 +222,8 @@ public class AstrophysicsDataSystem
         URL urlForIdentifier;
         try {
             urlForIdentifier = getUrlForIdentifier(identifier);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
 
@@ -227,7 +234,8 @@ public class AstrophysicsDataSystem
             return Optional.empty();
         }
         if (fetchedEntries.size() > 1) {
-            LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+            LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                    getName(), identifier);
         }
         BibEntry entry = fetchedEntries.getFirst();
         return Optional.of(entry);
@@ -235,10 +243,13 @@ public class AstrophysicsDataSystem
 
     /**
      * @param identifiers bibcodes for which bibentries ahould be fetched
-     * @return list of bibentries matching the bibcodes. Can be empty and differ in size to the size of requested bibcodes
+     * @return list of bibentries matching the bibcodes. Can be empty and differ in size
+     * to the size of requested bibcodes
      */
     private List<BibEntry> performSearchByIds(Collection<String> identifiers) throws FetcherException {
-        List<String> ids = identifiers.stream().filter(identifier -> !StringUtil.isBlank(identifier)).collect(Collectors.toList());
+        List<String> ids = identifiers.stream()
+            .filter(identifier -> !StringUtil.isBlank(identifier))
+            .collect(Collectors.toList());
         if (ids.isEmpty()) {
             return List.of();
         }
@@ -246,14 +257,16 @@ public class AstrophysicsDataSystem
         URL urLforExport;
         try {
             urLforExport = getURLforExport();
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
 
         try {
             String postData = buildPostData(ids);
             URLDownload download = new URLDownload(urLforExport);
-            importerPreferences.getApiKey(getName()).ifPresent(key -> download.addHeader("Authorization", "Bearer " + key));
+            importerPreferences.getApiKey(getName())
+                .ifPresent(key -> download.addHeader("Authorization", "Bearer " + key));
             download.addHeader("ContentType", "application/json");
             download.setPostData(postData);
             String content = download.asString();
@@ -268,11 +281,13 @@ public class AstrophysicsDataSystem
                 fetchedEntries.forEach(this::doPostCleanup);
 
                 return fetchedEntries;
-            } catch (JSONException e) {
+            }
+            catch (JSONException e) {
                 LOGGER.error("Error while parsing JSON", e);
                 return List.of();
             }
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException(urLforExport, "An internal parser error occurred", e);
         }
     }
@@ -282,7 +297,8 @@ public class AstrophysicsDataSystem
         URL urlForQuery;
         try {
             urlForQuery = getURLForQuery(luceneQuery);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
         List<String> bibCodes = fetchBibcodes(urlForQuery);
@@ -294,7 +310,8 @@ public class AstrophysicsDataSystem
         URL urlForQuery;
         try {
             urlForQuery = getURLForQuery(luceneQuery, pageNumber);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
         // This is currently just interpreting the complex query as a default string query
@@ -306,7 +323,9 @@ public class AstrophysicsDataSystem
     @Override
     public URLDownload getUrlDownload(URL url) {
         URLDownload urlDownload = new URLDownload(url);
-        importerPreferences.getApiKey(getName()).ifPresent(key -> urlDownload.addHeader("Authorization", "Bearer " + key));
+        importerPreferences.getApiKey(getName())
+            .ifPresent(key -> urlDownload.addHeader("Authorization", "Bearer " + key));
         return urlDownload;
     }
+
 }

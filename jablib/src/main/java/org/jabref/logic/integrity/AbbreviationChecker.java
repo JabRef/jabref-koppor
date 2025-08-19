@@ -14,6 +14,7 @@ import org.jabref.model.entry.field.FieldFactory;
 public class AbbreviationChecker implements EntryChecker {
 
     private final JournalAbbreviationRepository abbreviationRepository;
+
     private final Set<Field> fields = FieldFactory.getBookNameFields();
 
     public AbbreviationChecker(JournalAbbreviationRepository abbreviationRepository) {
@@ -26,8 +27,10 @@ public class AbbreviationChecker implements EntryChecker {
         for (Field field : fields) {
             Optional<String> value = entry.getFieldLatexFree(field);
             value.filter(abbreviationRepository::isAbbreviatedName)
-                 .ifPresent(val -> messages.add(new IntegrityMessage(Localization.lang("abbreviation detected"), entry, field)));
+                .ifPresent(val -> messages
+                    .add(new IntegrityMessage(Localization.lang("abbreviation detected"), entry, field)));
         }
         return messages;
     }
+
 }

@@ -16,14 +16,26 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class LargeLibraryOptimizationDialog extends FXDialog {
 
-    @FXML private CheckBox disableFulltextIndexing;
-    @FXML private CheckBox disableCreationDate;
-    @FXML private CheckBox disableModificationDate;
-    @FXML private CheckBox disableAutosave;
-    @FXML private CheckBox disableGroupCount;
-    @FXML private HelpButton helpButton;
+    @FXML
+    private CheckBox disableFulltextIndexing;
+
+    @FXML
+    private CheckBox disableCreationDate;
+
+    @FXML
+    private CheckBox disableModificationDate;
+
+    @FXML
+    private CheckBox disableAutosave;
+
+    @FXML
+    private CheckBox disableGroupCount;
+
+    @FXML
+    private HelpButton helpButton;
 
     private LargeLibraryOptimizationDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
 
     public LargeLibraryOptimizationDialog(GuiPreferences preferences, ThemeManager themeManager) {
@@ -32,11 +44,10 @@ public class LargeLibraryOptimizationDialog extends FXDialog {
 
         this.preferences = preferences;
 
-        this.setHeaderText(Localization.lang("Improve performance when working with libraries containing many entries"));
+        this.setHeaderText(
+                Localization.lang("Improve performance when working with libraries containing many entries"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -58,4 +69,5 @@ public class LargeLibraryOptimizationDialog extends FXDialog {
 
         helpButton.setHelpPage(URLs.PERFORMANCE_DOC);
     }
+
 }

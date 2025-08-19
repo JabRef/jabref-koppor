@@ -16,14 +16,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Delegates the search of the provided set of targeted E-Libraries with the provided queries to the E-Library specific fetchers,
- * and aggregates the results returned by the fetchers by query and E-Library.
+ * Delegates the search of the provided set of targeted E-Libraries with the provided
+ * queries to the E-Library specific fetchers, and aggregates the results returned by the
+ * fetchers by query and E-Library.
  */
 class StudyFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StudyFetcher.class);
+
     private static final int MAX_AMOUNT_OF_RESULTS_PER_FETCHER = 100;
 
     private final List<SearchBasedFetcher> activeFetchers;
+
     private final List<String> searchQueries;
 
     StudyFetcher(List<SearchBasedFetcher> activeFetchers, List<String> searchQueries) throws IllegalArgumentException {
@@ -32,14 +36,12 @@ class StudyFetcher {
     }
 
     /**
-     * Each Map Entry contains the results for one search term for all libraries.
-     * Each entry of the internal map contains the results for a given library.
-     * If any library API is not available, its corresponding entry is missing from the internal map.
+     * Each Map Entry contains the results for one search term for all libraries. Each
+     * entry of the internal map contains the results for a given library. If any library
+     * API is not available, its corresponding entry is missing from the internal map.
      */
     public List<QueryResult> crawl() {
-        return searchQueries.parallelStream()
-                            .map(this::getQueryResult)
-                            .toList();
+        return searchQueries.parallelStream().map(this::getQueryResult).toList();
     }
 
     private QueryResult getQueryResult(String searchQuery) {
@@ -48,15 +50,15 @@ class StudyFetcher {
 
     /**
      * Queries all catalogs on the given searchQuery.
-     *
      * @param searchQuery The query the search is performed for.
-     * @return Mapping of each fetcher by name and all their retrieved publications as a BibDatabase
+     * @return Mapping of each fetcher by name and all their retrieved publications as a
+     * BibDatabase
      */
     private List<FetchResult> performSearchOnQuery(String searchQuery) {
         return activeFetchers.parallelStream()
-                             .map(fetcher -> performSearchOnQueryForFetcher(searchQuery, fetcher))
-                             .filter(Objects::nonNull)
-                             .toList();
+            .map(fetcher -> performSearchOnQueryForFetcher(searchQuery, fetcher))
+            .filter(Objects::nonNull)
+            .toList();
     }
 
     private FetchResult performSearchOnQueryForFetcher(String searchQuery, SearchBasedFetcher fetcher) {
@@ -67,13 +69,16 @@ class StudyFetcher {
                 for (int page = 0; page < pages; page++) {
                     fetchResult.addAll(basedFetcher.performSearchPaged(searchQuery, page).getContent());
                 }
-            } else {
+            }
+            else {
                 fetchResult = fetcher.performSearch(searchQuery);
             }
             return new FetchResult(fetcher.getName(), new BibDatabase(fetchResult));
-        } catch (FetcherException e) {
+        }
+        catch (FetcherException e) {
             LOGGER.warn("{} API request failed", fetcher.getName(), e);
             return null;
         }
     }
+
 }

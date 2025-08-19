@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UnknownFieldTest {
+
     @Test
     void fieldsConsideredEqualIfSameName() {
         assertEquals(new UnknownField("title"), new UnknownField("title"));
@@ -20,4 +21,5 @@ class UnknownFieldTest {
         UnknownField cAsED = UnknownField.fromDisplayName("cAsEd");
         assertEquals(new UnknownField("cased", "cAsEd"), cAsED);
     }
+
 }

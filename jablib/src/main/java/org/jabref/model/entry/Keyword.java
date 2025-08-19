@@ -8,12 +8,13 @@ import java.util.stream.Stream;
 import org.jabref.model.ChainNode;
 
 /**
- * Represents a keyword in a chain of keywords.
- * For example, "JabRef" in "Bibliographic manager > Awesome ones > JabRef"
+ * Represents a keyword in a chain of keywords. For example, "JabRef" in "Bibliographic
+ * manager > Awesome ones > JabRef"
  */
 public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
 
     public static Character DEFAULT_HIERARCHICAL_DELIMITER = '>';
+
     private final String keyword;
 
     public Keyword(String keyword) {
@@ -22,8 +23,8 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
     }
 
     /**
-     * Connects all the given keywords into one chain and returns its root,
-     * e.g. "A", "B", "C" is transformed into "A > B > C".
+     * Connects all the given keywords into one chain and returns its root, e.g. "A", "B",
+     * "C" is transformed into "A > B > C".
      */
     public static Keyword of(String... keywords) {
         if (keywords.length == 0) {
@@ -47,7 +48,8 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
         }
         Keyword other = (Keyword) o;
         return Objects.equals(this.keyword, other.keyword)
-                // && Objects.equals(this.getParent(), other.getParent()) : we can't check the parents because then we would run in circles
+                // && Objects.equals(this.getParent(), other.getParent()) : we can't check
+                // the parents because then we would run in circles
                 && Objects.equals(this.getChild(), other.getChild());
     }
 
@@ -67,21 +69,22 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
     }
 
     /**
-     * Adds the given keyword at the end of the chain.
-     * E.g., "A > B > C" + "D" -> "A > B > C > D".
+     * Adds the given keyword at the end of the chain. E.g., "A > B > C" + "D" -> "A > B >
+     * C > D".
      */
     private void addAtEnd(String keyword) {
         addAtEnd(new Keyword(keyword));
     }
 
     /**
-     * Returns a text representation of the subchain starting at this item.
-     * E.g., calling {@link #getSubchainAsString(Character)} on the node "B" in "A > B > C" returns "B > C".
+     * Returns a text representation of the subchain starting at this item. E.g., calling
+     * {@link #getSubchainAsString(Character)} on the node "B" in "A > B > C" returns "B >
+     * C".
      */
     private String getSubchainAsString(Character hierarchicalDelimiter) {
-        return keyword +
-                getChild().map(child -> " " + hierarchicalDelimiter + " " + child.getSubchainAsString(hierarchicalDelimiter))
-                          .orElse("");
+        return keyword + getChild()
+            .map(child -> " " + hierarchicalDelimiter + " " + child.getSubchainAsString(hierarchicalDelimiter))
+            .orElse("");
     }
 
     /**
@@ -92,35 +95,33 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
     }
 
     /**
-     * Returns a text representation of the path from the root to this item.
-     * E.g., calling {@link #getPathFromRootAsString(Character)} on the node "B" in "A > B > C" returns "A > B".
+     * Returns a text representation of the path from the root to this item. E.g., calling
+     * {@link #getPathFromRootAsString(Character)} on the node "B" in "A > B > C" returns
+     * "A > B".
      */
     public String getPathFromRootAsString(Character hierarchicalDelimiter) {
         return getParent()
-                .map(parent -> parent.getPathFromRootAsString(hierarchicalDelimiter) + " " + hierarchicalDelimiter + " ")
-                .orElse("")
-                + keyword;
+            .map(parent -> parent.getPathFromRootAsString(hierarchicalDelimiter) + " " + hierarchicalDelimiter + " ")
+            .orElse("") + keyword;
     }
 
     /**
-     * Returns all nodes in this chain as separate keywords.
-     * E.g, for "A > B > C" we get {"A", "B", "C"}.
+     * Returns all nodes in this chain as separate keywords. E.g, for "A > B > C" we get
+     * {"A", "B", "C"}.
      */
     public Set<Keyword> flatten() {
-        return Stream
-                .concat(Stream.of(this),
-                        getChild().stream()
-                                  .flatMap(child -> child.flatten().stream()))
-                .collect(Collectors.toSet());
+        return Stream.concat(Stream.of(this), getChild().stream().flatMap(child -> child.flatten().stream()))
+            .collect(Collectors.toSet());
     }
 
     /**
-     * Returns all subchains starting at this node.
-     * E.g., for the chain "A > B > C" the subchains {"A", "A > B", "A > B > C"} are returned.
+     * Returns all subchains starting at this node. E.g., for the chain "A > B > C" the
+     * subchains {"A", "A > B", "A > B > C"} are returned.
      */
     public Set<String> getAllSubchainsAsString(Character hierarchicalDelimiter) {
         return flatten().stream()
-                        .map(subchain -> subchain.getPathFromRootAsString(hierarchicalDelimiter))
-                        .collect(Collectors.toSet());
+            .map(subchain -> subchain.getPathFromRootAsString(hierarchicalDelimiter))
+            .collect(Collectors.toSet());
     }
+
 }

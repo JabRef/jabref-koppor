@@ -18,19 +18,23 @@ import org.jabref.gui.keyboard.KeyBindingRepository;
 import com.google.common.base.CaseFormat;
 
 /**
- * This class represents a view model for objects of the KeyBinding
- * class. It has two properties representing the localized name of an
- * action and its key bind. It can also represent a key binding category
- * instead of a key bind itself.
+ * This class represents a view model for objects of the KeyBinding class. It has two
+ * properties representing the localized name of an action and its key bind. It can also
+ * represent a key binding category instead of a key bind itself.
  *
  */
 public class KeyBindingViewModel {
 
     private KeyBinding keyBinding = null;
+
     private String realBinding = "";
+
     private final ObservableList<KeyBindingViewModel> children = FXCollections.observableArrayList();
+
     private final KeyBindingRepository keyBindingRepository;
+
     private final SimpleStringProperty displayName = new SimpleStringProperty();
+
     private final SimpleStringProperty shownBinding = new SimpleStringProperty();
 
     private final KeyBindingCategory category;
@@ -87,9 +91,8 @@ public class KeyBindingViewModel {
     }
 
     /**
-     * Sets a a new key bind to this objects key binding object if
-     * the given key event is a valid combination of keys.
-     *
+     * Sets a a new key bind to this objects key binding object if the given key event is
+     * a valid combination of keys.
      * @param evt as KeyEvent
      * @return true if the KeyEvent is a valid binding, false else
      */
@@ -128,7 +131,8 @@ public class KeyBindingViewModel {
     }
 
     /**
-     * This method will reset the key bind of this models KeyBinding object to it's default bind
+     * This method will reset the key bind of this models KeyBinding object to it's
+     * default bind
      */
     public void resetToDefault() {
         if (!isCategory()) {
@@ -153,4 +157,5 @@ public class KeyBindingViewModel {
     public Optional<JabRefIcon> getClearIcon() {
         return isCategory() ? Optional.empty() : Optional.of(IconTheme.JabRefIcons.CLEANUP_ENTRIES);
     }
+
 }

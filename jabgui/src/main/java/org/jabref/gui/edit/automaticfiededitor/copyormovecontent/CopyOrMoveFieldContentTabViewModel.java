@@ -27,12 +27,15 @@ import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import de.saxsys.mvvmfx.utils.validation.Validator;
 
 public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEditorTabViewModel {
+
     public static final int TAB_INDEX = 1;
+
     private final ObjectProperty<Field> fromField = new SimpleObjectProperty<>(StandardField.ABSTRACT);
 
     private final ObjectProperty<Field> toField = new SimpleObjectProperty<>(StandardField.AUTHOR);
 
     private final BooleanProperty overwriteFieldContent = new SimpleBooleanProperty(Boolean.FALSE);
+
     private final List<BibEntry> selectedEntries;
 
     private final Validator toFieldValidator;
@@ -41,24 +44,26 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
 
     private final BooleanBinding canSwap;
 
-    public CopyOrMoveFieldContentTabViewModel(List<BibEntry> selectedEntries, BibDatabase bibDatabase, StateManager stateManager) {
+    public CopyOrMoveFieldContentTabViewModel(List<BibEntry> selectedEntries, BibDatabase bibDatabase,
+            StateManager stateManager) {
         super(bibDatabase, stateManager);
         this.selectedEntries = new ArrayList<>(selectedEntries);
 
         toFieldValidator = new FunctionBasedValidator<>(toField, field -> {
             if (StringUtil.isBlank(field.getName())) {
                 return ValidationMessage.error("Field name cannot be empty");
-            } else if (StringUtil.containsWhitespace(field.getName())) {
+            }
+            else if (StringUtil.containsWhitespace(field.getName())) {
                 return ValidationMessage.error("Field name cannot have whitespace characters");
             }
             return null;
         });
 
         canMove = BooleanBinding.booleanExpression(toFieldValidationStatus().validProperty())
-                                .and(overwriteFieldContentProperty());
+            .and(overwriteFieldContentProperty());
 
         canSwap = BooleanBinding.booleanExpression(toFieldValidationStatus().validProperty())
-                                .and(overwriteFieldContentProperty());
+            .and(overwriteFieldContentProperty());
     }
 
     public ValidationStatus toFieldValidationStatus() {
@@ -107,10 +112,8 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
             if (overwriteFieldContent.get() || StringUtil.isBlank(toFieldValue)) {
                 if (StringUtil.isNotBlank(fromFieldValue)) {
                     entry.setField(toField.get(), fromFieldValue);
-                    copyFieldValueEdit.addEdit(new UndoableFieldChange(entry,
-                            toField.get(),
-                            toFieldValue,
-                            fromFieldValue));
+                    copyFieldValueEdit
+                        .addEdit(new UndoableFieldChange(entry, toField.get(), toFieldValue, fromFieldValue));
                     affectedEntriesCount++;
                 }
             }
@@ -118,27 +121,23 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
         if (copyFieldValueEdit.hasEdits()) {
             copyFieldValueEdit.end();
         }
-        stateManager.setLastAutomaticFieldEditorEdit(new LastAutomaticFieldEditorEdit(
-                affectedEntriesCount, TAB_INDEX, copyFieldValueEdit
-        ));
+        stateManager.setLastAutomaticFieldEditorEdit(
+                new LastAutomaticFieldEditorEdit(affectedEntriesCount, TAB_INDEX, copyFieldValueEdit));
     }
 
     public void moveValue() {
         NamedCompound moveEdit = new NamedCompound("MOVE_EDIT");
         int affectedEntriesCount = 0;
         if (overwriteFieldContent.get()) {
-            affectedEntriesCount = new MoveFieldValueAction(fromField.get(),
-                    toField.get(),
-                    selectedEntries,
-                    moveEdit).executeAndGetAffectedEntriesCount();
+            affectedEntriesCount = new MoveFieldValueAction(fromField.get(), toField.get(), selectedEntries, moveEdit)
+                .executeAndGetAffectedEntriesCount();
 
             if (moveEdit.hasEdits()) {
                 moveEdit.end();
             }
         }
-        stateManager.setLastAutomaticFieldEditorEdit(new LastAutomaticFieldEditorEdit(
-                affectedEntriesCount, TAB_INDEX, moveEdit
-        ));
+        stateManager.setLastAutomaticFieldEditorEdit(
+                new LastAutomaticFieldEditorEdit(affectedEntriesCount, TAB_INDEX, moveEdit));
     }
 
     public void swapValues() {
@@ -148,23 +147,16 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
             String fromFieldValue = entry.getField(fromField.get()).orElse("");
             String toFieldValue = entry.getField(toField.get()).orElse("");
 
-            if (overwriteFieldContent.get() && StringUtil.isNotBlank(fromFieldValue) && StringUtil.isNotBlank(toFieldValue)) {
+            if (overwriteFieldContent.get() && StringUtil.isNotBlank(fromFieldValue)
+                    && StringUtil.isNotBlank(toFieldValue)) {
                 entry.setField(toField.get(), fromFieldValue);
                 entry.setField(fromField.get(), toFieldValue);
 
-                swapFieldValuesEdit.addEdit(new UndoableFieldChange(
-                        entry,
-                        toField.get(),
-                        toFieldValue,
-                        fromFieldValue
-                ));
+                swapFieldValuesEdit
+                    .addEdit(new UndoableFieldChange(entry, toField.get(), toFieldValue, fromFieldValue));
 
-                swapFieldValuesEdit.addEdit(new UndoableFieldChange(
-                        entry,
-                        fromField.get(),
-                        fromFieldValue,
-                        toFieldValue
-                ));
+                swapFieldValuesEdit
+                    .addEdit(new UndoableFieldChange(entry, fromField.get(), fromFieldValue, toFieldValue));
                 affectedEntriesCount++;
             }
         }
@@ -172,12 +164,12 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
         if (swapFieldValuesEdit.hasEdits()) {
             swapFieldValuesEdit.end();
         }
-        stateManager.setLastAutomaticFieldEditorEdit(new LastAutomaticFieldEditorEdit(
-                affectedEntriesCount, TAB_INDEX, swapFieldValuesEdit
-        ));
+        stateManager.setLastAutomaticFieldEditorEdit(
+                new LastAutomaticFieldEditorEdit(affectedEntriesCount, TAB_INDEX, swapFieldValuesEdit));
     }
 
     public List<BibEntry> getSelectedEntries() {
         return selectedEntries;
     }
+
 }

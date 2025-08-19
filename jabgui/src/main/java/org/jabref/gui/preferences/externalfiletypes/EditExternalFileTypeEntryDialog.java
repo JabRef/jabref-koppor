@@ -23,33 +23,55 @@ import jakarta.inject.Inject;
 
 public class EditExternalFileTypeEntryDialog extends BaseDialog<Void> {
 
-    @FXML private RadioButton defaultApplication;
-    @FXML private ToggleGroup applicationToggleGroup;
-    @FXML private TextField extension;
-    @FXML private TextField name;
-    @FXML private TextField mimeType;
-    @FXML private RadioButton customApplication;
-    @FXML private TextField selectedApplication;
-    @FXML private Button btnBrowse;
-    @FXML private Label icon;
-    @Inject private DialogService dialogService;
+    @FXML
+    private RadioButton defaultApplication;
 
-    private final FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder().withInitialDirectory(NativeDesktop.get().getApplicationDirectory()).build();
+    @FXML
+    private ToggleGroup applicationToggleGroup;
+
+    @FXML
+    private TextField extension;
+
+    @FXML
+    private TextField name;
+
+    @FXML
+    private TextField mimeType;
+
+    @FXML
+    private RadioButton customApplication;
+
+    @FXML
+    private TextField selectedApplication;
+
+    @FXML
+    private Button btnBrowse;
+
+    @FXML
+    private Label icon;
+
+    @Inject
+    private DialogService dialogService;
+
+    private final FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
+        .withInitialDirectory(NativeDesktop.get().getApplicationDirectory())
+        .build();
+
     private final ExternalFileTypeItemViewModel item;
 
     private final ObservableList<ExternalFileTypeItemViewModel> fileTypes;
+
     private EditExternalFileTypeViewModel viewModel;
 
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
 
-    public EditExternalFileTypeEntryDialog(ExternalFileTypeItemViewModel item, String dialogTitle, ObservableList<ExternalFileTypeItemViewModel> fileTypes) {
+    public EditExternalFileTypeEntryDialog(ExternalFileTypeItemViewModel item, String dialogTitle,
+            ObservableList<ExternalFileTypeItemViewModel> fileTypes) {
         this.item = item;
         this.fileTypes = fileTypes;
         this.setTitle(dialogTitle);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -89,6 +111,8 @@ public class EditExternalFileTypeEntryDialog extends BaseDialog<Void> {
 
     @FXML
     private void openFileChooser(ActionEvent event) {
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(path -> viewModel.selectedApplicationProperty().setValue(path.toAbsolutePath().toString()));
+        dialogService.showFileOpenDialog(fileDialogConfiguration)
+            .ifPresent(path -> viewModel.selectedApplicationProperty().setValue(path.toAbsolutePath().toString()));
     }
+
 }

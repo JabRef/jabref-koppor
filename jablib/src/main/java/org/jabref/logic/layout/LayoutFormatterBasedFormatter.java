@@ -3,7 +3,8 @@ package org.jabref.logic.layout;
 import org.jabref.logic.cleanup.Formatter;
 
 /**
- * When having to use a LayoutFormatter as Formatter, this class is helpful. One usecase is {@link org.jabref.logic.cleanup.FieldFormatterCleanup}
+ * When having to use a LayoutFormatter as Formatter, this class is helpful. One usecase
+ * is {@link org.jabref.logic.cleanup.FieldFormatterCleanup}
  */
 public class LayoutFormatterBasedFormatter extends Formatter {
 
@@ -37,4 +38,5 @@ public class LayoutFormatterBasedFormatter extends Formatter {
     public String getExampleInput() {
         return layoutFormatter.getClass().getName();
     }
+
 }

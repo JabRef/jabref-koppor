@@ -21,12 +21,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class NewEntryActionTest {
+
     private NewEntryAction newEntryAction;
 
     private final GuiPreferences preferences = mock(GuiPreferences.class);
+
     private final LibraryTab libraryTab = mock(LibraryTab.class);
+
     private final LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
+
     private final DialogService dialogService = mock(DialogService.class);
+
     private final StateManager stateManager = mock(StateManager.class);
 
     @BeforeEach
@@ -44,4 +49,5 @@ class NewEntryActionTest {
         newEntryAction.execute();
         verify(libraryTab, times(1)).insertEntry(new BibEntry(type));
     }
+
 }

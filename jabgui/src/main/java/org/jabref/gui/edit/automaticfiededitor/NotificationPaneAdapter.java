@@ -20,4 +20,5 @@ public class NotificationPaneAdapter extends LibraryTab.DatabaseNotification {
 
         notify(notificationGraphic, notificationMessage, List.of(), Duration.seconds(2));
     }
+
 }

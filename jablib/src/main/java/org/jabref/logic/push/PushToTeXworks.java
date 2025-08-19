@@ -10,7 +10,6 @@ public class PushToTeXworks extends AbstractPushToApplication {
 
     /**
      * Constructs a new {@code PushToTeXworks} instance.
-     *
      * @param notificationService The dialog service for displaying messages to the user.
      * @param preferences The service for accessing user preferences.
      */
@@ -25,11 +24,13 @@ public class PushToTeXworks extends AbstractPushToApplication {
 
     @Override
     public String[] getCommandLine(String keyString) {
-        return new String[] {commandPath, "--insert-text", "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix())};
+        return new String[] { commandPath, "--insert-text",
+                "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix()) };
     }
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "--position=\"%s\"".formatted(line), fileName.toString()};
+        return new String[] { commandPath, "--position=\"%s\"".formatted(line), fileName.toString() };
     }
+
 }

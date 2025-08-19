@@ -8,16 +8,17 @@ import java.util.Objects;
 import org.jabref.model.entry.field.StandardField;
 
 /**
- * This group contains entries, which were manually assigned to it.
- * Assignments are stored in the {@link StandardField#GROUPS} field.
- * Thus, internally, we represent {@link ExplicitGroup} as a special {@link WordKeywordGroup} operating on
+ * This group contains entries, which were manually assigned to it. Assignments are stored
+ * in the {@link StandardField#GROUPS} field. Thus, internally, we represent
+ * {@link ExplicitGroup} as a special {@link WordKeywordGroup} operating on
  * {@link StandardField#GROUPS}.
  */
 public class ExplicitGroup extends WordKeywordGroup {
 
     /**
-     * Previous versions of JabRef stored the linked entries directly in the "jabref-meta" comment at the end of the
-     * file. These keys are still parsed and stored in this field.
+     * Previous versions of JabRef stored the linked entries directly in the "jabref-meta"
+     * comment at the end of the file. These keys are still parsed and stored in this
+     * field.
      */
     private final List<String> legacyEntryKeys = new ArrayList<>();
 
@@ -48,8 +49,7 @@ public class ExplicitGroup extends WordKeywordGroup {
                 && Objects.equals(getHierarchicalContext(), other.getHierarchicalContext())
                 && Objects.equals(getIconName(), other.getIconName())
                 && Objects.equals(getDescription(), other.getDescription())
-                && Objects.equals(getColor(), other.getColor())
-                && Objects.equals(isExpanded(), other.isExpanded())
+                && Objects.equals(getColor(), other.getColor()) && Objects.equals(isExpanded(), other.isExpanded())
                 && Objects.equals(getLegacyEntryKeys(), other.getLegacyEntryKeys());
     }
 
@@ -70,4 +70,5 @@ public class ExplicitGroup extends WordKeywordGroup {
     public boolean isDynamic() {
         return false;
     }
+
 }

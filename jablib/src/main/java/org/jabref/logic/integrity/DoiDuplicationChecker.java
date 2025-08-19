@@ -23,14 +23,18 @@ public class DoiDuplicationChecker implements DatabaseChecker {
         ObservableList<BibEntry> bibEntries = database.getEntries();
         BiMap<DOI, List<BibEntry>> duplicateMap = HashBiMap.create(bibEntries.size());
         for (BibEntry bibEntry : bibEntries) {
-            bibEntry.getDOI().ifPresent(doi ->
-                    duplicateMap.computeIfAbsent(doi, absentDoi -> new ArrayList<>()).add(bibEntry));
+            bibEntry.getDOI()
+                .ifPresent(doi -> duplicateMap.computeIfAbsent(doi, absentDoi -> new ArrayList<>()).add(bibEntry));
         }
 
-        return duplicateMap.inverse().keySet().stream()
-                           .filter(list -> list.size() > 1)
-                           .flatMap(Collection::stream)
-                           .map(item -> new IntegrityMessage(Localization.lang("Same DOI used in multiple entries"), item, StandardField.DOI))
-                           .collect(Collectors.toList());
+        return duplicateMap.inverse()
+            .keySet()
+            .stream()
+            .filter(list -> list.size() > 1)
+            .flatMap(Collection::stream)
+            .map(item -> new IntegrityMessage(Localization.lang("Same DOI used in multiple entries"), item,
+                    StandardField.DOI))
+            .collect(Collectors.toList());
     }
+
 }

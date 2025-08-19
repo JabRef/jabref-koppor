@@ -61,4 +61,5 @@ class ConvertToBibtexCleanupTest {
 
         assertEquals(Optional.of(fileField), entry.getField(StandardField.FILE));
     }
+
 }

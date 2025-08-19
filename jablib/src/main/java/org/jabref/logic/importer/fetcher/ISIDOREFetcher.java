@@ -39,9 +39,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Fetcher for <a href="https://isidore.science">ISIDORE</a>```
- * Will take in the link to the website or the last six digits that identify the reference
- * Uses <a href="https://isidore.science/api">ISIDORE's API</a>.
+ * Fetcher for <a href="https://isidore.science">ISIDORE</a>``` Will take in the link to
+ * the website or the last six digits that identify the reference Uses
+ * <a href="https://isidore.science/api">ISIDORE's API</a>.
  */
 public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
 
@@ -79,9 +79,11 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
                 }
 
                 return parseXMl(entryElement);
-            } catch (FetcherException e) {
+            }
+            catch (FetcherException e) {
                 Unchecked.throwChecked(e);
-            } catch (ParserConfigurationException | IOException | SAXException e) {
+            }
+            catch (ParserConfigurationException | IOException | SAXException e) {
                 Unchecked.throwChecked(new FetcherException("Issue with parsing link", e));
             }
             return null;
@@ -128,12 +130,19 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
 
     private BibEntry xmlItemToBibEntry(Element itemElement) {
         return new BibEntry(getType(itemElement.getElementsByTagName("types").item(0).getChildNodes()))
-                .withField(StandardField.TITLE, itemElement.getElementsByTagName("title").item(0).getTextContent().replace("\"", ""))
-                .withField(StandardField.AUTHOR, getAuthor(itemElement.getElementsByTagName("enrichedCreators").item(0)))
-                .withField(StandardField.YEAR, itemElement.getElementsByTagName("date").item(0).getChildNodes().item(1).getTextContent().substring(0, 4))
-                .withField(StandardField.JOURNAL, getJournal(itemElement.getElementsByTagName("dc:source")))
-                .withField(StandardField.PUBLISHER, getPublishers(itemElement.getElementsByTagName("publishers").item(0)))
-                .withField(StandardField.DOI, getDOI(itemElement.getElementsByTagName("ore").item(0).getChildNodes()));
+            .withField(StandardField.TITLE,
+                    itemElement.getElementsByTagName("title").item(0).getTextContent().replace("\"", ""))
+            .withField(StandardField.AUTHOR, getAuthor(itemElement.getElementsByTagName("enrichedCreators").item(0)))
+            .withField(StandardField.YEAR,
+                    itemElement.getElementsByTagName("date")
+                        .item(0)
+                        .getChildNodes()
+                        .item(1)
+                        .getTextContent()
+                        .substring(0, 4))
+            .withField(StandardField.JOURNAL, getJournal(itemElement.getElementsByTagName("dc:source")))
+            .withField(StandardField.PUBLISHER, getPublishers(itemElement.getElementsByTagName("publishers").item(0)))
+            .withField(StandardField.DOI, getDOI(itemElement.getElementsByTagName("ore").item(0).getChildNodes()));
     }
 
     private String getDOI(NodeList list) {
@@ -150,8 +159,8 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     }
 
     /**
-     * Get the type of the document, ISIDORE only seems to have select types, also their types are different to
-     * those used by JabRef.
+     * Get the type of the document, ISIDORE only seems to have select types, also their
+     * types are different to those used by JabRef.
      */
     private EntryType getType(NodeList list) {
         for (int i = 0; i < list.getLength(); i++) {
@@ -185,7 +194,8 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     }
 
     /**
-     * Remove numbers from a string and everything after the number, (helps with the author field).
+     * Remove numbers from a string and everything after the number, (helps with the
+     * author field).
      */
     private String removeNumbers(String string) {
         for (int i = 0; i < string.length(); i++) {
@@ -236,4 +246,5 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     public Optional<HelpFile> getHelpPage() {
         return Optional.of(HelpFile.FETCHER_ISIDORE);
     }
+
 }

@@ -6,11 +6,8 @@ import java.util.Optional;
 
 public enum BiblatexApaEntryType implements EntryType {
 
-    Legislation("Legislation"),
-    Legadminmaterial("Legadminmaterial"),
-    Jurisdiction("Jurisdiction"),
-    Constitution("Constitution"),
-    Legal("Legal");
+    Legislation("Legislation"), Legadminmaterial("Legadminmaterial"), Jurisdiction("Jurisdiction"),
+    Constitution("Constitution"), Legal("Legal");
 
     private final String displayName;
 
@@ -30,7 +27,8 @@ public enum BiblatexApaEntryType implements EntryType {
 
     public static Optional<BiblatexApaEntryType> fromName(String name) {
         return Arrays.stream(BiblatexApaEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
+
 }

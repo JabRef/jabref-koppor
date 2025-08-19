@@ -10,7 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class NormalizePagesFormatterTest {
 
@@ -66,15 +67,12 @@ class NormalizePagesFormatterTest {
                 Arguments.of("12", "12"),
 
                 // special case, where -- is also put into
-                Arguments.of("some--text", "some-text"),
-                Arguments.of("pages 1--50", "pages 1-50"),
+                Arguments.of("some--text", "some-text"), Arguments.of("pages 1--50", "pages 1-50"),
                 Arguments.of("--43", "-43"),
 
                 // keep arbitrary text
-                Arguments.of("some-text-with-dashes", "some-text-with-dashes"),
-                Arguments.of("{A}", "{A}"),
-                Arguments.of("43+", "43+"),
-                Arguments.of("Invalid", "Invalid"),
+                Arguments.of("some-text-with-dashes", "some-text-with-dashes"), Arguments.of("{A}", "{A}"),
+                Arguments.of("43+", "43+"), Arguments.of("Invalid", "Invalid"),
 
                 // doNotRemoveLetters
                 Arguments.of("R1--R50", "R1-R50"),
@@ -111,4 +109,5 @@ class NormalizePagesFormatterTest {
     void test(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
+
 }

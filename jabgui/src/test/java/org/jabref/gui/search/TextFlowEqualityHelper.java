@@ -17,7 +17,8 @@ public class TextFlowEqualityHelper {
         Text expectedText;
         for (int i = 0; i < expectedTexts.size(); i++) {
             expectedText = expectedTexts.get(i);
-            // the strings contain not only the text but also the font and other properties
+            // the strings contain not only the text but also the font and other
+            // properties
             // so comparing them compares the Text object as a whole
             // the equals method is not implemented...
             if (!expectedText.toString().equals(description.getChildren().get(i).toString())) {
@@ -34,7 +35,8 @@ public class TextFlowEqualityHelper {
         Text expectedText;
         for (int i = 0; i < expectedTexts.size(); i++) {
             expectedText = expectedTexts.get(i);
-            // the strings contain not only the text but also the font and other properties
+            // the strings contain not only the text but also the font and other
+            // properties
             // so comparing them compares the Text object as a whole
             // the equals method is not implemented...
             if (!expectedText.toString().equals(texts.get(i).toString())) {
@@ -43,4 +45,5 @@ public class TextFlowEqualityHelper {
         }
         return true;
     }
+
 }

@@ -17,11 +17,17 @@ import org.jabref.logic.l10n.Localization;
 import com.airhacks.afterburner.views.ViewLoader;
 
 public class MainFileDirectoryDialog extends FXDialog {
-    @FXML private TextField pathField;
-    @FXML private HelpButton helpButton;
+
+    @FXML
+    private TextField pathField;
+
+    @FXML
+    private HelpButton helpButton;
 
     private MainFileDirectoryDialogViewModel viewModel;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
 
     public MainFileDirectoryDialog(GuiPreferences preferences, DialogService dialogService, ThemeManager themeManager) {
@@ -33,9 +39,7 @@ public class MainFileDirectoryDialog extends FXDialog {
 
         setHeaderText(Localization.lang("Choose the default directory for storing attached files"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -57,4 +61,5 @@ public class MainFileDirectoryDialog extends FXDialog {
     private void browseDirectory() {
         viewModel.browseForDirectory();
     }
+
 }

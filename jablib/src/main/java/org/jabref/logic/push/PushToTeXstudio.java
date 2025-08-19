@@ -19,11 +19,13 @@ public class PushToTeXstudio extends AbstractPushToApplication {
 
     @Override
     protected String[] getCommandLine(String keyString) {
-        return new String[] {commandPath, "--insert-cite", "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix())};
+        return new String[] { commandPath, "--insert-cite",
+                "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix()) };
     }
 
     @Override
     public String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "--line", Integer.toString(line), fileName.toString()};
+        return new String[] { commandPath, "--line", Integer.toString(line), fileName.toString() };
     }
+
 }

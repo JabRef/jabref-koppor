@@ -11,20 +11,22 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 
 public class PushToApplicationPreferences {
+
     private final StringProperty activeApplicationName;
+
     private final MapProperty<String, String> commandPaths;
+
     private final StringProperty emacsArguments;
+
     private final StringProperty vimServer;
 
     private final ObjectProperty<CitationCommandString> citeCommand;
+
     private final ObjectProperty<CitationCommandString> defaultCiteCommand;
 
-    public PushToApplicationPreferences(String activeApplicationName,
-                                        Map<String, String> commandPaths,
-                                        String emacsArguments,
-                                        String vimServer,
-                                        CitationCommandString citeCommand,
-                                        CitationCommandString defaultCiteCommand) {
+    public PushToApplicationPreferences(String activeApplicationName, Map<String, String> commandPaths,
+            String emacsArguments, String vimServer, CitationCommandString citeCommand,
+            CitationCommandString defaultCiteCommand) {
         this.activeApplicationName = new SimpleStringProperty(activeApplicationName);
         this.commandPaths = new SimpleMapProperty<>(FXCollections.observableMap(commandPaths));
         this.emacsArguments = new SimpleStringProperty(emacsArguments);
@@ -98,12 +100,8 @@ public class PushToApplicationPreferences {
     ///
     /// @return a new independent instance with the updated default citation command
     public PushToApplicationPreferences withCitationCommand(CitationCommandString config) {
-        return new PushToApplicationPreferences(
-                this.activeApplicationName.get(),
-                this.commandPaths.get(),
-                this.emacsArguments.get(),
-                this.vimServer.get(),
-                config,
-                this.defaultCiteCommand.get());
+        return new PushToApplicationPreferences(this.activeApplicationName.get(), this.commandPaths.get(),
+                this.emacsArguments.get(), this.vimServer.get(), config, this.defaultCiteCommand.get());
     }
+
 }

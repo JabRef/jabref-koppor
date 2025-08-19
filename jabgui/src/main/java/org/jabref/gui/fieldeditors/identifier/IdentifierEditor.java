@@ -34,58 +34,73 @@ import static org.jabref.model.entry.field.StandardField.ISBN;
 
 public class IdentifierEditor extends HBox implements FieldEditorFX {
 
-    @FXML private BaseIdentifierEditorViewModel<?> viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button shortenDOIButton;
-    @FXML private Button fetchInformationByIdentifierButton;
-    @FXML private Button lookupIdentifierButton;
+    @FXML
+    private BaseIdentifierEditorViewModel<?> viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private GuiPreferences preferences;
-    @Inject private UndoManager undoManager;
-    @Inject private StateManager stateManager;
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button shortenDOIButton;
+
+    @FXML
+    private Button fetchInformationByIdentifierButton;
+
+    @FXML
+    private Button lookupIdentifierButton;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private StateManager stateManager;
+
     private Optional<BibEntry> entry = Optional.empty();
 
-    public IdentifierEditor(Field field,
-                            SuggestionProvider<?> suggestionProvider,
-                            FieldCheckers fieldCheckers) {
+    public IdentifierEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers) {
 
         // Viewloader must be called after the viewmodel is loaded,
         // but we need the injected vars to create the viewmodels.
         Injector.registerExistingAndInject(this);
 
         switch (field) {
-            case DOI ->
-                    this.viewModel = new DoiIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
-            case ISBN ->
-                    this.viewModel = new ISBNIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
-            case EPRINT ->
-                    this.viewModel = new EprintIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager);
+            case DOI -> this.viewModel = new DoiIdentifierEditorViewModel(suggestionProvider, fieldCheckers,
+                    dialogService, taskExecutor, preferences, undoManager, stateManager);
+            case ISBN -> this.viewModel = new ISBNIdentifierEditorViewModel(suggestionProvider, fieldCheckers,
+                    dialogService, taskExecutor, preferences, undoManager, stateManager);
+            case EPRINT -> this.viewModel = new EprintIdentifierEditorViewModel(suggestionProvider, fieldCheckers,
+                    dialogService, taskExecutor, preferences, undoManager);
 
             // TODO: Add support for PMID
             case null, default -> {
                 assert field != null;
-                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'".formatted(field.getDisplayName()));
+                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'"
+                    .formatted(field.getDisplayName()));
             }
         }
 
-        ViewLoader.view(this)
-                 .root(this)
-                 .load();
+        ViewLoader.view(this).root(this).load();
 
         textField.textProperty().bindBidirectional(viewModel.textProperty());
 
-        fetchInformationByIdentifierButton.setTooltip(
-                new Tooltip(Localization.lang("Get bibliographic data from %0", field.getDisplayName())));
-        lookupIdentifierButton.setTooltip(
-                new Tooltip(Localization.lang("Look up %0", field.getDisplayName())));
-        shortenDOIButton.setTooltip(
-                new Tooltip(Localization.lang("Shorten %0", field.getDisplayName())));
+        fetchInformationByIdentifierButton
+            .setTooltip(new Tooltip(Localization.lang("Get bibliographic data from %0", field.getDisplayName())));
+        lookupIdentifierButton.setTooltip(new Tooltip(Localization.lang("Look up %0", field.getDisplayName())));
+        shortenDOIButton.setTooltip(new Tooltip(Localization.lang("Shorten %0", field.getDisplayName())));
 
         textField.initContextMenu(new DefaultMenu(textField), preferences.getKeyBindingRepository());
 
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textField);
     }
 
     public BaseIdentifierEditorViewModel<?> getViewModel() {
@@ -122,4 +137,5 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
     private void shortenID() {
         viewModel.shortenID();
     }
+
 }

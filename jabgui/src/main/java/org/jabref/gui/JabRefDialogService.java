@@ -65,19 +65,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides methods to create default
- * JavaFX dialogs which will also work on top of Swing
- * windows. The created dialogs are instances of the
- * {@link FXDialog} class. The available dialogs in this class
- * are useful for displaying small information graphic dialogs
- * rather than complex windows. For more complex dialogs it is
- * advised to rather create a new sub class of {@link FXDialog}.
+ * This class provides methods to create default JavaFX dialogs which will also work on
+ * top of Swing windows. The created dialogs are instances of the {@link FXDialog} class.
+ * The available dialogs in this class are useful for displaying small information graphic
+ * dialogs rather than complex windows. For more complex dialogs it is advised to rather
+ * create a new sub class of {@link FXDialog}.
  */
 public class JabRefDialogService implements DialogService {
+
     // Snackbar dialog maximum size
     public static final int DIALOG_SIZE_LIMIT = 300;
 
     private static final Duration TOAST_MESSAGE_DISPLAY_TIME = Duration.millis(3000);
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefDialogService.class);
 
     private final Window mainWindow;
@@ -100,14 +100,16 @@ public class JabRefDialogService implements DialogService {
         return alert;
     }
 
-    private FXDialog createDialogWithOptOut(String title, String content,
-                                            String optOutMessage, Consumer<Boolean> optOutAction) {
+    private FXDialog createDialogWithOptOut(String title, String content, String optOutMessage,
+            Consumer<Boolean> optOutAction) {
         FXDialog alert = new FXDialog(AlertType.CONFIRMATION, title, true);
-        // Need to force the alert to layout in order to grab the graphic as we are replacing the dialog pane with a custom pane
+        // Need to force the alert to layout in order to grab the graphic as we are
+        // replacing the dialog pane with a custom pane
         alert.getDialogPane().applyCss();
         Node graphic = alert.getDialogPane().getGraphic();
 
-        // Create a new dialog pane that has a checkbox instead of the hide/show details button
+        // Create a new dialog pane that has a checkbox instead of the hide/show details
+        // button
         // Use the supplied callback for the action of the checkbox
         alert.setDialogPane(new DialogPane() {
             @Override
@@ -119,7 +121,8 @@ public class JabRefDialogService implements DialogService {
             }
         });
 
-        // Fool the dialog into thinking there is some expandable content; a group won't take up any space if it has no children
+        // Fool the dialog into thinking there is some expandable content; a group won't
+        // take up any space if it has no children
         alert.getDialogPane().setExpandableContent(new Group());
         alert.getDialogPane().setExpanded(true);
 
@@ -139,7 +142,8 @@ public class JabRefDialogService implements DialogService {
         return (dialogMessage.substring(0, JabRefDialogService.DIALOG_SIZE_LIMIT) + "...").trim();
     }
 
-    private <T> ChoiceDialog<T> createChoiceDialog(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices) {
+    private <T> ChoiceDialog<T> createChoiceDialog(String title, String content, String okButtonLabel, T defaultChoice,
+            Collection<T> choices) {
         ChoiceDialog<T> choiceDialog = new ChoiceDialog<>(defaultChoice, choices);
         ((Stage) choiceDialog.getDialogPane().getScene().getWindow()).getIcons().add(IconTheme.getJabRefImage());
         ButtonType okButtonType = new ButtonType(okButtonLabel, ButtonBar.ButtonData.OK_DONE);
@@ -152,12 +156,14 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public <T> Optional<T> showChoiceDialogAndWait(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices) {
+    public <T> Optional<T> showChoiceDialogAndWait(String title, String content, String okButtonLabel, T defaultChoice,
+            Collection<T> choices) {
         return createChoiceDialog(title, content, okButtonLabel, defaultChoice, choices).showAndWait();
     }
 
     @Override
-    public <T> Optional<T> showEditableChoiceDialogAndWait(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices, StringConverter<T> converter) {
+    public <T> Optional<T> showEditableChoiceDialogAndWait(String title, String content, String okButtonLabel,
+            T defaultChoice, Collection<T> choices, StringConverter<T> converter) {
         ChoiceDialog<T> choiceDialog = createChoiceDialog(title, content, okButtonLabel, defaultChoice, choices);
         ComboBox<T> comboBox = (ComboBox<T>) choiceDialog.getDialogPane().lookup(".combo-box");
         comboBox.setEditable(true);
@@ -218,7 +224,8 @@ public class JabRefDialogService implements DialogService {
         if (exception instanceof FetcherException fetcherException) {
             // Somehow, Java does not route correctly to the other method
             showErrorDialogAndWait(fetcherException);
-        } else {
+        }
+        else {
             showErrorDialogAndWait(Localization.lang("Unhandled exception occurred."), exception);
         }
     }
@@ -229,13 +236,20 @@ public class JabRefDialogService implements DialogService {
         String localizedMessage = fetcherException.getLocalizedMessage();
         Optional<SimpleHttpResponse> httpResponse = fetcherException.getHttpResponse();
         if (httpResponse.isPresent()) {
-            this.showInformationDialogAndWait(failedTitle, getContentByCode(httpResponse.get().statusCode()) + "\n\n" + localizedMessage);
-        } else if (fetcherException instanceof FetcherClientException) {
-            this.showErrorDialogAndWait(failedTitle, Localization.lang("Something is wrong on JabRef side. Please check the URL and try again.") + "\n\n" + localizedMessage);
-        } else if (fetcherException instanceof FetcherServerException) {
             this.showInformationDialogAndWait(failedTitle,
-                    Localization.lang("Error downloading from URL. Cause is likely the server side.\nPlease try again later or contact the server administrator.") + "\n\n" + localizedMessage);
-        } else {
+                    getContentByCode(httpResponse.get().statusCode()) + "\n\n" + localizedMessage);
+        }
+        else if (fetcherException instanceof FetcherClientException) {
+            this.showErrorDialogAndWait(failedTitle,
+                    Localization.lang("Something is wrong on JabRef side. Please check the URL and try again.") + "\n\n"
+                            + localizedMessage);
+        }
+        else if (fetcherException instanceof FetcherServerException) {
+            this.showInformationDialogAndWait(failedTitle, Localization.lang(
+                    "Error downloading from URL. Cause is likely the server side.\nPlease try again later or contact the server administrator.")
+                    + "\n\n" + localizedMessage);
+        }
+        else {
             this.showErrorDialogAndWait(failedTitle, localizedMessage);
         }
     }
@@ -270,8 +284,8 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public boolean showConfirmationDialogAndWait(String title, String content,
-                                                 String okButtonLabel, String cancelButtonLabel) {
+    public boolean showConfirmationDialogAndWait(String title, String content, String okButtonLabel,
+            String cancelButtonLabel) {
         FXDialog alert = createDialog(AlertType.CONFIRMATION, title, content);
         ButtonType okButtonType = new ButtonType(okButtonLabel, ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButtonType = new ButtonType(cancelButtonLabel, ButtonBar.ButtonData.NO);
@@ -280,17 +294,16 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public boolean showConfirmationDialogWithOptOutAndWait(String title, String content,
-                                                           String optOutMessage, Consumer<Boolean> optOutAction) {
+    public boolean showConfirmationDialogWithOptOutAndWait(String title, String content, String optOutMessage,
+            Consumer<Boolean> optOutAction) {
         FXDialog alert = createDialogWithOptOut(title, content, optOutMessage, optOutAction);
         alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
         return alert.showAndWait().filter(buttonType -> buttonType == ButtonType.YES).isPresent();
     }
 
     @Override
-    public boolean showConfirmationDialogWithOptOutAndWait(String title, String content,
-                                                           String okButtonLabel, String cancelButtonLabel,
-                                                           String optOutMessage, Consumer<Boolean> optOutAction) {
+    public boolean showConfirmationDialogWithOptOutAndWait(String title, String content, String okButtonLabel,
+            String cancelButtonLabel, String optOutMessage, Consumer<Boolean> optOutAction) {
         FXDialog alert = createDialogWithOptOut(title, content, optOutMessage, optOutAction);
         ButtonType okButtonType = new ButtonType(okButtonLabel, ButtonBar.ButtonData.YES);
         ButtonType cancelButtonType = new ButtonType(cancelButtonLabel, ButtonBar.ButtonData.NO);
@@ -300,18 +313,15 @@ public class JabRefDialogService implements DialogService {
 
     @Override
     public Optional<ButtonType> showCustomButtonDialogAndWait(AlertType type, String title, String content,
-                                                              ButtonType... buttonTypes) {
+            ButtonType... buttonTypes) {
         FXDialog alert = createDialog(type, title, content);
         alert.getButtonTypes().setAll(buttonTypes);
         return alert.showAndWait();
     }
 
     @Override
-    public Optional<ButtonType> showCustomButtonDialogWithTooltipsAndWait(AlertType type,
-                                                                          String title,
-                                                                          String content,
-                                                                          Map<ButtonType, String> tooltips,
-                                                                          ButtonType... buttonTypes) {
+    public Optional<ButtonType> showCustomButtonDialogWithTooltipsAndWait(AlertType type, String title, String content,
+            Map<ButtonType, String> tooltips, ButtonType... buttonTypes) {
         // Use a non-editable Label instead of raw text to prevent editing
         FXDialog alert = createDialog(type, title, "");
         Label contentLabel = new Label(content);
@@ -335,7 +345,7 @@ public class JabRefDialogService implements DialogService {
 
     @Override
     public Optional<ButtonType> showCustomDialogAndWait(String title, DialogPane contentPane,
-                                                        ButtonType... buttonTypes) {
+            ButtonType... buttonTypes) {
         FXDialog alert = new FXDialog(AlertType.NONE, title);
         alert.setDialogPane(contentPane);
         alert.getButtonTypes().setAll(buttonTypes);
@@ -409,11 +419,13 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public Optional<ButtonType> showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager) {
+    public Optional<ButtonType> showBackgroundProgressDialogAndWait(String title, String content,
+            StateManager stateManager) {
         TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
         EasyBind.bindContent(taskProgressView.getTasks(), stateManager.getRunningBackgroundTasks());
         taskProgressView.setRetainTasks(false);
-        taskProgressView.setGraphicFactory(task -> ThemeManager.getDownloadIconTitleMap.getOrDefault(task.getTitle(), null));
+        taskProgressView
+            .setGraphicFactory(task -> ThemeManager.getDownloadIconTitleMap.getOrDefault(task.getTitle(), null));
 
         Label message = new Label(content);
 
@@ -441,35 +453,33 @@ public class JabRefDialogService implements DialogService {
 
     @Override
     public void notify(String message) {
-        // TODO: Change to a notification overview instead of event log when that is available.
-        //       The event log is not that user friendly (different purpose).
+        // TODO: Change to a notification overview instead of event log when that is
+        // available.
+        // The event log is not that user friendly (different purpose).
         LOGGER.info(message);
 
-        UiTaskExecutor.runInJavaFXThread(() ->
-            Notifications.create()
-                         .text(message)
-                         .position(Pos.BOTTOM_CENTER)
-                         .hideAfter(TOAST_MESSAGE_DISPLAY_TIME)
-                         .owner(mainWindow)
-                         .threshold(5,
-                            Notifications.create()
-                                         .title(Localization.lang("Last notification"))
-                                         .text(
-                                            "(" + Localization.lang("Check the event log to see all notifications") + ")"
-                                            + "\n\n" + message)
-                                         .onAction(e -> {
-                                            ErrorConsoleAction ec = new ErrorConsoleAction();
-                                            ec.execute();
-                                         }))
-                         .hideCloseButton()
-                         .show());
+        UiTaskExecutor.runInJavaFXThread(() -> Notifications.create()
+            .text(message)
+            .position(Pos.BOTTOM_CENTER)
+            .hideAfter(TOAST_MESSAGE_DISPLAY_TIME)
+            .owner(mainWindow)
+            .threshold(5, Notifications.create()
+                .title(Localization.lang("Last notification"))
+                .text("(" + Localization.lang("Check the event log to see all notifications") + ")" + "\n\n" + message)
+                .onAction(e -> {
+                    ErrorConsoleAction ec = new ErrorConsoleAction();
+                    ec.execute();
+                }))
+            .hideCloseButton()
+            .show());
     }
 
     @Override
     public Optional<Path> showFileSaveDialog(FileDialogConfiguration fileDialogConfiguration) {
         FileChooser chooser = getConfiguredFileChooser(fileDialogConfiguration);
         File file = chooser.showSaveDialog(mainWindow);
-        Optional.ofNullable(chooser.getSelectedExtensionFilter()).ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
+        Optional.ofNullable(chooser.getSelectedExtensionFilter())
+            .ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
         return Optional.ofNullable(file).map(File::toPath);
     }
 
@@ -477,7 +487,8 @@ public class JabRefDialogService implements DialogService {
     public Optional<Path> showFileOpenDialog(FileDialogConfiguration fileDialogConfiguration) {
         FileChooser chooser = getConfiguredFileChooser(fileDialogConfiguration);
         File file = chooser.showOpenDialog(mainWindow);
-        Optional.ofNullable(chooser.getSelectedExtensionFilter()).ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
+        Optional.ofNullable(chooser.getSelectedExtensionFilter())
+            .ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
         return Optional.ofNullable(file).map(File::toPath);
     }
 
@@ -492,7 +503,8 @@ public class JabRefDialogService implements DialogService {
     public List<Path> showFileOpenDialogAndGetMultipleFiles(FileDialogConfiguration fileDialogConfiguration) {
         FileChooser chooser = getConfiguredFileChooser(fileDialogConfiguration);
         List<File> files = chooser.showOpenMultipleDialog(mainWindow);
-        Optional.ofNullable(chooser.getSelectedExtensionFilter()).ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
+        Optional.ofNullable(chooser.getSelectedExtensionFilter())
+            .ifPresent(fileDialogConfiguration::setSelectedExtensionFilter);
         return files != null ? files.stream().map(File::toPath).toList() : List.of();
     }
 
@@ -520,7 +532,8 @@ public class JabRefDialogService implements DialogService {
     public Optional<Path> showFileOpenFromArchiveDialog(Path archivePath) throws IOException {
         try (FileSystem zipFile = FileSystems.newFileSystem(archivePath, (ClassLoader) null)) {
             return new ZipFileChooser(zipFile).showAndWait();
-        } catch (NoClassDefFoundError exc) {
+        }
+        catch (NoClassDefFoundError exc) {
             throw new IOException("Could not instantiate ZIP-archive reader.", exc);
         }
     }
@@ -544,14 +557,14 @@ public class JabRefDialogService implements DialogService {
 
     private String getContentByCode(int statusCode) {
         return switch (statusCode) {
-            case 401 ->
-                    Localization.lang("Access denied. You are not authorized to access this resource. Please check your credentials and try again. If you believe you should have access, please contact the administrator for assistance.");
-            case 403 ->
-                    Localization.lang("Access denied. You do not have permission to access this resource. Please contact the administrator for assistance or try a different action.");
-            case 404 ->
-                    Localization.lang("The requested resource could not be found. It seems that the file you are trying to download is not available or has been moved. Please verify the URL and try again. If you believe this is an error, please contact the administrator for further assistance.");
-            default ->
-                    Localization.lang("Something is wrong on JabRef side. Please check the URL and try again.");
+            case 401 -> Localization.lang(
+                    "Access denied. You are not authorized to access this resource. Please check your credentials and try again. If you believe you should have access, please contact the administrator for assistance.");
+            case 403 -> Localization.lang(
+                    "Access denied. You do not have permission to access this resource. Please contact the administrator for assistance or try a different action.");
+            case 404 -> Localization.lang(
+                    "The requested resource could not be found. It seems that the file you are trying to download is not available or has been moved. Please verify the URL and try again. If you believe this is an error, please contact the administrator for further assistance.");
+            default -> Localization.lang("Something is wrong on JabRef side. Please check the URL and try again.");
         };
     }
+
 }

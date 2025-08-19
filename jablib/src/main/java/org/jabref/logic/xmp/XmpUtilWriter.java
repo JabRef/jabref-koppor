@@ -49,6 +49,7 @@ public class XmpUtilWriter {
     private static final XmpUtilShared XMP_UTIL_SHARED = new XmpUtilShared();
 
     private final UnprotectTermsFormatter unprotectTermsFormatter = new UnprotectTermsFormatter();
+
     private final XmpPreferences xmpPreferences;
 
     public XmpUtilWriter(XmpPreferences xmpPreferences) {
@@ -56,39 +57,34 @@ public class XmpUtilWriter {
     }
 
     /**
-     * Try to write the given BibTexEntry in the XMP-stream of the given
-     * PDF-file.
+     * Try to write the given BibTexEntry in the XMP-stream of the given PDF-file.
      * <p>
-     * Throws an IOException if the file cannot be read or written, so the user
-     * can remove a lock or cancel the operation.
+     * Throws an IOException if the file cannot be read or written, so the user can remove
+     * a lock or cancel the operation.
      * <p>
-     * The method will overwrite existing BibTeX-XMP-data, but keep other
-     * existing metadata.
+     * The method will overwrite existing BibTeX-XMP-data, but keep other existing
+     * metadata.
      * <p>
      * This is a convenience method for writeXMP(File, Collection).
-     *
-     * @param file     The path to write to.
-     * @param entry    The entry to write.
-     * @param database An optional database which the given bibtex entries belong to, which will be used to
-     *                 resolve strings. If the database is null the strings will not be resolved.
+     * @param file The path to write to.
+     * @param entry The entry to write.
+     * @param database An optional database which the given bibtex entries belong to,
+     * which will be used to resolve strings. If the database is null the strings will not
+     * be resolved.
      * @throws TransformerException If the entry was malformed or unsupported.
-     * @throws IOException          If the file could not be written to or could not be found.
+     * @throws IOException If the file could not be written to or could not be found.
      */
-    public void writeXmp(Path file,
-                         BibEntry entry,
-                         BibDatabase database)
-            throws IOException, TransformerException {
+    public void writeXmp(Path file, BibEntry entry, BibDatabase database) throws IOException, TransformerException {
         writeXmp(file, List.of(entry), database);
     }
 
     /**
-     * Writes the information of the bib entry to the dublin core schema using a custom extractor.
-     *
+     * Writes the information of the bib entry to the dublin core schema using a custom
+     * extractor.
      * @param dcSchema Dublin core schema, which is filled with the bib entry.
-     * @param entry    The entry, which is added to the dublin core metadata.
+     * @param entry The entry, which is added to the dublin core metadata.
      */
-    private void writeToDCSchema(DublinCoreSchema dcSchema,
-                                 BibEntry entry) {
+    private void writeToDCSchema(DublinCoreSchema dcSchema, BibEntry entry) {
         DublinCoreExtractor dcExtractor = new DublinCoreExtractor(dcSchema, xmpPreferences, entry);
         dcExtractor.fillDublinCoreSchema();
     }
@@ -97,21 +93,20 @@ public class XmpUtilWriter {
      * Try to write the given BibTexEntries as DublinCore XMP Schemas
      * <p>
      * Existing DublinCore schemas in the document are removed
-     *
      * @param document The pdf document to write to.
-     * @param entries  The BibTeX entries that are written as schemas
-     * @param database An optional database which the given BibTeX entries belong to, which will be used to
-     *                 resolve strings. If the database is null the strings will not be resolved.
+     * @param entries The BibTeX entries that are written as schemas
+     * @param database An optional database which the given BibTeX entries belong to,
+     * which will be used to resolve strings. If the database is null the strings will not
+     * be resolved.
      */
-    private void writeDublinCore(PDDocument document,
-                                 List<BibEntry> entries,
-                                 BibDatabase database)
+    private void writeDublinCore(PDDocument document, List<BibEntry> entries, BibDatabase database)
             throws IOException, TransformerException {
 
         List<BibEntry> resolvedEntries;
         if (database == null) {
             resolvedEntries = entries;
-        } else {
+        }
+        else {
             resolvedEntries = database.resolveForStrings(entries, false);
         }
 
@@ -121,13 +116,15 @@ public class XmpUtilWriter {
         XMPMetadata meta;
         if (metaRaw == null) {
             meta = XMPMetadata.createXMPMetadata();
-        } else {
+        }
+        else {
             try {
                 meta = XMP_UTIL_SHARED.parseXmpMetadata(metaRaw.createInputStream());
                 // In case, that the pdf file has no namespace definition for xmp,
                 // but metadata in a different format, the parser throws an exception
                 // Creating an empty xmp metadata element solves this problem
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 meta = XMPMetadata.createXMPMetadata();
             }
         }
@@ -136,7 +133,8 @@ public class XmpUtilWriter {
         meta.removeSchema(meta.getDublinCoreSchema());
 
         for (BibEntry entry : resolvedEntries) {
-            DublinCoreSchema dcSchema = DublinCoreSchemaCustom.copyDublinCoreSchema(meta.createAndAddDublinCoreSchema());
+            DublinCoreSchema dcSchema = DublinCoreSchemaCustom
+                .copyDublinCoreSchema(meta.createAndAddDublinCoreSchema());
             writeToDCSchema(dcSchema, entry);
         }
 
@@ -151,10 +149,10 @@ public class XmpUtilWriter {
 
     /**
      * This method generates an xmp metadata string in dublin core format.
-     *
      * @param entries A list of entries, which are added to the dublin core metadata.
-     * @return If something goes wrong (e.g. an exception is thrown), the method returns an empty string,
-     * otherwise it returns the xmp metadata as a string in dublin core format.
+     * @return If something goes wrong (e.g. an exception is thrown), the method returns
+     * an empty string, otherwise it returns the xmp metadata as a string in dublin core
+     * format.
      */
     private String generateXmpStringWithXmpDeclaration(List<BibEntry> entries) {
         XMPMetadata meta = XMPMetadata.createXMPMetadata();
@@ -166,13 +164,16 @@ public class XmpUtilWriter {
             XmpSerializer serializer = new XmpSerializer();
             serializer.serialize(meta, os, true);
             return os.toString(StandardCharsets.UTF_8);
-        } catch (TransformerException e) {
+        }
+        catch (TransformerException e) {
             LOGGER.warn("Transformation into XMP not possible: {}", e.getMessage(), e);
             return "";
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e) {
             LOGGER.warn("Unsupported encoding to UTF-8 of bib entries in XMP metadata.", e);
             return "";
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("IO Exception thrown by closing the output stream.", e);
             return "";
         }
@@ -181,11 +182,10 @@ public class XmpUtilWriter {
     /**
      * This method generates an xmp metadata string in dublin core format without the
      * metadata section {@code <?xpacket begin=...>}.
-     *
-     *
      * @param entries A list of entries, which are added to the dublin core metadata.
-     * @return If something goes wrong (e.g. an exception is thrown), the method returns an empty string,
-     * otherwise it returns the xmp metadata without metadata description as a string in dublin core format.
+     * @return If something goes wrong (e.g. an exception is thrown), the method returns
+     * an empty string, otherwise it returns the xmp metadata without metadata description
+     * as a string in dublin core format.
      */
     public String generateXmpStringWithoutXmpDeclaration(List<BibEntry> entries) {
         String xmpContent = generateXmpStringWithXmpDeclaration(entries);
@@ -193,27 +193,26 @@ public class XmpUtilWriter {
         Predicate<String> isBeginOrEndTag = s -> s.contains(XMP_BEGIN_END_TAG);
 
         return Arrays.stream(xmpContent.split(System.lineSeparator()))
-                     .filter(isBeginOrEndTag.negate())
-                     .collect(Collectors.joining(System.lineSeparator()));
+            .filter(isBeginOrEndTag.negate())
+            .collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
-     * Try to write the given BibTexEntry in the Document Information (the
-     * properties of the pdf).
+     * Try to write the given BibTexEntry in the Document Information (the properties of
+     * the pdf).
      * <p>
-     * Existing fields values are overridden if the bibtex entry has the
-     * corresponding value set.
+     * Existing fields values are overridden if the bibtex entry has the corresponding
+     * value set.
      * <p>
-     * The method to write DublinCore is {@link DublinCoreExtractor#fillDublinCoreSchema()}
-     *
+     * The method to write DublinCore is
+     * {@link DublinCoreExtractor#fillDublinCoreSchema()}
      * @param document The pdf document to write to.
-     * @param entry    The BibEntry that is written into the PDF properties.
-     * @param database An optional database which the given bibtex entries belong to, which will be used to
-     *                 resolve strings. If the database is null the strings will not be resolved.
+     * @param entry The BibEntry that is written into the PDF properties.
+     * @param database An optional database which the given bibtex entries belong to,
+     * which will be used to resolve strings. If the database is null the strings will not
+     * be resolved.
      */
-    private void writeDocumentInformation(PDDocument document,
-                                          BibEntry entry,
-                                          BibDatabase database) {
+    private void writeDocumentInformation(PDDocument document, BibEntry entry, BibDatabase database) {
         PDDocumentInformation di = document.getDocumentInformation();
         BibEntry resolvedEntry = getDefaultOrDatabaseEntry(entry, database);
 
@@ -222,19 +221,15 @@ public class XmpUtilWriter {
             if (useXmpPrivacyFilter && xmpPreferences.getXmpPrivacyFilter().contains(field)) {
                 // erase field instead of adding it
                 switch (field) {
-                    case StandardField.AUTHOR ->
-                            di.setAuthor(null);
-                    case StandardField.TITLE ->
-                            di.setTitle(null);
-                    case StandardField.KEYWORDS ->
-                            di.setKeywords(null);
-                    case StandardField.ABSTRACT ->
-                            di.setSubject(null);
+                    case StandardField.AUTHOR -> di.setAuthor(null);
+                    case StandardField.TITLE -> di.setTitle(null);
+                    case StandardField.KEYWORDS -> di.setKeywords(null);
+                    case StandardField.ABSTRACT -> di.setSubject(null);
                     // do not write file field
                     case StandardField.FILE -> {
                     }
                     case null, default ->
-                            di.setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), null);
+                        di.setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), null);
                 }
                 continue;
             }
@@ -243,53 +238,49 @@ public class XmpUtilWriter {
             String value = unprotectTermsFormatter.format(resolvedEntry.getField(field).orElse(""));
 
             switch (field) {
-                case StandardField.AUTHOR ->
-                        di.setAuthor(value);
-                case StandardField.TITLE ->
-                        di.setTitle(value);
-                case StandardField.KEYWORDS ->
-                        di.setKeywords(value);
-                case StandardField.ABSTRACT ->
-                        di.setSubject(value);
+                case StandardField.AUTHOR -> di.setAuthor(value);
+                case StandardField.TITLE -> di.setTitle(value);
+                case StandardField.KEYWORDS -> di.setKeywords(value);
+                case StandardField.ABSTRACT -> di.setSubject(value);
                 case StandardField.FILE -> {
                     // do not write file field
                 }
-                case null,
-                     default ->
-                        // We hit the case of an PDF-unsupported field --> write it directly
-                        resolvedEntry.getField(field).ifPresent(val -> di.setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), val));
+                case null, default ->
+                    // We hit the case of an PDF-unsupported field --> write it directly
+                    resolvedEntry.getField(field)
+                        .ifPresent(val -> di
+                            .setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), val));
             }
         }
         di.setCustomMetadataValue("bibtex/entrytype", resolvedEntry.getType().getDisplayName());
     }
 
     /**
-     * Try to write the given BibTexEntry in the XMP-stream of the given
-     * PDF-file.
+     * Try to write the given BibTexEntry in the XMP-stream of the given PDF-file.
      * <p>
-     * Throws an IOException if the file cannot be read or written, so the user
-     * can remove a lock or cancel the operation.
+     * Throws an IOException if the file cannot be read or written, so the user can remove
+     * a lock or cancel the operation.
      * <p>
-     * The method will overwrite existing BibTeX-XMP-data, but keep other
-     * existing metadata.
+     * The method will overwrite existing BibTeX-XMP-data, but keep other existing
+     * metadata.
      * <p>
-     * The code for using PDFBox is also used at {@link EmbeddedBibFilePdfExporter#embedBibTex(String, Path)}.
-     *
-     * @param path          The file to write the entries to.
+     * The code for using PDFBox is also used at
+     * {@link EmbeddedBibFilePdfExporter#embedBibTex(String, Path)}.
+     * @param path The file to write the entries to.
      * @param bibtexEntries The entries to write to the file. *
-     * @param database      An optional database which the given bibtex entries belong to, which will be used
-     *                      to resolve strings. If the database is null the strings will not be resolved.
+     * @param database An optional database which the given bibtex entries belong to,
+     * which will be used to resolve strings. If the database is null the strings will not
+     * be resolved.
      * @throws TransformerException If the entry was malformed or unsupported.
-     * @throws IOException          If the file could not be written to or could not be found.
+     * @throws IOException If the file could not be written to or could not be found.
      */
-    public void writeXmp(Path path,
-                         List<BibEntry> bibtexEntries,
-                         BibDatabase database)
+    public void writeXmp(Path path, List<BibEntry> bibtexEntries, BibDatabase database)
             throws IOException, TransformerException {
         List<BibEntry> resolvedEntries;
         if (database == null) {
             resolvedEntries = bibtexEntries;
-        } else {
+        }
+        else {
             resolvedEntries = database.resolveForStrings(bibtexEntries, false);
         }
 
@@ -302,7 +293,8 @@ public class XmpUtilWriter {
                 throw new EncryptedPdfsNotSupportedException();
             }
 
-            // Write schemas (PDDocumentInformation and DublinCoreSchema) to the document metadata
+            // Write schemas (PDDocumentInformation and DublinCoreSchema) to the document
+            // metadata
             if (!resolvedEntries.isEmpty()) {
                 writeDocumentInformation(document, resolvedEntries.getFirst(), null);
                 writeDublinCore(document, resolvedEntries, null);
@@ -312,7 +304,8 @@ public class XmpUtilWriter {
             try {
                 document.save(newFile.toFile());
                 FileUtil.copyFile(newFile, path, true);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.debug("Could not write XMP metadata", e);
                 throw new TransformerException("Could not write XMP metadata: " + e.getLocalizedMessage(), e);
             }
@@ -323,8 +316,10 @@ public class XmpUtilWriter {
     private BibEntry getDefaultOrDatabaseEntry(BibEntry defaultEntry, BibDatabase database) {
         if (database == null) {
             return defaultEntry;
-        } else {
+        }
+        else {
             return database.resolveForStrings(defaultEntry, false);
         }
     }
+
 }

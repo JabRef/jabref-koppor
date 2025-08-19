@@ -36,4 +36,5 @@ public class Ordinal implements LayoutFormatter {
         m.appendTail(sb);
         return sb.toString();
     }
+
 }

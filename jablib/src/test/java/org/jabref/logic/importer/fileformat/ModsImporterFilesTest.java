@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 class ModsImporterFilesTest {
 
     private static final String FILE_ENDING = ".xml";
+
     private ImportFormatPreferences importFormatPreferences;
 
     private static Stream<String> fileNames() throws IOException {
@@ -42,4 +43,5 @@ class ModsImporterFilesTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(new ModsImporter(importFormatPreferences), fileName, FILE_ENDING);
     }
+
 }

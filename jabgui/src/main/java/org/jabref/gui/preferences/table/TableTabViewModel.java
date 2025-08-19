@@ -42,7 +42,8 @@ public class TableTabViewModel implements PreferenceTabViewModel {
         public String toString(MainTableColumnModel object) {
             if (object != null) {
                 return object.getName();
-            } else {
+            }
+            else {
                 return "";
             }
         }
@@ -53,30 +54,49 @@ public class TableTabViewModel implements PreferenceTabViewModel {
         }
     };
 
-    private final ListProperty<MainTableColumnModel> columnsListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObjectProperty<SelectionModel<MainTableColumnModel>> selectedColumnModelProperty = new SimpleObjectProperty<>(new NoSelectionModel<>());
-    private final ListProperty<MainTableColumnModel> availableColumnsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<MainTableColumnModel> columnsListProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
+    private final ObjectProperty<SelectionModel<MainTableColumnModel>> selectedColumnModelProperty = new SimpleObjectProperty<>(
+            new NoSelectionModel<>());
+
+    private final ListProperty<MainTableColumnModel> availableColumnsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final ObjectProperty<MainTableColumnModel> addColumnProperty = new SimpleObjectProperty<>();
+
     private final BooleanProperty specialFieldsEnabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty extraFileColumnsEnabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autoResizeColumnsProperty = new SimpleBooleanProperty();
 
     private final BooleanProperty namesNatbibProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty nameAsIsProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty nameFirstLastProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty nameLastFirstProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty abbreviationDisabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty abbreviationEnabledProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty abbreviationLastNameOnlyProperty = new SimpleBooleanProperty();
 
     private final Validator columnsNotEmptyValidator;
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
 
     private ColumnPreferences initialColumnPreferences;
+
     private final SpecialFieldsPreferences specialFieldsPreferences;
+
     private final NameDisplayPreferences nameDisplayPreferences;
+
     private final MainTablePreferences mainTablePreferences;
 
     public TableTabViewModel(DialogService dialogService, GuiPreferences preferences) {
@@ -89,7 +109,8 @@ public class TableTabViewModel implements PreferenceTabViewModel {
         specialFieldsEnabledProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 insertSpecialFieldColumns();
-            } else {
+            }
+            else {
                 removeSpecialFieldColumns();
             }
         });
@@ -97,18 +118,15 @@ public class TableTabViewModel implements PreferenceTabViewModel {
         extraFileColumnsEnabledProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 insertExtraFileColumns();
-            } else {
+            }
+            else {
                 removeExtraFileColumns();
             }
         });
 
-        columnsNotEmptyValidator = new FunctionBasedValidator<>(
-                columnsListProperty,
-                list -> !list.isEmpty(),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Entry table columns"),
-                        Localization.lang("Columns"),
-                        Localization.lang("List must not be empty."))));
+        columnsNotEmptyValidator = new FunctionBasedValidator<>(columnsListProperty, list -> !list.isEmpty(),
+                ValidationMessage.error("%s > %s %n %n %s".formatted(Localization.lang("Entry table columns"),
+                        Localization.lang("Columns"), Localization.lang("List must not be empty."))));
     }
 
     @Override
@@ -122,8 +140,7 @@ public class TableTabViewModel implements PreferenceTabViewModel {
         fillColumnList();
 
         availableColumnsProperty.clear();
-        availableColumnsProperty.addAll(
-                new MainTableColumnModel(MainTableColumnModel.Type.INDEX),
+        availableColumnsProperty.addAll(new MainTableColumnModel(MainTableColumnModel.Type.INDEX),
                 new MainTableColumnModel(MainTableColumnModel.Type.LINKED_IDENTIFIER),
                 new MainTableColumnModel(MainTableColumnModel.Type.GROUPS),
                 new MainTableColumnModel(MainTableColumnModel.Type.GROUP_ICONS),
@@ -132,13 +149,13 @@ public class TableTabViewModel implements PreferenceTabViewModel {
                 new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.OWNER.getName()),
                 new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.GROUPS.getName()),
                 new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, InternalField.KEY_FIELD.getName()),
-                new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, InternalField.TYPE_HEADER.getName())
-        );
+                new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, InternalField.TYPE_HEADER.getName()));
 
-        EnumSet.allOf(StandardField.class).stream()
-               .map(Field::getName)
-               .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, name))
-               .forEach(item -> availableColumnsProperty.getValue().add(item));
+        EnumSet.allOf(StandardField.class)
+            .stream()
+            .map(Field::getName)
+            .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, name))
+            .forEach(item -> availableColumnsProperty.getValue().add(item));
 
         if (specialFieldsEnabledProperty.getValue()) {
             insertSpecialFieldColumns();
@@ -170,22 +187,26 @@ public class TableTabViewModel implements PreferenceTabViewModel {
     }
 
     private void insertSpecialFieldColumns() {
-        EnumSet.allOf(SpecialField.class).stream()
-               .map(Field::getName)
-               .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, name))
-               .forEach(item -> availableColumnsProperty.getValue().addFirst(item));
+        EnumSet.allOf(SpecialField.class)
+            .stream()
+            .map(Field::getName)
+            .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, name))
+            .forEach(item -> availableColumnsProperty.getValue().addFirst(item));
     }
 
     private void removeSpecialFieldColumns() {
         columnsListProperty.getValue().removeIf(column -> column.getType() == MainTableColumnModel.Type.SPECIALFIELD);
-        availableColumnsProperty.getValue().removeIf(column -> column.getType() == MainTableColumnModel.Type.SPECIALFIELD);
+        availableColumnsProperty.getValue()
+            .removeIf(column -> column.getType() == MainTableColumnModel.Type.SPECIALFIELD);
     }
 
     private void insertExtraFileColumns() {
-        preferences.getExternalApplicationsPreferences().getExternalFileTypes().stream()
-                   .map(ExternalFileType::getName)
-                   .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.EXTRAFILE, name))
-                   .forEach(item -> availableColumnsProperty.getValue().add(item));
+        preferences.getExternalApplicationsPreferences()
+            .getExternalFileTypes()
+            .stream()
+            .map(ExternalFileType::getName)
+            .map(name -> new MainTableColumnModel(MainTableColumnModel.Type.EXTRAFILE, name))
+            .forEach(item -> availableColumnsProperty.getValue().add(item));
     }
 
     private void removeExtraFileColumns() {
@@ -198,7 +219,11 @@ public class TableTabViewModel implements PreferenceTabViewModel {
             return;
         }
 
-        if (columnsListProperty.getValue().stream().filter(item -> item.equals(addColumnProperty.getValue())).findAny().isEmpty()) {
+        if (columnsListProperty.getValue()
+            .stream()
+            .filter(item -> item.equals(addColumnProperty.getValue()))
+            .findAny()
+            .isEmpty()) {
             columnsListProperty.add(addColumnProperty.getValue());
             addColumnProperty.setValue(null);
         }
@@ -242,19 +267,24 @@ public class TableTabViewModel implements PreferenceTabViewModel {
 
         if (nameLastFirstProperty.getValue()) {
             nameDisplayPreferences.setDisplayStyle(DisplayStyle.LASTNAME_FIRSTNAME);
-        } else if (namesNatbibProperty.getValue()) {
+        }
+        else if (namesNatbibProperty.getValue()) {
             nameDisplayPreferences.setDisplayStyle(DisplayStyle.NATBIB);
-        } else if (nameAsIsProperty.getValue()) {
+        }
+        else if (nameAsIsProperty.getValue()) {
             nameDisplayPreferences.setDisplayStyle(DisplayStyle.AS_IS);
-        } else if (nameFirstLastProperty.getValue()) {
+        }
+        else if (nameFirstLastProperty.getValue()) {
             nameDisplayPreferences.setDisplayStyle(DisplayStyle.FIRSTNAME_LASTNAME);
         }
 
         if (abbreviationDisabledProperty.getValue()) {
             nameDisplayPreferences.setAbbreviationStyle(AbbreviationStyle.NONE);
-        } else if (abbreviationEnabledProperty.getValue()) {
+        }
+        else if (abbreviationEnabledProperty.getValue()) {
             nameDisplayPreferences.setAbbreviationStyle(AbbreviationStyle.FULL);
-        } else if (abbreviationLastNameOnlyProperty.getValue()) {
+        }
+        else if (abbreviationLastNameOnlyProperty.getValue()) {
             nameDisplayPreferences.setAbbreviationStyle(AbbreviationStyle.LASTNAME_ONLY);
         }
     }
@@ -267,8 +297,8 @@ public class TableTabViewModel implements PreferenceTabViewModel {
     public boolean validateSettings() {
         ValidationStatus validationStatus = columnsListValidationStatus();
         if (!validationStatus.isValid()) {
-            validationStatus.getHighestMessage().ifPresent(message ->
-                    dialogService.showErrorDialogAndWait(message.getMessage()));
+            validationStatus.getHighestMessage()
+                .ifPresent(message -> dialogService.showErrorDialogAndWait(message.getMessage()));
             return false;
         }
         return true;
@@ -329,4 +359,5 @@ public class TableTabViewModel implements PreferenceTabViewModel {
     public BooleanProperty abbreviationLastNameOnlyProperty() {
         return abbreviationLastNameOnlyProperty;
     }
+
 }

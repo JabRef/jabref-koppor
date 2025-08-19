@@ -22,9 +22,9 @@ public class EntryEditorPreferences {
      * Specifies the different possible enablement states for online services
      */
     public enum JournalPopupEnabled {
+
         FIRST_START, // The first time a user uses this service
-        ENABLED,
-        DISABLED;
+        ENABLED, DISABLED;
 
         public static JournalPopupEnabled fromString(String status) {
             for (JournalPopupEnabled value : JournalPopupEnabled.values()) {
@@ -34,44 +34,52 @@ public class EntryEditorPreferences {
             }
             throw new IllegalArgumentException("No enum found with value: " + status);
         }
+
     }
 
     private final MapProperty<String, Set<Field>> entryEditorTabList;
+
     private final MapProperty<String, Set<Field>> defaultEntryEditorTabList;
+
     private final BooleanProperty shouldOpenOnNewEntry;
+
     private final BooleanProperty shouldShowRecommendationsTab;
+
     private final BooleanProperty shouldShowAiSummaryTab;
+
     private final BooleanProperty shouldShowAiChatTab;
+
     private final BooleanProperty shouldShowLatexCitationsTab;
+
     private final BooleanProperty shouldShowFileAnnotationsTab;
+
     private final BooleanProperty showSourceTabByDefault;
+
     private final BooleanProperty enableValidation;
+
     private final BooleanProperty allowIntegerEditionBibtex;
+
     private final BooleanProperty autoLinkFiles;
+
     private final ObjectProperty<JournalPopupEnabled> enablementStatus;
+
     private final BooleanProperty shouldShowSciteTab;
+
     private final BooleanProperty showUserCommentsFields;
+
     private final DoubleProperty previewWidthDividerPosition;
 
     public EntryEditorPreferences(Map<String, Set<Field>> entryEditorTabList,
-                                  Map<String, Set<Field>> defaultEntryEditorTabList,
-                                  boolean shouldOpenOnNewEntry,
-                                  boolean shouldShowRecommendationsTab,
-                                  boolean shouldShowAiSummaryTab,
-                                  boolean shouldShowAiChatTab,
-                                  boolean shouldShowLatexCitationsTab,
-                                  boolean shouldShowFileAnnotationsTab,
-                                  boolean showSourceTabByDefault,
-                                  boolean enableValidation,
-                                  boolean allowIntegerEditionBibtex,
-                                  boolean autolinkFilesEnabled,
-                                  JournalPopupEnabled journalPopupEnabled,
-                                  boolean showSciteTab,
-                                  boolean showUserCommentsFields,
-                                  double previewWidthDividerPosition) {
+            Map<String, Set<Field>> defaultEntryEditorTabList, boolean shouldOpenOnNewEntry,
+            boolean shouldShowRecommendationsTab, boolean shouldShowAiSummaryTab, boolean shouldShowAiChatTab,
+            boolean shouldShowLatexCitationsTab, boolean shouldShowFileAnnotationsTab, boolean showSourceTabByDefault,
+            boolean enableValidation, boolean allowIntegerEditionBibtex, boolean autolinkFilesEnabled,
+            JournalPopupEnabled journalPopupEnabled, boolean showSciteTab, boolean showUserCommentsFields,
+            double previewWidthDividerPosition) {
 
         this.entryEditorTabList = new SimpleMapProperty<>(FXCollections.observableMap(entryEditorTabList));
-        this.defaultEntryEditorTabList = new SimpleMapProperty<>(FXCollections.observableMap(defaultEntryEditorTabList));
+        this.defaultEntryEditorTabList = new SimpleMapProperty<>(
+                FXCollections.observableMap(defaultEntryEditorTabList));
         this.shouldOpenOnNewEntry = new SimpleBooleanProperty(shouldOpenOnNewEntry);
         this.shouldShowRecommendationsTab = new SimpleBooleanProperty(shouldShowRecommendationsTab);
         this.shouldShowAiSummaryTab = new SimpleBooleanProperty(shouldShowAiSummaryTab);
@@ -274,4 +282,5 @@ public class EntryEditorPreferences {
     public Double getPreviewWidthDividerPosition() {
         return previewWidthDividerPosition.get();
     }
+
 }

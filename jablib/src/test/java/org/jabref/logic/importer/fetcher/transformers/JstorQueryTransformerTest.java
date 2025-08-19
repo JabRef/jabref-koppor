@@ -40,7 +40,8 @@ class JstorQueryTransformerTest extends InfixTransformerTest<JstorQueryTransform
     @Test
     public void convertYearField() throws QueryNodeParseException {
         String queryString = "year:2018";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         Optional<String> query = getTransformer().transformLuceneQuery(luceneQuery);
         assertEquals(Optional.of("sd:2018 AND ed:2018"), query);
     }
@@ -49,8 +50,10 @@ class JstorQueryTransformerTest extends InfixTransformerTest<JstorQueryTransform
     @Test
     public void convertYearRangeField() throws QueryNodeParseException {
         String queryString = "year-range:2018-2021";
-        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString, AbstractQueryTransformer.NO_EXPLICIT_FIELD);
+        QueryNode luceneQuery = new StandardSyntaxParser().parse(queryString,
+                AbstractQueryTransformer.NO_EXPLICIT_FIELD);
         Optional<String> query = getTransformer().transformLuceneQuery(luceneQuery);
         assertEquals(Optional.of("sd:2018 AND ed:2021"), query);
     }
+
 }

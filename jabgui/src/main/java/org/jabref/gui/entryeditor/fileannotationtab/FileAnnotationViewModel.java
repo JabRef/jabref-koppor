@@ -11,11 +11,17 @@ import org.jabref.model.pdf.FileAnnotationType;
 public class FileAnnotationViewModel {
 
     private static final String NEWLINE = "%n".formatted();
+
     private final FileAnnotation annotation;
+
     private StringProperty author = new SimpleStringProperty();
+
     private StringProperty page = new SimpleStringProperty();
+
     private StringProperty date = new SimpleStringProperty();
+
     private StringProperty content = new SimpleStringProperty();
+
     private StringProperty marking = new SimpleStringProperty();
 
     public FileAnnotationViewModel(FileAnnotation annotation) {
@@ -33,7 +39,8 @@ public class FileAnnotationViewModel {
             String illegibleTextMessage = Localization.lang("The marked area does not contain any legible text!");
             String markingContent = annotationContent.isEmpty() ? illegibleTextMessage : annotationContent;
             this.marking.set(removePunctuationMark(markingContent));
-        } else {
+        }
+        else {
             String content = annotation.getContent();
             this.content.set(removePunctuationMark(content));
             this.marking.set("");
@@ -110,4 +117,5 @@ public class FileAnnotationViewModel {
     public String getMarking() {
         return marking.get();
     }
+
 }

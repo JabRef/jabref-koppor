@@ -7,7 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 
 /**
- * Constructs a {@link TableCell} based on an optional value of the cell and a bunch of specified converter methods.
+ * Constructs a {@link TableCell} based on an optional value of the cell and a bunch of
+ * specified converter methods.
  *
  * @param <S> view model of table row
  * @param <T> cell value
@@ -15,6 +16,7 @@ import javafx.scene.control.TableCell;
 public class OptionalValueTableCellFactory<S, T> extends ValueTableCellFactory<S, Optional<T>> {
 
     private BiFunction<S, T, Node> toGraphicIfPresent;
+
     private Node defaultGraphic;
 
     public OptionalValueTableCellFactory<S, T> withGraphicIfPresent(BiFunction<S, T, Node> toGraphicIfPresent) {
@@ -33,9 +35,11 @@ public class OptionalValueTableCellFactory<S, T> extends ValueTableCellFactory<S
         withGraphic((rowItem, item) -> {
             if (item.isPresent() && toGraphicIfPresent != null) {
                 return toGraphicIfPresent.apply(rowItem, item.get());
-            } else {
+            }
+            else {
                 return defaultGraphic;
             }
         });
     }
+
 }

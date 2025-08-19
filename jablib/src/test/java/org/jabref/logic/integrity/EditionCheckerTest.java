@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EditionCheckerTest {
+
     @Test
     void isFirstCharacterANumber() {
         assertTrue(createSimpleEditionChecker(new BibDatabaseContext(), false).isFirstCharDigit("0HelloWorld"));
@@ -66,12 +67,14 @@ class EditionCheckerTest {
 
     @Test
     void bibTexDoesNotAcceptIntegerOnly() {
-        assertEquals(Optional.of(Localization.lang("no integer as values for edition allowed")), createBibtexEditionChecker(false).checkValue("3"));
+        assertEquals(Optional.of(Localization.lang("no integer as values for edition allowed")),
+                createBibtexEditionChecker(false).checkValue("3"));
     }
 
     @Test
     void bibTexAcceptsFirstEditionAlsoIfIntegerEditionDisallowed() {
-        assertEquals(Optional.of(Localization.lang("edition of book reported as just 1")), createBibtexEditionChecker(false).checkValue("1"));
+        assertEquals(Optional.of(Localization.lang("edition of book reported as just 1")),
+                createBibtexEditionChecker(false).checkValue("1"));
     }
 
     @Test
@@ -86,7 +89,8 @@ class EditionCheckerTest {
 
     @Test
     void bibLaTexAcceptsEditionAsLiteralString() {
-        assertEquals(Optional.empty(), createBiblatexEditionChecker(true).checkValue("Third, revised and expanded edition"));
+        assertEquals(Optional.empty(),
+                createBiblatexEditionChecker(true).checkValue("Third, revised and expanded edition"));
     }
 
     @Test
@@ -106,7 +110,9 @@ class EditionCheckerTest {
         return new EditionChecker(biblatex, allowIntegerEdition);
     }
 
-    private EditionChecker createSimpleEditionChecker(BibDatabaseContext bibDatabaseContextEdition, boolean allowIntegerEdition) {
+    private EditionChecker createSimpleEditionChecker(BibDatabaseContext bibDatabaseContextEdition,
+            boolean allowIntegerEdition) {
         return new EditionChecker(bibDatabaseContextEdition, allowIntegerEdition);
     }
+
 }

@@ -11,29 +11,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReferenceMark {
-    public static final String[] PREFIXES = {"JABREF_", "CID_"};
+
+    public static final String[] PREFIXES = { "JABREF_", "CID_" };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceMark.class);
 
     private static final Pattern REFERENCE_MARK_FORMAT = Pattern.compile(
-            "^(JABREF_[\\w-:./]+ CID_\\d+(?:, JABREF_[\\w-:./]+ CID_\\d+)*) (\\w+)$",
-            Pattern.UNICODE_CHARACTER_CLASS);
+            "^(JABREF_[\\w-:./]+ CID_\\d+(?:, JABREF_[\\w-:./]+ CID_\\d+)*) (\\w+)$", Pattern.UNICODE_CHARACTER_CLASS);
 
-    private static final Pattern ENTRY_PATTERN = Pattern.compile(
-            "JABREF_([\\w-:./]+) CID_(\\d+)",
+    private static final Pattern ENTRY_PATTERN = Pattern.compile("JABREF_([\\w-:./]+) CID_(\\d+)",
             Pattern.UNICODE_CHARACTER_CLASS);
 
     private final String name;
+
     private List<String> citationKeys;
+
     private List<Integer> citationNumbers;
+
     private String uniqueId;
 
     /**
-     * @param name Allowed formats:
-     * Single entry: <code>JABREF_{citationKey} CID_{citationNumber} {uniqueId}</code>
-     * Group of entries: <code>JABREF_{citationKey1} CID_{citationNumber1}, JABREF_{citationKey2} CID_{citationNumber2}, ..., JABREF_{citationKeyN} CID_{citationNumberN} {uniqueId}</code>
-     * Disallowed: <code>JABREF_{citationKey} CID_{citationNumber}</code> (no unique ID at the end)
-     * Disallowed: <code>JABREF_{citationKey1} CID_{citationNumber1} JABREF_{citationKey2} CID_{citationNumber2} {uniqueId}</code> (no comma between entries)
+     * @param name Allowed formats: Single entry:
+     * <code>JABREF_{citationKey} CID_{citationNumber} {uniqueId}</code> Group of entries:
+     * <code>JABREF_{citationKey1} CID_{citationNumber1}, JABREF_{citationKey2} CID_{citationNumber2}, ..., JABREF_{citationKeyN} CID_{citationNumberN} {uniqueId}</code>
+     * Disallowed: <code>JABREF_{citationKey} CID_{citationNumber}</code> (no unique ID at
+     * the end) Disallowed:
+     * <code>JABREF_{citationKey1} CID_{citationNumber1} JABREF_{citationKey2} CID_{citationNumber2} {uniqueId}</code>
+     * (no comma between entries)
      */
     public ReferenceMark(String name) {
         this.name = name;
@@ -75,7 +79,8 @@ public class ReferenceMark {
             this.citationNumbers = List.of(0);
         }
 
-        LOGGER.debug("CSLReferenceMark: citationKeys={} citationNumbers={} uniqueId={}", getCitationKeys(), getCitationNumbers(), getUniqueId());
+        LOGGER.debug("CSLReferenceMark: citationKeys={} citationNumbers={} uniqueId={}", getCitationKeys(),
+                getCitationNumbers(), getUniqueId());
     }
 
     public String getName() {
@@ -101,4 +106,5 @@ public class ReferenceMark {
         ReferenceMark mark = new ReferenceMark(name);
         return mark.citationKeys.isEmpty() ? Optional.empty() : Optional.of(mark);
     }
+
 }

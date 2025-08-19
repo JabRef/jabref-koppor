@@ -22,24 +22,25 @@ public class CitationGroup {
     public final CitationGroupId groupId;
 
     /*
-     * The core data, stored in the document:
-     * The type of citation and citations in storage order.
+     * The core data, stored in the document: The type of citation and citations in
+     * storage order.
      */
     public final CitationType citationType;
+
     public final List<Citation> citationsInStorageOrder;
 
     /*
-     * A name of a reference mark to link to by formatCitedOnPages.
-     * May be initially empty, if backend does not use reference marks.
+     * A name of a reference mark to link to by formatCitedOnPages. May be initially
+     * empty, if backend does not use reference marks.
      *
-     * produceCitationMarkers might want fill it to support cross-references to citation groups from
-     * the bibliography.
+     * produceCitationMarkers might want fill it to support cross-references to citation
+     * groups from the bibliography.
      */
     private Optional<String> referenceMarkNameForLinking;
 
     /*
-     * Indices into citations: citations[localOrder[i]] provides ith citation according to the
-     * currently imposed local order for presentation.
+     * Indices into citations: citations[localOrder[i]] provides ith citation according to
+     * the currently imposed local order for presentation.
      *
      * Initialized to (0..(nCitations-1)) in the constructor.
      */
@@ -55,11 +56,8 @@ public class CitationGroup {
      */
     private Optional<OOText> citationMarker;
 
-    public CitationGroup(OODataModel dataModel,
-                         CitationGroupId groupId,
-                         CitationType citationType,
-                         List<Citation> citationsInStorageOrder,
-                         Optional<String> referenceMarkNameForLinking) {
+    public CitationGroup(OODataModel dataModel, CitationGroupId groupId, CitationType citationType,
+            List<Citation> citationsInStorageOrder, Optional<String> referenceMarkNameForLinking) {
         this.dataModel = dataModel;
         this.groupId = groupId;
         this.citationType = citationType;
@@ -92,8 +90,7 @@ public class CitationGroup {
             lastCitation.setPageInfo(Optional.empty());
         }
 
-        this.localOrder = OOListUtil.order(citationsInStorageOrder,
-                new CompareCitation(entryComparator, true));
+        this.localOrder = OOListUtil.order(citationsInStorageOrder, new CompareCitation(entryComparator, true));
 
         if (dataModel == OODataModel.JabRef52) {
             getCitationsInLocalOrder().get(last).setPageInfo(lastPageInfo);
@@ -147,4 +144,5 @@ public class CitationGroup {
     public Optional<OOText> getCitationMarker() {
         return this.citationMarker;
     }
+
 }

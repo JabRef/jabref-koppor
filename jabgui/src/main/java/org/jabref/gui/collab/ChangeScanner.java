@@ -17,14 +17,14 @@ import org.slf4j.LoggerFactory;
 public class ChangeScanner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeScanner.class);
+
     private final BibDatabaseContext database;
+
     private final GuiPreferences preferences;
 
     private final DatabaseChangeResolverFactory databaseChangeResolverFactory;
 
-    public ChangeScanner(BibDatabaseContext database,
-                         DialogService dialogService,
-                         GuiPreferences preferences) {
+    public ChangeScanner(BibDatabaseContext database, DialogService dialogService, GuiPreferences preferences) {
         this.database = database;
         this.preferences = preferences;
         this.databaseChangeResolverFactory = new DatabaseChangeResolverFactory(dialogService, database, preferences);
@@ -39,13 +39,16 @@ public class ChangeScanner {
             // Parse the modified file
             // Important: apply all post-load actions
             ImportFormatPreferences importFormatPreferences = preferences.getImportFormatPreferences();
-            ParserResult result = OpenDatabase.loadDatabase(database.getDatabasePath().get(), importFormatPreferences, new DummyFileUpdateMonitor());
+            ParserResult result = OpenDatabase.loadDatabase(database.getDatabasePath().get(), importFormatPreferences,
+                    new DummyFileUpdateMonitor());
             BibDatabaseContext databaseOnDisk = result.getDatabaseContext();
 
             return DatabaseChangeList.compareAndGetChanges(database, databaseOnDisk, databaseChangeResolverFactory);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Error while parsing changed file.", e);
             return List.of();
         }
     }
+
 }

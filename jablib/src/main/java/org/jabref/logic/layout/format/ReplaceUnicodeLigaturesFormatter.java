@@ -49,4 +49,5 @@ public class ReplaceUnicodeLigaturesFormatter extends Formatter implements Layou
     public String getExampleInput() {
         return "Æneas";
     }
+
 }

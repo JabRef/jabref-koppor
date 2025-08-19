@@ -15,15 +15,20 @@ import com.tobiasdiez.easybind.EasyBind;
 
 public class CustomExporterTab extends AbstractPreferenceTabView<CustomExporterTabViewModel> implements PreferencesTab {
 
-    @FXML private TableView<ExporterViewModel> exporterTable;
-    @FXML private TableColumn<ExporterViewModel, String> nameColumn;
-    @FXML private TableColumn<ExporterViewModel, String> layoutColumn;
-    @FXML private TableColumn<ExporterViewModel, String> extensionColumn;
+    @FXML
+    private TableView<ExporterViewModel> exporterTable;
+
+    @FXML
+    private TableColumn<ExporterViewModel, String> nameColumn;
+
+    @FXML
+    private TableColumn<ExporterViewModel, String> layoutColumn;
+
+    @FXML
+    private TableColumn<ExporterViewModel, String> extensionColumn;
 
     public CustomExporterTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -37,7 +42,8 @@ public class CustomExporterTab extends AbstractPreferenceTabView<CustomExporterT
 
         exporterTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         exporterTable.itemsProperty().bind(viewModel.exportersProperty());
-        EasyBind.bindContent(viewModel.selectedExportersProperty(), exporterTable.getSelectionModel().getSelectedItems());
+        EasyBind.bindContent(viewModel.selectedExportersProperty(),
+                exporterTable.getSelectionModel().getSelectedItems());
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().name());
         layoutColumn.setCellValueFactory(cellData -> cellData.getValue().layoutFileName());
         extensionColumn.setCellValueFactory(cellData -> cellData.getValue().extension());
@@ -57,4 +63,5 @@ public class CustomExporterTab extends AbstractPreferenceTabView<CustomExporterT
     private void remove() {
         viewModel.removeExporters();
     }
+
 }

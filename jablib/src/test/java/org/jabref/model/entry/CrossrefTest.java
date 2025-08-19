@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CrossrefTest {
 
     private BibEntry parent;
+
     private BibEntry child;
+
     private BibDatabase db;
 
     @BeforeEach
@@ -49,7 +51,7 @@ class CrossrefTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = StandardField.class, names = {"IDS", "XREF", "ENTRYSET", "RELATED", "SORTKEY"})
+    @EnumSource(value = StandardField.class, names = { "IDS", "XREF", "ENTRYSET", "RELATED", "SORTKEY" })
     void forbiddenFields(StandardField field) {
         Optional<String> childField = child.getResolvedFieldOrAlias(field, db);
         assertTrue(childField.isEmpty());
@@ -61,26 +63,20 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
-                child.getResolvedFieldOrAlias(StandardField.AUTHOR, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
+                child.getResolvedFieldOrAlias(StandardField.AUTHOR, db));
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKAUTHOR, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
+                child.getResolvedFieldOrAlias(StandardField.BOOKAUTHOR, db));
     }
 
     private static Stream<Arguments> authorInheritanceSource() {
-        return Stream.of(
-                Arguments.of(StandardEntryType.MvBook, StandardEntryType.InBook),
+        return Stream.of(Arguments.of(StandardEntryType.MvBook, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.BookInBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.SuppBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.BookInBook),
-                Arguments.of(StandardEntryType.Book, StandardEntryType.SuppBook)
-        );
+                Arguments.of(StandardEntryType.Book, StandardEntryType.SuppBook));
     }
 
     @ParameterizedTest
@@ -89,23 +85,16 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINSUBTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINTITLEADDON, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.MAINTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.MAINSUBTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
+                child.getResolvedFieldOrAlias(StandardField.MAINTITLEADDON, db));
     }
 
     private static Stream<Arguments> mainTitleInheritanceSource() {
-        return Stream.of(
-                Arguments.of(StandardEntryType.MvBook, StandardEntryType.Book),
+        return Stream.of(Arguments.of(StandardEntryType.MvBook, StandardEntryType.Book),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.BookInBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.SuppBook),
@@ -115,8 +104,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.MvProceedings, StandardEntryType.Proceedings),
                 Arguments.of(StandardEntryType.MvProceedings, StandardEntryType.InProceedings),
                 Arguments.of(StandardEntryType.MvReference, StandardEntryType.Reference),
-                Arguments.of(StandardEntryType.MvReference, StandardEntryType.InReference)
-        );
+                Arguments.of(StandardEntryType.MvReference, StandardEntryType.InReference));
     }
 
     @ParameterizedTest
@@ -125,30 +113,22 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKSUBTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKTITLEADDON, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.BOOKTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.BOOKSUBTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
+                child.getResolvedFieldOrAlias(StandardField.BOOKTITLEADDON, db));
     }
 
     private static Stream<Arguments> bookTitleInheritanceSource() {
-        return Stream.of(
-                Arguments.of(StandardEntryType.Book, StandardEntryType.InBook),
+        return Stream.of(Arguments.of(StandardEntryType.Book, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.BookInBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.SuppBook),
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.InCollection),
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.SuppCollection),
                 Arguments.of(StandardEntryType.Reference, StandardEntryType.InReference),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings));
     }
 
     @ParameterizedTest
@@ -157,21 +137,15 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.JOURNALTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.JOURNALSUBTITLE, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.JOURNALTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
+                child.getResolvedFieldOrAlias(StandardField.JOURNALSUBTITLE, db));
     }
 
     private static Stream<Arguments> journalTitleInheritanceSource() {
-        return Stream.of(
-                Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.Article),
-                Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.SuppPeriodical)
-        );
+        return Stream.of(Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.Article),
+                Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.SuppPeriodical));
     }
 
     @ParameterizedTest
@@ -187,8 +161,7 @@ class CrossrefTest {
     }
 
     private static Stream<Arguments> noTitleInheritanceSource() {
-        return Stream.of(
-                Arguments.of(StandardEntryType.MvBook, StandardEntryType.Book),
+        return Stream.of(Arguments.of(StandardEntryType.MvBook, StandardEntryType.Book),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.BookInBook),
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.SuppBook),
@@ -205,8 +178,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.InCollection),
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.SuppCollection),
                 Arguments.of(StandardEntryType.Reference, StandardEntryType.InReference),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings));
     }
 
     @ParameterizedTest
@@ -217,10 +189,7 @@ class CrossrefTest {
 
         assertTrue(parent.setField(field, "parent_FIELD").isPresent());
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(field, null),
-                child.getResolvedFieldOrAlias(field, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(field, null), child.getResolvedFieldOrAlias(field, db));
     }
 
     private static Stream<Arguments> sameNameInheritance() {
@@ -232,10 +201,12 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ANNOTE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ANNOTATION),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ANNOTATOR),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ARCHIVEPREFIX),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.ARCHIVEPREFIX),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ASSIGNEE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.AUTHOR),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.BOOKPAGINATION),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.BOOKPAGINATION),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.CHAPTER),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.COMMENTATOR),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.COMMENT),
@@ -258,21 +229,25 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.EPRINTTYPE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.EVENTDATE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.EVENTTITLE),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.EVENTTITLEADDON),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.EVENTTITLEADDON),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.FILE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.FOREWORD),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.FOLDER),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.GENDER),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.HOLDER),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.HOWPUBLISHED),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.HOWPUBLISHED),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.INSTITUTION),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.INTRODUCTION),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.INTRODUCTION),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISBN),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISRN),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISSN),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISSUE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISSUETITLE),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ISSUESUBTITLE),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.ISSUESUBTITLE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.JOURNAL),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.KEY),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.KEYWORDS),
@@ -284,9 +259,11 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.NATIONALITY),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.NOTE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.NUMBER),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ORGANIZATION),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.ORGANIZATION),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ORIGDATE),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.ORIGLANGUAGE),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.ORIGLANGUAGE),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PAGES),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PAGETOTAL),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PAGINATION),
@@ -296,7 +273,8 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PS),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PUBLISHER),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PUBSTATE),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.PRIMARYCLASS),
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings,
+                        StandardField.PRIMARYCLASS),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.REPORTNO),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.REVIEW),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.REVISION),
@@ -317,7 +295,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.YEAR),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.YEARFILED),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.MR_NUMBER),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.XDATA)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.XDATA));
     }
+
 }

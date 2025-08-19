@@ -14,9 +14,9 @@ import org.jspecify.annotations.NullMarked;
  * <p>
  * E.g.,
  * <ul>
- *     <li>{Vall{\'e}e Poussin} -> Vall{\'e}e Poussin</li>
- *     <li>{Vall{\'e}e} {Poussin} -> Vall{\'e}e Poussin</li>
- *     <li>Vall{\'e}e Poussin -> Vall{\'e}e Poussin</li>
+ * <li>{Vall{\'e}e Poussin} -> Vall{\'e}e Poussin</li>
+ * <li>{Vall{\'e}e} {Poussin} -> Vall{\'e}e Poussin</li>
+ * <li>Vall{\'e}e Poussin -> Vall{\'e}e Poussin</li>
  * </ul>
  */
 @NullMarked
@@ -55,7 +55,8 @@ public class RemoveWordEnclosingAndOuterEnclosingBracesFormatter extends Formatt
             return input;
         }
 
-        // We need to first remove the outer braces to have double braces at the last word working (e.g., {In {CDMA}})
+        // We need to first remove the outer braces to have double braces at the last word
+        // working (e.g., {In {CDMA}})
         input = REMOVE_ENCLOSING_BRACES_FORMATTER.format(input);
 
         String[] split = input.split(" ");
@@ -63,7 +64,8 @@ public class RemoveWordEnclosingAndOuterEnclosingBracesFormatter extends Formatt
         for (String s : split) {
             if ((s.length() > 2) && s.startsWith("{") && s.endsWith("}")) {
                 // quick solution (which we don't do): just remove first "{" and last "}"
-                // however, it might be that s is like {A}bbb{c}, where braces may not be removed
+                // however, it might be that s is like {A}bbb{c}, where braces may not be
+                // removed
 
                 String inner = s.substring(1, s.length() - 1);
 
@@ -71,8 +73,10 @@ public class RemoveWordEnclosingAndOuterEnclosingBracesFormatter extends Formatt
                     if (properBrackets(inner)) {
                         s = inner;
                     }
-                } else {
-                    //  no inner curly brackets found, no check needed, inner can just be used as s
+                }
+                else {
+                    // no inner curly brackets found, no check needed, inner can just be
+                    // used as s
                     s = inner;
                 }
             }
@@ -107,4 +111,5 @@ public class RemoveWordEnclosingAndOuterEnclosingBracesFormatter extends Formatt
         }
         return level == 0;
     }
+
 }

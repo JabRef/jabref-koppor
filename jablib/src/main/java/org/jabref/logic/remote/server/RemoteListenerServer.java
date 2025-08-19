@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RemoteListenerServer implements Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteListenerServer.class);
 
     private static final int BACKLOG = 1;
@@ -22,6 +23,7 @@ public class RemoteListenerServer implements Runnable {
     private static final int TIMEOUT = 1000;
 
     private final RemoteMessageHandler messageHandler;
+
     private final ServerSocket serverSocket;
 
     public RemoteListenerServer(RemoteMessageHandler messageHandler, int port) throws IOException {
@@ -39,13 +41,16 @@ public class RemoteListenerServer implements Runnable {
                         Pair<RemoteMessage, Object> input = protocol.receiveMessage();
                         handleMessage(protocol, input.getKey(), input.getValue());
                     }
-                } catch (SocketException ex) {
+                }
+                catch (SocketException ex) {
                     return;
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     LOGGER.warn("RemoteListenerServer crashed", e);
                 }
             }
-        } finally {
+        }
+        finally {
             closeServerSocket();
         }
     }
@@ -59,8 +64,10 @@ public class RemoteListenerServer implements Runnable {
                 if (argument instanceof String[] strings) {
                     messageHandler.handleCommandLineArguments(strings);
                     protocol.sendMessage(RemoteMessage.OK);
-                } else {
-                    throw new IOException("Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got " + argument);
+                }
+                else {
+                    throw new IOException(
+                            "Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got " + argument);
                 }
                 break;
             case FOCUS:
@@ -75,8 +82,10 @@ public class RemoteListenerServer implements Runnable {
     public void closeServerSocket() {
         try {
             serverSocket.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Unable to close server socket", e);
         }
     }
+
 }

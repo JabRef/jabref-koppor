@@ -14,16 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @implNote The first byte of every message identifies its type as a {@link RemoteMessage}.
- * Every message is terminated with '\0'.
+ * @implNote The first byte of every message identifies its type as a
+ * {@link RemoteMessage}. Every message is terminated with '\0'.
  */
 public class Protocol implements AutoCloseable {
+
     public static final String IDENTIFIER = "jabref";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Protocol.class);
 
     private final Socket socket;
+
     private final ObjectOutputStream out;
+
     private final ObjectInputStream in;
 
     public Protocol(Socket socket) throws IOException {
@@ -42,7 +45,8 @@ public class Protocol implements AutoCloseable {
     public void sendMessage(RemoteMessage type, Object argument) throws IOException {
         out.writeObject(type);
 
-        // encode the commandline arguments to handle special characters (eg. spaces and Chinese characters)
+        // encode the commandline arguments to handle special characters (eg. spaces and
+        // Chinese characters)
         // related to issue #6487
         if (type == RemoteMessage.SEND_COMMAND_LINE_ARGUMENTS) {
             String[] encodedArgs = ((String[]) argument).clone();
@@ -50,7 +54,8 @@ public class Protocol implements AutoCloseable {
                 encodedArgs[i] = URLEncoder.encode(encodedArgs[i], StandardCharsets.UTF_8);
             }
             out.writeObject(encodedArgs);
-        } else {
+        }
+        else {
             out.writeObject(argument);
         }
 
@@ -76,7 +81,8 @@ public class Protocol implements AutoCloseable {
             }
 
             return new Pair<>(type, argument);
-        } catch (ClassNotFoundException e) {
+        }
+        catch (ClassNotFoundException e) {
             throw new IOException("Could not deserialize message", e);
         }
     }
@@ -85,24 +91,30 @@ public class Protocol implements AutoCloseable {
     public void close() {
         try {
             in.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Input stream not closed", e);
         }
 
         try {
             out.close();
-        } catch (IOException e) {
-            // On the server side, the socket is automatically closed, thus we don't need to close it here.
+        }
+        catch (IOException e) {
+            // On the server side, the socket is automatically closed, thus we don't need
+            // to close it here.
             // See org.jabref.logic.remote.server.RemoteListenerServer.run
             LOGGER.debug("Output stream not closed", e);
         }
 
         try {
             socket.close();
-        } catch (IOException e) {
-            // On the server side, the socket is automatically closed, thus we don't need to close it here.
+        }
+        catch (IOException e) {
+            // On the server side, the socket is automatically closed, thus we don't need
+            // to close it here.
             // See org.jabref.logic.remote.server.RemoteListenerServer.run
             LOGGER.debug("Socket not closed", e);
         }
     }
+
 }

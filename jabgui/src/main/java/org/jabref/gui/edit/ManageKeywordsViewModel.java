@@ -22,9 +22,14 @@ import com.tobiasdiez.easybind.EasyBind;
 public class ManageKeywordsViewModel {
 
     private final List<BibEntry> entries;
+
     private final KeywordList sortedKeywordsOfAllEntriesBeforeUpdateByUser = new KeywordList();
+
     private final BibEntryPreferences bibEntryPreferences;
-    private final ObjectProperty<ManageKeywordsDisplayType> displayType = new SimpleObjectProperty<>(ManageKeywordsDisplayType.CONTAINED_IN_ALL_ENTRIES);
+
+    private final ObjectProperty<ManageKeywordsDisplayType> displayType = new SimpleObjectProperty<>(
+            ManageKeywordsDisplayType.CONTAINED_IN_ALL_ENTRIES);
+
     private final ObservableList<String> keywords;
 
     public ManageKeywordsViewModel(BibEntryPreferences bibEntryPreferences, List<BibEntry> entries) {
@@ -53,19 +58,22 @@ public class ManageKeywordsViewModel {
                 KeywordList separatedKeywords = entry.getKeywords(keywordSeparator);
                 sortedKeywordsOfAllEntriesBeforeUpdateByUser.addAll(separatedKeywords);
             }
-        } else if (type == ManageKeywordsDisplayType.CONTAINED_IN_ANY_ENTRY) {
+        }
+        else if (type == ManageKeywordsDisplayType.CONTAINED_IN_ANY_ENTRY) {
             // all keywords from first entry have to be added
             BibEntry firstEntry = entries.getFirst();
             KeywordList separatedKeywords = firstEntry.getKeywords(keywordSeparator);
             sortedKeywordsOfAllEntriesBeforeUpdateByUser.addAll(separatedKeywords);
 
             // for the remaining entries, intersection has to be used
-            // this approach ensures that one empty keyword list leads to an empty set of common keywords
+            // this approach ensures that one empty keyword list leads to an empty set of
+            // common keywords
             for (BibEntry entry : entries) {
                 separatedKeywords = entry.getKeywords(keywordSeparator);
                 sortedKeywordsOfAllEntriesBeforeUpdateByUser.retainAll(separatedKeywords);
             }
-        } else {
+        }
+        else {
             throw new IllegalStateException("DisplayType " + type + " not handled");
         }
         for (Keyword keyword : sortedKeywordsOfAllEntriesBeforeUpdateByUser) {
@@ -109,7 +117,7 @@ public class ManageKeywordsViewModel {
     }
 
     private NamedCompound updateKeywords(List<BibEntry> entries, KeywordList keywordsToAdd,
-                                         KeywordList keywordsToRemove) {
+            KeywordList keywordsToRemove) {
         Character keywordSeparator = bibEntryPreferences.getKeywordSeparator();
 
         NamedCompound ce = new NamedCompound(Localization.lang("Update keywords"));
@@ -127,4 +135,5 @@ public class ManageKeywordsViewModel {
         ce.end();
         return ce;
     }
+
 }

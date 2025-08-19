@@ -24,20 +24,25 @@ import org.slf4j.LoggerFactory;
 
 /// Maintains the state of a walkthrough.
 public class Walkthrough {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Walkthrough.class);
 
     private final IntegerProperty currentStep;
+
     private final BooleanProperty active;
 
     private final List<WalkthroughStep> steps;
+
     private final StateManager stateManager;
 
     private @Nullable WalkthroughOverlay overlay;
+
     private Stage currentStage;
 
     public Walkthrough(StateManager stateManager, List<WalkthroughStep> steps) {
         if (steps.isEmpty() || steps.stream().anyMatch(Objects::isNull)) {
-            // This throwing is acceptable, since the Walkthrough is often hardcoded and won't make the application crash
+            // This throwing is acceptable, since the Walkthrough is often hardcoded and
+            // won't make the application crash
             throw new IllegalArgumentException("Walkthrough must have at least one step and no null steps allowed.");
         }
         this.currentStep = new SimpleIntegerProperty(0);
@@ -170,7 +175,9 @@ public class Walkthrough {
     }
 
     public static class Builder {
+
         private final StateManager stateManager;
+
         private final List<WalkthroughStep> steps;
 
         private Builder(StateManager stateManager) {
@@ -204,6 +211,7 @@ public class Walkthrough {
             }
             return new Walkthrough(stateManager, steps);
         }
-    }
-}
 
+    }
+
+}

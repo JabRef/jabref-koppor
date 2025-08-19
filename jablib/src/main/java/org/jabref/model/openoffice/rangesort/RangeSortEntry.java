@@ -8,7 +8,9 @@ import com.sun.star.text.XTextRange;
 public class RangeSortEntry<T> implements RangeSortable<T> {
 
     private XTextRange range;
+
     private int indexInPosition;
+
     private final T content;
 
     public RangeSortEntry(XTextRange range, int indexInPosition, T content) {
@@ -39,4 +41,5 @@ public class RangeSortEntry<T> implements RangeSortable<T> {
     public void setIndexInPosition(int indexInPosition) {
         this.indexInPosition = indexInPosition;
     }
+
 }

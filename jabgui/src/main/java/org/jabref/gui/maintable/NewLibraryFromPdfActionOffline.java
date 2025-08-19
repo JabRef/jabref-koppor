@@ -15,10 +15,12 @@ public class NewLibraryFromPdfActionOffline extends NewLibraryFromPdfAction {
 
     private final BibliographyFromPdfImporter bibliographyFromPdfImporter;
 
-    public NewLibraryFromPdfActionOffline(LibraryTabContainer libraryTabContainer, StateManager stateManager, DialogService dialogService, CliPreferences preferences, TaskExecutor taskExecutor) {
+    public NewLibraryFromPdfActionOffline(LibraryTabContainer libraryTabContainer, StateManager stateManager,
+            DialogService dialogService, CliPreferences preferences, TaskExecutor taskExecutor) {
         super(libraryTabContainer, stateManager, dialogService, preferences, taskExecutor);
 
-        // Use the importer keeping the numbers (instead of generating keys; which is the other constructor)
+        // Use the importer keeping the numbers (instead of generating keys; which is the
+        // other constructor)
         this.bibliographyFromPdfImporter = new BibliographyFromPdfImporter();
     }
 
@@ -26,4 +28,5 @@ public class NewLibraryFromPdfActionOffline extends NewLibraryFromPdfAction {
     protected Callable<ParserResult> getParserResultCallable(Path path) {
         return () -> bibliographyFromPdfImporter.importDatabase(path);
     }
+
 }

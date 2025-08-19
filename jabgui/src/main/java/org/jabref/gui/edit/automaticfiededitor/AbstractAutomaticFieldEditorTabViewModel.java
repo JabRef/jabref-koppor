@@ -17,6 +17,7 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
 public abstract class AbstractAutomaticFieldEditorTabViewModel extends AbstractViewModel {
+
     protected final StateManager stateManager;
 
     private final ObservableList<Field> allFields = FXCollections.observableArrayList();
@@ -40,4 +41,5 @@ public abstract class AbstractAutomaticFieldEditorTabViewModel extends AbstractV
         fieldsSet.addAll(fields);
         allFields.setAll(fieldsSet);
     }
+
 }

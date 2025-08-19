@@ -31,22 +31,25 @@ import org.jabref.model.entry.BibEntry;
 public class CleanupAction extends SimpleCommand {
 
     private final Supplier<LibraryTab> tabSupplier;
+
     private final CliPreferences preferences;
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final TaskExecutor taskExecutor;
+
     private final UndoManager undoManager;
+
     private final List<JabRefException> failures;
 
     private boolean isCanceled;
+
     private int modifiedEntriesCount;
 
-    public CleanupAction(Supplier<LibraryTab> tabSupplier,
-                         CliPreferences preferences,
-                         DialogService dialogService,
-                         StateManager stateManager,
-                         TaskExecutor taskExecutor,
-                         UndoManager undoManager) {
+    public CleanupAction(Supplier<LibraryTab> tabSupplier, CliPreferences preferences, DialogService dialogService,
+            StateManager stateManager, TaskExecutor taskExecutor, UndoManager undoManager) {
         this.tabSupplier = tabSupplier;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -64,28 +67,29 @@ public class CleanupAction extends SimpleCommand {
             return;
         }
 
-        if (stateManager.getSelectedEntries().isEmpty()) { // None selected. Inform the user to select entries first.
-            dialogService.showInformationDialogAndWait(Localization.lang("Cleanup entry"), Localization.lang("First select entries to clean up."));
+        if (stateManager.getSelectedEntries().isEmpty()) { // None selected. Inform the
+                                                           // user to select entries
+                                                           // first.
+            dialogService.showInformationDialogAndWait(Localization.lang("Cleanup entry"),
+                    Localization.lang("First select entries to clean up."));
             return;
         }
 
         isCanceled = false;
         modifiedEntriesCount = 0;
 
-        CleanupDialog cleanupDialog = new CleanupDialog(
-                stateManager.getActiveDatabase().get(),
-                preferences.getCleanupPreferences(),
-                preferences.getFilePreferences()
-        );
+        CleanupDialog cleanupDialog = new CleanupDialog(stateManager.getActiveDatabase().get(),
+                preferences.getCleanupPreferences(), preferences.getFilePreferences());
 
         Optional<CleanupPreferences> chosenPreset = dialogService.showCustomDialogAndWait(cleanupDialog);
 
         chosenPreset.ifPresent(preset -> {
-            if (preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF) && preferences.getAutoLinkPreferences().shouldAskAutoNamingPdfs()) {
-                boolean confirmed = dialogService.showConfirmationDialogWithOptOutAndWait(Localization.lang("Autogenerate PDF Names"),
-                        Localization.lang("Auto-generating PDF-Names does not support undo. Continue?"),
+            if (preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF)
+                    && preferences.getAutoLinkPreferences().shouldAskAutoNamingPdfs()) {
+                boolean confirmed = dialogService.showConfirmationDialogWithOptOutAndWait(
                         Localization.lang("Autogenerate PDF Names"),
-                        Localization.lang("Cancel"),
+                        Localization.lang("Auto-generating PDF-Names does not support undo. Continue?"),
+                        Localization.lang("Autogenerate PDF Names"), Localization.lang("Cancel"),
                         Localization.lang("Do not ask again"),
                         optOut -> preferences.getAutoLinkPreferences().setAskAutoNamingPdfs(!optOut));
                 if (!confirmed) {
@@ -98,24 +102,21 @@ public class CleanupAction extends SimpleCommand {
             preferences.getCleanupPreferences().setFieldFormatterCleanups(preset.getFieldFormatterCleanups());
 
             BackgroundTask.wrap(() -> cleanup(stateManager.getActiveDatabase().get(), preset))
-                          .onSuccess(result -> showResults())
-                          .onFailure(dialogService::showErrorDialogAndWait)
-                          .executeWith(taskExecutor);
+                .onSuccess(result -> showResults())
+                .onFailure(dialogService::showErrorDialogAndWait)
+                .executeWith(taskExecutor);
         });
     }
 
     /**
      * Runs the cleanup on the entry and records the change.
-     *
      * @return true iff entry was modified
      */
-    private boolean doCleanup(BibDatabaseContext databaseContext, CleanupPreferences preset, BibEntry entry, NamedCompound ce) {
+    private boolean doCleanup(BibDatabaseContext databaseContext, CleanupPreferences preset, BibEntry entry,
+            NamedCompound ce) {
         // Create and run cleaner
-        CleanupWorker cleaner = new CleanupWorker(
-                databaseContext,
-                preferences.getFilePreferences(),
-                preferences.getTimestampPreferences()
-        );
+        CleanupWorker cleaner = new CleanupWorker(databaseContext, preferences.getFilePreferences(),
+                preferences.getTimestampPreferences());
 
         List<FieldChange> changes = cleaner.cleanup(preset, entry);
 
@@ -140,10 +141,13 @@ public class CleanupAction extends SimpleCommand {
 
         if (modifiedEntriesCount == 0) {
             dialogService.notify(Localization.lang("No entry needed a clean up"));
-        } else if (modifiedEntriesCount == 1) {
+        }
+        else if (modifiedEntriesCount == 1) {
             dialogService.notify(Localization.lang("One entry needed a clean up"));
-        } else {
-            dialogService.notify(Localization.lang("%0 entries needed a clean up", Integer.toString(modifiedEntriesCount)));
+        }
+        else {
+            dialogService
+                .notify(Localization.lang("%0 entries needed a clean up", Integer.toString(modifiedEntriesCount)));
         }
     }
 
@@ -172,11 +176,10 @@ public class CleanupAction extends SimpleCommand {
 
     private void showFailures(List<JabRefException> failures) {
         String message = failures.stream()
-                                 .map(exception -> "- " + exception.getLocalizedMessage())
-                                 .collect(Collectors.joining("\n"));
+            .map(exception -> "- " + exception.getLocalizedMessage())
+            .collect(Collectors.joining("\n"));
 
-        Platform.runLater(() ->
-                dialogService.showErrorDialogAndWait(Localization.lang("File Move Errors"), message)
-        );
+        Platform.runLater(() -> dialogService.showErrorDialogAndWait(Localization.lang("File Move Errors"), message));
     }
+
 }

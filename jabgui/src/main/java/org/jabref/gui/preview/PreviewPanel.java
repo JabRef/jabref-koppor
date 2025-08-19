@@ -41,28 +41,32 @@ import org.jspecify.annotations.Nullable;
 public class PreviewPanel extends VBox implements PreviewControls {
 
     private final ExternalFilesEntryLinker fileLinker;
+
     private final KeyBindingRepository keyBindingRepository;
+
     private final PreviewViewer previewView;
+
     private final PreviewPreferences previewPreferences;
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
 
     private BibEntry entry;
 
-    public PreviewPanel(DialogService dialogService,
-                        KeyBindingRepository keyBindingRepository,
-                        GuiPreferences preferences,
-                        ThemeManager themeManager,
-                        TaskExecutor taskExecutor,
-                        StateManager stateManager) {
+    public PreviewPanel(DialogService dialogService, KeyBindingRepository keyBindingRepository,
+            GuiPreferences preferences, ThemeManager themeManager, TaskExecutor taskExecutor,
+            StateManager stateManager) {
         this.keyBindingRepository = keyBindingRepository;
         this.dialogService = dialogService;
         this.previewPreferences = preferences.getPreviewPreferences();
-        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(), dialogService, stateManager);
+        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), dialogService, stateManager);
         this.stateManager = stateManager;
 
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
-        previewView = new PreviewViewer(dialogService, preferences, themeManager, taskExecutor, stateManager.searchQueryProperty());
+        previewView = new PreviewViewer(dialogService, preferences, themeManager, taskExecutor,
+                stateManager.searchQueryProperty());
         previewView.setLayout(previewPreferences.getSelectedPreviewLayout());
         previewView.setContextMenu(createPopupMenu());
         previewView.setOnDragDetected(this::onDragDetected);
@@ -119,7 +123,8 @@ public class PreviewPanel extends VBox implements PreviewControls {
     }
 
     private ContextMenu createPopupMenu() {
-        MenuItem copyCitationHtml = new MenuItem(Localization.lang("Copy citation (html)"), IconTheme.JabRefIcons.COPY.getGraphicNode());
+        MenuItem copyCitationHtml = new MenuItem(Localization.lang("Copy citation (html)"),
+                IconTheme.JabRefIcons.COPY.getGraphicNode());
         keyBindingRepository.getKeyCombination(KeyBinding.COPY_PREVIEW).ifPresent(copyCitationHtml::setAccelerator);
         copyCitationHtml.setOnAction(_ -> previewView.copyPreviewHtmlToClipBoard());
         MenuItem copyCitationText = new MenuItem(Localization.lang("Copy citation (text)"));
@@ -128,13 +133,16 @@ public class PreviewPanel extends VBox implements PreviewControls {
         exportToClipboard.setOnAction(_ -> previewView.exportToClipBoard(stateManager));
         MenuItem copySelection = new MenuItem(Localization.lang("Copy selection"));
         copySelection.setOnAction(_ -> previewView.copySelectionToClipBoard());
-        MenuItem printEntryPreview = new MenuItem(Localization.lang("Print entry preview"), IconTheme.JabRefIcons.PRINTED.getGraphicNode());
+        MenuItem printEntryPreview = new MenuItem(Localization.lang("Print entry preview"),
+                IconTheme.JabRefIcons.PRINTED.getGraphicNode());
         printEntryPreview.setOnAction(_ -> previewView.print());
         MenuItem previousPreviewLayout = new MenuItem(Localization.lang("Previous preview layout"));
-        keyBindingRepository.getKeyCombination(KeyBinding.PREVIOUS_PREVIEW_LAYOUT).ifPresent(previousPreviewLayout::setAccelerator);
+        keyBindingRepository.getKeyCombination(KeyBinding.PREVIOUS_PREVIEW_LAYOUT)
+            .ifPresent(previousPreviewLayout::setAccelerator);
         previousPreviewLayout.setOnAction(_ -> this.previousPreviewStyle());
         MenuItem nextPreviewLayout = new MenuItem(Localization.lang("Next preview layout"));
-        keyBindingRepository.getKeyCombination(KeyBinding.NEXT_PREVIEW_LAYOUT).ifPresent(nextPreviewLayout::setAccelerator);
+        keyBindingRepository.getKeyCombination(KeyBinding.NEXT_PREVIEW_LAYOUT)
+            .ifPresent(nextPreviewLayout::setAccelerator);
         nextPreviewLayout.setOnAction(_ -> this.nextPreviewStyle());
 
         ContextMenu menu = new ContextMenu();
@@ -181,4 +189,5 @@ public class PreviewPanel extends VBox implements PreviewControls {
         previewView.setLayout(layout);
         dialogService.notify(Localization.lang("Preview style changed to: %0", layout.getDisplayName()));
     }
+
 }

@@ -20,8 +20,11 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class GitFileReader {
-    public static Optional<String> readFileFromCommit(Git git, RevCommit commit, Path relativePath) throws JabRefException {
-        // ref: https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/ReadFileFromCommit.java
+
+    public static Optional<String> readFileFromCommit(Git git, RevCommit commit, Path relativePath)
+            throws JabRefException {
+        // ref:
+        // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/ReadFileFromCommit.java
         // 1. get commit-pointing tree
         Repository repository = git.getRepository();
         RevTree commitTree = commit.getTree();
@@ -35,10 +38,13 @@ public class GitFileReader {
             ObjectId objectId = treeWalk.getObjectId(0);
             ObjectLoader loader = repository.open(objectId);
             return Optional.of(new String(loader.getBytes(), StandardCharsets.UTF_8));
-        } catch (MissingObjectException | IncorrectObjectTypeException e) {
+        }
+        catch (MissingObjectException | IncorrectObjectTypeException e) {
             throw new JabRefException("Git object missing or incorrect when reading file: " + relativePath, e);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new JabRefException("I/O error while reading file from commit: " + relativePath, e);
         }
     }
+
 }

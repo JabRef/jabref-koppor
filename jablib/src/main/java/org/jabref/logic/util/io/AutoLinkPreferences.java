@@ -11,20 +11,23 @@ import javafx.beans.property.StringProperty;
 public class AutoLinkPreferences {
 
     public enum CitationKeyDependency {
+
         START, // Filenames starting with the citation key
         EXACT, // Filenames exactly matching the citation key
         REGEX // Filenames matching a regular expression pattern
+
     }
 
     private final ObjectProperty<CitationKeyDependency> citationKeyDependency;
+
     private final StringProperty regularExpression;
+
     private final BooleanProperty askAutoNamingPdfs;
+
     private final ReadOnlyObjectProperty<Character> keywordSeparator;
 
-    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency,
-                               String regularExpression,
-                               boolean askAutoNamingPdfs,
-                               ObjectProperty<Character> keywordSeparatorProperty) {
+    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency, String regularExpression,
+            boolean askAutoNamingPdfs, ObjectProperty<Character> keywordSeparatorProperty) {
         this.citationKeyDependency = new SimpleObjectProperty<>(citationKeyDependency);
         this.regularExpression = new SimpleStringProperty(regularExpression);
         this.askAutoNamingPdfs = new SimpleBooleanProperty(askAutoNamingPdfs);
@@ -34,10 +37,8 @@ public class AutoLinkPreferences {
     /**
      * For testing purpose
      */
-    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency,
-                               String regularExpression,
-                               boolean askAutoNamingPdfs,
-                               Character keywordSeparator) {
+    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency, String regularExpression,
+            boolean askAutoNamingPdfs, Character keywordSeparator) {
         this.citationKeyDependency = new SimpleObjectProperty<>(citationKeyDependency);
         this.regularExpression = new SimpleStringProperty(regularExpression);
         this.askAutoNamingPdfs = new SimpleBooleanProperty(askAutoNamingPdfs);
@@ -83,4 +84,5 @@ public class AutoLinkPreferences {
     public Character getKeywordSeparator() {
         return keywordSeparator.getValue();
     }
+
 }

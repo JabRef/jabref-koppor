@@ -15,9 +15,14 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class ModifyCSLBibliographyPropertiesDialogView extends BaseDialog<Void> {
 
-    @FXML private TextField titleField;
-    @FXML private ComboBox<String> headerFormats;
-    @FXML private ComboBox<String> bodyFormats;
+    @FXML
+    private TextField titleField;
+
+    @FXML
+    private ComboBox<String> headerFormats;
+
+    @FXML
+    private ComboBox<String> bodyFormats;
 
     private final ModifyCSLBibliographyPropertiesDialogViewModel viewModel;
 
@@ -28,9 +33,7 @@ public class ModifyCSLBibliographyPropertiesDialogView extends BaseDialog<Void> 
         this.initModality(Modality.NONE);
         this.setResizable(false);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK) {
@@ -44,16 +47,13 @@ public class ModifyCSLBibliographyPropertiesDialogView extends BaseDialog<Void> 
     public void initialize() {
         titleField.textProperty().bindBidirectional(viewModel.cslBibliographyTitleProperty());
 
-        new ViewModelListCellFactory<String>()
-                .withText(format -> format)
-                .install(headerFormats);
+        new ViewModelListCellFactory<String>().withText(format -> format).install(headerFormats);
         headerFormats.itemsProperty().bind(viewModel.headerFormatListProperty());
         headerFormats.valueProperty().bindBidirectional(viewModel.cslBibliographySelectedHeaderFormatProperty());
 
-        new ViewModelListCellFactory<String>()
-                .withText(format -> format)
-                .install(bodyFormats);
+        new ViewModelListCellFactory<String>().withText(format -> format).install(bodyFormats);
         bodyFormats.itemsProperty().bind(viewModel.bodyFormatListProperty());
         bodyFormats.valueProperty().bindBidirectional(viewModel.cslBibliographySelectedBodyFormatProperty());
     }
+
 }

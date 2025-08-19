@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 public class DirectoryMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryMonitor.class);
+
     private static final int POLL_INTERVAL = 1000;
 
     private final FileAlterationMonitor monitor;
@@ -34,7 +35,8 @@ public class DirectoryMonitor {
     public void start() {
         try {
             monitor.start();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.error("Error starting directory monitor", e);
         }
     }
@@ -42,8 +44,10 @@ public class DirectoryMonitor {
     public void shutdown() {
         try {
             monitor.stop();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.error("Error stopping directory monitor", e);
         }
     }
+
 }

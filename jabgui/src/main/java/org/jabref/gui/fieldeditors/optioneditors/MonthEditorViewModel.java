@@ -15,9 +15,11 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.StringUtil;
 
 public class MonthEditorViewModel extends OptionEditorViewModel<Month> {
+
     private final BibDatabaseMode databaseMode;
 
-    public MonthEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public MonthEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.databaseMode = databaseMode;
     }
@@ -29,10 +31,12 @@ public class MonthEditorViewModel extends OptionEditorViewModel<Month> {
             public String toString(Month object) {
                 if (object == null) {
                     return null;
-                } else {
+                }
+                else {
                     if (databaseMode == BibDatabaseMode.BIBLATEX) {
                         return String.valueOf(object.getNumber());
-                    } else {
+                    }
+                    else {
                         return object.getJabRefFormat();
                     }
                 }
@@ -42,7 +46,8 @@ public class MonthEditorViewModel extends OptionEditorViewModel<Month> {
             public Month fromString(String string) {
                 if (StringUtil.isNotBlank(string)) {
                     return Month.parse(string).orElse(null);
-                } else {
+                }
+                else {
                     return null;
                 }
             }
@@ -58,4 +63,5 @@ public class MonthEditorViewModel extends OptionEditorViewModel<Month> {
     public String convertToDisplayText(Month object) {
         return object.getFullName();
     }
+
 }

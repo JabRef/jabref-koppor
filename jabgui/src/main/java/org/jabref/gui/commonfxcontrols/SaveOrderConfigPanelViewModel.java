@@ -13,11 +13,16 @@ import org.jabref.model.entry.field.Field;
 public class SaveOrderConfigPanelViewModel {
 
     private final BooleanProperty saveInOriginalProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty saveInTableOrderProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty saveInSpecifiedOrderProperty = new SimpleBooleanProperty();
 
-    private final ListProperty<Field> sortableFieldsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<SortCriterionViewModel> selectedSortCriteriaProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> sortableFieldsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
+    private final ListProperty<SortCriterionViewModel> selectedSortCriteriaProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
 
     public SaveOrderConfigPanelViewModel() {
     }
@@ -67,4 +72,5 @@ public class SaveOrderConfigPanelViewModel {
     public ListProperty<SortCriterionViewModel> sortCriteriaProperty() {
         return selectedSortCriteriaProperty;
     }
+
 }

@@ -32,9 +32,7 @@ public class SearchResults {
 
     public boolean hasFulltextResults(BibEntry entry) {
         if (searchResults.containsKey(entry.getId())) {
-            return searchResults.get(entry.getId())
-                                .stream()
-                                .anyMatch(SearchResult::hasFulltextResults);
+            return searchResults.get(entry.getId()).stream().anyMatch(SearchResult::hasFulltextResults);
         }
         return false;
     }
@@ -54,4 +52,5 @@ public class SearchResults {
     public Set<String> getMatchedEntries() {
         return searchResults.keySet();
     }
+
 }

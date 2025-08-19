@@ -8,17 +8,14 @@ import org.jabref.model.entry.types.BiblatexApaEntryType;
 
 public enum BiblatexApaField implements Field {
 
-    AMENDMENT("amendment"),
-    ARTICLE("article"),
-    CITATION("citation"),
-    CITATION_CITEORG("citation_citeorg"),
-    CITATION_CITEDATE("citation_citedate", FieldProperty.DATE),
-    CITATION_CITEINFO("citation_citeinfo"),
-    SECTION("section", FieldProperty.NUMERIC),
-    SOURCE("source");
+    AMENDMENT("amendment"), ARTICLE("article"), CITATION("citation"), CITATION_CITEORG("citation_citeorg"),
+    CITATION_CITEDATE("citation_citedate", FieldProperty.DATE), CITATION_CITEINFO("citation_citeinfo"),
+    SECTION("section", FieldProperty.NUMERIC), SOURCE("source");
 
     private final String name;
+
     private final String displayName;
+
     private final EnumSet<FieldProperty> properties;
 
     BiblatexApaField(String name) {
@@ -48,12 +45,13 @@ public enum BiblatexApaField implements Field {
     public static <T> Optional<BiblatexApaField> fromName(T type, String name) {
         if (!(type instanceof BiblatexApaEntryType)) {
             // Also returns nothing if no type is given.
-            // Reason: The field should also be recognized in the presence of a BiblatexApa entry type.
+            // Reason: The field should also be recognized in the presence of a
+            // BiblatexApa entry type.
             return Optional.empty();
         }
         return Arrays.stream(BiblatexApaField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override
@@ -75,8 +73,10 @@ public enum BiblatexApaField implements Field {
     public String getDisplayName() {
         if (displayName == null) {
             return Field.super.getDisplayName();
-        } else {
+        }
+        else {
             return displayName;
         }
     }
+
 }

@@ -16,10 +16,11 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
 /**
- * This class handles the migration from timestamp field to creationdate and modificationdate fields.
+ * This class handles the migration from timestamp field to creationdate and
+ * modificationdate fields.
  * <p>
- * If the old updateTimestamp setting is enabled, the timestamp field for each entry are migrated to the date-modified field.
- * Otherwise it is migrated to the date-added field.
+ * If the old updateTimestamp setting is enabled, the timestamp field for each entry are
+ * migrated to the date-modified field. Otherwise it is migrated to the date-added field.
  */
 public class TimeStampToCreationDate implements CleanupJob {
 
@@ -30,16 +31,17 @@ public class TimeStampToCreationDate implements CleanupJob {
     }
 
     /**
-     * Formats the time stamp into the local date and time format.
-     * If the existing timestamp could not be parsed, the day/month/year "1" is used.
-     * For the time portion 00:00:00 is used.
+     * Formats the time stamp into the local date and time format. If the existing
+     * timestamp could not be parsed, the day/month/year "1" is used. For the time portion
+     * 00:00:00 is used.
      */
     private Optional<String> formatTimeStamp(String timeStamp) {
         Optional<Date> parsedDate = Date.parse(timeStamp);
         if (parsedDate.isEmpty()) {
             // In case the given timestamp could not be parsed
             return Optional.empty();
-        } else {
+        }
+        else {
             Date date = parsedDate.get();
             int year = date.getYear().orElse(1);
             int month = getMonth(date);
@@ -52,8 +54,8 @@ public class TimeStampToCreationDate implements CleanupJob {
     }
 
     /**
-     * Returns the month value of the passed date if available.
-     * Otherwise returns the current month.
+     * Returns the month value of the passed date if available. Otherwise returns the
+     * current month.
      */
     private int getMonth(Date date) {
         if (date.getMonth().isPresent()) {
@@ -71,17 +73,20 @@ public class TimeStampToCreationDate implements CleanupJob {
                 // In case the timestamp could not be parsed, do nothing to not lose data
                 return List.of();
             }
-            // Setting the EventSource is necessary to circumvent the update of the modification date during timestamp migration
+            // Setting the EventSource is necessary to circumvent the update of the
+            // modification date during timestamp migration
             entry.clearField(timeStampField, EntriesEventSource.CLEANUP_TIMESTAMP);
             List<FieldChange> changeList = new ArrayList<>();
             FieldChange changeTo;
             // Add removal of timestamp field
             changeList.add(new FieldChange(entry, StandardField.TIMESTAMP, formattedTimeStamp.get(), ""));
             entry.setField(StandardField.CREATIONDATE, formattedTimeStamp.get(), EntriesEventSource.CLEANUP_TIMESTAMP);
-            changeTo = new FieldChange(entry, StandardField.CREATIONDATE, entry.getField(StandardField.CREATIONDATE).orElse(""), formattedTimeStamp.get());
+            changeTo = new FieldChange(entry, StandardField.CREATIONDATE,
+                    entry.getField(StandardField.CREATIONDATE).orElse(""), formattedTimeStamp.get());
             changeList.add(changeTo);
             return changeList;
         }
         return List.of();
     }
+
 }

@@ -25,43 +25,39 @@ import org.slf4j.LoggerFactory;
 /**
  * Used to start a new study:
  * <ol>
- *     <li>Let the user input meta data for the study.</li>
- *     <li>Let JabRef do the crawling afterwards.</li>
+ * <li>Let the user input meta data for the study.</li>
+ * <li>Let JabRef do the crawling afterwards.</li>
  * </ol>
  *
- * Needs to inherit {@link ExistingStudySearchAction}, because that action implements the real crawling.
+ * Needs to inherit {@link ExistingStudySearchAction}, because that action implements the
+ * real crawling.
  *
- * There is the hook {@link StartNewStudyAction#crawlPreparation(Path)}, which is used by {@link ExistingStudySearchAction#crawl()}.
+ * There is the hook {@link StartNewStudyAction#crawlPreparation(Path)}, which is used by
+ * {@link ExistingStudySearchAction#crawl()}.
  */
 public class StartNewStudyAction extends ExistingStudySearchAction {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StartNewStudyAction.class);
 
     Study newStudy;
 
     public StartNewStudyAction(LibraryTabContainer tabContainer,
-                               Supplier<OpenDatabaseAction> openDatabaseActionSupplier,
-                               FileUpdateMonitor fileUpdateMonitor,
-                               TaskExecutor taskExecutor,
-                               CliPreferences preferences,
-                               StateManager stateManager,
-                               DialogService dialogService) {
-        super(tabContainer,
-                openDatabaseActionSupplier,
-                dialogService,
-                fileUpdateMonitor,
-                taskExecutor,
-                preferences,
-                stateManager,
-                true);
+            Supplier<OpenDatabaseAction> openDatabaseActionSupplier, FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor, CliPreferences preferences, StateManager stateManager,
+            DialogService dialogService) {
+        super(tabContainer, openDatabaseActionSupplier, dialogService, fileUpdateMonitor, taskExecutor, preferences,
+                stateManager, true);
     }
 
     @Override
     protected void crawlPreparation(Path studyRepositoryRoot) throws IOException, GitAPIException {
         StudyYamlParser studyYAMLParser = new StudyYamlParser();
-        studyYAMLParser.writeStudyYamlFile(newStudy, studyRepositoryRoot.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
+        studyYAMLParser.writeStudyYamlFile(newStudy,
+                studyRepositoryRoot.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
 
         // When execution reaches this point, the user created a new study.
-        // The GitHandler is already called to initialize the repository with one single commit "Initial commit".
+        // The GitHandler is already called to initialize the repository with one single
+        // commit "Initial commit".
         // The "Initial commit" should also contain the created YAML.
         // Thus, we append to that commit.
         new GitHandler(studyRepositoryRoot).createCommitOnCurrentBranch("Initial commit", true);
@@ -90,4 +86,5 @@ public class StartNewStudyAction extends ExistingStudySearchAction {
 
         crawl();
     }
+
 }

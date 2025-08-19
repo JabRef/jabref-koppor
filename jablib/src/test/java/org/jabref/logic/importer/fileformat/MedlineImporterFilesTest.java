@@ -55,4 +55,5 @@ class MedlineImporterFilesTest {
     void importMalfomedFiles(String fileName) throws IOException {
         ImporterTestEngine.testImportMalformedFiles(new MedlineImporter(), fileName);
     }
+
 }

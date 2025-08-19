@@ -24,9 +24,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class BstVM {
 
     protected static final Integer FALSE = 0;
+
     protected static final Integer TRUE = 1;
 
     protected final ParseTree tree;
+
     protected BstVMContext latestContext; // for testing
 
     private Path path = null;
@@ -60,10 +62,11 @@ public class BstVM {
     }
 
     /**
-     * Transforms the given list of BibEntries to a rendered list of references using the parsed bst program
-     *
-     * @param bibEntries  list of entries to convert
-     * @param bibDatabase (may be null) the bibDatabase used for resolving strings / crossref
+     * Transforms the given list of BibEntries to a rendered list of references using the
+     * parsed bst program
+     * @param bibEntries list of entries to convert
+     * @param bibDatabase (may be null) the bibDatabase used for resolving strings /
+     * crossref
      * @return list of references in plain text form
      */
     public String render(Collection<BibEntry> bibEntries, BibDatabase bibDatabase) {
@@ -94,19 +97,22 @@ public class BstVM {
     protected Deque<Object> getStack() {
         if (latestContext != null) {
             return latestContext.stack();
-        } else {
+        }
+        else {
             throw new BstVMException("BstVM must have rendered at least once to provide the latest stack");
         }
     }
 
     private static class ThrowingErrorListener extends BaseErrorListener {
+
         public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
 
         @Override
-        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
-                                int line, int charPositionInLine, String msg, RecognitionException e)
-                throws ParseCancellationException {
+        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
+                String msg, RecognitionException e) throws ParseCancellationException {
             throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
         }
+
     }
+
 }

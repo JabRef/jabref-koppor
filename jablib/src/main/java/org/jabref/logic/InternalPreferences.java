@@ -15,16 +15,17 @@ import org.jabref.model.metadata.UserHostInfo;
 public class InternalPreferences {
 
     private final ObjectProperty<Version> ignoredVersion;
+
     private final BooleanProperty versionCheckEnabled;
+
     private final ObjectProperty<Path> lastPreferencesExportPath;
+
     private final StringProperty userAndHost;
+
     private final BooleanProperty memoryStickMode;
 
-    public InternalPreferences(Version ignoredVersion,
-                               boolean versionCheck,
-                               Path exportPath,
-                               String userAndHost,
-                               boolean memoryStickMode) {
+    public InternalPreferences(Version ignoredVersion, boolean versionCheck, Path exportPath, String userAndHost,
+            boolean memoryStickMode) {
         this.ignoredVersion = new SimpleObjectProperty<>(ignoredVersion);
         this.versionCheckEnabled = new SimpleBooleanProperty(versionCheck);
         this.lastPreferencesExportPath = new SimpleObjectProperty<>(exportPath);
@@ -75,19 +76,17 @@ public class InternalPreferences {
     public StringProperty getUserAndHostProperty() {
         return userAndHost;
     }
-    
+
     /**
      * Returns the user and host information as a UserHostInfo object.
-     *
      * @return the user and host information
      */
     public UserHostInfo getUserHostInfo() {
         return UserHostInfo.parse(getUserAndHost());
     }
-    
+
     /**
      * Sets the user and host information from a UserHostInfo object.
-     *
      * @param userHostInfo the user and host information
      */
     public void setUserHostInfo(UserHostInfo userHostInfo) {
@@ -105,4 +104,5 @@ public class InternalPreferences {
     public void setMemoryStickMode(boolean memoryStickMode) {
         this.memoryStickMode.set(memoryStickMode);
     }
+
 }

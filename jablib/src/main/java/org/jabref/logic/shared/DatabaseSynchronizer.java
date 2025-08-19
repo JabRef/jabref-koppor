@@ -19,4 +19,5 @@ public interface DatabaseSynchronizer {
     void synchronizeLocalDatabase();
 
     DatabaseConnectionProperties getConnectionProperties();
+
 }

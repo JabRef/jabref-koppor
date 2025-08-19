@@ -12,17 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class represents the removal of entries. The constructor needs
- * references to the database, the entries, and the map of open entry editors.
- * TODO is this map still being used?
- * The latter to be able to close the entry's editor if it is opened after
- * an undo, and the removal is then undone.
+ * This class represents the removal of entries. The constructor needs references to the
+ * database, the entries, and the map of open entry editors. TODO is this map still being
+ * used? The latter to be able to close the entry's editor if it is opened after an undo,
+ * and the removal is then undone.
  */
 public class UndoableRemoveEntries extends AbstractUndoableJabRefEdit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UndoableRemoveEntries.class);
+
     private final BibDatabase base;
+
     private final List<BibEntry> entries;
+
     private final boolean cut;
 
     public UndoableRemoveEntries(BibDatabase base, BibEntry entry) {
@@ -44,19 +46,24 @@ public class UndoableRemoveEntries extends AbstractUndoableJabRefEdit {
         if (cut) {
             if (entries.size() > 1) {
                 return Localization.lang("cut entries");
-            } else if (entries.size() == 1) {
-                return Localization.lang("cut entry %0",
-                        StringUtil.boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
-            } else {
+            }
+            else if (entries.size() == 1) {
+                return Localization.lang("cut entry %0", StringUtil
+                    .boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
+            }
+            else {
                 return null;
             }
-        } else {
+        }
+        else {
             if (entries.size() > 1) {
                 return Localization.lang("remove entries");
-            } else if (entries.size() == 1) {
-                return Localization.lang("remove entry %0",
-                        StringUtil.boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
-            } else {
+            }
+            else if (entries.size() == 1) {
+                return Localization.lang("remove entry %0", StringUtil
+                    .boldHTML(entries.getFirst().getCitationKey().orElse(Localization.lang("undefined"))));
+            }
+            else {
                 return null;
             }
         }
@@ -75,8 +82,10 @@ public class UndoableRemoveEntries extends AbstractUndoableJabRefEdit {
         // Redo the change.
         try {
             base.removeEntries(entries);
-        } catch (Throwable ex) {
+        }
+        catch (Throwable ex) {
             LOGGER.warn("Problem to redo `remove entries`", ex);
         }
     }
+
 }

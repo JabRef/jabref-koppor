@@ -18,7 +18,8 @@ public class GuiPushToLyx extends PushToLyx implements GuiPushToApplication {
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
+    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
         return new GuiPushToLyxSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
     }
 
@@ -31,4 +32,5 @@ public class GuiPushToLyx extends PushToLyx implements GuiPushToApplication {
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

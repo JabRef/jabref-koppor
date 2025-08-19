@@ -10,8 +10,11 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.StringUtil;
 
 public class MoveFieldValueAction extends SimpleCommand {
+
     private final Field fromField;
+
     private final Field toField;
+
     private final List<BibEntry> entries;
 
     private final NamedCompound edits;
@@ -20,7 +23,8 @@ public class MoveFieldValueAction extends SimpleCommand {
 
     private final boolean overwriteToFieldContent;
 
-    public MoveFieldValueAction(Field fromField, Field toField, List<BibEntry> entries, NamedCompound edits, boolean overwriteToFieldContent) {
+    public MoveFieldValueAction(Field fromField, Field toField, List<BibEntry> entries, NamedCompound edits,
+            boolean overwriteToFieldContent) {
         this.fromField = fromField;
         this.toField = toField;
         this.entries = entries;
@@ -55,9 +59,10 @@ public class MoveFieldValueAction extends SimpleCommand {
 
     /**
      * @return the number of affected entries
-     * */
+     */
     public int executeAndGetAffectedEntriesCount() {
         execute();
         return affectedEntriesCount;
     }
+
 }

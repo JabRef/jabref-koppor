@@ -31,17 +31,23 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorConsoleViewModel.class);
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final ClipBoardManager clipBoardManager;
+
     private final BuildInfo buildInfo;
+
     private final ListProperty<LogEventViewModel> allMessagesData;
 
-    public ErrorConsoleViewModel(DialogService dialogService, GuiPreferences preferences, ClipBoardManager clipBoardManager, BuildInfo buildInfo) {
+    public ErrorConsoleViewModel(DialogService dialogService, GuiPreferences preferences,
+            ClipBoardManager clipBoardManager, BuildInfo buildInfo) {
         this.dialogService = Objects.requireNonNull(dialogService);
         this.preferences = Objects.requireNonNull(preferences);
         this.clipBoardManager = Objects.requireNonNull(clipBoardManager);
         this.buildInfo = Objects.requireNonNull(buildInfo);
-        ObservableList<LogEventViewModel> eventViewModels = EasyBind.map(BindingsHelper.forUI(LogMessages.getInstance().getMessages()), LogEventViewModel::new);
+        ObservableList<LogEventViewModel> eventViewModels = EasyBind
+            .map(BindingsHelper.forUI(LogMessages.getInstance().getMessages()), LogEventViewModel::new);
         allMessagesData = new ReadOnlyListWrapper<>(eventViewModels);
     }
 
@@ -50,14 +56,12 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
     }
 
     /**
-     * Concatenates the formatted message of the given {@link LogEventViewModel}s by using a new line separator.
-     *
+     * Concatenates the formatted message of the given {@link LogEventViewModel}s by using
+     * a new line separator.
      * @return all messages as String
      */
     private String getLogMessagesAsString(List<LogEventViewModel> messages) {
-        return messages.stream()
-                       .map(LogEventViewModel::getDetailedText)
-                       .collect(Collectors.joining(OS.NEWLINE));
+        return messages.stream().map(LogEventViewModel::getDetailedText).collect(Collectors.joining(OS.NEWLINE));
     }
 
     /**
@@ -111,18 +115,21 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
 
             dialogService.notify(Localization.lang("Issue on GitHub successfully reported."));
             dialogService.showInformationDialogAndWait(Localization.lang("Issue report successful"),
-                    Localization.lang("Your issue was reported in your browser.") + "\n" +
-                            Localization.lang("The log and exception information was copied to your clipboard.") + " " +
-                            Localization.lang("Please paste this information (with Ctrl+V) in the issue description.") + "\n" +
-                            Localization.lang("Please also add all steps to reproduce this issue, if possible."));
+                    Localization.lang("Your issue was reported in your browser.") + "\n"
+                            + Localization.lang("The log and exception information was copied to your clipboard.") + " "
+                            + Localization.lang("Please paste this information (with Ctrl+V) in the issue description.")
+                            + "\n"
+                            + Localization.lang("Please also add all steps to reproduce this issue, if possible."));
 
-            URIBuilder uriBuilder = new URIBuilder()
-                    .setScheme("https").setHost("github.com")
-                    .setPath("/JabRef/jabref/issues/new")
-                    .setParameter("body", issueBody);
+            URIBuilder uriBuilder = new URIBuilder().setScheme("https")
+                .setHost("github.com")
+                .setPath("/JabRef/jabref/issues/new")
+                .setParameter("body", issueBody);
             NativeDesktop.openBrowser(uriBuilder.build().toString(), preferences.getExternalApplicationsPreferences());
-        } catch (IOException | URISyntaxException e) {
+        }
+        catch (IOException | URISyntaxException e) {
             LOGGER.error("Problem opening url", e);
         }
     }
+
 }

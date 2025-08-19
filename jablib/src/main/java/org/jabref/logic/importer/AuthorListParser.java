@@ -21,8 +21,8 @@ import org.jspecify.annotations.NonNull;
 public class AuthorListParser {
 
     // Avoid partition where these values are contained
-    private final static Set<String> AVOID_TERMS_IN_LOWER_CASE = Set.of(
-            "jr", "sr", "jnr", "snr", "von", "zu", "van", "der");
+    private final static Set<String> AVOID_TERMS_IN_LOWER_CASE = Set.of("jr", "sr", "jnr", "snr", "von", "zu", "van",
+            "der");
 
     private static final int TOKEN_GROUP_LENGTH = 4; // number of entries for a token
 
@@ -31,11 +31,13 @@ public class AuthorListParser {
 
     private static final int OFFSET_TOKEN_ABBR = 1; // String -- token abbreviation;
 
-    private static final int OFFSET_TOKEN_TERM = 2; // Character -- token terminator (either " " or
+    private static final int OFFSET_TOKEN_TERM = 2; // Character -- token terminator
+                                                    // (either " " or
+
     // "-") comma)
     // Constant HashSet containing names of TeX special characters
-    private static final Set<String> TEX_NAMES = Set.of(
-            "aa", "ae", "l", "o", "oe", "i", "AA", "AE", "L", "O", "OE", "j");
+    private static final Set<String> TEX_NAMES = Set.of("aa", "ae", "l", "o", "oe", "i", "AA", "AE", "L", "O", "OE",
+            "j");
 
     private static final Pattern STARTS_WITH_CAPITAL_LETTER_DOT_OR_DASH = Pattern.compile("^[A-Z](\\.[ -]| ?-)");
 
@@ -47,23 +49,30 @@ public class AuthorListParser {
      * the raw bibtex author/editor field
      */
     private String original;
+
     /**
-     * index of the start in original, for example to point to 'abc' in 'abc xyz', tokenStart=2
+     * index of the start in original, for example to point to 'abc' in 'abc xyz',
+     * tokenStart=2
      */
     private int tokenStart;
+
     /**
-     * index of the end in original, for example to point to 'abc' in 'abc xyz', tokenEnd=5
+     * index of the end in original, for example to point to 'abc' in 'abc xyz',
+     * tokenEnd=5
      */
     private int tokenEnd;
+
     /**
-     * end of token abbreviation (always: tokenStart < tokenAbbrEnd <= tokenEnd), only valid if getToken returns
-     * Token.WORD
+     * end of token abbreviation (always: tokenStart < tokenAbbrEnd <= tokenEnd), only
+     * valid if getToken returns Token.WORD
      */
     private int tokenAbbrEnd;
+
     /**
      * either space of dash
      */
     private char tokenTerm;
+
     /**
      * true if upper-case token, false if lower-case
      */
@@ -71,12 +80,12 @@ public class AuthorListParser {
 
     /**
      * Builds a new array of strings with stringbuilder. Regarding to the name affixes.
-     *
      * @return New string with correct separation
      */
     private static StringBuilder buildWithAffix(Collection<Integer> indexArray, List<String> nameList) {
         StringBuilder stringBuilder = new StringBuilder();
-        // avoidedTimes needs to be increased by the count of avoided terms for correct odd/even calculation
+        // avoidedTimes needs to be increased by the count of avoided terms for correct
+        // odd/even calculation
         int avoidedTimes = 0;
         for (int i = 0; i < nameList.size(); i++) {
             if (indexArray.contains(i)) {
@@ -84,13 +93,17 @@ public class AuthorListParser {
                 stringBuilder.append(nameList.get(i));
                 stringBuilder.append(',');
                 avoidedTimes++;
-            } else {
+            }
+            else {
                 stringBuilder.append(nameList.get(i));
                 if (((i + avoidedTimes) % 2) == 0) {
-                    // Hit separation between last name and firstname --> comma has to be kept
+                    // Hit separation between last name and firstname --> comma has to be
+                    // kept
                     stringBuilder.append(',');
-                } else {
-                    // Hit separation between full names (e.g., Ali Babar, M. and Dingsøyr, T.) --> semicolon has to be used
+                }
+                else {
+                    // Hit separation between full names (e.g., Ali Babar, M. and
+                    // Dingsøyr, T.) --> semicolon has to be used
                     // Will be treated correctly by AuthorList.parse(authors);
                     stringBuilder.append(';');
                 }
@@ -104,19 +117,22 @@ public class AuthorListParser {
 
     private static SimpleNormalFormResult getSimpleNormalForm(String listOfNames) {
         listOfNames = listOfNames.replace(" -", "-").trim();
-        if (!listOfNames.contains(",") && (MULTIPLE_SPACE_PATTERN.matcher(listOfNames).find() || listOfNames.contains("\n"))) {
+        if (!listOfNames.contains(",")
+                && (MULTIPLE_SPACE_PATTERN.matcher(listOfNames).find() || listOfNames.contains("\n"))) {
             listOfNames = NEW_LINE_PATTERN.matcher(listOfNames).replaceAll(" and ");
             listOfNames = MULTIPLE_SPACE_PATTERN.matcher(listOfNames).replaceAll(" and ");
         }
 
         // Handling of "and others"
-        // Remove it from the list; it will be added at the very end of this method as special Author.OTHERS
+        // Remove it from the list; it will be added at the very end of this method as
+        // special Author.OTHERS
         final String andOthersSuffix = " and others";
         final boolean andOthersPresent;
         if (StringUtil.endsWithIgnoreCase(listOfNames, andOthersSuffix)) {
             andOthersPresent = true;
             listOfNames = StringUtil.removeStringAtTheEnd(listOfNames, " and others");
-        } else {
+        }
+        else {
             andOthersPresent = false;
         }
 
@@ -126,9 +142,8 @@ public class AuthorListParser {
     /**
      * Tries to get a simple BibTeX author list of the given string.
      *
-     * This is an intermediate step in {@link #parse}. Since parse does not work in all cases,
-     * this method can be used to get more valid BibTeX.
-     *
+     * This is an intermediate step in {@link #parse}. Since parse does not work in all
+     * cases, this method can be used to get more valid BibTeX.
      * @return Optional.empty if there was no normalization.
      */
     public static Optional<String> normalizeSimply(String listOfNames) {
@@ -146,7 +161,6 @@ public class AuthorListParser {
 
     /**
      * Parses the String containing person names and returns a list of person information.
-     *
      * @param listOfNames the String containing the person names to be parsed
      * @return a parsed list of persons
      */
@@ -160,23 +174,27 @@ public class AuthorListParser {
         final boolean authorsContainAND = listOfNames.toUpperCase(Locale.ENGLISH).contains(" AND ");
         final boolean authorsContainOpeningBrace = listOfNames.contains("{");
         final boolean authorsContainSemicolon = listOfNames.contains(";");
-        final boolean authorsContainTwoOrMoreCommas = (listOfNames.length() - listOfNames.replace(",", "").length()) >= 2;
-        if (!authorsContainAND && !authorsContainOpeningBrace && !authorsContainSemicolon && authorsContainTwoOrMoreCommas) {
+        final boolean authorsContainTwoOrMoreCommas = (listOfNames.length()
+                - listOfNames.replace(",", "").length()) >= 2;
+        if (!authorsContainAND && !authorsContainOpeningBrace && !authorsContainSemicolon
+                && authorsContainTwoOrMoreCommas) {
             List<String> arrayNameList = Arrays.asList(listOfNames.split(","));
 
             // Delete spaces for correct case identification
             arrayNameList.replaceAll(String::trim);
 
             // Looking for space between pre- and lastname
-            boolean spaceInAllParts = arrayNameList.stream().filter(name -> name.contains(" "))
-                                                   .count() == arrayNameList.size();
+            boolean spaceInAllParts = arrayNameList.stream().filter(name -> name.contains(" ")).count() == arrayNameList
+                .size();
 
             // We hit the comma name separator case
-            // Usually the getAsLastFirstNamesWithAnd method would separate them if pre- and lastname are separated with "and"
+            // Usually the getAsLastFirstNamesWithAnd method would separate them if pre-
+            // and lastname are separated with "and"
             // If not, we check if spaces separate pre- and lastname
             if (spaceInAllParts) {
                 listOfNames = listOfNames.replace(",", " and");
-            } else {
+            }
+            else {
                 // Looking for name affixes to avoid
                 // arrayNameList needs to reduce by the count off avoiding terms
                 // valuePartsCount holds the count of name parts without the avoided terms
@@ -205,7 +223,8 @@ public class AuthorListParser {
         tokenEnd = 0;
 
         // Parse author by author
-        List<Author> authors = new ArrayList<>(5); // 5 seems to be reasonable initial size
+        List<Author> authors = new ArrayList<>(5); // 5 seems to be reasonable initial
+                                                   // size
         while (tokenStart < original.length()) {
             getAuthor().ifPresent(authors::add);
         }
@@ -218,9 +237,9 @@ public class AuthorListParser {
     }
 
     /**
-     * Handle cases names in order Firstname Lastname, separated by <code>","</code> and a final <code>", and "</code>
-     * E.g, <code>"I. Podadera, J. M. Carmona, A. Ibarra, and J. Molla"</code>
-     *
+     * Handle cases names in order Firstname Lastname, separated by <code>","</code> and a
+     * final <code>", and "</code> E.g,
+     * <code>"I. Podadera, J. M. Carmona, A. Ibarra, and J. Molla"</code>
      * @return the original or patched version of listOfNames
      */
     private static String checkNamesCommaSeparated(String listOfNames) {
@@ -231,9 +250,11 @@ public class AuthorListParser {
             if (matcher.find()) {
                 String namesBeforeAndString = listOfNames.substring(0, commandAndPos);
                 String[] namesBeforeAnd = namesBeforeAndString.split(", ");
-                if (Arrays.stream(namesBeforeAnd).allMatch(name -> STARTS_WITH_CAPITAL_LETTER_DOT_OR_DASH.matcher(name).find())) {
+                if (Arrays.stream(namesBeforeAnd)
+                    .allMatch(name -> STARTS_WITH_CAPITAL_LETTER_DOT_OR_DASH.matcher(name).find())) {
                     // Format found
-                    listOfNames = Arrays.stream(namesBeforeAnd).collect(Collectors.joining(" and ", "", " and " + lastContainedName));
+                    listOfNames = Arrays.stream(namesBeforeAnd)
+                        .collect(Collectors.joining(" and ", "", " and " + lastContainedName));
                 }
             }
         }
@@ -242,8 +263,8 @@ public class AuthorListParser {
 
     /**
      * Parses one author name and returns preformatted information.
-     *
-     * @return Preformatted author name; <CODE>Optional.empty()</CODE> if author name is empty.
+     * @return Preformatted author name; <CODE>Optional.empty()</CODE> if author name is
+     * empty.
      */
     private Optional<Author> getAuthor() {
         List<Object> tokens = new ArrayList<>();
@@ -264,7 +285,8 @@ public class AuthorListParser {
                 case COMMA:
                     if (commaFirst < 0) {
                         commaFirst = tokens.size();
-                    } else if (commaSecond < 0) {
+                    }
+                    else if (commaSecond < 0) {
                         commaSecond = tokens.size();
                     }
                     break;
@@ -281,7 +303,8 @@ public class AuthorListParser {
                     }
                     if (vonStart < 0) {
                         if (!tokenCase) {
-                            int previousTermToken = (tokens.size() - TOKEN_GROUP_LENGTH - TOKEN_GROUP_LENGTH) + OFFSET_TOKEN_TERM;
+                            int previousTermToken = (tokens.size() - TOKEN_GROUP_LENGTH - TOKEN_GROUP_LENGTH)
+                                    + OFFSET_TOKEN_TERM;
                             if ((previousTermToken >= 0) && tokens.get(previousTermToken).equals('-')) {
                                 // We are in a first name which contained a hyphen
                                 break;
@@ -296,7 +319,8 @@ public class AuthorListParser {
                             vonStart = tokens.size() - TOKEN_GROUP_LENGTH;
                             break;
                         }
-                    } else if (tokenCase) {
+                    }
+                    else if (tokenCase) {
                         lastStart = tokens.size() - TOKEN_GROUP_LENGTH;
                         break;
                     }
@@ -306,7 +330,8 @@ public class AuthorListParser {
             }
         }
 
-        // Second step: split name into parts (here: calculate indices of parts in 'tokens' Vector)
+        // Second step: split name into parts (here: calculate indices of parts in
+        // 'tokens' Vector)
         if (tokens.isEmpty()) {
             // no author information
             return Optional.empty();
@@ -336,12 +361,14 @@ public class AuthorListParser {
                 if (firstPartEnd > 0) {
                     firstPartStart = 0;
                 }
-            } else { // 'von part' is present
+            }
+            else { // 'von part' is present
                 if (lastStart >= 0) {
                     lastPartEnd = tokens.size();
                     lastPartStart = lastStart;
                     vonPartEnd = lastPartStart;
-                } else {
+                }
+                else {
                     vonPartEnd = tokens.size();
                 }
                 vonPartStart = vonStart;
@@ -350,7 +377,8 @@ public class AuthorListParser {
                     firstPartStart = 0;
                 }
             }
-        } else {
+        }
+        else {
             // commas are present: it affects only 'first part' and 'junior part'
             firstPartEnd = tokens.size();
             if (commaSecond < 0) {
@@ -358,7 +386,8 @@ public class AuthorListParser {
                 if (commaFirst < firstPartEnd) {
                     firstPartStart = commaFirst;
                 }
-            } else {
+            }
+            else {
                 // two or more commas
                 if (commaSecond < firstPartEnd) {
                     firstPartStart = commaSecond;
@@ -371,13 +400,15 @@ public class AuthorListParser {
             if (vonStart == 0) { // 'von part' is present
                 if (lastStart < 0) {
                     vonPartEnd = commaFirst;
-                } else {
+                }
+                else {
                     lastPartEnd = commaFirst;
                     lastPartStart = lastStart;
                     vonPartEnd = lastPartStart;
                 }
                 vonPartStart = 0;
-            } else { // no 'von part'
+            }
+            else { // no 'von part'
                 lastPartEnd = commaFirst;
                 if (lastPartEnd > 0) {
                     lastPartStart = 0;
@@ -389,7 +420,8 @@ public class AuthorListParser {
             // There is no first or last name, but we have a von part. This is likely
             // to indicate a single-entry name without an initial capital letter, such
             // as "unknown".
-            // We make the von part the last name, to facilitate handling by last-name formatters:
+            // We make the von part the last name, to facilitate handling by last-name
+            // formatters:
             lastPartStart = vonPartStart;
             lastPartEnd = vonPartEnd;
             vonPartStart = -1;
@@ -397,36 +429,43 @@ public class AuthorListParser {
         }
 
         // Third step: do actual splitting, construct Author object
-        String firstPart = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN, false);
-        String firstAbbr = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN_ABBR, true);
+        String firstPart = firstPartStart < 0 ? null
+                : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN, false);
+        String firstAbbr = firstPartStart < 0 ? null
+                : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN_ABBR, true);
         String vonPart = vonPartStart < 0 ? null : concatTokens(tokens, vonPartStart, vonPartEnd, OFFSET_TOKEN, false);
-        String lastPart = lastPartStart < 0 ? null : concatTokens(tokens, lastPartStart, lastPartEnd, OFFSET_TOKEN, false);
+        String lastPart = lastPartStart < 0 ? null
+                : concatTokens(tokens, lastPartStart, lastPartEnd, OFFSET_TOKEN, false);
         String jrPart = jrPartStart < 0 ? null : concatTokens(tokens, jrPartStart, jrPartEnd, OFFSET_TOKEN, false);
 
-        if ((commaFirst < 0) && (firstPart != null) && (lastPart != null) && lastPart.equals(lastPart.toUpperCase(Locale.ROOT)) && (lastPart.length() < 5)
+        if ((commaFirst < 0) && (firstPart != null) && (lastPart != null)
+                && lastPart.equals(lastPart.toUpperCase(Locale.ROOT)) && (lastPart.length() < 5)
                 && (Character.UnicodeScript.of(lastPart.charAt(0)) != Character.UnicodeScript.HAN)) {
             // In case there is NO comma (e.g., Obama B) AND
             // the last part is a small string in complete upper case,
             // we interpret it as initial of the first name
-            // This is the case for example in "Smith SH" which we think of as lastname=Smith and firstname=SH
+            // This is the case for example in "Smith SH" which we think of as
+            // lastname=Smith and firstname=SH
             // The length < 5 constraint should allow for "Smith S.H." as input
             return Optional.of(new Author(lastPart, lastPart, vonPart, firstPart, jrPart));
-        } else {
+        }
+        else {
             return Optional.of(new Author(firstPart, firstAbbr, vonPart, lastPart, jrPart));
         }
     }
 
     /**
-     * Concatenates list of tokens from 'tokens' Vector. Tokens are separated by spaces or dashes, depending on stored
-     * in 'tokens'. Callers always ensure that start < end; thus, there exists at least one token to be concatenated.
-     *
-     * @param start    index of the first token to be concatenated in 'tokens' Vector (always divisible by
-     *                 TOKEN_GROUP_LENGTH).
-     * @param end      index of the first token not to be concatenated in 'tokens' Vector (always divisible by
-     *                 TOKEN_GROUP_LENGTH).
-     * @param offset   offset within token group (used to request concatenation of either full tokens or abbreviation).
-     * @param dotAfter <CODE>true</CODE> -- add period after each token, <CODE>false</CODE> --
-     *                 do not add.
+     * Concatenates list of tokens from 'tokens' Vector. Tokens are separated by spaces or
+     * dashes, depending on stored in 'tokens'. Callers always ensure that start < end;
+     * thus, there exists at least one token to be concatenated.
+     * @param start index of the first token to be concatenated in 'tokens' Vector (always
+     * divisible by TOKEN_GROUP_LENGTH).
+     * @param end index of the first token not to be concatenated in 'tokens' Vector
+     * (always divisible by TOKEN_GROUP_LENGTH).
+     * @param offset offset within token group (used to request concatenation of either
+     * full tokens or abbreviation).
+     * @param dotAfter <CODE>true</CODE> -- add period after each token,
+     * <CODE>false</CODE> -- do not add.
      * @return the result of concatenation.
      */
     private String concatTokens(List<Object> tokens, int start, int end, int offset, boolean dotAfter) {
@@ -451,25 +490,26 @@ public class AuthorListParser {
     /**
      * Parses the next token.
      * <p>
-     * The string being parsed is stored in global variable <CODE>original</CODE>, and position which parsing has to
-     * start from is stored in global variable
-     * <CODE>token_end</CODE>; thus, <CODE>token_end</CODE> has to be set
-     * to 0 before the first invocation. Procedure updates <CODE>token_end</CODE>; thus, subsequent invocations do not
-     * require any additional variable settings.
+     * The string being parsed is stored in global variable <CODE>original</CODE>, and
+     * position which parsing has to start from is stored in global variable
+     * <CODE>token_end</CODE>; thus, <CODE>token_end</CODE> has to be set to 0 before the
+     * first invocation. Procedure updates <CODE>token_end</CODE>; thus, subsequent
+     * invocations do not require any additional variable settings.
      * <p>
-     * The type of the token is returned; if it is <CODE>Token.WORD</CODE>, additional information is given in global
-     * variables <CODE>token_start</CODE>,
-     * <CODE>token_end</CODE>, <CODE>token_abbr</CODE>, <CODE>token_term</CODE>,
-     * and <CODE>token_case</CODE>; namely: <CODE>original.substring(token_start,token_end)</CODE> is the text of the
-     * token, <CODE>original.substring(token_start,token_abbr)</CODE> is the token abbreviation, <CODE>token_term</CODE>
-     * contains token terminator (space or dash), and <CODE>token_case</CODE> is <CODE>true</CODE>, if token is
-     * upper-case and <CODE>false</CODE> if token is lower-case.
-     *
-     * @return <CODE>Token.EOF</CODE> -- no more tokens, <CODE>Token.COMMA</CODE> --
-     * token is comma, <CODE>Token.AND</CODE> -- token is the word "and" (or "And", or "aND", etc.) or a semicolon,
-     * <CODE>Token.WORD</CODE> -- token is a word; additional information is given in global variables
-     * <CODE>token_start</CODE>, <CODE>token_end</CODE>,
-     * <CODE>token_abbr</CODE>, <CODE>token_term</CODE>, and
+     * The type of the token is returned; if it is <CODE>Token.WORD</CODE>, additional
+     * information is given in global variables <CODE>token_start</CODE>,
+     * <CODE>token_end</CODE>, <CODE>token_abbr</CODE>, <CODE>token_term</CODE>, and
+     * <CODE>token_case</CODE>; namely:
+     * <CODE>original.substring(token_start,token_end)</CODE> is the text of the token,
+     * <CODE>original.substring(token_start,token_abbr)</CODE> is the token abbreviation,
+     * <CODE>token_term</CODE> contains token terminator (space or dash), and
+     * <CODE>token_case</CODE> is <CODE>true</CODE>, if token is upper-case and
+     * <CODE>false</CODE> if token is lower-case.
+     * @return <CODE>Token.EOF</CODE> -- no more tokens, <CODE>Token.COMMA</CODE> -- token
+     * is comma, <CODE>Token.AND</CODE> -- token is the word "and" (or "And", or "aND",
+     * etc.) or a semicolon, <CODE>Token.WORD</CODE> -- token is a word; additional
+     * information is given in global variables <CODE>token_start</CODE>,
+     * <CODE>token_end</CODE>, <CODE>token_abbr</CODE>, <CODE>token_term</CODE>, and
      * <CODE>token_case</CODE>.
      */
     private Token getToken() {
@@ -514,10 +554,14 @@ public class AuthorListParser {
             }
             if (!firstLetterIsFound && (currentBackslash < 0) && Character.isLetter(c)) {
                 if (bracesLevel == 0) {
-                    tokenCase = Character.isUpperCase(c) || (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN);
-                } else {
-                    // If this is a particle in braces, always treat it as if it starts with
-                    // an upper case letter. Otherwise a name such as "{van den Bergen}, Hans"
+                    tokenCase = Character.isUpperCase(c)
+                            || (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN);
+                }
+                else {
+                    // If this is a particle in braces, always treat it as if it starts
+                    // with
+                    // an upper case letter. Otherwise a name such as "{van den Bergen},
+                    // Hans"
                     // will not yield a proper last name:
                     tokenCase = true;
                 }
@@ -549,16 +593,17 @@ public class AuthorListParser {
         }
         if ("and".equalsIgnoreCase(original.substring(tokenStart, tokenEnd))) {
             return Token.AND;
-        } else {
+        }
+        else {
             return Token.WORD;
         }
     }
 
     // Token types (returned by getToken procedure)
     private enum Token {
-        EOF,
-        AND,
-        COMMA,
-        WORD
+
+        EOF, AND, COMMA, WORD
+
     }
+
 }

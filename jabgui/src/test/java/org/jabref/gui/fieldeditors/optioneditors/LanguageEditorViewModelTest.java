@@ -31,16 +31,12 @@ public class LanguageEditorViewModelTest {
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         FilePreferences filePreferences = mock(FilePreferences.class);
         JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
-        FieldCheckers fieldCheckers = new FieldCheckers(databaseContext, filePreferences, abbreviationRepository, false);
+        FieldCheckers fieldCheckers = new FieldCheckers(databaseContext, filePreferences, abbreviationRepository,
+                false);
         SuggestionProvider<?> suggestionProvider = mock(SuggestionProvider.class);
 
-        languageEditorViewModel = new LanguageEditorViewModel(
-                StandardField.LANGUAGEID,
-                suggestionProvider,
-                BibDatabaseMode.BIBLATEX,
-                fieldCheckers,
-                new UndoManager()
-        );
+        languageEditorViewModel = new LanguageEditorViewModel(StandardField.LANGUAGEID, suggestionProvider,
+                BibDatabaseMode.BIBLATEX, fieldCheckers, new UndoManager());
     }
 
     @Test
@@ -84,5 +80,5 @@ public class LanguageEditorViewModelTest {
         Langid result = languageEditorViewModel.getStringConverter().fromString(" ");
         assertNull(result, "Blank input should return null Langid");
     }
-}
 
+}

@@ -27,4 +27,5 @@ public interface SrvStateManager {
     List<String> getAllDatabasePaths();
 
     ObjectBinding<Optional<CommandSelectionTab>> getActiveSelectionTabProperty();
+
 }

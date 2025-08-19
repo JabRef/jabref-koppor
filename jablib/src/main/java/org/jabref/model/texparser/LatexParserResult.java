@@ -12,8 +12,11 @@ import com.google.common.collect.Multimap;
 public class LatexParserResult {
 
     private final Path path;
+
     private final Multimap<String, Citation> citations;
+
     private final List<Path> nestedFiles;
+
     private final List<Path> bibFiles;
 
     public LatexParserResult(Path path) {
@@ -63,11 +66,8 @@ public class LatexParserResult {
 
     @Override
     public String toString() {
-        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}".formatted(
-                this.path,
-                this.citations,
-                this.nestedFiles,
-                this.bibFiles);
+        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}".formatted(this.path,
+                this.citations, this.nestedFiles, this.bibFiles);
     }
 
     @Override
@@ -82,14 +82,13 @@ public class LatexParserResult {
 
         LatexParserResult that = (LatexParserResult) obj;
 
-        return Objects.equals(path, that.path)
-                && Objects.equals(citations, that.citations)
-                && Objects.equals(nestedFiles, that.nestedFiles)
-                && Objects.equals(bibFiles, that.bibFiles);
+        return Objects.equals(path, that.path) && Objects.equals(citations, that.citations)
+                && Objects.equals(nestedFiles, that.nestedFiles) && Objects.equals(bibFiles, that.bibFiles);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(path, citations, nestedFiles, bibFiles);
     }
+
 }

@@ -10,4 +10,5 @@ class BiblatexAPAEntryTypeDefinitionsTest {
     void all() {
         assertNotNull(BiblatexAPAEntryTypeDefinitions.ALL);
     }
+
 }

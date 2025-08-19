@@ -38,9 +38,13 @@ import static org.mockito.Mockito.when;
 class SourceTabTest {
 
     private Stage stage;
+
     private Scene scene;
+
     private CodeArea area;
+
     private TabPane pane;
+
     private SourceTab sourceTab;
 
     @Start
@@ -52,25 +56,16 @@ class SourceTabTest {
         when(stateManager.searchQueryProperty()).thenReturn(mock(StringProperty.class));
         when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
         KeyBindingRepository keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
 
-        sourceTab = new SourceTab(
-                new CountingUndoManager(),
-                fieldPreferences,
-                importFormatPreferences,
-                new DummyFileUpdateMonitor(),
-                mock(DialogService.class),
-                mock(BibEntryTypesManager.class),
-                keyBindingRepository,
-                stateManager);
-        pane = new TabPane(
-                new Tab("main area", area),
-                new Tab("other tab", new Label("some text")),
-                sourceTab
-        );
+        sourceTab = new SourceTab(new CountingUndoManager(), fieldPreferences, importFormatPreferences,
+                new DummyFileUpdateMonitor(), mock(DialogService.class), mock(BibEntryTypesManager.class),
+                keyBindingRepository, stateManager);
+        pane = new TabPane(new Tab("main area", area), new Tab("other tab", new Label("some text")), sourceTab);
         scene = new Scene(pane);
         this.stage = stage;
 
@@ -102,4 +97,5 @@ class SourceTabTest {
         // No exception should be thrown
         robot.interrupt(100);
     }
+
 }

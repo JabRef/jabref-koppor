@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class QueryParserTest {
+
     QueryParser parser = new QueryParser();
 
     @Test
@@ -39,7 +40,9 @@ class QueryParserTest {
 
     @Test
     void convertAlphabeticallyFirstJournalField() {
-        ComplexSearchQuery searchQuery = parser.parseQueryStringIntoComplexQuery("journal:Nature journal:\"Complex Networks\"").get();
+        ComplexSearchQuery searchQuery = parser
+            .parseQueryStringIntoComplexQuery("journal:Nature journal:\"Complex Networks\"")
+            .get();
         ComplexSearchQuery expectedQuery = ComplexSearchQuery.builder().journal("\"Complex Networks\"").build();
         assertEquals(expectedQuery, searchQuery);
     }
@@ -67,8 +70,14 @@ class QueryParserTest {
 
     @Test
     void convertMultipleValuesWithTheSameField() {
-        ComplexSearchQuery searchQuery = parser.parseQueryStringIntoComplexQuery("author:\"Igor Steinmacher\" author:\"Christoph Treude\"").get();
-        ComplexSearchQuery expectedQuery = ComplexSearchQuery.builder().author("\"Igor Steinmacher\"").author("\"Christoph Treude\"").build();
+        ComplexSearchQuery searchQuery = parser
+            .parseQueryStringIntoComplexQuery("author:\"Igor Steinmacher\" author:\"Christoph Treude\"")
+            .get();
+        ComplexSearchQuery expectedQuery = ComplexSearchQuery.builder()
+            .author("\"Igor Steinmacher\"")
+            .author("\"Christoph Treude\"")
+            .build();
         assertEquals(expectedQuery, searchQuery);
     }
+
 }

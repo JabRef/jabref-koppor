@@ -20,14 +20,17 @@ public class DocBookAuthorFormatter {
                 sb.append("<personname>");
             }
             Author a = al.getAuthor(i);
-            a.getGivenName().filter(first -> !first.isEmpty()).ifPresent(first -> sb.append("<firstname>")
-                                                                                    .append(XML_CHARS.format(first)).append("</firstname>"));
-            a.getNamePrefix().filter(von -> !von.isEmpty()).ifPresent(von -> sb.append("<othername>")
-                                                                               .append(XML_CHARS.format(von)).append("</othername>"));
+            a.getGivenName()
+                .filter(first -> !first.isEmpty())
+                .ifPresent(first -> sb.append("<firstname>").append(XML_CHARS.format(first)).append("</firstname>"));
+            a.getNamePrefix()
+                .filter(von -> !von.isEmpty())
+                .ifPresent(von -> sb.append("<othername>").append(XML_CHARS.format(von)).append("</othername>"));
             a.getFamilyName().filter(last -> !last.isEmpty()).ifPresent(last -> {
                 sb.append("<surname>").append(XML_CHARS.format(last));
-                a.getNameSuffix().filter(jr -> !jr.isEmpty())
-                 .ifPresent(jr -> sb.append(' ').append(XML_CHARS.format(jr)));
+                a.getNameSuffix()
+                    .filter(jr -> !jr.isEmpty())
+                    .ifPresent(jr -> sb.append(' ').append(XML_CHARS.format(jr)));
                 sb.append("</surname>");
                 if (version == DocBookVersion.DOCBOOK_5) {
                     sb.append("</personname>");
@@ -36,9 +39,11 @@ public class DocBookAuthorFormatter {
 
             if (i < (al.getNumberOfAuthors() - 1)) {
                 sb.append("</").append(tagName).append(">\n       ");
-            } else {
+            }
+            else {
                 sb.append("</").append(tagName).append('>');
             }
         }
     }
+
 }

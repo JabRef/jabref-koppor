@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MsBibExportFormatTest {
 
     public BibDatabaseContext databaseContext;
+
     public MSBibExporter msBibExportFormat;
 
     @BeforeEach
@@ -33,4 +34,5 @@ public class MsBibExportFormatTest {
         msBibExportFormat.export(databaseContext, path, entries);
         assertEquals(List.of(), Files.readAllLines(path));
     }
+
 }

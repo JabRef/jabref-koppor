@@ -16,4 +16,5 @@ public interface CitationMarkerNumericBibEntry {
      * @return Optional.empty() for unresolved
      */
     Optional<Integer> getNumber();
+
 }

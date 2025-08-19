@@ -8,4 +8,5 @@ import org.jabref.model.pdf.FileAnnotation;
 public interface AnnotationImporter {
 
     List<FileAnnotation> importAnnotations(final Path path);
+
 }

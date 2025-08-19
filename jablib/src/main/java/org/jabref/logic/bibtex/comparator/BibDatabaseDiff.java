@@ -21,9 +21,13 @@ public class BibDatabaseDiff {
     private static final Logger LOGGER = LoggerFactory.getLogger(BibDatabaseDiff.class);
 
     private static final double MATCH_THRESHOLD = 0.8;
+
     private final Optional<MetaDataDiff> metaDataDiff;
+
     private final Optional<PreambleDiff> preambleDiff;
+
     private final List<BibStringDiff> bibStringDiffs;
+
     private final List<BibEntryDiff> entryDiffs;
 
     private BibDatabaseDiff(BibDatabaseContext originalDatabase, BibDatabaseContext newDatabase) {
@@ -66,7 +70,8 @@ public class BibDatabaseDiff {
         return comparator;
     }
 
-    private static List<BibEntryDiff> compareEntries(List<BibEntry> originalEntries, List<BibEntry> newEntries, BibDatabaseMode mode) {
+    private static List<BibEntryDiff> compareEntries(List<BibEntry> originalEntries, List<BibEntry> newEntries,
+            BibDatabaseMode mode) {
         List<BibEntryDiff> differences = new ArrayList<>();
 
         // Prevent IndexOutOfBoundException
@@ -79,11 +84,12 @@ public class BibDatabaseDiff {
         Set<Integer> matchedEntries = new HashSet<>(newEntries.size());
         Set<BibEntry> notMatched = new HashSet<>(originalEntries.size());
 
-        // Loop through the entries of the original database, looking for exact matches in the new one.
-        // We must finish scanning for exact matches before looking for near matches, to avoid an exact
+        // Loop through the entries of the original database, looking for exact matches in
+        // the new one.
+        // We must finish scanning for exact matches before looking for near matches, to
+        // avoid an exact
         // match being "stolen" from another entry.
-        mainLoop:
-        for (BibEntry originalEntry : originalEntries) {
+        mainLoop: for (BibEntry originalEntry : originalEntries) {
             for (int i = 0; i < newEntries.size(); i++) {
                 if (!matchedEntries.contains(i)) {
                     double score = DuplicateCheck.compareEntriesStrictly(originalEntry, newEntries.get(i));
@@ -98,11 +104,13 @@ public class BibDatabaseDiff {
             notMatched.add(originalEntry);
         }
 
-        // We've found all exact matches - and stored the non-matched entries in the notMatched set.
+        // We've found all exact matches - and stored the non-matched entries in the
+        // notMatched set.
         // Look through the remaining entries, looking for close matches.
         DuplicateCheck duplicateCheck = new DuplicateCheck(new BibEntryTypesManager());
         for (BibEntry originalEntry : notMatched) {
-            // These two variables will keep track of which entry most closely matches the one we're looking at.
+            // These two variables will keep track of which entry most closely matches the
+            // one we're looking at.
             double bestMatch = 0;
             int bestMatchIndex = 0;
             for (int i = 0; i < newEntries.size(); i++) {
@@ -119,18 +127,21 @@ public class BibDatabaseDiff {
 
             boolean isDuplicate = duplicateCheck.isDuplicate(originalEntry, bestEntry, mode);
             boolean hasEqualCitationKey = hasEqualCitationKey(originalEntry, bestEntry);
-            // For a diff, it could be nice to have a pair of entries being similar, but not being a duplicate or having the same citation key.
+            // For a diff, it could be nice to have a pair of entries being similar, but
+            // not being a duplicate or having the same citation key.
             boolean ratioOfEqualFieldsAboveThreshold = bestMatch > MATCH_THRESHOLD;
 
             if (isDuplicate || hasEqualCitationKey || ratioOfEqualFieldsAboveThreshold) {
                 matchedEntries.add(bestMatchIndex);
                 differences.add(new BibEntryDiff(originalEntry, newEntries.get(bestMatchIndex)));
-            } else {
+            }
+            else {
                 differences.add(new BibEntryDiff(originalEntry, null));
             }
         }
 
-        // Finally, look if there are still untouched entries in the new database. These may have been added.
+        // Finally, look if there are still untouched entries in the new database. These
+        // may have been added.
         for (int i = 0; i < newEntries.size(); i++) {
             if (!matchedEntries.contains(i)) {
                 differences.add(new BibEntryDiff(null, newEntries.get(i)));
@@ -141,7 +152,8 @@ public class BibDatabaseDiff {
     }
 
     private static boolean hasEqualCitationKey(BibEntry oneEntry, BibEntry twoEntry) {
-        return oneEntry.hasCitationKey() && twoEntry.hasCitationKey() && oneEntry.getCitationKey().equals(twoEntry.getCitationKey());
+        return oneEntry.hasCitationKey() && twoEntry.hasCitationKey()
+                && oneEntry.getCitationKey().equals(twoEntry.getCitationKey());
     }
 
     public static BibDatabaseDiff compare(BibDatabaseContext base, BibDatabaseContext changed) {
@@ -163,4 +175,5 @@ public class BibDatabaseDiff {
     public List<BibEntryDiff> getEntryDifferences() {
         return entryDiffs;
     }
+
 }

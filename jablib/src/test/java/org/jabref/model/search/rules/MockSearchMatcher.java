@@ -18,4 +18,5 @@ public class MockSearchMatcher implements SearchMatcher {
     public boolean isMatch(BibEntry entry) {
         return result;
     }
+
 }

@@ -20,7 +20,9 @@ import org.jabref.model.entry.field.StandardField;
 public class OpenUrlAction extends SimpleCommand {
 
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
 
     public OpenUrlAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences) {
@@ -29,8 +31,7 @@ public class OpenUrlAction extends SimpleCommand {
         this.preferences = preferences;
 
         BooleanExpression fieldIsSet = ActionHelper.isAnyFieldSetForSelectedEntry(
-                List.of(StandardField.URL, StandardField.DOI, StandardField.URI, StandardField.EPRINT),
-                stateManager);
+                List.of(StandardField.URL, StandardField.DOI, StandardField.URI, StandardField.EPRINT), stateManager);
         this.executable.bind(ActionHelper.needsEntriesSelected(1, stateManager).and(fieldIsSet));
     }
 
@@ -71,13 +72,17 @@ public class OpenUrlAction extends SimpleCommand {
                 try {
                     if (field.equals(StandardField.DOI) && preferences.getDOIPreferences().isUseCustom()) {
                         NativeDesktop.openCustomDoi(link.get(), preferences, dialogService);
-                    } else {
-                        NativeDesktop.openExternalViewer(databaseContext, preferences, link.get(), field, dialogService, entry);
                     }
-                } catch (IOException e) {
+                    else {
+                        NativeDesktop.openExternalViewer(databaseContext, preferences, link.get(), field, dialogService,
+                                entry);
+                    }
+                }
+                catch (IOException e) {
                     dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);
                 }
             }
         });
     }
+
 }

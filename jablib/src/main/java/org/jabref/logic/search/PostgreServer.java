@@ -15,18 +15,20 @@ import org.slf4j.LoggerFactory;
 import static org.jabref.model.search.PostgreConstants.BIB_FIELDS_SCHEME;
 
 public class PostgreServer {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreServer.class);
+
     private final EmbeddedPostgres embeddedPostgres;
+
     private final DataSource dataSource;
 
     public PostgreServer() {
         EmbeddedPostgres embeddedPostgres;
         try {
-            embeddedPostgres = EmbeddedPostgres.builder()
-                                               .setOutputRedirector(ProcessBuilder.Redirect.DISCARD)
-                                               .start();
+            embeddedPostgres = EmbeddedPostgres.builder().setOutputRedirector(ProcessBuilder.Redirect.DISCARD).start();
             LOGGER.info("Postgres server started, connection port: {}", embeddedPostgres.getPort());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not start Postgres server", e);
             this.embeddedPostgres = null;
             this.dataSource = null;
@@ -47,7 +49,8 @@ public class PostgreServer {
                 connection.createStatement().execute("DROP SCHEMA IF EXISTS " + BIB_FIELDS_SCHEME);
                 connection.createStatement().execute("CREATE SCHEMA " + BIB_FIELDS_SCHEME);
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Could not create scheme for bib fields", e);
         }
     }
@@ -58,7 +61,8 @@ public class PostgreServer {
                 LOGGER.debug("Adding trigram extension to Postgres server");
                 connection.createStatement().execute("CREATE EXTENSION IF NOT EXISTS pg_trgm");
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Could not add trigram extension to Postgres server", e);
         }
     }
@@ -71,7 +75,8 @@ public class PostgreServer {
                     connection.createStatement().execute(function);
                 }
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             LOGGER.error("Could not add functions to Postgres server", e);
         }
     }
@@ -80,7 +85,8 @@ public class PostgreServer {
         if (dataSource != null) {
             try {
                 return dataSource.getConnection();
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 LOGGER.error("Could not get connection to Postgres server", e);
             }
         }
@@ -91,9 +97,11 @@ public class PostgreServer {
         if (embeddedPostgres != null) {
             try {
                 embeddedPostgres.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("Could not shutdown Postgres server", e);
             }
         }
     }
+
 }

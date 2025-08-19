@@ -21,8 +21,8 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
     TextInputControl textInputControl;
 
     /**
-     * The default menu that contains functions for changing the case of text and doing several conversions.
-     *
+     * The default menu that contains functions for changing the case of text and doing
+     * several conversions.
      * @param textInputControl that this menu will be connected to
      */
     public DefaultMenu(TextInputControl textInputControl) {
@@ -30,12 +30,8 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
     }
 
     public List<MenuItem> get() {
-        return List.of(
-                getCaseChangeMenu(textInputControl),
-                getConversionMenu(textInputControl),
-                new SeparatorMenuItem(),
-                new ProtectedTermsMenu(textInputControl),
-                new SeparatorMenuItem(),
+        return List.of(getCaseChangeMenu(textInputControl), getConversionMenu(textInputControl),
+                new SeparatorMenuItem(), new ProtectedTermsMenu(textInputControl), new SeparatorMenuItem(),
                 getClearFieldMenuItem(textInputControl));
     }
 
@@ -45,9 +41,10 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
 
         for (final Formatter caseChanger : Formatters.getCaseChangers()) {
             MenuItem menuItem = new MenuItem(caseChanger.getName());
-            EasyBind.subscribe(textInputControl.textProperty(), value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
-            menuItem.setOnAction(event ->
-                    textInputControl.textProperty().set(caseChanger.format(textInputControl.textProperty().get())));
+            EasyBind.subscribe(textInputControl.textProperty(),
+                    value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
+            menuItem.setOnAction(event -> textInputControl.textProperty()
+                .set(caseChanger.format(textInputControl.textProperty().get())));
             submenu.getItems().add(menuItem);
         }
 
@@ -59,9 +56,10 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
 
         for (Formatter converter : Formatters.getConverters()) {
             MenuItem menuItem = new MenuItem(converter.getName());
-            EasyBind.subscribe(textInputControl.textProperty(), value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
-            menuItem.setOnAction(event ->
-                    textInputControl.textProperty().set(converter.format(textInputControl.textProperty().get())));
+            EasyBind.subscribe(textInputControl.textProperty(),
+                    value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
+            menuItem.setOnAction(event -> textInputControl.textProperty()
+                .set(converter.format(textInputControl.textProperty().get())));
             submenu.getItems().add(menuItem);
         }
 
@@ -75,4 +73,5 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
 
         return menuItem;
     }
+
 }

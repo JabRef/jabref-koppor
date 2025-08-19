@@ -13,45 +13,49 @@ import javafx.beans.property.StringProperty;
 import org.jabref.model.strings.StringUtil;
 
 /**
- *  Preferences for the linked files
+ * Preferences for the linked files
  */
 public class FilePreferences {
 
-    public static final String[] DEFAULT_FILENAME_PATTERNS = new String[] {"[bibtexkey]", "[bibtexkey] - [title]"};
+    public static final String[] DEFAULT_FILENAME_PATTERNS = new String[] { "[bibtexkey]", "[bibtexkey] - [title]" };
 
     private final StringProperty userAndHost = new SimpleStringProperty();
+
     private final SimpleStringProperty mainFileDirectory = new SimpleStringProperty();
+
     private final BooleanProperty storeFilesRelativeToBibFile = new SimpleBooleanProperty();
+
     private final StringProperty fileNamePattern = new SimpleStringProperty();
+
     private final StringProperty fileDirectoryPattern = new SimpleStringProperty();
+
     private final BooleanProperty downloadLinkedFiles = new SimpleBooleanProperty();
+
     private final BooleanProperty fulltextIndexLinkedFiles = new SimpleBooleanProperty();
+
     private final ObjectProperty<Path> workingDirectory = new SimpleObjectProperty<>();
+
     private final BooleanProperty createBackup = new SimpleBooleanProperty();
+
     private final ObjectProperty<Path> backupDirectory = new SimpleObjectProperty<>();
+
     private final BooleanProperty confirmDeleteLinkedFile = new SimpleBooleanProperty();
+
     private final BooleanProperty moveToTrash = new SimpleBooleanProperty();
+
     private final BooleanProperty shouldKeepDownloadUrl = new SimpleBooleanProperty();
+
     private final ObjectProperty<Path> lastUsedDirectory = new SimpleObjectProperty<>();
+
     private final BooleanProperty openFileExplorerInFileDirectory = new SimpleBooleanProperty();
+
     private final BooleanProperty openFileExplorerInLastUsedDirectory = new SimpleBooleanProperty();
 
-    public FilePreferences(String userAndHost,
-                           String mainFileDirectory,
-                           boolean storeFilesRelativeToBibFile,
-                           String fileNamePattern,
-                           String fileDirectoryPattern,
-                           boolean downloadLinkedFiles,
-                           boolean fulltextIndexLinkedFiles,
-                           Path workingDirectory,
-                           boolean createBackup,
-                           Path backupDirectory,
-                           boolean confirmDeleteLinkedFile,
-                           boolean moveToTrash,
-                           boolean shouldKeepDownloadUrl,
-                           Path lastUsedDirectory,
-                           boolean openFileExplorerInFileDirectory,
-                           boolean openFileExplorerInLastUsedDirectory) {
+    public FilePreferences(String userAndHost, String mainFileDirectory, boolean storeFilesRelativeToBibFile,
+            String fileNamePattern, String fileDirectoryPattern, boolean downloadLinkedFiles,
+            boolean fulltextIndexLinkedFiles, Path workingDirectory, boolean createBackup, Path backupDirectory,
+            boolean confirmDeleteLinkedFile, boolean moveToTrash, boolean shouldKeepDownloadUrl, Path lastUsedDirectory,
+            boolean openFileExplorerInFileDirectory, boolean openFileExplorerInLastUsedDirectory) {
         this.userAndHost.setValue(userAndHost);
         this.mainFileDirectory.setValue(mainFileDirectory);
         this.storeFilesRelativeToBibFile.setValue(storeFilesRelativeToBibFile);
@@ -81,7 +85,8 @@ public class FilePreferences {
     public Optional<Path> getMainFileDirectory() {
         if (StringUtil.isBlank(mainFileDirectory.getValue())) {
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.of(Path.of(mainFileDirectory.getValue()));
         }
     }
@@ -261,4 +266,5 @@ public class FilePreferences {
     public void setOpenFileExplorerInLastUsedDirectory(boolean value) {
         this.openFileExplorerInLastUsedDirectory.set(value);
     }
+
 }

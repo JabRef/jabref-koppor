@@ -36,11 +36,11 @@ import static org.mockito.Mockito.when;
 class MedlinePlainImporterTest {
 
     private static final String FILE_ENDING = ".txt";
+
     private MedlinePlainImporter importer;
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("MedlinePlainImporterTest")
-                && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name -> name.startsWith("MedlinePlainImporterTest") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -50,7 +50,8 @@ class MedlinePlainImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         importer = new MedlinePlainImporter(importFormatPreferences);
     }
@@ -68,19 +69,18 @@ class MedlinePlainImporterTest {
 
     @Test
     void importMultipleEntriesInSingleFile() throws IOException, URISyntaxException {
-        Path inputFile = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestMultipleEntries.txt").toURI());
+        Path inputFile = Path
+            .of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestMultipleEntries.txt").toURI());
 
-        List<BibEntry> entries = importer.importDatabase(inputFile).getDatabase()
-                                         .getEntries();
+        List<BibEntry> entries = importer.importDatabase(inputFile).getDatabase().getEntries();
         BibEntry testEntry = entries.getFirst();
 
         assertEquals(7, entries.size());
         assertEquals(StandardEntryType.Article, testEntry.getType());
         assertEquals(Optional.empty(), testEntry.getField(StandardField.MONTH));
         assertEquals(Optional.of("Long, Vicky and Marland, Hilary"), testEntry.getField(StandardField.AUTHOR));
-        assertEquals(
-                Optional.of(
-                        "From danger and motherhood to health and beauty: health advice for the factory girl in early twentieth-century Britain."),
+        assertEquals(Optional
+            .of("From danger and motherhood to health and beauty: health advice for the factory girl in early twentieth-century Britain."),
                 testEntry.getField(StandardField.TITLE));
 
         testEntry = entries.get(1);
@@ -91,9 +91,8 @@ class MedlinePlainImporterTest {
 
         testEntry = entries.get(2);
         assertEquals(StandardEntryType.Book, testEntry.getType());
-        assertEquals(
-                Optional.of(
-                        "This is a Testtitle: This title should be appended: This title should also be appended. Another append to the Title? LastTitle"),
+        assertEquals(Optional
+            .of("This is a Testtitle: This title should be appended: This title should also be appended. Another append to the Title? LastTitle"),
                 testEntry.getField(StandardField.TITLE));
 
         testEntry = entries.get(3);
@@ -105,13 +104,12 @@ class MedlinePlainImporterTest {
         assertEquals(Optional.of("Inproceedings book title"), testEntry.getField(StandardField.BOOKTITLE));
 
         BibEntry expectedEntry5 = new BibEntry(StandardEntryType.Proceedings)
-                .withField(StandardField.KEYWORDS, "Female")
-                        .withField(StandardField.PMID, "96578310");
+            .withField(StandardField.KEYWORDS, "Female")
+            .withField(StandardField.PMID, "96578310");
         assertEquals(expectedEntry5, entries.get(5));
 
-        BibEntry expectedEntry6 = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.KEYWORDS, "Female")
-                        .withField(StandardField.PMID, "45984220");
+        BibEntry expectedEntry6 = new BibEntry(StandardEntryType.Misc).withField(StandardField.KEYWORDS, "Female")
+            .withField(StandardField.PMID, "45984220");
         assertEquals(expectedEntry6, entries.get(6));
     }
 
@@ -122,13 +120,9 @@ class MedlinePlainImporterTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "MedlinePlainImporterTestCompleteEntry",
-            "MedlinePlainImporterTestMultiAbstract",
-            "MedlinePlainImporterTestMultiTitle",
-            "MedlinePlainImporterTestDOI",
-            "MedlinePlainImporterTestInproceeding"
-    })
+    @CsvSource({ "MedlinePlainImporterTestCompleteEntry", "MedlinePlainImporterTestMultiAbstract",
+            "MedlinePlainImporterTestMultiTitle", "MedlinePlainImporterTestDOI",
+            "MedlinePlainImporterTestInproceeding" })
     void importSingleEntriesInSingleFiles(String testFile) throws IOException, URISyntaxException {
         String medlineFile = testFile + ".txt";
         String bibtexFile = testFile + ".bib";
@@ -173,24 +167,23 @@ class MedlinePlainImporterTest {
             BibEntry expectedEntry = new BibEntry();
 
             expectedEntry.setField(StandardField.PMID, "22664220");
-            expectedEntry.setField(StandardField.COMMENT,
-                    """
-                            Comment1
-                            Comment2
-                            Comment3
-                            Comment4
-                            Comment5
-                            Comment6
-                            Comment7
-                            Comment8
-                            Comment9
-                            Comment10
-                            Comment11
-                            Comment12
-                            Comment13
-                            Comment14
-                            Comment15
-                            Comment16""");
+            expectedEntry.setField(StandardField.COMMENT, """
+                    Comment1
+                    Comment2
+                    Comment3
+                    Comment4
+                    Comment5
+                    Comment6
+                    Comment7
+                    Comment8
+                    Comment9
+                    Comment10
+                    Comment11
+                    Comment12
+                    Comment13
+                    Comment14
+                    Comment15
+                    Comment16""");
             assertEquals(List.of(expectedEntry), actualEntries);
         }
     }
@@ -222,7 +215,8 @@ class MedlinePlainImporterTest {
 
     @Test
     void withMultipleEntriesInvalidFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterStringOutOfBounds.txt").toURI());
+        Path file = Path
+            .of(MedlinePlainImporter.class.getResource("MedlinePlainImporterStringOutOfBounds.txt").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -231,7 +225,8 @@ class MedlinePlainImporterTest {
 
     @Test
     void invalidFormat() throws URISyntaxException, IOException {
-        Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestInvalidFormat.xml").toURI());
+        Path file = Path
+            .of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestInvalidFormat.xml").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -261,9 +256,8 @@ class MedlinePlainImporterTest {
                 PT  - newspaper article""")) {
             List<BibEntry> actualEntries = importer.importDatabase(reader).getDatabase().getEntries();
 
-            BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
-                    .withField(StandardField.KEYWORDS, "Female")
-                    .withField(StandardField.PMID, "22664795");
+            BibEntry expectedEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.KEYWORDS, "Female")
+                .withField(StandardField.PMID, "22664795");
 
             assertEquals(List.of(expectedEntry), actualEntries);
         }
@@ -278,4 +272,5 @@ class MedlinePlainImporterTest {
     void getCLIId() {
         assertEquals("medlineplain", importer.getId());
     }
+
 }

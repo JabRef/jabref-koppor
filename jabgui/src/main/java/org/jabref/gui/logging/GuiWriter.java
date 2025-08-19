@@ -35,4 +35,5 @@ public class GuiWriter extends AbstractFormatPatternWriter {
     @Override
     public void close() {
     }
+
 }

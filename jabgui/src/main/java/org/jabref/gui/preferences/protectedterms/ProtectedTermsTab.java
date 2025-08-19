@@ -27,19 +27,30 @@ import jakarta.inject.Inject;
  * Dialog for managing term list files.
  */
 public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsTabViewModel> implements PreferencesTab {
-    @FXML private TableView<ProtectedTermsListItemModel> filesTable;
-    @FXML private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableEnabledColumn;
-    @FXML private TableColumn<ProtectedTermsListItemModel, String> filesTableDescriptionColumn;
-    @FXML private TableColumn<ProtectedTermsListItemModel, String> filesTableFileColumn;
-    @FXML private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableEditColumn;
-    @FXML private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableDeleteColumn;
 
-    @Inject private ProtectedTermsLoader termsLoader;
+    @FXML
+    private TableView<ProtectedTermsListItemModel> filesTable;
+
+    @FXML
+    private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableEnabledColumn;
+
+    @FXML
+    private TableColumn<ProtectedTermsListItemModel, String> filesTableDescriptionColumn;
+
+    @FXML
+    private TableColumn<ProtectedTermsListItemModel, String> filesTableFileColumn;
+
+    @FXML
+    private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableEditColumn;
+
+    @FXML
+    private TableColumn<ProtectedTermsListItemModel, Boolean> filesTableDeleteColumn;
+
+    @Inject
+    private ProtectedTermsLoader termsLoader;
 
     public ProtectedTermsTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -51,36 +62,37 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
     public void initialize() {
         viewModel = new ProtectedTermsTabViewModel(termsLoader, dialogService, preferences);
 
-        new ViewModelTableRowFactory<ProtectedTermsListItemModel>()
-                .withContextMenu(this::createContextMenu)
-                .install(filesTable);
+        new ViewModelTableRowFactory<ProtectedTermsListItemModel>().withContextMenu(this::createContextMenu)
+            .install(filesTable);
         filesTableEnabledColumn.setCellFactory(CheckBoxTableCell.forTableColumn(filesTableEnabledColumn));
         filesTableEnabledColumn.setCellValueFactory(data -> data.getValue().enabledProperty());
-        filesTableDescriptionColumn.setCellValueFactory(data -> BindingsHelper.constantOf(data.getValue().getTermsList().getDescription()));
+        filesTableDescriptionColumn
+            .setCellValueFactory(data -> BindingsHelper.constantOf(data.getValue().getTermsList().getDescription()));
 
         filesTableFileColumn.setCellValueFactory(data -> {
             ProtectedTermsList list = data.getValue().getTermsList();
             if (list.isInternalList()) {
                 return BindingsHelper.constantOf(Localization.lang("Internal list"));
-            } else {
+            }
+            else {
                 return BindingsHelper.constantOf(list.getLocation());
             }
         });
 
         filesTableEditColumn.setCellValueFactory(data -> data.getValue().internalProperty().not());
         new ValueTableCellFactory<ProtectedTermsListItemModel, Boolean>()
-                .withGraphic(none -> IconTheme.JabRefIcons.EDIT.getGraphicNode())
-                .withVisibleExpression(ReadOnlyBooleanWrapper::new)
-                .withOnMouseClickedEvent((item, none) -> event -> viewModel.edit(item))
-                .install(filesTableEditColumn);
+            .withGraphic(none -> IconTheme.JabRefIcons.EDIT.getGraphicNode())
+            .withVisibleExpression(ReadOnlyBooleanWrapper::new)
+            .withOnMouseClickedEvent((item, none) -> event -> viewModel.edit(item))
+            .install(filesTableEditColumn);
 
         filesTableDeleteColumn.setCellValueFactory(data -> data.getValue().internalProperty().not());
         new ValueTableCellFactory<ProtectedTermsListItemModel, Boolean>()
-                .withGraphic(none -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withVisibleExpression(ReadOnlyBooleanWrapper::new)
-                .withTooltip(none -> Localization.lang("Remove protected terms file"))
-                .withOnMouseClickedEvent((item, none) -> event -> viewModel.removeList(item))
-                .install(filesTableDeleteColumn);
+            .withGraphic(none -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withVisibleExpression(ReadOnlyBooleanWrapper::new)
+            .withTooltip(none -> Localization.lang("Remove protected terms file"))
+            .withOnMouseClickedEvent((item, none) -> event -> viewModel.removeList(item))
+            .install(filesTableDeleteColumn);
 
         filesTable.itemsProperty().set(viewModel.termsFilesProperty());
     }
@@ -88,12 +100,15 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
     private ContextMenu createContextMenu(ProtectedTermsListItemModel file) {
         ActionFactory factory = new ActionFactory();
         ContextMenu contextMenu = new ContextMenu();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.EDIT_LIST, new ProtectedTermsTab.ContextAction(StandardActions.EDIT_LIST, file)),
-                factory.createMenuItem(StandardActions.VIEW_LIST, new ProtectedTermsTab.ContextAction(StandardActions.VIEW_LIST, file)),
-                factory.createMenuItem(StandardActions.REMOVE_LIST, new ProtectedTermsTab.ContextAction(StandardActions.REMOVE_LIST, file)),
-                factory.createMenuItem(StandardActions.RELOAD_LIST, new ProtectedTermsTab.ContextAction(StandardActions.RELOAD_LIST, file))
-        );
+        contextMenu.getItems()
+            .addAll(factory.createMenuItem(StandardActions.EDIT_LIST,
+                    new ProtectedTermsTab.ContextAction(StandardActions.EDIT_LIST, file)),
+                    factory.createMenuItem(StandardActions.VIEW_LIST,
+                            new ProtectedTermsTab.ContextAction(StandardActions.VIEW_LIST, file)),
+                    factory.createMenuItem(StandardActions.REMOVE_LIST,
+                            new ProtectedTermsTab.ContextAction(StandardActions.REMOVE_LIST, file)),
+                    factory.createMenuItem(StandardActions.RELOAD_LIST,
+                            new ProtectedTermsTab.ContextAction(StandardActions.RELOAD_LIST, file)));
         contextMenu.getItems().forEach(item -> item.setGraphic(null));
         contextMenu.getStyleClass().add("context-menu");
 
@@ -113,17 +128,17 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
     private class ContextAction extends SimpleCommand {
 
         private final StandardActions command;
+
         private final ProtectedTermsListItemModel itemModel;
 
         public ContextAction(StandardActions command, ProtectedTermsListItemModel itemModel) {
             this.command = command;
             this.itemModel = itemModel;
 
-            this.executable.bind(BindingsHelper.constantOf(
-                    switch (command) {
-                        case EDIT_LIST, REMOVE_LIST, RELOAD_LIST -> !itemModel.getTermsList().isInternalList();
-                        default -> true;
-                    }));
+            this.executable.bind(BindingsHelper.constantOf(switch (command) {
+                case EDIT_LIST, REMOVE_LIST, RELOAD_LIST -> !itemModel.getTermsList().isInternalList();
+                default -> true;
+            }));
         }
 
         @Override
@@ -135,5 +150,7 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
                 case RELOAD_LIST -> viewModel.reloadList(itemModel);
             }
         }
+
     }
+
 }

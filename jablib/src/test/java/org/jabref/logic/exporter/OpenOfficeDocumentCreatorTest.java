@@ -31,16 +31,22 @@ import org.xmlunit.matchers.CompareMatcher;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OpenOfficeDocumentCreatorTest {
+
     public BibDatabaseContext databaseContext;
+
     public Charset charset;
+
     public List<BibEntry> entries;
 
     private Path xmlFile;
+
     private Exporter exporter;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        xmlFile = Path.of(OpenOfficeDocumentCreatorTest.class.getResource("OldOpenOfficeCalcExportFormatContentSingleEntry.xml").toURI());
+        xmlFile = Path
+            .of(OpenOfficeDocumentCreatorTest.class.getResource("OldOpenOfficeCalcExportFormatContentSingleEntry.xml")
+                .toURI());
 
         exporter = new OpenOfficeDocumentCreator();
 
@@ -49,7 +55,8 @@ public class OpenOfficeDocumentCreatorTest {
 
         BibEntry entry = new BibEntry(StandardEntryType.Article);
         entry.setField(StandardField.ADDRESS, "New York, NY, USA");
-        entry.setField(StandardField.TITLE, "Design and usability in security systems: daily life as a context of use?");
+        entry.setField(StandardField.TITLE,
+                "Design and usability in security systems: daily life as a context of use?");
         entry.setField(StandardField.AUTHOR, "Tony Clear");
         entry.setField(StandardField.ISSN, "0097-8418");
         entry.setField(StandardField.DOI, "http://doi.acm.org/10.1145/820127.820136");
@@ -64,7 +71,8 @@ public class OpenOfficeDocumentCreatorTest {
     }
 
     @Test
-    void performExportForSingleEntry(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleEntry(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path zipPath = testFolder.resolve("OpenOfficeRandomNamedFile");
 
         exporter.export(databaseContext, zipPath, entries);
@@ -74,16 +82,18 @@ public class OpenOfficeDocumentCreatorTest {
         Path contentXmlPath = unzipFolder.resolve("content.xml");
 
         // for debugging purposes
-        // Files.copy(contentXmlPath, xmlFile.resolveSibling("test.xml"), StandardCopyOption.REPLACE_EXISTING);
+        // Files.copy(contentXmlPath, xmlFile.resolveSibling("test.xml"),
+        // StandardCopyOption.REPLACE_EXISTING);
 
         try (InputStream xmlFileInputStream = Files.newInputStream(xmlFile);
-             InputStream contentXmlInputStream = Files.newInputStream(contentXmlPath)
-        ) {
+                InputStream contentXmlInputStream = Files.newInputStream(contentXmlPath)) {
             Input.Builder control = Input.from(xmlFileInputStream);
             Input.Builder test = Input.from(contentXmlInputStream);
-            assertThat(test, CompareMatcher.isSimilarTo(control)
-                                           .normalizeWhitespace()
-                                           .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)).throwComparisonFailure());
+            assertThat(test,
+                    CompareMatcher.isSimilarTo(control)
+                        .normalizeWhitespace()
+                        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+                        .throwComparisonFailure());
         }
     }
 
@@ -120,4 +130,5 @@ public class OpenOfficeDocumentCreatorTest {
         }
         return normalizePath;
     }
+
 }

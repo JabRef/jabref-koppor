@@ -25,46 +25,50 @@ public class FileFilterUtils {
         FileTime lastEditedTime;
         try {
             lastEditedTime = Files.getLastModifiedTime(path);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not retrieve file time", e);
             return LocalDateTime.now();
         }
-        LocalDateTime localDateTime = lastEditedTime
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        LocalDateTime localDateTime = lastEditedTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         return localDateTime;
     }
 
-    /* Returns true if a file with a specific path
-     * was edited during the last 24 hours. */
+    /*
+     * Returns true if a file with a specific path was edited during the last 24 hours.
+     */
     public boolean isDuringLastDay(LocalDateTime fileEditTime) {
         LocalDateTime NOW = LocalDateTime.now(ZoneId.systemDefault());
         return fileEditTime.isAfter(NOW.minusHours(24));
     }
 
-    /* Returns true if a file with a specific path
-     * was edited during the last 7 days. */
+    /*
+     * Returns true if a file with a specific path was edited during the last 7 days.
+     */
     public boolean isDuringLastWeek(LocalDateTime fileEditTime) {
         LocalDateTime NOW = LocalDateTime.now(ZoneId.systemDefault());
         return fileEditTime.isAfter(NOW.minusDays(7));
     }
 
-    /* Returns true if a file with a specific path
-     * was edited during the last 30 days. */
+    /*
+     * Returns true if a file with a specific path was edited during the last 30 days.
+     */
     public boolean isDuringLastMonth(LocalDateTime fileEditTime) {
         LocalDateTime NOW = LocalDateTime.now(ZoneId.systemDefault());
         return fileEditTime.isAfter(NOW.minusDays(30));
     }
 
-    /* Returns true if a file with a specific path
-     * was edited during the last 365 days. */
+    /*
+     * Returns true if a file with a specific path was edited during the last 365 days.
+     */
     public boolean isDuringLastYear(LocalDateTime fileEditTime) {
         LocalDateTime NOW = LocalDateTime.now(ZoneId.systemDefault());
         return fileEditTime.isAfter(NOW.minusDays(365));
     }
 
-    /* Returns true if a file is edited in the time margin specified by the given filter. */
+    /*
+     * Returns true if a file is edited in the time margin specified by the given filter.
+     */
     public static boolean filterByDate(Path path, DateRange filter) {
         FileFilterUtils fileFilter = new FileFilterUtils();
         LocalDateTime fileTime = FileFilterUtils.getFileTime(path);
@@ -79,34 +83,34 @@ public class FileFilterUtils {
     }
 
     /**
-     * Sorts a list of Path objects according to the last edited date
-     * of their corresponding files, from newest to oldest.
+     * Sorts a list of Path objects according to the last edited date of their
+     * corresponding files, from newest to oldest.
      */
     public List<Path> sortByDateAscending(List<Path> files) {
         return files.stream()
-                .sorted(Comparator.comparingLong(file -> FileFilterUtils.getFileTime(file)
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant()
-                        .toEpochMilli()))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparingLong(file -> FileFilterUtils.getFileTime(file)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()))
+            .collect(Collectors.toList());
     }
 
     /**
-     * Sorts a list of Path objects according to the last edited date
-     * of their corresponding files, from oldest to newest.
+     * Sorts a list of Path objects according to the last edited date of their
+     * corresponding files, from oldest to newest.
      */
     public List<Path> sortByDateDescending(List<Path> files) {
         return files.stream()
-                .sorted(Comparator.comparingLong(file -> -FileFilterUtils.getFileTime(file)
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant()
-                        .toEpochMilli()))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparingLong(file -> -FileFilterUtils.getFileTime(file)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()))
+            .collect(Collectors.toList());
     }
 
     /**
-     * Sorts a list of Path objects according to the last edited date
-     * the order depends on the specified sorter type.
+     * Sorts a list of Path objects according to the last edited date the order depends on
+     * the specified sorter type.
      */
     public static List<Path> sortByDate(List<Path> files, ExternalFileSorter sortType) {
         FileFilterUtils fileFilter = new FileFilterUtils();
@@ -117,5 +121,5 @@ public class FileFilterUtils {
         };
         return sortedFiles;
     }
-}
 
+}

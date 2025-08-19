@@ -41,82 +41,126 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class embodies a bibliography formatting for OpenOffice, which is composed
- * of the following elements:
+ * This class embodies a bibliography formatting for OpenOffice, which is composed of the
+ * following elements:
  * <p>
- * 1) Each OO BIB entry type must have a formatting. A formatting is an array of elements, each
- * of which is either a piece of constant text, an entry field value, or a tab. Each element has
- * a character format associated with it.
+ * 1) Each OO BIB entry type must have a formatting. A formatting is an array of elements,
+ * each of which is either a piece of constant text, an entry field value, or a tab. Each
+ * element has a character format associated with it.
  * <p>
- * 2) Many field values (e.g. author) need to be formatted before input to OpenOffice. The style
- * has the responsibility of formatting all field values. Formatting is handled by 0-n
- * JabRef LayoutFormatter classes.
+ * 2) Many field values (e.g. author) need to be formatted before input to OpenOffice. The
+ * style has the responsibility of formatting all field values. Formatting is handled by
+ * 0-n JabRef LayoutFormatter classes.
  * <p>
- * 3) If the entries are not numbered, a citation marker must be produced for each entry. This
- * operation is performed for each JabRef BibEntry.
+ * 3) If the entries are not numbered, a citation marker must be produced for each entry.
+ * This operation is performed for each JabRef BibEntry.
  */
 @AllowedToUseClassGetResource("Required for jstyle loading")
 public class JStyle implements Comparable<JStyle>, OOStyle {
 
     public static final String ITALIC_ET_AL = "ItalicEtAl";
+
     public static final String MULTI_CITE_CHRONOLOGICAL = "MultiCiteChronological";
+
     public static final String MINIMUM_GROUPING_COUNT = "MinimumGroupingCount";
+
     public static final String ET_AL_STRING = "EtAlString";
+
     public static final String MAX_AUTHORS_FIRST = "MaxAuthorsFirst";
+
     public static final String REFERENCE_HEADER_PARAGRAPH_FORMAT = "ReferenceHeaderParagraphFormat";
+
     public static final String REFERENCE_PARAGRAPH_FORMAT = "ReferenceParagraphFormat";
 
     public static final String TITLE = "Title";
+
     public static final String UNDEFINED_CITATION_MARKER = "??";
+
     private static final Pattern NUM_PATTERN = Pattern.compile("-?\\d+");
+
     private static final String LAYOUT_MRK = "LAYOUT";
+
     private static final String PROPERTIES_MARK = "PROPERTIES";
+
     private static final String CITATION_MARK = "CITATION";
+
     private static final String NAME_MARK = "NAME";
+
     private static final String JOURNALS_MARK = "JOURNALS";
+
     private static final String DEFAULT_MARK = "default";
+
     private static final String BRACKET_AFTER_IN_LIST = "BracketAfterInList";
+
     private static final String BRACKET_BEFORE_IN_LIST = "BracketBeforeInList";
+
     private static final String UNIQUEFIER_SEPARATOR = "UniquefierSeparator";
+
     private static final String CITATION_KEY_CITATIONS = "BibTeXKeyCitations";
+
     private static final String SUBSCRIPT_CITATIONS = "SubscriptCitations";
+
     private static final String SUPERSCRIPT_CITATIONS = "SuperscriptCitations";
+
     private static final String BOLD_CITATIONS = "BoldCitations";
+
     private static final String ITALIC_CITATIONS = "ItalicCitations";
+
     private static final String CITATION_CHARACTER_FORMAT = "CitationCharacterFormat";
+
     private static final String FORMAT_CITATIONS = "FormatCitations";
+
     private static final String GROUPED_NUMBERS_SEPARATOR = "GroupedNumbersSeparator";
 
     // These two can do what ItalicCitations, BoldCitations,
     // SuperscriptCitations and SubscriptCitations were supposed to do,
     // as well as underline smallcaps and strikeout.
     private static final String CITATION_GROUP_MARKUP_BEFORE = "CitationGroupMarkupBefore";
+
     private static final String CITATION_GROUP_MARKUP_AFTER = "CitationGroupMarkupAfter";
 
     private static final String AUTHORS_PART_MARKUP_BEFORE = "AuthorsPartMarkupBefore";
+
     private static final String AUTHORS_PART_MARKUP_AFTER = "AuthorsPartMarkupAfter";
 
     private static final String AUTHOR_NAMES_LIST_MARKUP_BEFORE = "AuthorNamesListMarkupBefore";
+
     private static final String AUTHOR_NAMES_LIST_MARKUP_AFTER = "AuthorNamesListMarkupAfter";
 
     private static final String AUTHOR_NAME_MARKUP_BEFORE = "AuthorNameMarkupBefore";
+
     private static final String AUTHOR_NAME_MARKUP_AFTER = "AuthorNameMarkupAfter";
 
     private static final String PAGE_INFO_SEPARATOR = "PageInfoSeparator";
+
     private static final String CITATION_SEPARATOR = "CitationSeparator";
+
     private static final String IN_TEXT_YEAR_SEPARATOR = "InTextYearSeparator";
+
     private static final String MAX_AUTHORS = "MaxAuthors";
+
     private static final String YEAR_FIELD = "YearField";
+
     private static final String AUTHOR_FIELD = "AuthorField";
+
     private static final String BRACKET_AFTER = "BracketAfter";
+
     private static final String BRACKET_BEFORE = "BracketBefore";
+
     private static final String SPACE_BEFORE = "SpaceBefore";
+
     private static final String IS_NUMBER_ENTRIES = "IsNumberEntries";
+
     private static final String IS_SORT_BY_POSITION = "IsSortByPosition";
+
     private static final String SORT_ALGORITHM = "SortAlgorithm";
+
     private static final String OXFORD_COMMA = "OxfordComma";
+
     private static final String YEAR_SEPARATOR = "YearSeparator";
+
     private static final String AUTHOR_LAST_SEPARATOR_IN_TEXT = "AuthorLastSeparatorInText";
+
     private static final String AUTHOR_LAST_SEPARATOR = "AuthorLastSeparator";
 
     private static final String AUTHOR_SEPARATOR = "AuthorSeparator";
@@ -124,45 +168,57 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     private static final Pattern QUOTED = Pattern.compile("\".*\"");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JStyle.class);
+
     private final SortedSet<String> journals = new TreeSet<>();
+
     // Formatter to be run on fields before they are used as part of citation marker:
     private final LayoutFormatter fieldFormatter = new OOPreFormatter();
+
     // reference layout mapped from entry type:
     private final Map<EntryType, Layout> bibLayout = new HashMap<>();
+
     private final Map<String, Object> properties = new HashMap<>();
+
     private final Map<String, Object> citProperties = new HashMap<>();
 
     /**
-     * Flag indicating whether this style is loaded from internal resources (true)
-     * or from an external file (false).
+     * Flag indicating whether this style is loaded from internal resources (true) or from
+     * an external file (false).
      */
     private boolean fromResource;
 
     /**
-     * Path used to identify the style file.
-     * For internal resources: contains the resource path (e.g., "resource/openoffice/default_authoryear.jstyle")
-     * For external files: contains the absolute file path.
+     * Path used to identify the style file. For internal resources: contains the resource
+     * path (e.g., "resource/openoffice/default_authoryear.jstyle") For external files:
+     * contains the absolute file path.
      */
     private final String path;
 
     private final LayoutFormatterPreferences layoutPreferences;
+
     private final JournalAbbreviationRepository abbreviationRepository;
+
     private String name = "";
+
     private Layout defaultBibLayout;
+
     private boolean valid;
 
     /**
-     * Reference to the style file on the filesystem.
-     * For internal resources: points to the path but cannot be directly accessed.
-     * For external files: points to the actual file that can be read directly.
+     * Reference to the style file on the filesystem. For internal resources: points to
+     * the path but cannot be directly accessed. For external files: points to the actual
+     * file that can be read directly.
      */
     private final Path styleFile;
 
     private long styleFileModificationTime = Long.MIN_VALUE;
+
     private String localCopy;
+
     private boolean isDefaultLayoutPresent;
 
-    public JStyle(Path styleFile, LayoutFormatterPreferences layoutPreferences, JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public JStyle(Path styleFile, LayoutFormatterPreferences layoutPreferences,
+            JournalAbbreviationRepository abbreviationRepository) throws IOException {
         this.layoutPreferences = Objects.requireNonNull(layoutPreferences);
         this.abbreviationRepository = abbreviationRepository;
         this.styleFile = Objects.requireNonNull(styleFile);
@@ -172,13 +228,15 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         path = styleFile.toAbsolutePath().toString();
     }
 
-    public JStyle(String resourcePath, LayoutFormatterPreferences layoutPreferences, JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public JStyle(String resourcePath, LayoutFormatterPreferences layoutPreferences,
+            JournalAbbreviationRepository abbreviationRepository) throws IOException {
         this.layoutPreferences = Objects.requireNonNull(layoutPreferences);
         this.abbreviationRepository = abbreviationRepository;
 
         Objects.requireNonNull(resourcePath);
         setDefaultProperties();
-        // we need to distinguish if it's a style from the local resources or a file on disk
+        // we need to distinguish if it's a style from the local resources or a file on
+        // disk
         InputStream stream = JStyle.class.getResourceAsStream(resourcePath);
         styleFile = Path.of(resourcePath).toAbsolutePath();
         fromResource = true;
@@ -275,9 +333,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * If this style was initialized from a file on disk, reload the style
-     * if the file has been modified since it was read.
-     *
+     * If this style was initialized from a file on disk, reload the style if the file has
+     * been modified since it was read.
      * @throws IOException in case of errors
      */
     public void ensureUpToDate() throws IOException {
@@ -287,16 +344,16 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * If this style was initialized from a file on disk, reload the style
-     * information.
-     *
+     * If this style was initialized from a file on disk, reload the style information.
      * @throws IOException in case of error
      */
     private void reload() throws IOException {
         if (styleFile != null) {
             if (fromResource) {
-                // implies internal styles, we need to use Class.getResourceAsStream with the path
-                // instead of accessing the styleFile directly, as resource paths work differently
+                // implies internal styles, we need to use Class.getResourceAsStream with
+                // the path
+                // instead of accessing the styleFile directly, as resource paths work
+                // differently
                 try (InputStream stream = JStyle.class.getResourceAsStream(path)) {
                     if (stream != null) {
                         initialize(stream);
@@ -315,18 +372,19 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * If this style was initialized from a file on disk, check whether the file
-     * is unmodified since initialization.
-     *
+     * If this style was initialized from a file on disk, check whether the file is
+     * unmodified since initialization.
      * @return true if the file has not been modified, false otherwise.
      */
     private boolean isUpToDate() {
         if (styleFile == null) {
             return true;
-        } else {
+        }
+        else {
             try {
                 return Files.getLastModifiedTime(styleFile).toMillis() == this.styleFileModificationTime;
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 return false;
             }
         }
@@ -408,9 +466,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * After initializing this style from a file, this method can be used to check
-     * whether the file appeared to be a proper style file.
-     *
+     * After initializing this style from a file, this method can be used to check whether
+     * the file appeared to be a proper style file.
      * @return true if the file could be parsed as a style file, false otherwise.
      */
     public boolean isValid() {
@@ -419,7 +476,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Parse a line providing bibliography structure information for an entry type.
-     *
      * @param line The string containing the structure description.
      */
     private void handleStructureLine(String line) {
@@ -428,16 +484,19 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
             try {
                 final String typeName = line.substring(0, index);
                 final String formatString = line.substring(index + 1);
-                Layout layout = new LayoutHelper(Reader.of(formatString), layoutPreferences, abbreviationRepository).getLayoutFromText();
+                Layout layout = new LayoutHelper(Reader.of(formatString), layoutPreferences, abbreviationRepository)
+                    .getLayoutFromText();
                 EntryType type = EntryTypeFactory.parse(typeName);
 
                 if (!isDefaultLayoutPresent && JStyle.DEFAULT_MARK.equals(typeName)) {
                     isDefaultLayoutPresent = true;
                     defaultBibLayout = layout;
-                } else {
+                }
+                else {
                     bibLayout.put(type, layout);
                 }
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 LOGGER.warn("Cannot parse bibliography structure", ex);
             }
         }
@@ -445,7 +504,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Parse a line providing a property name and value.
-     *
      * @param line The line containing the formatter names.
      */
     private void handlePropertiesLine(String line, Map<String, Object> map) {
@@ -459,9 +517,11 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
             Object toSet = value;
             if (NUM_PATTERN.matcher(value.trim()).matches()) {
                 toSet = Integer.parseInt(value.trim());
-            } else if ("true".equalsIgnoreCase(value.trim())) {
+            }
+            else if ("true".equalsIgnoreCase(value.trim())) {
                 toSet = Boolean.TRUE;
-            } else if ("false".equalsIgnoreCase(value.trim())) {
+            }
+            else if ("false".equalsIgnoreCase(value.trim())) {
                 toSet = Boolean.FALSE;
             }
             map.put(propertyName, toSet);
@@ -481,7 +541,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         Layout layout = bibLayout.get(type);
         if (layout == null) {
             return defaultBibLayout;
-        } else {
+        }
+        else {
             return layout;
         }
     }
@@ -489,7 +550,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     /**
      * Convenience method for checking the property for whether we use number citations or
      * author-year citations.
-     *
      * @return true if we use numbered citations, false otherwise.
      */
     public boolean isNumberEntries() {
@@ -499,7 +559,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     /**
      * Convenience method for checking the property for whether we sort the bibliography
      * according to their order of appearance in the text.
-     *
      * @return true to sort by appearance, false to sort alphabetically.
      */
     public boolean isSortByPosition() {
@@ -507,9 +566,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * Convenience method for checking whether citation markers should be italicized.
-     * Will only be relevant if isFormatCitations() returns true.
-     *
+     * Convenience method for checking whether citation markers should be italicized. Will
+     * only be relevant if isFormatCitations() returns true.
      * @return true to indicate that citations should be in italics.
      */
     public boolean isItalicCitations() {
@@ -517,9 +575,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * Convenience method for checking whether citation markers should be bold.
-     * Will only be relevant if isFormatCitations() returns true.
-     *
+     * Convenience method for checking whether citation markers should be bold. Will only
+     * be relevant if isFormatCitations() returns true.
      * @return true to indicate that citations should be in bold.
      */
     public boolean isBoldCitations() {
@@ -527,10 +584,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * Convenience method for checking whether citation markers formatted
-     * according to the results of the isItalicCitations() and
-     * isBoldCitations() methods.
-     *
+     * Convenience method for checking whether citation markers formatted according to the
+     * results of the isItalicCitations() and isBoldCitations() methods.
      * @return true to indicate that citations should be in italics.
      */
     public boolean isFormatCitations() {
@@ -547,7 +602,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Get boolean property.
-     *
      * @param key The property key
      * @return the value
      */
@@ -569,7 +623,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Get a style property.
-     *
      * @param propName The property name.
      * @return The property value, or null if it doesn't exist.
      */
@@ -579,7 +632,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Indicate if it is an internal style
-     *
      * @return True if an internal style
      */
     @Override
@@ -602,10 +654,9 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
             return true;
         }
         if (object instanceof JStyle otherStyle) {
-            return Objects.equals(path, otherStyle.path)
-                   && Objects.equals(name, otherStyle.name)
-                   && Objects.equals(citProperties, otherStyle.citProperties)
-                   && Objects.equals(properties, otherStyle.properties);
+            return Objects.equals(path, otherStyle.path) && Objects.equals(name, otherStyle.name)
+                    && Objects.equals(citProperties, otherStyle.citProperties)
+                    && Objects.equals(properties, otherStyle.properties);
         }
         return false;
     }
@@ -616,33 +667,29 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     enum BibStyleMode {
-        NONE,
-        LAYOUT,
-        PROPERTIES,
-        CITATION,
-        NAME,
-        JOURNALS
+
+        NONE, LAYOUT, PROPERTIES, CITATION, NAME, JOURNALS
+
     }
 
     /**
-     * The String to represent authors that are not mentioned,
-     * e.g. " et al."
+     * The String to represent authors that are not mentioned, e.g. " et al."
      */
     public String getEtAlString() {
         return getStringCitProperty(JStyle.ET_AL_STRING);
     }
 
     /**
-     * The String to add between author names except the last two:
-     * "[Smith{, }Jones and Brown]"
+     * The String to add between author names except the last two: "[Smith{, }Jones and
+     * Brown]"
      */
     protected String getAuthorSeparator() {
         return getStringCitProperty(JStyle.AUTHOR_SEPARATOR);
     }
 
     /**
-     * The String to put after the second to last author in case
-     * of three or more authors: (A, B{,} and C)
+     * The String to put after the second to last author in case of three or more authors:
+     * (A, B{,} and C)
      */
     protected String getOxfordComma() {
         return getStringCitProperty(JStyle.OXFORD_COMMA);
@@ -656,16 +703,16 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * Name of paragraph format (within OO/LO) to be used for
-     * the title of the bibliography.
+     * Name of paragraph format (within OO/LO) to be used for the title of the
+     * bibliography.
      */
     public String getReferenceHeaderParagraphFormat() {
         return getStringProperty(JStyle.REFERENCE_HEADER_PARAGRAPH_FORMAT);
     }
 
     /**
-     * Name of paragraph format (within OO/LO) to be used for
-     * the entries in the bibliography.
+     * Name of paragraph format (within OO/LO) to be used for the entries in the
+     * bibliography.
      */
     public String getReferenceParagraphFormat() {
         return getStringProperty(JStyle.REFERENCE_PARAGRAPH_FORMAT);
@@ -721,24 +768,18 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /**
      * Format a number-based citation marker for the given entries.
-     *
      * @return The text for the citation.
      */
     public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries) {
         final int minGroupingCount = this.getMinimumGroupingCount();
-        return JStyleGetNumCitationMarker.getNumCitationMarker2(this,
-                entries,
-                minGroupingCount);
+        return JStyleGetNumCitationMarker.getNumCitationMarker2(this, entries, minGroupingCount);
     }
 
     /**
      * For some tests we need to override minGroupingCount.
      */
-    public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries,
-                                        int minGroupingCount) {
-        return JStyleGetNumCitationMarker.getNumCitationMarker2(this,
-                entries,
-                minGroupingCount);
+    public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries, int minGroupingCount) {
+        return JStyleGetNumCitationMarker.getNumCitationMarker2(this, entries, minGroupingCount);
     }
 
     /**
@@ -753,44 +794,35 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * Format the marker for the in-text citation according to this
-     * BIB style. Uniquefier letters are added as provided by the
-     * citationMarkerEntries argument. If successive entries within
-     * the citation are uniquefied from each other, this method will
+     * Format the marker for the in-text citation according to this BIB style. Uniquefier
+     * letters are added as provided by the citationMarkerEntries argument. If successive
+     * entries within the citation are uniquefied from each other, this method will
      * perform a grouping of these entries.
      * <p>
-     * If successive entries within the citation are uniquefied from
-     * each other, this method will perform a grouping of these
-     * entries.
-     *
-     * @param citationMarkerEntries           The list of entries providing the
-     *                                        data.
-     * @param inParenthesis                   Signals whether a parenthesized citation
-     *                                        or an in-text citation is wanted.
-     * @param nonUniqueCitationMarkerHandling THROWS : Should throw if finds that uniqueLetters
-     *                                        provided do not make the entries unique.
-     *                                        <p>
-     *                                        FORGIVEN : is needed to allow preliminary markers
-     *                                        for freshly inserted citations without
-     *                                        going throw the uniquefication process.
-     * @return The formatted citation. The result does not include
-     * the standard wrappers:
-     * OOFormat.setLocaleNone() and OOFormat.setCharStyle().
-     * These are added by decorateCitationMarker()
+     * If successive entries within the citation are uniquefied from each other, this
+     * method will perform a grouping of these entries.
+     * @param citationMarkerEntries The list of entries providing the data.
+     * @param inParenthesis Signals whether a parenthesized citation or an in-text
+     * citation is wanted.
+     * @param nonUniqueCitationMarkerHandling THROWS : Should throw if finds that
+     * uniqueLetters provided do not make the entries unique.
+     * <p>
+     * FORGIVEN : is needed to allow preliminary markers for freshly inserted citations
+     * without going throw the uniquefication process.
+     * @return The formatted citation. The result does not include the standard wrappers:
+     * OOFormat.setLocaleNone() and OOFormat.setCharStyle(). These are added by
+     * decorateCitationMarker()
      */
-    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries,
-                                       boolean inParenthesis,
-                                       NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
-        return JStyleGetCitationMarker.createCitationMarker(this,
-                citationMarkerEntries,
-                inParenthesis,
+    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries, boolean inParenthesis,
+            NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
+        return JStyleGetCitationMarker.createCitationMarker(this, citationMarkerEntries, inParenthesis,
                 nonUniqueCitationMarkerHandling);
     }
 
     /**
      * Add setLocaleNone and optionally setCharStyle(CitationCharacterFormat) around
-     * citationText.  Called in fillCitationMarkInCursor, so these are
-     * also applied to "Unresolved()" entries and numeric styles.
+     * citationText. Called in fillCitationMarkInCursor, so these are also applied to
+     * "Unresolved()" entries and numeric styles.
      */
     public OOText decorateCitationMarker(OOText citationText) {
         JStyle style = this;
@@ -804,13 +836,13 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
 
     /*
      *
-     *  Property getters
+     * Property getters
      *
      */
 
     /**
-     * Minimal number of consecutive citation numbers needed to start
-     * replacing with an range like "10-13".
+     * Minimal number of consecutive citation numbers needed to start replacing with an
+     * range like "10-13".
      */
     public int getMinimumGroupingCount() {
         return getIntCitProperty(JStyle.MINIMUM_GROUPING_COUNT);
@@ -883,8 +915,7 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * @return Names of fields containing authors: the first
-     * non-empty field will be used.
+     * @return Names of fields containing authors: the first non-empty field will be used.
      */
     protected OrFields getAuthorFieldNames() {
         String authorFieldNamesString = this.getStringCitProperty(JStyle.AUTHOR_FIELD);
@@ -932,8 +963,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     }
 
     /**
-     * The maximum number of authors to write out in full without
-     * using "et al." Set to -1 to always write out all authors.
+     * The maximum number of authors to write out in full without using "et al." Set to -1
+     * to always write out all authors.
      */
     protected int getMaxAuthors() {
         return getIntCitProperty(JStyle.MAX_AUTHORS);
@@ -983,8 +1014,7 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         JStyle style = this;
         OOText title = style.getReferenceHeaderText();
         String parStyle = style.getReferenceHeaderParagraphFormat();
-        return parStyle == null
-                ? OOFormat.paragraph(title)
-                : OOFormat.paragraph(title, parStyle);
+        return parStyle == null ? OOFormat.paragraph(title) : OOFormat.paragraph(title, parStyle);
     }
+
 }

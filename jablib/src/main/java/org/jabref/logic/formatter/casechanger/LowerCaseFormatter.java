@@ -16,7 +16,8 @@ public class LowerCaseFormatter extends Formatter {
     }
 
     /**
-     * Converts all characters of the string to lower case, but does not change words starting with "{"
+     * Converts all characters of the string to lower case, but does not change words
+     * starting with "{"
      */
     @Override
     public String format(String input) {
@@ -36,4 +37,5 @@ public class LowerCaseFormatter extends Formatter {
     public String getExampleInput() {
         return "KDE {Amarok}";
     }
+
 }

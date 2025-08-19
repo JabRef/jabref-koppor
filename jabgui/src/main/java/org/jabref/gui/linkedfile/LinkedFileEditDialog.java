@@ -23,19 +23,34 @@ import jakarta.inject.Inject;
 
 public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
 
-    private static final ButtonType ADD_BUTTON = new ButtonType(Localization.lang("Add"), ButtonType.OK.getButtonData());
+    private static final ButtonType ADD_BUTTON = new ButtonType(Localization.lang("Add"),
+            ButtonType.OK.getButtonData());
+
     private static final ButtonType EDIT_BUTTON = ButtonType.APPLY;
 
-    @FXML private TextField link;
-    @FXML private TextField description;
-    @FXML private ComboBox<ExternalFileType> fileType;
-    @FXML private TextField sourceUrl;
+    @FXML
+    private TextField link;
 
-    @Inject private DialogService dialogService;
-    @Inject private StateManager stateManager;
-    @Inject private GuiPreferences preferences;
+    @FXML
+    private TextField description;
+
+    @FXML
+    private ComboBox<ExternalFileType> fileType;
+
+    @FXML
+    private TextField sourceUrl;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private GuiPreferences preferences;
 
     private LinkedFileEditDialogViewModel viewModel;
+
     private final LinkedFile linkedFile;
 
     /**
@@ -48,7 +63,6 @@ public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
 
     /**
      * Constructor for editing an existing LinkedFile.
-     *
      * @param linkedFile The linked file to be edited.
      */
     public LinkedFileEditDialog(LinkedFile linkedFile) {
@@ -57,9 +71,7 @@ public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
     }
 
     private void initializeDialog(String title, ButtonType primaryButtonType) {
-        ViewLoader.view(this)
-                  .load()
-                  .setAsContent(this.getDialogPane());
+        ViewLoader.view(this).load().setAsContent(this.getDialogPane());
 
         this.setTitle(title);
         this.setResizable(false);
@@ -68,7 +80,8 @@ public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
         this.setResultConverter(button -> {
             if (button == primaryButtonType) {
                 return viewModel.getNewLinkedFile();
-            } else {
+            }
+            else {
                 return null;
             }
         });
@@ -76,13 +89,13 @@ public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
 
     @FXML
     private void initialize() {
-        viewModel = new LinkedFileEditDialogViewModel(linkedFile, stateManager.getActiveDatabase().get(), dialogService, preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences());
+        viewModel = new LinkedFileEditDialogViewModel(linkedFile, stateManager.getActiveDatabase().get(), dialogService,
+                preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences());
 
         fileType.itemsProperty().bindBidirectional(viewModel.externalFileTypeProperty());
-        new ViewModelListCellFactory<ExternalFileType>()
-                .withIcon(ExternalFileType::getIcon)
-                .withText(ExternalFileType::getName)
-                .install(fileType);
+        new ViewModelListCellFactory<ExternalFileType>().withIcon(ExternalFileType::getIcon)
+            .withText(ExternalFileType::getName)
+            .install(fileType);
 
         description.textProperty().bindBidirectional(viewModel.descriptionProperty());
         link.textProperty().bindBidirectional(viewModel.linkProperty());
@@ -100,4 +113,5 @@ public class LinkedFileEditDialog extends BaseDialog<LinkedFile> {
     private void onDialogShow(DialogEvent event) {
         UiTaskExecutor.runInJavaFXThread(link::requestFocus);
     }
+
 }

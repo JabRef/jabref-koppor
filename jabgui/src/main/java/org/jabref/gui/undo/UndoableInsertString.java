@@ -14,6 +14,7 @@ public class UndoableInsertString extends AbstractUndoableJabRefEdit {
     private static final Logger LOGGER = LoggerFactory.getLogger(UndoableInsertString.class);
 
     private final BibDatabase base;
+
     private final BibtexString string;
 
     public UndoableInsertString(BibDatabase base, BibtexString string) {
@@ -41,8 +42,10 @@ public class UndoableInsertString extends AbstractUndoableJabRefEdit {
         // Redo the change.
         try {
             base.addString(string);
-        } catch (KeyCollisionException ex) {
+        }
+        catch (KeyCollisionException ex) {
             LOGGER.warn("Problem to redo `insert entry`", ex);
         }
     }
+
 }

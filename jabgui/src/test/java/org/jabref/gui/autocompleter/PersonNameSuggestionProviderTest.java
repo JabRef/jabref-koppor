@@ -20,8 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PersonNameSuggestionProviderTest {
 
     private final Author vassilisKostakos = new Author("Vassilis", "V.", "", "Kostakos", "");
+
     private PersonNameSuggestionProvider autoCompleter;
+
     private BibEntry entry;
+
     private BibDatabase database;
 
     @BeforeEach
@@ -35,7 +38,8 @@ class PersonNameSuggestionProviderTest {
 
     @Test
     void initAutoCompleterWithNullFieldThrowsException() {
-        assertThrows(NullPointerException.class, () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
+        assertThrows(NullPointerException.class,
+                () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
     }
 
     @Test
@@ -181,4 +185,5 @@ class PersonNameSuggestionProviderTest {
         Collection<Author> result = autoCompleter.provideSuggestions(getRequest("Kostakos, Va"));
         assertEquals(List.of(vassilisKostakos), result);
     }
+
 }

@@ -28,7 +28,8 @@ public class PdfVerbatimBibtexImporter extends PdfImporter {
         List<BibEntry> result;
         String firstPageContents = PdfUtils.getFirstPageContents(document);
         BibtexParser parser = new BibtexParser(importFormatPreferences);
-        // TODO: Test if it will accept page with partial BibTex and partial natural language content.
+        // TODO: Test if it will accept page with partial BibTex and partial natural
+        // language content.
         result = parser.parseEntries(firstPageContents);
 
         // TODO: Check if it's needed in {@link PdfImporter}.
@@ -51,4 +52,5 @@ public class PdfVerbatimBibtexImporter extends PdfImporter {
     public String getDescription() {
         return Localization.lang("Scrapes the first page of a PDF for BibTeX information.");
     }
+
 }

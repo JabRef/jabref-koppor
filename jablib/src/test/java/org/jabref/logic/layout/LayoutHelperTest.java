@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mock;
 class LayoutHelperTest {
 
     private final LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class);
+
     private final JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
 
     @Test
@@ -38,4 +39,5 @@ class LayoutHelperTest {
         Layout layout = layoutHelper.getLayoutFromText();
         assertNotNull(layout);
     }
+
 }

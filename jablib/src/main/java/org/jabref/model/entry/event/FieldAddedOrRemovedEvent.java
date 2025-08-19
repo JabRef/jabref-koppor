@@ -7,4 +7,5 @@ public class FieldAddedOrRemovedEvent extends FieldChangedEvent {
     public FieldAddedOrRemovedEvent(FieldChange fieldChange, EntriesEventSource location) {
         super(fieldChange, location);
     }
+
 }

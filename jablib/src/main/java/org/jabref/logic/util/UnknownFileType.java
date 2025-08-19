@@ -47,4 +47,5 @@ public class UnknownFileType implements FileType {
     public String getName() {
         return "Unknown File Type" + extensions.toString();
     }
+
 }

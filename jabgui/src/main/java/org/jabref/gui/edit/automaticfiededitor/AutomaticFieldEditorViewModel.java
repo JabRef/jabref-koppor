@@ -17,19 +17,21 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 
 public class AutomaticFieldEditorViewModel extends AbstractViewModel {
+
     public static final String NAMED_COMPOUND_EDITS = "EDIT_FIELDS";
+
     private final ObservableList<AutomaticFieldEditorTab> fieldEditorTabs = FXCollections.observableArrayList();
+
     private final NamedCompound dialogEdits = new NamedCompound(NAMED_COMPOUND_EDITS);
 
     private final UndoManager undoManager;
 
-    public AutomaticFieldEditorViewModel(List<BibEntry> selectedEntries, BibDatabase database, UndoManager undoManager, StateManager stateManager) {
+    public AutomaticFieldEditorViewModel(List<BibEntry> selectedEntries, BibDatabase database, UndoManager undoManager,
+            StateManager stateManager) {
         this.undoManager = undoManager;
-        fieldEditorTabs.addAll(
-                new EditFieldContentTabView(database, stateManager),
+        fieldEditorTabs.addAll(new EditFieldContentTabView(database, stateManager),
                 new CopyOrMoveFieldContentTabView(database, stateManager),
-                new RenameFieldTabView(database, stateManager)
-        );
+                new RenameFieldTabView(database, stateManager));
     }
 
     public NamedCompound getDialogEdits() {
@@ -49,4 +51,5 @@ public class AutomaticFieldEditorViewModel extends AbstractViewModel {
         dialogEdits.end();
         dialogEdits.undo();
     }
+
 }

@@ -31,9 +31,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class OpenDatabaseActionTest {
+
     DialogService dialogService;
+
     GuiPreferences guiPreferences;
+
     OpenDatabaseAction openDatabaseAction;
+
     LibraryTabContainer libraryTabContainer;
 
     @BeforeEach
@@ -41,18 +45,10 @@ public class OpenDatabaseActionTest {
         dialogService = mock(DialogService.class);
         guiPreferences = mock(GuiPreferences.class);
         libraryTabContainer = mock(LibraryTabContainer.class);
-        openDatabaseAction = spy(new OpenDatabaseAction(
-                libraryTabContainer,
-                guiPreferences,
-                mock(AiService.class),
-                dialogService,
-                mock(StateManager.class),
-                mock(FileUpdateMonitor.class),
-                mock(BibEntryTypesManager.class),
-                mock(CountingUndoManager.class),
-                mock(ClipBoardManager.class),
-                mock(TaskExecutor.class)
-        ));
+        openDatabaseAction = spy(
+                new OpenDatabaseAction(libraryTabContainer, guiPreferences, mock(AiService.class), dialogService,
+                        mock(StateManager.class), mock(FileUpdateMonitor.class), mock(BibEntryTypesManager.class),
+                        mock(CountingUndoManager.class), mock(ClipBoardManager.class), mock(TaskExecutor.class)));
     }
 
     @Test
@@ -67,29 +63,30 @@ public class OpenDatabaseActionTest {
         when(libraryTabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());
         when(openDatabaseAction.getInitialDirectory()).thenReturn(path);
 
-        // Make it so that showFileOpenDialogAndGetMultipleFiles will throw an error when called with the bad path, but
+        // Make it so that showFileOpenDialogAndGetMultipleFiles will throw an error when
+        // called with the bad path, but
         // not for the good path as in issue #10548
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig))
-                .thenAnswer(x -> {
-                    throw new IllegalArgumentException();
-                });
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig))
-                .thenAnswer(x -> List.of());
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig)).thenAnswer(x -> {
+            throw new IllegalArgumentException();
+        });
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig)).thenAnswer(x -> List.of());
 
         // Simulate a scenario where the initial directory is good
         when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory()))
-                .thenReturn(goodConfig);
+            .thenReturn(goodConfig);
 
         assertEquals(List.of(), openDatabaseAction.getFilesToOpen());
 
-        // Simulate a scenario where the initial directory is bad and the user directory is good
+        // Simulate a scenario where the initial directory is bad and the user directory
+        // is good
         when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory()))
-                .thenReturn(badConfig);
-        when(openDatabaseAction.getFileDialogConfiguration(Directories.getUserDirectory()))
-                .thenReturn(goodConfig);
+            .thenReturn(badConfig);
+        when(openDatabaseAction.getFileDialogConfiguration(Directories.getUserDirectory())).thenReturn(goodConfig);
 
-        assertThrows(IllegalArgumentException.class, () -> dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig));
+        assertThrows(IllegalArgumentException.class,
+                () -> dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig));
         assertDoesNotThrow(() -> dialogService.showFileOpenDialog(goodConfig));
         assertEquals(List.of(), openDatabaseAction.getFilesToOpen());
     }
+
 }

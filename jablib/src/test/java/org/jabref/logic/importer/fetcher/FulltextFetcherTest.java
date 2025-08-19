@@ -36,4 +36,5 @@ class FulltextFetcherTest {
     void findFullTextWithEmptyEntryFindsNothing(FulltextFetcher fetcher) throws FetcherException, IOException {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
+
 }

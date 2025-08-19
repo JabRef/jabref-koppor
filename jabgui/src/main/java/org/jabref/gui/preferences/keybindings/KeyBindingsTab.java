@@ -32,20 +32,32 @@ import org.controlsfx.control.textfield.CustomTextField;
 
 public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabViewModel> implements PreferencesTab {
 
-    @FXML private CustomTextField searchBox;
-    @FXML private TreeTableView<KeyBindingViewModel> keyBindingsTable;
-    @FXML private TreeTableColumn<KeyBindingViewModel, String> actionColumn;
-    @FXML private TreeTableColumn<KeyBindingViewModel, String> shortcutColumn;
-    @FXML private TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> resetColumn;
-    @FXML private TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> clearColumn;
-    @FXML private MenuButton presetsButton;
+    @FXML
+    private CustomTextField searchBox;
 
-    @Inject private KeyBindingRepository keyBindingRepository;
+    @FXML
+    private TreeTableView<KeyBindingViewModel> keyBindingsTable;
+
+    @FXML
+    private TreeTableColumn<KeyBindingViewModel, String> actionColumn;
+
+    @FXML
+    private TreeTableColumn<KeyBindingViewModel, String> shortcutColumn;
+
+    @FXML
+    private TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> resetColumn;
+
+    @FXML
+    private TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> clearColumn;
+
+    @FXML
+    private MenuButton presetsButton;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
 
     public KeyBindingsTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -58,26 +70,24 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         viewModel = new KeyBindingsTabViewModel(keyBindingRepository, dialogService, preferences);
 
         keyBindingsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        viewModel.selectedKeyBindingProperty().bind(
-                EasyBind.wrapNullable(keyBindingsTable.selectionModelProperty())
-                        .mapObservable(SelectionModel::selectedItemProperty)
-                        .mapObservable(TreeItem::valueProperty)
-        );
+        viewModel.selectedKeyBindingProperty()
+            .bind(EasyBind.wrapNullable(keyBindingsTable.selectionModelProperty())
+                .mapObservable(SelectionModel::selectedItemProperty)
+                .mapObservable(TreeItem::valueProperty));
         keyBindingsTable.setOnKeyPressed(viewModel::setNewBindingForCurrent);
-        keyBindingsTable.rootProperty().bind(
-                EasyBind.map(viewModel.rootKeyBindingProperty(),
-                        keybinding -> new RecursiveTreeItem<>(keybinding, KeyBindingViewModel::getChildren))
-        );
+        keyBindingsTable.rootProperty()
+            .bind(EasyBind.map(viewModel.rootKeyBindingProperty(),
+                    keybinding -> new RecursiveTreeItem<>(keybinding, KeyBindingViewModel::getChildren)));
         actionColumn.setCellValueFactory(cellData -> cellData.getValue().getValue().nameProperty());
         shortcutColumn.setCellValueFactory(cellData -> cellData.getValue().getValue().shownBindingProperty());
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
-                .withGraphic(keyBinding -> keyBinding.getResetIcon().map(JabRefIcon::getGraphicNode).orElse(null))
-                .withOnMouseClickedEvent(keyBinding -> evt -> keyBinding.resetToDefault())
-                .install(resetColumn);
+            .withGraphic(keyBinding -> keyBinding.getResetIcon().map(JabRefIcon::getGraphicNode).orElse(null))
+            .withOnMouseClickedEvent(keyBinding -> evt -> keyBinding.resetToDefault())
+            .install(resetColumn);
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
-                .withGraphic(keyBinding -> keyBinding.getClearIcon().map(JabRefIcon::getGraphicNode).orElse(null))
-                .withOnMouseClickedEvent(keyBinding -> evt -> keyBinding.clear())
-                .install(clearColumn);
+            .withGraphic(keyBinding -> keyBinding.getClearIcon().map(JabRefIcon::getGraphicNode).orElse(null))
+            .withOnMouseClickedEvent(keyBinding -> evt -> keyBinding.clear())
+            .install(clearColumn);
 
         viewModel.keyBindingPresets().forEach(preset -> presetsButton.getItems().add(createMenuItem(preset)));
 
@@ -89,9 +99,9 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         ObjectProperty<Color> flashingColor = new SimpleObjectProperty<>(Color.TRANSPARENT);
         StringProperty flashingColorStringProperty = ColorUtil.createFlashingColorStringProperty(flashingColor);
 
-        searchBox.styleProperty().bind(
-                new SimpleStringProperty("-fx-control-inner-background: ").concat(flashingColorStringProperty).concat(";")
-        );
+        searchBox.styleProperty()
+            .bind(new SimpleStringProperty("-fx-control-inner-background: ").concat(flashingColorStringProperty)
+                .concat(";"));
 
         searchBox.setPromptText(Localization.lang("Search..."));
         searchBox.setLeft(IconTheme.JabRefIcons.SEARCH.getGraphicNode());
@@ -123,4 +133,5 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
             child.setExpanded(expanded);
         }
     }
+
 }

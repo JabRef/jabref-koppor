@@ -17,20 +17,19 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
 public class ISSNEditorViewModel extends AbstractEditorViewModel {
+
     private final TaskExecutor taskExecutor;
+
     private final DialogService dialogService;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
 
-    public ISSNEditorViewModel(
-            Field field,
-            SuggestionProvider<?> suggestionProvider,
-            FieldCheckers fieldCheckers,
-            TaskExecutor taskExecutor,
-            DialogService dialogService,
-            UndoManager undoManager,
-            StateManager stateManager,
+    public ISSNEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            TaskExecutor taskExecutor, DialogService dialogService, UndoManager undoManager, StateManager stateManager,
             GuiPreferences preferences) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.taskExecutor = taskExecutor;
@@ -45,10 +44,12 @@ public class ISSNEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager)
+        stateManager.getActiveDatabase()
+            .ifPresentOrElse(
+                    databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService,
+                            undoManager)
                         .fetchAndMerge(bibEntry, StandardField.ISSN),
-                () -> dialogService.notify(Localization.lang("No library selected"))
-        );
+                    () -> dialogService.notify(Localization.lang("No library selected")));
     }
+
 }

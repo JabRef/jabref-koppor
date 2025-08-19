@@ -24,4 +24,5 @@ public class GuiPushToVScode extends PushToVScode implements GuiPushToApplicatio
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

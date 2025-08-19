@@ -15,7 +15,8 @@ class StringManipulatorTest {
 
     @Test
     void capitalizePreservesNewlines() {
-        int caretPosition = 5; // Position of the caret, between the two ll in the first hellO"
+        int caretPosition = 5; // Position of the caret, between the two ll in the first
+                               // hellO"
         String input = "hello\n\nhELLO";
         String expectedResult = "hello\n\nHello";
         ResultingStringState textOutput = StringManipulator.capitalize(caretPosition, input);
@@ -24,7 +25,8 @@ class StringManipulatorTest {
 
     @Test
     void uppercasePreservesSpace() {
-        int caretPosition = 3; // Position of the caret, between the two ll in the first hello
+        int caretPosition = 3; // Position of the caret, between the two ll in the first
+                               // hello
         String input = "hello hello";
         String expectedResult = "helLO hello";
         ResultingStringState textOutput = StringManipulator.uppercase(caretPosition, input);
@@ -33,7 +35,8 @@ class StringManipulatorTest {
 
     @Test
     void uppercasePreservesNewlines() {
-        int caretPosition = 3; // Position of the caret, between the two ll in the first hello
+        int caretPosition = 3; // Position of the caret, between the two ll in the first
+                               // hello
         String input = "hello\nhello";
         String expectedResult = "helLO\nhello";
         ResultingStringState textOutput = StringManipulator.uppercase(caretPosition, input);
@@ -42,7 +45,8 @@ class StringManipulatorTest {
 
     @Test
     void uppercasePreservesTab() {
-        int caretPosition = 3; // Position of the caret, between the two ll in the first hello
+        int caretPosition = 3; // Position of the caret, between the two ll in the first
+                               // hello
         String input = "hello\thello";
         String expectedResult = "helLO\thello";
         ResultingStringState textOutput = StringManipulator.uppercase(caretPosition, input);
@@ -83,7 +87,8 @@ class StringManipulatorTest {
     void backwardsKillWordTrimsPreceedingWhitespace() {
         int caretPosition = 1; // Second space
         String input = "  hello";
-        // One space should be preserved since we are deleting everything preceding the second space.
+        // One space should be preserved since we are deleting everything preceding the
+        // second space.
         String expectedResult = " hello";
         ResultingStringState textOutput = StringManipulator.backwardKillWord(caretPosition, input);
         assertEquals(expectedResult, textOutput.text);
@@ -111,7 +116,8 @@ class StringManipulatorTest {
 
     @Test
     void killWordRemovesFromPositionUpToNextWord() {
-        int caretPosition = 3; // Position of the caret, between the two "ll in the first hello"
+        int caretPosition = 3; // Position of the caret, between the two "ll in the first
+                               // hello"
         String input = "hello hello";
         String expectedResult = "hel hello";
         ResultingStringState textOutput = StringManipulator.killWord(caretPosition, input);
@@ -140,18 +146,19 @@ class StringManipulatorTest {
 
     @ParameterizedTest
     @MethodSource("wordBoundaryTestData")
-    void getNextWordBoundary(String text, int caretPosition, int expectedPosition, StringManipulator.Direction direction) {
+    void getNextWordBoundary(String text, int caretPosition, int expectedPosition,
+            StringManipulator.Direction direction) {
         int result = StringManipulator.getNextWordBoundary(caretPosition, text, direction);
         assertEquals(expectedPosition, result);
     }
 
     private static Stream<Arguments> wordBoundaryTestData() {
-        return Stream.of(
-                Arguments.of("hello person", 3, 0, StringManipulator.Direction.PREVIOUS),
+        return Stream.of(Arguments.of("hello person", 3, 0, StringManipulator.Direction.PREVIOUS),
                 Arguments.of("hello person", 12, 6, StringManipulator.Direction.PREVIOUS),
                 Arguments.of("hello person", 0, 0, StringManipulator.Direction.PREVIOUS),
                 Arguments.of("hello person", 0, 5, StringManipulator.Direction.NEXT),
                 Arguments.of("hello person", 5, 12, StringManipulator.Direction.NEXT),
                 Arguments.of("hello person", 12, 12, StringManipulator.Direction.NEXT));
     }
+
 }

@@ -30,24 +30,29 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 
 public class AiChatTab extends EntryEditorTab {
+
     private final AiService aiService;
+
     private final DialogService dialogService;
+
     private final AiPreferences aiPreferences;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
+
     private final EntryEditorPreferences entryEditorPreferences;
+
     private final StateManager stateManager;
+
     private final TaskExecutor taskExecutor;
+
     private final AdaptVisibleTabs adaptVisibleTabs;
+
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
 
     private Optional<BibEntry> previousBibEntry = Optional.empty();
 
-    public AiChatTab(AiService aiService,
-                     DialogService dialogService,
-                     GuiPreferences preferences,
-                     StateManager stateManager,
-                     AdaptVisibleTabs adaptVisibleTabs,
-                     TaskExecutor taskExecutor) {
+    public AiChatTab(AiService aiService, DialogService dialogService, GuiPreferences preferences,
+            StateManager stateManager, AdaptVisibleTabs adaptVisibleTabs, TaskExecutor taskExecutor) {
         this.aiService = aiService;
         this.dialogService = dialogService;
 
@@ -74,76 +79,68 @@ public class AiChatTab extends EntryEditorTab {
      */
     @Override
     protected void bindToEntry(BibEntry entry) {
-        previousBibEntry.ifPresent(previousBibEntry -> aiService.getChatHistoryService().closeChatHistoryForEntry(previousBibEntry));
+        previousBibEntry.ifPresent(
+                previousBibEntry -> aiService.getChatHistoryService().closeChatHistoryForEntry(previousBibEntry));
         previousBibEntry = Optional.of(entry);
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().orElse(new BibDatabaseContext());
 
         if (!aiPreferences.getEnableAi()) {
             showPrivacyNotice(entry);
-        } else if (entry.getFiles().isEmpty()) {
+        }
+        else if (entry.getFiles().isEmpty()) {
             showErrorNoFiles();
-        } else if (entry.getFiles().stream().map(LinkedFile::getLink).map(Path::of).noneMatch(FileUtil::isPDFFile)) {
+        }
+        else if (entry.getFiles().stream().map(LinkedFile::getLink).map(Path::of).noneMatch(FileUtil::isPDFFile)) {
             showErrorNotPdfs();
-        } else if (!CitationKeyCheck.citationKeyIsPresentAndUnique(bibDatabaseContext, entry)) {
+        }
+        else if (!CitationKeyCheck.citationKeyIsPresentAndUnique(bibDatabaseContext, entry)) {
             tryToGenerateCitationKeyThenBind(bibDatabaseContext, entry);
-        } else {
+        }
+        else {
             showChatPanel(bibDatabaseContext, entry);
         }
     }
 
     private void showPrivacyNotice(BibEntry entry) {
-        setContent(new PrivacyNoticeComponent(aiPreferences, () -> bindToEntry(entry), externalApplicationsPreferences, dialogService, adaptVisibleTabs));
+        setContent(new PrivacyNoticeComponent(aiPreferences, () -> bindToEntry(entry), externalApplicationsPreferences,
+                dialogService, adaptVisibleTabs));
     }
 
     private void showErrorNotPdfs() {
-        setContent(
-                new ErrorStateComponent(
-                        Localization.lang("Unable to chat"),
-                        Localization.lang("Only PDF files are supported.")
-                )
-        );
+        setContent(new ErrorStateComponent(Localization.lang("Unable to chat"),
+                Localization.lang("Only PDF files are supported.")));
     }
 
     private void showErrorNoFiles() {
-        setContent(
-                new ErrorStateComponent(
-                        Localization.lang("Unable to chat"),
-                        Localization.lang("Please attach at least one PDF file to enable chatting with PDF file(s).")
-                )
-        );
+        setContent(new ErrorStateComponent(Localization.lang("Unable to chat"),
+                Localization.lang("Please attach at least one PDF file to enable chatting with PDF file(s).")));
     }
 
     private void tryToGenerateCitationKeyThenBind(BibDatabaseContext bibDatabaseContext, BibEntry entry) {
-        CitationKeyGenerator citationKeyGenerator = new CitationKeyGenerator(bibDatabaseContext, citationKeyPatternPreferences);
+        CitationKeyGenerator citationKeyGenerator = new CitationKeyGenerator(bibDatabaseContext,
+                citationKeyPatternPreferences);
         if (citationKeyGenerator.generateAndSetKey(entry).isEmpty()) {
-            setContent(
-                    new ErrorStateComponent(
-                            Localization.lang("Unable to chat"),
-                            Localization.lang("Please provide a non-empty and unique citation key for this entry.")
-                    )
-            );
-        } else {
+            setContent(new ErrorStateComponent(Localization.lang("Unable to chat"),
+                    Localization.lang("Please provide a non-empty and unique citation key for this entry.")));
+        }
+        else {
             bindToEntry(entry);
         }
     }
 
     private void showChatPanel(BibDatabaseContext bibDatabaseContext, BibEntry entry) {
-        // We omit the localization here, because it is only a chat with one entry in the {@link EntryEditor}.
+        // We omit the localization here, because it is only a chat with one entry in the
+        // {@link EntryEditor}.
         // See documentation for {@link AiChatGuardedComponent#name}.
-        StringProperty chatName = new SimpleStringProperty("entry " + entry.getCitationKey().orElse("<no citation key>"));
-        entry.getCiteKeyBinding().addListener((observable, oldValue, newValue) -> chatName.setValue("entry " + newValue));
+        StringProperty chatName = new SimpleStringProperty(
+                "entry " + entry.getCitationKey().orElse("<no citation key>"));
+        entry.getCiteKeyBinding()
+            .addListener((observable, oldValue, newValue) -> chatName.setValue("entry " + newValue));
 
-        setContent(new AiChatGuardedComponent(
-                chatName,
-                aiService.getChatHistoryService().getChatHistoryForEntry(bibDatabaseContext, entry),
-                bibDatabaseContext,
-                FXCollections.observableArrayList(new ArrayList<>(List.of(entry))),
-                aiService,
-                dialogService,
-                aiPreferences,
-                externalApplicationsPreferences,
-                adaptVisibleTabs,
-                taskExecutor
-        ));
+        setContent(new AiChatGuardedComponent(chatName,
+                aiService.getChatHistoryService().getChatHistoryForEntry(bibDatabaseContext, entry), bibDatabaseContext,
+                FXCollections.observableArrayList(new ArrayList<>(List.of(entry))), aiService, dialogService,
+                aiPreferences, externalApplicationsPreferences, adaptVisibleTabs, taskExecutor));
     }
+
 }

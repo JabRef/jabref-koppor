@@ -48,19 +48,32 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class StudyRepositoryTest {
+
     private static final String NON_EXISTING_DIRECTORY = "nonExistingTestRepositoryDirectory";
+
     CitationKeyPatternPreferences citationKeyPatternPreferences;
+
     CliPreferences preferences;
+
     LibraryPreferences libraryPreferences;
+
     ImportFormatPreferences importFormatPreferences;
+
     SaveConfiguration saveConfiguration;
+
     BibEntryTypesManager entryTypesManager;
+
     @TempDir
     Path tempRepositoryDirectory;
+
     StudyRepository studyRepository;
+
     SlrGitHandler gitHandler = mock(SlrGitHandler.class, Answers.RETURNS_DEFAULTS);
+
     String hashCodeQuantum = String.valueOf("Quantum".hashCode());
+
     String hashCodeCloudComputing = String.valueOf("Cloud Computing".hashCode());
+
     String hashCodeSoftwareEngineering = String.valueOf("\"Software Engineering\"".hashCode());
 
     /**
@@ -72,17 +85,9 @@ class StudyRepositoryTest {
         saveConfiguration = mock(SaveConfiguration.class, Answers.RETURNS_DEEP_STUBS);
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        citationKeyPatternPreferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
-                "",
-                ',');
+        citationKeyPatternPreferences = new CitationKeyPatternPreferences(false, false, false,
+                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A, "", "", DEFAULT_UNWANTED_CHARACTERS,
+                GlobalCitationKeyPatterns.fromPattern("[auth][year]"), "", ',');
         when(preferences.getCitationKeyPatternPreferences()).thenReturn(citationKeyPatternPreferences);
         when(preferences.getImporterPreferences().getApiKeys()).thenReturn(FXCollections.emptyObservableSet());
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
@@ -96,32 +101,40 @@ class StudyRepositoryTest {
     void providePathToNonExistentRepositoryThrowsException() {
         Path nonExistingRepositoryDirectory = tempRepositoryDirectory.resolve(NON_EXISTING_DIRECTORY);
 
-        assertThrows(IOException.class, () -> new StudyRepository(
-                nonExistingRepositoryDirectory,
-                gitHandler,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                entryTypesManager));
+        assertThrows(IOException.class, () -> new StudyRepository(nonExistingRepositoryDirectory, gitHandler,
+                preferences, new DummyFileUpdateMonitor(), entryTypesManager));
     }
 
     /**
-     * Tests whether the file structure of the repository is created correctly from the study definitions file.
+     * Tests whether the file structure of the repository is created correctly from the
+     * study definitions file.
      */
     @Test
     void repositoryStructureCorrectlyCreated() {
         // When repository is instantiated the directory structure is created
         assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeSoftwareEngineering + " - Software Engineering")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "ArXiv.bib")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", "ArXiv.bib")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeSoftwareEngineering + " - Software Engineering", "ArXiv.bib")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "Springer.bib")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", "Springer.bib")));
-        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeSoftwareEngineering + " - Software Engineering", "Springer.bib")));
-        assertFalse(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "IEEEXplore.bib")));
-        assertFalse(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", "IEEEXplore.bib")));
-        assertFalse(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeSoftwareEngineering + " - Software Engineering", "IEEEXplore.bib")));
+        assertTrue(Files
+            .exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
+        assertTrue(Files.exists(
+                Path.of(tempRepositoryDirectory.toString(), hashCodeSoftwareEngineering + " - Software Engineering")));
+        assertTrue(
+                Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "ArXiv.bib")));
+        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeCloudComputing + " - Cloud Computing", "ArXiv.bib")));
+        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeSoftwareEngineering + " - Software Engineering", "ArXiv.bib")));
+        assertTrue(Files
+            .exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "Springer.bib")));
+        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeCloudComputing + " - Cloud Computing", "Springer.bib")));
+        assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeSoftwareEngineering + " - Software Engineering", "Springer.bib")));
+        assertFalse(Files
+            .exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", "IEEEXplore.bib")));
+        assertFalse(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeCloudComputing + " - Cloud Computing", "IEEEXplore.bib")));
+        assertFalse(Files.exists(Path.of(tempRepositoryDirectory.toString(),
+                hashCodeSoftwareEngineering + " - Software Engineering", "IEEEXplore.bib")));
     }
 
     /**
@@ -135,18 +148,23 @@ class StudyRepositoryTest {
     }
 
     @Test
-    void fetcherResultsPersistedCorrectly() throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
+    void fetcherResultsPersistedCorrectly()
+            throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
         List<QueryResult> mockResults = getMockResults();
 
         studyRepository.persist(mockResults);
 
-        assertEquals(getArXivQuantumMockResults(), getTestStudyRepository().getFetcherResultEntries("Quantum", "ArXiv").getEntries());
-        assertEquals(getSpringerQuantumMockResults(), getTestStudyRepository().getFetcherResultEntries("Quantum", "Springer").getEntries());
-        assertEquals(getSpringerCloudComputingMockResults(), getTestStudyRepository().getFetcherResultEntries("Cloud Computing", "Springer").getEntries());
+        assertEquals(getArXivQuantumMockResults(),
+                getTestStudyRepository().getFetcherResultEntries("Quantum", "ArXiv").getEntries());
+        assertEquals(getSpringerQuantumMockResults(),
+                getTestStudyRepository().getFetcherResultEntries("Quantum", "Springer").getEntries());
+        assertEquals(getSpringerCloudComputingMockResults(),
+                getTestStudyRepository().getFetcherResultEntries("Cloud Computing", "Springer").getEntries());
     }
 
     @Test
-    void mergedResultsPersistedCorrectly() throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
+    void mergedResultsPersistedCorrectly()
+            throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
         List<QueryResult> mockResults = getMockResults();
         List<BibEntry> expected = new ArrayList<>();
         expected.addAll(getArXivQuantumMockResults());
@@ -157,24 +175,23 @@ class StudyRepositoryTest {
 
         // All Springer results are duplicates for "Quantum"
         assertEquals(expected, getTestStudyRepository().getQueryResultEntries("Quantum").getEntries());
-        assertEquals(getSpringerCloudComputingMockResults(), getTestStudyRepository().getQueryResultEntries("Cloud Computing").getEntries());
+        assertEquals(getSpringerCloudComputingMockResults(),
+                getTestStudyRepository().getQueryResultEntries("Cloud Computing").getEntries());
     }
 
     @Test
-    void studyResultsPersistedCorrectly() throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
+    void studyResultsPersistedCorrectly()
+            throws GitAPIException, SaveException, IOException, URISyntaxException, JabRefException {
         List<QueryResult> mockResults = getMockResults();
         studyRepository.persist(mockResults);
-        assertEquals(new HashSet<>(getNonDuplicateBibEntryResult().getEntries()), new HashSet<>(getTestStudyRepository().getStudyResultEntries().getEntries()));
+        assertEquals(new HashSet<>(getNonDuplicateBibEntryResult().getEntries()),
+                new HashSet<>(getTestStudyRepository().getStudyResultEntries().getEntries()));
     }
 
     private StudyRepository getTestStudyRepository() throws IOException, URISyntaxException, JabRefException {
         setUpTestStudyDefinitionFile();
-        studyRepository = new StudyRepository(
-                tempRepositoryDirectory,
-                gitHandler,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                entryTypesManager);
+        studyRepository = new StudyRepository(tempRepositoryDirectory, gitHandler, preferences,
+                new DummyFileUpdateMonitor(), entryTypesManager);
         return studyRepository;
     }
 
@@ -188,8 +205,9 @@ class StudyRepositoryTest {
     }
 
     /**
-     * This overwrites the existing result file in the repository with a result file containing multiple BibEntries.
-     * The repository has to exist before this method is called.
+     * This overwrites the existing result file in the repository with a result file
+     * containing multiple BibEntries. The repository has to exist before this method is
+     * called.
      */
     private void setUpTestResultFile() throws URISyntaxException {
         Path queryDirectory = Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum");
@@ -210,16 +228,17 @@ class StudyRepositoryTest {
     }
 
     private List<QueryResult> getMockResults() {
-        QueryResult resultQuantum =
-                new QueryResult("Quantum", List.of(
-                        new FetchResult("ArXiv", new BibDatabase(stripCitationKeys(getArXivQuantumMockResults()))),
-                        new FetchResult("Springer", new BibDatabase(stripCitationKeys(getSpringerQuantumMockResults())))));
-        QueryResult resultCloudComputing = new QueryResult("Cloud Computing", List.of(new FetchResult("Springer", new BibDatabase(getSpringerCloudComputingMockResults()))));
+        QueryResult resultQuantum = new QueryResult("Quantum", List.of(
+                new FetchResult("ArXiv", new BibDatabase(stripCitationKeys(getArXivQuantumMockResults()))),
+                new FetchResult("Springer", new BibDatabase(stripCitationKeys(getSpringerQuantumMockResults())))));
+        QueryResult resultCloudComputing = new QueryResult("Cloud Computing",
+                List.of(new FetchResult("Springer", new BibDatabase(getSpringerCloudComputingMockResults()))));
         return List.of(resultQuantum, resultCloudComputing);
     }
 
     /**
-     * Strips the citation key from fetched entries as these normally do not have a citation key
+     * Strips the citation key from fetched entries as these normally do not have a
+     * citation key
      */
     private List<BibEntry> stripCitationKeys(List<BibEntry> entries) {
         entries.forEach(bibEntry -> bibEntry.setCitationKey(""));
@@ -227,20 +246,18 @@ class StudyRepositoryTest {
     }
 
     private List<BibEntry> getArXivQuantumMockResults() {
-        BibEntry entry1 = new BibEntry()
-                .withCitationKey("Blaha")
-                .withField(StandardField.AUTHOR, "Stephen Blaha")
-                .withField(StandardField.TITLE, "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C Language");
+        BibEntry entry1 = new BibEntry().withCitationKey("Blaha")
+            .withField(StandardField.AUTHOR, "Stephen Blaha")
+            .withField(StandardField.TITLE,
+                    "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C Language");
         entry1.setType(StandardEntryType.Article);
-        BibEntry entry2 = new BibEntry()
-                .withCitationKey("Kaye")
-                .withField(StandardField.AUTHOR, "Phillip Kaye and Michele Mosca")
-                .withField(StandardField.TITLE, "Quantum Networks for Generating Arbitrary Quantum States");
+        BibEntry entry2 = new BibEntry().withCitationKey("Kaye")
+            .withField(StandardField.AUTHOR, "Phillip Kaye and Michele Mosca")
+            .withField(StandardField.TITLE, "Quantum Networks for Generating Arbitrary Quantum States");
         entry2.setType(StandardEntryType.Article);
-        BibEntry entry3 = new BibEntry()
-                .withCitationKey("Watrous")
-                .withField(StandardField.AUTHOR, "John Watrous")
-                .withField(StandardField.TITLE, "Quantum Computational Complexity");
+        BibEntry entry3 = new BibEntry().withCitationKey("Watrous")
+            .withField(StandardField.AUTHOR, "John Watrous")
+            .withField(StandardField.TITLE, "Quantum Computational Complexity");
         entry3.setType(StandardEntryType.Article);
 
         return List.of(entry1, entry2, entry3);
@@ -248,38 +265,39 @@ class StudyRepositoryTest {
 
     private List<BibEntry> getSpringerQuantumMockResults() {
         // This is a duplicate of entry 1 of ArXiv
-        BibEntry entry1 = new BibEntry()
-                .withCitationKey("Blaha")
-                .withField(StandardField.AUTHOR, "Stephen Blaha")
-                .withField(StandardField.TITLE, "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C Language");
+        BibEntry entry1 = new BibEntry().withCitationKey("Blaha")
+            .withField(StandardField.AUTHOR, "Stephen Blaha")
+            .withField(StandardField.TITLE,
+                    "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C Language");
         entry1.setType(StandardEntryType.Article);
-        BibEntry entry2 = new BibEntry()
-                .withCitationKey("Kroeger")
-                .withField(StandardField.AUTHOR, "H. Kröger")
-                .withField(StandardField.TITLE, "Nonlinear Dynamics In Quantum Physics -- Quantum Chaos and Quantum Instantons");
+        BibEntry entry2 = new BibEntry().withCitationKey("Kroeger")
+            .withField(StandardField.AUTHOR, "H. Kröger")
+            .withField(StandardField.TITLE,
+                    "Nonlinear Dynamics In Quantum Physics -- Quantum Chaos and Quantum Instantons");
         entry2.setType(StandardEntryType.Article);
-        BibEntry entry3 = new BibEntry()
-                .withField(StandardField.AUTHOR, "Zieliński, Cezary")
-                .withField(StandardField.TITLE, "Automatic Control, Robotics, and Information Processing");
+        BibEntry entry3 = new BibEntry().withField(StandardField.AUTHOR, "Zieliński, Cezary")
+            .withField(StandardField.TITLE, "Automatic Control, Robotics, and Information Processing");
         entry3.setType(StandardEntryType.Article);
 
-        CitationKeyGenerator citationKeyGenerator = new CitationKeyGenerator(new BibDatabaseContext(), citationKeyPatternPreferences);
+        CitationKeyGenerator citationKeyGenerator = new CitationKeyGenerator(new BibDatabaseContext(),
+                citationKeyPatternPreferences);
         citationKeyGenerator.generateAndSetKey(entry3);
 
         return List.of(entry1, entry2, entry3);
     }
 
     private List<BibEntry> getSpringerCloudComputingMockResults() {
-        BibEntry entry1 = new BibEntry()
-                .withCitationKey("Gritzalis")
-                .withField(StandardField.AUTHOR, "Gritzalis, Dimitris and Stergiopoulos, George and Vasilellis, Efstratios and Anagnostopoulou, Argiro")
-                .withField(StandardField.TITLE, "Readiness Exercises: Are Risk Assessment Methodologies Ready for the Cloud?");
+        BibEntry entry1 = new BibEntry().withCitationKey("Gritzalis")
+            .withField(StandardField.AUTHOR,
+                    "Gritzalis, Dimitris and Stergiopoulos, George and Vasilellis, Efstratios and Anagnostopoulou, Argiro")
+            .withField(StandardField.TITLE,
+                    "Readiness Exercises: Are Risk Assessment Methodologies Ready for the Cloud?");
         entry1.setType(StandardEntryType.Article);
-        BibEntry entry2 = new BibEntry()
-                .withCitationKey("Rangras")
-                .withField(StandardField.AUTHOR, "Rangras, Jimit and Bhavsar, Sejal")
-                .withField(StandardField.TITLE, "Design of Framework for Disaster Recovery in Cloud Computing");
+        BibEntry entry2 = new BibEntry().withCitationKey("Rangras")
+            .withField(StandardField.AUTHOR, "Rangras, Jimit and Bhavsar, Sejal")
+            .withField(StandardField.TITLE, "Design of Framework for Disaster Recovery in Cloud Computing");
         entry2.setType(StandardEntryType.Article);
         return List.of(entry1, entry2);
     }
+
 }

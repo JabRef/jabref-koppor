@@ -30,16 +30,22 @@ import org.jabref.logic.util.OptionalObjectProperty;
 public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
     private final KeyBindingRepository keyBindingRepository;
+
     private final GuiPreferences preferences;
+
     private final OptionalObjectProperty<KeyBindingViewModel> selectedKeyBinding = OptionalObjectProperty.empty();
+
     private final ObjectProperty<KeyBindingViewModel> rootKeyBinding = new SimpleObjectProperty<>();
-    private final ListProperty<KeyBindingPreset> keyBindingPresets = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<KeyBindingPreset> keyBindingPresets = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
 
     private final DialogService dialogService;
 
     private final List<String> restartWarning = new ArrayList<>();
 
-    public KeyBindingsTabViewModel(KeyBindingRepository keyBindingRepository, DialogService dialogService, GuiPreferences preferences) {
+    public KeyBindingsTabViewModel(KeyBindingRepository keyBindingRepository, DialogService dialogService,
+            GuiPreferences preferences) {
         this.keyBindingRepository = new KeyBindingRepository(keyBindingRepository.getKeyBindings());
         this.dialogService = Objects.requireNonNull(dialogService);
         this.preferences = Objects.requireNonNull(preferences);
@@ -49,7 +55,8 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     }
 
     /**
-     * Read all keybindings from the keybinding repository and create table keybinding models for them
+     * Read all keybindings from the keybinding repository and create table keybinding
+     * models for them
      */
     @Override
     public void setValues() {
@@ -69,7 +76,8 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
                     return;
                 }
                 if (matchesSearchTerm(keyBinding, term.toLowerCase())) {
-                    KeyBindingViewModel keyBindViewModel = new KeyBindingViewModel(keyBindingRepository, keyBinding, bind);
+                    KeyBindingViewModel keyBindViewModel = new KeyBindingViewModel(keyBindingRepository, keyBinding,
+                            bind);
                     categoryItem.getChildren().add(keyBindViewModel);
                 }
             });
@@ -80,19 +88,23 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     }
 
     /**
-     * Searches for the term in the keybinding's localization, category, or key combination
-     *
+     * Searches for the term in the keybinding's localization, category, or key
+     * combination
      * @param keyBinding keybinding to search in
-     * @param searchTerm      term to search for
+     * @param searchTerm term to search for
      * @return true if the term is found in the keybinding
      */
     private boolean matchesSearchTerm(KeyBinding keyBinding, String searchTerm) {
-        if (keyBinding.getLocalization().toLowerCase().contains(searchTerm) ||
-                keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
+        if (keyBinding.getLocalization().toLowerCase().contains(searchTerm)
+                || keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
             return true;
         }
         if (keyBindingRepository.getKeyCombination(keyBinding).isPresent()) {
-            return keyBindingRepository.getKeyCombination(keyBinding).get().toString().toLowerCase().contains(searchTerm);
+            return keyBindingRepository.getKeyCombination(keyBinding)
+                .get()
+                .toString()
+                .toLowerCase()
+                .contains(searchTerm);
         }
         return false;
     }
@@ -124,13 +136,15 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         String title = Localization.lang("Resetting all keyboard shortcuts");
         String content = Localization.lang("All keyboard shortcuts will be reset to their defaults.");
         ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
-        dialogService.showCustomButtonDialogAndWait(Alert.AlertType.INFORMATION, title, content, resetButtonType,
-                ButtonType.CANCEL).ifPresent(response -> {
-            if (response == resetButtonType) {
-                keyBindingRepository.resetToDefault();
-                setValues();
-            }
-        });
+        dialogService
+            .showCustomButtonDialogAndWait(Alert.AlertType.INFORMATION, title, content, resetButtonType,
+                    ButtonType.CANCEL)
+            .ifPresent(response -> {
+                if (response == resetButtonType) {
+                    keyBindingRepository.resetToDefault();
+                    setValues();
+                }
+            });
     }
 
     public void loadPreset(KeyBindingPreset preset) {
@@ -162,4 +176,5 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     public KeyBindingRepository getKeyBindingRepository() {
         return keyBindingRepository;
     }
+
 }

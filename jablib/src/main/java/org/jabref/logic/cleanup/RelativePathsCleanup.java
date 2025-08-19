@@ -16,6 +16,7 @@ import org.jabref.model.entry.LinkedFile;
 public class RelativePathsCleanup implements CleanupJob {
 
     private final BibDatabaseContext databaseContext;
+
     private final FilePreferences filePreferences;
 
     public RelativePathsCleanup(BibDatabaseContext databaseContext, FilePreferences filePreferences) {
@@ -35,15 +36,15 @@ public class RelativePathsCleanup implements CleanupJob {
             if (fileEntry.isOnlineLink()) {
                 // keep online link untouched
                 newFileName = oldFileName;
-            } else {
+            }
+            else {
                 // only try to transform local file path to relative one
-                newFileName = FileUtil
-                        .relativize(Path.of(oldFileName), databaseContext, filePreferences)
-                        .toString();
+                newFileName = FileUtil.relativize(Path.of(oldFileName), databaseContext, filePreferences).toString();
             }
             LinkedFile newFileEntry = fileEntry;
             if (!oldFileName.equals(newFileName)) {
-                newFileEntry = new LinkedFile(fileEntry.getDescription(), Path.of(newFileName), fileEntry.getFileType());
+                newFileEntry = new LinkedFile(fileEntry.getDescription(), Path.of(newFileName),
+                        fileEntry.getFileType());
                 changed = true;
             }
             newFileList.add(newFileEntry);
@@ -56,4 +57,5 @@ public class RelativePathsCleanup implements CleanupJob {
 
         return List.of();
     }
+
 }

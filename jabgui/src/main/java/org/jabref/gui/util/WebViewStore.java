@@ -10,17 +10,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A dynamic web view store. This is used primarily to prevent UI freezes while constructing web view instances.
+ * A dynamic web view store. This is used primarily to prevent UI freezes while
+ * constructing web view instances.
  */
 public class WebViewStore {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WebViewStore.class);
+
     private final static Queue<WebView> WEB_VIEWS = new ArrayDeque<>();
+
     private static boolean isInitialized = false;
+
     private static Configuration config;
 
     /**
      * Initialize {@code WebViewStore} and preload web view instances.
-     * <p> Note that this method must be called at application startup. </p>
+     * <p>
+     * Note that this method must be called at application startup.
+     * </p>
      */
     public static void init(Configuration config) {
         WebViewStore.config = config;
@@ -32,15 +39,17 @@ public class WebViewStore {
 
     /**
      * Initialize {@code WebViewStore} and preload web view instance.
-     * <p> Note that this method must be called at application startup. </p>
+     * <p>
+     * Note that this method must be called at application startup.
+     * </p>
      */
     public static void init() {
         init(new Configuration(4, 2));
     }
 
     /**
-     * Returns a preloaded web view instance if available; And it will create a new one if not.
-     *
+     * Returns a preloaded web view instance if available; And it will create a new one if
+     * not.
      * @return {@code WebView} instance
      * @throws IllegalStateException if the webViewStore has not been initialized
      */
@@ -53,7 +62,8 @@ public class WebViewStore {
         }
         if (hasMore()) {
             return WEB_VIEWS.poll();
-        } else {
+        }
+        else {
             return new WebView();
         }
     }
@@ -66,15 +76,14 @@ public class WebViewStore {
     }
 
     /**
-     * @return {@code true} if the store has at least one web view instance available; {@code false} otherwise
+     * @return {@code true} if the store has at least one web view instance available;
+     * {@code false} otherwise
      */
     public static boolean hasMore() {
         return !WEB_VIEWS.isEmpty();
     }
 
-    public record Configuration(
-            int numberOfPreloadedInstances,
-            int minimumNumberOfInstances) {
+    public record Configuration(int numberOfPreloadedInstances, int minimumNumberOfInstances) {
 
         /**
          * @return The number of web view instances to be loaded at application startup
@@ -84,10 +93,12 @@ public class WebViewStore {
         }
 
         /**
-         * @return The minimum number of web views the store can reach. The store needs to load more instances once it reaches this threshold
+         * @return The minimum number of web views the store can reach. The store needs to
+         * load more instances once it reaches this threshold
          */
         public int getMinimumNumberOfInstances() {
             return minimumNumberOfInstances;
         }
     }
+
 }

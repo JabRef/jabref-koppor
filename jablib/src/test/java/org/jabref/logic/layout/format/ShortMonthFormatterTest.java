@@ -33,13 +33,8 @@ class ShortMonthFormatterTest {
     }
 
     private static Stream<Arguments> provideArguments() {
-        return Stream.of(
-                Arguments.of("jan", "jan"),
-                Arguments.of("jan", "January"),
-                Arguments.of("jan", "Januar"),
-                Arguments.of("jan", "01"),
-                Arguments.of("", "Invented Month"),
-                Arguments.of("", "")
-        );
+        return Stream.of(Arguments.of("jan", "jan"), Arguments.of("jan", "January"), Arguments.of("jan", "Januar"),
+                Arguments.of("jan", "01"), Arguments.of("", "Invented Month"), Arguments.of("", ""));
     }
+
 }

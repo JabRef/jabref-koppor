@@ -21,11 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is used to determine the status of a Git repository from any given path inside it.
- * If no repository is found, it returns a {@link GitStatusSnapshot} with tracking = false.
- * Otherwise, it returns a full snapshot including tracking status, sync status, and conflict state.
+ * This class is used to determine the status of a Git repository from any given path
+ * inside it. If no repository is found, it returns a {@link GitStatusSnapshot} with
+ * tracking = false. Otherwise, it returns a full snapshot including tracking status, sync
+ * status, and conflict state.
  */
 public class GitStatusChecker {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GitStatusChecker.class);
 
     public static GitStatusSnapshot checkStatus(GitHandler gitHandler) {
@@ -46,43 +48,31 @@ public class GitStatusChecker {
                 if (remoteEmpty) {
                     LOGGER.debug("Remote has NO heads -> REMOTE_EMPTY");
                     syncStatus = SyncStatus.REMOTE_EMPTY;
-                } else {
+                }
+                else {
                     LOGGER.debug("Remote is NOT empty but remoteHead unresolved -> UNKNOWN");
                     syncStatus = SyncStatus.UNKNOWN;
                 }
-            } else {
+            }
+            else {
                 syncStatus = determineSyncStatus(repo, localHead, remoteHead);
             }
 
-            return new GitStatusSnapshot(
-                    GitStatusSnapshot.TRACKING,
-                    syncStatus,
-                    hasConflict,
-                    hasUncommittedChanges,
-                    Optional.ofNullable(localHead).map(ObjectId::getName)
-            );
-        } catch (IOException | GitAPIException e) {
+            return new GitStatusSnapshot(GitStatusSnapshot.TRACKING, syncStatus, hasConflict, hasUncommittedChanges,
+                    Optional.ofNullable(localHead).map(ObjectId::getName));
+        }
+        catch (IOException | GitAPIException e) {
             LOGGER.warn("Failed to check Git status", e);
-            return new GitStatusSnapshot(
-                    GitStatusSnapshot.TRACKING,
-                    SyncStatus.UNKNOWN,
-                    !GitStatusSnapshot.CONFLICT,
-                    !GitStatusSnapshot.UNCOMMITTED,
-                    Optional.empty()
-            );
+            return new GitStatusSnapshot(GitStatusSnapshot.TRACKING, SyncStatus.UNKNOWN, !GitStatusSnapshot.CONFLICT,
+                    !GitStatusSnapshot.UNCOMMITTED, Optional.empty());
         }
     }
 
     public static GitStatusSnapshot checkStatus(Path anyPathInsideRepo) {
         Optional<GitHandler> handlerOpt = GitHandler.fromAnyPath(anyPathInsideRepo);
         if (handlerOpt.isEmpty()) {
-            return new GitStatusSnapshot(
-                    !GitStatusSnapshot.TRACKING,
-                    SyncStatus.UNTRACKED,
-                    !GitStatusSnapshot.CONFLICT,
-                    !GitStatusSnapshot.UNCOMMITTED,
-                    Optional.empty()
-            );
+            return new GitStatusSnapshot(!GitStatusSnapshot.TRACKING, SyncStatus.UNTRACKED, !GitStatusSnapshot.CONFLICT,
+                    !GitStatusSnapshot.UNCOMMITTED, Optional.empty());
         }
 
         return checkStatus(handlerOpt.get());
@@ -93,7 +83,8 @@ public class GitStatusChecker {
         return checkStatus(gitHandler);
     }
 
-    private static SyncStatus determineSyncStatus(Repository repo, ObjectId localHead, ObjectId remoteHead) throws IOException {
+    private static SyncStatus determineSyncStatus(Repository repo, ObjectId localHead, ObjectId remoteHead)
+            throws IOException {
         if (localHead == null || remoteHead == null) {
             LOGGER.debug("localHead or remoteHead null");
             return SyncStatus.UNKNOWN;
@@ -113,11 +104,14 @@ public class GitStatusChecker {
 
             if (ahead && behind) {
                 return SyncStatus.DIVERGED;
-            } else if (ahead) {
+            }
+            else if (ahead) {
                 return SyncStatus.AHEAD;
-            } else if (behind) {
+            }
+            else if (behind) {
                 return SyncStatus.BEHIND;
-            } else {
+            }
+            else {
                 LOGGER.debug("Could not determine git sync status. All commits differ or mergeBase is null.");
                 return SyncStatus.UNKNOWN;
             }
@@ -126,20 +120,20 @@ public class GitStatusChecker {
 
     public static boolean isRemoteEmpty(GitHandler gitHandler) {
         try (Git git = Git.open(gitHandler.getRepositoryPathAsFile())) {
-            Iterable<Ref> heads = git.lsRemote()
-                                     .setRemote("origin")
-                                     .setHeads(true)
-                                     .call();
+            Iterable<Ref> heads = git.lsRemote().setRemote("origin").setHeads(true).call();
             boolean empty = (heads == null) || !heads.iterator().hasNext();
             if (empty) {
                 LOGGER.debug("ls-remote: origin has NO heads.");
-            } else {
+            }
+            else {
                 LOGGER.debug("ls-remote: origin has heads.");
             }
             return empty;
-        } catch (IOException | GitAPIException e) {
+        }
+        catch (IOException | GitAPIException e) {
             LOGGER.debug("ls-remote failed when checking remote emptiness; assume NOT empty.", e);
             return false;
         }
     }
+
 }

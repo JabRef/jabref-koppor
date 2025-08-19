@@ -6,8 +6,11 @@ import java.util.List;
  * Used for GSON
  */
 public class ReferencesResponse {
+
     private int offset;
+
     private int next;
+
     private List<ReferenceDataItem> data;
 
     public int getOffset() {
@@ -33,4 +36,5 @@ public class ReferencesResponse {
     public void setData(List<ReferenceDataItem> data) {
         this.data = data;
     }
+
 }

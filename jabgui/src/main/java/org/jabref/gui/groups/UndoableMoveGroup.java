@@ -10,9 +10,13 @@ import org.jabref.model.groups.GroupTreeNode;
 class UndoableMoveGroup extends AbstractUndoableJabRefEdit {
 
     private final GroupTreeNodeViewModel root;
+
     private final List<Integer> pathToNewParent;
+
     private final int newChildIndex;
+
     private final List<Integer> pathToOldParent;
+
     private final int oldChildIndex;
 
     public UndoableMoveGroup(GroupTreeNodeViewModel root, MoveGroupChange moveChange) {
@@ -33,7 +37,8 @@ class UndoableMoveGroup extends AbstractUndoableJabRefEdit {
     public void undo() {
         super.undo();
 
-        GroupTreeNode newParent = root.getNode().getDescendant(pathToNewParent).get(); // TODO: NULL
+        GroupTreeNode newParent = root.getNode().getDescendant(pathToNewParent).get(); // TODO:
+                                                                                       // NULL
         GroupTreeNode node = newParent.getChildAt(newChildIndex).get(); // TODO: Null
         // TODO: NULL
         node.moveTo(root.getNode().getDescendant(pathToOldParent).get(), oldChildIndex);
@@ -43,9 +48,11 @@ class UndoableMoveGroup extends AbstractUndoableJabRefEdit {
     public void redo() {
         super.redo();
 
-        GroupTreeNode oldParent = root.getNode().getDescendant(pathToOldParent).get(); // TODO: NULL
+        GroupTreeNode oldParent = root.getNode().getDescendant(pathToOldParent).get(); // TODO:
+                                                                                       // NULL
         GroupTreeNode node = oldParent.getChildAt(oldChildIndex).get(); // TODO:Null
         // TODO: NULL
         node.moveTo(root.getNode().getDescendant(pathToNewParent).get(), newChildIndex);
     }
+
 }

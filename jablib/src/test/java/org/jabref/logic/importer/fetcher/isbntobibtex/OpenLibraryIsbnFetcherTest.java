@@ -23,12 +23,13 @@ class OpenLibraryIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @BeforeEach
     void setUp() {
         bibEntryEffectiveJava = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
-                .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
-                .withField(StandardField.YEAR, "2007")
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.ISBN, "9780321356680")
-                .withField(StandardField.PAGES, "256");
+            .withField(StandardField.TITLE,
+                    "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
+            .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
+            .withField(StandardField.YEAR, "2007")
+            .withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(StandardField.ISBN, "9780321356680")
+            .withField(StandardField.PAGES, "256");
 
         fetcher = new OpenLibraryIsbnFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
@@ -57,12 +58,12 @@ class OpenLibraryIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @Override
     public void authorsAreCorrectlyFormatted() throws FetcherException {
         BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Repository Eine Einführung")
-                .withField(StandardField.SUBTITLE, "Eine Einführung")
-                .withField(StandardField.PUBLISHER, "de Gruyter GmbH, Walter")
-                .withField(StandardField.AUTHOR, "Habermann, Hans-Joachim and Leymann, Frank")
-                .withField(StandardField.ISBN, "9783110702125")
-                .withField(StandardField.YEAR, "2020");
+            .withField(StandardField.TITLE, "Repository Eine Einführung")
+            .withField(StandardField.SUBTITLE, "Eine Einführung")
+            .withField(StandardField.PUBLISHER, "de Gruyter GmbH, Walter")
+            .withField(StandardField.AUTHOR, "Habermann, Hans-Joachim and Leymann, Frank")
+            .withField(StandardField.ISBN, "9783110702125")
+            .withField(StandardField.YEAR, "2020");
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("9783110702125");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
@@ -76,4 +77,5 @@ class OpenLibraryIsbnFetcherTest extends AbstractIsbnFetcherTest {
         // However, the ISBN number must not be assigned to a real book
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById("9785646216541"));
     }
+
 }

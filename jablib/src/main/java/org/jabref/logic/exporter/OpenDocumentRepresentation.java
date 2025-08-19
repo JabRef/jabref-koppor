@@ -28,6 +28,7 @@ import org.w3c.dom.Text;
 class OpenDocumentRepresentation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenDocumentRepresentation.class);
+
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 
     private final List<BibEntry> entries;
@@ -44,10 +45,12 @@ class OpenDocumentRepresentation {
         // Use glazed lists to get a sorted view of the entries:
         List<BibEntry> entryList = new ArrayList<>();
 
-        // Set up a list of all entries, if entries==null, or the entries in the given list
+        // Set up a list of all entries, if entries==null, or the entries in the given
+        // list
         if (entries == null) {
             entryList.addAll(database.getEntries());
-        } else {
+        }
+        else {
             entryList.addAll(entries);
         }
 
@@ -149,13 +152,17 @@ class OpenDocumentRepresentation {
                 addTableCell(result, row, getField(e, StandardField.ADDRESS));
                 addTableCell(result, row, getField(e, StandardField.ASSIGNEE));
                 addTableCell(result, row, getField(e, StandardField.ANNOTE));
-                addTableCell(result, row, getField(e, StandardField.AUTHOR)); // new AuthorLastFirst().format(getField(e, StandardField.AUTHOR_FIELD)));
+                addTableCell(result, row, getField(e, StandardField.AUTHOR)); // new
+                                                                              // AuthorLastFirst().format(getField(e,
+                                                                              // StandardField.AUTHOR_FIELD)));
                 addTableCell(result, row, getField(e, StandardField.BOOKTITLE));
                 addTableCell(result, row, getField(e, StandardField.CHAPTER));
                 addTableCell(result, row, getField(e, StandardField.DAY));
                 addTableCell(result, row, getField(e, StandardField.DAYFILED));
                 addTableCell(result, row, getField(e, StandardField.EDITION));
-                addTableCell(result, row, getField(e, StandardField.EDITOR)); // new AuthorLastFirst().format(getField(e, StandardField.EDITOR_FIELD)));
+                addTableCell(result, row, getField(e, StandardField.EDITOR)); // new
+                                                                              // AuthorLastFirst().format(getField(e,
+                                                                              // StandardField.EDITOR_FIELD)));
                 addTableCell(result, row, getField(e, StandardField.HOWPUBLISHED));
                 addTableCell(result, row, getField(e, StandardField.INSTITUTION));
                 addTableCell(result, row, getField(e, StandardField.JOURNAL));
@@ -171,7 +178,8 @@ class OpenDocumentRepresentation {
                 addTableCell(result, row, getField(e, StandardField.REVISION));
                 addTableCell(result, row, getField(e, StandardField.SCHOOL));
                 addTableCell(result, row, getField(e, StandardField.SERIES));
-                addTableCell(result, row, new NonSpaceWhitespaceRemover().format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
+                addTableCell(result, row, new NonSpaceWhitespaceRemover()
+                    .format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
                 addTableCell(result, row, getField(e, new UnknownField("reporttype")));
                 addTableCell(result, row, getField(e, StandardField.VOLUME));
                 addTableCell(result, row, getField(e, StandardField.YEAR));
@@ -191,7 +199,8 @@ class OpenDocumentRepresentation {
             collection.appendChild(body);
 
             result.appendChild(collection);
-        } catch (ParserConfigurationException e) {
+        }
+        catch (ParserConfigurationException e) {
             LOGGER.warn("Exception caught...", e);
         }
         return result;
@@ -210,4 +219,5 @@ class OpenDocumentRepresentation {
         cell.appendChild(text);
         parent.appendChild(cell);
     }
+
 }

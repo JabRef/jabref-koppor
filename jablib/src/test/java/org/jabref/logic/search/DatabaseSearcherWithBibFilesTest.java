@@ -44,38 +44,49 @@ import static org.mockito.Mockito.when;
 
 /// Note: Postgres is `new`ed at each test - maybe put it tgo `@BeforeAll`
 class DatabaseSearcherWithBibFilesTest {
+
     private static final TaskExecutor TASK_EXECUTOR = new CurrentThreadTaskExecutor();
+
     private static final BibEntry TITLE_SENTENCE_CASED = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("title-sentence-cased")
-            .withField(StandardField.TITLE, "Title Sentence Cased");
+        .withCitationKey("title-sentence-cased")
+        .withField(StandardField.TITLE, "Title Sentence Cased");
+
     private static final BibEntry TITLE_MIXED_CASED = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("title-mixed-cased")
-            .withField(StandardField.TITLE, "TiTle MiXed CaSed");
+        .withCitationKey("title-mixed-cased")
+        .withField(StandardField.TITLE, "TiTle MiXed CaSed");
+
     private static final BibEntry TITLE_UPPER_CASED = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("title-upper-cased")
-            .withField(StandardField.TITLE, "TITLE UPPER CASED");
+        .withCitationKey("title-upper-cased")
+        .withField(StandardField.TITLE, "TITLE UPPER CASED");
 
     private static final BibEntry MINIMAL_SENTENCE_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-sentence-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-sentence-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-sentence-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-sentence-case.pdf", StandardFileType.PDF.getName())));
+
     private static final BibEntry MINIMAL_ALL_UPPER_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-all-upper-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-all-upper-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-all-upper-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-all-upper-case.pdf", StandardFileType.PDF.getName())));
+
     private static final BibEntry MINIMAL_MIXED_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-mixed-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-mixed-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-mixed-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-mixed-case.pdf", StandardFileType.PDF.getName())));
+
     private static final BibEntry MINIMAL_NOTE_SENTENCE_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-note-sentence-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-note-sentence-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-note-sentence-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-note-sentence-case.pdf", StandardFileType.PDF.getName())));
+
     private static final BibEntry MINIMAL_NOTE_ALL_UPPER_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-note-all-upper-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-note-all-upper-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-note-all-upper-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-note-all-upper-case.pdf", StandardFileType.PDF.getName())));
+
     private static final BibEntry MINIMAL_NOTE_MIXED_CASE = new BibEntry(StandardEntryType.Misc)
-            .withCitationKey("minimal-note-mixed-case")
-            .withFiles(List.of(new LinkedFile("", "minimal-note-mixed-case.pdf", StandardFileType.PDF.getName())));
+        .withCitationKey("minimal-note-mixed-case")
+        .withFiles(List.of(new LinkedFile("", "minimal-note-mixed-case.pdf", StandardFileType.PDF.getName())));
 
     private final CliPreferences preferences = mock(CliPreferences.class);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class);
+
     private final BibEntryPreferences bibEntryPreferences = mock(BibEntryPreferences.class);
 
     private PostgreServer postgreServer;
@@ -94,11 +105,14 @@ class DatabaseSearcherWithBibFilesTest {
     }
 
     private BibDatabaseContext initializeDatabaseFromPath(String testFile) throws URISyntaxException, IOException {
-        return initializeDatabaseFromPath(Path.of(Objects.requireNonNull(DatabaseSearcherWithBibFilesTest.class.getResource(testFile)).toURI()));
+        return initializeDatabaseFromPath(
+                Path.of(Objects.requireNonNull(DatabaseSearcherWithBibFilesTest.class.getResource(testFile)).toURI()));
     }
 
     private BibDatabaseContext initializeDatabaseFromPath(Path testFile) throws IOException {
-        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor()).importDatabase(testFile);
+        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                new DummyFileUpdateMonitor())
+            .importDatabase(testFile);
         BibDatabaseContext databaseContext = spy(result.getDatabaseContext());
 
         when(databaseContext.getFulltextIndexPath()).thenReturn(indexDir);
@@ -119,39 +133,47 @@ class DatabaseSearcherWithBibFilesTest {
 
                 // test-library-title-casing
                 Arguments.of(List.of(), "test-library-title-casing.bib", "NotExisting", false),
-                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED), "test-library-title-casing.bib", "Title", false),
+                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
+                        "test-library-title-casing.bib", "Title", false),
 
                 Arguments.of(List.of(), "test-library-title-casing.bib", "title = NotExisting", false),
-                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED), "test-library-title-casing.bib", "title = Title", false),
+                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
+                        "test-library-title-casing.bib", "title = Title", false),
 
-                 Arguments.of(List.of(), "test-library-title-casing.bib", "title =! TiTLE", false),
-                 Arguments.of(List.of(TITLE_SENTENCE_CASED), "test-library-title-casing.bib", "title =! Title", false),
+                Arguments.of(List.of(), "test-library-title-casing.bib", "title =! TiTLE", false),
+                Arguments.of(List.of(TITLE_SENTENCE_CASED), "test-library-title-casing.bib", "title =! Title", false),
 
-                 Arguments.of(List.of(), "test-library-title-casing.bib", "any =! TiTLE", false),
-                 Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "any =! TiTle", false),
+                Arguments.of(List.of(), "test-library-title-casing.bib", "any =! TiTLE", false),
+                Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "any =! TiTle", false),
 
-                 Arguments.of(List.of(), "test-library-title-casing.bib", "title =! NotExisting", false),
-                 Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "title =! TiTle", false),
+                Arguments.of(List.of(), "test-library-title-casing.bib", "title =! NotExisting", false),
+                Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "title =! TiTle", false),
 
                 Arguments.of(List.of(), "test-library-title-casing.bib", "any =~ [Y]", false),
 
                 // test-library-with-attached-files
                 Arguments.of(List.of(), "test-library-with-attached-files.bib", "NotExisting.", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "\"This is a short sentence, comma included.\"", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "comma", true),
+                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib", "\"This is a short sentence, comma included.\"", true),
+                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib", "comma", true),
 
                 Arguments.of(List.of(), "test-library-with-attached-files.bib", "NotExisting", true),
-                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE), "test-library-with-attached-files.bib", "world", true),
-                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE), "test-library-with-attached-files.bib", "\"Hello World\"", true)
-        );
+                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE),
+                        "test-library-with-attached-files.bib", "world", true),
+                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE),
+                        "test-library-with-attached-files.bib", "\"Hello World\"", true));
     }
 
     @ParameterizedTest
     @MethodSource
-    void searchLibrary(List<BibEntry> expected, String testFile, String query, boolean isFullText) throws URISyntaxException, IOException {
+    void searchLibrary(List<BibEntry> expected, String testFile, String query, boolean isFullText)
+            throws URISyntaxException, IOException {
         BibDatabaseContext databaseContext = initializeDatabaseFromPath(testFile);
         EnumSet<SearchFlags> flags = isFullText ? EnumSet.of(SearchFlags.FULLTEXT) : EnumSet.noneOf(SearchFlags.class);
-        List<BibEntry> matches = new DatabaseSearcher(databaseContext, TASK_EXECUTOR, preferences, postgreServer).getMatches(new SearchQuery(query, flags));
+        List<BibEntry> matches = new DatabaseSearcher(databaseContext, TASK_EXECUTOR, preferences, postgreServer)
+            .getMatches(new SearchQuery(query, flags));
         assertThat(expected, Matchers.containsInAnyOrder(matches.toArray()));
     }
+
 }

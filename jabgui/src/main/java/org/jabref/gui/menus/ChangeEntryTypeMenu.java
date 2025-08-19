@@ -26,15 +26,17 @@ import org.jabref.model.entry.types.IEEETranEntryTypeDefinitions;
 public class ChangeEntryTypeMenu {
 
     private final List<BibEntry> entries;
+
     private final BibDatabaseContext bibDatabaseContext;
+
     private final UndoManager undoManager;
+
     private final ActionFactory factory;
+
     private final BibEntryTypesManager entryTypesManager;
 
-    public ChangeEntryTypeMenu(List<BibEntry> entries,
-                               BibDatabaseContext bibDatabaseContext,
-                               UndoManager undoManager,
-                               BibEntryTypesManager entryTypesManager) {
+    public ChangeEntryTypeMenu(List<BibEntry> entries, BibDatabaseContext bibDatabaseContext, UndoManager undoManager,
+            BibEntryTypesManager entryTypesManager) {
         this.entries = entries;
         this.bibDatabaseContext = bibDatabaseContext;
         this.undoManager = undoManager;
@@ -54,7 +56,8 @@ public class ChangeEntryTypeMenu {
         return menu;
     }
 
-    private ObservableList<MenuItem> getMenuItems(List<BibEntry> entries, BibDatabaseContext bibDatabaseContext, UndoManager undoManager) {
+    private ObservableList<MenuItem> getMenuItems(List<BibEntry> entries, BibDatabaseContext bibDatabaseContext,
+            UndoManager undoManager) {
         ObservableList<MenuItem> items = FXCollections.observableArrayList();
 
         if (bibDatabaseContext.isBiblatexMode()) {
@@ -62,35 +65,31 @@ public class ChangeEntryTypeMenu {
             items.addAll(fromEntryTypes(entryTypesManager.getAllTypes(BibDatabaseMode.BIBLATEX), entries, undoManager));
 
             // Custom types
-            createSubMenu(Localization.lang("Custom"), entryTypesManager.getAllCustomTypes(BibDatabaseMode.BIBLATEX), entries, undoManager)
-                    .ifPresent(subMenu ->
-                            items.addAll(new SeparatorMenuItem(),
-                            subMenu
-                    ));
-        } else {
+            createSubMenu(Localization.lang("Custom"), entryTypesManager.getAllCustomTypes(BibDatabaseMode.BIBLATEX),
+                    entries, undoManager)
+                .ifPresent(subMenu -> items.addAll(new SeparatorMenuItem(), subMenu));
+        }
+        else {
             // Default BibTeX
-            createSubMenu(BibDatabaseMode.BIBTEX.getFormattedName(), BibtexEntryTypeDefinitions.ALL, entries, undoManager)
-                    .ifPresent(items::add);
+            createSubMenu(BibDatabaseMode.BIBTEX.getFormattedName(), BibtexEntryTypeDefinitions.ALL, entries,
+                    undoManager)
+                .ifPresent(items::add);
 
             // IEEETran
             createSubMenu("IEEETran", IEEETranEntryTypeDefinitions.ALL, entries, undoManager)
-                    .ifPresent(subMenu -> items.addAll(
-                            new SeparatorMenuItem(),
-                            subMenu
-                    ));
+                .ifPresent(subMenu -> items.addAll(new SeparatorMenuItem(), subMenu));
 
             // Custom types
-            createSubMenu(Localization.lang("Custom"), entryTypesManager.getAllCustomTypes(BibDatabaseMode.BIBTEX), entries, undoManager)
-                    .ifPresent(subMenu -> items.addAll(
-                            new SeparatorMenuItem(),
-                            subMenu
-                    ));
+            createSubMenu(Localization.lang("Custom"), entryTypesManager.getAllCustomTypes(BibDatabaseMode.BIBTEX),
+                    entries, undoManager)
+                .ifPresent(subMenu -> items.addAll(new SeparatorMenuItem(), subMenu));
         }
 
         return items;
     }
 
-    private Optional<Menu> createSubMenu(String text, List<BibEntryType> entryTypes, List<BibEntry> entries, UndoManager undoManager) {
+    private Optional<Menu> createSubMenu(String text, List<BibEntryType> entryTypes, List<BibEntry> entries,
+            UndoManager undoManager) {
         Menu subMenu = null;
 
         if (!entryTypes.isEmpty()) {
@@ -101,10 +100,13 @@ public class ChangeEntryTypeMenu {
         return Optional.ofNullable(subMenu);
     }
 
-    private List<MenuItem> fromEntryTypes(Collection<BibEntryType> types, List<BibEntry> entries, UndoManager undoManager) {
+    private List<MenuItem> fromEntryTypes(Collection<BibEntryType> types, List<BibEntry> entries,
+            UndoManager undoManager) {
         return types.stream()
-                    .map(BibEntryType::getType)
-                    .map(type -> factory.createMenuItem(type::getDisplayName, new ChangeEntryTypeAction(type, entries, undoManager)))
-                    .toList();
+            .map(BibEntryType::getType)
+            .map(type -> factory.createMenuItem(type::getDisplayName,
+                    new ChangeEntryTypeAction(type, entries, undoManager)))
+            .toList();
     }
+
 }

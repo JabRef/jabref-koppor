@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TypedBibEntryTest {
+
     private BibEntryTypesManager entryTypesManager;
 
     @BeforeEach
@@ -69,4 +70,5 @@ class TypedBibEntryTest {
         TypedBibEntry typedEntry = new TypedBibEntry(e, BibDatabaseMode.BIBTEX);
         assertEquals("Articlllleeeee", typedEntry.getTypeForDisplay());
     }
+
 }

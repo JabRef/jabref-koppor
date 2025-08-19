@@ -18,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughScroller {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughScroller.class);
 
     /// Mutable list of all [Subscription] of parent bounds and node position
     private final List<Subscription> subscriptions = new ArrayList<>();
+
     private final WalkthroughUtils.DebouncedInvalidationListener debouncedScroller;
 
     public WalkthroughScroller(@NonNull Node node) {
@@ -30,10 +32,9 @@ public class WalkthroughScroller {
         LOGGER.debug("Found {} scrollable parents", scrollableParents.size());
         debouncedScroller = WalkthroughUtils.debounced((_) -> scrollNodeIntoView(node, scrollableParents));
 
-        scrollableParents
-                .stream()
-                .map(parent -> EasyBind.listen(parent.boundsInParentProperty(), debouncedScroller))
-                .forEach(subscriptions::add);
+        scrollableParents.stream()
+            .map(parent -> EasyBind.listen(parent.boundsInParentProperty(), debouncedScroller))
+            .forEach(subscriptions::add);
         subscriptions.add(EasyBind.listen(node.localToSceneTransformProperty(), debouncedScroller));
     }
 
@@ -56,7 +57,8 @@ public class WalkthroughScroller {
     }
 
     private boolean isScrollable(@NonNull Node node) {
-        return node instanceof ScrollPane || node instanceof ListView<?> || node instanceof TableView<?> || node instanceof TreeView<?>;
+        return node instanceof ScrollPane || node instanceof ListView<?> || node instanceof TableView<?>
+                || node instanceof TreeView<?>;
     }
 
     private void scrollNodeIntoView(@NonNull Node targetNode, @NonNull List<Node> scrollableParents) {
@@ -81,8 +83,10 @@ public class WalkthroughScroller {
                 case TreeView<?> treeView -> scrollIntoTreeView(targetNode, treeView);
                 default -> LOGGER.warn("Unsupported scrollable type: {}", scrollableParent.getClass().getSimpleName());
             }
-        } catch (RuntimeException e) {
-            LOGGER.warn("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(), e);
+        }
+        catch (RuntimeException e) {
+            LOGGER.warn("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(),
+                    e);
         }
     }
 
@@ -150,4 +154,5 @@ public class WalkthroughScroller {
         }
         return -1;
     }
+
 }

@@ -39,9 +39,11 @@ import org.slf4j.LoggerFactory;
  * A readonly, selectable field cell that contains the value of some field
  */
 public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
+
     public static final Logger LOGGER = LoggerFactory.getLogger(FieldValueCell.class);
 
     public static final String DEFAULT_STYLE_CLASS = "merge-field-value";
+
     public static final String SELECTION_BOX_STYLE_CLASS = "selection-box";
 
     private static final PseudoClass SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("selected");
@@ -51,11 +53,15 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
     private final ActionFactory factory;
 
     private final StyleClassedTextArea label = new StyleClassedTextArea();
+
     private final VirtualizedScrollPane<StyleClassedTextArea> scrollPane = new VirtualizedScrollPane<>(label);
+
     HBox labelBox = new HBox(scrollPane);
 
     private final HBox selectionBox = new HBox();
+
     private final HBox actionsContainer = new HBox();
+
     private final FieldValueCellViewModel viewModel;
 
     public FieldValueCell(String text, int rowIndex, GuiPreferences preferences) {
@@ -130,7 +136,8 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         FontIcon copyIcon = FontIcon.of(MaterialDesignC.CONTENT_COPY);
         copyIcon.getStyleClass().add("action-icon");
 
-        Button copyButton = factory.createIconButton(() -> Localization.lang("Copy"), new CopyFieldValueCommand(getText()));
+        Button copyButton = factory.createIconButton(() -> Localization.lang("Copy"),
+                new CopyFieldValueCommand(getText()));
         copyButton.setGraphic(copyIcon);
         copyButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         copyButton.setMaxHeight(Double.MAX_VALUE);
@@ -143,12 +150,15 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         Node openLinkIcon = IconTheme.JabRefIcons.OPEN_LINK.getGraphicNode();
         openLinkIcon.getStyleClass().add("action-icon");
 
-        Button openLinkButton = factory.createIconButton(() -> Localization.lang("Open Link"), new OpenExternalLinkAction(getText(), preferences.getExternalApplicationsPreferences()));
+        Button openLinkButton = factory.createIconButton(() -> Localization.lang("Open Link"),
+                new OpenExternalLinkAction(getText(), preferences.getExternalApplicationsPreferences()));
         openLinkButton.setGraphic(openLinkIcon);
         openLinkButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         openLinkButton.setMaxHeight(Double.MAX_VALUE);
 
-        openLinkButton.visibleProperty().bind(EasyBind.map(textProperty(), input -> StringUtil.isNotBlank(input) && (URLUtil.isURL(input) || DOI.isValid(input))));
+        openLinkButton.visibleProperty()
+            .bind(EasyBind.map(textProperty(),
+                    input -> StringUtil.isNotBlank(input) && (URLUtil.isURL(input) || DOI.isValid(input))));
 
         return openLinkButton;
     }
@@ -160,11 +170,11 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
 
     private void preventTextSelectionViaMouseEvents() {
         label.addEventFilter(MouseEvent.ANY, e -> {
-            if ((e.getEventType() == MouseEvent.MOUSE_DRAGGED) ||
-                    (e.getEventType() == MouseEvent.DRAG_DETECTED) ||
-                    (e.getEventType() == MouseEvent.MOUSE_ENTERED)) {
+            if ((e.getEventType() == MouseEvent.MOUSE_DRAGGED) || (e.getEventType() == MouseEvent.DRAG_DETECTED)
+                    || (e.getEventType() == MouseEvent.MOUSE_ENTERED)) {
                 e.consume();
-            } else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
+            }
+            else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
                 if (e.getClickCount() > 1) {
                     e.consume();
                 }
@@ -205,4 +215,5 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
     public StyleClassedTextArea getStyleClassedLabel() {
         return label;
     }
+
 }

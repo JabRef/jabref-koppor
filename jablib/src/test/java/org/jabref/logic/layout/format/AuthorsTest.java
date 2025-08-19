@@ -21,7 +21,8 @@ class AuthorsTest {
     @Test
     void standardUsageOne() {
         authorsLayoutFormatter.setArgument("fullname, LastFirst, Comma, Comma");
-        assertEquals("Bruce, Bob Croydon, Jumper, Jolly", authorsLayoutFormatter.format("Bob Croydon Bruce and Jolly Jumper"));
+        assertEquals("Bruce, Bob Croydon, Jumper, Jolly",
+                authorsLayoutFormatter.format("Bob Croydon Bruce and Jolly Jumper"));
     }
 
     @Test
@@ -47,22 +48,22 @@ class AuthorsTest {
     @Test
     void standardUsageFive() {
         authorsLayoutFormatter.setArgument("fullname, LastFirst, Comma, 3");
-        assertEquals("Bruce, Bob Croydon et al.",
-                authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
+        assertEquals("Bruce, Bob Croydon et al.", authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
     }
 
     @Test
     void standardUsageSix() {
         authorsLayoutFormatter.setArgument("fullname, LastFirst, Comma, 3, 2");
-        assertEquals("Bruce, Bob Croydon, Manson, Charles et al.",
-                authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
+        assertEquals("Bruce, Bob Croydon, Manson, Charles et al.", authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
     }
 
     @Test
     void specialEtAl() {
         authorsLayoutFormatter.setArgument("fullname, LastFirst, Comma, 3, etal= and a few more");
-        assertEquals("Bruce, Bob Croydon and a few more",
-                authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
+        assertEquals("Bruce, Bob Croydon and a few more", authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
     }
 
     @Test
@@ -136,25 +137,24 @@ class AuthorsTest {
     @Test
     void emptyEtAl() {
         authorsLayoutFormatter.setArgument("fullname, LastFirst, Comma, 3, etal=");
-        assertEquals("Bruce, Bob Croydon",
-                authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
+        assertEquals("Bruce, Bob Croydon", authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles"));
     }
 
     @ParameterizedTest(name = "arg={0}, formattedStr={1}")
-    @CsvSource({
-            "FirstFirst, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // FirstFirst
+    @CsvSource({ "FirstFirst, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // FirstFirst
             "LastFirst, 'Bruce, B. C., Manson, C., Jumper, J. and Chuckles, C.'", // LastFirst
             "LastFirstFirstFirst, 'Bruce, B. C., C. Manson, J. Jumper and C. Chuckles'" // LastFirstFirstFirst
     })
     void authorOrder(String arg, String expectedResult) {
         authorsLayoutFormatter.setArgument(arg);
-        String formattedStr = authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
+        String formattedStr = authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
         assertEquals(expectedResult, formattedStr);
     }
 
     @ParameterizedTest(name = "arg={0}, formattedStr={1}")
-    @CsvSource({
-            "FullName, 'Bob Croydon Bruce, Charles Manson, Jolly Jumper and Chuck Chuckles'", // FullName
+    @CsvSource({ "FullName, 'Bob Croydon Bruce, Charles Manson, Jolly Jumper and Chuck Chuckles'", // FullName
             "Initials, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Initials
             "FirstInitial, 'B. Bruce, C. Manson, J. Jumper and C. Chuckles'", // FirstInitial
             "MiddleInitial, 'Bob C. Bruce, Charles Manson, Jolly Jumper and Chuck Chuckles'", // MiddleInitial
@@ -163,26 +163,26 @@ class AuthorsTest {
     })
     void authorABRV(String arg, String expectedResult) {
         authorsLayoutFormatter.setArgument(arg);
-        String formattedStr = authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
+        String formattedStr = authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
         assertEquals(expectedResult, formattedStr);
     }
 
     @ParameterizedTest(name = "arg={0}, formattedStr={1}")
-    @CsvSource({
-            "FullPunc, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // FullPunc
+    @CsvSource({ "FullPunc, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // FullPunc
             "NoPunc, 'B C Bruce, C Manson, J Jumper and C Chuckles'", // NoPunc
             "NoComma, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // NoComma
             "NoPeriod, 'B C Bruce, C Manson, J Jumper and C Chuckles'" // NoPeriod
     })
     void authorPUNC(String arg, String expectedResult) {
         authorsLayoutFormatter.setArgument(arg);
-        String formattedStr = authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
+        String formattedStr = authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
         assertEquals(expectedResult, formattedStr);
     }
 
     @ParameterizedTest(name = "arg={0}, formattedStr={1}")
-    @CsvSource({
-            "Comma, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Comma
+    @CsvSource({ "Comma, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Comma
             "And, 'B. C. Bruce and C. Manson and J. Jumper and C. Chuckles'", // And
             "Colon, 'B. C. Bruce: C. Manson: J. Jumper and C. Chuckles'", // Colon
             "Semicolon, 'B. C. Bruce; C. Manson; J. Jumper and C. Chuckles'", // Semicolon
@@ -191,14 +191,20 @@ class AuthorsTest {
             "Sep, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Sep
             "LastSep, 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // LastSep
             "Sep=|, 'B. C. Bruce|C. Manson|J. Jumper and C. Chuckles'", // Custom Sep
-            "LastSep=|, 'B. C. Bruce, C. Manson, J. Jumper|C. Chuckles'", // Custom LastSep
-            "'Comma, And', 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Comma And
-            "'Comma, Colon', 'B. C. Bruce, C. Manson, J. Jumper: C. Chuckles'", // Comma Colon
-            "'Comma, Semicolon', 'B. C. Bruce, C. Manson, J. Jumper; C. Chuckles'", // Comma Semicolon
+            "LastSep=|, 'B. C. Bruce, C. Manson, J. Jumper|C. Chuckles'", // Custom
+                                                                          // LastSep
+            "'Comma, And', 'B. C. Bruce, C. Manson, J. Jumper and C. Chuckles'", // Comma
+                                                                                 // And
+            "'Comma, Colon', 'B. C. Bruce, C. Manson, J. Jumper: C. Chuckles'", // Comma
+                                                                                // Colon
+            "'Comma, Semicolon', 'B. C. Bruce, C. Manson, J. Jumper; C. Chuckles'", // Comma
+                                                                                    // Semicolon
     })
     void authorSEPARATORS(String arg, String expectedResult) {
         authorsLayoutFormatter.setArgument(arg);
-        String formattedStr = authorsLayoutFormatter.format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
+        String formattedStr = authorsLayoutFormatter
+            .format("Bob Croydon Bruce and Charles Manson and Jolly Jumper and Chuck Chuckles");
         assertEquals(expectedResult, formattedStr);
     }
+
 }

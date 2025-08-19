@@ -27,50 +27,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExistingStudySearchAction extends SimpleCommand {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExistingStudySearchAction.class);
 
     protected final DialogService dialogService;
 
     protected Path studyDirectory;
+
     protected final CliPreferences preferences;
+
     protected final StateManager stateManager;
 
     private final FileUpdateMonitor fileUpdateMonitor;
+
     private final TaskExecutor taskExecutor;
+
     private final LibraryTabContainer tabContainer;
+
     private final Supplier<OpenDatabaseAction> openDatabaseActionSupplier;
 
     /**
      * @param tabContainer Required to close the tab before the study is updated
-     * @param openDatabaseActionSupplier Required to open the tab after the study is executed
+     * @param openDatabaseActionSupplier Required to open the tab after the study is
+     * executed
      */
-    public ExistingStudySearchAction(
-            LibraryTabContainer tabContainer,
-            Supplier<OpenDatabaseAction> openDatabaseActionSupplier,
-            DialogService dialogService,
-            FileUpdateMonitor fileUpdateMonitor,
-            TaskExecutor taskExecutor,
-            CliPreferences preferences,
+    public ExistingStudySearchAction(LibraryTabContainer tabContainer,
+            Supplier<OpenDatabaseAction> openDatabaseActionSupplier, DialogService dialogService,
+            FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor, CliPreferences preferences,
             StateManager stateManager) {
-        this(tabContainer,
-                openDatabaseActionSupplier,
-                dialogService,
-                fileUpdateMonitor,
-                taskExecutor,
-                preferences,
-                stateManager,
-                false);
+        this(tabContainer, openDatabaseActionSupplier, dialogService, fileUpdateMonitor, taskExecutor, preferences,
+                stateManager, false);
     }
 
-    protected ExistingStudySearchAction(
-            LibraryTabContainer tabContainer,
-            Supplier<OpenDatabaseAction> openDatabaseActionSupplier,
-            DialogService dialogService,
-            FileUpdateMonitor fileUpdateMonitor,
-            TaskExecutor taskExecutor,
-            CliPreferences preferences,
-            StateManager stateManager,
-            boolean isNew) {
+    protected ExistingStudySearchAction(LibraryTabContainer tabContainer,
+            Supplier<OpenDatabaseAction> openDatabaseActionSupplier, DialogService dialogService,
+            FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor, CliPreferences preferences,
+            StateManager stateManager, boolean isNew) {
         this.tabContainer = tabContainer;
         this.openDatabaseActionSupplier = openDatabaseActionSupplier;
         this.dialogService = dialogService;
@@ -104,39 +96,37 @@ public class ExistingStudySearchAction extends SimpleCommand {
     protected void crawl() {
         try {
             crawlPreparation(this.studyDirectory);
-        } catch (IOException | GitAPIException e) {
+        }
+        catch (IOException | GitAPIException e) {
             dialogService.showErrorDialogAndWait(Localization.lang("Study repository could not be created"), e);
             return;
         }
 
         final Crawler crawler;
         try {
-            crawler = new Crawler(
-                    this.studyDirectory,
-                    new SlrGitHandler(this.studyDirectory),
-                    preferences,
-                    new BibEntryTypesManager(),
-                    fileUpdateMonitor);
-        } catch (IOException | ParseException | JabRefException e) {
+            crawler = new Crawler(this.studyDirectory, new SlrGitHandler(this.studyDirectory), preferences,
+                    new BibEntryTypesManager(), fileUpdateMonitor);
+        }
+        catch (IOException | ParseException | JabRefException e) {
             LOGGER.error("Error during reading of study definition file.", e);
-            dialogService.showErrorDialogAndWait(Localization.lang("Error during reading of study definition file."), e);
+            dialogService.showErrorDialogAndWait(Localization.lang("Error during reading of study definition file."),
+                    e);
             return;
         }
 
         dialogService.notify(Localization.lang("Searching..."));
         BackgroundTask.wrap(() -> {
-                          crawler.performCrawl();
-                          return 0; // Return any value to make this a callable instead of a runnable. This allows throwing exceptions.
-                      })
-                      .onFailure(e -> {
-                          LOGGER.error("Error during persistence of crawling results.");
-                          dialogService.showErrorDialogAndWait(Localization.lang("Error during persistence of crawling results."), e);
-                      })
-                      .onSuccess(unused -> {
-                          dialogService.notify(Localization.lang("Finished Searching"));
-                          openDatabaseActionSupplier.get().openFile(Path.of(this.studyDirectory.toString(), Crawler.FILENAME_STUDY_RESULT_BIB));
-                      })
-                      .executeWith(taskExecutor);
+            crawler.performCrawl();
+            return 0; // Return any value to make this a callable instead of a runnable.
+                      // This allows throwing exceptions.
+        }).onFailure(e -> {
+            LOGGER.error("Error during persistence of crawling results.");
+            dialogService.showErrorDialogAndWait(Localization.lang("Error during persistence of crawling results."), e);
+        }).onSuccess(unused -> {
+            dialogService.notify(Localization.lang("Finished Searching"));
+            openDatabaseActionSupplier.get()
+                .openFile(Path.of(this.studyDirectory.toString(), Crawler.FILENAME_STUDY_RESULT_BIB));
+        }).executeWith(taskExecutor);
     }
 
     /**
@@ -150,4 +140,5 @@ public class ExistingStudySearchAction extends SimpleCommand {
         // Future work: Properly close the tab (with saving, ...)
         tabContainer.closeTab(tabContainer.getCurrentLibraryTab());
     }
+
 }

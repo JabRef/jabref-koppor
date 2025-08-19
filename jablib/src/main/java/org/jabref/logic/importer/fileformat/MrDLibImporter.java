@@ -29,9 +29,13 @@ import org.slf4j.LoggerFactory;
 public class MrDLibImporter extends Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MrDLibImporter.class);
+
     public ParserResult parserResult;
+
     private String recommendationsHeading;
+
     private String recommendationsDescription;
+
     private String recommendationSetId;
 
     @Override
@@ -42,7 +46,8 @@ public class MrDLibImporter extends Importer {
             if (!jsonObject.has("recommendations")) {
                 return false;
             }
-        } catch (JSONException ex) {
+        }
+        catch (JSONException ex) {
             return false;
         }
         return true;
@@ -76,8 +81,8 @@ public class MrDLibImporter extends Importer {
 
     /**
      * Convert Buffered Reader response to string for JSON parsing.
-     *
-     * @param input Takes a BufferedReader with a reference to the JSON document delivered by mdl server.
+     * @param input Takes a BufferedReader with a reference to the JSON document delivered
+     * by mdl server.
      * @return Returns an String containing the JSON document.
      */
     private String convertToString(BufferedReader input) {
@@ -87,7 +92,8 @@ public class MrDLibImporter extends Importer {
             while ((line = input.readLine()) != null) {
                 stringBuilder.append(line);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("", e);
         }
         return stringBuilder.toString();
@@ -101,8 +107,8 @@ public class MrDLibImporter extends Importer {
 
     /**
      * Parses the input from the server to a ParserResult
-     *
-     * @param input A BufferedReader with a reference to a string with the server's response
+     * @param input A BufferedReader with a reference to a string with the server's
+     * response
      */
     private void parse(BufferedReader input) {
         // The Bibdatabase that gets returned in the ParserResult.
@@ -137,7 +143,6 @@ public class MrDLibImporter extends Importer {
 
     /**
      * Parses the JSON recommendations into bib entries
-     *
      * @param recommendation JSON object of a single recommendation returned by Mr. DLib
      * @return A ranked bib entry created from the recommendation input
      */
@@ -145,12 +150,16 @@ public class MrDLibImporter extends Importer {
         BibEntry current = new BibEntry();
 
         // parse each of the relevant fields into variables
-        String authors = isRecommendationFieldPresent(recommendation, "authors") ? recommendation.getString("authors") : "";
+        String authors = isRecommendationFieldPresent(recommendation, "authors") ? recommendation.getString("authors")
+                : "";
         String title = isRecommendationFieldPresent(recommendation, "title") ? recommendation.getString("title") : "";
-        String year = isRecommendationFieldPresent(recommendation, "published_year") ? Integer.toString(recommendation.getInt("published_year")) : "";
-        String journal = isRecommendationFieldPresent(recommendation, "published_in") ? recommendation.getString("published_in") : "";
+        String year = isRecommendationFieldPresent(recommendation, "published_year")
+                ? Integer.toString(recommendation.getInt("published_year")) : "";
+        String journal = isRecommendationFieldPresent(recommendation, "published_in")
+                ? recommendation.getString("published_in") : "";
         String url = isRecommendationFieldPresent(recommendation, "url") ? recommendation.getString("url") : "";
-        Integer rank = isRecommendationFieldPresent(recommendation, "recommendation_id") ? recommendation.getInt("recommendation_id") : 100;
+        Integer rank = isRecommendationFieldPresent(recommendation, "recommendation_id")
+                ? recommendation.getInt("recommendation_id") : 100;
 
         // Populate bib entry with relevant data
         current.setField(StandardField.AUTHOR, authors);
@@ -181,4 +190,5 @@ public class MrDLibImporter extends Importer {
     public String getRecommendationSetId() {
         return recommendationSetId;
     }
+
 }

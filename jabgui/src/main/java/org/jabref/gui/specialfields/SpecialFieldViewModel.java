@@ -25,7 +25,9 @@ import org.jabref.model.entry.field.SpecialFieldValue;
 public class SpecialFieldViewModel {
 
     private final SpecialField field;
+
     private final CliPreferences preferences;
+
     private final UndoManager undoManager;
 
     public SpecialFieldViewModel(SpecialField field, CliPreferences preferences, UndoManager undoManager) {
@@ -38,20 +40,12 @@ public class SpecialFieldViewModel {
         return field;
     }
 
-    public SpecialFieldAction getSpecialFieldAction(SpecialFieldValue value,
-                                                    Supplier<LibraryTab> tabSupplier,
-                                                    DialogService dialogService,
-                                                    StateManager stateManager) {
-        return new SpecialFieldAction(
-                tabSupplier,
-                field,
-                value.getFieldValue().orElse(null),
-                // if field contains only one value, it has to be nulled, as another setting does not empty the field
-                field.getValues().size() == 1,
-                getLocalization(),
-                dialogService,
-                preferences,
-                undoManager,
+    public SpecialFieldAction getSpecialFieldAction(SpecialFieldValue value, Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService, StateManager stateManager) {
+        return new SpecialFieldAction(tabSupplier, field, value.getFieldValue().orElse(null),
+                // if field contains only one value, it has to be nulled, as another
+                // setting does not empty the field
+                field.getValues().size() == 1, getLocalization(), dialogService, preferences, undoManager,
                 stateManager);
     }
 
@@ -79,13 +73,12 @@ public class SpecialFieldViewModel {
     }
 
     public List<SpecialFieldValueViewModel> getValues() {
-        return field.getValues().stream()
-                    .map(SpecialFieldValueViewModel::new)
-                    .collect(Collectors.toList());
+        return field.getValues().stream().map(SpecialFieldValueViewModel::new).collect(Collectors.toList());
     }
 
     public void setSpecialFieldValue(BibEntry bibEntry, SpecialFieldValue value) {
-        Optional<FieldChange> change = UpdateField.updateField(bibEntry, getField(), value.getFieldValue().orElse(null), getField().isSingleValueField());
+        Optional<FieldChange> change = UpdateField.updateField(bibEntry, getField(), value.getFieldValue().orElse(null),
+                getField().isSingleValueField());
 
         change.ifPresent(fieldChange -> undoManager.addEdit(new UndoableFieldChange(fieldChange)));
     }
@@ -93,4 +86,5 @@ public class SpecialFieldViewModel {
     public void toggle(BibEntry entry) {
         setSpecialFieldValue(entry, getField().getValues().getFirst());
     }
+
 }

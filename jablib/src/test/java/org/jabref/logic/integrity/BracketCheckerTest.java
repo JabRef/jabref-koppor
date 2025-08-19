@@ -60,4 +60,5 @@ class BracketCheckerTest {
     void fieldAcceptsEmptyInput() {
         assertEquals(Optional.empty(), checker.checkValue(""));
     }
+
 }

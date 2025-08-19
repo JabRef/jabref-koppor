@@ -38,57 +38,58 @@ class PseudonymizationTest {
     private BibtexImporter importer;
 
     private BibDatabaseWriter databaseWriter;
+
     private StringWriter stringWriter;
+
     private BibWriter bibWriter;
+
     private SelfContainedSaveConfiguration saveConfiguration;
+
     private FieldPreferences fieldPreferences;
+
     private CitationKeyPatternPreferences citationKeyPatternPreferences;
+
     private BibEntryTypesManager entryTypesManager;
 
     @BeforeEach
     void setUp() {
-        importer = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
+        importer = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                new DummyFileUpdateMonitor());
 
         stringWriter = new StringWriter();
         bibWriter = new BibWriter(stringWriter, "\n");
-        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false,
+                BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
         fieldPreferences = new FieldPreferences(true, List.of(), List.of());
         citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS);
         entryTypesManager = new BibEntryTypesManager();
 
-        databaseWriter = new BibDatabaseWriter(
-                bibWriter,
-                saveConfiguration,
-                fieldPreferences,
-                citationKeyPatternPreferences,
-                entryTypesManager);
+        databaseWriter = new BibDatabaseWriter(bibWriter, saveConfiguration, fieldPreferences,
+                citationKeyPatternPreferences, entryTypesManager);
     }
 
     @Test
     void pseudonymizeTwoEntries() {
-        BibEntry first = new BibEntry("first")
-                .withField(StandardField.AUTHOR, "Author One")
-                .withField(StandardField.PAGES, "some pages");
-        BibEntry second = new BibEntry("second")
-                .withField(StandardField.AUTHOR, "Author Two")
-                .withField(StandardField.PAGES, "some pages");
+        BibEntry first = new BibEntry("first").withField(StandardField.AUTHOR, "Author One")
+            .withField(StandardField.PAGES, "some pages");
+        BibEntry second = new BibEntry("second").withField(StandardField.AUTHOR, "Author Two")
+            .withField(StandardField.PAGES, "some pages");
 
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase(List.of(first, second)));
 
         Pseudonymization pseudonymization = new Pseudonymization();
         Pseudonymization.Result result = pseudonymization.pseudonymizeLibrary(databaseContext);
 
-        BibEntry firstPseudo = new BibEntry("citationkey-1")
-                .withField(StandardField.AUTHOR, "author-1")
-                .withField(StandardField.PAGES, "pages-1");
-        BibEntry secondPseudo = new BibEntry("citationkey-2")
-                .withField(StandardField.AUTHOR, "author-2")
-                .withField(StandardField.PAGES, "pages-1");
-        BibDatabaseContext bibDatabaseContextExpected = new BibDatabaseContext(new BibDatabase(List.of(firstPseudo, secondPseudo)));
+        BibEntry firstPseudo = new BibEntry("citationkey-1").withField(StandardField.AUTHOR, "author-1")
+            .withField(StandardField.PAGES, "pages-1");
+        BibEntry secondPseudo = new BibEntry("citationkey-2").withField(StandardField.AUTHOR, "author-2")
+            .withField(StandardField.PAGES, "pages-1");
+        BibDatabaseContext bibDatabaseContextExpected = new BibDatabaseContext(
+                new BibDatabase(List.of(firstPseudo, secondPseudo)));
         bibDatabaseContextExpected.setMode(BibDatabaseMode.BIBLATEX);
-        Pseudonymization.Result expected = new Pseudonymization.Result(
-                bibDatabaseContextExpected,
-                Map.of("author-1", "Author One", "author-2", "Author Two", "pages-1", "some pages", "citationkey-1", "first", "citationkey-2", "second"));
+        Pseudonymization.Result expected = new Pseudonymization.Result(bibDatabaseContextExpected,
+                Map.of("author-1", "Author One", "author-2", "Author Two", "pages-1", "some pages", "citationkey-1",
+                        "first", "citationkey-2", "second"));
 
         assertEquals(expected, result);
     }
@@ -129,4 +130,5 @@ class PseudonymizationTest {
 
         assertTrue(Files.exists(target));
     }
+
 }

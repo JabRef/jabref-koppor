@@ -46,43 +46,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AiChatComponent extends VBox {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AiChatComponent.class);
 
     // Example Questions
     private static final String EXAMPLE_QUESTION_1 = Localization.lang("What is the goal of the paper?");
+
     private static final String EXAMPLE_QUESTION_2 = Localization.lang("Which methods were used in the research?");
+
     private static final String EXAMPLE_QUESTION_3 = Localization.lang("What are the key findings?");
 
     private final AiService aiService;
+
     private final ObservableList<BibEntry> entries;
+
     private final BibDatabaseContext bibDatabaseContext;
+
     private final AiPreferences aiPreferences;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
 
     private final AiChatLogic aiChatLogic;
 
     private final ObservableList<Notification> notifications = FXCollections.observableArrayList();
 
-    @FXML private Loadable uiLoadableChatHistory;
-    @FXML private ChatHistoryComponent uiChatHistory;
-    @FXML private Button notificationsButton;
-    @FXML private ChatPromptComponent chatPrompt;
-    @FXML private Label noticeText;
-    @FXML private Hyperlink exQuestion1;
-    @FXML private Hyperlink exQuestion2;
-    @FXML private Hyperlink exQuestion3;
-    @FXML private HBox exQuestionBox;
+    @FXML
+    private Loadable uiLoadableChatHistory;
 
-    public AiChatComponent(AiService aiService,
-                           StringProperty name,
-                           ObservableList<ChatMessage> chatHistory,
-                           ObservableList<BibEntry> entries,
-                           BibDatabaseContext bibDatabaseContext,
-                           AiPreferences aiPreferences,
-                           DialogService dialogService,
-                           TaskExecutor taskExecutor
-    ) {
+    @FXML
+    private ChatHistoryComponent uiChatHistory;
+
+    @FXML
+    private Button notificationsButton;
+
+    @FXML
+    private ChatPromptComponent chatPrompt;
+
+    @FXML
+    private Label noticeText;
+
+    @FXML
+    private Hyperlink exQuestion1;
+
+    @FXML
+    private Hyperlink exQuestion2;
+
+    @FXML
+    private Hyperlink exQuestion3;
+
+    @FXML
+    private HBox exQuestionBox;
+
+    public AiChatComponent(AiService aiService, StringProperty name, ObservableList<ChatMessage> chatHistory,
+            ObservableList<BibEntry> entries, BibDatabaseContext bibDatabaseContext, AiPreferences aiPreferences,
+            DialogService dialogService, TaskExecutor taskExecutor) {
         this.aiService = aiService;
         this.entries = entries;
         this.bibDatabaseContext = bibDatabaseContext;
@@ -94,9 +113,7 @@ public class AiChatComponent extends VBox {
 
         aiService.getIngestionService().ingest(name, ListUtil.getLinkedFiles(entries).toList(), bibDatabaseContext);
 
-        ViewLoader.view(this)
-                .root(this)
-                .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -110,16 +127,18 @@ public class AiChatComponent extends VBox {
     }
 
     private void initializeNotifications() {
-        ListUtil.getLinkedFiles(entries).forEach(file ->
-                aiService.getIngestionService().ingest(file, bibDatabaseContext).stateProperty().addListener(obs -> updateNotifications()));
+        ListUtil.getLinkedFiles(entries)
+            .forEach(file -> aiService.getIngestionService()
+                .ingest(file, bibDatabaseContext)
+                .stateProperty()
+                .addListener(obs -> updateNotifications()));
 
         updateNotifications();
     }
 
     private void initializeNotice() {
-        String newNotice = noticeText
-                .getText()
-                .replaceAll("%0", aiPreferences.getAiProvider().getLabel() + " " + aiPreferences.getSelectedChatModel());
+        String newNotice = noticeText.getText()
+            .replaceAll("%0", aiPreferences.getAiProvider().getLabel() + " " + aiPreferences.getSelectedChatModel());
 
         noticeText.setText(newNotice);
     }
@@ -154,10 +173,8 @@ public class AiChatComponent extends VBox {
     }
 
     private void initializeChatPrompt() {
-        notificationsButton.setOnAction(event ->
-                new PopOver(new NotificationsComponent(notifications))
-                        .show(notificationsButton)
-        );
+        notificationsButton
+            .setOnAction(event -> new PopOver(new NotificationsComponent(notifications)).show(notificationsButton));
 
         chatPrompt.setSendCallback(this::onSendMessage);
 
@@ -183,7 +200,8 @@ public class AiChatComponent extends VBox {
         notificationsButton.setManaged(!notifications.isEmpty());
 
         if (!notifications.isEmpty()) {
-            UiTaskExecutor.runInJavaFXThread(() -> notificationsButton.setGraphic(IconTheme.JabRefIcons.WARNING.withColor(Color.YELLOW).getGraphicNode()));
+            UiTaskExecutor.runInJavaFXThread(() -> notificationsButton
+                .setGraphic(IconTheme.JabRefIcons.WARNING.withColor(Color.YELLOW).getGraphicNode()));
         }
     }
 
@@ -192,46 +210,53 @@ public class AiChatComponent extends VBox {
 
         if (entries.size() == 1) {
             if (entry.getCitationKey().isEmpty()) {
+                notifications
+                    .add(new Notification(Localization.lang("No citation key for %0", entry.getAuthorTitleYear()),
+                            Localization.lang("The chat history will not be stored in next sessions")));
+            }
+            else if (!CitationKeyCheck.citationKeyIsPresentAndUnique(bibDatabaseContext, entry)) {
                 notifications.add(new Notification(
-                        Localization.lang("No citation key for %0", entry.getAuthorTitleYear()),
-                        Localization.lang("The chat history will not be stored in next sessions")
-                ));
-            } else if (!CitationKeyCheck.citationKeyIsPresentAndUnique(bibDatabaseContext, entry)) {
-                notifications.add(new Notification(
-                        Localization.lang("Invalid citation key for %0 (%1)", entry.getCitationKey().get(), entry.getAuthorTitleYear()),
-                        Localization.lang("The chat history will not be stored in next sessions")
-                ));
+                        Localization.lang("Invalid citation key for %0 (%1)", entry.getCitationKey().get(),
+                                entry.getAuthorTitleYear()),
+                        Localization.lang("The chat history will not be stored in next sessions")));
             }
         }
 
         entry.getFiles().forEach(file -> {
             if (!FileUtil.isPDFFile(Path.of(file.getLink()))) {
-                notifications.add(new Notification(
-                        Localization.lang("File %0 is not a PDF file", file.getLink()),
-                        Localization.lang("Only PDF files can be used for chatting")
-                ));
+                notifications.add(new Notification(Localization.lang("File %0 is not a PDF file", file.getLink()),
+                        Localization.lang("Only PDF files can be used for chatting")));
             }
         });
 
-        entry.getFiles().stream().map(file -> aiService.getIngestionService().ingest(file, bibDatabaseContext)).forEach(ingestionStatus -> {
-            switch (ingestionStatus.getState()) {
-                case PROCESSING -> notifications.add(new Notification(
-                    Localization.lang("File %0 is currently being processed", ingestionStatus.getObject().getLink()),
-                    Localization.lang("After the file is ingested, you will be able to chat with it.")
-                ));
+        entry.getFiles()
+            .stream()
+            .map(file -> aiService.getIngestionService().ingest(file, bibDatabaseContext))
+            .forEach(ingestionStatus -> {
+                switch (ingestionStatus.getState()) {
+                    case PROCESSING -> notifications.add(new Notification(
+                            Localization.lang("File %0 is currently being processed",
+                                    ingestionStatus.getObject().getLink()),
+                            Localization.lang("After the file is ingested, you will be able to chat with it.")));
 
-                case ERROR -> {
-                    assert ingestionStatus.getException().isPresent(); // When the state is ERROR, the exception must be present.
+                    case ERROR -> {
+                        assert ingestionStatus.getException().isPresent(); // When the
+                                                                           // state is
+                                                                           // ERROR, the
+                                                                           // exception
+                                                                           // must be
+                                                                           // present.
 
-                    notifications.add(new Notification(
-                            Localization.lang("File %0 could not be ingested", ingestionStatus.getObject().getLink()),
-                            ingestionStatus.getException().get().getLocalizedMessage()
-                    ));
+                        notifications.add(new Notification(
+                                Localization.lang("File %0 could not be ingested",
+                                        ingestionStatus.getObject().getLink()),
+                                ingestionStatus.getException().get().getLocalizedMessage()));
+                    }
+
+                    case SUCCESS -> {
+                    }
                 }
-
-                case SUCCESS -> { }
-            }
-        });
+            });
 
         return notifications;
     }
@@ -241,28 +266,30 @@ public class AiChatComponent extends VBox {
         updatePromptHistory();
         setLoading(true);
 
-        BackgroundTask<AiMessage> task =
-                BackgroundTask
-                        .wrap(() -> aiChatLogic.execute(userMessage))
-                        .showToUser(true)
-                        .onSuccess(aiMessage -> {
-                            setLoading(false);
-                            chatPrompt.requestPromptFocus();
-                        })
-                        .onFailure(e -> {
-                            LOGGER.error("Got an error while sending a message to AI", e);
-                            setLoading(false);
+        BackgroundTask<AiMessage> task = BackgroundTask.wrap(() -> aiChatLogic.execute(userMessage))
+            .showToUser(true)
+            .onSuccess(aiMessage -> {
+                setLoading(false);
+                chatPrompt.requestPromptFocus();
+            })
+            .onFailure(e -> {
+                LOGGER.error("Got an error while sending a message to AI", e);
+                setLoading(false);
 
-                            // Typically, if user has entered an invalid API base URL, we get either "401 - null" or "404 - null" strings.
-                            // Since there might be other strings returned from other API endpoints, we use startsWith() here.
-                            if (e.getMessage().startsWith("404") || e.getMessage().startsWith("401")) {
-                                addError(Localization.lang("API base URL setting appears to be incorrect. Please check it in AI expert settings."));
-                            } else {
-                                addError(e.getMessage());
-                            }
+                // Typically, if user has entered an invalid API base URL, we get either
+                // "401 - null" or "404 - null" strings.
+                // Since there might be other strings returned from other API endpoints,
+                // we use startsWith() here.
+                if (e.getMessage().startsWith("404") || e.getMessage().startsWith("401")) {
+                    addError(Localization
+                        .lang("API base URL setting appears to be incorrect. Please check it in AI expert settings."));
+                }
+                else {
+                    addError(e.getMessage());
+                }
 
-                            chatPrompt.switchToErrorState(userPrompt);
-                        });
+                chatPrompt.switchToErrorState(userPrompt);
+            });
 
         task.titleProperty().set(Localization.lang("Waiting for AI reply..."));
 
@@ -280,12 +307,11 @@ public class AiChatComponent extends VBox {
     }
 
     private Stream<UserMessage> getReversedUserMessagesStream() {
-        return aiChatLogic
-                .getChatHistory()
-                .reversed()
-                .stream()
-                .filter(message -> message instanceof UserMessage)
-                .map(UserMessage.class::cast);
+        return aiChatLogic.getChatHistory()
+            .reversed()
+            .stream()
+            .filter(message -> message instanceof UserMessage)
+            .map(UserMessage.class::cast);
     }
 
     private void setLoading(boolean loading) {
@@ -295,10 +321,8 @@ public class AiChatComponent extends VBox {
 
     @FXML
     private void onClearChatHistory() {
-        boolean agreed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Clear chat history"),
-                Localization.lang("Are you sure you want to clear the chat history of this entry?")
-        );
+        boolean agreed = dialogService.showConfirmationDialogAndWait(Localization.lang("Clear chat history"),
+                Localization.lang("Are you sure you want to clear the chat history of this entry?"));
 
         if (agreed) {
             aiChatLogic.getChatHistory().clear();
@@ -311,4 +335,5 @@ public class AiChatComponent extends VBox {
             aiChatLogic.getChatHistory().remove(index);
         }
     }
+
 }

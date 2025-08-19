@@ -20,7 +20,8 @@ public class NonSpaceWhitespaceRemover implements LayoutFormatter {
         int length = fieldEntry.length();
         int firstRemoveIndex = -1;
 
-        // First pass: detect the first whitespace to avoid building anything unnecessarily
+        // First pass: detect the first whitespace to avoid building anything
+        // unnecessarily
         for (int i = 0; i < length; i++) {
             char c = fieldEntry.charAt(i);
             if (!shouldKeep(c)) {
@@ -49,4 +50,5 @@ public class NonSpaceWhitespaceRemover implements LayoutFormatter {
     private static boolean shouldKeep(char c) {
         return !Character.isWhitespace(c) || Character.isSpaceChar(c);
     }
+
 }

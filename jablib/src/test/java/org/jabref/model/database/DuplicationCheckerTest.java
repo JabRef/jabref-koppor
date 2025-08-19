@@ -104,4 +104,5 @@ class DuplicationCheckerTest {
         database.removeEntry(entry);
         assertEquals(0, database.getNumberOfCitationKeyOccurrences("AAA"));
     }
+
 }

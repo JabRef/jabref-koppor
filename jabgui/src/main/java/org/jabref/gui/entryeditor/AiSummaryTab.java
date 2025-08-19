@@ -15,20 +15,25 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public class AiSummaryTab extends EntryEditorTab {
+
     private final AiService aiService;
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final AdaptVisibleTabs adaptVisibleTabs;
+
     private final AiPreferences aiPreferences;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
+
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
+
     private final EntryEditorPreferences entryEditorPreferences;
 
-    public AiSummaryTab(AiService aiService,
-                        DialogService dialogService,
-                        StateManager stateManager,
-                        AdaptVisibleTabs adaptVisibleTabs,
-                        GuiPreferences preferences) {
+    public AiSummaryTab(AiService aiService, DialogService dialogService, StateManager stateManager,
+            AdaptVisibleTabs adaptVisibleTabs, GuiPreferences preferences) {
         this.aiService = aiService;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -54,15 +59,8 @@ public class AiSummaryTab extends EntryEditorTab {
     @Override
     protected void bindToEntry(BibEntry entry) {
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().orElse(new BibDatabaseContext());
-        setContent(new SummaryComponent(
-                bibDatabaseContext,
-                entry,
-                aiService,
-                aiPreferences,
-                externalApplicationsPreferences,
-                citationKeyPatternPreferences,
-                dialogService,
-                adaptVisibleTabs
-        ));
+        setContent(new SummaryComponent(bibDatabaseContext, entry, aiService, aiPreferences,
+                externalApplicationsPreferences, citationKeyPatternPreferences, dialogService, adaptVisibleTabs));
     }
+
 }

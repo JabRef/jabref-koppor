@@ -30,11 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EuropePmcFetcher implements IdBasedParserFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EuropePmcFetcher.class);
 
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
-        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier + "&resultType=core&format=json").toURL();
+        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier
+                + "&resultType=core&format=json")
+            .toURL();
     }
 
     @Override
@@ -114,30 +117,39 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
             }
 
             if (result.has("pubModel")) {
-                Optional.ofNullable(result.optString("pubModel")).ifPresent(pubModel -> entry.setField(StandardField.HOWPUBLISHED, pubModel));
+                Optional.ofNullable(result.optString("pubModel"))
+                    .ifPresent(pubModel -> entry.setField(StandardField.HOWPUBLISHED, pubModel));
             }
             if (result.has("publicationStatus")) {
-                Optional.ofNullable(result.optString("publicationStatus")).ifPresent(pubStatus -> entry.setField(StandardField.PUBSTATE, pubStatus));
+                Optional.ofNullable(result.optString("publicationStatus"))
+                    .ifPresent(pubStatus -> entry.setField(StandardField.PUBSTATE, pubStatus));
             }
 
             if (result.has("journalInfo")) {
                 JSONObject journalInfo = result.getJSONObject("journalInfo");
-                Optional.ofNullable(journalInfo.optString("issue")).ifPresent(issue -> entry.setField(StandardField.ISSUE, issue));
-                Optional.ofNullable(journalInfo.optString("volume")).ifPresent(volume -> entry.setField(StandardField.VOLUME, volume));
-                Optional.of(journalInfo.optInt("yearOfPublication")).ifPresent(year -> entry.setField(StandardField.YEAR, year.toString()));
+                Optional.ofNullable(journalInfo.optString("issue"))
+                    .ifPresent(issue -> entry.setField(StandardField.ISSUE, issue));
+                Optional.ofNullable(journalInfo.optString("volume"))
+                    .ifPresent(volume -> entry.setField(StandardField.VOLUME, volume));
+                Optional.of(journalInfo.optInt("yearOfPublication"))
+                    .ifPresent(year -> entry.setField(StandardField.YEAR, year.toString()));
                 Optional.of(journalInfo.optInt("monthOfPublication"))
-                        .flatMap(month -> Month.parse(month.toString()))
-                        .ifPresent(parsedMonth -> entry.setField(StandardField.MONTH, parsedMonth.getJabRefFormat()));
+                    .flatMap(month -> Month.parse(month.toString()))
+                    .ifPresent(parsedMonth -> entry.setField(StandardField.MONTH, parsedMonth.getJabRefFormat()));
                 if (journalInfo.has("journal")) {
                     JSONObject journal = journalInfo.getJSONObject("journal");
-                    Optional.ofNullable(journal.optString("title")).ifPresent(title -> entry.setField(StandardField.JOURNAL, title));
-                    Optional.ofNullable(journal.optString("nlmid")).ifPresent(nlmid -> entry.setField(new UnknownField("nlmid"), nlmid));
-                    Optional.ofNullable(journal.optString("issn")).ifPresent(issn -> entry.setField(StandardField.ISSN, issn));
+                    Optional.ofNullable(journal.optString("title"))
+                        .ifPresent(title -> entry.setField(StandardField.JOURNAL, title));
+                    Optional.ofNullable(journal.optString("nlmid"))
+                        .ifPresent(nlmid -> entry.setField(new UnknownField("nlmid"), nlmid));
+                    Optional.ofNullable(journal.optString("issn"))
+                        .ifPresent(issn -> entry.setField(StandardField.ISSN, issn));
                 }
             }
 
             return entry;
-        } catch (JSONException e) {
+        }
+        catch (JSONException e) {
             throw new ParseException("Error parsing EuropePMC response", e);
         }
     }
@@ -151,4 +163,5 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
     public String getName() {
         return "Europe/PMCID";
     }
+
 }

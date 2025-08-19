@@ -18,10 +18,12 @@ public class BracketChecker implements ValueChecker {
         for (char a : value.trim().toCharArray()) {
             if (a == '{') {
                 counter++;
-            } else if (a == '}') {
+            }
+            else if (a == '}') {
                 if (counter == 0) {
                     return Optional.of(Localization.lang("unexpected closing curly bracket"));
-                } else {
+                }
+                else {
                     counter--;
                 }
             }
@@ -33,4 +35,5 @@ public class BracketChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

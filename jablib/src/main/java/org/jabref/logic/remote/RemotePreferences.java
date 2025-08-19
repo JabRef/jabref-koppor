@@ -22,9 +22,11 @@ public class RemotePreferences {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotePreferences.class);
 
     private final IntegerProperty port;
+
     private final BooleanProperty useRemoteServer;
 
     private final IntegerProperty httpPort;
+
     private final BooleanProperty enableHttpServer;
 
     public RemotePreferences(int port, boolean useRemoteServer, int httpPort, boolean enableHttpServer) {
@@ -90,22 +92,27 @@ public class RemotePreferences {
         this.enableHttpServer.setValue(enableHttpServer);
     }
 
-    /// Gets the IP address where both the remote server and the http server are listening.
+    /// Gets the IP address where both the remote server and the http server are
+    /// listening.
     public static InetAddress getIpAddress() throws UnknownHostException {
         return InetAddress.getByName("localhost");
     }
 
     public @NonNull URI getHttpServerUri() {
         try {
-            return new URI("http", null, RemotePreferences.getIpAddress().getHostAddress(), getHttpPort(), null, null, null);
-        } catch (UnknownHostException | URISyntaxException e) {
+            return new URI("http", null, RemotePreferences.getIpAddress().getHostAddress(), getHttpPort(), null, null,
+                    null);
+        }
+        catch (UnknownHostException | URISyntaxException e) {
             LOGGER.error("Could not create HTTP server URI. Falling back to default.", e);
             try {
                 return new URI("http://localhost:23119");
-            } catch (URISyntaxException ex) {
+            }
+            catch (URISyntaxException ex) {
                 LOGGER.error("Should never happen, raw string is already valid uri");
                 throw new RuntimeException(ex);
             }
         }
     }
+
 }

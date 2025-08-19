@@ -15,20 +15,13 @@ import org.jabref.gui.walkthrough.declarative.richtext.WalkthroughRichTextBlock;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public record TooltipStep(@NonNull String title,
-                          @NonNull List<WalkthroughRichTextBlock> content,
-                          @NonNull NodeResolver resolverValue,
-                          @Nullable String continueButtonTextValue,
-                          @Nullable String skipButtonTextValue,
-                          @Nullable String backButtonTextValue,
-                          @Nullable Trigger triggerValue,
-                          @NonNull TooltipPosition position,
-                          @Nullable Double widthValue,
-                          @Nullable Double heightValue,
-                          @Nullable WalkthroughEffect highlightValue,
-                          @Nullable WindowResolver activeWindowResolverValue,
-                          boolean showQuitButtonValue,
-                          @NonNull QuitButtonPosition quitButtonPositionValue) implements VisibleComponent {
+public record TooltipStep(@NonNull String title, @NonNull List<WalkthroughRichTextBlock> content,
+        @NonNull NodeResolver resolverValue, @Nullable String continueButtonTextValue,
+        @Nullable String skipButtonTextValue, @Nullable String backButtonTextValue, @Nullable Trigger triggerValue,
+        @NonNull TooltipPosition position, @Nullable Double widthValue, @Nullable Double heightValue,
+        @Nullable WalkthroughEffect highlightValue, @Nullable WindowResolver activeWindowResolverValue,
+        boolean showQuitButtonValue, @NonNull QuitButtonPosition quitButtonPositionValue) implements VisibleComponent {
+
     public static final double DEFAULT_WIDTH = 384;
 
     @Override
@@ -91,19 +84,33 @@ public record TooltipStep(@NonNull String title,
     }
 
     public static class Builder {
+
         private final String title;
+
         private List<WalkthroughRichTextBlock> content = List.of();
+
         private @Nullable NodeResolver resolver;
+
         private @Nullable String continueButtonText;
+
         private @Nullable String skipButtonText;
+
         private @Nullable String backButtonText;
+
         private @Nullable Trigger trigger;
+
         private TooltipPosition position = TooltipPosition.AUTO;
+
         private @Nullable Double width;
+
         private @Nullable Double height;
+
         private @Nullable WalkthroughEffect highlight;
+
         private @Nullable WindowResolver activeWindowResolver;
+
         private boolean showQuitButton = true;
+
         private QuitButtonPosition quitButtonPosition = QuitButtonPosition.AUTO;
 
         private Builder(@NonNull String title) {
@@ -197,20 +204,10 @@ public record TooltipStep(@NonNull String title,
             if (resolver == null) {
                 throw new IllegalStateException("Node resolver is required for TooltipStep");
             }
-            return new TooltipStep(title,
-                    content,
-                    resolver,
-                    continueButtonText,
-                    skipButtonText,
-                    backButtonText,
-                    trigger,
-                    position,
-                    width,
-                    height,
-                    highlight,
-                    activeWindowResolver,
-                    showQuitButton,
+            return new TooltipStep(title, content, resolver, continueButtonText, skipButtonText, backButtonText,
+                    trigger, position, width, height, highlight, activeWindowResolver, showQuitButton,
                     quitButtonPosition);
         }
+
     }
 }

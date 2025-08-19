@@ -25,7 +25,9 @@ import static org.mockito.Mockito.when;
 class SpringerLinkTest {
 
     private final ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
+
     private SpringerLink finder;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -51,8 +53,7 @@ class SpringerLinkTest {
     @Test
     void findByDOI() throws IOException {
         entry.setField(StandardField.DOI, "10.1186/s13677-015-0042-8");
-        assertEquals(
-                Optional.of(URLUtil.create("http://link.springer.com/content/pdf/10.1186/s13677-015-0042-8.pdf")),
+        assertEquals(Optional.of(URLUtil.create("http://link.springer.com/content/pdf/10.1186/s13677-015-0042-8.pdf")),
                 finder.findFullText(entry));
     }
 
@@ -73,4 +74,5 @@ class SpringerLinkTest {
     void trustLevel() {
         assertEquals(TrustLevel.PUBLISHER, finder.getTrustLevel());
     }
+
 }

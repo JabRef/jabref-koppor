@@ -7,8 +7,10 @@ class UiThreadHelper {
     static void ensureUiThreadExecution(Runnable task) {
         if (Platform.isFxApplicationThread()) {
             task.run();
-        } else {
+        }
+        else {
             Platform.runLater(task);
         }
     }
+
 }

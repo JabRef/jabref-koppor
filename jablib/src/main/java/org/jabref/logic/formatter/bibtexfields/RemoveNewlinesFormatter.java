@@ -10,6 +10,7 @@ import org.jabref.logic.l10n.Localization;
  * Removes all line breaks in the string.
  */
 public class RemoveNewlinesFormatter extends Formatter {
+
     private static final Pattern LINEBREAKS = Pattern.compile("\\R");
 
     @Override
@@ -39,4 +40,5 @@ public class RemoveNewlinesFormatter extends Formatter {
     public String getExampleInput() {
         return "In \n CDMA";
     }
+
 }

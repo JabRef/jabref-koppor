@@ -35,7 +35,9 @@ import static org.jabref.model.search.LinkedFilesConstants.PATH;
 public final class DocumentReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentReader.class);
+
     private static final Pattern HYPHEN_LINEBREAK_PATTERN = Pattern.compile("\\-\n");
+
     private static final Pattern LINEBREAK_WITHOUT_PERIOD_PATTERN = Pattern.compile("([^\\\\.])\\n");
 
     public List<Document> readPdfContents(String fileLink, Path resolvedPdfPath) {
@@ -51,7 +53,8 @@ public final class DocumentReader {
 
                 pages.add(newDocument);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not read {}", resolvedPdfPath.toAbsolutePath(), e);
             return pages;
         }
@@ -84,7 +87,8 @@ public final class DocumentReader {
         try {
             long modifiedTime = Files.getLastModifiedTime(resolvedPdfPath).to(TimeUnit.SECONDS);
             addStringField(newDocument, MODIFIED.toString(), String.valueOf(modifiedTime));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Could not read timestamp for {}", resolvedPdfPath, e);
         }
         addStringField(newDocument, PAGE_NUMBER.toString(), String.valueOf(pageNumber));
@@ -102,18 +106,20 @@ public final class DocumentReader {
                 newDocument.add(new TextField(CONTENT.toString(), mergeLines(pdfContent), Field.Store.YES));
             }
 
-            // Apache PDFTextStripper is 1-based. See {@link org.apache.pdfbox.text.PDFTextStripper.processPages}
+            // Apache PDFTextStripper is 1-based. See {@link
+            // org.apache.pdfbox.text.PDFTextStripper.processPages}
             PDPage page = pdfDocument.getPage(pageNumber - 1);
             List<String> annotations = page.getAnnotations()
-                                           .stream()
-                                           .map(PDAnnotation::getContents)
-                                           .filter(Objects::nonNull)
-                                           .toList();
+                .stream()
+                .map(PDAnnotation::getContents)
+                .filter(Objects::nonNull)
+                .toList();
 
             if (!annotations.isEmpty()) {
                 newDocument.add(new TextField(ANNOTATIONS.toString(), String.join("\n", annotations), Field.Store.YES));
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Could not read page {} of  {}", pageNumber, resolvedPath.toAbsolutePath(), e);
         }
     }
@@ -121,4 +127,5 @@ public final class DocumentReader {
     private void addIdentifiers(Document newDocument, String path) {
         newDocument.add(new StringField(PATH.toString(), path, Field.Store.YES));
     }
+
 }

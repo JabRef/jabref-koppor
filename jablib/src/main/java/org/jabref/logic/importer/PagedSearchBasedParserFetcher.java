@@ -12,7 +12,8 @@ import org.jabref.model.paging.Page;
 
 import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 
-public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher, PagedSearchBasedFetcher, ParserFetcher {
+public interface PagedSearchBasedParserFetcher
+        extends SearchBasedParserFetcher, PagedSearchBasedFetcher, ParserFetcher {
 
     @Override
     default Page<BibEntry> performSearchPaged(QueryNode luceneQuery, int pageNumber) throws FetcherException {
@@ -20,7 +21,8 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
         URL urlForQuery;
         try {
             urlForQuery = getURLForQuery(luceneQuery, pageNumber);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI crafted from complex search query is malformed", e);
         }
         return new Page<>(luceneQuery.toString(), pageNumber, getBibEntries(urlForQuery));
@@ -31,18 +33,19 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
             List<BibEntry> fetchedEntries = getParser().parseEntries(stream);
             fetchedEntries.forEach(this::doPostCleanup);
             return fetchedEntries;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException(urlForQuery, "A network error occurred", e);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new FetcherException(urlForQuery, "An internal parser error occurred", e);
         }
     }
 
     /**
      * Constructs a URL based on the query, size and page number.
-     *
      * @param luceneQuery the search query
-     * @param pageNumber  the number of the page indexed from 0
+     * @param pageNumber the number of the page indexed from 0
      */
     URL getURLForQuery(QueryNode luceneQuery, int pageNumber) throws URISyntaxException, MalformedURLException;
 
@@ -55,4 +58,5 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
     default List<BibEntry> performSearch(QueryNode luceneQuery) throws FetcherException {
         return SearchBasedParserFetcher.super.performSearch(luceneQuery);
     }
+
 }

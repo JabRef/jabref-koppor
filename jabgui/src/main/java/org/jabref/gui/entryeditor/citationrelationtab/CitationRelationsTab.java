@@ -78,7 +78,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * GUI for tab displaying an articles citation relations in two lists based on the currently selected BibEntry
+ * GUI for tab displaying an articles citation relations in two lists based on the
+ * currently selected BibEntry
  */
 public class CitationRelationsTab extends EntryEditorTab {
 
@@ -88,25 +89,31 @@ public class CitationRelationsTab extends EntryEditorTab {
 
     // Tasks used to implement asynchronous fetching of related articles
     private static BackgroundTask<List<BibEntry>> citingTask;
+
     private static BackgroundTask<List<BibEntry>> citedByTask;
+
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final TaskExecutor taskExecutor;
+
     private final SearchCitationsRelationsService searchCitationsRelationsService;
+
     private final CitationsRelationsTabViewModel citationsRelationsTabViewModel;
+
     private final DuplicateCheck duplicateCheck;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final StateManager stateManager;
+
     private final UndoManager undoManager;
 
-    public CitationRelationsTab(DialogService dialogService,
-                                UndoManager undoManager,
-                                StateManager stateManager,
-                                FileUpdateMonitor fileUpdateMonitor,
-                                GuiPreferences preferences,
-                                TaskExecutor taskExecutor,
-                                BibEntryTypesManager bibEntryTypesManager,
-                                SearchCitationsRelationsService searchCitationsRelationsService) {
+    public CitationRelationsTab(DialogService dialogService, UndoManager undoManager, StateManager stateManager,
+            FileUpdateMonitor fileUpdateMonitor, GuiPreferences preferences, TaskExecutor taskExecutor,
+            BibEntryTypesManager bibEntryTypesManager,
+            SearchCitationsRelationsService searchCitationsRelationsService) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
@@ -120,19 +127,13 @@ public class CitationRelationsTab extends EntryEditorTab {
         this.duplicateCheck = new DuplicateCheck(entryTypesManager);
         this.searchCitationsRelationsService = searchCitationsRelationsService;
 
-        this.citationsRelationsTabViewModel = new CitationsRelationsTabViewModel(
-            preferences,
-            undoManager,
-            stateManager,
-            dialogService,
-            fileUpdateMonitor,
-            taskExecutor
-        );
+        this.citationsRelationsTabViewModel = new CitationsRelationsTabViewModel(preferences, undoManager, stateManager,
+                dialogService, fileUpdateMonitor, taskExecutor);
     }
 
     /**
-     * Method to create main SplitPane holding all lists, buttons and labels for tab and starts search
-     *
+     * Method to create main SplitPane holding all lists, buttons and labels for tab and
+     * starts search
      * @param entry BibEntry which is currently selected in JabRef Database
      * @return SplitPane to display
      */
@@ -196,31 +197,21 @@ public class CitationRelationsTab extends EntryEditorTab {
         styleTopBarNode(importCitedByButton, 50.0);
         hideNodes(importCitingButton, importCitedByButton);
 
-        citingHBox.getChildren().addAll(citingLabel, refreshCitingButton, importCitingButton, citingProgress, abortCitingButton);
-        citedByHBox.getChildren().addAll(citedByLabel, refreshCitedByButton, importCitedByButton, citedByProgress, abortCitedButton);
+        citingHBox.getChildren()
+            .addAll(citingLabel, refreshCitingButton, importCitingButton, citingProgress, abortCitingButton);
+        citedByHBox.getChildren()
+            .addAll(citedByLabel, refreshCitedByButton, importCitedByButton, citedByProgress, abortCitedButton);
 
         VBox.setVgrow(citingListView, Priority.ALWAYS);
         VBox.setVgrow(citedByListView, Priority.ALWAYS);
         citingVBox.getChildren().addAll(citingHBox, citingListView);
         citedByVBox.getChildren().addAll(citedByHBox, citedByListView);
 
-        CitationComponents citingComponents = new CitationComponents(
-                entry,
-                citingListView,
-                abortCitingButton,
-                refreshCitingButton,
-                CitationFetcher.SearchType.CITES,
-                importCitingButton,
-                citingProgress);
+        CitationComponents citingComponents = new CitationComponents(entry, citingListView, abortCitingButton,
+                refreshCitingButton, CitationFetcher.SearchType.CITES, importCitingButton, citingProgress);
 
-        CitationComponents citedByComponents = new CitationComponents(
-                entry,
-                citedByListView,
-                abortCitedButton,
-                refreshCitedByButton,
-                CitationFetcher.SearchType.CITED_BY,
-                importCitedByButton,
-                citedByProgress);
+        CitationComponents citedByComponents = new CitationComponents(entry, citedByListView, abortCitedButton,
+                refreshCitedByButton, CitationFetcher.SearchType.CITED_BY, importCitedByButton, citedByProgress);
 
         refreshCitingButton.setOnMouseClicked(_ -> searchForRelations(citingComponents, citedByComponents));
         refreshCitedByButton.setOnMouseClicked(_ -> searchForRelations(citedByComponents, citingComponents));
@@ -237,92 +228,96 @@ public class CitationRelationsTab extends EntryEditorTab {
     }
 
     /**
-     * Styles a given CheckListView to display BibEntries either with a hyperlink or an add button
-     *
+     * Styles a given CheckListView to display BibEntries either with a hyperlink or an
+     * add button
      * @param listView CheckListView to style
      */
     private void styleFetchedListView(CheckListView<CitationRelationItem> listView) {
         PseudoClass entrySelected = PseudoClass.getPseudoClass("selected");
-        new ViewModelListCellFactory<CitationRelationItem>()
-                .withGraphic(entry -> {
+        new ViewModelListCellFactory<CitationRelationItem>().withGraphic(entry -> {
 
-                    HBox separator = new HBox();
-                    HBox.setHgrow(separator, Priority.SOMETIMES);
-                    Node entryNode = BibEntryView.getEntryNode(entry.entry());
-                    HBox.setHgrow(entryNode, Priority.ALWAYS);
-                    HBox hContainer = new HBox();
-                    hContainer.prefWidthProperty().bind(listView.widthProperty().subtract(25));
+            HBox separator = new HBox();
+            HBox.setHgrow(separator, Priority.SOMETIMES);
+            Node entryNode = BibEntryView.getEntryNode(entry.entry());
+            HBox.setHgrow(entryNode, Priority.ALWAYS);
+            HBox hContainer = new HBox();
+            hContainer.prefWidthProperty().bind(listView.widthProperty().subtract(25));
 
-                    VBox vContainer = new VBox();
+            VBox vContainer = new VBox();
 
-                    if (entry.isLocal()) {
-                        hContainer.getStyleClass().add("duplicate-entry");
-                        Button jumpTo = IconTheme.JabRefIcons.LINK.asButton();
-                        jumpTo.setTooltip(new Tooltip(Localization.lang("Jump to entry in library")));
-                        jumpTo.getStyleClass().add("addEntryButton");
-                        jumpTo.setOnMouseClicked(_ -> jumpToEntry(entry));
-                        hContainer.setOnMouseClicked(event -> {
-                            if (event.getClickCount() == 2) {
-                                jumpToEntry(entry);
-                            }
-                        });
-                        vContainer.getChildren().add(jumpTo);
-
-                        Button compareButton = IconTheme.JabRefIcons.MERGE_ENTRIES.asButton();
-                        compareButton.setTooltip(new Tooltip(Localization.lang("Compare with existing entry")));
-                        compareButton.setOnMouseClicked(_ -> openPossibleDuplicateEntriesWindow(entry, listView));
-                        vContainer.getChildren().add(compareButton);
-                    } else {
-                        ToggleButton addToggle = IconTheme.JabRefIcons.ADD.asToggleButton();
-                        addToggle.setTooltip(new Tooltip(Localization.lang("Select entry")));
-                        EasyBind.subscribe(addToggle.selectedProperty(), selected -> {
-                            if (selected) {
-                                addToggle.setGraphic(IconTheme.JabRefIcons.ADD_FILLED.withColor(IconTheme.SELECTED_COLOR).getGraphicNode());
-                            } else {
-                                addToggle.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
-                            }
-                        });
-                        addToggle.getStyleClass().add("addEntryButton");
-                        addToggle.selectedProperty().bindBidirectional(listView.getItemBooleanProperty(entry));
-                        vContainer.getChildren().add(addToggle);
+            if (entry.isLocal()) {
+                hContainer.getStyleClass().add("duplicate-entry");
+                Button jumpTo = IconTheme.JabRefIcons.LINK.asButton();
+                jumpTo.setTooltip(new Tooltip(Localization.lang("Jump to entry in library")));
+                jumpTo.getStyleClass().add("addEntryButton");
+                jumpTo.setOnMouseClicked(_ -> jumpToEntry(entry));
+                hContainer.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2) {
+                        jumpToEntry(entry);
                     }
+                });
+                vContainer.getChildren().add(jumpTo);
 
-                    if (entry.entry().getDOI().isPresent() || entry.entry().getField(StandardField.URL).isPresent()) {
-                        Button openWeb = IconTheme.JabRefIcons.OPEN_LINK.asButton();
-                        openWeb.setTooltip(new Tooltip(Localization.lang("Open URL or DOI")));
-                        openWeb.setOnMouseClicked(_ -> {
-                            String url = entry.entry().getDOI().flatMap(DOI::getExternalURI).map(URI::toString)
-                                              .or(() -> entry.entry().getField(StandardField.URL)).orElse("");
-                            if (StringUtil.isNullOrEmpty(url)) {
-                                return;
-                            }
-                            try {
-                                NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
-                            } catch (IOException ex) {
-                                dialogService.notify(Localization.lang("Unable to open link."));
-                            }
-                        });
-                        vContainer.getChildren().addLast(openWeb);
+                Button compareButton = IconTheme.JabRefIcons.MERGE_ENTRIES.asButton();
+                compareButton.setTooltip(new Tooltip(Localization.lang("Compare with existing entry")));
+                compareButton.setOnMouseClicked(_ -> openPossibleDuplicateEntriesWindow(entry, listView));
+                vContainer.getChildren().add(compareButton);
+            }
+            else {
+                ToggleButton addToggle = IconTheme.JabRefIcons.ADD.asToggleButton();
+                addToggle.setTooltip(new Tooltip(Localization.lang("Select entry")));
+                EasyBind.subscribe(addToggle.selectedProperty(), selected -> {
+                    if (selected) {
+                        addToggle.setGraphic(
+                                IconTheme.JabRefIcons.ADD_FILLED.withColor(IconTheme.SELECTED_COLOR).getGraphicNode());
                     }
-
-                    Button showEntrySource = IconTheme.JabRefIcons.SOURCE.asButton();
-                    showEntrySource.setTooltip(new Tooltip(Localization.lang("%0 source", "BibTeX")));
-                    showEntrySource.setOnMouseClicked(_ -> showEntrySourceDialog(entry.entry()));
-
-                    vContainer.getChildren().addLast(showEntrySource);
-
-                    hContainer.getChildren().addAll(entryNode, separator, vContainer);
-                    hContainer.getStyleClass().add("entry-container");
-
-                    return hContainer;
-                })
-                .withOnMouseClickedEvent((citationRelationItem, _) -> {
-                    if (!citationRelationItem.isLocal()) {
-                        listView.getCheckModel().toggleCheckState(citationRelationItem);
+                    else {
+                        addToggle.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
                     }
-                })
-                .withPseudoClass(entrySelected, listView::getItemBooleanProperty)
-                .install(listView);
+                });
+                addToggle.getStyleClass().add("addEntryButton");
+                addToggle.selectedProperty().bindBidirectional(listView.getItemBooleanProperty(entry));
+                vContainer.getChildren().add(addToggle);
+            }
+
+            if (entry.entry().getDOI().isPresent() || entry.entry().getField(StandardField.URL).isPresent()) {
+                Button openWeb = IconTheme.JabRefIcons.OPEN_LINK.asButton();
+                openWeb.setTooltip(new Tooltip(Localization.lang("Open URL or DOI")));
+                openWeb.setOnMouseClicked(_ -> {
+                    String url = entry.entry()
+                        .getDOI()
+                        .flatMap(DOI::getExternalURI)
+                        .map(URI::toString)
+                        .or(() -> entry.entry().getField(StandardField.URL))
+                        .orElse("");
+                    if (StringUtil.isNullOrEmpty(url)) {
+                        return;
+                    }
+                    try {
+                        NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
+                    }
+                    catch (IOException ex) {
+                        dialogService.notify(Localization.lang("Unable to open link."));
+                    }
+                });
+                vContainer.getChildren().addLast(openWeb);
+            }
+
+            Button showEntrySource = IconTheme.JabRefIcons.SOURCE.asButton();
+            showEntrySource.setTooltip(new Tooltip(Localization.lang("%0 source", "BibTeX")));
+            showEntrySource.setOnMouseClicked(_ -> showEntrySourceDialog(entry.entry()));
+
+            vContainer.getChildren().addLast(showEntrySource);
+
+            hContainer.getChildren().addAll(entryNode, separator, vContainer);
+            hContainer.getStyleClass().add("entry-container");
+
+            return hContainer;
+        }).withOnMouseClickedEvent((citationRelationItem, _) -> {
+            if (!citationRelationItem.isLocal()) {
+                listView.getCheckModel().toggleCheckState(citationRelationItem);
+            }
+        }).withPseudoClass(entrySelected, listView::getItemBooleanProperty).install(listView);
 
         listView.setSelectionModel(new NoSelectionModel<>());
     }
@@ -334,9 +329,11 @@ public class CitationRelationsTab extends EntryEditorTab {
     }
 
     /**
-     * @implNote This code is similar to {@link PreviewWithSourceTab#getSourceString(BibEntry, BibDatabaseMode, FieldPreferences, BibEntryTypesManager)}.
+     * @implNote This code is similar to
+     * {@link PreviewWithSourceTab#getSourceString(BibEntry, BibDatabaseMode, FieldPreferences, BibEntryTypesManager)}.
      */
-    private String getSourceString(BibEntry entry, BibDatabaseMode type, FieldPreferences fieldPreferences, BibEntryTypesManager entryTypesManager) throws IOException {
+    private String getSourceString(BibEntry entry, BibDatabaseMode type, FieldPreferences fieldPreferences,
+            BibEntryTypesManager entryTypesManager) throws IOException {
         StringWriter writer = new StringWriter();
         BibWriter bibWriter = new BibWriter(writer, OS.NEWLINE);
         FieldWriter fieldWriter = FieldWriter.buildIgnoreHashes(fieldPreferences);
@@ -347,10 +344,12 @@ public class CitationRelationsTab extends EntryEditorTab {
     private void showEntrySourceDialog(BibEntry entry) {
         CodeArea ca = new CodeArea();
         try {
-            BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                               .orElse(BibDatabaseMode.BIBLATEX);
+            BibDatabaseMode mode = stateManager.getActiveDatabase()
+                .map(BibDatabaseContext::getMode)
+                .orElse(BibDatabaseMode.BIBLATEX);
             ca.appendText(getSourceString(entry, mode, preferences.getFieldPreferences(), this.entryTypesManager));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.warn("Incorrect entry, could not load source:", e);
             return;
         }
@@ -374,8 +373,7 @@ public class CitationRelationsTab extends EntryEditorTab {
 
     /**
      * Method to style heading labels
-     *
-     * @param label       label to style
+     * @param label label to style
      * @param tooltipText tooltip text
      */
     private void styleLabel(Label label, String tooltipText) {
@@ -390,7 +388,6 @@ public class CitationRelationsTab extends EntryEditorTab {
 
     /**
      * Method to style refresh buttons
-     *
      * @param node node to style
      */
     private void styleTopBarNode(Node node, double offset) {
@@ -401,7 +398,6 @@ public class CitationRelationsTab extends EntryEditorTab {
 
     /**
      * Determines if tab should be shown according to preferences
-     *
      * @param entry Currently selected BibEntry
      * @return whether tab should be shown
      */
@@ -416,8 +412,7 @@ public class CitationRelationsTab extends EntryEditorTab {
         setContent(getPaneAndStartSearch(entry));
     }
 
-    private void searchForRelations(CitationComponents citationComponents,
-                                    CitationComponents otherCitationComponents) {
+    private void searchForRelations(CitationComponents citationComponents, CitationComponents otherCitationComponents) {
         if (citationComponents.entry().getDOI().isEmpty()) {
             setUpEmptyPanel(citationComponents, otherCitationComponents);
             return;
@@ -425,8 +420,7 @@ public class CitationRelationsTab extends EntryEditorTab {
         executeSearch(citationComponents);
     }
 
-    private void setUpEmptyPanel(CitationComponents citationComponents,
-                                 CitationComponents otherCitationComponents) {
+    private void setUpEmptyPanel(CitationComponents citationComponents, CitationComponents otherCitationComponents) {
         hideNodes(citationComponents.abortButton(), citationComponents.progress());
         showNodes(citationComponents.refreshButton());
 
@@ -437,27 +431,26 @@ public class CitationRelationsTab extends EntryEditorTab {
         link.setOnAction(e -> {
             CrossRef doiFetcher = new CrossRef();
 
-            BackgroundTask.wrap(() -> doiFetcher.findIdentifier(citationComponents.entry()))
-                          .onRunning(() -> {
-                              showNodes(citationComponents.progress(), otherCitationComponents.progress());
-                              setLabelOn(citationComponents.listView(), Localization.lang("Looking up DOI..."));
-                              setLabelOn(otherCitationComponents.listView(), Localization.lang("Looking up DOI..."));
-                          })
-                          .onSuccess(identifier -> {
-                              if (identifier.isPresent()) {
-                                  citationComponents.entry().setField(StandardField.DOI, identifier.get().asString());
-                                  executeSearch(citationComponents);
-                                  executeSearch(otherCitationComponents);
-                              } else {
-                                  dialogService.notify(Localization.lang("No DOI found."));
-                                  setUpEmptyPanel(citationComponents, otherCitationComponents);
-                                  setUpEmptyPanel(otherCitationComponents, citationComponents);
-                              }
-                          }).onFailure(ex -> {
-                              hideNodes(citationComponents.progress(), otherCitationComponents.progress());
-                              setLabelOn(citationComponents.listView(), "Error " + ex.getMessage());
-                              setLabelOn(otherCitationComponents.listView(), "Error " + ex.getMessage());
-                          }).executeWith(taskExecutor);
+            BackgroundTask.wrap(() -> doiFetcher.findIdentifier(citationComponents.entry())).onRunning(() -> {
+                showNodes(citationComponents.progress(), otherCitationComponents.progress());
+                setLabelOn(citationComponents.listView(), Localization.lang("Looking up DOI..."));
+                setLabelOn(otherCitationComponents.listView(), Localization.lang("Looking up DOI..."));
+            }).onSuccess(identifier -> {
+                if (identifier.isPresent()) {
+                    citationComponents.entry().setField(StandardField.DOI, identifier.get().asString());
+                    executeSearch(citationComponents);
+                    executeSearch(otherCitationComponents);
+                }
+                else {
+                    dialogService.notify(Localization.lang("No DOI found."));
+                    setUpEmptyPanel(citationComponents, otherCitationComponents);
+                    setUpEmptyPanel(otherCitationComponents, citationComponents);
+                }
+            }).onFailure(ex -> {
+                hideNodes(citationComponents.progress(), otherCitationComponents.progress());
+                setLabelOn(citationComponents.listView(), "Error " + ex.getMessage());
+                setLabelOn(otherCitationComponents.listView(), "Error " + ex.getMessage());
+            }).executeWith(taskExecutor);
         });
 
         hBox.getChildren().add(label);
@@ -480,26 +473,31 @@ public class CitationRelationsTab extends EntryEditorTab {
         ObservableList<CitationRelationItem> observableList = FXCollections.observableArrayList();
         citationComponents.listView().setItems(observableList);
 
-        // TODO: It should not be possible to cancel a search task that is already running for same tab
-        if (citationComponents.searchType() == CitationFetcher.SearchType.CITES && citingTask != null && !citingTask.isCancelled()) {
+        // TODO: It should not be possible to cancel a search task that is already running
+        // for same tab
+        if (citationComponents.searchType() == CitationFetcher.SearchType.CITES && citingTask != null
+                && !citingTask.isCancelled()) {
             citingTask.cancel();
-        } else if (citationComponents.searchType() == CitationFetcher.SearchType.CITED_BY && citedByTask != null && !citedByTask.isCancelled()) {
+        }
+        else if (citationComponents.searchType() == CitationFetcher.SearchType.CITED_BY && citedByTask != null
+                && !citedByTask.isCancelled()) {
             citedByTask.cancel();
         }
 
         this.createBackgroundTask(citationComponents.entry(), citationComponents.searchType())
             .consumeOnRunning(task -> prepareToSearchForRelations(citationComponents, task))
-            .onSuccess(fetchedList -> onSearchForRelationsSucceed(citationComponents,
-                    fetchedList,
-                    observableList
-            ))
+            .onSuccess(fetchedList -> onSearchForRelationsSucceed(citationComponents, fetchedList, observableList))
             .onFailure(exception -> {
-                LOGGER.error("Error while fetching {} papers", citationComponents.searchType() == CitationFetcher.SearchType.CITES ? "cited" : "citing", exception);
-                hideNodes(citationComponents.abortButton(), citationComponents.progress(), citationComponents.importButton());
+                LOGGER.error("Error while fetching {} papers",
+                        citationComponents.searchType() == CitationFetcher.SearchType.CITES ? "cited" : "citing",
+                        exception);
+                hideNodes(citationComponents.abortButton(), citationComponents.progress(),
+                        citationComponents.importButton());
                 String labelText;
                 if (citationComponents.searchType() == CitationFetcher.SearchType.CITES) {
                     labelText = Localization.lang("Error while fetching cited entries: %0", exception.getMessage());
-                } else {
+                }
+                else {
                     labelText = Localization.lang("Error while fetching citing entries: %0", exception.getMessage());
                 }
                 Label placeholder = new Label(labelText);
@@ -512,65 +510,63 @@ public class CitationRelationsTab extends EntryEditorTab {
     }
 
     /**
-     * TODO: Make the method return a callable and let the calling method create the background task.
+     * TODO: Make the method return a callable and let the calling method create the
+     * background task.
      */
-    private BackgroundTask<List<BibEntry>> createBackgroundTask(
-        BibEntry entry, CitationFetcher.SearchType searchType
-    ) {
+    private BackgroundTask<List<BibEntry>> createBackgroundTask(BibEntry entry, CitationFetcher.SearchType searchType) {
         return switch (searchType) {
             case CitationFetcher.SearchType.CITES -> {
-                citingTask = BackgroundTask.wrap(
-                    () -> this.searchCitationsRelationsService.searchCites(entry)
-                );
+                citingTask = BackgroundTask.wrap(() -> this.searchCitationsRelationsService.searchCites(entry));
                 yield citingTask;
             }
             case CitationFetcher.SearchType.CITED_BY -> {
-                citedByTask = BackgroundTask.wrap(
-                    () -> this.searchCitationsRelationsService.searchCitedBy(entry)
-                );
+                citedByTask = BackgroundTask.wrap(() -> this.searchCitationsRelationsService.searchCitedBy(entry));
                 yield citedByTask;
             }
         };
     }
 
-    private void onSearchForRelationsSucceed(CitationComponents citationComponents,
-                                             List<BibEntry> fetchedList,
-                                             ObservableList<CitationRelationItem> observableList) {
+    private void onSearchForRelationsSucceed(CitationComponents citationComponents, List<BibEntry> fetchedList,
+            ObservableList<CitationRelationItem> observableList) {
 
         hideNodes(citationComponents.abortButton(), citationComponents.progress());
 
-        // TODO: This could be a wrong database, because the user might have switched to another library
-        //       If we were on fixing this, we would need to a) associate a BibEntry with a database or b) pass the database at "bindToEntry"
-        BibDatabase database = stateManager.getActiveDatabase().map(BibDatabaseContext::getDatabase).orElse(new BibDatabase());
-        observableList.setAll(
-                fetchedList.stream().map(entr ->
-                                   duplicateCheck.containsDuplicate(
-                                                         database,
-                                                         entr,
-                                                         BibDatabaseModeDetection.inferMode(database))
-                                                 .map(localEntry -> new CitationRelationItem(entr, localEntry, true))
-                                                 .orElseGet(() -> new CitationRelationItem(entr, false)))
-                           .toList()
-        );
+        // TODO: This could be a wrong database, because the user might have switched to
+        // another library
+        // If we were on fixing this, we would need to a) associate a BibEntry with a
+        // database or b) pass the database at "bindToEntry"
+        BibDatabase database = stateManager.getActiveDatabase()
+            .map(BibDatabaseContext::getDatabase)
+            .orElse(new BibDatabase());
+        observableList.setAll(fetchedList.stream()
+            .map(entr -> duplicateCheck.containsDuplicate(database, entr, BibDatabaseModeDetection.inferMode(database))
+                .map(localEntry -> new CitationRelationItem(entr, localEntry, true))
+                .orElseGet(() -> new CitationRelationItem(entr, false)))
+            .toList());
 
         if (observableList.isEmpty()) {
             Label placeholder = new Label(Localization.lang("No articles found"));
             citationComponents.listView().setPlaceholder(placeholder);
-        } else {
+        }
+        else {
             citationComponents.listView().refresh();
         }
         BooleanBinding booleanBind = Bindings.isEmpty(citationComponents.listView().getCheckModel().getCheckedItems());
         citationComponents.importButton().disableProperty().bind(booleanBind);
-        citationComponents.importButton().setOnMouseClicked(event -> importEntries(citationComponents.listView().getCheckModel().getCheckedItems(), citationComponents.searchType(), citationComponents.entry()));
+        citationComponents.importButton()
+            .setOnMouseClicked(event -> importEntries(citationComponents.listView().getCheckModel().getCheckedItems(),
+                    citationComponents.searchType(), citationComponents.entry()));
         showNodes(citationComponents.refreshButton(), citationComponents.importButton());
     }
 
-    private void prepareToSearchForRelations(CitationComponents citationComponents, BackgroundTask<List<BibEntry>> task) {
+    private void prepareToSearchForRelations(CitationComponents citationComponents,
+            BackgroundTask<List<BibEntry>> task) {
         showNodes(citationComponents.abortButton(), citationComponents.progress());
         hideNodes(citationComponents.refreshButton(), citationComponents.importButton());
 
         citationComponents.abortButton().setOnAction(event -> {
-            hideNodes(citationComponents.abortButton(), citationComponents.progress(), citationComponents.importButton());
+            hideNodes(citationComponents.abortButton(), citationComponents.progress(),
+                    citationComponents.importButton());
             showNodes(citationComponents.refreshButton());
             task.cancel();
             dialogService.notify(Localization.lang("Search aborted."));
@@ -586,11 +582,12 @@ public class CitationRelationsTab extends EntryEditorTab {
     }
 
     /**
-     * Function to import selected entries to the database. Also writes the entries to import to the CITING/CITED field
-     *
+     * Function to import selected entries to the database. Also writes the entries to
+     * import to the CITING/CITED field
      * @param entriesToImport entries to import
      */
-    private void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
+    private void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType,
+            BibEntry existingEntry) {
         citingTask.cancel();
         citedByTask.cancel();
 
@@ -601,17 +598,18 @@ public class CitationRelationsTab extends EntryEditorTab {
 
     /**
      * Function to open possible duplicate entries window to compare duplicate entries
-     *
      * @param citationRelationItem duplicate in the citation relations tab
      * @param listView CheckListView to display citations
      */
-    private void openPossibleDuplicateEntriesWindow(CitationRelationItem citationRelationItem, CheckListView<CitationRelationItem> listView) {
+    private void openPossibleDuplicateEntriesWindow(CitationRelationItem citationRelationItem,
+            CheckListView<CitationRelationItem> listView) {
         BibEntry libraryEntry = citationRelationItem.localEntry();
         BibEntry citationEntry = citationRelationItem.entry();
         String leftHeader = Localization.lang("Library Entry");
         String rightHeader = Localization.lang("Citation Entry");
 
-        MergeEntriesDialog dialog = new MergeEntriesDialog(libraryEntry, citationEntry, leftHeader, rightHeader, preferences);
+        MergeEntriesDialog dialog = new MergeEntriesDialog(libraryEntry, citationEntry, leftHeader, rightHeader,
+                preferences);
         dialog.setTitle(Localization.lang("Possible duplicate entries"));
 
         Optional<EntriesMergeResult> entriesMergeResult = dialogService.showCustomDialogAndWait(dialog);
@@ -619,7 +617,9 @@ public class CitationRelationsTab extends EntryEditorTab {
 
             BibEntry mergedEntry = mergeResult.mergedEntry();
             // update local entry of selected citation relation item
-            listView.getItems().set(listView.getItems().indexOf(citationRelationItem), new CitationRelationItem(citationRelationItem.entry(), mergedEntry, true));
+            listView.getItems()
+                .set(listView.getItems().indexOf(citationRelationItem),
+                        new CitationRelationItem(citationRelationItem.entry(), mergedEntry, true));
 
             // Merge method is similar to MergeTwoEntriesAction#execute
             Optional<LibraryTab> libraryTab = stateManager.activeTabProperty().get();
@@ -643,4 +643,5 @@ public class CitationRelationsTab extends EntryEditorTab {
             dialogService.notify(Localization.lang("Merged entries"));
         }, () -> dialogService.notify(Localization.lang("Canceled merging entries")));
     }
+
 }

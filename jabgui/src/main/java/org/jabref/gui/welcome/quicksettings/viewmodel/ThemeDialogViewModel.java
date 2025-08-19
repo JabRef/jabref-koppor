@@ -19,10 +19,13 @@ import org.jabref.logic.util.StandardFileType;
 public class ThemeDialogViewModel extends AbstractViewModel {
 
     private final ObjectProperty<ThemeTypes> selectedThemeProperty = new SimpleObjectProperty<>();
+
     private final StringProperty customPathProperty = new SimpleStringProperty("");
 
     private final WorkspacePreferences workspacePreferences;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
 
     public ThemeDialogViewModel(GuiPreferences preferences, DialogService dialogService) {
@@ -62,24 +65,23 @@ public class ThemeDialogViewModel extends AbstractViewModel {
     }
 
     public void browseForThemeFile() {
-        String fileDir = customPathProperty.get().isEmpty() ?
-                preferences.getInternalPreferences().getLastPreferencesExportPath().toString() :
-                customPathProperty.get();
+        String fileDir = customPathProperty.get().isEmpty()
+                ? preferences.getInternalPreferences().getLastPreferencesExportPath().toString()
+                : customPathProperty.get();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(StandardFileType.CSS)
-                .withDefaultExtension(StandardFileType.CSS)
-                .withInitialDirectory(fileDir)
-                .build();
+            .addExtensionFilter(StandardFileType.CSS)
+            .withDefaultExtension(StandardFileType.CSS)
+            .withInitialDirectory(fileDir)
+            .build();
 
         dialogService.showFileOpenDialog(fileDialogConfiguration)
-                     .ifPresent(file -> setCustomPath(file.toAbsolutePath().toString()));
+            .ifPresent(file -> setCustomPath(file.toAbsolutePath().toString()));
     }
 
     public boolean isValidConfiguration() {
         if (selectedThemeProperty.get() == ThemeTypes.CUSTOM) {
-            return !customPathProperty.get().trim().isEmpty() &&
-                    Path.of(customPathProperty.get()).toFile().exists();
+            return !customPathProperty.get().trim().isEmpty() && Path.of(customPathProperty.get()).toFile().exists();
         }
         return selectedThemeProperty.get() != null;
     }
@@ -92,4 +94,5 @@ public class ThemeDialogViewModel extends AbstractViewModel {
         };
         workspacePreferences.setTheme(newTheme);
     }
+
 }

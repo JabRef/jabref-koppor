@@ -7,15 +7,21 @@ package org.jabref.logic.util.strings;
 public class QuotedStringTokenizer {
 
     private final String content;
+
     private final int contentLength;
+
     private final String delimiters;
+
     private final char quoteChar;
+
     private int index;
 
     /**
-     * @param content        The String to be tokenized.
-     * @param delimiters     The delimiter characters.
-     * @param quoteCharacter The quoting character. Every character (including, but not limited to, delimiters) that is preceded by this character is not treated as a delimiter, but as a token component.
+     * @param content The String to be tokenized.
+     * @param delimiters The delimiter characters.
+     * @param quoteCharacter The quoting character. Every character (including, but not
+     * limited to, delimiters) that is preceded by this character is not treated as a
+     * delimiter, but as a token component.
      */
     public QuotedStringTokenizer(String content, String delimiters, char quoteCharacter) {
         this.content = content;
@@ -29,8 +35,8 @@ public class QuotedStringTokenizer {
     }
 
     /**
-     * @return the next token from the content string, ending at the next
-     * unquoted delimiter. Does not unquote the string itself.
+     * @return the next token from the content string, ending at the next unquoted
+     * delimiter. Does not unquote the string itself.
      */
     public String nextToken() {
         char c;
@@ -44,11 +50,13 @@ public class QuotedStringTokenizer {
                     stringBuilder.append(content.charAt(index));
                     // ignore for delimiter search!
                 }
-            } else if (isDelimiter(c)) { // unit finished
+            }
+            else if (isDelimiter(c)) { // unit finished
                 // advance index until next token or end
                 ++index;
                 return stringBuilder.toString();
-            } else {
+            }
+            else {
                 stringBuilder.append(c);
             }
             ++index;
@@ -63,4 +71,5 @@ public class QuotedStringTokenizer {
     public boolean hasMoreTokens() {
         return index < contentLength;
     }
+
 }

@@ -15,8 +15,11 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 class WebSearchPaneViewModelTest {
 
     private GuiPreferences preferences;
+
     private DialogService dialogService;
+
     private StateManager stateManager;
+
     private WebSearchPaneViewModel viewModel;
 
     @BeforeEach
@@ -40,8 +43,8 @@ class WebSearchPaneViewModelTest {
         assertFalse(viewModel.queryValidationStatus().validProperty().getValue());
     }
 
-     @Test
-     void correctQueryValidationStatus() {
+    @Test
+    void correctQueryValidationStatus() {
         viewModel.queryProperty().setValue("Miami AND Beach OR Houston AND Texas");
         assertTrue(viewModel.queryValidationStatus().validProperty().getValue());
     }
@@ -99,4 +102,5 @@ class WebSearchPaneViewModelTest {
         viewModel.queryProperty().setValue("this query contains an ArXiv identifier 2110.02957");
         assertTrue(viewModel.queryValidationStatus().validProperty().getValue());
     }
+
 }

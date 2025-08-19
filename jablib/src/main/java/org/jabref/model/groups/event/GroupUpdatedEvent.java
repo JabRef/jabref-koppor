@@ -17,4 +17,5 @@ public class GroupUpdatedEvent extends BibDatabaseContextChangedEvent {
     public MetaData getMetaData() {
         return this.metaData;
     }
+
 }

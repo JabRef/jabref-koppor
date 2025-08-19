@@ -32,52 +32,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SidePaneViewModel extends AbstractViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SidePaneViewModel.class);
 
     private final Map<SidePaneType, SidePaneComponent> sidePaneComponentLookup = new HashMap<>();
 
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
+
     private final SidePaneContentFactory sidePaneContentFactory;
+
     private final AdaptVisibleTabs adaptVisibleTabs;
+
     private final DialogService dialogService;
 
-    public SidePaneViewModel(LibraryTabContainer tabContainer,
-                             GuiPreferences preferences,
-                             JournalAbbreviationRepository abbreviationRepository,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor,
-                             AdaptVisibleTabs adaptVisibleTabs,
-                             DialogService dialogService,
-                             AiService aiService,
-                             FileUpdateMonitor fileUpdateMonitor,
-                             BibEntryTypesManager entryTypesManager,
-                             ClipBoardManager clipBoardManager,
-                             UndoManager undoManager) {
+    public SidePaneViewModel(LibraryTabContainer tabContainer, GuiPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository, StateManager stateManager, TaskExecutor taskExecutor,
+            AdaptVisibleTabs adaptVisibleTabs, DialogService dialogService, AiService aiService,
+            FileUpdateMonitor fileUpdateMonitor, BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager, UndoManager undoManager) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.adaptVisibleTabs = adaptVisibleTabs;
         this.dialogService = dialogService;
-        this.sidePaneContentFactory = new SidePaneContentFactory(
-                tabContainer,
-                preferences,
-                abbreviationRepository,
-                taskExecutor,
-                dialogService,
-                aiService,
-                stateManager,
-                adaptVisibleTabs,
-                fileUpdateMonitor,
-                entryTypesManager,
-                clipBoardManager,
-                undoManager);
+        this.sidePaneContentFactory = new SidePaneContentFactory(tabContainer, preferences, abbreviationRepository,
+                taskExecutor, dialogService, aiService, stateManager, adaptVisibleTabs, fileUpdateMonitor,
+                entryTypesManager, clipBoardManager, undoManager);
 
         preferences.getSidePanePreferences().visiblePanes().forEach(this::show);
         getPanes().addListener((ListChangeListener<? super SidePaneType>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
                     preferences.getSidePanePreferences().visiblePanes().add(change.getAddedSubList().getFirst());
-                } else if (change.wasRemoved()) {
+                }
+                else if (change.wasRemoved()) {
                     preferences.getSidePanePreferences().visiblePanes().remove(change.getRemoved().getFirst());
                 }
             }
@@ -88,18 +77,11 @@ public class SidePaneViewModel extends AbstractViewModel {
         SidePaneComponent sidePaneComponent = sidePaneComponentLookup.get(pane);
         if (sidePaneComponent == null) {
             sidePaneComponent = switch (pane) {
-                case GROUPS -> new GroupsSidePaneComponent(
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory,
-                        preferences.getGroupsPreferences(),
+                case GROUPS -> new GroupsSidePaneComponent(new ClosePaneAction(pane), new MoveUpAction(pane),
+                        new MoveDownAction(pane), sidePaneContentFactory, preferences.getGroupsPreferences(),
                         dialogService);
-                case WEB_SEARCH, OPEN_OFFICE -> new SidePaneComponent(pane,
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory);
+                case WEB_SEARCH, OPEN_OFFICE -> new SidePaneComponent(pane, new ClosePaneAction(pane),
+                        new MoveUpAction(pane), new MoveDownAction(pane), sidePaneContentFactory);
             };
             sidePaneComponentLookup.put(pane, sidePaneComponent);
         }
@@ -107,12 +89,12 @@ public class SidePaneViewModel extends AbstractViewModel {
     }
 
     /**
-     * Stores the current configuration of visible panes in the preferences, so that we show panes at the preferred
-     * position next time.
+     * Stores the current configuration of visible panes in the preferences, so that we
+     * show panes at the preferred position next time.
      */
     private void updatePreferredPositions() {
-        Map<SidePaneType, Integer> preferredPositions = new HashMap<>(preferences.getSidePanePreferences()
-                                                                                 .getPreferredPositions());
+        Map<SidePaneType, Integer> preferredPositions = new HashMap<>(
+                preferences.getSidePanePreferences().getPreferredPositions());
         IntStream.range(0, getPanes().size()).forEach(i -> preferredPositions.put(getPanes().get(i), i));
         preferences.getSidePanePreferences().setPreferredPositions(preferredPositions);
     }
@@ -124,10 +106,12 @@ public class SidePaneViewModel extends AbstractViewModel {
                 int newPosition = currentPosition - 1;
                 swap(getPanes(), currentPosition, newPosition);
                 updatePreferredPositions();
-            } else {
+            }
+            else {
                 LOGGER.debug("SidePaneComponent is already at the bottom");
             }
-        } else {
+        }
+        else {
             LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
         }
     }
@@ -139,10 +123,12 @@ public class SidePaneViewModel extends AbstractViewModel {
                 int newPosition = currentPosition + 1;
                 swap(getPanes(), currentPosition, newPosition);
                 updatePreferredPositions();
-            } else {
+            }
+            else {
                 LOGGER.debug("SidePaneComponent {} is already at the top", pane.getTitle());
             }
-        } else {
+        }
+        else {
             LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
         }
     }
@@ -151,7 +137,8 @@ public class SidePaneViewModel extends AbstractViewModel {
         if (!getPanes().contains(pane)) {
             getPanes().add(pane);
             getPanes().sort(new PreferredIndexSort(preferences.getSidePanePreferences()));
-        } else {
+        }
+        else {
             LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
         }
     }
@@ -183,9 +170,11 @@ public class SidePaneViewModel extends AbstractViewModel {
             int pos2 = preferredPositions.getOrDefault(type2, 0);
             return Integer.compare(pos1, pos2);
         }
+
     }
 
     private class MoveUpAction extends SimpleCommand {
+
         private final SidePaneType toMoveUpPane;
 
         public MoveUpAction(SidePaneType toMoveUpPane) {
@@ -196,9 +185,11 @@ public class SidePaneViewModel extends AbstractViewModel {
         public void execute() {
             moveUp(toMoveUpPane);
         }
+
     }
 
     private class MoveDownAction extends SimpleCommand {
+
         private final SidePaneType toMoveDownPane;
 
         public MoveDownAction(SidePaneType toMoveDownPane) {
@@ -209,9 +200,11 @@ public class SidePaneViewModel extends AbstractViewModel {
         public void execute() {
             moveDown(toMoveDownPane);
         }
+
     }
 
     public class ClosePaneAction extends SimpleCommand {
+
         private final SidePaneType toClosePane;
 
         public ClosePaneAction(SidePaneType toClosePane) {
@@ -222,5 +215,7 @@ public class SidePaneViewModel extends AbstractViewModel {
         public void execute() {
             stateManager.getVisibleSidePaneComponents().remove(toClosePane);
         }
+
     }
+
 }

@@ -17,7 +17,8 @@ public class GroupDescriptions {
         sb.append("<b>");
         if (showDynamic) {
             sb.append("<i>").append(StringUtil.quoteForHTML(keywordGroup.getName())).append("</i>");
-        } else {
+        }
+        else {
             sb.append(StringUtil.quoteForHTML(keywordGroup.getName()));
         }
         sb.append("</b> - ");
@@ -71,7 +72,8 @@ public class GroupDescriptions {
         sb.append("<b>");
         if (showDynamic) {
             sb.append("<i>").append(StringUtil.quoteForHTML(searchGroup.getName())).append("</i>");
-        } else {
+        }
+        else {
             sb.append(StringUtil.quoteForHTML(searchGroup.getName()));
         }
         sb.append("</b> - ");
@@ -91,4 +93,5 @@ public class GroupDescriptions {
         }
         return sb.toString();
     }
+
 }

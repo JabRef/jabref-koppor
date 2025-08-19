@@ -24,13 +24,10 @@ class DefaultTest {
     }
 
     private static Stream<Arguments> formatTests() {
-        return Stream.of(
-                Arguments.of("Bob Bruce", "Bob Bruce", "DEFAULT TEXT"),
-                Arguments.of("DEFAULT TEXT", null, "DEFAULT TEXT"),
-                Arguments.of("DEFAULT TEXT", "", "DEFAULT TEXT"),
+        return Stream.of(Arguments.of("Bob Bruce", "Bob Bruce", "DEFAULT TEXT"),
+                Arguments.of("DEFAULT TEXT", null, "DEFAULT TEXT"), Arguments.of("DEFAULT TEXT", "", "DEFAULT TEXT"),
                 Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", ""),
-                Arguments.of("", null, ""),
-                Arguments.of("", "", "")
-        );
+                Arguments.of("", null, ""), Arguments.of("", "", ""));
     }
+
 }

@@ -25,10 +25,12 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.apache.lucene.queryparser.flexible.core.nodes.QueryNode;
 
 /**
- * fetches books from https://www.doabooks.org/ through
- * <a href="https://www.doabooks.org/en/resources/metadata-harvesting-and-content-dissemination">their API</a>.
+ * fetches books from https://www.doabooks.org/ through <a href=
+ * "https://www.doabooks.org/en/resources/metadata-harvesting-and-content-dissemination">their
+ * API</a>.
  */
 public class DOABFetcher implements SearchBasedParserFetcher {
+
     private static final String SEARCH_URL = "https://directory.doabooks.org/rest/search?";
 
     @Override
@@ -53,16 +55,21 @@ public class DOABFetcher implements SearchBasedParserFetcher {
     @Override
     public Parser getParser() {
         return InputStream -> {
-            // can't use this method JsonReader.toJsonObject(inputStream) because the results are sent in an array
-            // like format resulting in an error when trying to convert them into a json object
+            // can't use this method JsonReader.toJsonObject(inputStream) because the
+            // results are sent in an array
+            // like format resulting in an error when trying to convert them into a json
+            // object
             // created a similar method suitable for this case "toJsonArray"
             JSONArray response = JsonReader.toJsonArray(InputStream);
             if (response.isEmpty()) {
                 return List.of();
             }
             if (response.length() == 1) {
-                // the information used for bibtex entries are in an array inside the resulting jsonarray
-                // see this query for reference https://directory.doabooks.org/rest/search?query="i open fire"&expand=metadata
+                // the information used for bibtex entries are in an array inside the
+                // resulting jsonarray
+                // see this query for reference
+                // https://directory.doabooks.org/rest/search?query="i open
+                // fire"&expand=metadata
                 JSONArray metadataArray = response.getJSONObject(0).getJSONArray("metadata");
                 JSONArray bitstreamArray = response.getJSONObject(0).getJSONArray("bitstreams");
                 BibEntry entry = jsonToBibEntry(metadataArray, bitstreamArray);
@@ -88,7 +95,8 @@ public class DOABFetcher implements SearchBasedParserFetcher {
 
         // Get the ISBN within the BITSTREAM. See the link below:
         // https://directory.doabooks.org/rest/search?query=handle:%2220.500.12854/26303%22&expand=metadata,bitstreams
-        // Note that in many cases, an ISBN cannot be obtained in the metadata, even in the BITSTREAM. See the link below:
+        // Note that in many cases, an ISBN cannot be obtained in the metadata, even in
+        // the BITSTREAM. See the link below:
         // https://directory.doabooks.org/rest/search?query=%22i%20open%20fire%22&expand=metadata,bitstreams
         for (int i = 0; i < bitstreamArray.length(); i++) {
             JSONObject bitstreamObject = bitstreamArray.getJSONObject(i);
@@ -98,7 +106,8 @@ public class DOABFetcher implements SearchBasedParserFetcher {
                 JSONObject metadataInBitstreamObject = array.getJSONObject(k);
                 if ("dc.identifier.isbn".equals(metadataInBitstreamObject.getString("key"))) {
                     entry.setField(StandardField.ISBN, metadataInBitstreamObject.getString("value"));
-                } else if ("oapen.relation.isbn".equals(metadataInBitstreamObject.getString("key"))) {
+                }
+                else if ("oapen.relation.isbn".equals(metadataInBitstreamObject.getString("key"))) {
                     entry.setField(StandardField.ISBN, metadataInBitstreamObject.getString("value"));
                 }
             }
@@ -109,45 +118,39 @@ public class DOABFetcher implements SearchBasedParserFetcher {
             switch (dataObject.getString("key")) {
                 case "dc.contributor.author" -> {
                     if (dataObject.getString("value").contains("(Ed.)")) {
-                       editorsList.add(toAuthor(namePreprocessing(dataObject.getString("value"))));
-                    } else {
+                        editorsList.add(toAuthor(namePreprocessing(dataObject.getString("value"))));
+                    }
+                    else {
                         authorsList.add(toAuthor(dataObject.getString("value")));
                     }
                 }
                 case "dc.type" -> entry.setType(StandardEntryType.Book);
                 case "dc.date.issued" -> entry.setField(StandardField.DATE, dataObject.getString("value"));
-                case "oapen.identifier.doi" -> entry.setField(StandardField.DOI,
-                        dataObject.getString("value"));
-                case "dc.title" -> entry.setField(StandardField.TITLE,
-                        dataObject.getString("value"));
+                case "oapen.identifier.doi" -> entry.setField(StandardField.DOI, dataObject.getString("value"));
+                case "dc.title" -> entry.setField(StandardField.TITLE, dataObject.getString("value"));
                 case "oapen.pages" -> {
                     try {
                         entry.setField(StandardField.PAGES, String.valueOf(dataObject.getInt("value")));
-                    } catch (JSONException e) {
+                    }
+                    catch (JSONException e) {
                         entry.setField(StandardField.PAGES, dataObject.getString("value"));
                     }
                 }
-                case "dc.description.abstract" -> entry.setField(StandardField.ABSTRACT,
-                        dataObject.getString("value"));
-                case "dc.language" -> entry.setField(StandardField.LANGUAGE,
-                        dataObject.getString("value"));
-                case "publisher.name" -> entry.setField(StandardField.PUBLISHER,
-                        dataObject.getString("value"));
-                case "dc.identifier.uri" -> entry.setField(StandardField.URI,
-                        dataObject.getString("value"));
+                case "dc.description.abstract" -> entry.setField(StandardField.ABSTRACT, dataObject.getString("value"));
+                case "dc.language" -> entry.setField(StandardField.LANGUAGE, dataObject.getString("value"));
+                case "publisher.name" -> entry.setField(StandardField.PUBLISHER, dataObject.getString("value"));
+                case "dc.identifier.uri" -> entry.setField(StandardField.URI, dataObject.getString("value"));
                 case "dc.identifier" -> {
                     if (dataObject.getString("value").contains("http")) {
-                       entry.setField(StandardField.URL, dataObject.getString("value"));
+                        entry.setField(StandardField.URL, dataObject.getString("value"));
                     }
                 }
                 case "dc.subject.other" -> keywordJoiner.add(dataObject.getString("value"));
                 case "dc.contributor.editor" -> editorsList.add(toAuthor(dataObject.getString("value")));
-                case "oapen.volume" -> entry.setField(StandardField.VOLUME,
-                        dataObject.getString("value"));
-                case "oapen.relation.isbn", "dc.identifier.isbn" -> entry.setField(StandardField.ISBN,
-                        dataObject.getString("value"));
-                case "dc.title.alternative" -> entry.setField(StandardField.SUBTITLE,
-                        dataObject.getString("value"));
+                case "oapen.volume" -> entry.setField(StandardField.VOLUME, dataObject.getString("value"));
+                case "oapen.relation.isbn", "dc.identifier.isbn" ->
+                    entry.setField(StandardField.ISBN, dataObject.getString("value"));
+                case "dc.title.alternative" -> entry.setField(StandardField.SUBTITLE, dataObject.getString("value"));
                 case "oapen.imprint" -> publisherImprint = dataObject.getString("value");
             }
         }
@@ -156,7 +159,8 @@ public class DOABFetcher implements SearchBasedParserFetcher {
         entry.setField(StandardField.EDITOR, AuthorList.of(editorsList).getAsFirstLastNamesWithAnd());
         entry.setField(StandardField.KEYWORDS, String.valueOf(keywordJoiner));
 
-        // Special condition to check if publisher field is empty. If so, retrieve imprint (if available)
+        // Special condition to check if publisher field is empty. If so, retrieve imprint
+        // (if available)
         if (entry.getField(StandardField.PUBLISHER).isEmpty()) {
             if (!StringUtil.isNullOrEmpty(publisherImprint)) {
                 entry.setField(StandardField.PUBLISHER, publisherImprint);
@@ -172,4 +176,5 @@ public class DOABFetcher implements SearchBasedParserFetcher {
     private String namePreprocessing(String name) {
         return name.replace("(Ed.)", "");
     }
+
 }

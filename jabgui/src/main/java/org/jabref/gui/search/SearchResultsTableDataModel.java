@@ -29,26 +29,35 @@ import com.tobiasdiez.easybind.EasyBind;
 public class SearchResultsTableDataModel {
 
     private final ObservableList<BibEntryTableViewModel> entriesViewModel = FXCollections.observableArrayList();
+
     private final SortedList<BibEntryTableViewModel> entriesSorted;
+
     private final ObjectProperty<MainTableFieldValueFormatter> fieldValueFormatter;
+
     private final StateManager stateManager;
+
     private final FilteredList<BibEntryTableViewModel> entriesFiltered;
+
     private final TaskExecutor taskExecutor;
 
-    public SearchResultsTableDataModel(BibDatabaseContext bibDatabaseContext, GuiPreferences preferences, StateManager stateManager, TaskExecutor taskExecutor) {
+    public SearchResultsTableDataModel(BibDatabaseContext bibDatabaseContext, GuiPreferences preferences,
+            StateManager stateManager, TaskExecutor taskExecutor) {
         NameDisplayPreferences nameDisplayPreferences = preferences.getNameDisplayPreferences();
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
-        this.fieldValueFormatter = new SimpleObjectProperty<>(new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
+        this.fieldValueFormatter = new SimpleObjectProperty<>(
+                new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
 
         populateEntriesViewModel();
-        stateManager.getOpenDatabases().addListener((ListChangeListener<BibDatabaseContext>) change -> populateEntriesViewModel());
+        stateManager.getOpenDatabases()
+            .addListener((ListChangeListener<BibDatabaseContext>) change -> populateEntriesViewModel());
         entriesFiltered = new FilteredList<>(entriesViewModel, BibEntryTableViewModel::isVisible);
 
         // We need to wrap the list since otherwise sorting in the table does not work
         entriesSorted = new SortedList<>(entriesFiltered);
 
-        EasyBind.listen(stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH), (observable, oldValue, newValue) -> updateSearchMatches(newValue));
+        EasyBind.listen(stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH),
+                (observable, oldValue, newValue) -> updateSearchMatches(newValue));
         stateManager.searchResultSize(SearchType.GLOBAL_SEARCH).bind(Bindings.size(entriesFiltered));
     }
 
@@ -56,7 +65,8 @@ public class SearchResultsTableDataModel {
         entriesViewModel.clear();
         for (BibDatabaseContext context : stateManager.getOpenDatabases()) {
             ObservableList<BibEntry> entriesForDb = context.getDatabase().getEntries();
-            ObservableList<BibEntryTableViewModel> viewModelForDb = EasyBind.mapBacked(entriesForDb, entry -> new BibEntryTableViewModel(entry, context, fieldValueFormatter), false);
+            ObservableList<BibEntryTableViewModel> viewModelForDb = EasyBind.mapBacked(entriesForDb,
+                    entry -> new BibEntryTableViewModel(entry, context, fieldValueFormatter), false);
             entriesViewModel.addAll(viewModelForDb);
         }
     }
@@ -66,13 +76,15 @@ public class SearchResultsTableDataModel {
             if (query.isPresent()) {
                 SearchResults searchResults = new SearchResults();
                 for (BibDatabaseContext context : stateManager.getOpenDatabases()) {
-                    stateManager.getIndexManager(context).ifPresent(indexManager -> searchResults.mergeSearchResults(indexManager.search(query.get())));
+                    stateManager.getIndexManager(context)
+                        .ifPresent(indexManager -> searchResults.mergeSearchResults(indexManager.search(query.get())));
                 }
                 for (BibEntryTableViewModel entry : entriesViewModel) {
                     entry.hasFullTextResultsProperty().set(searchResults.hasFulltextResults(entry.getEntry()));
                     entry.isVisibleBySearch().set(searchResults.isMatched(entry.getEntry()));
                 }
-            } else {
+            }
+            else {
                 for (BibEntryTableViewModel entry : entriesViewModel) {
                     entry.hasFullTextResultsProperty().set(false);
                     entry.isVisibleBySearch().set(true);
@@ -84,4 +96,5 @@ public class SearchResultsTableDataModel {
     public SortedList<BibEntryTableViewModel> getEntriesFilteredAndSorted() {
         return entriesSorted;
     }
+
 }

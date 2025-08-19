@@ -15,42 +15,33 @@ import org.jabref.model.entry.field.StandardField;
 public class IntegrityCheck {
 
     private final BibDatabaseContext bibDatabaseContext;
+
     private final FieldCheckers fieldCheckers;
+
     private final List<EntryChecker> entryCheckers;
 
-    public IntegrityCheck(BibDatabaseContext bibDatabaseContext,
-                          FilePreferences filePreferences,
-                          CitationKeyPatternPreferences citationKeyPatternPreferences,
-                          JournalAbbreviationRepository journalAbbreviationRepository,
-                          boolean allowIntegerEdition) {
+    public IntegrityCheck(BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences,
+            CitationKeyPatternPreferences citationKeyPatternPreferences,
+            JournalAbbreviationRepository journalAbbreviationRepository, boolean allowIntegerEdition) {
         this.bibDatabaseContext = bibDatabaseContext;
 
-        fieldCheckers = new FieldCheckers(bibDatabaseContext,
-                filePreferences,
-                journalAbbreviationRepository,
+        fieldCheckers = new FieldCheckers(bibDatabaseContext, filePreferences, journalAbbreviationRepository,
                 allowIntegerEdition);
 
-        entryCheckers = new ArrayList<>(List.of(
-                new CitationKeyChecker(),
-                new TypeChecker(),
-                new BibStringChecker(),
-                new HTMLCharacterChecker(),
-                new EntryLinkChecker(bibDatabaseContext.getDatabase()),
+        entryCheckers = new ArrayList<>(List.of(new CitationKeyChecker(), new TypeChecker(), new BibStringChecker(),
+                new HTMLCharacterChecker(), new EntryLinkChecker(bibDatabaseContext.getDatabase()),
                 new CitationKeyDeviationChecker(bibDatabaseContext, citationKeyPatternPreferences),
-                new CitationKeyDuplicationChecker(bibDatabaseContext.getDatabase()),
-                new AmpersandChecker(),
+                new CitationKeyDuplicationChecker(bibDatabaseContext.getDatabase()), new AmpersandChecker(),
                 new LatexIntegrityChecker(),
                 new JournalInAbbreviationListChecker(StandardField.JOURNAL, journalAbbreviationRepository)));
 
         if (bibDatabaseContext.isBiblatexMode()) {
-            entryCheckers.add(new UTF8Checker(bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8)));
-        } else {
-            entryCheckers.addAll(List.of(
-                    new ASCIICharacterChecker(),
-                    new NoBibtexFieldChecker(),
-                    new UnicodeNormalFormCanonicalCompositionCheck(),
-                    new BibTeXEntryTypeChecker())
-            );
+            entryCheckers
+                .add(new UTF8Checker(bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8)));
+        }
+        else {
+            entryCheckers.addAll(List.of(new ASCIICharacterChecker(), new NoBibtexFieldChecker(),
+                    new UnicodeNormalFormCanonicalCompositionCheck(), new BibTeXEntryTypeChecker()));
         }
     }
 
@@ -87,4 +78,5 @@ public class IntegrityCheck {
     public List<IntegrityMessage> checkDatabase(BibDatabase database) {
         return new DoiDuplicationChecker().check(database);
     }
+
 }

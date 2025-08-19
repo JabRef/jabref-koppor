@@ -30,18 +30,17 @@ class ImportFormatReaderIntegrationTest {
     void setUp() {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
-        reader = new ImportFormatReader(
-                importerPreferences,
+        reader = new ImportFormatReader(importerPreferences,
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                mock(CitationKeyPatternPreferences.class), new DummyFileUpdateMonitor()
-        );
+                mock(CitationKeyPatternPreferences.class), new DummyFileUpdateMonitor());
     }
 
     @ParameterizedTest
     @MethodSource("importFormats")
     void importUnknownFormat(String resource, String format, int count) throws ImportException, URISyntaxException {
         Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
-        ImportFormatReader.UnknownFormatImport unknownFormat = reader.importUnknownFormat(file, new DummyFileUpdateMonitor());
+        ImportFormatReader.UnknownFormatImport unknownFormat = reader.importUnknownFormat(file,
+                new DummyFileUpdateMonitor());
         assertEquals(count, unknownFormat.parserResult().getDatabase().getEntryCount());
     }
 
@@ -54,7 +53,8 @@ class ImportFormatReaderIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importUnknownFormatFromString(String resource, String format, int count) throws URISyntaxException, IOException, ImportException {
+    void importUnknownFormatFromString(String resource, String format, int count)
+            throws URISyntaxException, IOException, ImportException {
         Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         String data = Files.readString(file);
         assertEquals(count, reader.importUnknownFormat(data).parserResult().getDatabase().getEntries().size());
@@ -62,14 +62,15 @@ class ImportFormatReaderIntegrationTest {
 
     private static Stream<Object[]> importFormats() {
         Collection<Object[]> result = new ArrayList<>();
-        result.add(new Object[]{"fileformat/RisImporterTest1.ris", "ris", 1});
-        result.add(new Object[]{"fileformat/IsiImporterTest1.isi", "isi", 1});
-        result.add(new Object[]{"fileformat/RepecNepImporterTest2.txt", "repecnep", 1});
-        result.add(new Object[]{"fileformat/OvidImporterTest3.txt", "ovid", 1});
-        result.add(new Object[]{"fileformat/Endnote.entries.enw", "refer", 5});
-        result.add(new Object[]{"fileformat/MsBibImporterTest4.xml", "msbib", 1});
-        result.add(new Object[]{"fileformat/MsBibImporterTest4.bib", "bibtex", 1});
-        result.add(new Object[]{"fileformat/refer.bibIX.ref", "refer-bibIX", 4});
+        result.add(new Object[] { "fileformat/RisImporterTest1.ris", "ris", 1 });
+        result.add(new Object[] { "fileformat/IsiImporterTest1.isi", "isi", 1 });
+        result.add(new Object[] { "fileformat/RepecNepImporterTest2.txt", "repecnep", 1 });
+        result.add(new Object[] { "fileformat/OvidImporterTest3.txt", "ovid", 1 });
+        result.add(new Object[] { "fileformat/Endnote.entries.enw", "refer", 5 });
+        result.add(new Object[] { "fileformat/MsBibImporterTest4.xml", "msbib", 1 });
+        result.add(new Object[] { "fileformat/MsBibImporterTest4.bib", "bibtex", 1 });
+        result.add(new Object[] { "fileformat/refer.bibIX.ref", "refer-bibIX", 4 });
         return result.stream();
     }
+
 }

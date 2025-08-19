@@ -6,6 +6,7 @@ import javafx.scene.input.KeyEvent;
 import org.jabref.gui.util.SelectableTextFlow;
 
 public class SelectableTextFlowKeyBindings {
+
     public static void call(Scene scene, KeyEvent event, KeyBindingRepository keyBindingRepository) {
         if (scene.focusOwnerProperty().get() instanceof SelectableTextFlow selectableTextFlow) {
             keyBindingRepository.mapToKeyBinding(event).ifPresent(binding -> {
@@ -22,4 +23,5 @@ public class SelectableTextFlowKeyBindings {
             });
         }
     }
+
 }

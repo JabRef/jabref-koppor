@@ -4,9 +4,11 @@ import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryType;
 
-public record BibEntryTypePrefsAndFileViewModel(BibEntryType customTypeFromPreferences, BibEntryType customTypeFromFile) {
+public record BibEntryTypePrefsAndFileViewModel(BibEntryType customTypeFromPreferences,
+        BibEntryType customTypeFromFile) {
     /**
-     * Used to render in the UI. This is different from {@link BibEntryType#toString()}, because this is the serialization the user expects
+     * Used to render in the UI. This is different from {@link BibEntryType#toString()},
+     * because this is the serialization the user expects
      */
     @Override
     public String toString() {
@@ -15,4 +17,3 @@ public record BibEntryTypePrefsAndFileViewModel(BibEntryType customTypeFromPrefe
                 MetaDataSerializer.serializeCustomEntryTypes(customTypeFromPreferences));
     }
 }
-

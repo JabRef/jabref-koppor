@@ -46,4 +46,5 @@ class MsBibImporterTest {
     final void getCommandLineId() {
         assertEquals("msbib", importer.getId());
     }
+
 }

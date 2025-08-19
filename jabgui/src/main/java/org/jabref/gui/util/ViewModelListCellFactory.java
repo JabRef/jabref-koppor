@@ -26,7 +26,8 @@ import com.tobiasdiez.easybind.Subscription;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 
 /**
- * Constructs a {@link ListCell} based on the view model of the row and a bunch of specified converter methods.
+ * Constructs a {@link ListCell} based on the view model of the row and a bunch of
+ * specified converter methods.
  *
  * @param <T> cell value
  */
@@ -35,17 +36,29 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
     private static final PseudoClass INVALID_PSEUDO_CLASS = PseudoClass.getPseudoClass("invalid");
 
     private Callback<T, String> toText;
+
     private Callback<T, Node> toGraphic;
+
     private Callback<T, Tooltip> toTooltip;
+
     private BiConsumer<T, ? super MouseEvent> toOnMouseClickedEvent;
+
     private Callback<T, String> toStyleClass;
+
     private Callback<T, ContextMenu> toContextMenu;
+
     private BiConsumer<T, ? super MouseEvent> toOnDragDetected;
+
     private BiConsumer<T, ? super DragEvent> toOnDragDropped;
+
     private BiConsumer<T, ? super DragEvent> toOnDragEntered;
+
     private BiConsumer<T, ? super DragEvent> toOnDragExited;
+
     private BiConsumer<T, ? super DragEvent> toOnDragOver;
+
     private final Map<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClasses = new HashMap<>();
+
     private Callback<T, ValidationStatus> validationStatusProperty;
 
     public ViewModelListCellFactory<T> withText(Callback<T, String> toText) {
@@ -100,7 +113,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
         return this;
     }
 
-    public ViewModelListCellFactory<T> withOnMouseClickedEvent(BiConsumer<T, ? super MouseEvent> toOnMouseClickedEvent) {
+    public ViewModelListCellFactory<T> withOnMouseClickedEvent(
+            BiConsumer<T, ? super MouseEvent> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = toOnMouseClickedEvent;
         return this;
     }
@@ -130,7 +144,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
         return this;
     }
 
-    public ViewModelListCellFactory<T> withPseudoClass(PseudoClass pseudoClass, Callback<T, ObservableValue<Boolean>> toCondition) {
+    public ViewModelListCellFactory<T> withPseudoClass(PseudoClass pseudoClass,
+            Callback<T, ObservableValue<Boolean>> toCondition) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
@@ -169,7 +184,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                     setOnMouseClicked(null);
                     setTooltip(null);
                     pseudoClassStateChanged(INVALID_PSEUDO_CLASS, false);
-                } else {
+                }
+                else {
                     if (toText != null) {
                         setText(toText.call(viewModel));
                     }
@@ -193,7 +209,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                     }
                     if (toOnDragDropped != null) {
                         setOnDragDropped(event -> {
-                            // The parent is the box for dropping; that should be used as target (and not this cell)
+                            // The parent is the box for dropping; that should be used as
+                            // target (and not this cell)
                             event.consume();
                             getParent().fireEvent(event);
                         });
@@ -207,28 +224,28 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                     if (toOnDragOver != null) {
                         setOnDragOver(event -> {
                             event.consume(); // Prevent cells from acting as drop targets
-                            getParent().fireEvent(event); // The action performed was not look at the parent, the drop box
+                            getParent().fireEvent(event); // The action performed was not
+                                                          // look at the parent, the drop
+                                                          // box
                         });
                     }
-                    for (Map.Entry<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses.entrySet()) {
+                    for (Map.Entry<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses
+                        .entrySet()) {
                         ObservableValue<Boolean> condition = pseudoClassWithCondition.getValue().call(viewModel);
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                pseudoClassWithCondition.getKey(),
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, pseudoClassWithCondition.getKey(),
                                 condition));
                     }
                     if (validationStatusProperty != null) {
                         validationStatusProperty.call(viewModel)
-                                                .getHighestMessage()
-                                                .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
+                            .getHighestMessage()
+                            .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
 
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                INVALID_PSEUDO_CLASS,
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, INVALID_PSEUDO_CLASS,
                                 validationStatusProperty.call(viewModel).validProperty().not()));
                     }
                 }
             }
         };
     }
+
 }

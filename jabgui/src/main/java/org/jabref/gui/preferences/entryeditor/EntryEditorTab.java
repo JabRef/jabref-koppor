@@ -17,28 +17,56 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabViewModel> implements PreferencesTab {
 
-    @FXML private CheckBox openOnNewEntry;
-    @FXML private CheckBox defaultSource;
-    @FXML private CheckBox enableRelatedArticlesTab;
-    @FXML private CheckBox enableAiSummaryTab;
-    @FXML private CheckBox enableAiChatTab;
-    @FXML private CheckBox acceptRecommendations;
-    @FXML private CheckBox enableLatexCitationsTab;
-    @FXML private CheckBox smartFileAnnotationsTab;
-    @FXML private CheckBox enableValidation;
-    @FXML private CheckBox allowIntegerEdition;
-    @FXML private CheckBox journalPopupEnabled;
-    @FXML private CheckBox autoLinkFilesEnabled;
-    @FXML private CheckBox enableSciteTab;
-    @FXML private CheckBox showUserCommentsField;
+    @FXML
+    private CheckBox openOnNewEntry;
 
-    @FXML private Button generalFieldsHelp;
-    @FXML private TextArea fieldsTextArea;
+    @FXML
+    private CheckBox defaultSource;
+
+    @FXML
+    private CheckBox enableRelatedArticlesTab;
+
+    @FXML
+    private CheckBox enableAiSummaryTab;
+
+    @FXML
+    private CheckBox enableAiChatTab;
+
+    @FXML
+    private CheckBox acceptRecommendations;
+
+    @FXML
+    private CheckBox enableLatexCitationsTab;
+
+    @FXML
+    private CheckBox smartFileAnnotationsTab;
+
+    @FXML
+    private CheckBox enableValidation;
+
+    @FXML
+    private CheckBox allowIntegerEdition;
+
+    @FXML
+    private CheckBox journalPopupEnabled;
+
+    @FXML
+    private CheckBox autoLinkFilesEnabled;
+
+    @FXML
+    private CheckBox enableSciteTab;
+
+    @FXML
+    private CheckBox showUserCommentsField;
+
+    @FXML
+    private Button generalFieldsHelp;
+
+    @FXML
+    private TextArea fieldsTextArea;
 
     public EntryEditorTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -67,11 +95,13 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         fieldsTextArea.textProperty().bindBidirectional(viewModel.fieldsProperty());
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP, new HelpAction(HelpFile.GENERAL_FIELDS, dialogService, preferences.getExternalApplicationsPreferences()), generalFieldsHelp);
+        actionFactory.configureIconButton(StandardActions.HELP, new HelpAction(HelpFile.GENERAL_FIELDS, dialogService,
+                preferences.getExternalApplicationsPreferences()), generalFieldsHelp);
     }
 
     @FXML
     void resetToDefaults() {
         viewModel.resetToDefaults();
     }
+
 }

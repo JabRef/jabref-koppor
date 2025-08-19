@@ -18,6 +18,7 @@ import org.apache.hc.core5.net.URIBuilder;
  * Fetcher for ISBN using <a href="https://www.ebook.de">https://www.ebook.de</a>.
  */
 public class EbookDeIsbnFetcher extends AbstractIsbnFetcher {
+
     private static final String BASE_URL = "https://www.ebook.de/de/tools/isbn2bibtex";
 
     public EbookDeIsbnFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -32,22 +33,22 @@ public class EbookDeIsbnFetcher extends AbstractIsbnFetcher {
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
         this.ensureThatIsbnIsValid(identifier);
-        return new URIBuilder(BASE_URL)
-                .addParameter("isbn", identifier)
-                .build()
-                .toURL();
+        return new URIBuilder(BASE_URL).addParameter("isbn", identifier).build().toURL();
     }
 
     @Override
     public void doPostCleanup(BibEntry entry) {
         // We MUST NOT clean the URL. this is the deal with ebook.de
         // DO NOT add following code:
-        // new FieldFormatterCleanup(StandardField.URL, new ClearFormatter()).cleanup(entry);
+        // new FieldFormatterCleanup(StandardField.URL, new
+        // ClearFormatter()).cleanup(entry);
 
-        // Fetcher returns page numbers as "30 Seiten" -> remove every non-digit character in the PAGETOTAL field
-        entry.getField(StandardField.PAGETOTAL).ifPresent(pages ->
-                entry.setField(StandardField.PAGETOTAL, pages.replaceAll("[\\D]", "")));
+        // Fetcher returns page numbers as "30 Seiten" -> remove every non-digit character
+        // in the PAGETOTAL field
+        entry.getField(StandardField.PAGETOTAL)
+            .ifPresent(pages -> entry.setField(StandardField.PAGETOTAL, pages.replaceAll("[\\D]", "")));
         new FieldFormatterCleanup(StandardField.PAGETOTAL, new NormalizePagesFormatter()).cleanup(entry);
         new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter()).cleanup(entry);
     }
+
 }

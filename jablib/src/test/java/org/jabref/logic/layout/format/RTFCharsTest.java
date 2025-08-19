@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RTFCharsTest {
+
     private LayoutFormatter formatter;
 
     @BeforeEach
@@ -40,7 +41,8 @@ class RTFCharsTest {
     void laTeXHighlighting() {
         assertEquals("{\\i hallo}", formatter.format("\\emph{hallo}"));
         assertEquals("{\\i hallo}", formatter.format("{\\emph hallo}"));
-        assertEquals("An article title with {\\i a book title} emphasized", formatter.format("An article title with \\emph{a book title} emphasized"));
+        assertEquals("An article title with {\\i a book title} emphasized",
+                formatter.format("An article title with \\emph{a book title} emphasized"));
 
         assertEquals("{\\i hallo}", formatter.format("\\textit{hallo}"));
         assertEquals("{\\i hallo}", formatter.format("{\\textit hallo}"));
@@ -62,23 +64,21 @@ class RTFCharsTest {
 
     @Test
     void complicated3() {
-        assertEquals("Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r" +
-                "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr" +
-                "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.", formatter.format("Le cœur déçu mais l'âme plutôt " +
-                "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."));
+        assertEquals("Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r"
+                + "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr"
+                + "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.",
+                formatter.format("Le cœur déçu mais l'âme plutôt "
+                        + "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."));
     }
 
     @Test
     void complicated4() {
-        assertEquals("l'\\u238ile exigu\\u235e\n" +
-                "  O\\u249u l'ob\\u232ese jury m\\u251ur\n" +
-                "  F\\u234ete l'ha\\u239i volap\\u252?k,\n" +
-                "  \\u194Ane ex a\\u233equo au whist,\n" +
-                "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.", formatter.format("l'île exiguë\n" +
-                "  Où l'obèse jury mûr\n" +
-                "  Fête l'haï volapük,\n" +
-                "  Âne ex aéquo au whist,\n" +
-                "  Ôtez ce vœu déçu."));
+        assertEquals(
+                "l'\\u238ile exigu\\u235e\n" + "  O\\u249u l'ob\\u232ese jury m\\u251ur\n"
+                        + "  F\\u234ete l'ha\\u239i volap\\u252?k,\n" + "  \\u194Ane ex a\\u233equo au whist,\n"
+                        + "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.",
+                formatter.format("l'île exiguë\n" + "  Où l'obèse jury mûr\n" + "  Fête l'haï volapük,\n"
+                        + "  Âne ex aéquo au whist,\n" + "  Ôtez ce vœu déçu."));
     }
 
     @Test
@@ -133,8 +133,7 @@ class RTFCharsTest {
     }
 
     @ParameterizedTest(name = "specialChar={0}, formattedStr={1}")
-    @CsvSource({
-            "ÀÁÂÃÄĀĂĄ, \\u192A\\u193A\\u194A\\u195A\\u196A\\u256A\\u258A\\u260A", // A
+    @CsvSource({ "ÀÁÂÃÄĀĂĄ, \\u192A\\u193A\\u194A\\u195A\\u196A\\u256A\\u258A\\u260A", // A
             "àáâãäåāăą, \\u224a\\u225a\\u226a\\u227a\\u228a\\u229a\\u257a\\u259a\\u261a", // a
             "ÇĆĈĊČ, \\u199C\\u262C\\u264C\\u266C\\u268C", // C
             "çćĉċč, \\u231c\\u263c\\u265c\\u267c\\u269c", // c
@@ -240,4 +239,5 @@ class RTFCharsTest {
         assertEquals("\\'d6", formatter.format("\\\"O"));
         assertEquals("\\'dc", formatter.format("\\\"U"));
     }
+
 }

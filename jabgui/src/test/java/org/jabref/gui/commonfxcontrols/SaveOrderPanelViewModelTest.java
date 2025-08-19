@@ -12,9 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SaveOrderPanelViewModelTest {
 
-    SortCriterionViewModel sortCriterionKey = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.KEY, false));
-    SortCriterionViewModel sortCriterionAuthor = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.AUTHOR, false));
-    SortCriterionViewModel sortCriterionTitle = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.TITLE, true));
+    SortCriterionViewModel sortCriterionKey = new SortCriterionViewModel(
+            new SaveOrder.SortCriterion(StandardField.KEY, false));
+
+    SortCriterionViewModel sortCriterionAuthor = new SortCriterionViewModel(
+            new SaveOrder.SortCriterion(StandardField.AUTHOR, false));
+
+    SortCriterionViewModel sortCriterionTitle = new SortCriterionViewModel(
+            new SaveOrder.SortCriterion(StandardField.TITLE, true));
 
     SaveOrderConfigPanelViewModel viewModel;
 
@@ -32,7 +37,8 @@ class SaveOrderPanelViewModelTest {
 
     @Test
     void removeCriterion() {
-        SortCriterionViewModel unknownCriterion = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.ABSTRACT, false));
+        SortCriterionViewModel unknownCriterion = new SortCriterionViewModel(
+                new SaveOrder.SortCriterion(StandardField.ABSTRACT, false));
         viewModel.removeCriterion(unknownCriterion);
         assertEquals(3, viewModel.sortCriteriaProperty().size());
 
@@ -44,24 +50,31 @@ class SaveOrderPanelViewModelTest {
     @Test
     void moveCriterionUp() {
         viewModel.moveCriterionUp(sortCriterionTitle);
-        assertEquals(List.of(sortCriterionKey, sortCriterionTitle, sortCriterionAuthor), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionKey, sortCriterionTitle, sortCriterionAuthor),
+                viewModel.sortCriteriaProperty());
 
         viewModel.moveCriterionUp(sortCriterionTitle);
-        assertEquals(List.of(sortCriterionTitle, sortCriterionKey, sortCriterionAuthor), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionTitle, sortCriterionKey, sortCriterionAuthor),
+                viewModel.sortCriteriaProperty());
 
         viewModel.moveCriterionUp(sortCriterionTitle);
-        assertEquals(List.of(sortCriterionTitle, sortCriterionKey, sortCriterionAuthor), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionTitle, sortCriterionKey, sortCriterionAuthor),
+                viewModel.sortCriteriaProperty());
     }
 
     @Test
     void moveCriterionDown() {
         viewModel.moveCriterionDown(sortCriterionKey);
-        assertEquals(List.of(sortCriterionAuthor, sortCriterionKey, sortCriterionTitle), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionAuthor, sortCriterionKey, sortCriterionTitle),
+                viewModel.sortCriteriaProperty());
 
         viewModel.moveCriterionDown(sortCriterionKey);
-        assertEquals(List.of(sortCriterionAuthor, sortCriterionTitle, sortCriterionKey), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionAuthor, sortCriterionTitle, sortCriterionKey),
+                viewModel.sortCriteriaProperty());
 
         viewModel.moveCriterionDown(sortCriterionKey);
-        assertEquals(List.of(sortCriterionAuthor, sortCriterionTitle, sortCriterionKey), viewModel.sortCriteriaProperty());
+        assertEquals(List.of(sortCriterionAuthor, sortCriterionTitle, sortCriterionKey),
+                viewModel.sortCriteriaProperty());
     }
+
 }

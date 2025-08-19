@@ -38,4 +38,5 @@ public class RemoveRedundantSpacesFormatter extends Formatter {
     public String getExampleInput() {
         return "In   CDMA";
     }
+
 }

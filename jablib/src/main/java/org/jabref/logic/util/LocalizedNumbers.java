@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class LocalizedNumbers {
+
     public static Optional<Double> stringToDouble(String value) {
         return stringToDouble(Locale.getDefault(), value);
     }
@@ -19,7 +20,8 @@ public class LocalizedNumbers {
             NumberFormat format = NumberFormat.getInstance(locale);
             Number parsedNumber = format.parse(value);
             return Optional.of(parsedNumber.doubleValue());
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             return Optional.empty();
         }
     }
@@ -32,4 +34,5 @@ public class LocalizedNumbers {
         NumberFormat format = NumberFormat.getInstance(locale);
         return format.format(value);
     }
+
 }

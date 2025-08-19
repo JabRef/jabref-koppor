@@ -40,4 +40,5 @@ class RemoveNewlinesFormatterTest {
         String newLine = "%n".formatted();
         assertEquals("linebreak on current platform", formatter.format("linebreak on" + newLine + "current platform"));
     }
+
 }

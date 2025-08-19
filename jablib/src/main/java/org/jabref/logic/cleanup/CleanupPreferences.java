@@ -12,6 +12,7 @@ import javafx.collections.ObservableSet;
 public class CleanupPreferences {
 
     private final ObservableSet<CleanupStep> activeJobs;
+
     private final ObjectProperty<FieldFormatterCleanups> fieldFormatterCleanups;
 
     public CleanupPreferences(EnumSet<CleanupStep> activeJobs) {
@@ -42,7 +43,8 @@ public class CleanupPreferences {
     public void setActive(CleanupStep job, boolean value) {
         if (activeJobs.contains(job) && !value) {
             activeJobs.remove(job);
-        } else if (!activeJobs.contains(job) && value) {
+        }
+        else if (!activeJobs.contains(job) && value) {
             activeJobs.add(job);
         }
     }
@@ -73,20 +75,17 @@ public class CleanupPreferences {
     }
 
     public enum CleanupStep {
+
         /**
-         * Removes the http://... for each DOI. Moves DOIs from URL and NOTE filed to DOI field.
+         * Removes the http://... for each DOI. Moves DOIs from URL and NOTE filed to DOI
+         * field.
          */
-        CLEAN_UP_DOI,
-        CLEANUP_EPRINT,
-        CLEAN_UP_URL,
-        MAKE_PATHS_RELATIVE,
-        RENAME_PDF,
-        RENAME_PDF_ONLY_RELATIVE_PATHS,
+        CLEAN_UP_DOI, CLEANUP_EPRINT, CLEAN_UP_URL, MAKE_PATHS_RELATIVE, RENAME_PDF, RENAME_PDF_ONLY_RELATIVE_PATHS,
         /**
-         * Collects file links from the pdf or ps field, and adds them to the list contained in the file field.
+         * Collects file links from the pdf or ps field, and adds them to the list
+         * contained in the file field.
          */
-        CLEAN_UP_UPGRADE_EXTERNAL_LINKS,
-        CLEAN_UP_DELETED_LINKED_FILES,
+        CLEAN_UP_UPGRADE_EXTERNAL_LINKS, CLEAN_UP_DELETED_LINKED_FILES,
         /**
          * Converts to biblatex format
          */
@@ -94,16 +93,14 @@ public class CleanupPreferences {
         /**
          * Converts to bibtex format
          */
-        CONVERT_TO_BIBTEX,
-        CONVERT_TIMESTAMP_TO_CREATIONDATE,
-        CONVERT_TIMESTAMP_TO_MODIFICATIONDATE,
-        DO_NOT_CONVERT_TIMESTAMP,
-        MOVE_PDF,
-        FIX_FILE_LINKS,
-        CLEAN_UP_ISSN,
+        CONVERT_TO_BIBTEX, CONVERT_TIMESTAMP_TO_CREATIONDATE, CONVERT_TIMESTAMP_TO_MODIFICATIONDATE,
+        DO_NOT_CONVERT_TIMESTAMP, MOVE_PDF, FIX_FILE_LINKS, CLEAN_UP_ISSN,
         /*
-         * Converts Math Subject Classification Codes presented in Keywords into their Descriptions
+         * Converts Math Subject Classification Codes presented in Keywords into their
+         * Descriptions
          */
         CONVERT_MSC_CODES
+
     }
+
 }

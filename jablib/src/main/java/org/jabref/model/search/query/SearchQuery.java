@@ -20,9 +20,13 @@ public class SearchQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchQuery.class);
 
     private final String searchExpression;
+
     private final EnumSet<SearchFlags> searchFlags;
+
     private SearchParser.StartContext context;
+
     private boolean isValidExpression;
+
     private SearchResults searchResults;
 
     public SearchQuery(String searchExpression) {
@@ -35,8 +39,10 @@ public class SearchQuery {
         try {
             this.context = getStartContext(searchExpression);
             isValidExpression = true;
-        } catch (ParseCancellationException e) {
-            // We use getCause here as the real exception is nested and this avoids that the stack trace get too large
+        }
+        catch (ParseCancellationException e) {
+            // We use getCause here as the real exception is nested and this avoids that
+            // the stack trace get too large
             // and we don't see the root cause
             LOGGER.error("Search query Parsing error", e.getCause());
             isValidExpression = false;
@@ -80,8 +86,7 @@ public class SearchQuery {
         if (!(o instanceof SearchQuery that)) {
             return false;
         }
-        return Objects.equals(searchExpression, that.searchExpression)
-                && Objects.equals(searchFlags, that.searchFlags);
+        return Objects.equals(searchExpression, that.searchExpression) && Objects.equals(searchFlags, that.searchFlags);
     }
 
     @Override
@@ -96,7 +101,9 @@ public class SearchQuery {
         SearchParser parser = new SearchParser(new CommonTokenStream(lexer));
         parser.removeErrorListeners(); // no infos on file system
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-        parser.setErrorHandler(new BailErrorStrategy()); // ParseCancellationException on parse errors
+        parser.setErrorHandler(new BailErrorStrategy()); // ParseCancellationException on
+                                                         // parse errors
         return parser.start();
     }
+
 }

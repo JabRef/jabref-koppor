@@ -28,8 +28,8 @@ public class CitationsDisplay extends ListView<Citation> {
     public CitationsDisplay() {
         this.basePath = new SimpleObjectProperty<>(null);
         new ViewModelListCellFactory<Citation>().withGraphic(this::getDisplayGraphic)
-                                                .withTooltip(this::getDisplayTooltip)
-                                                .install(this);
+            .withTooltip(this::getDisplayTooltip)
+            .install(this);
 
         this.getStyleClass().add("citationsList");
     }
@@ -90,4 +90,5 @@ public class CitationsDisplay extends ListView<Citation> {
 
         return tooltip;
     }
+
 }

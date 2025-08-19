@@ -24,4 +24,5 @@ public class StringInt implements Serializable {
         this.s = s;
         this.i = i;
     }
+
 }

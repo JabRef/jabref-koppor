@@ -40,14 +40,15 @@ public class ExporterTest {
 
         Collection<Object[]> result = new ArrayList<>();
         for (Exporter format : exporterFactory.getExporters()) {
-            result.add(new Object[]{format, format.getName()});
+            result.add(new Object[] { format, format.getName() });
         }
         return result.stream();
     }
 
     @ParameterizedTest
     @MethodSource("exportFormats")
-    void exportingEmptyDatabaseYieldsEmptyFile(Exporter exportFormat, String name, @TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void exportingEmptyDatabaseYieldsEmptyFile(Exporter exportFormat, String name, @TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path tmpFile = testFolder.resolve("ARandomlyNamedFile");
         Files.createFile(tmpFile);
         exportFormat.export(new BibDatabaseContext(), tmpFile, List.of());
@@ -63,4 +64,5 @@ public class ExporterTest {
             exportFormat.export(null, tmpFile, List.of());
         });
     }
+
 }

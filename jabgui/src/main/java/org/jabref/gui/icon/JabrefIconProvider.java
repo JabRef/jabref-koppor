@@ -8,4 +8,5 @@ public class JabrefIconProvider implements IkonProvider<JabRefMaterialDesignIcon
     public Class<JabRefMaterialDesignIcon> getIkon() {
         return JabRefMaterialDesignIcon.class;
     }
+
 }

@@ -38,4 +38,5 @@ class EscapeAmpersandsFormatterTest {
     void formatReturnsSameTextInLatexCommandIfOneAmpersandPresent() {
         assertEquals("\\textbf{Lorem\\&ipsum}", formatter.format("\\textbf{Lorem\\&ipsum}"));
     }
+
 }

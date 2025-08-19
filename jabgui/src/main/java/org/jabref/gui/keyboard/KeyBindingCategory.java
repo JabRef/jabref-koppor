@@ -5,14 +5,9 @@ import org.jabref.model.database.BibDatabaseMode;
 
 public enum KeyBindingCategory {
 
-    FILE(Localization.lang("File")),
-    EDIT(Localization.lang("Edit")),
-    SEARCH(Localization.lang("Search")),
-    VIEW(Localization.lang("View")),
-    BIBTEX(BibDatabaseMode.BIBTEX.getFormattedName()),
-    QUALITY(Localization.lang("Quality")),
-    TOOLS(Localization.lang("Tools")),
-    EDITOR(Localization.lang("Text editor"));
+    FILE(Localization.lang("File")), EDIT(Localization.lang("Edit")), SEARCH(Localization.lang("Search")),
+    VIEW(Localization.lang("View")), BIBTEX(BibDatabaseMode.BIBTEX.getFormattedName()),
+    QUALITY(Localization.lang("Quality")), TOOLS(Localization.lang("Tools")), EDITOR(Localization.lang("Text editor"));
 
     private final String name;
 
@@ -23,4 +18,5 @@ public enum KeyBindingCategory {
     public String getName() {
         return name;
     }
+
 }

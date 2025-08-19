@@ -40,7 +40,8 @@ public class CellFactory {
         TABLE_ICONS.put(StandardField.EPRINT, icon);
 
         icon = IconTheme.JabRefIcons.DOI;
-        // icon.setToolTipText(Localization.lang("Open") + " DOI " + Localization.lang("web link"));
+        // icon.setToolTipText(Localization.lang("Open") + " DOI " +
+        // Localization.lang("web link"));
         TABLE_ICONS.put(StandardField.DOI, icon);
 
         icon = IconTheme.JabRefIcons.FILE;
@@ -61,12 +62,14 @@ public class CellFactory {
             TABLE_ICONS.put(fileType.getField(), icon);
         }
 
-        SpecialFieldViewModel relevanceViewModel = new SpecialFieldViewModel(SpecialField.RELEVANCE, preferences, undoManager);
+        SpecialFieldViewModel relevanceViewModel = new SpecialFieldViewModel(SpecialField.RELEVANCE, preferences,
+                undoManager);
         icon = relevanceViewModel.getIcon();
         // icon.setToolTipText(relevanceViewModel.getLocalization());
         TABLE_ICONS.put(SpecialField.RELEVANCE, icon);
 
-        SpecialFieldViewModel qualityViewModel = new SpecialFieldViewModel(SpecialField.QUALITY, preferences, undoManager);
+        SpecialFieldViewModel qualityViewModel = new SpecialFieldViewModel(SpecialField.QUALITY, preferences,
+                undoManager);
         icon = qualityViewModel.getIcon();
         // icon.setToolTipText(qualityViewModel.getLocalization());
         TABLE_ICONS.put(SpecialField.QUALITY, icon);
@@ -78,19 +81,22 @@ public class CellFactory {
         TABLE_ICONS.put(SpecialField.RANKING, icon);
 
         // Priority icon used for the menu
-        SpecialFieldViewModel priorityViewModel = new SpecialFieldViewModel(SpecialField.PRIORITY, preferences, undoManager);
+        SpecialFieldViewModel priorityViewModel = new SpecialFieldViewModel(SpecialField.PRIORITY, preferences,
+                undoManager);
         icon = priorityViewModel.getIcon();
         // icon.setToolTipText(priorityViewModel.getLocalization());
         TABLE_ICONS.put(SpecialField.PRIORITY, icon);
 
         // Read icon used for menu
-        SpecialFieldViewModel readViewModel = new SpecialFieldViewModel(SpecialField.READ_STATUS, preferences, undoManager);
+        SpecialFieldViewModel readViewModel = new SpecialFieldViewModel(SpecialField.READ_STATUS, preferences,
+                undoManager);
         icon = readViewModel.getIcon();
         // icon.setToolTipText(readViewModel.getLocalization());
         TABLE_ICONS.put(SpecialField.READ_STATUS, icon);
 
         // Print icon used for menu
-        SpecialFieldViewModel printedViewModel = new SpecialFieldViewModel(SpecialField.PRINTED, preferences, undoManager);
+        SpecialFieldViewModel printedViewModel = new SpecialFieldViewModel(SpecialField.PRINTED, preferences,
+                undoManager);
         icon = printedViewModel.getIcon();
         // icon.setToolTipText(printedViewModel.getLocalization());
         TABLE_ICONS.put(SpecialField.PRINTED, icon);
@@ -101,9 +107,12 @@ public class CellFactory {
         if (icon == null) {
             // LOGGER.info("Error: no table icon defined for type '" + field + "'.");
             return null;
-        } else {
-            // node should be generated for each call, as nodes can be added to the scene graph only once
+        }
+        else {
+            // node should be generated for each call, as nodes can be added to the scene
+            // graph only once
             return icon.getGraphicNode();
         }
     }
+
 }

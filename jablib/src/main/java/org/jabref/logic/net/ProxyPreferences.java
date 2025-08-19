@@ -10,20 +10,21 @@ import javafx.beans.property.StringProperty;
 public class ProxyPreferences {
 
     private final BooleanProperty useProxy;
+
     private final StringProperty hostname;
+
     private final StringProperty port;
+
     private final BooleanProperty useAuthentication;
+
     private final StringProperty username;
+
     private final StringProperty password;
+
     private final BooleanProperty persistPassword;
 
-    public ProxyPreferences(Boolean useProxy,
-                            String hostname,
-                            String port,
-                            Boolean useAuthentication,
-                            String username,
-                            String password,
-                            boolean persistPassword) {
+    public ProxyPreferences(Boolean useProxy, String hostname, String port, Boolean useAuthentication, String username,
+            String password, boolean persistPassword) {
         this.useProxy = new SimpleBooleanProperty(useProxy);
         this.hostname = new SimpleStringProperty(hostname);
         this.port = new SimpleStringProperty(port);
@@ -139,13 +140,8 @@ public class ProxyPreferences {
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                useProxy.getValue(),
-                hostname.getValue(),
-                port.getValue(),
-                useAuthentication.getValue(),
-                username.getValue(),
-                password.getValue(),
-                persistPassword.getValue());
+        return Objects.hash(useProxy.getValue(), hostname.getValue(), port.getValue(), useAuthentication.getValue(),
+                username.getValue(), password.getValue(), persistPassword.getValue());
     }
+
 }

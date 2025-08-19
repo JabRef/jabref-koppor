@@ -109,4 +109,5 @@ class BstNameFormatterTest {
         assertEquals(8, BstNameFormatter.numberOfChars("Vall{e}e", -1));
         assertEquals(6, BstNameFormatter.numberOfChars("Vall{\\'e this will be skipped}e", -1));
     }
+
 }

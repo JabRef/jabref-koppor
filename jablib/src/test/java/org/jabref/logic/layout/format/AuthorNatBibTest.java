@@ -22,12 +22,14 @@ class AuthorNatBibTest {
 
     private static Stream<Arguments> formatTests() {
         return Stream.of(
-                // Test method for {@link org.jabref.logic.layout.format.AuthorNatBib#format(java.lang.String)}.
+                // Test method for {@link
+                // org.jabref.logic.layout.format.AuthorNatBib#format(java.lang.String)}.
                 Arguments.of("von Neumann et al.", "von Neumann,,John and John Smith and Black Brown, Jr, Peter"),
 
-                // Test method for {@link org.jabref.logic.layout.format.AuthorLF_FF#format(java.lang.String)}.
+                // Test method for {@link
+                // org.jabref.logic.layout.format.AuthorLF_FF#format(java.lang.String)}.
                 Arguments.of("von Neumann and Smith", "von Neumann,,John and John Smith"),
-                Arguments.of("von Neumann", "von Neumann, John")
-        );
+                Arguments.of("von Neumann", "von Neumann, John"));
     }
+
 }

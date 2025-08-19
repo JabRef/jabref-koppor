@@ -35,23 +35,30 @@ import com.tobiasdiez.easybind.EasyBind;
 public class FromAuxDialogViewModel {
 
     private final BooleanProperty parseFailedProperty = new SimpleBooleanProperty(false);
+
     private final StringProperty auxFileProperty = new SimpleStringProperty();
+
     private final StringProperty statusTextProperty = new SimpleStringProperty();
+
     private final ListProperty<String> notFoundList = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<BibDatabaseContext> librariesProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    private final ListProperty<BibDatabaseContext> librariesProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final ObjectProperty<BibDatabaseContext> selectedLibraryProperty = new SimpleObjectProperty<>();
 
     private final LibraryTabContainer tabContainer;
+
     private final DialogService dialogService;
+
     private final CliPreferences preferences;
+
     private final StateManager stateManager;
 
     private AuxParserResult auxParserResult;
 
-    public FromAuxDialogViewModel(LibraryTabContainer tabContainer,
-                                  DialogService dialogService,
-                                  CliPreferences preferences,
-                                  StateManager stateManager) {
+    public FromAuxDialogViewModel(LibraryTabContainer tabContainer, DialogService dialogService,
+            CliPreferences preferences, StateManager stateManager) {
         this.tabContainer = tabContainer;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -69,7 +76,8 @@ public class FromAuxDialogViewModel {
     public String getDatabaseName(BibDatabaseContext databaseContext) {
         Optional<String> dbOpt = Optional.empty();
         if (databaseContext.getDatabasePath().isPresent()) {
-            dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(), databaseContext.getDatabasePath().get());
+            dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(),
+                    databaseContext.getDatabasePath().get());
         }
         if (databaseContext.getLocation() == DatabaseLocation.SHARED) {
             return databaseContext.getDBMSSynchronizer().getDBName() + " [" + Localization.lang("shared") + "]";
@@ -80,10 +88,12 @@ public class FromAuxDialogViewModel {
 
     public void browse() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(StandardFileType.AUX)
-                .withDefaultExtension(StandardFileType.AUX)
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory()).build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file -> auxFileProperty.setValue(file.toAbsolutePath().toString()));
+            .addExtensionFilter(StandardFileType.AUX)
+            .withDefaultExtension(StandardFileType.AUX)
+            .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
+            .build();
+        dialogService.showFileOpenDialog(fileDialogConfiguration)
+            .ifPresent(file -> auxFileProperty.setValue(file.toAbsolutePath().toString()));
     }
 
     public void parse() {
@@ -104,7 +114,8 @@ public class FromAuxDialogViewModel {
                 statusTextProperty.set(statusTextProperty.get() + "\n" + Localization.lang("empty library"));
                 parseFailedProperty.set(true);
             }
-        } else {
+        }
+        else {
             parseFailedProperty.set(true);
         }
     }
@@ -137,4 +148,5 @@ public class FromAuxDialogViewModel {
     public ObjectProperty<BibDatabaseContext> selectedLibraryProperty() {
         return selectedLibraryProperty;
     }
+
 }

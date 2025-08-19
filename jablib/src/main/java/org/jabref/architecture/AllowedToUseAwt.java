@@ -7,4 +7,5 @@ public @interface AllowedToUseAwt {
 
     // The rationale
     String value();
+
 }

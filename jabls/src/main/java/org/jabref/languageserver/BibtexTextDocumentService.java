@@ -27,11 +27,15 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 public class BibtexTextDocumentService implements TextDocumentService {
 
     private static final Range NULL_RANGE = new Range(new Position(0, 0), new Position(0, 0));
+
     private final CliPreferences jabRefCliPreferences;
+
     private final JournalAbbreviationRepository abbreviationRepository;
+
     private LanguageClient client;
 
-    public BibtexTextDocumentService(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository) {
+    public BibtexTextDocumentService(CliPreferences cliPreferences,
+            JournalAbbreviationRepository abbreviationRepository) {
         this.jabRefCliPreferences = cliPreferences;
         this.abbreviationRepository = abbreviationRepository;
     }
@@ -42,12 +46,14 @@ public class BibtexTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        handleDiagnostics(params.getTextDocument().getUri(), params.getTextDocument().getText(), params.getTextDocument().getVersion());
+        handleDiagnostics(params.getTextDocument().getUri(), params.getTextDocument().getText(),
+                params.getTextDocument().getVersion());
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        handleDiagnostics(params.getTextDocument().getUri(), params.getContentChanges().getFirst().getText(), params.getTextDocument().getVersion());
+        handleDiagnostics(params.getTextDocument().getUri(), params.getContentChanges().getFirst().getText(),
+                params.getTextDocument().getVersion());
     }
 
     @Override
@@ -68,35 +74,25 @@ public class BibtexTextDocumentService implements TextDocumentService {
         BibDatabaseContext bibDatabaseContext;
         try {
             bibDatabaseContext = BibDatabaseContext.of(content, jabRefCliPreferences.getImportFormatPreferences());
-        } catch (Exception e) {
-            Diagnostic parseDiagnostic = new Diagnostic(
-                    NULL_RANGE,
-                    "Parse error: " + e.getMessage(),
-                    DiagnosticSeverity.Error,
-                    "JabRef"
-            );
+        }
+        catch (Exception e) {
+            Diagnostic parseDiagnostic = new Diagnostic(NULL_RANGE, "Parse error: " + e.getMessage(),
+                    DiagnosticSeverity.Error, "JabRef");
             client.publishDiagnostics(new PublishDiagnosticsParams(uri, List.of(parseDiagnostic), version));
             return;
         }
 
-        IntegrityCheck integrityCheck = new IntegrityCheck(
-                bibDatabaseContext,
-                jabRefCliPreferences.getFilePreferences(),
-                jabRefCliPreferences.getCitationKeyPatternPreferences(),
-                abbreviationRepository,
-                true
-        );
+        IntegrityCheck integrityCheck = new IntegrityCheck(bibDatabaseContext,
+                jabRefCliPreferences.getFilePreferences(), jabRefCliPreferences.getCitationKeyPatternPreferences(),
+                abbreviationRepository, true);
 
-        List<Diagnostic> diagnostics = bibDatabaseContext.getEntries().stream()
-                                                         .flatMap(entry -> integrityCheck.checkEntry(entry).stream()
-                                                                                         .map(message -> new Diagnostic(
-                                                                                                 findTextRange(content, entry.getParsedSerialization()),
-                                                                                                 message.message(),
-                                                                                                 DiagnosticSeverity.Warning,
-                                                                                                 "JabRef"
-                                                                                         ))
-                                                         )
-                                                         .toList();
+        List<Diagnostic> diagnostics = bibDatabaseContext.getEntries()
+            .stream()
+            .flatMap(entry -> integrityCheck.checkEntry(entry)
+                .stream()
+                .map(message -> new Diagnostic(findTextRange(content, entry.getParsedSerialization()),
+                        message.message(), DiagnosticSeverity.Warning, "JabRef")))
+            .toList();
 
         client.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnostics, version));
     }
@@ -117,10 +113,12 @@ public class BibtexTextDocumentService implements TextDocumentService {
             if (content.charAt(i) == '\n') {
                 line++;
                 col = 0;
-            } else {
+            }
+            else {
                 col++;
             }
         }
         return new Position(line, col);
     }
+
 }

@@ -6,23 +6,23 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 public class CoreGuiPreferences {
+
     private final DoubleProperty positionX;
+
     private final DoubleProperty positionY;
+
     private final DoubleProperty sizeX;
+
     private final DoubleProperty sizeY;
 
     private final BooleanProperty windowMaximised;
 
     private final DoubleProperty horizontalDividerPosition;
+
     private final DoubleProperty verticalDividerPosition;
 
-    public CoreGuiPreferences(double positionX,
-                              double positionY,
-                              double sizeX,
-                              double sizeY,
-                              boolean windowMaximised,
-                              double horizontalDividerPosition,
-                              double verticalDividerPosition) {
+    public CoreGuiPreferences(double positionX, double positionY, double sizeX, double sizeY, boolean windowMaximised,
+            double horizontalDividerPosition, double verticalDividerPosition) {
         this.positionX = new SimpleDoubleProperty(positionX);
         this.positionY = new SimpleDoubleProperty(positionY);
         this.sizeX = new SimpleDoubleProperty(sizeX);
@@ -115,4 +115,5 @@ public class CoreGuiPreferences {
     public void setVerticalDividerPosition(double dividerPosition) {
         this.verticalDividerPosition.set(dividerPosition);
     }
+
 }

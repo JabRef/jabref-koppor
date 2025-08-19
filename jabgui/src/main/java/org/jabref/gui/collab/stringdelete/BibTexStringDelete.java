@@ -12,11 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BibTexStringDelete extends DatabaseChange {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BibTexStringDelete.class);
 
     private final BibtexString deletedString;
 
-    public BibTexStringDelete(BibtexString deletedString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringDelete(BibtexString deletedString, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.deletedString = deletedString;
         setChangeName(Localization.lang("Deleted string: '%0'", deletedString.getName()));
@@ -27,7 +29,8 @@ public final class BibTexStringDelete extends DatabaseChange {
         try {
             databaseContext.getDatabase().removeString(deletedString.getId());
             undoEdit.addEdit(new UndoableRemoveString(databaseContext.getDatabase(), deletedString));
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             LOGGER.warn("Error: could not remove string '{}': {}", deletedString.getName(), ex.getMessage(), ex);
         }
     }
@@ -35,4 +38,5 @@ public final class BibTexStringDelete extends DatabaseChange {
     public BibtexString getDeletedString() {
         return deletedString;
     }
+
 }

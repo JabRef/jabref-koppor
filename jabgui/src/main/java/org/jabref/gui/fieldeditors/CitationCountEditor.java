@@ -25,42 +25,47 @@ import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
 public class CitationCountEditor extends HBox implements FieldEditorFX {
-    @FXML private CitationCountEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button fetchCitationCountButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private UndoManager undoManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private StateManager stateManager;
-    @Inject private SearchCitationsRelationsService searchCitationsRelationsService;
+    @FXML
+    private CitationCountEditorViewModel viewModel;
 
-    public CitationCountEditor(Field field,
-                             SuggestionProvider<?> suggestionProvider,
-                             FieldCheckers fieldCheckers) {
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button fetchCitationCountButton;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private SearchCitationsRelationsService searchCitationsRelationsService;
+
+    public CitationCountEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers) {
         Injector.registerExistingAndInject(this);
-        this.viewModel = new CitationCountEditorViewModel(
-                field,
-                suggestionProvider,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager,
-                stateManager,
-                preferences,
-                searchCitationsRelationsService);
+        this.viewModel = new CitationCountEditorViewModel(field, suggestionProvider, fieldCheckers, taskExecutor,
+                dialogService, undoManager, stateManager, preferences, searchCitationsRelationsService);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         textField.textProperty().bindBidirectional(viewModel.textProperty());
 
-        fetchCitationCountButton.setTooltip(
-                new Tooltip(Localization.lang("Look up %0", field.getDisplayName())));
+        fetchCitationCountButton.setTooltip(new Tooltip(Localization.lang("Look up %0", field.getDisplayName())));
         textField.initContextMenu(new DefaultMenu(textField), preferences.getKeyBindingRepository());
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textField);
     }
 
     @FXML
@@ -81,4 +86,5 @@ public class CitationCountEditor extends HBox implements FieldEditorFX {
     public Parent getNode() {
         return this;
     }
+
 }

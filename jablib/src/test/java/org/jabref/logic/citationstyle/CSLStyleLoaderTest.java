@@ -12,7 +12,8 @@ public class CSLStyleLoaderTest {
 
     @BeforeAll
     static void setup() {
-        // Lifecycle of CSLStyleLoader is different; one needs to load the internal styles using a static method instead of creating an instance.
+        // Lifecycle of CSLStyleLoader is different; one needs to load the internal styles
+        // using a static method instead of creating an instance.
         CSLStyleLoader.loadInternalStyles();
     }
 
@@ -27,4 +28,5 @@ public class CSLStyleLoaderTest {
         assertNotNull(styleList);
         assertFalse(styleList.isEmpty());
     }
+
 }

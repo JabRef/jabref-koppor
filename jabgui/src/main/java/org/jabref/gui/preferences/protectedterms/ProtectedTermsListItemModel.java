@@ -12,6 +12,7 @@ import org.jabref.logic.protectedterms.ProtectedTermsList;
 public class ProtectedTermsListItemModel {
 
     private final ProtectedTermsList termsList;
+
     private final BooleanProperty enabledProperty = new SimpleBooleanProperty();
 
     public ProtectedTermsListItemModel(ProtectedTermsList termsList) {
@@ -39,4 +40,5 @@ public class ProtectedTermsListItemModel {
     public BooleanProperty enabledProperty() {
         return enabledProperty;
     }
+
 }

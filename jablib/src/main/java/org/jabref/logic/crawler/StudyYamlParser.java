@@ -12,7 +12,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 /**
- * Example use: <code>new StudyYamlParser().parseStudyYamlFile(studyDefinitionFile);</code>
+ * Example use:
+ * <code>new StudyYamlParser().parseStudyYamlFile(studyDefinitionFile);</code>
  */
 public class StudyYamlParser {
 
@@ -30,8 +31,10 @@ public class StudyYamlParser {
      * Writes the given study instance into a yaml file to the given path
      */
     public void writeStudyYamlFile(Study study, Path studyYamlFile) throws IOException {
-        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-                                                                    .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
+        ObjectMapper yamlMapper = new ObjectMapper(
+                new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                    .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         yamlMapper.writeValue(studyYamlFile.toFile(), study);
     }
+
 }

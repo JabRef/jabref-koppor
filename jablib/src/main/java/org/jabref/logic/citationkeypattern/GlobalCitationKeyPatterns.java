@@ -16,4 +16,5 @@ public class GlobalCitationKeyPatterns extends AbstractCitationKeyPatterns {
     public CitationKeyPattern getLastLevelCitationKeyPattern(EntryType entryType) {
         return defaultPattern;
     }
+
 }

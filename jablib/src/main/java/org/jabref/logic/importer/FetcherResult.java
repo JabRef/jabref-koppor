@@ -5,7 +5,9 @@ import java.net.URL;
 import org.jabref.logic.importer.fetcher.TrustLevel;
 
 public final class FetcherResult {
+
     private final TrustLevel trust;
+
     private final URL source;
 
     public FetcherResult(TrustLevel trust, URL source) {
@@ -20,4 +22,5 @@ public final class FetcherResult {
     public URL getSource() {
         return source;
     }
+
 }

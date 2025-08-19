@@ -38,4 +38,5 @@ public class CollectionOfComputerScienceBibliographiesQueryTransformer extends A
     protected String handleYear(String year) {
         return "year:%s".formatted(year);
     }
+
 }

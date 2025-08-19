@@ -19,7 +19,9 @@ import static org.mockito.Mockito.mock;
 class ConstantsPropertiesViewModelTest {
 
     private final DialogService service = mock(DialogService.class);
-    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+
+    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(
+            ExternalApplicationsPreferences.class);
 
     /**
      * Check that the list of strings is sorted according to their keys
@@ -31,15 +33,19 @@ class ConstantsPropertiesViewModelTest {
         BibDatabase db = new BibDatabase();
         db.setStrings(List.of(string1, string2));
         BibDatabaseContext context = new BibDatabaseContext(db);
-        List<String> expected = List.of(string2.getName(), string1.getName()); // ICSE before TSE
+        List<String> expected = List.of(string2.getName(), string1.getName()); // ICSE
+                                                                               // before
+                                                                               // TSE
 
-        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service, externalApplicationsPreferences);
+        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service,
+                externalApplicationsPreferences);
         model.setValues();
 
-        List<String> actual = model.stringsListProperty().stream()
-                .map(ConstantsItemModel::labelProperty)
-                .map(StringProperty::getValue)
-                .toList();
+        List<String> actual = model.stringsListProperty()
+            .stream()
+            .map(ConstantsItemModel::labelProperty)
+            .map(StringProperty::getValue)
+            .toList();
 
         assertEquals(expected, actual);
     }
@@ -53,17 +59,19 @@ class ConstantsPropertiesViewModelTest {
         BibDatabaseContext context = new BibDatabaseContext(db);
         List<String> expected = List.of("ICSE", "TSE");
 
-        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service, externalApplicationsPreferences);
+        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service,
+                externalApplicationsPreferences);
         ListProperty<ConstantsItemModel> stringsList = model.stringsListProperty();
         stringsList.add(new ConstantsItemModel("TSE", "Transactions on Software Engineering"));
         stringsList.add(new ConstantsItemModel("ICSE", "International Conference on Software Engineering"));
 
         model.resortStrings();
 
-        List<String> actual = model.stringsListProperty().stream()
-                .map(ConstantsItemModel::labelProperty)
-                .map(StringProperty::getValue)
-                .toList();
+        List<String> actual = model.stringsListProperty()
+            .stream()
+            .map(ConstantsItemModel::labelProperty)
+            .map(StringProperty::getValue)
+            .toList();
 
         assertEquals(expected, actual);
     }
@@ -73,7 +81,8 @@ class ConstantsPropertiesViewModelTest {
         BibDatabase db = new BibDatabase();
         BibDatabaseContext context = new BibDatabaseContext(db);
 
-        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service, externalApplicationsPreferences);
+        ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service,
+                externalApplicationsPreferences);
 
         ListProperty<ConstantsItemModel> stringsList = model.stringsListProperty();
         stringsList.add(new ConstantsItemModel("KTH", "Royal Institute of Technology"));
@@ -83,4 +92,5 @@ class ConstantsPropertiesViewModelTest {
         List<BibtexString> actual = context.getDatabase().getStringValues().stream().toList();
         assertEquals(List.of(new BibtexString("KTH", "Royal Institute of Technology")), actual);
     }
+
 }

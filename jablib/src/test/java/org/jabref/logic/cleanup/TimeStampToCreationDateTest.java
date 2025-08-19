@@ -33,23 +33,17 @@ class TimeStampToCreationDateTest {
 
     public static Stream<Arguments> standardFieldToCreationDate() {
         return Stream.of(
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-09-10T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2018-09-10")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-24T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-24")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-31T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-31")
-                )
-        );
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-09-10T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2018-09-10")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-24T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-24")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-31T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2020-12-31")));
     }
 
     /**
-     * Tests migration to creationdate if the users uses the default ISO yyyy-mm-dd format and the standard timestamp field
+     * Tests migration to creationdate if the users uses the default ISO yyyy-mm-dd format
+     * and the standard timestamp field
      */
     @ParameterizedTest
     @MethodSource("standardFieldToCreationDate")
@@ -62,23 +56,17 @@ class TimeStampToCreationDateTest {
 
     public static Stream<Arguments> customFieldToCreationDate() {
         return Stream.of(
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-09-10T00:00:00"),
-                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2018-09-10")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-24T00:00:00"),
-                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2020-12-24")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-31T00:00:00"),
-                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2020-12-31")
-                )
-        );
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-09-10T00:00:00"),
+                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2018-09-10")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-24T00:00:00"),
+                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2020-12-24")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2020-12-31T00:00:00"),
+                        new BibEntry().withField(CUSTOM_TIME_STAMP_FIELD, "2020-12-31")));
     }
 
     /**
-     * Tests migration to creationdate if the users uses the default ISO yyyy-mm-dd format and a custom timestamp field
+     * Tests migration to creationdate if the users uses the default ISO yyyy-mm-dd format
+     * and a custom timestamp field
      */
     @ParameterizedTest
     @MethodSource("customFieldToCreationDate")
@@ -92,76 +80,50 @@ class TimeStampToCreationDateTest {
     public static Stream<Arguments> entriesMigratedToCreationDateFromDifferentFormats() {
         return Stream.of(
                 // M/y
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "1/18")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-02-01T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2/2018")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-03-01T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "03/2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "1/18")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-02-01T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2/2018")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-03-01T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "03/2018")),
 
                 // MMMM, yyyy
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "January, 2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "January, 2018")),
 
                 // MMMM dd, yyyy
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "January 2, 2018")
-                ),
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "January 12, 2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "January 2, 2018")),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "January 12, 2018")),
 
                 // dd-MM-yyyy
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2-1-2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2-1-2018")),
 
                 // Double digit day/month
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "12-01-2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "12-01-2018")),
 
                 // d.M.uuuu
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2.1.2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2.1.2018")),
 
                 // Double digit day/month
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "12.01.2018")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "12.01.2018")),
 
                 // uuuu.M.d
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2018.1.2")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-02T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2018.1.2")),
 
                 // Double digit day/month
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "2018.01.12")
-                ),
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-12T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "2018.01.12")),
 
                 // MMM, uuuu
-                Arguments.of(
-                        new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
-                        new BibEntry().withField(StandardField.TIMESTAMP, "Jan, 2018")
-                ));
+                Arguments.of(new BibEntry().withField(StandardField.CREATIONDATE, "2018-01-01T00:00:00"),
+                        new BibEntry().withField(StandardField.TIMESTAMP, "Jan, 2018")));
     }
 
     /**
@@ -176,4 +138,5 @@ class TimeStampToCreationDateTest {
         migrator.cleanup(input);
         assertEquals(expected, input);
     }
+
 }

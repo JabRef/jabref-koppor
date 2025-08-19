@@ -6,6 +6,7 @@ import java.util.List;
 import dev.langchain4j.data.message.ChatMessage;
 
 public interface ChatHistoryStorage {
+
     List<ChatMessage> loadMessagesForEntry(Path bibDatabasePath, String citationKey);
 
     void storeMessagesForEntry(Path bibDatabasePath, String citationKey, List<ChatMessage> messages);
@@ -17,4 +18,5 @@ public interface ChatHistoryStorage {
     void commit();
 
     void close();
+
 }

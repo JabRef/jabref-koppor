@@ -12,16 +12,17 @@ import org.jabref.model.database.BibDatabaseMode;
 public class LibraryPreferences {
 
     private final ObjectProperty<BibDatabaseMode> defaultBibDatabaseMode;
+
     private final BooleanProperty alwaysReformatOnSave;
+
     private final BooleanProperty autoSave;
+
     private final BooleanProperty addImportedEntries;
+
     private final StringProperty addImportedEntriesGroupName;
 
-    public LibraryPreferences(BibDatabaseMode defaultBibDatabaseMode,
-                              boolean alwaysReformatOnSave,
-                              boolean autoSave,
-                              boolean addImportedEntries,
-                              String addImportedEntriesGroupName) {
+    public LibraryPreferences(BibDatabaseMode defaultBibDatabaseMode, boolean alwaysReformatOnSave, boolean autoSave,
+            boolean addImportedEntries, String addImportedEntriesGroupName) {
         this.defaultBibDatabaseMode = new SimpleObjectProperty<>(defaultBibDatabaseMode);
         this.alwaysReformatOnSave = new SimpleBooleanProperty(alwaysReformatOnSave);
         this.autoSave = new SimpleBooleanProperty(autoSave);
@@ -88,4 +89,5 @@ public class LibraryPreferences {
     public void setAddImportedEntriesGroupName(String addImportedEntriesGroupName) {
         this.addImportedEntriesGroupName.set(addImportedEntriesGroupName);
     }
+
 }

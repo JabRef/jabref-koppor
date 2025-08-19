@@ -31,4 +31,5 @@ class RemoveHyphenatedNewlinesFormatterTest {
         String newLine = "%n".formatted();
         assertEquals("water", formatter.format("wa-" + newLine + "ter"));
     }
+
 }

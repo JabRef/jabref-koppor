@@ -19,4 +19,5 @@ public class UrlChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

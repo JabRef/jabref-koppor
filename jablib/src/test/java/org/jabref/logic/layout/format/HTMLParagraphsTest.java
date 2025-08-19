@@ -21,12 +21,12 @@ class HTMLParagraphsTest {
     }
 
     private static Stream<Arguments> htmlFormatTests() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("<p>\nHello\n</p>", "Hello"),
+        return Stream.of(Arguments.of("", ""), Arguments.of("<p>\nHello\n</p>", "Hello"),
                 Arguments.of("<p>\nHello\nWorld\n</p>", "Hello\nWorld"),
-                Arguments.of("<p>\nHello World\n</p>\n<p>\nWhat a lovely day\n</p>", "Hello World\n   \nWhat a lovely day\n"),
-                Arguments.of("<p>\nHello World\n</p>\n<p>\nCould not be any better\n</p>\n<p>\nWhat a lovely day\n</p>", "Hello World\n \n\nCould not be any better\n\nWhat a lovely day\n")
-        );
+                Arguments.of("<p>\nHello World\n</p>\n<p>\nWhat a lovely day\n</p>",
+                        "Hello World\n   \nWhat a lovely day\n"),
+                Arguments.of("<p>\nHello World\n</p>\n<p>\nCould not be any better\n</p>\n<p>\nWhat a lovely day\n</p>",
+                        "Hello World\n \n\nCould not be any better\n\nWhat a lovely day\n"));
     }
+
 }

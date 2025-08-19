@@ -28,4 +28,5 @@ class EscapeUnderscoresFormatterTest {
     void formatExample() {
         assertEquals("Text\\_with\\_underscores", formatter.format(formatter.getExampleInput()));
     }
+
 }

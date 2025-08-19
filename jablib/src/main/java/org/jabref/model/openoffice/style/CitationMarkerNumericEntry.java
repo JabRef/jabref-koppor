@@ -17,4 +17,5 @@ public interface CitationMarkerNumericEntry {
     Optional<Integer> getNumber();
 
     Optional<OOText> getPageInfo();
+
 }

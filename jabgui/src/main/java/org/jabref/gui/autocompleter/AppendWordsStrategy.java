@@ -19,8 +19,10 @@ public class AppendWordsStrategy implements AutoCompletionStrategy {
             String prefix = input.substring(0, index + delimiter.length());
             String rest = input.substring(index + delimiter.length());
             return new AutoCompletionInput(prefix, rest);
-        } else {
+        }
+        else {
             return new AutoCompletionInput("", input);
         }
     }
+
 }

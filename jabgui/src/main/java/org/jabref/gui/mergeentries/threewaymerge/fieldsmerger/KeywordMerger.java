@@ -8,8 +8,9 @@ import org.jabref.model.entry.field.StandardField;
 
 /**
  * A merger for the {@link StandardField#KEYWORDS} field
- * */
+ */
 public class KeywordMerger implements FieldMerger {
+
     private final BibEntryPreferences bibEntryPreferences;
 
     public KeywordMerger(BibEntryPreferences bibEntryPreferences) {
@@ -22,4 +23,5 @@ public class KeywordMerger implements FieldMerger {
         Character delimiter = bibEntryPreferences.getKeywordSeparator();
         return KeywordList.merge(keywordsA, keywordsB, delimiter).getAsString(delimiter);
     }
+
 }

@@ -10,4 +10,5 @@ class StandardFieldTest {
     void fieldsConsideredEqualIfSame() {
         assertEquals(StandardField.TITLE, StandardField.TITLE);
     }
+
 }

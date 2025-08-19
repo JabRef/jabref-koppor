@@ -25,8 +25,7 @@ class AbbreviationViewModelTest {
                 Arguments.of("bBr", new AbbreviationViewModel(new Abbreviation("Long Name", "abbr", "unique"))),
                 Arguments.of("Uniq", new AbbreviationViewModel(new Abbreviation("Long Name", "abbr", "unique"))),
                 Arguments.of("", new AbbreviationViewModel(new Abbreviation("Long Name", "abbr", "unique"))),
-                Arguments.of("", new AbbreviationViewModel(new Abbreviation("", "", "")))
-        );
+                Arguments.of("", new AbbreviationViewModel(new Abbreviation("", "", ""))));
     }
 
     @ParameterizedTest
@@ -37,8 +36,9 @@ class AbbreviationViewModelTest {
 
     private static Stream<Arguments> provideContainsCaseIndependentDoesNotContain() {
         return Stream.of(
-                Arguments.of("Something else", new AbbreviationViewModel(new Abbreviation("Long Name", "abbr", "unique"))),
-                Arguments.of("Something", new AbbreviationViewModel(new Abbreviation("", "", "")))
-        );
+                Arguments.of("Something else",
+                        new AbbreviationViewModel(new Abbreviation("Long Name", "abbr", "unique"))),
+                Arguments.of("Something", new AbbreviationViewModel(new Abbreviation("", "", ""))));
     }
+
 }

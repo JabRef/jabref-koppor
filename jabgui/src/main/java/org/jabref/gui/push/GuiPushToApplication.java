@@ -19,7 +19,6 @@ public interface GuiPushToApplication extends PushToApplication {
 
     /**
      * Gets the icon associated with the application.
-     *
      * @return The icon for the application.
      */
     JabRefIcon getApplicationIcon();
@@ -28,7 +27,10 @@ public interface GuiPushToApplication extends PushToApplication {
         return new GuiPushToApplicationAction(getDisplayName(), getApplicationIcon());
     }
 
-    default GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
-            return new GuiPushToApplicationSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
+    default GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
+        return new GuiPushToApplicationSettings(application, dialogService, filePreferences,
+                pushToApplicationPreferences);
     }
+
 }

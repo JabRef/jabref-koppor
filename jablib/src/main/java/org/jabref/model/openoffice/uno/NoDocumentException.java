@@ -9,4 +9,5 @@ public class NoDocumentException extends Exception {
     public NoDocumentException() {
         super("Not connected to a document");
     }
+
 }

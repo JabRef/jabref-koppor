@@ -4,18 +4,13 @@ import java.util.Optional;
 
 public enum PushApplications {
 
-    EMACS("emacs", "Emacs"),
-    LYX("lyx", "LyX/Kile"),
-    TEXMAKER("texmaker", "Texmaker"),
-    TEXSTUDIO("texstudio", "TeXstudio"),
-    TEXWORKS("texworks", "TeXworks"),
-    VIM("vim", "Vim"),
-    WIN_EDT("winedt", "WinEdt"),
-    SUBLIME_TEXT("sublime", "Sublime Text"),
-    TEXSHOP("texshop", "TeXShop"),
+    EMACS("emacs", "Emacs"), LYX("lyx", "LyX/Kile"), TEXMAKER("texmaker", "Texmaker"),
+    TEXSTUDIO("texstudio", "TeXstudio"), TEXWORKS("texworks", "TeXworks"), VIM("vim", "Vim"),
+    WIN_EDT("winedt", "WinEdt"), SUBLIME_TEXT("sublime", "Sublime Text"), TEXSHOP("texshop", "TeXShop"),
     VSCODE("vscode", "VScode");
 
     private final String id;
+
     private final String displayName;
 
     PushApplications(String id, String displayName) {
@@ -48,4 +43,5 @@ public enum PushApplications {
     public String getDisplayName() {
         return displayName;
     }
+
 }

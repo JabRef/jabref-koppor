@@ -26,18 +26,23 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 
 /**
- * This Action may only be used in a menu or button.
- * Never in the entry editor. FileListEditor and EntryEditor have other ways to update the file links
+ * This Action may only be used in a menu or button. Never in the entry editor.
+ * FileListEditor and EntryEditor have other ways to update the file links
  */
 public class AutoLinkFilesAction extends SimpleCommand {
 
     private final DialogService dialogService;
+
     private final GuiPreferences preferences;
+
     private final StateManager stateManager;
+
     private final UndoManager undoManager;
+
     private final UiTaskExecutor taskExecutor;
 
-    public AutoLinkFilesAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager, UndoManager undoManager, UiTaskExecutor taskExecutor) {
+    public AutoLinkFilesAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            UndoManager undoManager, UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -45,24 +50,24 @@ public class AutoLinkFilesAction extends SimpleCommand {
         this.taskExecutor = taskExecutor;
 
         this.executable.bind(needsDatabase(this.stateManager).and(needsEntriesSelected(stateManager)));
-        this.statusMessage.bind(BindingsHelper.ifThenElse(executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
+        this.statusMessage.bind(BindingsHelper.ifThenElse(executable, "",
+                Localization.lang("This operation requires one or more entries to be selected.")));
     }
 
     @Override
     public void execute() {
-        final BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
+        final BibDatabaseContext database = stateManager.getActiveDatabase()
+            .orElseThrow(() -> new NullPointerException("Database null"));
         final List<BibEntry> entries = stateManager.getSelectedEntries();
 
-        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(
-                database,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
-                preferences.getAutoLinkPreferences());
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(database, preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), preferences.getAutoLinkPreferences());
         final NamedCompound nc = new NamedCompound(Localization.lang("Automatically set file links"));
 
         Task<AutoSetFileLinksUtil.LinkFilesResult> linkFilesTask = new Task<>() {
             final BiConsumer<LinkedFile, BibEntry> onLinkedFile = (linkedFile, entry) -> {
-                // lambda for gui actions that are relevant when setting the linked file entry when ui is opened
+                // lambda for gui actions that are relevant when setting the linked file
+                // entry when ui is opened
                 String newVal = FileFieldWriter.getStringRepresentation(linkedFile);
                 String oldVal = entry.getField(StandardField.FILE).orElse(null);
                 UndoableFieldChange fieldChange = new UndoableFieldChange(entry, StandardField.FILE, oldVal, newVal);
@@ -80,8 +85,7 @@ public class AutoLinkFilesAction extends SimpleCommand {
                 AutoSetFileLinksUtil.LinkFilesResult result = getValue();
 
                 if (!result.getFileExceptions().isEmpty()) {
-                    dialogService.showWarningDialogAndWait(
-                            Localization.lang("Automatically set file links"),
+                    dialogService.showWarningDialogAndWait(Localization.lang("Automatically set file links"),
                             Localization.lang("Problem finding files. See error log for details."));
                     return;
                 }
@@ -103,10 +107,9 @@ public class AutoLinkFilesAction extends SimpleCommand {
             }
         };
 
-        dialogService.showProgressDialog(
-                Localization.lang("Automatically setting file links"),
-                Localization.lang("Searching for files"),
-                linkFilesTask);
+        dialogService.showProgressDialog(Localization.lang("Automatically setting file links"),
+                Localization.lang("Searching for files"), linkFilesTask);
         taskExecutor.execute(linkFilesTask);
     }
+
 }

@@ -16,14 +16,17 @@ import org.jabref.logic.util.URLUtil;
 public class SSRN extends EprintIdentifier {
 
     private static final String SSRN_URL_REGEX = "(https?://)?(papers\\.)?ssrn\\.com/(sol3/papers.cfm\\?)?abstract(_id)?=(?<id>\\d+)";
-    private static final Pattern SSRN_URL_FULL_MATCH = Pattern.compile("^" + SSRN_URL_REGEX + "$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern SSRN_URL_MATCH = Pattern.compile(SSRN_URL_REGEX, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern SSRN_URL_FULL_MATCH = Pattern.compile("^" + SSRN_URL_REGEX + "$",
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern SSRN_URL_MATCH = Pattern.compile(SSRN_URL_REGEX,
+            Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private final Integer abstractId;
 
     /**
      * Tries to parse an SSRN identifier
-     *
      * @param string Either a number or a SSRN url that has the abstract ID in it
      * @throws NullPointerException If you pass a null to the constructor
      * @throws IllegalArgumentException Invalid string passed to the constructor
@@ -73,10 +76,10 @@ public class SSRN extends EprintIdentifier {
 
     /**
      * Generate the DOI based on the SSRN
-     *
      * @return a DOI formatted as <code>10.2139/ssrn.[article]</code>
      */
     public DOI toDoi() {
         return new DOI("10.2139/ssrn." + abstractId);
     }
+
 }

@@ -21,10 +21,10 @@ class EscapeDollarSignFormatterTest {
                 Arguments.of("Lorem\\$ipsum", "Lorem$ipsum"),
                 // keeps escapings
                 Arguments.of("Lorem\\$ipsum", "Lorem\\$ipsum"),
-                Arguments.of("Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$", "Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$"),
+                Arguments.of("Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$",
+                        "Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$"),
                 // mixed field
-                Arguments.of("Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$", "Dollar sign: 1x: $ 2x: $$ 3x: $$$")
-        );
+                Arguments.of("Dollar sign: 1x: \\$ 2x: \\$\\$ 3x: \\$\\$\\$", "Dollar sign: 1x: $ 2x: $$ 3x: $$$"));
     }
 
     @ParameterizedTest
@@ -37,4 +37,5 @@ class EscapeDollarSignFormatterTest {
     void formatExample() {
         assertEquals("Text\\$with\\$dollar\\$sign", formatter.format(formatter.getExampleInput()));
     }
+
 }

@@ -23,18 +23,12 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 public class DocumentInformationExtractor {
 
     private static final Map<COSName, Field> FIELD_MAPPING = Map.ofEntries(
-            Map.entry(COSName.TITLE, StandardField.TITLE),
-            Map.entry(COSName.SUBJECT, StandardField.ABSTRACT),
-            Map.entry(COSName.KEYWORDS, StandardField.KEYWORDS),
-            Map.entry(COSName.DATE, StandardField.DATE),
-            Map.entry(COSName.COLLECTION, StandardField.BOOKTITLE),
-            Map.entry(COSName.PAGES, StandardField.PAGES),
-            Map.entry(COSName.PAGE, StandardField.PAGES),
-            Map.entry(COSName.URL, StandardField.URL),
-            Map.entry(COSName.VOLUME, StandardField.VOLUME),
-            Map.entry(COSName.VERSION, StandardField.VERSION),
-            Map.entry(COSName.ISSUER, StandardField.EDITOR)
-    );
+            Map.entry(COSName.TITLE, StandardField.TITLE), Map.entry(COSName.SUBJECT, StandardField.ABSTRACT),
+            Map.entry(COSName.KEYWORDS, StandardField.KEYWORDS), Map.entry(COSName.DATE, StandardField.DATE),
+            Map.entry(COSName.COLLECTION, StandardField.BOOKTITLE), Map.entry(COSName.PAGES, StandardField.PAGES),
+            Map.entry(COSName.PAGE, StandardField.PAGES), Map.entry(COSName.URL, StandardField.URL),
+            Map.entry(COSName.VOLUME, StandardField.VOLUME), Map.entry(COSName.VERSION, StandardField.VERSION),
+            Map.entry(COSName.ISSUER, StandardField.EDITOR));
 
     private final PDDocumentInformation documentInformation;
 
@@ -61,7 +55,8 @@ public class DocumentInformationExtractor {
             if (FIELD_MAPPING.containsKey(o.getKey())) {
                 Field field = FIELD_MAPPING.get(o.getKey());
                 bibEntry.setField(field, dict.getString(key));
-            } else if (key.startsWith(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX)) {
+            }
+            else if (key.startsWith(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX)) {
                 String value = dict.getString(key);
 
                 String fieldName = key.substring(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX.length());
@@ -72,23 +67,20 @@ public class DocumentInformationExtractor {
                         value = Month.parse(value).map(Month::getJabRefFormat).orElse(value);
                         bibEntry.setField(StandardField.MONTH, value);
                     }
-                    default ->
-                        bibEntry.setField(field, value);
+                    default -> bibEntry.setField(field, value);
                 }
             }
         }
     }
 
     /**
-     * Function for retrieving a BibEntry from the
-     * PDDocumentInformation in a PDF file.
+     * Function for retrieving a BibEntry from the PDDocumentInformation in a PDF file.
      *
-     * To understand how to get hold of a PDDocumentInformation have a look in
-     * the test cases for XMPUtilTest.
+     * To understand how to get hold of a PDDocumentInformation have a look in the test
+     * cases for XMPUtilTest.
      *
-     * The BibEntry is build by mapping individual fields in the document
-     * information (like author, title, keywords) to fields in a bibtex entry.
-     *
+     * The BibEntry is build by mapping individual fields in the document information
+     * (like author, title, keywords) to fields in a bibtex entry.
      * @return The bibtex entry found in the document information.
      */
     public Optional<BibEntry> extractBibtexEntry() {
@@ -97,8 +89,10 @@ public class DocumentInformationExtractor {
 
         if (bibEntry.getFields().isEmpty()) {
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.of(bibEntry);
         }
     }
+
 }

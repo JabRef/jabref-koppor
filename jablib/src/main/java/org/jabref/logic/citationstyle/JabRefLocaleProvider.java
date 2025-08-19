@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 /**
  * A {@link LocaleProvider} that loads locales from a directory in the current module.
  * <p>
- * This implementation is only a slight adaption of {@link de.undercouch.citeproc.DefaultLocaleProvider}.
+ * This implementation is only a slight adaption of
+ * {@link de.undercouch.citeproc.DefaultLocaleProvider}.
  */
 public class JabRefLocaleProvider implements LocaleProvider {
 
@@ -27,15 +28,18 @@ public class JabRefLocaleProvider implements LocaleProvider {
     @Override
     public String retrieveLocale(String lang) {
         return locales.computeIfAbsent(lang, locale -> {
-            try (InputStream inputStream = getClass().getResourceAsStream(LOCALES_ROOT + "/locales-" + locale + ".xml")) {
+            try (InputStream inputStream = getClass()
+                .getResourceAsStream(LOCALES_ROOT + "/locales-" + locale + ".xml")) {
                 if (inputStream == null) {
                     throw new IllegalArgumentException("Unable to load locale " + locale);
                 }
                 return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOGGER.error("failed to read locale {}", locale, e);
                 throw new UncheckedIOException("failed to read locale " + locale, e);
             }
         });
     }
+
 }

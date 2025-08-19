@@ -60,43 +60,60 @@ public class NewEntryViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewEntryViewModel.class);
 
     private final GuiPreferences preferences;
+
     private final LibraryTab libraryTab;
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final UiTaskExecutor taskExecutor;
+
     private final AiService aiService;
+
     private final FileUpdateMonitor fileUpdateMonitor;
 
     private final BooleanProperty executing;
+
     private final BooleanProperty executedSuccessfully;
 
     private final StringProperty idText;
+
     private final Validator idTextValidator;
+
     private final Validator duplicateDoiValidator;
+
     private final ListProperty<IdBasedFetcher> idFetchers;
+
     private final ObjectProperty<IdBasedFetcher> idFetcher;
+
     private final Validator idFetcherValidator;
+
     private Task<Optional<BibEntry>> idLookupWorker;
 
     private final StringProperty interpretText;
+
     private final Validator interpretTextValidator;
+
     private final ListProperty<PlainCitationParserChoice> interpretParsers;
+
     private final ObjectProperty<PlainCitationParserChoice> interpretParser;
+
     private Task<Optional<List<BibEntry>>> interpretWorker;
 
     private final StringProperty bibtexText;
+
     private final Validator bibtexTextValidator;
+
     private Task<Optional<List<BibEntry>>> bibtexWorker;
+
     private final Map<String, BibEntry> doiCache;
+
     private BibEntry duplicateEntry;
 
-    public NewEntryViewModel(GuiPreferences preferences,
-                             LibraryTab libraryTab,
-                             DialogService dialogService,
-                             StateManager stateManager,
-                             UiTaskExecutor taskExecutor,
-                             AiService aiService,
-                             FileUpdateMonitor fileUpdateMonitor) {
+    public NewEntryViewModel(GuiPreferences preferences, LibraryTab libraryTab, DialogService dialogService,
+            StateManager stateManager, UiTaskExecutor taskExecutor, AiService aiService,
+            FileUpdateMonitor fileUpdateMonitor) {
         this.preferences = preferences;
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
@@ -110,26 +127,19 @@ public class NewEntryViewModel {
         doiCache = new HashMap<>();
 
         idText = new SimpleStringProperty();
-        idTextValidator = new FunctionBasedValidator<>(
-                idText,
-                StringUtil::isNotBlank,
+        idTextValidator = new FunctionBasedValidator<>(idText, StringUtil::isNotBlank,
                 ValidationMessage.error(Localization.lang("You must specify an identifier.")));
-        duplicateDoiValidator = new FunctionBasedValidator<>(
-                idText,
-                input -> checkDOI(input).orElse(null));
+        duplicateDoiValidator = new FunctionBasedValidator<>(idText, input -> checkDOI(input).orElse(null));
         idFetchers = new SimpleListProperty<>(FXCollections.observableArrayList());
-        idFetchers.addAll(WebFetchers.getIdBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
+        idFetchers.addAll(WebFetchers.getIdBasedFetchers(preferences.getImportFormatPreferences(),
+                preferences.getImporterPreferences()));
         idFetcher = new SimpleObjectProperty<>();
-        idFetcherValidator = new FunctionBasedValidator<>(
-                idFetcher,
-                Objects::nonNull,
+        idFetcherValidator = new FunctionBasedValidator<>(idFetcher, Objects::nonNull,
                 ValidationMessage.error(Localization.lang("You must select an identifier type.")));
         idLookupWorker = null;
 
         interpretText = new SimpleStringProperty();
-        interpretTextValidator = new FunctionBasedValidator<>(
-                interpretText,
-                StringUtil::isNotBlank,
+        interpretTextValidator = new FunctionBasedValidator<>(interpretText, StringUtil::isNotBlank,
                 ValidationMessage.error(Localization.lang("You must specify one (or more) citations.")));
         interpretParsers = new SimpleListProperty<>(FXCollections.observableArrayList());
         interpretParsers.addAll(PlainCitationParserChoice.values());
@@ -137,9 +147,7 @@ public class NewEntryViewModel {
         interpretWorker = null;
 
         bibtexText = new SimpleStringProperty();
-        bibtexTextValidator = new FunctionBasedValidator<>(
-                bibtexText,
-                StringUtil::isNotBlank,
+        bibtexTextValidator = new FunctionBasedValidator<>(bibtexText, StringUtil::isNotBlank,
                 ValidationMessage.error(Localization.lang("You must specify a Bib(La)TeX source.")));
         bibtexWorker = null;
     }
@@ -148,15 +156,13 @@ public class NewEntryViewModel {
         doiCache.clear();
         Optional<BibDatabaseContext> activeDatabase = stateManager.getActiveDatabase();
 
-        activeDatabase.map(BibDatabaseContext::getEntries)
-                      .ifPresent(entries -> {
-                          entries.forEach(entry -> {
-                              entry.getField(StandardField.DOI)
-                                   .ifPresent(doi -> {
-                                       doiCache.put(doi, entry);
-                                   });
-                          });
-                      });
+        activeDatabase.map(BibDatabaseContext::getEntries).ifPresent(entries -> {
+            entries.forEach(entry -> {
+                entry.getField(StandardField.DOI).ifPresent(doi -> {
+                    doiCache.put(doi, entry);
+                });
+            });
+        });
     }
 
     public Optional<ValidationMessage> checkDOI(String doiInput) {
@@ -236,6 +242,7 @@ public class NewEntryViewModel {
     }
 
     private class WorkerLookupId extends Task<Optional<BibEntry>> {
+
         @Override
         protected Optional<BibEntry> call() throws FetcherException {
             final String text = idText.getValue();
@@ -247,9 +254,11 @@ public class NewEntryViewModel {
 
             return fetcher.performSearchById(text);
         }
+
     }
 
     private class WorkerLookupTypedId extends Task<Optional<BibEntry>> {
+
         @Override
         protected Optional<BibEntry> call() throws FetcherException {
             final String text = idText.getValue();
@@ -262,6 +271,7 @@ public class NewEntryViewModel {
 
             return fetcher.performSearchById(text);
         }
+
     }
 
     public void executeLookupIdentifier(boolean searchComposite) {
@@ -270,7 +280,8 @@ public class NewEntryViewModel {
         cancel();
         if (searchComposite) {
             idLookupWorker = new WorkerLookupId();
-        } else {
+        }
+        else {
             idLookupWorker = new WorkerLookupTypedId();
         }
 
@@ -283,34 +294,26 @@ public class NewEntryViewModel {
             final String dialogTitle = Localization.lang("Failed to lookup identifier");
 
             if (exception instanceof FetcherClientException) {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
-                        Localization.lang(
-                                "Bibliographic data could not be retrieved.\n" +
-                                        "This is likely due to an issue with your input, or your network connection.\n" +
-                                        "Check your provided identifier (and identifier type), and try again.\n" +
-                                        "%0",
-                                exceptionMessage));
-            } else if (exception instanceof FetcherServerException) {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
-                        Localization.lang(
-                                "Bibliographic data could not be retrieved.\n" +
-                                        "This is likely due to an issue being experienced by the server.\n" +
-                                        "Try again later.\n" +
-                                        "%0",
-                                exceptionMessage));
-            } else {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
-                        Localization.lang(
-                                "Bibliographic data could not be retrieved.\n" +
-                                        "The following error was encountered:\n" +
-                                        "%0",
+                dialogService.showInformationDialogAndWait(dialogTitle,
+                        Localization.lang("Bibliographic data could not be retrieved.\n"
+                                + "This is likely due to an issue with your input, or your network connection.\n"
+                                + "Check your provided identifier (and identifier type), and try again.\n" + "%0",
                                 exceptionMessage));
             }
+            else if (exception instanceof FetcherServerException) {
+                dialogService.showInformationDialogAndWait(dialogTitle,
+                        Localization.lang("Bibliographic data could not be retrieved.\n"
+                                + "This is likely due to an issue being experienced by the server.\n"
+                                + "Try again later.\n" + "%0", exceptionMessage));
+            }
+            else {
+                dialogService.showInformationDialogAndWait(dialogTitle,
+                        Localization.lang("Bibliographic data could not be retrieved.\n"
+                                + "The following error was encountered:\n" + "%0", exceptionMessage));
+            }
 
-            LOGGER.error("An exception occurred with the '{}' fetcher when resolving '{}'.", fetcherName, textString, exception);
+            LOGGER.error("An exception occurred with the '{}' fetcher when resolving '{}'.", fetcherName, textString,
+                    exception);
 
             executing.set(false);
         });
@@ -319,23 +322,14 @@ public class NewEntryViewModel {
             final Optional<BibEntry> result = idLookupWorker.getValue();
 
             if (result.isEmpty()) {
-                dialogService.showWarningDialogAndWait(
-                        Localization.lang("Invalid result returned"),
-                        Localization.lang(
-                                "An unknown error has occurred.\n" +
-                                        "This entry may need to be added manually."));
+                dialogService.showWarningDialogAndWait(Localization.lang("Invalid result returned"), Localization
+                    .lang("An unknown error has occurred.\n" + "This entry may need to be added manually."));
                 executing.set(false);
                 return;
             }
 
-            final ImportHandler handler = new ImportHandler(
-                    libraryTab.getBibDatabaseContext(),
-                    preferences,
-                    fileUpdateMonitor,
-                    libraryTab.getUndoManager(),
-                    stateManager,
-                    dialogService,
-                    taskExecutor);
+            final ImportHandler handler = new ImportHandler(libraryTab.getBibDatabaseContext(), preferences,
+                    fileUpdateMonitor, libraryTab.getUndoManager(), stateManager, dialogService, taskExecutor);
             handler.importEntryWithDuplicateCheck(libraryTab.getBibDatabaseContext(), result.get());
 
             executedSuccessfully.set(true);
@@ -346,6 +340,7 @@ public class NewEntryViewModel {
     }
 
     private class WorkerInterpretCitations extends Task<Optional<List<BibEntry>>> {
+
         @Override
         protected Optional<List<BibEntry>> call() throws FetcherException {
             final String text = interpretText.getValue();
@@ -358,8 +353,10 @@ public class NewEntryViewModel {
 
             final PlainCitationParser parser = switch (parserChoice) {
                 case PlainCitationParserChoice.RULE_BASED -> new RuleBasedPlainCitationParser();
-                case PlainCitationParserChoice.GROBID -> new GrobidPlainCitationParser(preferences.getGrobidPreferences(), preferences.getImportFormatPreferences());
-                case PlainCitationParserChoice.LLM -> new LlmPlainCitationParser(aiService.getTemplatesService(), preferences.getImportFormatPreferences(), aiService.getChatLanguageModel());
+                case PlainCitationParserChoice.GROBID -> new GrobidPlainCitationParser(
+                        preferences.getGrobidPreferences(), preferences.getImportFormatPreferences());
+                case PlainCitationParserChoice.LLM -> new LlmPlainCitationParser(aiService.getTemplatesService(),
+                        preferences.getImportFormatPreferences(), aiService.getChatLanguageModel());
             };
 
             final SeveralPlainCitationParser setParser = new SeveralPlainCitationParser(parser);
@@ -370,6 +367,7 @@ public class NewEntryViewModel {
             }
             return Optional.of(entries);
         }
+
     }
 
     public void executeInterpretCitations() {
@@ -386,20 +384,14 @@ public class NewEntryViewModel {
             final String dialogTitle = Localization.lang("Failed to interpret citations");
 
             if (exception instanceof FetcherException) {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
+                dialogService.showInformationDialogAndWait(dialogTitle,
                         Localization.lang(
-                                "Failed to interpret citations.\n" +
-                                        "The following error was encountered:\n" +
-                                        "%0",
+                                "Failed to interpret citations.\n" + "The following error was encountered:\n" + "%0",
                                 exceptionMessage));
-            } else {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
-                        Localization.lang(
-                                "The following error occurred:\n" +
-                                        "%0",
-                                exceptionMessage));
+            }
+            else {
+                dialogService.showInformationDialogAndWait(dialogTitle,
+                        Localization.lang("The following error occurred:\n" + "%0", exceptionMessage));
             }
 
             LOGGER.error("An exception occurred with the '{}' parser.", parserName, exception);
@@ -411,24 +403,15 @@ public class NewEntryViewModel {
             final Optional<List<BibEntry>> result = interpretWorker.getValue();
 
             if (result.isEmpty()) {
-                dialogService.showWarningDialogAndWait(
-                        Localization.lang("Invalid result"),
-                        Localization.lang(
-                                "An unknown error has occurred.\n" +
-                                        "Entries may need to be added manually."));
+                dialogService.showWarningDialogAndWait(Localization.lang("Invalid result"), Localization
+                    .lang("An unknown error has occurred.\n" + "Entries may need to be added manually."));
                 LOGGER.error("An invalid result was returned when parsing citations.");
                 executing.set(false);
                 return;
             }
 
-            final ImportHandler handler = new ImportHandler(
-                    libraryTab.getBibDatabaseContext(),
-                    preferences,
-                    fileUpdateMonitor,
-                    libraryTab.getUndoManager(),
-                    stateManager,
-                    dialogService,
-                    taskExecutor);
+            final ImportHandler handler = new ImportHandler(libraryTab.getBibDatabaseContext(), preferences,
+                    fileUpdateMonitor, libraryTab.getUndoManager(), stateManager, dialogService, taskExecutor);
             handler.importEntriesWithDuplicateCheck(libraryTab.getBibDatabaseContext(), result.get());
 
             executedSuccessfully.set(true);
@@ -439,6 +422,7 @@ public class NewEntryViewModel {
     }
 
     private class WorkerSpecifyBibtex extends Task<Optional<List<BibEntry>>> {
+
         @Override
         protected Optional<List<BibEntry>> call() throws ParseException {
             final String text = bibtexText.getValue();
@@ -456,6 +440,7 @@ public class NewEntryViewModel {
             }
             return Optional.of(entries);
         }
+
     }
 
     public void executeSpecifyBibtex() {
@@ -471,20 +456,14 @@ public class NewEntryViewModel {
             final String dialogTitle = Localization.lang("Failed to parse Bib(La)Tex");
 
             if (exception instanceof ParseException) {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
+                dialogService.showInformationDialogAndWait(dialogTitle,
                         Localization.lang(
-                                "Failed to parse entries.\n" +
-                                        "The following error was encountered:\n" +
-                                        "%0",
+                                "Failed to parse entries.\n" + "The following error was encountered:\n" + "%0",
                                 exceptionMessage));
-            } else {
-                dialogService.showInformationDialogAndWait(
-                        dialogTitle,
-                        Localization.lang(
-                                "The following error occurred:\n" +
-                                        "%0",
-                                exceptionMessage));
+            }
+            else {
+                dialogService.showInformationDialogAndWait(dialogTitle,
+                        Localization.lang("The following error occurred:\n" + "%0", exceptionMessage));
             }
 
             LOGGER.error("An exception occurred when parsing Bib(La)Tex entries.", exception);
@@ -496,24 +475,15 @@ public class NewEntryViewModel {
             final Optional<List<BibEntry>> result = bibtexWorker.getValue();
 
             if (result.isEmpty()) {
-                dialogService.showWarningDialogAndWait(
-                        Localization.lang("Invalid result"),
-                        Localization.lang(
-                                "An unknown error has occurred.\n" +
-                                        "Entries may need to be added manually."));
+                dialogService.showWarningDialogAndWait(Localization.lang("Invalid result"), Localization
+                    .lang("An unknown error has occurred.\n" + "Entries may need to be added manually."));
                 LOGGER.error("An invalid result was returned when parsing Bib(La)Tex entries.");
                 executing.set(false);
                 return;
             }
 
-            final ImportHandler handler = new ImportHandler(
-                    libraryTab.getBibDatabaseContext(),
-                    preferences,
-                    fileUpdateMonitor,
-                    libraryTab.getUndoManager(),
-                    stateManager,
-                    dialogService,
-                    taskExecutor);
+            final ImportHandler handler = new ImportHandler(libraryTab.getBibDatabaseContext(), preferences,
+                    fileUpdateMonitor, libraryTab.getUndoManager(), stateManager, dialogService, taskExecutor);
             handler.importEntriesWithDuplicateCheck(libraryTab.getBibDatabaseContext(), result.get());
 
             executedSuccessfully.set(true);
@@ -534,4 +504,5 @@ public class NewEntryViewModel {
             bibtexWorker.cancel();
         }
     }
+
 }

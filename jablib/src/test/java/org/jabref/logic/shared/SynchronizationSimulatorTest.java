@@ -35,17 +35,22 @@ import static org.mockito.Mockito.when;
 class SynchronizationSimulatorTest {
 
     private BibDatabaseContext clientContextA;
+
     private BibDatabaseContext clientContextB;
-    private SynchronizationEventListenerTest eventListenerB; // used to monitor occurring events
+
+    private SynchronizationEventListenerTest eventListenerB; // used to monitor occurring
+                                                             // events
+
     private final GlobalCitationKeyPatterns pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
 
     private BibEntry getBibEntryExample(int index) {
         return new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Wirthlin, Michael J and Hutchings, Brad L and Gilson, Kent L " + index)
-                .withField(StandardField.TITLE, "The nano processor: a low resource reconfigurable processor " + index)
-                .withField(StandardField.BOOKTITLE, "FPGAs for Custom Computing Machines, 1994. Proceedings. IEEE Workshop on " + index)
-                .withField(StandardField.YEAR, "199" + index)
-                .withCitationKey("nanoproc199" + index);
+            .withField(StandardField.AUTHOR, "Wirthlin, Michael J and Hutchings, Brad L and Gilson, Kent L " + index)
+            .withField(StandardField.TITLE, "The nano processor: a low resource reconfigurable processor " + index)
+            .withField(StandardField.BOOKTITLE,
+                    "FPGAs for Custom Computing Machines, 1994. Proceedings. IEEE Workshop on " + index)
+            .withField(StandardField.YEAR, "199" + index)
+            .withCitationKey("nanoproc199" + index);
     }
 
     @BeforeEach
@@ -57,15 +62,19 @@ class SynchronizationSimulatorTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
 
         clientContextA = new BibDatabaseContext();
-        DBMSSynchronizer synchronizerA = new DBMSSynchronizer(clientContextA, ',', fieldPreferences, pattern, new DummyFileUpdateMonitor());
+        DBMSSynchronizer synchronizerA = new DBMSSynchronizer(clientContextA, ',', fieldPreferences, pattern,
+                new DummyFileUpdateMonitor());
         clientContextA.convertToSharedDatabase(synchronizerA);
         clientContextA.getDBMSSynchronizer().openSharedDatabase(dbmsConnection);
 
         clientContextB = new BibDatabaseContext();
-        DBMSSynchronizer synchronizerB = new DBMSSynchronizer(clientContextB, ',', fieldPreferences, pattern, new DummyFileUpdateMonitor());
+        DBMSSynchronizer synchronizerB = new DBMSSynchronizer(clientContextB, ',', fieldPreferences, pattern,
+                new DummyFileUpdateMonitor());
         clientContextB.convertToSharedDatabase(synchronizerB);
-        // use a second connection, because this is another client (typically on another machine)
-        clientContextB.getDBMSSynchronizer().openSharedDatabase(ConnectorTest.getTestDBMSConnection(TestManager.getDBMSTypeTestParameter()));
+        // use a second connection, because this is another client (typically on another
+        // machine)
+        clientContextB.getDBMSSynchronizer()
+            .openSharedDatabase(ConnectorTest.getTestDBMSConnection(TestManager.getDBMSTypeTestParameter()));
         eventListenerB = new SynchronizationEventListenerTest();
         clientContextB.getDBMSSynchronizer().registerListener(eventListenerB);
     }
@@ -145,7 +154,8 @@ class SynchronizationSimulatorTest {
         BibEntry bibEntryOfClientB = clientContextB.getDatabase().getEntries().getFirst();
         bibEntryOfClientB.setField(StandardField.YEAR, "2009");
 
-        // here a new SharedEntryNotPresentEvent has been thrown. In this case the user B would get an pop-up window.
+        // here a new SharedEntryNotPresentEvent has been thrown. In this case the user B
+        // would get an pop-up window.
         assertNotNull(eventListenerB.getSharedEntriesNotPresentEvent());
         assertEquals(List.of(bibEntryOfClientB), eventListenerB.getSharedEntriesNotPresentEvent().bibEntries());
     }
@@ -173,4 +183,5 @@ class SynchronizationSimulatorTest {
         // In this case an BibEntry merge dialog pops up.
         assertNotNull(eventListenerB.getUpdateRefusedEvent());
     }
+
 }

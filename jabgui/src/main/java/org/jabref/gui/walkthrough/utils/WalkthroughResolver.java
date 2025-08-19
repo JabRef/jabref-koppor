@@ -23,17 +23,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughResolver {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughResolver.class);
+
     private static final Duration RESOLVE_TIMEOUT = Duration.millis(2_500);
 
     private final WindowResolver windowResolver;
+
     private final @Nullable NodeResolver nodeResolver;
+
     private final Consumer<WalkthroughResult> onCompletion;
 
     private @Nullable Runnable windowListenerCleanup;
+
     private @Nullable ChangeListener<Scene> sceneListener;
+
     private @Nullable RecursiveChildrenListener recursiveChildrenListener;
+
     private @Nullable DelayedExecution delayedExecution;
+
     private WalkthroughUtils.@Nullable DebouncedInvalidationListener debouncedNodeFinder;
 
     /// Creates a [WalkthroughResolver] that attempts to identify the window and the
@@ -47,11 +55,11 @@ public class WalkthroughResolver {
     /// nodes are all shown, whichever comes first.
     /// 2. The resolver first tries to resolve the window, then resolves the node from
     /// the scene on the window using an event-based approach. Specifically:
-    ///    1. Re-resolution of window is triggered upon creation or deletion of a
+    /// 1. Re-resolution of window is triggered upon creation or deletion of a
     /// window.
-    ///    2. If a scene is not immediately present in the window,
+    /// 2. If a scene is not immediately present in the window,
     /// [Window#sceneProperty()] is listened to until a scene is present.
-    ///    3. Re-resolution of node is triggered upon any children list change in the
+    /// 3. Re-resolution of node is triggered upon any children list change in the
     /// scenegraph, or [com.sun.javafx.scene.TreeShowingProperty] change of any node in
     /// the scene graph.
     /// 3. [#onCompletion] is guaranteed to be called regardless of whether resolution
@@ -59,9 +67,8 @@ public class WalkthroughResolver {
     ///
     /// You may NOT use this class to resolve more than once. In such case,
     /// [#onCompletion] will never be called.
-    public WalkthroughResolver(WindowResolver windowResolver,
-                               @Nullable NodeResolver nodeResolver,
-                               Consumer<WalkthroughResult> onCompletion) {
+    public WalkthroughResolver(WindowResolver windowResolver, @Nullable NodeResolver nodeResolver,
+            Consumer<WalkthroughResult> onCompletion) {
         this.windowResolver = windowResolver;
         this.nodeResolver = nodeResolver;
         this.onCompletion = onCompletion;
@@ -74,17 +81,18 @@ public class WalkthroughResolver {
         });
         delayedExecution.start();
 
-        windowResolver.resolve().ifPresentOrElse(
-                this::handleWindowResolved,
-                () -> listenForWindow(windowResolver)
-        );
+        windowResolver.resolve().ifPresentOrElse(this::handleWindowResolved, () -> listenForWindow(windowResolver));
     }
 
     private void listenForWindow(WindowResolver resolver) {
         this.windowListenerCleanup = WalkthroughUtils.onWindowChangedUntil(() -> {
             Optional<Window> window = resolver.resolve();
             if (window.isPresent()) {
-                Platform.runLater(() -> handleWindowResolved(window.get())); // Make sure window listener detaches first.
+                Platform.runLater(() -> handleWindowResolved(window.get())); // Make sure
+                                                                             // window
+                                                                             // listener
+                                                                             // detaches
+                                                                             // first.
                 return true;
             }
             return false;
@@ -100,7 +108,8 @@ public class WalkthroughResolver {
         Scene scene = window.getScene();
         if (scene != null) {
             handleSceneResolved(window, scene, nodeResolver);
-        } else {
+        }
+        else {
             listenForScene(window, nodeResolver);
         }
     }
@@ -120,10 +129,9 @@ public class WalkthroughResolver {
     }
 
     private void handleSceneResolved(Window window, Scene scene, NodeResolver resolver) {
-        resolver.resolve(scene).ifPresentOrElse(
-                node -> finish(new WalkthroughResult(window, node)),
-                () -> listenForNodeInScene(window, scene, resolver)
-        );
+        resolver.resolve(scene)
+            .ifPresentOrElse(node -> finish(new WalkthroughResult(window, node)),
+                    () -> listenForNodeInScene(window, scene, resolver));
     }
 
     private void listenForNodeInScene(Window window, Scene scene, NodeResolver resolver) {
@@ -189,4 +197,5 @@ public class WalkthroughResolver {
             return window().isPresent();
         }
     }
+
 }

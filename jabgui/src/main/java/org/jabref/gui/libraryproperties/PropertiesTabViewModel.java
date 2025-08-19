@@ -9,4 +9,5 @@ public interface PropertiesTabViewModel {
     default boolean validateSettings() {
         return true;
     }
+
 }

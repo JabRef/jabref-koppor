@@ -30,39 +30,82 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import org.controlsfx.control.textfield.CustomPasswordField;
 
 public class NetworkTab extends AbstractPreferenceTabView<NetworkTabViewModel> implements PreferencesTab {
-    @FXML private CheckBox versionCheck;
-    @FXML private CheckBox proxyUse;
-    @FXML private Label proxyHostnameLabel;
-    @FXML private TextField proxyHostname;
-    @FXML private Label proxyPortLabel;
-    @FXML private TextField proxyPort;
-    @FXML private CheckBox proxyUseAuthentication;
-    @FXML private Label proxyUsernameLabel;
-    @FXML private TextField proxyUsername;
-    @FXML private Label proxyPasswordLabel;
-    @FXML private CustomPasswordField proxyPassword;
-    @FXML private Button checkConnectionButton;
-    @FXML private CheckBox proxyPersistPassword;
-    @FXML private SplitPane persistentTooltipWrapper; // The disabled persistPassword control does not show tooltips
 
-    @FXML private TableView<CustomCertificateViewModel> customCertificatesTable;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certIssuer;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certSerialNumber;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certSignatureAlgorithm;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certValidFrom;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certValidTo;
-    @FXML private TableColumn<CustomCertificateViewModel, String> certVersion;
-    @FXML private TableColumn<CustomCertificateViewModel, String> actionsColumn;
+    @FXML
+    private CheckBox versionCheck;
+
+    @FXML
+    private CheckBox proxyUse;
+
+    @FXML
+    private Label proxyHostnameLabel;
+
+    @FXML
+    private TextField proxyHostname;
+
+    @FXML
+    private Label proxyPortLabel;
+
+    @FXML
+    private TextField proxyPort;
+
+    @FXML
+    private CheckBox proxyUseAuthentication;
+
+    @FXML
+    private Label proxyUsernameLabel;
+
+    @FXML
+    private TextField proxyUsername;
+
+    @FXML
+    private Label proxyPasswordLabel;
+
+    @FXML
+    private CustomPasswordField proxyPassword;
+
+    @FXML
+    private Button checkConnectionButton;
+
+    @FXML
+    private CheckBox proxyPersistPassword;
+
+    @FXML
+    private SplitPane persistentTooltipWrapper; // The disabled persistPassword control
+                                                // does not show tooltips
+
+    @FXML
+    private TableView<CustomCertificateViewModel> customCertificatesTable;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certIssuer;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certSerialNumber;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certSignatureAlgorithm;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certValidFrom;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certValidTo;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> certVersion;
+
+    @FXML
+    private TableColumn<CustomCertificateViewModel, String> actionsColumn;
 
     private String proxyPasswordText = "";
+
     private int proxyPasswordCaretPosition = 0;
 
     private final ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
 
     public NetworkTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @Override
@@ -85,7 +128,8 @@ public class NetworkTab extends AbstractPreferenceTabView<NetworkTabViewModel> i
         proxyUseAuthentication.selectedProperty().bindBidirectional(viewModel.proxyUseAuthenticationProperty());
         proxyUseAuthentication.disableProperty().bind(proxyUse.selectedProperty().not());
 
-        BooleanBinding proxyCustomAndAuthentication = proxyUse.selectedProperty().and(proxyUseAuthentication.selectedProperty());
+        BooleanBinding proxyCustomAndAuthentication = proxyUse.selectedProperty()
+            .and(proxyUseAuthentication.selectedProperty());
         proxyUsernameLabel.disableProperty().bind(proxyCustomAndAuthentication.not());
         proxyUsername.textProperty().bindBidirectional(viewModel.proxyUsernameProperty());
         proxyUsername.disableProperty().bind(proxyCustomAndAuthentication.not());
@@ -93,12 +137,13 @@ public class NetworkTab extends AbstractPreferenceTabView<NetworkTabViewModel> i
         proxyPassword.textProperty().bindBidirectional(viewModel.proxyPasswordProperty());
         proxyPassword.disableProperty().bind(proxyCustomAndAuthentication.not());
         proxyPersistPassword.selectedProperty().bindBidirectional(viewModel.proxyPersistPasswordProperty());
-        proxyPersistPassword.disableProperty().bind(
-                proxyCustomAndAuthentication.and(viewModel.passwordPersistAvailable()).not());
+        proxyPersistPassword.disableProperty()
+            .bind(proxyCustomAndAuthentication.and(viewModel.passwordPersistAvailable()).not());
         EasyBind.subscribe(viewModel.passwordPersistAvailable(), available -> {
             if (!available) {
                 persistentTooltipWrapper.setTooltip(new Tooltip(Localization.lang("Credential store not available.")));
-            } else {
+            }
+            else {
                 persistentTooltipWrapper.setTooltip(null);
             }
         });
@@ -128,10 +173,11 @@ public class NetworkTab extends AbstractPreferenceTabView<NetworkTabViewModel> i
 
         actionsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getThumbprint()));
         new ValueTableCellFactory<CustomCertificateViewModel, String>()
-                .withGraphic(name -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
-                .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
-                .withOnMouseClickedEvent(thumbprint -> evt -> viewModel.customCertificateListProperty().removeIf(cert -> cert.getThumbprint().equals(thumbprint)))
-                .install(actionsColumn);
+            .withGraphic(name -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+            .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
+            .withOnMouseClickedEvent(thumbprint -> evt -> viewModel.customCertificateListProperty()
+                .removeIf(cert -> cert.getThumbprint().equals(thumbprint)))
+            .install(actionsColumn);
     }
 
     private String formatDate(LocalDate localDate) {
@@ -168,4 +214,5 @@ public class NetworkTab extends AbstractPreferenceTabView<NetworkTabViewModel> i
     void addCertificateFile() {
         viewModel.addCertificateFile();
     }
+
 }

@@ -14,15 +14,16 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 public class UTF8Checker implements EntryChecker {
+
     private final Charset charset;
 
     /**
      * Creates a UTF8Checker that,
      * <ol>
      * <li>decode a String into a bytes array</li>
-     * <li>attempts to decode the bytes array to a character array using the UTF-8 Charset</li>
+     * <li>attempts to decode the bytes array to a character array using the UTF-8
+     * Charset</li>
      * </ol>
-     *
      * @param charset the charset used to decode BibEntry fields
      */
     public UTF8Checker(Charset charset) {
@@ -31,7 +32,6 @@ public class UTF8Checker implements EntryChecker {
 
     /**
      * Detect any non UTF-8 encoded field
-     *
      * @param entry the BibEntry of BibLatex.
      * @return return the warning of UTF-8 check for BibLatex.
      */
@@ -58,9 +58,11 @@ public class UTF8Checker implements EntryChecker {
         CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         try {
             decoder.decode(ByteBuffer.wrap(data));
-        } catch (CharacterCodingException ex) {
+        }
+        catch (CharacterCodingException ex) {
             return false;
         }
         return true;
     }
+
 }

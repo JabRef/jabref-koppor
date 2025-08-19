@@ -19,8 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 class RenameFieldViewModelTest {
+
     RenameFieldViewModel renameFieldViewModel;
+
     BibEntry entryA;
+
     BibEntry entryB;
 
     BibDatabase bibDatabase;
@@ -29,15 +32,13 @@ class RenameFieldViewModelTest {
 
     @BeforeEach
     void setup() {
-        entryA = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.YEAR, "2015")
-                .withField(StandardField.DATE, "2014")
-                .withField(StandardField.AUTHOR, "Doe");
+        entryA = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.YEAR, "2015")
+            .withField(StandardField.DATE, "2014")
+            .withField(StandardField.AUTHOR, "Doe");
 
-        entryB = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.DATE, "1998")
-                .withField(StandardField.YEAR, "")
-                .withField(StandardField.AUTHOR, "Eddie");
+        entryB = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.DATE, "1998")
+            .withField(StandardField.YEAR, "")
+            .withField(StandardField.AUTHOR, "Eddie");
 
         bibDatabase = new BibDatabase();
         renameFieldViewModel = new RenameFieldViewModel(List.of(entryA, entryB), bibDatabase, stateManager);
@@ -108,4 +109,5 @@ class RenameFieldViewModelTest {
         assertEquals(Optional.empty(), entryB.getField(StandardField.DATE));
         assertEquals(Optional.of("1998"), entryB.getField(StandardField.YEAR));
     }
+
 }

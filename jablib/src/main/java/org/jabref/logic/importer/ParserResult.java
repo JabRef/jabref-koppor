@@ -17,12 +17,19 @@ import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.metadata.MetaData;
 
 public class ParserResult {
+
     private final Set<BibEntryType> entryTypes;
+
     private final List<String> warnings = new ArrayList<>();
+
     private BibDatabase database;
+
     private MetaData metaData;
+
     private Path file;
+
     private boolean invalid;
+
     private boolean changedOnMigration = false;
 
     public ParserResult() {
@@ -88,8 +95,8 @@ public class ParserResult {
 
     /**
      * Add a parser warning.
-     *
-     * @param s String Warning text. Must be pretranslated. Only added if there isn't already a dupe.
+     * @param s String Warning text. Must be pretranslated. Only added if there isn't
+     * already a dupe.
      */
     public void addWarning(String s) {
         if (!warnings.contains(s)) {
@@ -134,10 +141,8 @@ public class ParserResult {
     }
 
     public boolean isEmpty() {
-        return !this.getDatabase().hasEntries() &&
-                this.getDatabase().hasNoStrings() &&
-                this.getDatabase().getPreamble().isEmpty() &&
-                this.getMetaData().isEmpty();
+        return !this.getDatabase().hasEntries() && this.getDatabase().hasNoStrings()
+                && this.getDatabase().getPreamble().isEmpty() && this.getMetaData().isEmpty();
     }
 
     public boolean getChangedOnMigration() {
@@ -147,4 +152,5 @@ public class ParserResult {
     public void setChangedOnMigration(boolean wasChangedOnMigration) {
         this.changedOnMigration = wasChangedOnMigration;
     }
+
 }

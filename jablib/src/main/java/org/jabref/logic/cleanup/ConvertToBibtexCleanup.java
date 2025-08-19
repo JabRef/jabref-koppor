@@ -21,18 +21,25 @@ public class ConvertToBibtexCleanup implements CleanupJob {
         List<FieldChange> changes = new ArrayList<>();
 
         // Dates: get date and fill year and month
-        // If there already exists a non blank/empty value for the field, then it is not overwritten
+        // If there already exists a non blank/empty value for the field, then it is not
+        // overwritten
         entry.getPublicationDate().ifPresent(date -> {
             if (StringUtil.isBlank(entry.getField(StandardField.YEAR))) {
-                date.getYear().flatMap(year -> entry.setField(StandardField.YEAR, year.toString())).ifPresent(changes::add);
+                date.getYear()
+                    .flatMap(year -> entry.setField(StandardField.YEAR, year.toString()))
+                    .ifPresent(changes::add);
             }
 
             if (StringUtil.isBlank(entry.getField(StandardField.MONTH))) {
-                date.getMonth().flatMap(month -> entry.setField(StandardField.MONTH, month.getJabRefFormat())).ifPresent(changes::add);
+                date.getMonth()
+                    .flatMap(month -> entry.setField(StandardField.MONTH, month.getJabRefFormat()))
+                    .ifPresent(changes::add);
             }
 
             if (StringUtil.isBlank(entry.getField(StandardField.YEARDIVISION))) {
-                date.getSeason().flatMap(season -> entry.setField(StandardField.YEARDIVISION, season.getName())).ifPresent(changes::add);
+                date.getSeason()
+                    .flatMap(season -> entry.setField(StandardField.YEARDIVISION, season.getName()))
+                    .ifPresent(changes::add);
             }
 
             if (!changes.isEmpty()) {
@@ -45,7 +52,8 @@ public class ConvertToBibtexCleanup implements CleanupJob {
             Field newField = alias.getKey();
             entry.getField(oldField).ifPresent(oldValue -> {
                 if (!oldValue.isEmpty() && (entry.getField(newField).isEmpty())) {
-                    // There is content in the old field and no value in the new, so just copy
+                    // There is content in the old field and no value in the new, so just
+                    // copy
                     entry.setField(newField, oldValue).ifPresent(changes::add);
                     entry.clearField(oldField).ifPresent(changes::add);
                 }
@@ -53,4 +61,5 @@ public class ConvertToBibtexCleanup implements CleanupJob {
         }
         return changes;
     }
+
 }

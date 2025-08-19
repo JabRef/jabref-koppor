@@ -44,10 +44,15 @@ import static org.mockito.Mockito.when;
 class ArgumentProcessorTest {
 
     private final CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
     private final BibEntryTypesManager entryTypesManager = mock(BibEntryTypesManager.class);
+
     private final ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
     private final ExportPreferences exportPreferences = mock(ExportPreferences.class, Answers.RETURNS_DEEP_STUBS);
-    private final ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
+    private final ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS);
 
     private CommandLine commandLine;
 
@@ -59,14 +64,8 @@ class ArgumentProcessorTest {
         when(preferences.getExportPreferences()).thenReturn(exportPreferences);
         when(preferences.getImporterPreferences()).thenReturn(importerPreferences);
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
-        when(preferences.getSearchPreferences()).thenReturn(new SearchPreferences(
-                SearchDisplayMode.FILTER,
-                EnumSet.noneOf(SearchFlags.class),
-                false,
-                false,
-                0,
-                0,
-                0));
+        when(preferences.getSearchPreferences()).thenReturn(new SearchPreferences(SearchDisplayMode.FILTER,
+                EnumSet.noneOf(SearchFlags.class), false, false, 0, 0, 0));
 
         ArgumentProcessor argumentProcessor = new ArgumentProcessor(preferences, entryTypesManager);
         commandLine = new CommandLine(argumentProcessor);
@@ -74,12 +73,17 @@ class ArgumentProcessorTest {
 
     @Test
     void auxImport(@TempDir Path tempDir) throws URISyntaxException {
-        String fullBib = Path.of(ArgumentProcessorTest.class.getResource("origin.bib").toURI()).toAbsolutePath().toString();
-        String auxFile = Path.of(ArgumentProcessorTest.class.getResource("paper.aux").toURI()).toAbsolutePath().toString();
+        String fullBib = Path.of(ArgumentProcessorTest.class.getResource("origin.bib").toURI())
+            .toAbsolutePath()
+            .toString();
+        String auxFile = Path.of(ArgumentProcessorTest.class.getResource("paper.aux").toURI())
+            .toAbsolutePath()
+            .toString();
 
         Path outputBib = tempDir.resolve("output.bib").toAbsolutePath();
 
-        List<String> args = List.of("generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output", outputBib.toString());
+        List<String> args = List.of("generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output",
+                outputBib.toString());
 
         commandLine.execute(args.toArray(String[]::new));
 
@@ -91,17 +95,17 @@ class ArgumentProcessorTest {
         Path originBib = Path.of(Objects.requireNonNull(ArgumentProcessorTest.class.getResource("origin.bib")).toURI());
         String originBibFile = originBib.toAbsolutePath().toString();
 
-        Path expectedBib = Path.of(
-                Objects.requireNonNull(ArgumentProcessorTest.class.getResource("ArgumentProcessorTestExportMatches.bib"))
-                       .toURI()
-        );
+        Path expectedBib = Path.of(Objects
+            .requireNonNull(ArgumentProcessorTest.class.getResource("ArgumentProcessorTestExportMatches.bib"))
+            .toURI());
 
         BibtexImporter bibtexImporter = new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor());
         List<BibEntry> expectedEntries = bibtexImporter.importDatabase(expectedBib).getDatabase().getEntries();
 
         Path outputBib = tempDir.resolve("output.bib").toAbsolutePath();
 
-        List<String> args = List.of("search", "--debug", "--query", "author=Einstein", "--input", originBibFile, "--output", outputBib.toString());
+        List<String> args = List.of("search", "--debug", "--query", "author=Einstein", "--input", originBibFile,
+                "--output", outputBib.toString());
 
         commandLine.execute(args.toArray(String[]::new));
 
@@ -117,17 +121,20 @@ class ArgumentProcessorTest {
         Path outputHtml = tempDir.resolve("output.html").toAbsolutePath();
         String outputHtmlFile = outputHtml.toAbsolutePath().toString();
 
-        when(importerPreferences.getCustomImporters()) .thenReturn(FXCollections.emptyObservableSet());
+        when(importerPreferences.getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
 
         SaveOrder saveOrder = new SaveOrder(SaveOrder.OrderType.TABLE, List.of());
         ExportPreferences exportPreferences = new ExportPreferences(".html", tempDir, saveOrder, List.of());
         when(preferences.getExportPreferences()).thenReturn(exportPreferences);
 
-        SelfContainedSaveOrder selfContainedSaveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
-        SelfContainedSaveConfiguration selfContainedSaveConfiguration = new SelfContainedSaveConfiguration(selfContainedSaveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        SelfContainedSaveOrder selfContainedSaveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL,
+                List.of());
+        SelfContainedSaveConfiguration selfContainedSaveConfiguration = new SelfContainedSaveConfiguration(
+                selfContainedSaveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
         when(preferences.getSelfContainedExportConfiguration()).thenReturn(selfContainedSaveConfiguration);
 
-        List<String> args = List.of("convert", "--input", originBibFile, "--input-format", "bibtex", "--output", outputHtmlFile, "--output-format", "tablerefsabsbib");
+        List<String> args = List.of("convert", "--input", originBibFile, "--input-format", "bibtex", "--output",
+                outputHtmlFile, "--output-format", "tablerefsabsbib");
 
         commandLine.execute(args.toArray(String[]::new));
 
@@ -174,4 +181,5 @@ class ArgumentProcessorTest {
 
         System.setOut(System.out);
     }
+
 }

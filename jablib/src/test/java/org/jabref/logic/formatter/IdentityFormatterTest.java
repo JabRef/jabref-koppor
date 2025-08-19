@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class IdentityFormatterTest {
 
@@ -21,4 +22,5 @@ class IdentityFormatterTest {
     void formatExample() {
         assertEquals("JabRef", formatter.format(formatter.getExampleInput()));
     }
+
 }

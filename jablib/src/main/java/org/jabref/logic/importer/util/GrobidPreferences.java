@@ -6,13 +6,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class GrobidPreferences {
+
     private final BooleanProperty grobidEnabled;
+
     private final BooleanProperty grobidUseAsked;
+
     private final StringProperty grobidURL;
 
-    public GrobidPreferences(boolean grobidEnabled,
-                             boolean grobidUseAsked,
-                             String grobidURL) {
+    public GrobidPreferences(boolean grobidEnabled, boolean grobidUseAsked, String grobidURL) {
         this.grobidEnabled = new SimpleBooleanProperty(grobidEnabled);
         this.grobidUseAsked = new SimpleBooleanProperty(grobidUseAsked);
         this.grobidURL = new SimpleStringProperty(grobidURL);
@@ -55,4 +56,5 @@ public class GrobidPreferences {
     public void setGrobidURL(String grobidURL) {
         this.grobidURL.set(grobidURL);
     }
+
 }

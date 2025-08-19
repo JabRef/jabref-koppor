@@ -7,6 +7,7 @@ import javafx.scene.control.ListCell;
 import org.jabref.gui.push.GuiPushToApplication;
 
 public class PushToApplicationCell extends ListCell<GuiPushToApplication> {
+
     public static final String DETECTED_APPLICATION_STYLE_CLASS = "detected-application";
 
     private final ObservableSet<GuiPushToApplication> detectedApplications;
@@ -44,8 +45,10 @@ public class PushToApplicationCell extends ListCell<GuiPushToApplication> {
             if (!getStyleClass().contains(DETECTED_APPLICATION_STYLE_CLASS)) {
                 getStyleClass().add(DETECTED_APPLICATION_STYLE_CLASS);
             }
-        } else {
+        }
+        else {
             getStyleClass().removeAll(DETECTED_APPLICATION_STYLE_CLASS);
         }
     }
+
 }

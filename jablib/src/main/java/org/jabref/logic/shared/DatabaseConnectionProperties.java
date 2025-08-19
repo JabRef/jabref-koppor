@@ -27,4 +27,5 @@ public interface DatabaseConnectionProperties {
     String getJdbcUrl();
 
     boolean isUseExpertMode();
+
 }

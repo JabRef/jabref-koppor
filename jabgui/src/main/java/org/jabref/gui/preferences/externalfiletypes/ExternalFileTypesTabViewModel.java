@@ -20,12 +20,15 @@ import org.slf4j.LoggerFactory;
 public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalFileTypesTabViewModel.class);
+
     private final ObservableList<ExternalFileTypeItemViewModel> fileTypes = FXCollections.observableArrayList();
 
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
+
     private final DialogService dialogService;
 
-    public ExternalFileTypesTabViewModel(ExternalApplicationsPreferences externalApplicationsPreferences, DialogService dialogService) {
+    public ExternalFileTypesTabViewModel(ExternalApplicationsPreferences externalApplicationsPreferences,
+            DialogService dialogService) {
         this.externalApplicationsPreferences = externalApplicationsPreferences;
         this.dialogService = dialogService;
     }
@@ -33,28 +36,33 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
     @Override
     public void setValues() {
         fileTypes.clear();
-        fileTypes.addAll(externalApplicationsPreferences.getExternalFileTypes().stream()
-                                                        .map(ExternalFileTypeItemViewModel::new)
-                                                        .toList());
+        fileTypes.addAll(externalApplicationsPreferences.getExternalFileTypes()
+            .stream()
+            .map(ExternalFileTypeItemViewModel::new)
+            .toList());
         fileTypes.sort(Comparator.comparing(ExternalFileTypeItemViewModel::getName));
     }
 
     public void storeSettings() {
         Set<ExternalFileType> saveList = new HashSet<>();
 
-        fileTypes.stream().map(ExternalFileTypeItemViewModel::toExternalFileType)
-                 .forEach(type -> ExternalFileTypes.getDefaultExternalFileTypes().stream()
-                                                   .filter(type::equals).findAny()
-                                                   .ifPresentOrElse(saveList::add, () -> saveList.add(type)));
+        fileTypes.stream()
+            .map(ExternalFileTypeItemViewModel::toExternalFileType)
+            .forEach(type -> ExternalFileTypes.getDefaultExternalFileTypes()
+                .stream()
+                .filter(type::equals)
+                .findAny()
+                .ifPresentOrElse(saveList::add, () -> saveList.add(type)));
 
         externalApplicationsPreferences.getExternalFileTypes().clear();
         externalApplicationsPreferences.getExternalFileTypes().addAll(saveList);
     }
 
     public void resetToDefaults() {
-        fileTypes.setAll(ExternalFileTypes.getDefaultExternalFileTypes().stream()
-                                          .map(ExternalFileTypeItemViewModel::new)
-                                          .toList());
+        fileTypes.setAll(ExternalFileTypes.getDefaultExternalFileTypes()
+            .stream()
+            .map(ExternalFileTypeItemViewModel::new)
+            .toList());
         fileTypes.sort(Comparator.comparing(ExternalFileTypeItemViewModel::getName));
     }
 
@@ -87,7 +95,8 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
                 LOGGER.warn("One of the fields is empty or invalid. Not saving.");
                 return false;
             }
-        } else if (!isValidExternalFileType(typeToModify)) {
+        }
+        else if (!isValidExternalFileType(typeToModify)) {
             return false;
         }
 
@@ -115,7 +124,8 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
     }
 
     private boolean hasEmptyValue(ExternalFileTypeItemViewModel item) {
-        return item.getName().isEmpty() || item.extensionProperty().get().isEmpty() || item.mimetypeProperty().get().isEmpty();
+        return item.getName().isEmpty() || item.extensionProperty().get().isEmpty()
+                || item.mimetypeProperty().get().isEmpty();
     }
 
     private boolean isUniqueExtension(ExternalFileTypeItemViewModel item) {
@@ -128,4 +138,5 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
         }
         return true;
     }
+
 }

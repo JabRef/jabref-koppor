@@ -28,12 +28,10 @@ class SuggestionProvidersTest {
     void initializeSuggestionProviders() {
         BibDatabase database = new BibDatabase();
         JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
-        Set<Field> completeFields = Set.of(StandardField.AUTHOR, StandardField.XREF, StandardField.XDATA, StandardField.JOURNAL, StandardField.PUBLISHER, SpecialField.PRINTED);
-        AutoCompletePreferences autoCompletePreferences = new AutoCompletePreferences(
-                true,
-                AutoCompleteFirstNameMode.BOTH,
-                AutoCompletePreferences.NameFormat.BOTH,
-                completeFields);
+        Set<Field> completeFields = Set.of(StandardField.AUTHOR, StandardField.XREF, StandardField.XDATA,
+                StandardField.JOURNAL, StandardField.PUBLISHER, SpecialField.PRINTED);
+        AutoCompletePreferences autoCompletePreferences = new AutoCompletePreferences(true,
+                AutoCompleteFirstNameMode.BOTH, AutoCompletePreferences.NameFormat.BOTH, completeFields);
         this.suggestionProviders = new SuggestionProviders(database, abbreviationRepository, autoCompletePreferences);
     }
 
@@ -51,9 +49,9 @@ class SuggestionProvidersTest {
                 // TODO: We should offer pre-configured publishers
                 Arguments.of(JournalsSuggestionProvider.class, StandardField.PUBLISHER),
 
-                // TODO: Auto completion should be aware of possible values of special fields
-                Arguments.of(WordSuggestionProvider.class, SpecialField.PRINTED)
-        );
+                // TODO: Auto completion should be aware of possible values of special
+                // fields
+                Arguments.of(WordSuggestionProvider.class, SpecialField.PRINTED));
     }
 
     @ParameterizedTest
@@ -67,4 +65,5 @@ class SuggestionProvidersTest {
         SuggestionProviders empty = new SuggestionProviders();
         assertEquals(EmptySuggestionProvider.class, empty.getForField(StandardField.AUTHOR).getClass());
     }
+
 }

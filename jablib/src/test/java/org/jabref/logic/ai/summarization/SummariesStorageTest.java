@@ -14,9 +14,12 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 abstract class SummariesStorageTest {
-    @TempDir Path tempDir;
+
+    @TempDir
+    Path tempDir;
 
     private SummariesStorage summariesStorage;
+
     private Path bibPath;
 
     abstract SummariesStorage makeSummariesStorage(Path path);
@@ -41,17 +44,20 @@ abstract class SummariesStorageTest {
 
     @Test
     void set() {
-        summariesStorage.set(bibPath, "citationKey", new Summary(LocalDateTime.now(), AiProvider.OPEN_AI, "model", "contents"));
+        summariesStorage.set(bibPath, "citationKey",
+                new Summary(LocalDateTime.now(), AiProvider.OPEN_AI, "model", "contents"));
         reopen();
         assertEquals(Optional.of("contents"), summariesStorage.get(bibPath, "citationKey").map(Summary::content));
     }
 
     @Test
     void clear() {
-        summariesStorage.set(bibPath, "citationKey", new Summary(LocalDateTime.now(), AiProvider.OPEN_AI, "model", "contents"));
+        summariesStorage.set(bibPath, "citationKey",
+                new Summary(LocalDateTime.now(), AiProvider.OPEN_AI, "model", "contents"));
         reopen();
         summariesStorage.clear(bibPath, "citationKey");
         reopen();
         assertEquals(Optional.empty(), summariesStorage.get(bibPath, "citationKey"));
     }
+
 }

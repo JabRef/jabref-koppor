@@ -32,6 +32,7 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
     private final UndoManager undoManager;
 
     private final BibDatabase database;
+
     private final List<BibEntry> selectedEntries;
 
     private final StateManager stateManager;
@@ -48,22 +49,23 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
 
         this.setTitle(Localization.lang("Automatic field editor"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(buttonType -> {
             if (buttonType != null && buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                 saveChanges();
-            } else {
+            }
+            else {
                 cancelChanges();
             }
             return "";
         });
 
         // This will prevent all dialog buttons from having the same size
-        // Read more: https://stackoverflow.com/questions/45866249/javafx-8-alert-different-button-sizes
-        getDialogPane().getButtonTypes().stream()
+        // Read more:
+        // https://stackoverflow.com/questions/45866249/javafx-8-alert-different-button-sizes
+        getDialogPane().getButtonTypes()
+            .stream()
             .map(getDialogPane()::lookupButton)
             .forEach(btn -> ButtonBar.setButtonUniformSize(btn, false));
     }
@@ -80,8 +82,7 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
 
         EasyBind.listen(stateManager.lastAutomaticFieldEditorEditProperty(), (obs, old, lastEdit) -> {
             viewModel.getDialogEdits().addEdit(lastEdit.getEdit());
-            notificationPanes.get(lastEdit.getTabIndex())
-                             .notify(lastEdit.getAffectedEntries(), selectedEntries.size());
+            notificationPanes.get(lastEdit.getTabIndex()).notify(lastEdit.getAffectedEntries(), selectedEntries.size());
         });
     }
 
@@ -92,8 +93,10 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
     private void cancelChanges() {
         try {
             viewModel.cancelChanges();
-        } catch (CannotUndoException e) {
+        }
+        catch (CannotUndoException e) {
             LOGGER.info("Could not undo", e);
         }
     }
+
 }

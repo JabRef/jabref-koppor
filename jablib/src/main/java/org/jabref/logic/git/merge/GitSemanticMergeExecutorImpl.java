@@ -18,7 +18,8 @@ public class GitSemanticMergeExecutorImpl implements GitSemanticMergeExecutor {
     }
 
     @Override
-    public MergeResult merge(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote, Path bibFilePath) throws IOException {
+    public MergeResult merge(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote,
+            Path bibFilePath) throws IOException {
         // 1. extract merge plan from base -> remote
         MergePlan plan = SemanticConflictDetector.extractMergePlan(base, remote);
 
@@ -30,4 +31,5 @@ public class GitSemanticMergeExecutorImpl implements GitSemanticMergeExecutor {
 
         return MergeResult.success();
     }
+
 }

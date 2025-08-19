@@ -26,29 +26,32 @@ import jakarta.inject.Inject;
 
 public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanelItemModel> {
 
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> entryTypeColumn;
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, String> patternColumn;
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> actionsColumn;
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> entryTypeColumn;
 
-    @Inject private CliPreferences preferences;
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, String> patternColumn;
+
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> actionsColumn;
+
+    @Inject
+    private CliPreferences preferences;
 
     private CitationKeyPatternsPanelViewModel viewModel;
 
     private long lastKeyPressTime;
+
     private String tableSearchTerm;
+
     private final ObservableList<String> patterns;
 
     public CitationKeyPatternsPanel() {
         super();
         this.patterns = FXCollections.observableArrayList(
-                CitationKeyPattern.getAllPatterns().stream()
-                                  .map(CitationKeyPattern::stringRepresentation)
-                                  .toList()
-        );
+                CitationKeyPattern.getAllPatterns().stream().map(CitationKeyPattern::stringRepresentation).toList());
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -60,11 +63,10 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
         entryTypeColumn.setSortable(true);
         entryTypeColumn.setReorderable(false);
         entryTypeColumn.setCellValueFactory(cellData -> cellData.getValue().entryType());
-        new ValueTableCellFactory<CitationKeyPatternsPanelItemModel, EntryType>()
-                .withText(EntryType::getDisplayName)
-                .install(entryTypeColumn);
-        this.setOnSort(event ->
-                viewModel.patternListProperty().sort(CitationKeyPatternsPanelViewModel.defaultOnTopComparator));
+        new ValueTableCellFactory<CitationKeyPatternsPanelItemModel, EntryType>().withText(EntryType::getDisplayName)
+            .install(entryTypeColumn);
+        this.setOnSort(event -> viewModel.patternListProperty()
+            .sort(CitationKeyPatternsPanelViewModel.defaultOnTopComparator));
 
         patternColumn.setSortable(true);
         patternColumn.setReorderable(false);
@@ -72,19 +74,19 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
         patternColumn.setCellFactory(_ -> new CitationKeyPatternSuggestionCell(patterns));
         patternColumn.setEditable(true);
         patternColumn.setOnEditCommit(
-                (TableColumn.CellEditEvent<CitationKeyPatternsPanelItemModel, String> event) ->
-                        event.getRowValue().setPattern(event.getNewValue()));
+                (TableColumn.CellEditEvent<CitationKeyPatternsPanelItemModel, String> event) -> event.getRowValue()
+                    .setPattern(event.getNewValue()));
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
         actionsColumn.setCellValueFactory(cellData -> cellData.getValue().entryType());
         new ValueTableCellFactory<CitationKeyPatternsPanelItemModel, EntryType>()
-                .withGraphic(entryType -> IconTheme.JabRefIcons.REFRESH.getGraphicNode())
-                .withTooltip(entryType ->
-                        Localization.lang("Reset %s to default value").formatted(entryType.getDisplayName()))
-                .withOnMouseClickedEvent(item -> evt ->
-                        viewModel.setItemToDefaultPattern(this.getFocusModel().getFocusedItem()))
-                .install(actionsColumn);
+            .withGraphic(entryType -> IconTheme.JabRefIcons.REFRESH.getGraphicNode())
+            .withTooltip(
+                    entryType -> Localization.lang("Reset %s to default value").formatted(entryType.getDisplayName()))
+            .withOnMouseClickedEvent(
+                    item -> evt -> viewModel.setItemToDefaultPattern(this.getFocusModel().getFocusedItem()))
+            .install(actionsColumn);
 
         this.setRowFactory(item -> new HighlightTableRow());
         this.setOnKeyTyped(this::jumpToSearchKey);
@@ -114,29 +116,39 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
 
         if (System.currentTimeMillis() - lastKeyPressTime < 1000) {
             tableSearchTerm += keypressed.getCharacter().toLowerCase();
-        } else {
+        }
+        else {
             tableSearchTerm = keypressed.getCharacter().toLowerCase();
         }
 
         lastKeyPressTime = System.currentTimeMillis();
 
-        this.getItems().stream().filter(item -> item.getEntryType().getName().toLowerCase().startsWith(tableSearchTerm))
-            .findFirst().ifPresent(this::scrollTo);
+        this.getItems()
+            .stream()
+            .filter(item -> item.getEntryType().getName().toLowerCase().startsWith(tableSearchTerm))
+            .findFirst()
+            .ifPresent(this::scrollTo);
     }
 
     private static class HighlightTableRow extends TableRow<CitationKeyPatternsPanelItemModel> {
+
         @Override
         public void updateItem(CitationKeyPatternsPanelItemModel item, boolean empty) {
             super.updateItem(item, empty);
             if (item == null || item.getEntryType() == null) {
                 setStyle("");
-            } else if (isSelected()) {
+            }
+            else if (isSelected()) {
                 setStyle("-fx-background-color: -fx-selection-bar");
-            } else if (CitationKeyPatternsPanelViewModel.ENTRY_TYPE_DEFAULT_NAME.equals(item.getEntryType().getName())) {
+            }
+            else if (CitationKeyPatternsPanelViewModel.ENTRY_TYPE_DEFAULT_NAME.equals(item.getEntryType().getName())) {
                 setStyle("-fx-background-color: -fx-default-button");
-            } else {
+            }
+            else {
                 setStyle("");
             }
         }
+
     }
+
 }

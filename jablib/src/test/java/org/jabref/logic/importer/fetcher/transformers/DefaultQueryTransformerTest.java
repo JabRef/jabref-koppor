@@ -26,4 +26,5 @@ class DefaultQueryTransformerTest extends YearAndYearRangeByFilteringQueryTransf
     public String getTitlePrefix() {
         return "";
     }
+
 }

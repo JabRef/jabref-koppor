@@ -35,4 +35,5 @@ class ReplaceWithEscapedDoubleQuotesTest {
     void doNothing() {
         assertEquals("this is a test", formatter.format("this is a test"));
     }
+
 }

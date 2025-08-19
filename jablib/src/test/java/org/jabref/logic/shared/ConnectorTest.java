@@ -11,12 +11,21 @@ import org.jabref.testutils.category.DatabaseTest;
 @DatabaseTest
 public class ConnectorTest {
 
-    public static DBMSConnection getTestDBMSConnection(DBMSType dbmsType) throws SQLException, InvalidDBMSConnectionPropertiesException {
+    public static DBMSConnection getTestDBMSConnection(DBMSType dbmsType)
+            throws SQLException, InvalidDBMSConnectionPropertiesException {
         DBMSConnectionProperties properties = getTestConnectionProperties(dbmsType);
         return new DBMSConnection(properties);
     }
 
     public static DBMSConnectionProperties getTestConnectionProperties(DBMSType dbmsType) {
-        return new DBMSConnectionPropertiesBuilder().setType(dbmsType).setHost("localhost").setPort(dbmsType.getDefaultPort()).setDatabase("postgres").setUser("postgres").setPassword("postgres").setUseSSL(false).createDBMSConnectionProperties();
+        return new DBMSConnectionPropertiesBuilder().setType(dbmsType)
+            .setHost("localhost")
+            .setPort(dbmsType.getDefaultPort())
+            .setDatabase("postgres")
+            .setUser("postgres")
+            .setPassword("postgres")
+            .setUseSSL(false)
+            .createDBMSConnectionProperties();
     }
+
 }

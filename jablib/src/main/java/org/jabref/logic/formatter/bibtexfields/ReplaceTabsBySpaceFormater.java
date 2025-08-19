@@ -38,4 +38,5 @@ public class ReplaceTabsBySpaceFormater extends Formatter {
     public String getExampleInput() {
         return "In \t\t CDMA";
     }
+
 }

@@ -15,15 +15,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WordKeywordGroupTest {
 
     private WordKeywordGroup testGroup;
+
     private WordKeywordGroup testCaseSensitiveGroup;
+
     private WordKeywordGroup waterGroup;
+
     private BibEntry entry;
 
     @BeforeEach
     void setUp() {
-        testGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", false, ',', false);
-        testCaseSensitiveGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", true, ',', false);
-        waterGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "\\H2O", false, ',', false);
+        testGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", false,
+                ',', false);
+        testCaseSensitiveGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                "test", true, ',', false);
+        waterGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "\\H2O",
+                false, ',', false);
         entry = new BibEntry();
     }
 
@@ -121,4 +127,5 @@ class WordKeywordGroupTest {
 
         assertEquals(Optional.of("blubb"), entry.getField(StandardField.KEYWORDS));
     }
+
 }

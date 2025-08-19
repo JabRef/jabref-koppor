@@ -23,6 +23,7 @@ import org.controlsfx.control.textfield.AutoCompletionBinding;
 public class PersonNameSuggestionProvider extends SuggestionProvider<Author> {
 
     private final Collection<Field> fields;
+
     private final BibDatabase database;
 
     PersonNameSuggestionProvider(Field field, BibDatabase database) {
@@ -38,12 +39,12 @@ public class PersonNameSuggestionProvider extends SuggestionProvider<Author> {
 
     public Stream<Author> getAuthors(BibEntry entry) {
         return entry.getFieldMap()
-                    .entrySet()
-                    .stream()
-                    .filter(fieldValuePair -> fields.contains(fieldValuePair.getKey()))
-                    .map(Map.Entry::getValue)
-                    .map(AuthorList::parse)
-                    .flatMap(authors -> authors.getAuthors().stream());
+            .entrySet()
+            .stream()
+            .filter(fieldValuePair -> fields.contains(fieldValuePair.getKey()))
+            .map(Map.Entry::getValue)
+            .map(AuthorList::parse)
+            .flatMap(authors -> authors.getAuthors().stream());
     }
 
     @Override
@@ -63,8 +64,7 @@ public class PersonNameSuggestionProvider extends SuggestionProvider<Author> {
 
     @Override
     public Stream<Author> getSource() {
-        return database.getEntries()
-                       .parallelStream()
-                       .flatMap(this::getAuthors);
+        return database.getEntries().parallelStream().flatMap(this::getAuthors);
     }
+
 }

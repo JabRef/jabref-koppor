@@ -33,4 +33,5 @@ public class EscapeDollarSignFormatter extends Formatter {
     public String getExampleInput() {
         return "Text$with$dollar$sign";
     }
+
 }

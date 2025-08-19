@@ -25,7 +25,6 @@ public class AllEntriesGroup extends AbstractGroup {
 
     /**
      * Always returns true for any BibEntry!
-     *
      * @param entry The @{@link BibEntry} to check
      * @return Always returns true
      */
@@ -44,4 +43,5 @@ public class AllEntriesGroup extends AbstractGroup {
     public int hashCode() {
         return getName().hashCode();
     }
+
 }

@@ -119,7 +119,9 @@ class BibtexStringTest {
     @Test
     void otherTypeCorrectlyDeterminedForUpperCase() {
         // Source of the example: https://docs.jabref.org/fields/strings
-        BibtexString bibtexString = new BibtexString("lTOSCA", "Topology and Orchestration Specification for Cloud Applications");
+        BibtexString bibtexString = new BibtexString("lTOSCA",
+                "Topology and Orchestration Specification for Cloud Applications");
         assertEquals(BibtexString.Type.OTHER, bibtexString.getType());
     }
+
 }

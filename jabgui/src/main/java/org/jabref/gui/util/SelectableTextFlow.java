@@ -18,13 +18,19 @@ import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
 
 public class SelectableTextFlow extends TextFlow {
+
     @Nullable private HitInfo startHit;
+
     @Nullable private HitInfo endHit;
+
     @Nullable private Path selectionPath;
 
     private final Pane parentPane;
+
     private boolean isDragging = false;
+
     private boolean justFinishedDrag = false;
+
     private final ClipBoardManager clipBoardManager;
 
     public SelectableTextFlow(Pane parent) {
@@ -173,4 +179,5 @@ public class SelectableTextFlow extends TextFlow {
         parentPane.getChildren().remove(selectionPath);
         selectionPath = null;
     }
+
 }

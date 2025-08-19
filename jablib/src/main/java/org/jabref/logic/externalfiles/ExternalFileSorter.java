@@ -3,8 +3,8 @@ package org.jabref.logic.externalfiles;
 import org.jabref.logic.l10n.Localization;
 
 public enum ExternalFileSorter {
-    DEFAULT(Localization.lang("Default")),
-    DATE_ASCENDING(Localization.lang("Newest first")),
+
+    DEFAULT(Localization.lang("Default")), DATE_ASCENDING(Localization.lang("Newest first")),
     DATE_DESCENDING(Localization.lang("Oldest first"));
 
     private final String sorter;
@@ -16,7 +16,8 @@ public enum ExternalFileSorter {
     public static ExternalFileSorter parse(String name) {
         try {
             return ExternalFileSorter.valueOf(name);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             return DEFAULT;
         }
     }
@@ -24,4 +25,5 @@ public enum ExternalFileSorter {
     public String getSorter() {
         return sorter;
     }
+
 }

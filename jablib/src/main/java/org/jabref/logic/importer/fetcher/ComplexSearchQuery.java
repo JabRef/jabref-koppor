@@ -12,24 +12,36 @@ import org.jabref.model.strings.StringUtil;
 import org.apache.lucene.index.Term;
 
 public class ComplexSearchQuery {
+
     // Field for non-fielded search
     private final List<String> defaultField;
+
     private final List<String> authors;
+
     private final List<String> titlePhrases;
+
     private final List<String> abstractPhrases;
+
     private final Integer fromYear;
+
     private final Integer toYear;
+
     private final Integer singleYear;
+
     private final String journal;
+
     private final String doi;
 
-    private ComplexSearchQuery(List<String> defaultField, List<String> authors, List<String> titlePhrases, List<String> abstractPhrases, Integer fromYear, Integer toYear, Integer singleYear, String journal, String doi) {
+    private ComplexSearchQuery(List<String> defaultField, List<String> authors, List<String> titlePhrases,
+            List<String> abstractPhrases, Integer fromYear, Integer toYear, Integer singleYear, String journal,
+            String doi) {
         this.defaultField = defaultField;
         this.authors = authors;
         this.titlePhrases = titlePhrases;
         this.abstractPhrases = abstractPhrases;
         this.fromYear = fromYear;
-        // Some APIs do not support, or not fully support, year based search. In these cases, the non applicable parameters are ignored.
+        // Some APIs do not support, or not fully support, year based search. In these
+        // cases, the non applicable parameters are ignored.
         this.toYear = toYear;
         this.journal = journal;
         this.singleYear = singleYear;
@@ -108,16 +120,19 @@ public class ComplexSearchQuery {
         ComplexSearchQuery that = (ComplexSearchQuery) o;
 
         // Just check for set equality, order does not matter
-        if (!(getDefaultFieldPhrases().containsAll(that.getDefaultFieldPhrases()) && that.getDefaultFieldPhrases().containsAll(getDefaultFieldPhrases()))) {
+        if (!(getDefaultFieldPhrases().containsAll(that.getDefaultFieldPhrases())
+                && that.getDefaultFieldPhrases().containsAll(getDefaultFieldPhrases()))) {
             return false;
         }
         if (!(getAuthors().containsAll(that.getAuthors()) && that.getAuthors().containsAll(getAuthors()))) {
             return false;
         }
-        if (!(getTitlePhrases().containsAll(that.getTitlePhrases()) && that.getTitlePhrases().containsAll(getTitlePhrases()))) {
+        if (!(getTitlePhrases().containsAll(that.getTitlePhrases())
+                && that.getTitlePhrases().containsAll(getTitlePhrases()))) {
             return false;
         }
-        if (!(getAbstractPhrases().containsAll(that.getAbstractPhrases()) && that.getAbstractPhrases().containsAll(getAbstractPhrases()))) {
+        if (!(getAbstractPhrases().containsAll(that.getAbstractPhrases())
+                && that.getAbstractPhrases().containsAll(getAbstractPhrases()))) {
             return false;
         }
         if (getFromYear().isPresent() ? !getFromYear().equals(that.getFromYear()) : that.getFromYear().isPresent()) {
@@ -126,7 +141,8 @@ public class ComplexSearchQuery {
         if (getToYear().isPresent() ? !getToYear().equals(that.getToYear()) : that.getToYear().isPresent()) {
             return false;
         }
-        if (getSingleYear().isPresent() ? !getSingleYear().equals(that.getSingleYear()) : that.getSingleYear().isPresent()) {
+        if (getSingleYear().isPresent() ? !getSingleYear().equals(that.getSingleYear())
+                : that.getSingleYear().isPresent()) {
             return false;
         }
         if (getDOI().isPresent() ? !getDOI().equals(that.getDOI()) : that.getDOI().isPresent()) {
@@ -137,7 +153,8 @@ public class ComplexSearchQuery {
 
     @Override
     public int hashCode() {
-        return Objects.hash(defaultField, getAuthors(), getSingleYear(), getAbstractPhrases(), getFromYear(), getToYear(), getTitlePhrases(), getJournal(), getDOI());
+        return Objects.hash(defaultField, getAuthors(), getSingleYear(), getAbstractPhrases(), getFromYear(),
+                getToYear(), getTitlePhrases(), getJournal(), getDOI());
     }
 
     @Override
@@ -150,22 +167,31 @@ public class ComplexSearchQuery {
         getJournal().ifPresent(stringJoiner::add);
         getDOI().ifPresent(newElement -> stringJoiner.add("doi:" + newElement));
         stringJoiner.add(String.join(" ", getTitlePhrases()))
-                    .add(String.join(" ", getDefaultFieldPhrases()))
-                    .add(String.join(" ", getAuthors()))
-                    .add(String.join(" ", getAbstractPhrases()));
+            .add(String.join(" ", getDefaultFieldPhrases()))
+            .add(String.join(" ", getAuthors()))
+            .add(String.join(" ", getAbstractPhrases()));
 
         return stringJoiner.toString();
     }
 
     public static class ComplexSearchQueryBuilder {
+
         private final List<String> defaultFieldPhrases = new ArrayList<>();
+
         private final List<String> authors = new ArrayList<>();
+
         private final List<String> titlePhrases = new ArrayList<>();
+
         private final List<String> abstractPhrases = new ArrayList<>();
+
         private String journal;
+
         private String doi;
+
         private Integer fromYear;
+
         private Integer toYear;
+
         private Integer singleYear;
 
         private ComplexSearchQueryBuilder() {
@@ -267,18 +293,20 @@ public class ComplexSearchQuery {
         }
 
         /**
-         * Instantiates the AdvancesSearchConfig from the provided Builder parameters
-         * If all text fields are empty an empty optional is returned
-         *
-         * @return ComplexSearchQuery instance with the fields set to the values defined in the building instance.
-         * @throws IllegalStateException An IllegalStateException is thrown in case all text search fields are empty.
-         *                               See: https://softwareengineering.stackexchange.com/questions/241309/builder-pattern-when-to-fail/241320#241320
+         * Instantiates the AdvancesSearchConfig from the provided Builder parameters If
+         * all text fields are empty an empty optional is returned
+         * @return ComplexSearchQuery instance with the fields set to the values defined
+         * in the building instance.
+         * @throws IllegalStateException An IllegalStateException is thrown in case all
+         * text search fields are empty. See:
+         * https://softwareengineering.stackexchange.com/questions/241309/builder-pattern-when-to-fail/241320#241320
          */
         public ComplexSearchQuery build() throws IllegalStateException {
             if (textSearchFieldsAndYearFieldsAreEmpty()) {
                 throw new IllegalStateException("At least one text field has to be set");
             }
-            return new ComplexSearchQuery(defaultFieldPhrases, authors, titlePhrases, abstractPhrases, fromYear, toYear, singleYear, journal, doi);
+            return new ComplexSearchQuery(defaultFieldPhrases, authors, titlePhrases, abstractPhrases, fromYear, toYear,
+                    singleYear, journal, doi);
         }
 
         void parseYearRange(String termText) {
@@ -287,13 +315,15 @@ public class ComplexSearchQuery {
             int toYear = 9999;
             try {
                 fromYear = Integer.parseInt(split[0]);
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e) {
                 // default value already set
             }
             if (split.length > 1) {
                 try {
                     toYear = Integer.parseInt(split[1]);
-                } catch (NumberFormatException e) {
+                }
+                catch (NumberFormatException e) {
                     // default value already set
                 }
             }
@@ -301,8 +331,9 @@ public class ComplexSearchQuery {
         }
 
         private boolean textSearchFieldsAndYearFieldsAreEmpty() {
-            return this.stringListIsBlank(defaultFieldPhrases) && this.stringListIsBlank(titlePhrases) &&
-                    this.stringListIsBlank(authors) && this.stringListIsBlank(abstractPhrases) && StringUtil.isBlank(journal) && StringUtil.isBlank(doi) && yearFieldsAreEmpty();
+            return this.stringListIsBlank(defaultFieldPhrases) && this.stringListIsBlank(titlePhrases)
+                    && this.stringListIsBlank(authors) && this.stringListIsBlank(abstractPhrases)
+                    && StringUtil.isBlank(journal) && StringUtil.isBlank(doi) && yearFieldsAreEmpty();
         }
 
         private boolean yearFieldsAreEmpty() {
@@ -312,5 +343,7 @@ public class ComplexSearchQuery {
         private boolean stringListIsBlank(List<String> stringList) {
             return stringList == null || stringList.stream().allMatch(String::isBlank);
         }
+
     }
+
 }

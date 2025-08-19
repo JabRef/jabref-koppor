@@ -34,4 +34,5 @@ public class BibDatbaseContextTest {
         database.setDatabasePath(Path.of("biblio.bib"));
         assertEquals(List.of(userDirJabRef), database.getFileDirectories(fileDirPrefs));
     }
+
 }

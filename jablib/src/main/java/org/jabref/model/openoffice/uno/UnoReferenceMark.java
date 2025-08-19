@@ -24,18 +24,18 @@ public class UnoReferenceMark {
 
     /**
      * @throws NoDocumentException If cannot get reference marks
-     *                             <p>
-     *                             Note: also used by `isDocumentConnectionMissing` to test if we have a working connection.
+     * <p>
+     * Note: also used by `isDocumentConnectionMissing` to test if we have a working
+     * connection.
      */
-    public static XNameAccess getNameAccess(XTextDocument doc)
-            throws
-            NoDocumentException {
+    public static XNameAccess getNameAccess(XTextDocument doc) throws NoDocumentException {
 
         XReferenceMarksSupplier supplier = UnoCast.cast(XReferenceMarksSupplier.class, doc).get();
 
         try {
             return supplier.getReferenceMarks();
-        } catch (DisposedException ex) {
+        }
+        catch (DisposedException ex) {
             throw new NoDocumentException("UnoReferenceMarks.getNameAccess failed with" + ex);
         }
     }
@@ -45,8 +45,7 @@ public class UnoReferenceMark {
      * <p>
      * Empty list for nothing.
      */
-    public static List<String> getListOfNames(XTextDocument doc)
-            throws NoDocumentException {
+    public static List<String> getListOfNames(XTextDocument doc) throws NoDocumentException {
 
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         String[] names = nameAccess.getElementNames();
@@ -62,9 +61,7 @@ public class UnoReferenceMark {
      * Removes both the text and the mark itself.
      */
     public static void removeIfExists(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
+            throws WrappedTargetException, NoDocumentException {
 
         XNameAccess xReferenceMarks = UnoReferenceMark.getNameAccess(doc);
 
@@ -75,7 +72,8 @@ public class UnoReferenceMark {
             }
             try {
                 doc.getText().removeTextContent(mark.get());
-            } catch (NoSuchElementException ex) {
+            }
+            catch (NoSuchElementException ex) {
                 // The caller gets what it expects.
             }
         }
@@ -85,9 +83,7 @@ public class UnoReferenceMark {
      * @return reference mark as XTextContent, Optional.empty if not found.
      */
     public static Optional<XTextContent> getAsTextContent(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
+            throws NoDocumentException, WrappedTargetException {
 
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         return UnoNameAccess.getTextContentByName(nameAccess, name);
@@ -97,24 +93,24 @@ public class UnoReferenceMark {
      * XTextRange for the named reference mark, Optional.empty if not found.
      */
     public static Optional<XTextRange> getAnchor(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
-        return UnoReferenceMark.getAsTextContent(doc, name)
-                                .map(XTextContent::getAnchor);
+            throws NoDocumentException, WrappedTargetException {
+        return UnoReferenceMark.getAsTextContent(doc, name).map(XTextContent::getAnchor);
     }
 
     /**
      * Insert a new reference mark at the provided cursor position.
      * <p>
-     * If {@code documentAnnotation.getAbsorb} is true, the text in the cursor range will become the text with gray background.
+     * If {@code documentAnnotation.getAbsorb} is true, the text in the cursor range will
+     * become the text with gray background.
      * <p>
-     * Note: LibreOffice 6.4.6.2 will create multiple reference marks with the same name without error or renaming. Its GUI does not allow this, but we can create them programmatically. In the GUI, clicking on any of those identical names will move the cursor to the same mark.
+     * Note: LibreOffice 6.4.6.2 will create multiple reference marks with the same name
+     * without error or renaming. Its GUI does not allow this, but we can create them
+     * programmatically. In the GUI, clicking on any of those identical names will move
+     * the cursor to the same mark.
      *
      */
-    public static XNamed create(DocumentAnnotation documentAnnotation)
-            throws
-            CreationException {
+    public static XNamed create(DocumentAnnotation documentAnnotation) throws CreationException {
         return UnoNamed.insertNamedTextContent("com.sun.star.text.ReferenceMark", documentAnnotation);
     }
+
 }

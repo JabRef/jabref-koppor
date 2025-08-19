@@ -35,13 +35,19 @@ public class UnlinkedFilesCrawler extends BackgroundTask<FileNodeViewModel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnlinkedFilesCrawler.class);
 
     private final Path directory;
+
     private final Filter<Path> fileFilter;
+
     private final DateRange dateFilter;
+
     private final ExternalFileSorter sorter;
+
     private final BibDatabaseContext databaseContext;
+
     private final FilePreferences filePreferences;
 
-    public UnlinkedFilesCrawler(Path directory, Filter<Path> fileFilter, DateRange dateFilter, ExternalFileSorter sorter, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
+    public UnlinkedFilesCrawler(Path directory, Filter<Path> fileFilter, DateRange dateFilter,
+            ExternalFileSorter sorter, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
         this.directory = directory;
         this.fileFilter = fileFilter;
         this.dateFilter = dateFilter;
@@ -52,30 +58,33 @@ public class UnlinkedFilesCrawler extends BackgroundTask<FileNodeViewModel> {
 
     @Override
     public FileNodeViewModel call() throws IOException {
-        UnlinkedPDFFileFilter unlinkedPDFFileFilter = new UnlinkedPDFFileFilter(fileFilter, databaseContext, filePreferences);
+        UnlinkedPDFFileFilter unlinkedPDFFileFilter = new UnlinkedPDFFileFilter(fileFilter, databaseContext,
+                filePreferences);
         return searchDirectory(directory, unlinkedPDFFileFilter);
     }
 
     /**
      * Searches recursively all files in the specified directory. <br>
      * <br>
-     * All files matched by the given {@link UnlinkedPDFFileFilter} are taken into the resulting tree. <br>
+     * All files matched by the given {@link UnlinkedPDFFileFilter} are taken into the
+     * resulting tree. <br>
      * <br>
-     * The result will be a tree structure of nodes of the type {@link CheckBoxTreeItem}. <br>
+     * The result will be a tree structure of nodes of the type {@link CheckBoxTreeItem}.
      * <br>
-     * The user objects that are attached to the nodes is the {@link FileNodeViewModel}, which wraps the {@link
-     * File}-Object. <br>
      * <br>
-     * For ensuring the capability to cancel the work of this recursive method, the first position in the integer array
-     * 'state' must be set to 1, to keep the recursion running. When the states value changes, the method will resolve
-     * its recursion and return what it has saved so far.
+     * The user objects that are attached to the nodes is the {@link FileNodeViewModel},
+     * which wraps the {@link File}-Object. <br>
      * <br>
-     * The files are filtered according to the {@link DateRange} filter value
-     * and then sorted according to the {@link ExternalFileSorter} value.
-     *
-     * @param unlinkedPDFFileFilter contains a BibDatabaseContext which is used to determine whether the file is linked
-     *
-     * @return FileNodeViewModel containing the data of the current directory and all subdirectories
+     * For ensuring the capability to cancel the work of this recursive method, the first
+     * position in the integer array 'state' must be set to 1, to keep the recursion
+     * running. When the states value changes, the method will resolve its recursion and
+     * return what it has saved so far. <br>
+     * The files are filtered according to the {@link DateRange} filter value and then
+     * sorted according to the {@link ExternalFileSorter} value.
+     * @param unlinkedPDFFileFilter contains a BibDatabaseContext which is used to
+     * determine whether the file is linked
+     * @return FileNodeViewModel containing the data of the current directory and all
+     * subdirectories
      * @throws IOException if directory is not a directory or empty
      */
     FileNodeViewModel searchDirectory(Path directory, UnlinkedPDFFileFilter unlinkedPDFFileFilter) throws IOException {
@@ -87,16 +96,18 @@ public class UnlinkedFilesCrawler extends BackgroundTask<FileNodeViewModel> {
         FileNodeViewModel fileNodeViewModelForCurrentDirectory = new FileNodeViewModel(directory);
 
         // Map from isDirectory (true/false) to full path
-        // Result: Contains only files not matching the filter (i.e., PDFs not linked and files not ignored)
+        // Result: Contains only files not matching the filter (i.e., PDFs not linked and
+        // files not ignored)
         // Filters:
-        //   1. UnlinkedPDFFileFilter
-        //   2. GitIgnoreFilter
+        // 1. UnlinkedPDFFileFilter
+        // 2. GitIgnoreFilter
         ChainedFilters filters = new ChainedFilters(List.of(unlinkedPDFFileFilter, new GitIgnoreFileFilter(directory)));
         Map<Boolean, List<Path>> directoryAndFilePartition;
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory, filters);
-             Stream<Path> filesStream = StreamSupport.stream(dirStream.spliterator(), false)) {
+                Stream<Path> filesStream = StreamSupport.stream(dirStream.spliterator(), false)) {
             directoryAndFilePartition = filesStream.collect(Collectors.partitioningBy(Files::isDirectory));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Error while searching files", e);
             return fileNodeViewModelForCurrentDirectory;
         }
@@ -122,7 +133,8 @@ public class UnlinkedFilesCrawler extends BackgroundTask<FileNodeViewModel> {
         // now we handle the files in the current directory
 
         // filter files according to last edited date.
-        // Note that we do not use the "StreamSupport.stream" filtering functionality, because refactoring the code to that would lead to more code
+        // Note that we do not use the "StreamSupport.stream" filtering functionality,
+        // because refactoring the code to that would lead to more code
         List<Path> resultingFiles = new ArrayList<>();
         for (Path path : files) {
             if (FileFilterUtils.filterByDate(path, dateFilter)) {
@@ -133,14 +145,16 @@ public class UnlinkedFilesCrawler extends BackgroundTask<FileNodeViewModel> {
         // sort files according to last edited date.
         resultingFiles = FileFilterUtils.sortByDate(resultingFiles, sorter);
 
-        // the count of all files is the count of the found files in current directory plus the count of all files in the subdirectories
+        // the count of all files is the count of the found files in current directory
+        // plus the count of all files in the subdirectories
         fileNodeViewModelForCurrentDirectory.setFileCount(resultingFiles.size() + fileCountOfSubdirectories);
 
-        // create and add FileNodeViewModel to the FileNodeViewModel for the current directory
-        fileNodeViewModelForCurrentDirectory.getChildren().addAll(resultingFiles.stream()
-                .map(FileNodeViewModel::new)
-                .toList());
+        // create and add FileNodeViewModel to the FileNodeViewModel for the current
+        // directory
+        fileNodeViewModelForCurrentDirectory.getChildren()
+            .addAll(resultingFiles.stream().map(FileNodeViewModel::new).toList());
 
         return fileNodeViewModelForCurrentDirectory;
     }
+
 }

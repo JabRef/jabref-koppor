@@ -16,9 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Saves the given {@link BibDatabaseContext} on every {@link BibDatabaseContextChangedEvent} by posting a new {@link AutosaveEvent}.
- * An intelligent {@link ScheduledThreadPoolExecutor} prevents a high load while saving and rejects all redundant save tasks.
- * The scheduled action is stored and canceled if a newer save action is proposed.
+ * Saves the given {@link BibDatabaseContext} on every
+ * {@link BibDatabaseContextChangedEvent} by posting a new {@link AutosaveEvent}. An
+ * intelligent {@link ScheduledThreadPoolExecutor} prevents a high load while saving and
+ * rejects all redundant save tasks. The scheduled action is stored and canceled if a
+ * newer save action is proposed.
  */
 public class AutosaveManager {
 
@@ -31,8 +33,11 @@ public class AutosaveManager {
     private final BibDatabaseContext bibDatabaseContext;
 
     private final EventBus eventBus;
+
     private final ScheduledThreadPoolExecutor executor;
+
     private final CoarseChangeFilter coarseChangeFilter;
+
     private boolean needsSave = false;
 
     private AutosaveManager(BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter) {
@@ -41,16 +46,12 @@ public class AutosaveManager {
         this.eventBus = new EventBus();
 
         this.executor = new ScheduledThreadPoolExecutor(2);
-        this.executor.scheduleAtFixedRate(
-                () -> {
-                    if (needsSave) {
-                       eventBus.post(new AutosaveEvent());
-                       needsSave = false;
-                    }
-                },
-                DELAY_BETWEEN_AUTOSAVE_ATTEMPTS_IN_SECONDS,
-                DELAY_BETWEEN_AUTOSAVE_ATTEMPTS_IN_SECONDS,
-                TimeUnit.SECONDS);
+        this.executor.scheduleAtFixedRate(() -> {
+            if (needsSave) {
+                eventBus.post(new AutosaveEvent());
+                needsSave = false;
+            }
+        }, DELAY_BETWEEN_AUTOSAVE_ATTEMPTS_IN_SECONDS, DELAY_BETWEEN_AUTOSAVE_ATTEMPTS_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     @Subscribe
@@ -67,7 +68,6 @@ public class AutosaveManager {
 
     /**
      * Starts the Autosaver which is associated with the given {@link BibDatabaseContext}.
-     *
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
     public static AutosaveManager start(BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter) {
@@ -77,13 +77,15 @@ public class AutosaveManager {
     }
 
     /**
-     * Shuts down the Autosaver which is associated with the given {@link BibDatabaseContext}.
-     *
+     * Shuts down the Autosaver which is associated with the given
+     * {@link BibDatabaseContext}.
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
     public static void shutdown(BibDatabaseContext bibDatabaseContext) {
-        runningInstances.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).findAny()
-                        .ifPresent(instance -> instance.shutdown());
+        runningInstances.stream()
+            .filter(instance -> instance.bibDatabaseContext == bibDatabaseContext)
+            .findAny()
+            .ifPresent(instance -> instance.shutdown());
     }
 
     public void registerListener(Object listener) {
@@ -93,9 +95,12 @@ public class AutosaveManager {
     public void unregisterListener(Object listener) {
         try {
             eventBus.unregister(listener);
-        } catch (IllegalArgumentException e) {
-            // occurs if the event source has not been registered, should not prevent shutdown
+        }
+        catch (IllegalArgumentException e) {
+            // occurs if the event source has not been registered, should not prevent
+            // shutdown
             LOGGER.error("Problem unregistering", e);
         }
     }
+
 }

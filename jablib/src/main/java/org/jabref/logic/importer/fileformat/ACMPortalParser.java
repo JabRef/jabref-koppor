@@ -39,11 +39,12 @@ import org.jsoup.select.Elements;
 public class ACMPortalParser implements Parser {
 
     private static final String HOST = "https://dl.acm.org";
+
     private static final String DOI_URL = "https://dl.acm.org/action/exportCiteProcCitation";
 
     /**
-     * Parse the DOI of the ACM Portal search result page and obtain the corresponding BibEntry
-     *
+     * Parse the DOI of the ACM Portal search result page and obtain the corresponding
+     * BibEntry
      * @param stream html stream
      * @return BibEntry List
      */
@@ -52,7 +53,8 @@ public class ACMPortalParser implements Parser {
         List<BibEntry> bibEntries;
         try {
             bibEntries = getBibEntriesFromDoiList(this.parseDoiSearchPage(stream));
-        } catch (FetcherException e) {
+        }
+        catch (FetcherException e) {
             throw new ParseException(e);
         }
         return bibEntries;
@@ -60,7 +62,6 @@ public class ACMPortalParser implements Parser {
 
     /**
      * Parse all DOIs from the ACM Portal search results page
-     *
      * @param stream html stream
      * @return DOI list
      */
@@ -76,7 +77,8 @@ public class ACMPortalParser implements Parser {
                 String doi = fullSegment.substring(fullSegment.indexOf("10"));
                 doiList.add(doi);
             }
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             throw new ParseException(ex);
         }
 
@@ -89,7 +91,8 @@ public class ACMPortalParser implements Parser {
         URL urlFromDoiList;
         try {
             urlFromDoiList = getUrlFromDoiList(doiList);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Wrong URL", e);
         }
         try (InputStream stream = new URLDownload(urlFromDoiList).asInputStream()) {
@@ -104,7 +107,8 @@ public class ACMPortalParser implements Parser {
                     }
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException(urlFromDoiList, e);
         }
 
@@ -113,7 +117,6 @@ public class ACMPortalParser implements Parser {
 
     /**
      * Constructing the query url for the doi
-     *
      * @param doiList DOI List
      * @return query URL
      */
@@ -129,7 +132,8 @@ public class ACMPortalParser implements Parser {
         StandardEntryType type;
         if ("PAPER_CONFERENCE".equals(typeStr)) {
             type = StandardEntryType.Conference;
-        } else {
+        }
+        else {
             String upperUnderscoreTyeStr = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, typeStr);
             type = Enums.getIfPresent(StandardEntryType.class, upperUnderscoreTyeStr).or(StandardEntryType.Article);
         }
@@ -138,7 +142,6 @@ public class ACMPortalParser implements Parser {
 
     /**
      * Parse BibEntry from query result xml
-     *
      * @param jsonStr query result in JSON format
      * @return BibEntry parsed from query result
      */
@@ -158,7 +161,7 @@ public class ACMPortalParser implements Parser {
             JsonObject issued = jsonObject.get("issued").getAsJsonObject();
             if (issued.has("date-parts")) {
                 JsonArray dateArray = issued.get("date-parts").getAsJsonArray().get(0).getAsJsonArray();
-                StandardField[] dateField = {StandardField.YEAR, StandardField.MONTH, StandardField.DAY};
+                StandardField[] dateField = { StandardField.YEAR, StandardField.MONTH, StandardField.DAY };
                 for (int i = 0; i < dateArray.size(); i++) {
                     bibEntry.setField(dateField[i], dateArray.get(i).getAsString());
                 }
@@ -241,4 +244,5 @@ public class ACMPortalParser implements Parser {
         }
         return AuthorList.of(jabrefAuthors).getAsLastFirstNamesWithAnd(false);
     }
+
 }

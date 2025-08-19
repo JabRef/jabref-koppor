@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OpenAccessDoiTest {
 
     private OpenAccessDoi finder;
+
     private BibEntry entry;
 
     @BeforeEach
@@ -28,7 +29,9 @@ class OpenAccessDoiTest {
     @Test
     void findByDOI() throws IOException {
         entry.setField(StandardField.DOI, "10.1186/s12993-024-00248-9");
-        assertEquals(Optional.of(URLUtil.create("https://behavioralandbrainfunctions.biomedcentral.com/counter/pdf/10.1186/s12993-024-00248-9")), finder.findFullText(entry));
+        assertEquals(Optional.of(URLUtil
+            .create("https://behavioralandbrainfunctions.biomedcentral.com/counter/pdf/10.1186/s12993-024-00248-9")),
+                finder.findFullText(entry));
     }
 
     @Test
@@ -46,4 +49,5 @@ class OpenAccessDoiTest {
     void trustLevel() {
         assertEquals(TrustLevel.META_SEARCH, finder.getTrustLevel());
     }
+
 }

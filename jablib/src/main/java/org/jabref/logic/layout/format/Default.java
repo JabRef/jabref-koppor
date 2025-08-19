@@ -3,8 +3,8 @@ package org.jabref.logic.layout.format;
 import org.jabref.logic.layout.ParamLayoutFormatter;
 
 /**
- * Layout formatter that puts in a default value (given as argument) if the field is empty.
- * Empty means null or an empty string.
+ * Layout formatter that puts in a default value (given as argument) if the field is
+ * empty. Empty means null or an empty string.
  */
 public class Default implements ParamLayoutFormatter {
 
@@ -19,4 +19,5 @@ public class Default implements ParamLayoutFormatter {
     public String format(String fieldText) {
         return (fieldText == null) || fieldText.isEmpty() ? defValue : fieldText;
     }
+
 }

@@ -42,31 +42,37 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportEntriesViewModel.class);
 
     private final StringProperty message;
+
     private final TaskExecutor taskExecutor;
+
     private final BibDatabaseContext databaseContext;
+
     private final DialogService dialogService;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
+
     private final FileUpdateMonitor fileUpdateMonitor;
+
     private ParserResult parserResult = null;
+
     private final ObservableList<BibEntry> entries;
+
     private final GuiPreferences preferences;
+
     private final BibEntryTypesManager entryTypesManager;
+
     private final ObjectProperty<BibDatabaseContext> selectedDb;
 
     /**
      * @param databaseContext the database to import into
-     * @param task            the task executed for parsing the selected files(s).
+     * @param task the task executed for parsing the selected files(s).
      */
-    public ImportEntriesViewModel(BackgroundTask<ParserResult> task,
-                                  TaskExecutor taskExecutor,
-                                  BibDatabaseContext databaseContext,
-                                  DialogService dialogService,
-                                  UndoManager undoManager,
-                                  GuiPreferences preferences,
-                                  StateManager stateManager,
-                                  BibEntryTypesManager entryTypesManager,
-                                  FileUpdateMonitor fileUpdateMonitor) {
+    public ImportEntriesViewModel(BackgroundTask<ParserResult> task, TaskExecutor taskExecutor,
+            BibDatabaseContext databaseContext, DialogService dialogService, UndoManager undoManager,
+            GuiPreferences preferences, StateManager stateManager, BibEntryTypesManager entryTypesManager,
+            FileUpdateMonitor fileUpdateMonitor) {
         this.taskExecutor = taskExecutor;
         this.databaseContext = databaseContext;
         this.dialogService = dialogService;
@@ -115,9 +121,9 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     }
 
     public boolean hasDuplicate(BibEntry entry) {
-        return findInternalDuplicate(entry).isPresent() ||
-                new DuplicateCheck(entryTypesManager)
-                .containsDuplicate(selectedDb.getValue().getDatabase(), entry, selectedDb.getValue().getMode()).isPresent();
+        return findInternalDuplicate(entry).isPresent() || new DuplicateCheck(entryTypesManager)
+            .containsDuplicate(selectedDb.getValue().getDatabase(), entry, selectedDb.getValue().getMode())
+            .isPresent();
     }
 
     public String getSourceString(BibEntry entry) {
@@ -126,7 +132,8 @@ public class ImportEntriesViewModel extends AbstractViewModel {
         FieldWriter fieldWriter = FieldWriter.buildIgnoreHashes(preferences.getFieldPreferences());
         try {
             new BibEntryWriter(fieldWriter, entryTypesManager).write(entry, bibWriter, selectedDb.getValue().getMode());
-        } catch (IOException ioException) {
+        }
+        catch (IOException ioException) {
             return "";
         }
         return writer.toString();
@@ -134,35 +141,26 @@ public class ImportEntriesViewModel extends AbstractViewModel {
 
     /**
      * Called after the user selected the entries to import. Does the real import stuff.
-     *
      * @param entriesToImport subset of the entries contained in parserResult
      */
     public void importEntries(List<BibEntry> entriesToImport, boolean shouldDownloadFiles) {
         // Remember the selection in the dialog
         preferences.getFilePreferences().setDownloadLinkedFiles(shouldDownloadFiles);
 
-        new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator()).mergeStrings(
-                databaseContext.getDatabase(),
-                parserResult.getDatabase());
+        new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator())
+            .mergeStrings(databaseContext.getDatabase(), parserResult.getDatabase());
         new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator()).mergeMetaData(
-                databaseContext.getMetaData(),
-                parserResult.getMetaData(),
+                databaseContext.getMetaData(), parserResult.getMetaData(),
                 parserResult.getPath().map(path -> path.getFileName().toString()).orElse("unknown"),
                 parserResult.getDatabase().getEntries());
-        ImportHandler importHandler = new ImportHandler(
-                selectedDb.getValue(),
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
-                taskExecutor);
+        ImportHandler importHandler = new ImportHandler(selectedDb.getValue(), preferences, fileUpdateMonitor,
+                undoManager, stateManager, dialogService, taskExecutor);
         importHandler.importEntriesWithDuplicateCheck(selectedDb.getValue(), entriesToImport);
     }
 
     /**
-     * Checks if there are duplicates to the given entry in the list of entries to be imported.
-     *
+     * Checks if there are duplicates to the given entry in the list of entries to be
+     * imported.
      * @param entry The entry to search for duplicates of.
      * @return A possible duplicate, if any, or null if none were found.
      */
@@ -177,4 +175,5 @@ public class ImportEntriesViewModel extends AbstractViewModel {
         }
         return Optional.empty();
     }
+
 }

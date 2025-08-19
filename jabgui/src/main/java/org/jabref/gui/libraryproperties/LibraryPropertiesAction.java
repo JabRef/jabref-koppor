@@ -14,9 +14,11 @@ import org.slf4j.LoggerFactory;
 import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class LibraryPropertiesAction extends SimpleCommand {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LibraryPropertiesAction.class);
 
     private final StateManager stateManager;
+
     private final Supplier<BibDatabaseContext> alternateDatabase;
 
     public LibraryPropertiesAction(StateManager stateManager) {
@@ -35,12 +37,16 @@ public class LibraryPropertiesAction extends SimpleCommand {
 
         if (alternateDatabase != null) {
             dialogService.showCustomDialogAndWait(new LibraryPropertiesView(alternateDatabase.get()));
-        } else {
+        }
+        else {
             if (stateManager.getActiveDatabase().isPresent()) {
-                dialogService.showCustomDialogAndWait(new LibraryPropertiesView(stateManager.getActiveDatabase().get()));
-            } else {
+                dialogService
+                    .showCustomDialogAndWait(new LibraryPropertiesView(stateManager.getActiveDatabase().get()));
+            }
+            else {
                 LOGGER.warn("No library selected.");
             }
         }
     }
+
 }

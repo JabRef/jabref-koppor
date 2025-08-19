@@ -21,11 +21,11 @@ public class URLUtil {
      * Look for the last '.' in the link, and return the following characters.
      * <p>
      * This gives the extension for most reasonably named links.
-     *
      * @param link The link
      * @return The suffix, excluding the dot (e.g. "pdf")
      */
-    public static Optional<String> getSuffix(final String link, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public static Optional<String> getSuffix(final String link,
+            ExternalApplicationsPreferences externalApplicationsPreferences) {
         String strippedLink = link;
         try {
             // Try to strip the query string, if any, to get the correct suffix:
@@ -33,7 +33,8 @@ public class URLUtil {
             if ((url.getQuery() != null) && (url.getQuery().length() < (link.length() - 1))) {
                 strippedLink = link.substring(0, link.length() - url.getQuery().length() - 1);
             }
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             // Don't report this error, since this getting the suffix is a non-critical
             // operation, and this error will be triggered and reported elsewhere.
         }
@@ -42,7 +43,8 @@ public class URLUtil {
         int strippedLinkIndex = strippedLink.lastIndexOf('.');
         if ((strippedLinkIndex <= 0) || (strippedLinkIndex == (strippedLink.length() - 1))) {
             suffix = null;
-        } else {
+        }
+        else {
             suffix = strippedLink.substring(strippedLinkIndex + 1);
         }
         if (!ExternalFileTypes.isExternalFileTypeByExt(suffix, externalApplicationsPreferences)) {
@@ -51,24 +53,31 @@ public class URLUtil {
             int index = link.lastIndexOf('.');
             if ((index <= 0) || (index == (link.length() - 1))) {
                 // No occurrence, or at the end
-                // Check if there are path separators in the suffix - if so, it is definitely
+                // Check if there are path separators in the suffix - if so, it is
+                // definitely
                 // not a proper suffix, so we should give up:
                 if (strippedLink.substring(strippedLinkIndex + 1).indexOf('/') >= 1) {
                     return Optional.empty();
-                } else {
+                }
+                else {
                     return Optional.of(suffix); // return the first one we found, anyway.
                 }
-            } else {
-                // Check if there are path separators in the suffix - if so, it is definitely
+            }
+            else {
+                // Check if there are path separators in the suffix - if so, it is
+                // definitely
                 // not a proper suffix, so we should give up:
                 if (link.substring(index + 1).indexOf('/') >= 1) {
                     return Optional.empty();
-                } else {
+                }
+                else {
                     return Optional.of(link.substring(index + 1));
                 }
             }
-        } else {
+        }
+        else {
             return Optional.ofNullable(suffix);
         }
     }
+
 }

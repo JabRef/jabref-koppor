@@ -28,13 +28,15 @@ class ApsFetcherTest {
     @Test
     void findFullTextFromDoi() throws IOException {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1103/PhysRevLett.116.061102");
-        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.116.061102")), finder.findFullText(entry));
+        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.116.061102")),
+                finder.findFullText(entry));
     }
 
     @Test
     void findFullTextFromLowercaseDoi() throws IOException {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1103/physrevlett.124.029002");
-        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.124.029002")), finder.findFullText(entry));
+        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.124.029002")),
+                finder.findFullText(entry));
     }
 
     @Test
@@ -48,4 +50,5 @@ class ApsFetcherTest {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.aasri.2014.0559.002");
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
+
 }

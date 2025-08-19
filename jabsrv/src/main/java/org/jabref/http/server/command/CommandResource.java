@@ -18,8 +18,8 @@ public class CommandResource {
     private ServiceLocator serviceLocator;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     public Response dispatchCommand(String jsonCommand) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -27,8 +27,10 @@ public class CommandResource {
             command.setServiceLocator(serviceLocator);
 
             return command.execute();
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
     }
+
 }

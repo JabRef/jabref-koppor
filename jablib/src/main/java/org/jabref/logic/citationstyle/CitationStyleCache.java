@@ -14,14 +14,15 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.eventbus.Subscribe;
 
 /**
- * Caches the generated Citations for quicker access
- * {@link CitationStyleGenerator} generates the citation with JavaScript which may take some time
+ * Caches the generated Citations for quicker access {@link CitationStyleGenerator}
+ * generates the citation with JavaScript which may take some time
  */
 public class CitationStyleCache {
 
     private static final int CACHE_SIZE = 1024;
 
     private PreviewLayout citationStyle;
+
     private final LoadingCache<BibEntry, String> citationStyleCache;
 
     public CitationStyleCache(BibDatabaseContext databaseContext) {
@@ -30,7 +31,8 @@ public class CitationStyleCache {
             public String load(BibEntry entry) {
                 if (citationStyle != null) {
                     return citationStyle.generatePreview(entry, databaseContext);
-                } else {
+                }
+                else {
                     return "";
                 }
             }
@@ -54,6 +56,7 @@ public class CitationStyleCache {
     }
 
     private class BibDatabaseEntryListener {
+
         /**
          * removes the outdated citation of the changed entry
          */
@@ -71,5 +74,7 @@ public class CitationStyleCache {
                 citationStyleCache.invalidate(entry);
             }
         }
+
     }
+
 }

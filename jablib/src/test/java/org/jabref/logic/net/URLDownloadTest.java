@@ -57,7 +57,8 @@ class URLDownloadTest {
             URLDownload dl = new URLDownload(URLUtil.create("http://www.google.com"));
             dl.toFile(destination.toPath());
             assertTrue(destination.exists(), "file must exist");
-        } finally {
+        }
+        finally {
             // cleanup
             if (!destination.delete()) {
                 LOGGER.error("Cannot delete downloaded file");
@@ -91,7 +92,8 @@ class URLDownloadTest {
     @Test
     @DisabledOnCIServer("CI Server is apparently blocked")
     void downloadOfFTPSucceeds() throws MalformedURLException, FetcherException {
-        URLDownload ftp = new URLDownload(URLUtil.create("ftp://ftp.informatik.uni-stuttgart.de/pub/library/ncstrl.ustuttgart_fi/INPROC-2016-15/INPROC-2016-15.pdf"));
+        URLDownload ftp = new URLDownload(URLUtil.create(
+                "ftp://ftp.informatik.uni-stuttgart.de/pub/library/ncstrl.ustuttgart_fi/INPROC-2016-15/INPROC-2016-15.pdf"));
 
         Path path = ftp.toTemporaryFile();
         assertNotNull(path);
@@ -153,16 +155,10 @@ class URLDownloadTest {
         WireMockServer wireMockServer = new WireMockServer(2222);
         wireMockServer.start();
         configureFor("localhost", 2222);
-        stubFor(get("/redirect")
-                .willReturn(aResponse()
-                        .withStatus(302)
-                        .withHeader("Location", "/final")));
-        byte[] pdfContent = {0x00};
-        stubFor(get(urlEqualTo("/final"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/pdf")
-                        .withBody(pdfContent)));
+        stubFor(get("/redirect").willReturn(aResponse().withStatus(302).withHeader("Location", "/final")));
+        byte[] pdfContent = { 0x00 };
+        stubFor(get(urlEqualTo("/final")).willReturn(
+                aResponse().withStatus(200).withHeader("Content-Type", "application/pdf").withBody(pdfContent)));
 
         URLDownload urlDownload = new URLDownload(URLUtil.create("http://localhost:2222/redirect"));
         Path downloadedFile = tempDir.resolve("download.pdf");
@@ -172,4 +168,5 @@ class URLDownloadTest {
 
         wireMockServer.stop();
     }
+
 }

@@ -6,12 +6,11 @@ import java.util.Optional;
 public final class NormalizeUtils {
 
     /**
-     * Normalizes text using Unicode normalization form NFKC
-     * (Compatibility Decomposition, followed by Canonical Composition)
+     * Normalizes text using Unicode normalization form NFKC (Compatibility Decomposition,
+     * followed by Canonical Composition)
      */
     public static Optional<String> toNFKC(String input) {
-        return Optional.ofNullable(input)
-                       .map(s -> Normalizer.normalize(s, Normalizer.Form.NFKC));
+        return Optional.ofNullable(input).map(s -> Normalizer.normalize(s, Normalizer.Form.NFKC));
     }
 
     /**
@@ -19,7 +18,7 @@ public final class NormalizeUtils {
      */
     public static Optional<String> normalize(String input) {
         return Optional.ofNullable(input)
-                       .map(s -> Normalizer.normalize(s, Normalizer.Form.NFD)
-                                           .replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
+            .map(s -> Normalizer.normalize(s, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
     }
+
 }

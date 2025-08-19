@@ -96,48 +96,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class LayoutEntry {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LayoutEntry.class);
 
     private List<LayoutFormatter> option;
+
     // Formatter to be run after other formatters:
     private LayoutFormatter postFormatter;
 
     private String text;
+
     private List<LayoutEntry> layoutEntries;
+
     private final int type;
+
     private final List<String> invalidFormatter = new ArrayList<>();
 
     private final List<Path> fileDirForDatabase;
+
     private final LayoutFormatterPreferences preferences;
+
     private final JournalAbbreviationRepository abbreviationRepository;
 
-    public LayoutEntry(StringInt si,
-                       List<Path> fileDirForDatabase,
-                       LayoutFormatterPreferences preferences,
-                       JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutEntry(StringInt si, List<Path> fileDirForDatabase, LayoutFormatterPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository) {
         this.preferences = preferences;
         this.abbreviationRepository = abbreviationRepository;
         this.fileDirForDatabase = Objects.requireNonNullElse(fileDirForDatabase, List.of());
 
         type = si.i;
         switch (type) {
-            case LayoutHelper.IS_LAYOUT_TEXT ->
-                    text = si.s;
-            case LayoutHelper.IS_SIMPLE_COMMAND ->
-                    text = si.s.trim();
-            case LayoutHelper.IS_OPTION_FIELD ->
-                    doOptionField(si.s);
+            case LayoutHelper.IS_LAYOUT_TEXT -> text = si.s;
+            case LayoutHelper.IS_SIMPLE_COMMAND -> text = si.s.trim();
+            case LayoutHelper.IS_OPTION_FIELD -> doOptionField(si.s);
             default -> {
                 // IS_FIELD_START and IS_FIELD_END
             }
         }
     }
 
-    public LayoutEntry(List<StringInt> parsedEntries,
-                       int layoutType,
-                       List<Path> fileDirForDatabase,
-                       LayoutFormatterPreferences preferences,
-                       JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutEntry(List<StringInt> parsedEntries, int layoutType, List<Path> fileDirForDatabase,
+            LayoutFormatterPreferences preferences, JournalAbbreviationRepository abbreviationRepository) {
         this.preferences = preferences;
         this.abbreviationRepository = abbreviationRepository;
         this.fileDirForDatabase = Objects.requireNonNullElse(fileDirForDatabase, List.of());
@@ -164,12 +163,14 @@ class LayoutEntry {
                 case LayoutHelper.IS_GROUP_END:
                     if (blockStart.equals(parsedEntry.s)) {
                         blockEntries.add(parsedEntry);
-                        int groupType = parsedEntry.i == LayoutHelper.IS_GROUP_END ? LayoutHelper.IS_GROUP_START :
-                                LayoutHelper.IS_FIELD_START;
-                        LayoutEntry le = new LayoutEntry(blockEntries, groupType, fileDirForDatabase, preferences, abbreviationRepository);
+                        int groupType = parsedEntry.i == LayoutHelper.IS_GROUP_END ? LayoutHelper.IS_GROUP_START
+                                : LayoutHelper.IS_FIELD_START;
+                        LayoutEntry le = new LayoutEntry(blockEntries, groupType, fileDirForDatabase, preferences,
+                                abbreviationRepository);
                         tmpEntries.add(le);
                         blockEntries = null;
-                    } else {
+                    }
+                    else {
                         LOGGER.warn("Nested field entries are not implemented!");
                     }
                     break;
@@ -183,7 +184,8 @@ class LayoutEntry {
 
             if (blockEntries == null) {
                 tmpEntries.add(new LayoutEntry(parsedEntry, fileDirForDatabase, preferences, abbreviationRepository));
-            } else {
+            }
+            else {
                 blockEntries.add(parsedEntry);
             }
         }
@@ -229,8 +231,7 @@ class LayoutEntry {
     private String resolveFieldEntry(BibEntry bidEntry, BibDatabase database) {
         // resolve field (recognized by leading backslash) or text
         if (text.startsWith("\\")) {
-            return bidEntry.getResolvedFieldOrAlias(FieldFactory.parseField(text.substring(1)), database)
-                           .orElse("");
+            return bidEntry.getResolvedFieldOrAlias(FieldFactory.parseField(text.substring(1)), database).orElse("");
         }
         if (database == null) {
             return text;
@@ -243,10 +244,13 @@ class LayoutEntry {
 
         if (InternalField.TYPE_HEADER.getName().equals(text)) {
             fieldEntry = bibtex.getType().getDisplayName();
-        } else if (InternalField.OBSOLETE_TYPE_HEADER.getName().equals(text)) {
-            LOGGER.warn("'{}' is an obsolete name for the entry type. Please update your layout to use '{}' instead.", InternalField.OBSOLETE_TYPE_HEADER, InternalField.TYPE_HEADER);
+        }
+        else if (InternalField.OBSOLETE_TYPE_HEADER.getName().equals(text)) {
+            LOGGER.warn("'{}' is an obsolete name for the entry type. Please update your layout to use '{}' instead.",
+                    InternalField.OBSOLETE_TYPE_HEADER, InternalField.TYPE_HEADER);
             fieldEntry = bibtex.getType().getDisplayName();
-        } else {
+        }
+        else {
             fieldEntry = resolveFieldEntry(bibtex, database);
         }
 
@@ -269,24 +273,28 @@ class LayoutEntry {
         boolean negated = false;
         if (type == LayoutHelper.IS_GROUP_START) {
             field = bibtex.getResolvedFieldOrAlias(FieldFactory.parseField(text), database);
-        } else if (text.matches(".*(;|(\\&+)).*")) {
+        }
+        else if (text.matches(".*(;|(\\&+)).*")) {
             // split the strings along &, && or ; for AND formatter
             String[] parts = text.split("\\s*(;|(\\&+))\\s*");
             field = Optional.empty();
             for (String part : parts) {
                 negated = part.startsWith("!");
-                field = bibtex.getResolvedFieldOrAlias(FieldFactory.parseField(negated ? part.substring(1).trim() : part), database);
+                field = bibtex.getResolvedFieldOrAlias(
+                        FieldFactory.parseField(negated ? part.substring(1).trim() : part), database);
                 if (field.isPresent() == negated) {
                     break;
                 }
             }
-        } else {
-            // split the strings along |, ||  for OR formatter
+        }
+        else {
+            // split the strings along |, || for OR formatter
             String[] parts = text.split("\\s*(\\|+)\\s*");
             field = Optional.empty();
             for (String part : parts) {
                 negated = part.startsWith("!");
-                field = bibtex.getResolvedFieldOrAlias(FieldFactory.parseField(negated ? part.substring(1).trim() : part), database);
+                field = bibtex.getResolvedFieldOrAlias(
+                        FieldFactory.parseField(negated ? part.substring(1).trim() : part), database);
                 if (field.isPresent() ^ negated) {
                     break;
                 }
@@ -296,7 +304,8 @@ class LayoutEntry {
         if ((field.isPresent() == negated) || ((type == LayoutHelper.IS_GROUP_START)
                 && field.get().equalsIgnoreCase(LayoutHelper.getCurrentGroup()))) {
             return null;
-        } else {
+        }
+        else {
             if (type == LayoutHelper.IS_GROUP_START) {
                 LayoutHelper.setCurrentGroup(field.get());
             }
@@ -315,7 +324,8 @@ class LayoutEntry {
                             continue;
                         }
                     }
-                } else {
+                }
+                else {
                     // if previous was skipped --> remove leading line
                     // breaks
                     if (previousSkipped) {
@@ -329,7 +339,8 @@ class LayoutEntry {
                         if (eol < fieldText.length()) {
                             sb.append(fieldText.substring(eol));
                         }
-                    } else {
+                    }
+                    else {
                         sb.append(fieldText);
                     }
                 }
@@ -343,7 +354,6 @@ class LayoutEntry {
 
     /**
      * Do layout for general formatters (no bibtex-entry fields).
-     *
      * @param databaseContext Bibtex Database
      */
     public String doLayout(BibDatabaseContext databaseContext, Charset encoding) {
@@ -364,8 +374,8 @@ class LayoutEntry {
 
             case LayoutHelper.IS_OPTION_FIELD:
                 String field = Optional.ofNullable(databaseContext.getDatabase())
-                                       .map(db -> db.resolveForStrings(text))
-                                       .orElse(text);
+                    .map(db -> db.resolveForStrings(text))
+                    .orElse(text);
                 if (option != null) {
                     for (LayoutFormatter anOption : option) {
                         field = anOption.format(field);
@@ -396,7 +406,8 @@ class LayoutEntry {
 
         if (v.size() == 1) {
             text = v.getFirst();
-        } else {
+        }
+        else {
             text = v.getFirst().trim();
 
             option = getOptionalLayout(v.get(1));
@@ -459,7 +470,7 @@ class LayoutEntry {
             case "Iso690NamesAuthors" -> new Iso690NamesAuthors();
             case "JournalAbbreviator" -> new JournalAbbreviator(abbreviationRepository);
             case "LastPage" -> new LastPage();
-// For backward compatibility
+            // For backward compatibility
             case "FormatChars", "LatexToUnicode" -> new LatexToUnicodeFormatter();
             case "NameFormatter" -> new NameFormatter();
             case "NoSpaceBetweenAbbreviations" -> new NoSpaceBetweenAbbreviations();
@@ -494,12 +505,14 @@ class LayoutEntry {
     }
 
     /**
-     * Return an array of LayoutFormatters found in the given formatterName string (in order of appearance).
+     * Return an array of LayoutFormatters found in the given formatterName string (in
+     * order of appearance).
      */
     private List<LayoutFormatter> getOptionalLayout(String formatterName) {
         List<List<String>> formatterStrings = parseMethodsCalls(formatterName);
         List<LayoutFormatter> results = new ArrayList<>(formatterStrings.size());
-        Map<String, String> userNameFormatter = NameFormatter.getNameFormatters(preferences.getNameFormatterPreferences());
+        Map<String, String> userNameFormatter = NameFormatter
+            .getNameFormatters(preferences.getNameFormatterPreferences());
         for (List<String> strings : formatterStrings) {
             String nameFormatterName = strings.getFirst().trim();
 
@@ -515,7 +528,8 @@ class LayoutEntry {
             // Try to load from formatters in formatter folder
             LayoutFormatter formatter = getLayoutFormatterByName(nameFormatterName);
             if (formatter != null) {
-                // If this formatter accepts an argument, check if we have one, and set it if so
+                // If this formatter accepts an argument, check if we have one, and set it
+                // if so
                 if ((formatter instanceof ParamLayoutFormatter layoutFormatter) && (strings.size() >= 2)) {
                     layoutFormatter.setArgument(strings.get(1));
                 }
@@ -576,11 +590,14 @@ class LayoutEntry {
                                     && !(!escaped && (c[i] == '"') && (c[i + 1] == ')') && (bracelevel == 0))) {
                                 if (c[i] == '\\') {
                                     escaped = !escaped;
-                                } else if (c[i] == '(') {
+                                }
+                                else if (c[i] == '(') {
                                     bracelevel++;
-                                } else if (c[i] == ')') {
+                                }
+                                else if (c[i] == ')') {
                                     bracelevel--;
-                                } else {
+                                }
+                                else {
                                     escaped = false;
                                 }
                                 i++;
@@ -589,7 +606,8 @@ class LayoutEntry {
                             String param = calls.substring(startParam, i);
 
                             result.add(Arrays.asList(method, param));
-                        } else {
+                        }
+                        else {
                             // Parameter is in format xxx
 
                             int startParam = i;
@@ -597,7 +615,8 @@ class LayoutEntry {
                             while ((i < c.length) && (!((c[i] == ')') && (bracelevel == 0)))) {
                                 if (c[i] == '(') {
                                     bracelevel++;
-                                } else if (c[i] == ')') {
+                                }
+                                else if (c[i] == ')') {
                                     bracelevel--;
                                 }
                                 i++;
@@ -607,11 +626,13 @@ class LayoutEntry {
 
                             result.add(Arrays.asList(method, param));
                         }
-                    } else {
+                    }
+                    else {
                         // Incorrectly terminated open brace
                         result.add(List.of(method));
                     }
-                } else {
+                }
+                else {
                     String method = calls.substring(start, i);
                     result.add(List.of(method));
                 }
@@ -625,4 +646,5 @@ class LayoutEntry {
     public String getText() {
         return text;
     }
+
 }

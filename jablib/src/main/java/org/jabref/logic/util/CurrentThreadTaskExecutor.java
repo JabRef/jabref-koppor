@@ -11,18 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of {@link TaskExecutor} that runs every task on the current thread, i.e. in a sequential order. This
- * class is not designed to be used in production but should make code involving asynchronous operations deterministic
- * and testable.
+ * Implementation of {@link TaskExecutor} that runs every task on the current thread, i.e.
+ * in a sequential order. This class is not designed to be used in production but should
+ * make code involving asynchronous operations deterministic and testable.
  */
 public class CurrentThreadTaskExecutor implements TaskExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CurrentThreadTaskExecutor.class);
+
     private final WeakHashMap<DelayTaskThrottler, Void> throttlers = new WeakHashMap<>();
 
     /**
-     * Executes the task on the current thread. The code is essentially taken from {@link
-     * javafx.concurrent.Task.TaskCallable#call()}, but adapted to run sequentially.
+     * Executes the task on the current thread. The code is essentially taken from
+     * {@link javafx.concurrent.Task.TaskCallable#call()}, but adapted to run
+     * sequentially.
      */
     @Override
     public <V> Future<V> execute(BackgroundTask<V> task) {
@@ -37,11 +39,13 @@ public class CurrentThreadTaskExecutor implements TaskExecutor {
                 onSuccess.accept(result);
             }
             return CompletableFuture.completedFuture(result);
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             Consumer<Exception> onException = task.getOnException();
             if (onException != null) {
                 onException.accept(exception);
-            } else {
+            }
+            else {
                 LOGGER.error("Unhandled exception", exception);
             }
             return new FailedFuture<>(exception);
@@ -92,4 +96,5 @@ public class CurrentThreadTaskExecutor implements TaskExecutor {
             return true;
         }
     }
+
 }

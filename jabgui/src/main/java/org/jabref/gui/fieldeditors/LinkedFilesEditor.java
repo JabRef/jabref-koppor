@@ -65,42 +65,59 @@ import jakarta.inject.Inject;
 
 public class LinkedFilesEditor extends HBox implements FieldEditorFX {
 
-    @FXML private ListView<LinkedFileViewModel> listView;
-    @FXML private JabRefIconView fulltextFetcher;
-    @FXML private ProgressIndicator progressIndicator;
+    @FXML
+    private ListView<LinkedFileViewModel> listView;
+
+    @FXML
+    private JabRefIconView fulltextFetcher;
+
+    @FXML
+    private ProgressIndicator progressIndicator;
 
     private final Field field;
+
     private final BibDatabaseContext databaseContext;
+
     private final SuggestionProvider<?> suggestionProvider;
+
     private final FieldCheckers fieldCheckers;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private BibEntryTypesManager bibEntryTypesManager;
-    @Inject private JournalAbbreviationRepository abbreviationRepository;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private UndoManager undoManager;
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private BibEntryTypesManager bibEntryTypesManager;
+
+    @Inject
+    private JournalAbbreviationRepository abbreviationRepository;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private UndoManager undoManager;
 
     private LinkedFilesEditorViewModel viewModel;
 
     private ObservableOptionalValue<BibEntry> bibEntry = EasyBind.wrapNullable(new SimpleObjectProperty<>());
+
     private final UiThreadObservableList<LinkedFileViewModel> decoratedModelList;
 
     private ContextMenu activeContextMenu = null;
+
     private ContextMenuFactory contextMenuFactory;
 
-    public LinkedFilesEditor(Field field,
-                             BibDatabaseContext databaseContext,
-                             SuggestionProvider<?> suggestionProvider,
-                             FieldCheckers fieldCheckers) {
+    public LinkedFilesEditor(Field field, BibDatabaseContext databaseContext, SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers) {
         this.field = field;
         this.databaseContext = databaseContext;
         this.suggestionProvider = suggestionProvider;
         this.fieldCheckers = fieldCheckers;
 
-        ViewLoader.view(this)
-                .root(this)
-                .load();
+        ViewLoader.view(this).root(this).load();
 
         decoratedModelList = new UiThreadObservableList<>(viewModel.filesProperty());
         Bindings.bindContentBidirectional(listView.itemsProperty().get(), decoratedModelList);
@@ -108,25 +125,18 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
 
     @FXML
     private void initialize() {
-        this.viewModel = new LinkedFilesEditorViewModel(
-                field,
-                suggestionProvider,
-                dialogService,
-                databaseContext,
-                taskExecutor,
-                fieldCheckers,
-                preferences,
-                undoManager);
+        this.viewModel = new LinkedFilesEditorViewModel(field, suggestionProvider, dialogService, databaseContext,
+                taskExecutor, fieldCheckers, preferences, undoManager);
 
         new ViewModelListCellFactory<LinkedFileViewModel>()
-                .withStringTooltip(LinkedFileViewModel::getDescriptionAndLink)
-                .withGraphic(this::createFileDisplay)
-                .withOnMouseClickedEvent(this::handleItemMouseClick)
-                .setOnDragDetected(this::handleOnDragDetected)
-                .setOnDragDropped(this::handleOnDragDropped)
-                .setOnDragOver(this::handleOnDragOver)
-                .withValidation(LinkedFileViewModel::fileExistsValidationStatus)
-                .install(listView);
+            .withStringTooltip(LinkedFileViewModel::getDescriptionAndLink)
+            .withGraphic(this::createFileDisplay)
+            .withOnMouseClickedEvent(this::handleItemMouseClick)
+            .setOnDragDetected(this::handleOnDragDetected)
+            .setOnDragDropped(this::handleOnDragDropped)
+            .setOnDragOver(this::handleOnDragOver)
+            .withValidation(LinkedFileViewModel::fileExistsValidationStatus)
+            .install(listView);
         listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         fulltextFetcher.visibleProperty().bind(viewModel.fulltextLookupInProgressProperty().not());
@@ -136,7 +146,8 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
     }
 
     private void handleOnDragOver(LinkedFileViewModel originalItem, DragEvent event) {
-        if ((event.getGestureSource() != originalItem) && event.getDragboard().hasContent(DragAndDropDataFormats.LINKED_FILE)) {
+        if ((event.getGestureSource() != originalItem)
+                && event.getDragboard().hasContent(DragAndDropDataFormats.LINKED_FILE)) {
             event.acceptTransferModes(TransferMode.MOVE);
         }
     }
@@ -146,7 +157,8 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         if (selectedItem != null) {
             ClipboardContent content = new ClipboardContent();
             Dragboard dragboard = listView.startDragAndDrop(TransferMode.MOVE);
-            // We have to use the model class here, as the content of the dragboard must be serializable
+            // We have to use the model class here, as the content of the dragboard must
+            // be serializable
             content.put(DragAndDropDataFormats.LINKED_FILE, selectedItem);
             dragboard.setContent(content);
         }
@@ -189,7 +201,8 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         Text link = new Text();
         link.textProperty().bind(linkedFile.linkProperty());
         link.getStyleClass().setAll("file-row-text");
-        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(), found -> link.pseudoClassStateChanged(opacity, found));
+        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(),
+                found -> link.pseudoClassStateChanged(opacity, found));
 
         Text desc = new Text();
         desc.textProperty().bind(linkedFile.descriptionProperty());
@@ -204,15 +217,18 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         label.textProperty().bind(linkedFile.linkProperty());
         label.getStyleClass().setAll("file-row-text");
         label.textOverrunProperty().setValue(OverrunStyle.LEADING_ELLIPSIS);
-        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(), found -> label.pseudoClassStateChanged(opacity, found));
+        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(),
+                found -> label.pseudoClassStateChanged(opacity, found));
 
         HBox info = new HBox(8);
         HBox.setHgrow(info, Priority.ALWAYS);
-        info.setStyle("-fx-padding: 0.5em 0 0.5em 0;"); // To align with buttons below which also have 0.5em padding
+        info.setStyle("-fx-padding: 0.5em 0 0.5em 0;"); // To align with buttons below
+                                                        // which also have 0.5em padding
         info.getChildren().setAll(label, progressIndicator);
 
         Button acceptAutoLinkedFile = IconTheme.JabRefIcons.AUTO_LINKED_FILE.asButton();
-        acceptAutoLinkedFile.setTooltip(new Tooltip(Localization.lang("This file was found automatically. Do you want to link it to this entry?")));
+        acceptAutoLinkedFile.setTooltip(new Tooltip(
+                Localization.lang("This file was found automatically. Do you want to link it to this entry?")));
         acceptAutoLinkedFile.visibleProperty().bind(linkedFile.isAutomaticallyFoundProperty());
         acceptAutoLinkedFile.managedProperty().bind(linkedFile.isAutomaticallyFoundProperty());
         acceptAutoLinkedFile.setOnAction(event -> linkedFile.acceptAsLinked());
@@ -223,12 +239,9 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         writeMetadataToPdf.visibleProperty().bind(linkedFile.isOfflinePdfProperty());
         writeMetadataToPdf.getStyleClass().setAll("icon-button");
         WriteMetadataToSinglePdfAction writeMetadataToSinglePdfAction = new WriteMetadataToSinglePdfAction(
-                linkedFile.getFile(),
-                bibEntry.getValueOrElse(new BibEntry()),
-                databaseContext, dialogService, preferences.getFieldPreferences(),
-                preferences.getFilePreferences(), preferences.getXmpPreferences(), abbreviationRepository, bibEntryTypesManager,
-                taskExecutor
-        );
+                linkedFile.getFile(), bibEntry.getValueOrElse(new BibEntry()), databaseContext, dialogService,
+                preferences.getFieldPreferences(), preferences.getFilePreferences(), preferences.getXmpPreferences(),
+                abbreviationRepository, bibEntryTypesManager, taskExecutor);
         writeMetadataToPdf.disableProperty().bind(writeMetadataToSinglePdfAction.executableProperty().not());
         writeMetadataToPdf.setOnAction(event -> writeMetadataToSinglePdfAction.execute());
 
@@ -266,8 +279,9 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
     }
 
     private void deleteAttachedFilesWithConfirmation() {
-        new DeleteFileAction(dialogService, preferences.getFilePreferences(), databaseContext,
-                viewModel, listView.getSelectionModel().getSelectedItems()).execute();
+        new DeleteFileAction(dialogService, preferences.getFilePreferences(), databaseContext, viewModel,
+                listView.getSelectionModel().getSelectedItems())
+            .execute();
     }
 
     public LinkedFilesEditorViewModel getViewModel() {
@@ -287,7 +301,9 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
 
     @FXML
     private void addNewFile() {
-        dialogService.showCustomDialogAndWait(new LinkedFileEditDialog()).filter(file -> !file.isEmpty()).ifPresent(newLinkedFile -> viewModel.addNewLinkedFile(newLinkedFile));
+        dialogService.showCustomDialogAndWait(new LinkedFileEditDialog())
+            .filter(file -> !file.isEmpty())
+            .ifPresent(newLinkedFile -> viewModel.addNewLinkedFile(newLinkedFile));
     }
 
     @FXML
@@ -303,32 +319,28 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
     private void handleItemMouseClick(LinkedFileViewModel linkedFile, MouseEvent event) {
         if (event.getButton() == MouseButton.PRIMARY && (event.getClickCount() == 2)) {
             linkedFile.open(); // Double-click: open file
-        } else if (activeContextMenu != null && event.getButton() == MouseButton.PRIMARY) {
+        }
+        else if (activeContextMenu != null && event.getButton() == MouseButton.PRIMARY) {
             activeContextMenu.hide(); // Hide context menu if left-click
             activeContextMenu = null;
-        } else if (event.getButton() == MouseButton.SECONDARY) {
+        }
+        else if (event.getButton() == MouseButton.SECONDARY) {
             if (activeContextMenu != null) {
                 activeContextMenu.hide(); // Hide any existing context menu
                 activeContextMenu = null;
             }
 
-            SingleContextCommandFactory contextCommandFactory = (action, file) ->
-                    new ContextAction(action, file, databaseContext, bibEntry, preferences, viewModel);
+            SingleContextCommandFactory contextCommandFactory = (action, file) -> new ContextAction(action, file,
+                    databaseContext, bibEntry, preferences, viewModel);
 
-            MultiContextCommandFactory multiContextCommandFactory = (action, files) ->
-                    new MultiContextAction(action, files, databaseContext, bibEntry, preferences, viewModel);
+            MultiContextCommandFactory multiContextCommandFactory = (action, files) -> new MultiContextAction(action,
+                    files, databaseContext, bibEntry, preferences, viewModel);
 
-            contextMenuFactory = new ContextMenuFactory(
-                    dialogService,
-                    preferences,
-                    databaseContext,
-                    bibEntry,
-                    viewModel,
-                    contextCommandFactory,
-                    multiContextCommandFactory
-            );
+            contextMenuFactory = new ContextMenuFactory(dialogService, preferences, databaseContext, bibEntry,
+                    viewModel, contextCommandFactory, multiContextCommandFactory);
 
-            ContextMenu contextMenu = contextMenuFactory.createForSelection(listView.getSelectionModel().getSelectedItems());
+            ContextMenu contextMenu = contextMenuFactory
+                .createForSelection(listView.getSelectionModel().getSelectedItems());
             contextMenu.show(listView, event.getScreenX(), event.getScreenY());
             activeContextMenu = contextMenu;
         }
@@ -338,4 +350,5 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
     public double getWeight() {
         return 3;
     }
+
 }

@@ -11,11 +11,15 @@ import org.jabref.model.strings.StringUtil;
 public class BibWriter {
 
     private final String newLineSeparator;
+
     private final Writer writer;
 
     private boolean precedingNewLineRequired = false;
+
     private boolean somethingWasWritten = false;
+
     private boolean lastWriteWasNewline = false;
+
     private int currentPosition = 0;
 
     /**
@@ -27,7 +31,8 @@ public class BibWriter {
     }
 
     /**
-     * Writes the given string. The newlines of the given string are converted to the newline set for this class.
+     * Writes the given string. The newlines of the given string are converted to the
+     * newline set for this class.
      */
     public void write(String string) throws IOException {
         if (precedingNewLineRequired) {
@@ -75,4 +80,5 @@ public class BibWriter {
     public int getCurrentPosition() {
         return currentPosition;
     }
+
 }

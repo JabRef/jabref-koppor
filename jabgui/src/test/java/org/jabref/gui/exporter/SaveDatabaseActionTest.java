@@ -49,13 +49,21 @@ import static org.mockito.Mockito.when;
 class SaveDatabaseActionTest {
 
     private static final String TEST_BIBTEX_LIBRARY_LOCATION = "C:\\Users\\John_Doe\\Jabref\\literature.bib";
+
     private Path file = Path.of(TEST_BIBTEX_LIBRARY_LOCATION);
+
     private final DialogService dialogService = mock(DialogService.class);
+
     private final FilePreferences filePreferences = mock(FilePreferences.class);
+
     private final GuiPreferences preferences = mock(GuiPreferences.class);
+
     private final StateManager stateManager = mock(StateManager.class);
+
     private LibraryTab libraryTab = mock(LibraryTab.class);
+
     private BibDatabaseContext dbContext = spy(BibDatabaseContext.class);
+
     private SaveDatabaseAction saveDatabaseAction;
 
     @BeforeEach
@@ -64,7 +72,8 @@ class SaveDatabaseActionTest {
         when(filePreferences.getWorkingDirectory()).thenReturn(Path.of(TEST_BIBTEX_LIBRARY_LOCATION));
         when(preferences.getFilePreferences()).thenReturn(filePreferences);
         when(preferences.getExportPreferences()).thenReturn(mock(ExportPreferences.class));
-        saveDatabaseAction = spy(new SaveDatabaseAction(libraryTab, dialogService, preferences, mock(BibEntryTypesManager.class), stateManager));
+        saveDatabaseAction = spy(new SaveDatabaseAction(libraryTab, dialogService, preferences,
+                mock(BibEntryTypesManager.class), stateManager));
     }
 
     @Test
@@ -116,7 +125,8 @@ class SaveDatabaseActionTest {
         when(saveConfiguration.withSaveType(any(BibDatabaseWriter.SaveType.class))).thenReturn(saveConfiguration);
         when(saveConfiguration.getSaveOrder()).thenReturn(SaveOrder.getDefaultSaveOrder());
         GlobalCitationKeyPatterns emptyGlobalCitationKeyPatterns = GlobalCitationKeyPatterns.fromPattern("");
-        when(metaData.getCiteKeyPatterns(any(GlobalCitationKeyPatterns.class))).thenReturn(emptyGlobalCitationKeyPatterns);
+        when(metaData.getCiteKeyPatterns(any(GlobalCitationKeyPatterns.class)))
+            .thenReturn(emptyGlobalCitationKeyPatterns);
         when(dbContext.getDatabasePath()).thenReturn(Optional.of(file));
         when(dbContext.getLocation()).thenReturn(DatabaseLocation.LOCAL);
         when(dbContext.getDatabase()).thenReturn(database);
@@ -127,13 +137,15 @@ class SaveDatabaseActionTest {
         when(libraryPreferences.autoSaveProperty()).thenReturn(new SimpleBooleanProperty(false));
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
         when(preferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class));
-        when(preferences.getCitationKeyPatternPreferences().getKeyPatterns()).thenReturn(emptyGlobalCitationKeyPatterns);
+        when(preferences.getCitationKeyPatternPreferences().getKeyPatterns())
+            .thenReturn(emptyGlobalCitationKeyPatterns);
         when(preferences.getFieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
         when(preferences.getLibraryPreferences()).thenReturn(mock(LibraryPreferences.class));
         when(libraryTab.getBibDatabaseContext()).thenReturn(dbContext);
         when(libraryTab.getUndoManager()).thenReturn(mock(CountingUndoManager.class));
         when(libraryTab.getBibDatabaseContext()).thenReturn(dbContext);
-        saveDatabaseAction = new SaveDatabaseAction(libraryTab, dialogService, preferences, mock(BibEntryTypesManager.class), stateManager);
+        saveDatabaseAction = new SaveDatabaseAction(libraryTab, dialogService, preferences,
+                mock(BibEntryTypesManager.class), stateManager);
         return saveDatabaseAction;
     }
 
@@ -148,10 +160,11 @@ class SaveDatabaseActionTest {
         saveDatabaseAction = createSaveDatabaseActionForBibDatabase(database);
         saveDatabaseAction.save();
 
-        assertEquals(database
-                        .getEntries().stream()
-                        .map(BibEntry::hasChanged).filter(changed -> false).collect(Collectors.toList()),
-                List.of());
+        assertEquals(database.getEntries()
+            .stream()
+            .map(BibEntry::hasChanged)
+            .filter(changed -> false)
+            .collect(Collectors.toList()), List.of());
     }
 
     @Test
@@ -160,4 +173,5 @@ class SaveDatabaseActionTest {
         boolean result = saveDatabaseAction.save();
         assertFalse(result);
     }
+
 }

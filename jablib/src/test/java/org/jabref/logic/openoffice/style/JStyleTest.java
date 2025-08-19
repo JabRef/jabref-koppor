@@ -34,12 +34,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 class JStyleTest {
-    private final LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
+    private final LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class,
+            Answers.RETURNS_DEEP_STUBS);
+
     private final JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
 
     @Test
     void authorYear() throws IOException {
-        JStyle style = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences, abbreviationRepository);
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences,
+                abbreviationRepository);
         assertTrue(style.isValid());
         assertTrue(style.isInternalStyle());
         assertFalse(style.isCitationKeyCiteMarkers());
@@ -52,9 +56,7 @@ class JStyleTest {
 
     @Test
     void numerical() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertTrue(style.isValid());
         assertFalse(style.isCitationKeyCiteMarkers());
@@ -67,8 +69,7 @@ class JStyleTest {
 
     // region: helpers
 
-    static String runGetNumCitationMarker2a(JStyle style,
-                                            List<Integer> num, int minGroupingCount, boolean inList) {
+    static String runGetNumCitationMarker2a(JStyle style, List<Integer> num, int minGroupingCount, boolean inList) {
         return OOBibStyleTestHelper.runGetNumCitationMarker2a(style, num, minGroupingCount, inList);
     }
 
@@ -80,69 +81,39 @@ class JStyleTest {
         return OOBibStyleTestHelper.numBibEntry(key, num);
     }
 
-    static String runGetNumCitationMarker2b(JStyle style,
-                                            int minGroupingCount,
-                                            CitationMarkerNumericEntry... s) {
+    static String runGetNumCitationMarker2b(JStyle style, int minGroupingCount, CitationMarkerNumericEntry... s) {
         List<CitationMarkerNumericEntry> input = Stream.of(s).collect(Collectors.toList());
         OOText res = style.getNumCitationMarker2(input, minGroupingCount);
         return res.toString();
     }
 
-    static CitationMarkerEntry makeCitationMarkerEntry(BibEntry entry,
-                                                       BibDatabase database,
-                                                       String uniqueLetterQ,
-                                                       String pageInfoQ,
-                                                       boolean isFirstAppearanceOfSource) {
-        return OOBibStyleTestHelper.makeCitationMarkerEntry(entry,
-                database,
-                uniqueLetterQ,
-                pageInfoQ,
+    static CitationMarkerEntry makeCitationMarkerEntry(BibEntry entry, BibDatabase database, String uniqueLetterQ,
+            String pageInfoQ, boolean isFirstAppearanceOfSource) {
+        return OOBibStyleTestHelper.makeCitationMarkerEntry(entry, database, uniqueLetterQ, pageInfoQ,
                 isFirstAppearanceOfSource);
     }
 
     /*
-     * Similar to old API. pageInfo is new, and unlimAuthors is
-     * replaced with isFirstAppearanceOfSource
+     * Similar to old API. pageInfo is new, and unlimAuthors is replaced with
+     * isFirstAppearanceOfSource
      */
-    static String getCitationMarker2(JStyle style,
-                                     List<BibEntry> entries,
-                                     Map<BibEntry, BibDatabase> entryDBMap,
-                                     boolean inParenthesis,
-                                     String[] uniquefiers,
-                                     Boolean[] isFirstAppearanceOfSource,
-                                     String[] pageInfo) {
-        return OOBibStyleTestHelper.getCitationMarker2(style,
-                entries,
-                entryDBMap,
-                inParenthesis,
-                uniquefiers,
-                isFirstAppearanceOfSource,
-                pageInfo);
+    static String getCitationMarker2(JStyle style, List<BibEntry> entries, Map<BibEntry, BibDatabase> entryDBMap,
+            boolean inParenthesis, String[] uniquefiers, Boolean[] isFirstAppearanceOfSource, String[] pageInfo) {
+        return OOBibStyleTestHelper.getCitationMarker2(style, entries, entryDBMap, inParenthesis, uniquefiers,
+                isFirstAppearanceOfSource, pageInfo);
     }
 
-    static String getCitationMarker2b(JStyle style,
-                                      List<BibEntry> entries,
-                                      Map<BibEntry, BibDatabase> entryDBMap,
-                                      boolean inParenthesis,
-                                      String[] uniquefiers,
-                                      Boolean[] isFirstAppearanceOfSource,
-                                      String[] pageInfo) {
-        return OOBibStyleTestHelper.getCitationMarker2b(style,
-                entries,
-                entryDBMap,
-                inParenthesis,
-                uniquefiers,
-                isFirstAppearanceOfSource,
-                pageInfo);
+    static String getCitationMarker2b(JStyle style, List<BibEntry> entries, Map<BibEntry, BibDatabase> entryDBMap,
+            boolean inParenthesis, String[] uniquefiers, Boolean[] isFirstAppearanceOfSource, String[] pageInfo) {
+        return OOBibStyleTestHelper.getCitationMarker2b(style, entries, entryDBMap, inParenthesis, uniquefiers,
+                isFirstAppearanceOfSource, pageInfo);
     }
 
     // endregion
 
     @Test
     void getNumCitationMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertEquals("[1] ", runGetNumCitationMarker2a(style, List.of(1), -1, true));
 
@@ -160,44 +131,29 @@ class JStyleTest {
 
     @Test
     void getNumCitationMarkerUndefined() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         // unresolved citations look like [??key]
         assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("key", 0, null)));
+                runGetNumCitationMarker2b(style, 1, numEntry("key", 0, null)));
 
         // pageInfo is shown for unresolved citations
         assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "; p1]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("key", 0, "p1")));
+                runGetNumCitationMarker2b(style, 1, numEntry("key", 0, "p1")));
 
         // unresolved citations sorted to the front
-        assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "; 2-4]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x4", 4, ""),
-                        numEntry("x2", 2, ""),
-                        numEntry("x3", 3, ""),
-                        numEntry("key", 0, "")));
+        assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "; 2-4]", runGetNumCitationMarker2b(style, 1,
+                numEntry("x4", 4, ""), numEntry("x2", 2, ""), numEntry("x3", 3, ""), numEntry("key", 0, "")));
 
-        assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "; 1-3]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 1, ""),
-                        numEntry("x2", 2, ""),
-                        numEntry("y3", 3, ""),
-                        numEntry("key", 0, "")));
+        assertEquals("[" + JStyle.UNDEFINED_CITATION_MARKER + "key" + "; 1-3]", runGetNumCitationMarker2b(style, 1,
+                numEntry("x1", 1, ""), numEntry("x2", 2, ""), numEntry("y3", 3, ""), numEntry("key", 0, "")));
 
         // multiple unresolved citations are not collapsed
-        assertEquals("["
-                        + JStyle.UNDEFINED_CITATION_MARKER + "x1" + "; "
-                        + JStyle.UNDEFINED_CITATION_MARKER + "x2" + "; "
+        assertEquals(
+                "[" + JStyle.UNDEFINED_CITATION_MARKER + "x1" + "; " + JStyle.UNDEFINED_CITATION_MARKER + "x2" + "; "
                         + JStyle.UNDEFINED_CITATION_MARKER + "x3" + "]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 0, ""),
-                        numEntry("x2", 0, ""),
+                runGetNumCitationMarker2b(style, 1, numEntry("x1", 0, ""), numEntry("x2", 0, ""),
                         numEntry("x3", 0, "")));
 
         /*
@@ -210,9 +166,7 @@ class JStyleTest {
 
     @Test
     void getCitProperty() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertEquals(", ", style.getStringCitProperty("AuthorSeparator"));
 
@@ -231,60 +185,50 @@ class JStyleTest {
 
     @Test
     void getCitationMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "Gustav Bostr\\\"{o}m and Jaana W\\\"{a}yrynen and Marine Bod\\'{e}n and Konstantin Beznosov and Philippe Kruchten")
-                .withField(StandardField.YEAR, "2006")
-                .withField(StandardField.BOOKTITLE, "SESS '06: Proceedings of the 2006 international workshop on Software engineering for secure systems")
-                .withField(StandardField.PUBLISHER, "ACM")
-                .withField(StandardField.TITLE, "Extending XP practices to support security requirements engineering")
-                .withField(StandardField.PAGES, "11--18");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR,
+                "Gustav Bostr\\\"{o}m and Jaana W\\\"{a}yrynen and Marine Bod\\'{e}n and Konstantin Beznosov and Philippe Kruchten")
+            .withField(StandardField.YEAR, "2006")
+            .withField(StandardField.BOOKTITLE,
+                    "SESS '06: Proceedings of the 2006 international workshop on Software engineering for secure systems")
+            .withField(StandardField.PUBLISHER, "ACM")
+            .withField(StandardField.TITLE, "Extending XP practices to support security requirements engineering")
+            .withField(StandardField.PAGES, "11--18");
         entry.setCitationKey("Bostrom2006"); // citation key is not optional now
         BibDatabase database = new BibDatabase();
         database.insertEntry(entry);
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
         entryDBMap.put(entry, database);
 
-        // Check what unlimAuthors values correspond to isFirstAppearanceOfSource false/true
+        // Check what unlimAuthors values correspond to isFirstAppearanceOfSource
+        // false/true
         assertEquals(3, style.getMaxAuthors());
         assertEquals(-1, style.getMaxAuthorsFirst());
 
         assertEquals("[Boström et al., 2006]",
-                getCitationMarker2(style,
-                        List.of(entry), entryDBMap,
-                        true, null, null, null));
+                getCitationMarker2(style, List.of(entry), entryDBMap, true, null, null, null));
 
         assertEquals("Boström et al. [2006]",
-                getCitationMarker2(style,
-                        List.of(entry), entryDBMap,
-                        false, null, new Boolean[]{false}, null));
+                getCitationMarker2(style, List.of(entry), entryDBMap, false, null, new Boolean[] { false }, null));
 
         assertEquals("[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006]",
-                getCitationMarker2(style,
-                        List.of(entry), entryDBMap,
-                        true,
-                        null,
-                        new Boolean[]{true},
-                        null));
+                getCitationMarker2(style, List.of(entry), entryDBMap, true, null, new Boolean[] { true }, null));
     }
 
     @Test
     void layout() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "Gustav Bostr\\\"{o}m and Jaana W\\\"{a}yrynen and Marine Bod\\'{e}n and Konstantin Beznosov and Philippe Kruchten")
-                .withField(StandardField.YEAR, "2006")
-                .withField(StandardField.BOOKTITLE, "SESS '06: Proceedings of the 2006 international workshop on Software engineering for secure systems")
-                .withField(StandardField.PUBLISHER, "ACM")
-                .withField(StandardField.TITLE, "Extending XP practices to support security requirements engineering")
-                .withField(StandardField.PAGES, "11--18");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR,
+                "Gustav Bostr\\\"{o}m and Jaana W\\\"{a}yrynen and Marine Bod\\'{e}n and Konstantin Beznosov and Philippe Kruchten")
+            .withField(StandardField.YEAR, "2006")
+            .withField(StandardField.BOOKTITLE,
+                    "SESS '06: Proceedings of the 2006 international workshop on Software engineering for secure systems")
+            .withField(StandardField.PUBLISHER, "ACM")
+            .withField(StandardField.TITLE, "Extending XP practices to support security requirements engineering")
+            .withField(StandardField.PAGES, "11--18");
         BibDatabase database = new BibDatabase();
         database.insertEntry(entry);
 
@@ -303,9 +247,7 @@ class JStyleTest {
 
     @Test
     void institutionAuthor() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         BibDatabase database = new BibDatabase();
 
@@ -324,9 +266,7 @@ class JStyleTest {
 
     @Test
     void vonAuthor() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         BibDatabase database = new BibDatabase();
 
@@ -339,37 +279,30 @@ class JStyleTest {
         entry.setField(StandardField.TITLE, "JabRef Manual");
         entry.setField(StandardField.YEAR, "2016");
         database.insertEntry(entry);
-        assertEquals("<b>von Beta, A.</b> (<b>2016</b>). <i>JabRef Manual</i>,  .",
-                l.doLayout(entry, database));
+        assertEquals("<b>von Beta, A.</b> (<b>2016</b>). <i>JabRef Manual</i>,  .", l.doLayout(entry, database));
     }
 
     @Test
     void institutionAuthorMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
 
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("JabRef2016")
-                .withField(StandardField.AUTHOR, "{JabRef Development Team}")
-                .withField(StandardField.TITLE, "JabRef Manual")
-                .withField(StandardField.YEAR, "2016");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("JabRef2016")
+            .withField(StandardField.AUTHOR, "{JabRef Development Team}")
+            .withField(StandardField.TITLE, "JabRef Manual")
+            .withField(StandardField.YEAR, "2016");
         List<BibEntry> entries = List.of(entry);
         BibDatabase database = new BibDatabase(entries);
         entryDBMap.put(entry, database);
         assertEquals("[JabRef Development Team, 2016]",
-                getCitationMarker2(style,
-                        entries, entryDBMap, true, null, null, null));
+                getCitationMarker2(style, entries, entryDBMap, true, null, null, null));
     }
 
     @Test
     void vonAuthorMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -390,9 +323,7 @@ class JStyleTest {
 
     @Test
     void nullAuthorMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -411,9 +342,7 @@ class JStyleTest {
 
     @Test
     void nullYearMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -432,9 +361,7 @@ class JStyleTest {
 
     @Test
     void emptyEntryMarker() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -452,9 +379,7 @@ class JStyleTest {
 
     @Test
     void getCitationMarkerInParenthesisUniquefiers() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -487,18 +412,13 @@ class JStyleTest {
 
         assertEquals("[Beta, 2000; Beta, 2000; Epsilon, 2001]",
                 getCitationMarker2b(style, entries, entryDBMap, true, null, null, null));
-        assertEquals("[Beta, 2000a,b; Epsilon, 2001]",
-                getCitationMarker2(style, entries, entryDBMap, true,
-                        new String[]{"a", "b", ""},
-                        new Boolean[]{false, false, false},
-                        null));
+        assertEquals("[Beta, 2000a,b; Epsilon, 2001]", getCitationMarker2(style, entries, entryDBMap, true,
+                new String[] { "a", "b", "" }, new Boolean[] { false, false, false }, null));
     }
 
     @Test
     void getCitationMarkerInTextUniquefiers() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -531,18 +451,13 @@ class JStyleTest {
 
         assertEquals("Beta [2000]; Beta [2000]; Epsilon [2001]",
                 getCitationMarker2b(style, entries, entryDBMap, false, null, null, null));
-        assertEquals("Beta [2000a,b]; Epsilon [2001]",
-                getCitationMarker2(style, entries, entryDBMap, false,
-                        new String[]{"a", "b", ""},
-                        new Boolean[]{false, false, false},
-                        null));
+        assertEquals("Beta [2000a,b]; Epsilon [2001]", getCitationMarker2(style, entries, entryDBMap, false,
+                new String[] { "a", "b", "" }, new Boolean[] { false, false, false }, null));
     }
 
     @Test
     void getCitationMarkerInParenthesisUniquefiersThreeSameAuthor() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -574,18 +489,13 @@ class JStyleTest {
             entryDBMap.put(entry, database);
         }
 
-        assertEquals("[Beta, 2000a,b,c]",
-                getCitationMarker2(style, entries, entryDBMap, true,
-                        new String[]{"a", "b", "c"},
-                        new Boolean[]{false, false, false},
-                        null));
+        assertEquals("[Beta, 2000a,b,c]", getCitationMarker2(style, entries, entryDBMap, true,
+                new String[] { "a", "b", "c" }, new Boolean[] { false, false, false }, null));
     }
 
     @Test
     void getCitationMarkerInTextUniquefiersThreeSameAuthor() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
@@ -617,63 +527,44 @@ class JStyleTest {
             entryDBMap.put(entry, database);
         }
 
-        assertEquals("Beta [2000a,b,c]",
-                getCitationMarker2(style, entries, entryDBMap, false,
-                        new String[]{"a", "b", "c"},
-                        new Boolean[]{false, false, false},
-                        null));
+        assertEquals("Beta [2000a,b,c]", getCitationMarker2(style, entries, entryDBMap, false,
+                new String[] { "a", "b", "c" }, new Boolean[] { false, false, false }, null));
     }
 
     @Test
-        // TODO: equals only work when initialized from file, not from reader
+    // TODO: equals only work when initialized from file, not from reader
     void equals() throws IOException {
-        JStyle style1 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style1 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
-        JStyle style2 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style2 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertEquals(style1, style2);
     }
 
     @Test
-        // TODO: equals only work when initialized from file, not from reader
+    // TODO: equals only work when initialized from file, not from reader
     void notEquals() throws IOException {
-        JStyle style1 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style1 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
-        JStyle style2 = new JStyle(
-                JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style2 = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertNotEquals(style1, style2);
     }
 
     @Test
     void compareToEqual() throws IOException {
-        JStyle style1 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style1 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
-        JStyle style2 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style2 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertEquals(0, style1.compareTo(style2));
     }
 
     @Test
     void compareToNotEqual() throws IOException {
-        JStyle style1 = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style1 = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
-        JStyle style2 = new JStyle(
-                JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style2 = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
         assertTrue(style1.compareTo(style2) > 0);
         assertFalse(style2.compareTo(style1) > 0);
@@ -701,15 +592,14 @@ class JStyleTest {
 
     @Test
     void isValidWithDefaultSectionAtTheStart() throws IOException {
-        JStyle style = new JStyle("testWithDefaultAtFirstLIne.jstyle", layoutFormatterPreferences, abbreviationRepository);
+        JStyle style = new JStyle("testWithDefaultAtFirstLIne.jstyle", layoutFormatterPreferences,
+                abbreviationRepository);
         assertTrue(style.isValid());
     }
 
     @Test
     void getCitationMarkerJoinFirst() throws IOException {
-        JStyle style = new JStyle(
-                JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
-                layoutFormatterPreferences,
+        JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences,
                 abbreviationRepository);
 
         // Question: What should happen if some sources are
@@ -718,46 +608,37 @@ class JStyleTest {
 
         // Two entries with identical normalizedMarkers and many authors.
         BibEntry entry1 = new BibEntry()
-                .withField(StandardField.AUTHOR,
-                        "Gustav Bostr\\\"{o}m"
-                                + " and Jaana W\\\"{a}yrynen"
-                                + " and Marine Bod\\'{e}n"
-                                + " and Konstantin Beznosov"
-                                + " and Philippe Kruchten")
-                .withField(StandardField.YEAR, "2006")
-                .withField(StandardField.BOOKTITLE, "A book 1")
-                .withField(StandardField.PUBLISHER, "ACM")
-                .withField(StandardField.TITLE, "Title 1")
-                .withField(StandardField.PAGES, "11--18");
+            .withField(StandardField.AUTHOR,
+                    "Gustav Bostr\\\"{o}m" + " and Jaana W\\\"{a}yrynen" + " and Marine Bod\\'{e}n"
+                            + " and Konstantin Beznosov" + " and Philippe Kruchten")
+            .withField(StandardField.YEAR, "2006")
+            .withField(StandardField.BOOKTITLE, "A book 1")
+            .withField(StandardField.PUBLISHER, "ACM")
+            .withField(StandardField.TITLE, "Title 1")
+            .withField(StandardField.PAGES, "11--18");
         entry1.setCitationKey("b1");
 
         BibEntry entry2 = new BibEntry()
-                .withField(StandardField.AUTHOR,
-                        "Gustav Bostr\\\"{o}m"
-                                + " and Jaana W\\\"{a}yrynen"
-                                + " and Marine Bod\\'{e}n"
-                                + " and Konstantin Beznosov"
-                                + " and Philippe Kruchten")
-                .withField(StandardField.YEAR, "2006")
-                .withField(StandardField.BOOKTITLE, "A book 2")
-                .withField(StandardField.PUBLISHER, "ACM")
-                .withField(StandardField.TITLE, "title2")
-                .withField(StandardField.PAGES, "11--18");
+            .withField(StandardField.AUTHOR,
+                    "Gustav Bostr\\\"{o}m" + " and Jaana W\\\"{a}yrynen" + " and Marine Bod\\'{e}n"
+                            + " and Konstantin Beznosov" + " and Philippe Kruchten")
+            .withField(StandardField.YEAR, "2006")
+            .withField(StandardField.BOOKTITLE, "A book 2")
+            .withField(StandardField.PUBLISHER, "ACM")
+            .withField(StandardField.TITLE, "title2")
+            .withField(StandardField.PAGES, "11--18");
         entry2.setCitationKey("b2");
 
         // Last Author differs.
         BibEntry entry3 = new BibEntry()
-                .withField(StandardField.AUTHOR,
-                        "Gustav Bostr\\\"{o}m"
-                                + " and Jaana W\\\"{a}yrynen"
-                                + " and Marine Bod\\'{e}n"
-                                + " and Konstantin Beznosov"
-                                + " and Philippe NotKruchten")
-                .withField(StandardField.YEAR, "2006")
-                .withField(StandardField.BOOKTITLE, "A book 3")
-                .withField(StandardField.PUBLISHER, "ACM")
-                .withField(StandardField.TITLE, "title3")
-                .withField(StandardField.PAGES, "11--18");
+            .withField(StandardField.AUTHOR,
+                    "Gustav Bostr\\\"{o}m" + " and Jaana W\\\"{a}yrynen" + " and Marine Bod\\'{e}n"
+                            + " and Konstantin Beznosov" + " and Philippe NotKruchten")
+            .withField(StandardField.YEAR, "2006")
+            .withField(StandardField.BOOKTITLE, "A book 3")
+            .withField(StandardField.PUBLISHER, "ACM")
+            .withField(StandardField.TITLE, "title3")
+            .withField(StandardField.PAGES, "11--18");
         entry3.setCitationKey("b3");
 
         BibDatabase database = new BibDatabase();
@@ -769,27 +650,23 @@ class JStyleTest {
         // The third is NotKruchten, should not be joined.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", null, true);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", null, true);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry2, database, "b", null, true);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry2, database, "b", null, true);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry3, database, "c", null, true);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry3, database, "c", null, true);
             citationMarkerEntries.add(cm3);
 
-            assertEquals("[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b"
+            assertEquals(
+                    "[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b"
                             + "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten, 2006c]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
 
-            assertEquals("Boström, Wäyrynen, Bodén, Beznosov & Kruchten [2006a,b]"
+            assertEquals(
+                    "Boström, Wäyrynen, Bodén, Beznosov & Kruchten [2006a,b]"
                             + "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten [2006c]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            false,
-                            NonUniqueCitationMarker.THROWS).toString());
+                    style.createCitationMarker(citationMarkerEntries, false, NonUniqueCitationMarker.THROWS)
+                        .toString());
         }
 
         // Without pageInfo, only the first is isFirstAppearanceOfSource.
@@ -797,21 +674,15 @@ class JStyleTest {
         // The third is NotKruchten, should not be joined.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", null, true);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", null, true);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry2, database, "b", null, false);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry2, database, "b", null, false);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry3, database, "c", null, false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry3, database, "c", null, false);
             citationMarkerEntries.add(cm3);
 
-            assertEquals("[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b"
-                            + "; Boström et al., 2006c]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+            assertEquals("[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b" + "; Boström et al., 2006c]",
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
         // Without pageInfo, only the second is isFirstAppearanceOfSource.
         // The second is not joined, because it is a first appearance, thus
@@ -819,111 +690,83 @@ class JStyleTest {
         // The third is NotKruchten, should not be joined.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", null, false);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", null, false);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry2, database, "b", null, true);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry2, database, "b", null, true);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry3, database, "c", null, false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry3, database, "c", null, false);
             citationMarkerEntries.add(cm3);
 
-            assertEquals("[Boström et al., 2006a"
-                            + "; Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006b"
+            assertEquals(
+                    "[Boström et al., 2006a" + "; Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006b"
                             + "; Boström et al., 2006c]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
 
         // Without pageInfo, neither is isFirstAppearanceOfSource.
         // The second is joined.
-        // The third is NotKruchten, but is joined because NotKruchten is not among the names shown.
+        // The third is NotKruchten, but is joined because NotKruchten is not among the
+        // names shown.
         // Is this the correct behaviour?
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", null, false);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", null, false);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry2, database, "b", null, false);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry2, database, "b", null, false);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry3, database, "c", null, false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry3, database, "c", null, false);
             citationMarkerEntries.add(cm3);
 
             assertEquals("[Boström et al., 2006a,b,c]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
 
         // With pageInfo: different entries with identical non-null pageInfo: not joined.
         // XY [2000a,b,c; p1] whould be confusing.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p1", false);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", "p1", false);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry2, database, "b", "p1", false);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry2, database, "b", "p1", false);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry3, database, "c", "p1", false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry3, database, "c", "p1", false);
             citationMarkerEntries.add(cm3);
 
-            assertEquals("[Boström et al., 2006a; p1"
-                            + "; Boström et al., 2006b; p1"
-                            + "; Boström et al., 2006c; p1]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+            assertEquals("[Boström et al., 2006a; p1" + "; Boström et al., 2006b; p1" + "; Boström et al., 2006c; p1]",
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
 
         // With pageInfo: same entries with identical non-null pageInfo: collapsed.
         // Note: "same" here looks at the visible parts and citation key only,
-        //       but ignores the rest. Normally the citation key should distinguish.
+        // but ignores the rest. Normally the citation key should distinguish.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p1", false);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", "p1", false);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p1", false);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry1, database, "a", "p1", false);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p1", false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry1, database, "a", "p1", false);
             citationMarkerEntries.add(cm3);
 
             assertEquals("[Boström et al., 2006a; p1]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
         // With pageInfo: same entries with different pageInfo: kept separate.
         // Empty ("") and missing pageInfos considered equal, thus collapsed.
         if (true) {
             List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>();
-            CitationMarkerEntry cm1 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p1", false);
+            CitationMarkerEntry cm1 = makeCitationMarkerEntry(entry1, database, "a", "p1", false);
             citationMarkerEntries.add(cm1);
-            CitationMarkerEntry cm2 =
-                    makeCitationMarkerEntry(entry1, database, "a", "p2", false);
+            CitationMarkerEntry cm2 = makeCitationMarkerEntry(entry1, database, "a", "p2", false);
             citationMarkerEntries.add(cm2);
-            CitationMarkerEntry cm3 =
-                    makeCitationMarkerEntry(entry1, database, "a", "", false);
+            CitationMarkerEntry cm3 = makeCitationMarkerEntry(entry1, database, "a", "", false);
             citationMarkerEntries.add(cm3);
-            CitationMarkerEntry cm4 =
-                    makeCitationMarkerEntry(entry1, database, "a", null, false);
+            CitationMarkerEntry cm4 = makeCitationMarkerEntry(entry1, database, "a", null, false);
             citationMarkerEntries.add(cm4);
 
-            assertEquals("[Boström et al., 2006a; p1"
-                            + "; Boström et al., 2006a; p2"
-                            + "; Boström et al., 2006a]",
-                    style.createCitationMarker(citationMarkerEntries,
-                            true,
-                            NonUniqueCitationMarker.THROWS).toString());
+            assertEquals("[Boström et al., 2006a; p1" + "; Boström et al., 2006a; p2" + "; Boström et al., 2006a]",
+                    style.createCitationMarker(citationMarkerEntries, true, NonUniqueCitationMarker.THROWS).toString());
         }
     }
+
 }

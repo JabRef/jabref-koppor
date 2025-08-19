@@ -37,26 +37,44 @@ public class ErrorConsoleView extends BaseDialog<Void> {
 
     private ErrorConsoleViewModel viewModel;
 
-    @FXML private ButtonType copyLogButton;
-    @FXML private ButtonType clearLogButton;
-    @FXML private ButtonType createIssueButton;
-    @FXML private ListView<LogEventViewModel> messagesListView;
-    @FXML private Label descriptionLabel;
+    @FXML
+    private ButtonType copyLogButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private BuildInfo buildInfo;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private ThemeManager themeManager;
+    @FXML
+    private ButtonType clearLogButton;
+
+    @FXML
+    private ButtonType createIssueButton;
+
+    @FXML
+    private ListView<LogEventViewModel> messagesListView;
+
+    @FXML
+    private Label descriptionLabel;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
+
+    @Inject
+    private BuildInfo buildInfo;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private ThemeManager themeManager;
 
     public ErrorConsoleView() {
         this.setTitle(Localization.lang("Event log"));
         this.initModality(Modality.NONE);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         ControlHelper.setAction(copyLogButton, getDialogPane(), event -> copyLog());
         ControlHelper.setAction(clearLogButton, getDialogPane(), event -> clearLog());
@@ -84,9 +102,13 @@ public class ErrorConsoleView extends BaseDialog<Void> {
     private Callback<ListView<LogEventViewModel>, ListCell<LogEventViewModel>> createCellFactory() {
         return cell -> new ListCell<>() {
             private HBox graphic;
+
             private Node icon;
+
             private VBox message;
+
             private Label heading;
+
             private Label stacktrace;
 
             {
@@ -104,7 +126,8 @@ public class ErrorConsoleView extends BaseDialog<Void> {
 
                 if ((event == null) || empty) {
                     setGraphic(null);
-                } else {
+                }
+                else {
                     icon = event.getIcon().getGraphicNode();
                     heading.setText(event.getDisplayText());
                     heading.getStyleClass().setAll(event.getStyleClass());
@@ -148,4 +171,5 @@ public class ErrorConsoleView extends BaseDialog<Void> {
     private void createIssue() {
         viewModel.reportIssue();
     }
+
 }

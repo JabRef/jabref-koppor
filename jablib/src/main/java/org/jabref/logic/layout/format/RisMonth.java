@@ -17,4 +17,5 @@ public class RisMonth implements LayoutFormatter {
         Optional<Month> parsedMonth = Month.getMonthByShortName(month);
         return parsedMonth.map(Month::getTwoDigitNumber).orElse(month.toLowerCase(Locale.ROOT));
     }
+
 }

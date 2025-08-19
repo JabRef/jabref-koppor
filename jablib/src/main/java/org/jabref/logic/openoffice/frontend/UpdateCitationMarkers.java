@@ -32,15 +32,12 @@ public class UpdateCitationMarkers {
     /**
      * Visit each reference mark in referenceMarkNames, overwrite its text content.
      * <p>
-     * After each fillCitationMarkInCursor call check if we lost the BIB_SECTION_NAME bookmark and recreate it if we did.
-     *
-     * @param style    Bibliography style to use.
+     * After each fillCitationMarkInCursor call check if we lost the BIB_SECTION_NAME
+     * bookmark and recreate it if we did.
+     * @param style Bibliography style to use.
      */
     public static void applyNewCitationMarkers(XTextDocument doc, OOFrontend frontend, JStyle style)
-            throws
-            NoDocumentException,
-            CreationException,
-            WrappedTargetException {
+            throws NoDocumentException, CreationException, WrappedTargetException {
 
         CitationGroups citationGroups = frontend.citationGroups;
 
@@ -49,8 +46,7 @@ public class UpdateCitationMarkers {
             Optional<OOText> marker = group.getCitationMarker();
 
             if (marker.isEmpty()) {
-                LOGGER.warn("applyNewCitationMarkers: no marker for {}",
-                        group.groupId.citationGroupIdAsString());
+                LOGGER.warn("applyNewCitationMarkers: no marker for {}", group.groupId.citationGroupIdAsString());
                 continue;
             }
 
@@ -62,15 +58,8 @@ public class UpdateCitationMarkers {
         }
     }
 
-    public static void fillCitationMarkInCursor(XTextDocument doc,
-                                                XTextCursor cursor,
-                                                OOText citationText,
-                                                boolean withText,
-                                                JStyle style)
-            throws
-            WrappedTargetException,
-            CreationException,
-            IllegalArgumentException {
+    public static void fillCitationMarkInCursor(XTextDocument doc, XTextCursor cursor, OOText citationText,
+            boolean withText, JStyle style) throws WrappedTargetException, CreationException, IllegalArgumentException {
 
         Objects.requireNonNull(cursor);
         Objects.requireNonNull(citationText);
@@ -80,51 +69,38 @@ public class UpdateCitationMarkers {
             OOText citationText2 = style.decorateCitationMarker(citationText);
             String ZERO_WIDTH_SPACE = "";
             if (style.spaceBeforeCitation()) {
-              // inject a ZERO_WIDTH_SPACE to hold the initial character format
-              ZERO_WIDTH_SPACE = "\u200b";
+                // inject a ZERO_WIDTH_SPACE to hold the initial character format
+                ZERO_WIDTH_SPACE = "\u200b";
             }
             citationText2 = OOText.fromString(ZERO_WIDTH_SPACE + citationText2.toString());
             OOTextIntoOO.write(doc, cursor, citationText2);
-        } else {
+        }
+        else {
             cursor.setString("");
         }
     }
 
     /**
      * Inserts a citation group in the document: creates and fills it.
-     *
-     * @param citationKeys     BibTeX keys of
-     * @param citationText     Text for the citation. A citation mark or placeholder if not yet available.
-     * @param position         Location to insert at.
-     * @param insertSpaceAfter A space inserted after the reference mark makes it easier to separate from the text coming after. But is not wanted when we recreate a reference mark.
+     * @param citationKeys BibTeX keys of
+     * @param citationText Text for the citation. A citation mark or placeholder if not
+     * yet available.
+     * @param position Location to insert at.
+     * @param insertSpaceAfter A space inserted after the reference mark makes it easier
+     * to separate from the text coming after. But is not wanted when we recreate a
+     * reference mark.
      */
-    public static void createAndFillCitationGroup(OOFrontend frontend,
-                                                  XTextDocument doc,
-                                                  List<String> citationKeys,
-                                                  List<Optional<OOText>> pageInfos,
-                                                  CitationType citationType,
-                                                  OOText citationText,
-                                                  XTextCursor position,
-                                                  JStyle style,
-                                                  boolean insertSpaceAfter)
-            throws
-            NotRemoveableException,
-            WrappedTargetException,
-            PropertyVetoException,
-            IllegalArgumentException,
-            CreationException,
-            NoDocumentException,
-            IllegalTypeException {
+    public static void createAndFillCitationGroup(OOFrontend frontend, XTextDocument doc, List<String> citationKeys,
+            List<Optional<OOText>> pageInfos, CitationType citationType, OOText citationText, XTextCursor position,
+            JStyle style, boolean insertSpaceAfter)
+            throws NotRemoveableException, WrappedTargetException, PropertyVetoException, IllegalArgumentException,
+            CreationException, NoDocumentException, IllegalTypeException {
 
         Objects.requireNonNull(pageInfos);
         if (pageInfos.size() != citationKeys.size()) {
             throw new IllegalArgumentException("pageInfos.size != citationKeys.size");
         }
-        CitationGroup group = frontend.createCitationGroup(doc,
-                citationKeys,
-                pageInfos,
-                citationType,
-                position,
+        CitationGroup group = frontend.createCitationGroup(doc, citationKeys, pageInfos, citationType, position,
                 insertSpaceAfter);
 
         final boolean withText = citationType.withText();
@@ -138,4 +114,5 @@ public class UpdateCitationMarkers {
         }
         position.collapseToEnd();
     }
+
 }

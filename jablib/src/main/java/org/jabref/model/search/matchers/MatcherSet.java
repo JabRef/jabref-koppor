@@ -37,4 +37,5 @@ public abstract class MatcherSet implements SearchMatcher {
     public String toString() {
         return "MatcherSet{" + "matchers=" + matchers + '}';
     }
+
 }

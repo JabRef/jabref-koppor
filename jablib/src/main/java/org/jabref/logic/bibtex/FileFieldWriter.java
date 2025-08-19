@@ -17,9 +17,11 @@ public class FileFieldWriter {
         int i = 0;
         for (LinkedFile entry : fields) {
             if (StringUtil.isNullOrEmpty(entry.getSourceUrl())) {
-                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType()};
-            } else {
-                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType(), entry.getSourceUrl()};
+                array[i] = new String[] { entry.getDescription(), entry.getLink(), entry.getFileType() };
+            }
+            else {
+                array[i] = new String[] { entry.getDescription(), entry.getLink(), entry.getFileType(),
+                        entry.getSourceUrl() };
             }
             i++;
         }
@@ -31,29 +33,23 @@ public class FileFieldWriter {
     }
 
     /**
-     * Encodes a two-dimensional String array into a single string, using ':' and
-     * ';' as separators. The characters ':' and ';' are escaped with '\'.
-     *
+     * Encodes a two-dimensional String array into a single string, using ':' and ';' as
+     * separators. The characters ':' and ';' are escaped with '\'.
      * @param values The String array.
      * @return The encoded String.
      */
     public static String encodeStringArray(String[][] values) {
-        return Arrays.stream(values)
-                     .map(FileFieldWriter::encodeStringArray)
-                     .collect(Collectors.joining(";"));
+        return Arrays.stream(values).map(FileFieldWriter::encodeStringArray).collect(Collectors.joining(";"));
     }
 
     /**
-     * Encodes a String array into a single string, using ':' as separator.
-     * The characters ':' and ';' are escaped with '\'.
-     *
+     * Encodes a String array into a single string, using ':' as separator. The characters
+     * ':' and ';' are escaped with '\'.
      * @param entry The String array.
      * @return The encoded String.
      */
     private static String encodeStringArray(String[] entry) {
-        return Arrays.stream(entry)
-                     .map(FileFieldWriter::quote)
-                     .collect(Collectors.joining(":"));
+        return Arrays.stream(entry).map(FileFieldWriter::quote).collect(Collectors.joining(":"));
     }
 
     public static String quote(String s) {
@@ -70,4 +66,5 @@ public class FileFieldWriter {
         }
         return sb.toString();
     }
+
 }

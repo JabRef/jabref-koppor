@@ -12,13 +12,15 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.groups.GroupTreeNode;
 
 public final class GroupChange extends DatabaseChange {
+
     private final GroupDiff groupDiff;
 
-    public GroupChange(GroupDiff groupDiff, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public GroupChange(GroupDiff groupDiff, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.groupDiff = groupDiff;
-        setChangeName(groupDiff.getOriginalGroupRoot() == null ? Localization.lang("Removed all groups") : Localization
-                .lang("Modified groups tree"));
+        setChangeName(groupDiff.getOriginalGroupRoot() == null ? Localization.lang("Removed all groups")
+                : Localization.lang("Modified groups tree"));
     }
 
     @Override
@@ -39,7 +41,8 @@ public final class GroupChange extends DatabaseChange {
         if (newRoot == null) {
             // I think setting root to null is not possible
             root.setGroup(DefaultGroupsFactory.getAllEntriesGroup(), false, false, null);
-        } else {
+        }
+        else {
             // change root group, even though it'll be AllEntries anyway
             root.setGroup(newRoot.getGroup(), false, false, null);
             for (GroupTreeNode child : newRoot.getChildren()) {
@@ -53,4 +56,5 @@ public final class GroupChange extends DatabaseChange {
     public GroupDiff getGroupDiff() {
         return groupDiff;
     }
+
 }

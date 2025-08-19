@@ -18,4 +18,5 @@ public class CreateDocBook5Editors implements LayoutFormatter {
         formatter.addBody(sb, al, StandardField.EDITOR.getName(), DocBookVersion.DOCBOOK_5);
         return sb.toString();
     }
+
 }

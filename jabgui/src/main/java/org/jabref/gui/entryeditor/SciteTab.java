@@ -30,17 +30,23 @@ import com.tobiasdiez.easybind.EasyBind;
 import org.controlsfx.control.HyperlinkLabel;
 
 /**
- * @implNote This tab is called <code>SciteTab</code>, because it uses the service <code>**scite** aI</code>.
+ * @implNote This tab is called <code>SciteTab</code>, because it uses the service
+ * <code>**scite** aI</code>.
  */
 public class SciteTab extends EntryEditorTab {
 
     public static final String NAME = "Citation information";
+
     public static final String SCITE_REPORTS_URL_BASE = "https://scite.ai/reports/";
 
     private final GridPane sciteResultsPane;
+
     private final ProgressIndicator progressIndicator;
+
     private final SciteTabViewModel viewModel;
+
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
 
     public SciteTab(GuiPreferences preferences, TaskExecutor taskExecutor, DialogService dialogService) {
@@ -69,18 +75,13 @@ public class SciteTab extends EntryEditorTab {
         EasyBind.subscribe(viewModel.statusProperty(), status -> {
             sciteResultsPane.getChildren().clear();
             switch (status) {
-                case IN_PROGRESS ->
-                        onSciteLookUp();
-                case FOUND ->
-                        viewModel.getCurrentResult().ifPresent(result -> sciteResultsPane.add(getTalliesPane(result), 0, 0));
-                case ERROR ->
-                        sciteResultsPane.add(getErrorPane(), 0, 0);
-                case DOI_MISSING ->
-                        onDoiMissing();
-                case DOI_LOOK_UP ->
-                        onDoiLookUp();
-                case DOI_LOOK_UP_ERROR ->
-                        onDoiLookUpError();
+                case IN_PROGRESS -> onSciteLookUp();
+                case FOUND -> viewModel.getCurrentResult()
+                    .ifPresent(result -> sciteResultsPane.add(getTalliesPane(result), 0, 0));
+                case ERROR -> sciteResultsPane.add(getErrorPane(), 0, 0);
+                case DOI_MISSING -> onDoiMissing();
+                case DOI_LOOK_UP -> onDoiLookUp();
+                case DOI_LOOK_UP_ERROR -> onDoiLookUpError();
             }
         });
     }
@@ -178,13 +179,8 @@ public class SciteTab extends EntryEditorTab {
         titleLabel.getStyleClass().add("scite-tallies-label");
         Text message = new Text(Localization.lang(
                 "Total Citations: %0\nSupporting: %1\nContradicting: %2\nMentioning: %3\nUnclassified: %4\nCiting Publications: %5",
-                tallModel.total(),
-                tallModel.supporting(),
-                tallModel.contradicting(),
-                tallModel.mentioning(),
-                tallModel.unclassified(),
-                tallModel.citingPublications()
-        ));
+                tallModel.total(), tallModel.supporting(), tallModel.contradicting(), tallModel.mentioning(),
+                tallModel.unclassified(), tallModel.citingPublications()));
         String url = SCITE_REPORTS_URL_BASE + URLEncoder.encode(tallModel.doi(), StandardCharsets.UTF_8);
         VBox messageBox = getMessageBox(url, titleLabel, message);
         messageBox.getStyleClass().add("scite-message-box");
@@ -197,17 +193,19 @@ public class SciteTab extends EntryEditorTab {
             if (event.getSource() instanceof Hyperlink) {
                 try {
                     NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
-                } catch (IOException ioex) {
-                    // Can't throw a checked exception from here, so display a message to the user instead.
-                    dialogService.showErrorDialogAndWait(
-                    "An error occurred opening web browser",
-                "JabRef was unable to open a web browser for link:\n\n" + url + "\n\nError Message:\n\n" + ioex.getMessage(),
-                        ioex
-                    );
+                }
+                catch (IOException ioex) {
+                    // Can't throw a checked exception from here, so display a message to
+                    // the user instead.
+                    dialogService.showErrorDialogAndWait("An error occurred opening web browser",
+                            "JabRef was unable to open a web browser for link:\n\n" + url + "\n\nError Message:\n\n"
+                                    + ioex.getMessage(),
+                            ioex);
                 }
             }
         });
 
         return new VBox(30, titleLabel, message, link);
     }
+
 }

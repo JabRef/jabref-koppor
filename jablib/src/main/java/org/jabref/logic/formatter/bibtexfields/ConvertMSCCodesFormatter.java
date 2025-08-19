@@ -23,8 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertMSCCodesFormatter.class);
+
     private static final BiMap<String, String> MSCMAP;
+
     private static boolean conversionPossible;
 
     static {
@@ -41,14 +44,16 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
             LOGGER.error("Resource not found: msc_codes.json");
             conversionPossible = false;
             return tempMap;
-        } else {
+        }
+        else {
             try {
                 tempMap = MscCodeUtils.loadMscCodesFromJson(resourceUrl).get();
                 if (!tempMap.isEmpty()) {
                     conversionPossible = true;
                     return tempMap;
                 }
-            } catch (MscCodeLoadingException e) {
+            }
+            catch (MscCodeLoadingException e) {
                 LOGGER.error("Error loading MSC codes:", e);
                 conversionPossible = false;
             }
@@ -64,7 +69,8 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
         }
 
         // Using Injector to avoid widespread refactoring for constructor injection.
-        // Class that calls formatters (FieldFormatterCleanups.java) has many usages that would need updates.
+        // Class that calls formatters (FieldFormatterCleanups.java) has many usages that
+        // would need updates.
         JabRefCliPreferences cliPreferences = Injector.instantiateModelOrService(JabRefCliPreferences.class);
 
         // get preferences for BibEntry
@@ -101,10 +107,12 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
 
     @Override
     public String getKey() {
-        return "MSC_codes_to_descriptions"; }
+        return "MSC_codes_to_descriptions";
+    }
 
     @Override
     public String getExampleInput() {
         return "06E30";
     }
+
 }

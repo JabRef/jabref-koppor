@@ -8,4 +8,5 @@ public abstract class AbstractAutomaticFieldEditorTabView extends AnchorPane imp
     public AnchorPane getContent() {
         return this;
     }
+
 }

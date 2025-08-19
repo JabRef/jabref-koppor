@@ -23,15 +23,17 @@ import org.jabref.logic.push.PushToApplicationPreferences;
 public class GuiPushToApplicationSettings {
 
     protected final Label commandLabel;
+
     protected final TextField path;
+
     protected final GridPane settingsPane;
+
     protected final PushToApplicationPreferences preferences;
+
     protected final AbstractPushToApplication application;
 
-    public GuiPushToApplicationSettings(PushToApplication application,
-                                        DialogService dialogService,
-                                        FilePreferences filePreferences,
-                                        PushToApplicationPreferences preferences) {
+    public GuiPushToApplicationSettings(PushToApplication application, DialogService dialogService,
+            FilePreferences filePreferences, PushToApplicationPreferences preferences) {
         this.application = (AbstractPushToApplication) application;
         this.preferences = preferences;
 
@@ -49,11 +51,13 @@ public class GuiPushToApplicationSettings {
         browse.setPrefHeight(20.0);
         browse.setPrefWidth(20.0);
 
-        // In case the application name and the actual command is not the same, add the command in brackets
+        // In case the application name and the actual command is not the same, add the
+        // command in brackets
         StringBuilder commandLine = new StringBuilder(Localization.lang("Path to %0", application.getDisplayName()));
         if (this.application.getCommandName() == null) {
             commandLine.append(':');
-        } else {
+        }
+        else {
             commandLine.append(" (").append(this.application.getCommandName()).append("):");
         }
         commandLabel.setText(commandLine.toString());
@@ -63,9 +67,10 @@ public class GuiPushToApplicationSettings {
         settingsPane.add(path, 1, 0);
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .withInitialDirectory(filePreferences.getWorkingDirectory()).build();
+            .withInitialDirectory(filePreferences.getWorkingDirectory())
+            .build();
         browse.setOnAction(e -> dialogService.showFileOpenDialog(fileDialogConfiguration)
-                                             .ifPresent(f -> path.setText(f.toAbsolutePath().toString())));
+            .ifPresent(f -> path.setText(f.toAbsolutePath().toString())));
         settingsPane.add(browse, 2, 0);
 
         ColumnConstraints textConstraints = new ColumnConstraints();
@@ -77,9 +82,10 @@ public class GuiPushToApplicationSettings {
     }
 
     /**
-     * This method is called to indicate that the settings panel returned from the getSettingsPanel() method has been
-     * shown to the user and that the user has indicated that the settings should be stored. This method must store the
-     * state of the widgets in the settings panel to Globals.prefs.
+     * This method is called to indicate that the settings panel returned from the
+     * getSettingsPanel() method has been shown to the user and that the user has
+     * indicated that the settings should be stored. This method must store the state of
+     * the widgets in the settings panel to Globals.prefs.
      */
     public void storeSettings() {
         Map<String, String> commandPaths = new HashMap<>(preferences.getCommandPaths());
@@ -90,4 +96,5 @@ public class GuiPushToApplicationSettings {
     public GridPane getSettingsPane() {
         return this.settingsPane;
     }
+
 }

@@ -45,4 +45,5 @@ public class LOBIDQueryTransformer extends AbstractQueryTransformer {
         }
         return "publication.startDate:[" + startYear + " TO " + endYear + "]";
     }
+
 }

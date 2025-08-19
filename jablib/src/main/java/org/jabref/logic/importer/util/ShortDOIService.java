@@ -15,7 +15,8 @@ import kong.unirest.core.json.JSONObject;
 import org.apache.hc.core5.net.URIBuilder;
 
 /**
- * Class for obtaining shortened DOI names. See <a href="https://shortdoi.org">https://shortdoi.org</a>.
+ * Class for obtaining shortened DOI names. See
+ * <a href="https://shortdoi.org">https://shortdoi.org</a>.
  */
 public class ShortDOIService {
 
@@ -23,7 +24,6 @@ public class ShortDOIService {
 
     /**
      * Obtains shortened DOI name for given DOI
-     *
      * @param doi DOI
      * @return A shortened DOI name
      */
@@ -45,7 +45,8 @@ public class ShortDOIService {
 
             URI uri = uriBuilder.build();
             url = uri.toURL();
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new ShortDOIServiceException("Cannot get short DOI", e);
         }
 
@@ -57,8 +58,10 @@ public class ShortDOIService {
                 throw new ShortDOIServiceException("Cannot get short DOI");
             }
             return resultAsJSON;
-        } catch (ParseException | JSONException | FetcherException e) {
+        }
+        catch (ParseException | JSONException | FetcherException e) {
             throw new ShortDOIServiceException("Cannot get short DOI", e);
         }
     }
+
 }

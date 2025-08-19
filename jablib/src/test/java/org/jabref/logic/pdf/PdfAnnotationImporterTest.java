@@ -71,8 +71,9 @@ class PdfAnnotationImporterTest {
 
     @Test
     void highlightMinimalFoxit() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus", LocalDateTime.of(2017, 5, 31, 15, 16, 1), 1,
-                "this is a foxit highlight", FileAnnotationType.HIGHLIGHT, Optional.empty());
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus",
+                LocalDateTime.of(2017, 5, 31, 15, 16, 1), 1, "this is a foxit highlight", FileAnnotationType.HIGHLIGHT,
+                Optional.empty());
         final FileAnnotation expected = new FileAnnotation("lynyus", LocalDateTime.of(2017, 5, 31, 15, 16, 1), 1,
                 "Hello", FileAnnotationType.HIGHLIGHT, Optional.of(expectedLinkedAnnotation));
         assertEquals(List.of(expected),
@@ -81,8 +82,8 @@ class PdfAnnotationImporterTest {
 
     @Test
     void highlightNoNoteMinimal() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 28, 39), 1,
-                "", FileAnnotationType.HIGHLIGHT, Optional.empty());
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz",
+                LocalDateTime.of(2017, 3, 12, 20, 28, 39), 1, "", FileAnnotationType.HIGHLIGHT, Optional.empty());
         final FileAnnotation expected = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 28, 39), 1,
                 "World", FileAnnotationType.HIGHLIGHT, Optional.of(expectedLinkedAnnotation));
 
@@ -92,10 +93,11 @@ class PdfAnnotationImporterTest {
 
     @Test
     void squigglyWithNoteMinimal() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 2, 40, 25), 1,
-                "Squiggly note", FileAnnotationType.SQUIGGLY, Optional.empty());
-        final FileAnnotation expected = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 2, 40, 25), 1,
-                "ello", FileAnnotationType.SQUIGGLY, Optional.of(expectedLinkedAnnotation));
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus",
+                LocalDateTime.of(2017, 6, 1, 2, 40, 25), 1, "Squiggly note", FileAnnotationType.SQUIGGLY,
+                Optional.empty());
+        final FileAnnotation expected = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 2, 40, 25), 1, "ello",
+                FileAnnotationType.SQUIGGLY, Optional.of(expectedLinkedAnnotation));
 
         assertEquals(List.of(expected),
                 importer.importAnnotations(Path.of("src/test/resources/pdfs/minimal-squiggly.pdf")));
@@ -103,10 +105,11 @@ class PdfAnnotationImporterTest {
 
     @Test
     void strikeoutWithNoteMinimal() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 13, 2, 3), 1,
-                "striked out", FileAnnotationType.STRIKEOUT, Optional.empty());
-        final FileAnnotation expected = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 13, 2, 3), 1,
-                "World", FileAnnotationType.STRIKEOUT, Optional.of(expectedLinkedAnnotation));
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("lynyus",
+                LocalDateTime.of(2017, 6, 1, 13, 2, 3), 1, "striked out", FileAnnotationType.STRIKEOUT,
+                Optional.empty());
+        final FileAnnotation expected = new FileAnnotation("lynyus", LocalDateTime.of(2017, 6, 1, 13, 2, 3), 1, "World",
+                FileAnnotationType.STRIKEOUT, Optional.of(expectedLinkedAnnotation));
 
         assertEquals(List.of(expected),
                 importer.importAnnotations(Path.of("src/test/resources/pdfs/minimal-strikeout.pdf")));
@@ -114,8 +117,9 @@ class PdfAnnotationImporterTest {
 
     @Test
     void highlightWithNoteMinimal() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 32, 2), 1,
-                "linked note to highlight", FileAnnotationType.HIGHLIGHT, Optional.empty());
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz",
+                LocalDateTime.of(2017, 3, 12, 20, 32, 2), 1, "linked note to highlight", FileAnnotationType.HIGHLIGHT,
+                Optional.empty());
         final FileAnnotation expected = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 32, 2), 1,
                 "World", FileAnnotationType.HIGHLIGHT, Optional.of(expectedLinkedAnnotation));
 
@@ -125,8 +129,9 @@ class PdfAnnotationImporterTest {
 
     @Test
     void underlineWithNoteMinimal() {
-        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 36, 9), 1,
-                "underlined", FileAnnotationType.UNDERLINE, Optional.empty());
+        final FileAnnotation expectedLinkedAnnotation = new FileAnnotation("Linus Dietz",
+                LocalDateTime.of(2017, 3, 12, 20, 36, 9), 1, "underlined", FileAnnotationType.UNDERLINE,
+                Optional.empty());
         final FileAnnotation expected = new FileAnnotation("Linus Dietz", LocalDateTime.of(2017, 3, 12, 20, 36, 9), 1,
                 "Hello", FileAnnotationType.UNDERLINE, Optional.of(expectedLinkedAnnotation));
 
@@ -142,5 +147,5 @@ class PdfAnnotationImporterTest {
         assertEquals(List.of(expected),
                 importer.importAnnotations(Path.of("src/test/resources/pdfs/minimal-polygon.pdf")));
     }
-}
 
+}

@@ -50,4 +50,5 @@ class MsBibAuthorTest {
         MsBibAuthor msBibAuthor = new MsBibAuthor(author);
         assertEquals("von Neumann", msBibAuthor.getLastName());
     }
+
 }

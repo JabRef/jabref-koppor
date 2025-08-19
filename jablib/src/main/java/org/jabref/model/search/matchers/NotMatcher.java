@@ -8,9 +8,7 @@ import org.jabref.model.search.SearchMatcher;
 /**
  * Inverts the search result.
  * <p>
- * Example:
- * false --> true
- * true --> false
+ * Example: false --> true true --> false
  */
 public class NotMatcher implements SearchMatcher {
 
@@ -24,4 +22,5 @@ public class NotMatcher implements SearchMatcher {
     public boolean isMatch(BibEntry entry) {
         return !otherMatcher.isMatch(entry);
     }
+
 }

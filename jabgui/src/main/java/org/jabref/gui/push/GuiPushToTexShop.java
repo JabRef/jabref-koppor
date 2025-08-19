@@ -24,4 +24,5 @@ public class GuiPushToTexShop extends PushToTexShop implements GuiPushToApplicat
     public void sendErrorNotification(String title, String message) {
         dialogService.showErrorDialogAndWait(title, message);
     }
+
 }

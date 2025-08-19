@@ -14,14 +14,18 @@ import javafx.scene.text.Text;
 public class TooltipTextUtil {
 
     // (?s) tells Java that "." also matches the newline character
-    // (?<...>...) are named groups in Java regular expressions: https://stackoverflow.com/a/415635/873282
-    // .*? tells to match non-greedy (see https://stackoverflow.com/q/7124778/873282 for details)
+    // (?<...>...) are named groups in Java regular expressions:
+    // https://stackoverflow.com/a/415635/873282
+    // .*? tells to match non-greedy (see https://stackoverflow.com/q/7124778/873282 for
+    // details)
     private static final Pattern TT_TEXT = Pattern.compile("(?s)(?<before>.*?)<tt>(?<in>.*?)</tt>");
 
     private static final Pattern B_TEXT = Pattern.compile("(?s)(?<before>.*?)<b>(?<in>.*?)</b>");
 
     public enum TextType {
+
         NORMAL, BOLD, ITALIC, MONOSPACED
+
     }
 
     public static Text createText(String textString, TextType textType) {
@@ -47,8 +51,8 @@ public class TooltipTextUtil {
     }
 
     /**
-     * Creates a list of Text elements respecting <code>tt</code> and <code>b</code> markers.
-     * Nesting of these markers is not possible.
+     * Creates a list of Text elements respecting <code>tt</code> and <code>b</code>
+     * markers. Nesting of these markers is not possible.
      */
     public static List<Text> createTextsFromHtml(String htmlString) {
         List<Text> result = new ArrayList<>();
@@ -95,7 +99,8 @@ public class TooltipTextUtil {
     }
 
     /**
-     * Formats a String to multiple Texts by replacing some parts and adding font characteristics.
+     * Formats a String to multiple Texts by replacing some parts and adding font
+     * characteristics.
      */
     public static List<Text> formatToTexts(String original, TextReplacement... replacements) {
         List<Text> textList = new ArrayList<>();
@@ -108,7 +113,9 @@ public class TooltipTextUtil {
     }
 
     private static void splitReplace(List<Text> textList, TextReplacement replacement) {
-        Optional<Text> textContainingReplacement = textList.stream().filter(it -> it.getText().contains(replacement.toReplace)).findFirst();
+        Optional<Text> textContainingReplacement = textList.stream()
+            .filter(it -> it.getText().contains(replacement.toReplace))
+            .findFirst();
         if (textContainingReplacement.isPresent()) {
             int index = textList.indexOf(textContainingReplacement.get());
             String original = textContainingReplacement.get().getText();
@@ -118,27 +125,34 @@ public class TooltipTextUtil {
                 if ("".equals(textParts[0])) {
                     textList.add(index, TooltipTextUtil.createText(replacement.replacement, replacement.textType));
                     textList.add(index + 1, TooltipTextUtil.createText(textParts[1], TooltipTextUtil.TextType.NORMAL));
-                } else {
+                }
+                else {
                     textList.add(index, TooltipTextUtil.createText(textParts[0], TooltipTextUtil.TextType.NORMAL));
                     textList.add(index + 1, TooltipTextUtil.createText(replacement.replacement, replacement.textType));
                     textList.add(index + 2, TooltipTextUtil.createText(textParts[1], TooltipTextUtil.TextType.NORMAL));
                 }
-            } else if (textParts.length == 1) {
+            }
+            else if (textParts.length == 1) {
                 textList.add(index, TooltipTextUtil.createText(textParts[0], TooltipTextUtil.TextType.NORMAL));
                 textList.add(index + 1, TooltipTextUtil.createText(replacement.replacement, replacement.textType));
-            } else {
+            }
+            else {
                 throw new IllegalStateException("It is not allowed that the toReplace string: '" + replacement.toReplace
                         + "' exists multiple times in the original string");
             }
-        } else {
+        }
+        else {
             throw new IllegalStateException("It is not allowed that the toReplace string: '" + replacement.toReplace
                     + "' does not exist in the original string");
         }
     }
 
     public static class TextReplacement {
+
         private final String toReplace;
+
         private final String replacement;
+
         private final TooltipTextUtil.TextType textType;
 
         public TextReplacement(String toReplace, String replacement, TooltipTextUtil.TextType textType) {
@@ -146,6 +160,7 @@ public class TooltipTextUtil {
             this.replacement = replacement;
             this.textType = textType;
         }
+
     }
 
     public static String textToHtmlString(Text text) {
@@ -162,4 +177,5 @@ public class TooltipTextUtil {
         }
         return textString;
     }
+
 }

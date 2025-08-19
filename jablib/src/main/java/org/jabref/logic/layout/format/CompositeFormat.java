@@ -35,4 +35,5 @@ public class CompositeFormat implements LayoutFormatter {
         }
         return result;
     }
+
 }

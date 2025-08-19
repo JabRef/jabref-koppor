@@ -27,4 +27,5 @@ public class OOListUtil {
         indices.sort((a, b) -> comparator.compare(list.get(a), list.get(b)));
         return indices;
     }
+
 }

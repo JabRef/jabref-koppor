@@ -48,4 +48,5 @@ public class ZbMathQueryTransformer extends AbstractQueryTransformer {
     protected Optional<String> handleUnFieldedTerm(String term) {
         return Optional.of(createKeyValuePair("any", term));
     }
+
 }

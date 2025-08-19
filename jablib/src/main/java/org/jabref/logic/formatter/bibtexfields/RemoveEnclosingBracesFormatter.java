@@ -31,8 +31,8 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
     @Override
     public String format(String value) {
         String formatted = value;
-        while ((formatted.length() >= 2) && (formatted.charAt(0) == '{') && (formatted.charAt(formatted.length() - 1)
-                == '}')) {
+        while ((formatted.length() >= 2) && (formatted.charAt(0) == '{')
+                && (formatted.charAt(formatted.length() - 1) == '}')) {
             String trimmed = formatted.substring(1, formatted.length() - 1);
 
             // It could be that the removed braces were not matching
@@ -40,7 +40,8 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
             // In this case, trimmed has a closing } without an opening { before that
             if (hasNegativeBraceCount(trimmed)) {
                 return formatted;
-            } else {
+            }
+            else {
                 formatted = trimmed;
             }
         }
@@ -50,7 +51,6 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
     /**
      * Check if a string at any point has had more ending } braces than opening { ones.
      * Will e.g. return true for the string "DNA} text {EPA"
-     *
      * @param value The string to check.
      * @return true if at any index the brace count is negative.
      */
@@ -60,7 +60,8 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
             char charAtIndex = value.charAt(index);
             if (charAtIndex == '{') {
                 braceCount++;
-            } else if (charAtIndex == '}') {
+            }
+            else if (charAtIndex == '}') {
                 braceCount--;
             }
             if (braceCount < 0) {
@@ -69,4 +70,5 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
         }
         return false;
     }
+
 }

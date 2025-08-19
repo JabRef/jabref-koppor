@@ -14,7 +14,9 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class GitPullViewModel extends AbstractViewModel {
+
     private final GitSyncService syncService;
+
     private final GitStatusViewModel gitStatusViewModel;
 
     public GitPullViewModel(GitSyncService syncService, GitStatusViewModel gitStatusViewModel) {
@@ -29,9 +31,9 @@ public class GitPullViewModel extends AbstractViewModel {
         }
 
         BibDatabaseContext localBibDatabaseContext = databaseContextOpt.get();
-        Path bibFilePath = localBibDatabaseContext.getDatabasePath().orElseThrow(() ->
-                new JabRefException(Localization.lang("Cannot pull: Please save the library to a file first."))
-        );
+        Path bibFilePath = localBibDatabaseContext.getDatabasePath()
+            .orElseThrow(() -> new JabRefException(
+                    Localization.lang("Cannot pull: Please save the library to a file first.")));
 
         MergeResult result = syncService.fetchAndMerge(localBibDatabaseContext, bibFilePath);
 
@@ -41,4 +43,5 @@ public class GitPullViewModel extends AbstractViewModel {
 
         return result;
     }
+
 }

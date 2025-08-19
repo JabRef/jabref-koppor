@@ -1,7 +1,7 @@
 package org.jabref.model.biblog;
 
 public enum SeverityType {
-    WARNING,
-    ERROR,
-    INFO
+
+    WARNING, ERROR, INFO
+
 }

@@ -122,4 +122,5 @@ class WrapFileLinksTest {
         formatter.setArgument("\\r");
         assertEquals("test.pdf", formatter.format("Test file:test.pdf:PDF"));
     }
+
 }

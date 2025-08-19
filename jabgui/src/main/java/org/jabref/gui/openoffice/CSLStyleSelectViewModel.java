@@ -9,9 +9,13 @@ import org.jabref.logic.citationstyle.CitationStylePreviewLayout;
 import org.jabref.logic.l10n.Localization;
 
 public class CSLStyleSelectViewModel {
+
     private final CitationStylePreviewLayout layout;
+
     private final StringProperty nameProperty = new SimpleStringProperty();
+
     private final StringProperty pathProperty = new SimpleStringProperty();
+
     private final BooleanProperty internalStyleProperty = new SimpleBooleanProperty();
 
     public CSLStyleSelectViewModel(CitationStylePreviewLayout layout) {
@@ -19,7 +23,8 @@ public class CSLStyleSelectViewModel {
         this.nameProperty.set(layout.getDisplayName());
         if (layout.getCitationStyle().isInternalStyle()) {
             this.pathProperty.set(Localization.lang("Internal style"));
-        } else {
+        }
+        else {
             this.pathProperty.set(layout.getFilePath());
         }
         this.internalStyleProperty.set(layout.getCitationStyle().isInternalStyle());
@@ -40,4 +45,5 @@ public class CSLStyleSelectViewModel {
     public CitationStylePreviewLayout getLayout() {
         return layout;
     }
+
 }

@@ -17,7 +17,9 @@ public final class BstCaseChanger {
     private int braceLevel;
 
     public enum FormatMode {
-        // First character and character after a ":" as upper case - everything else in lower case. Obey {}.
+
+        // First character and character after a ":" as upper case - everything else in
+        // lower case. Obey {}.
         TITLE_LOWERS('t'),
 
         // All characters lower case - Obey {}
@@ -26,13 +28,16 @@ public final class BstCaseChanger {
         // all characters upper case - Obey {}
         ALL_UPPERS('u');
 
-        // the following would have to be done if the functionality of CaseChangers would be included here
-        // However, we decided against it and will probably do the other way round: https://github.com/JabRef/jabref/pull/215#issuecomment-146981624
+        // the following would have to be done if the functionality of CaseChangers would
+        // be included here
+        // However, we decided against it and will probably do the other way round:
+        // https://github.com/JabRef/jabref/pull/215#issuecomment-146981624
 
         // Each word should start with a capital letter
         // EACH_FIRST_UPPERS('f'),
 
-        // Converts all words to upper case, but converts articles, prepositions, and conjunctions to lower case
+        // Converts all words to upper case, but converts articles, prepositions, and
+        // conjunctions to lower case
         // Capitalizes first and last word
         // Does not change words starting with "{"
         // DIFFERENCE to old CaseChangers.TITLE: last word is NOT capitalized in all cases
@@ -50,7 +55,6 @@ public final class BstCaseChanger {
 
         /**
          * Convert bstFormat char into ENUM
-         *
          * @throws IllegalArgumentException if char is not 't', 'l', 'u'
          */
         public static FormatMode of(final char bstFormat) {
@@ -65,6 +69,7 @@ public final class BstCaseChanger {
         public static FormatMode of(final String bstFormat) {
             return of(bstFormat.toLowerCase(Locale.ROOT).charAt(0));
         }
+
     }
 
     private BstCaseChanger() {
@@ -72,8 +77,7 @@ public final class BstCaseChanger {
 
     /**
      * Changes case of the given string s
-     *
-     * @param s      the string to handle
+     * @param s the string to handle
      * @param format the format
      */
     public static String changeCase(String s, FormatMode format) {
@@ -97,7 +101,8 @@ public final class BstCaseChanger {
                     i++;
                     continue;
                 }
-                if ((format == FormatMode.TITLE_LOWERS) && ((i == 0) || (prevColon && Character.isWhitespace(c[i - 1])))) {
+                if ((format == FormatMode.TITLE_LOWERS)
+                        && ((i == 0) || (prevColon && Character.isWhitespace(c[i - 1])))) {
                     sb.append('{');
                     i++;
                     prevColon = false;
@@ -111,7 +116,8 @@ public final class BstCaseChanger {
                 i++;
                 if (braceLevel == 0) {
                     LOGGER.warn("Too many closing braces in string: {}", s);
-                } else {
+                }
+                else {
                     braceLevel--;
                 }
                 prevColon = false;
@@ -131,16 +137,14 @@ public final class BstCaseChanger {
     }
 
     /**
-     * We're dealing with a special character (usually either an undotted `\i'
-     * or `\j', or an accent like one in Table~3.1 of the \LaTeX\ manual, or a
-     * foreign character like one in Table~3.2) if the first character after the
-     * |left_brace| is a |backslash|; the special character ends with the
-     * matching |right_brace|. How we handle what is in between depends on the
-     * special character. In general, this code will do reasonably well if there
-     * is other stuff, too, between braces, but it doesn't try to do anything
-     * special with |colon|s.
-     *
-     * @param start  the current position. It points to the opening brace
+     * We're dealing with a special character (usually either an undotted `\i' or `\j', or
+     * an accent like one in Table~3.1 of the \LaTeX\ manual, or a foreign character like
+     * one in Table~3.2) if the first character after the |left_brace| is a |backslash|;
+     * the special character ends with the matching |right_brace|. How we handle what is
+     * in between depends on the special character. In general, this code will do
+     * reasonably well if there is other stuff, too, between braces, but it doesn't try to
+     * do anything special with |colon|s.
+     * @param start the current position. It points to the opening brace
      */
     private int convertSpecialChar(StringBuilder sb, char[] c, int start, FormatMode format) {
         int i = start;
@@ -161,7 +165,8 @@ public final class BstCaseChanger {
             while ((i < c.length) && (braceLevel > 0) && (c[i] != '\\')) {
                 if (c[i] == '}') {
                     braceLevel--;
-                } else if (c[i] == '{') {
+                }
+                else if (c[i] == '{') {
                     braceLevel++;
                 }
                 i = convertNonControl(c, i, sb, format);
@@ -171,10 +176,8 @@ public final class BstCaseChanger {
     }
 
     /**
-     * Convert the given string according to the format character (title, lower,
-     * up) and append the result to the stringBuffer, return the updated
-     * position.
-     *
+     * Convert the given string according to the format character (title, lower, up) and
+     * append the result to the stringBuffer, return the updated position.
      * @return the new position
      */
     private int convertAccented(char[] c, int start, String s, StringBuilder sb, FormatMode format) {
@@ -186,20 +189,23 @@ public final class BstCaseChanger {
             case ALL_LOWERS:
                 if ("L O OE AE AA".contains(s)) {
                     sb.append(s.toLowerCase(Locale.ROOT));
-                } else {
+                }
+                else {
                     sb.append(s);
                 }
                 break;
             case ALL_UPPERS:
                 if ("l o oe ae aa".contains(s)) {
                     sb.append(s.toUpperCase(Locale.ROOT));
-                } else if ("i j ss".contains(s)) {
+                }
+                else if ("i j ss".contains(s)) {
                     sb.deleteCharAt(sb.length() - 1); // Kill backslash
                     sb.append(s.toUpperCase(Locale.ROOT));
                     while ((pos < c.length) && Character.isWhitespace(c[pos])) {
                         pos++;
                     }
-                } else {
+                }
+                else {
                     sb.append(s);
                 }
                 break;
@@ -221,8 +227,7 @@ public final class BstCaseChanger {
                 sb.append(Character.toUpperCase(c[pos]));
                 pos++;
             }
-            default ->
-                    LOGGER.info("convertNonControl - Unknown format: {}", format);
+            default -> LOGGER.info("convertNonControl - Unknown format: {}", format);
         }
         return pos;
     }
@@ -233,34 +238,32 @@ public final class BstCaseChanger {
             case TITLE_LOWERS -> {
                 if ((i == 0) || (prevColon && Character.isWhitespace(c[i - 1]))) {
                     sb.append(c[i]);
-                } else {
+                }
+                else {
                     sb.append(Character.toLowerCase(c[i]));
                 }
                 if (c[i] == ':') {
                     prevColon = true;
-                } else if (!Character.isWhitespace(c[i])) {
+                }
+                else if (!Character.isWhitespace(c[i])) {
                     prevColon = false;
                 }
             }
-            case ALL_LOWERS ->
-                    sb.append(Character.toLowerCase(c[i]));
-            case ALL_UPPERS ->
-                    sb.append(Character.toUpperCase(c[i]));
-            default ->
-                    LOGGER.info("convertCharIfBraceLevelIsZero - Unknown format: {}", format);
+            case ALL_LOWERS -> sb.append(Character.toLowerCase(c[i]));
+            case ALL_UPPERS -> sb.append(Character.toUpperCase(c[i]));
+            default -> LOGGER.info("convertCharIfBraceLevelIsZero - Unknown format: {}", format);
         }
         i++;
         return i;
     }
 
     /**
-     * Determine whether there starts a special char at pos (e.g., oe, AE). Return it as string.
-     * If nothing found, return Optional.empty()
+     * Determine whether there starts a special char at pos (e.g., oe, AE). Return it as
+     * string. If nothing found, return Optional.empty()
      *
      * <p>
      * Also used by BibtexPurify
-     *
-     * @param c   the current "String"
+     * @param c the current "String"
      * @param pos the position
      * @return the special LaTeX character or null
      */
@@ -293,4 +296,5 @@ public final class BstCaseChanger {
         }
         return Optional.empty();
     }
+
 }

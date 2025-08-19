@@ -25,18 +25,21 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchEntryMergeTask.class);
 
     private final NamedCompound compoundEdit;
+
     private final List<BibEntry> entries;
+
     private final MergingIdBasedFetcher fetcher;
+
     private final UndoManager undoManager;
+
     private final NotificationService notificationService;
 
     private int processedEntries;
+
     private int successfulUpdates;
 
-    public BatchEntryMergeTask(List<BibEntry> entries,
-                               MergingIdBasedFetcher fetcher,
-                               UndoManager undoManager,
-                               NotificationService notificationService) {
+    public BatchEntryMergeTask(List<BibEntry> entries, MergingIdBasedFetcher fetcher, UndoManager undoManager,
+            NotificationService notificationService) {
         this.entries = entries;
         this.fetcher = fetcher;
         this.undoManager = undoManager;
@@ -53,31 +56,31 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     @Override
     public Void call() {
-            if (isCancelled()) {
-                notifyCancellation();
-                return null;
-            }
-
-            List<String> updatedEntries = processMergeEntries();
-
-            if (isCancelled()) {
-                notifyCancellation();
-                updateUndoManager(updatedEntries);
-                return null;
-            }
-
-            updateUndoManager(updatedEntries);
-            LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}",
-                    processedEntries, successfulUpdates);
-            notifySuccess(successfulUpdates);
+        if (isCancelled()) {
+            notifyCancellation();
             return null;
+        }
+
+        List<String> updatedEntries = processMergeEntries();
+
+        if (isCancelled()) {
+            notifyCancellation();
+            updateUndoManager(updatedEntries);
+            return null;
+        }
+
+        updateUndoManager(updatedEntries);
+        LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}", processedEntries,
+                successfulUpdates);
+        notifySuccess(successfulUpdates);
+        return null;
     }
 
     private void notifyCancellation() {
-        LOGGER.debug("Merge operation was cancelled. Processed: {}, Successfully updated: {}",
-                processedEntries, successfulUpdates);
-        notificationService.notify(
-                Localization.lang("Merge operation cancelled after updating %0 entry(s)", successfulUpdates));
+        LOGGER.debug("Merge operation was cancelled. Processed: {}, Successfully updated: {}", processedEntries,
+                successfulUpdates);
+        notificationService
+            .notify(Localization.lang("Merge operation cancelled after updating %0 entry(s)", successfulUpdates));
     }
 
     private List<String> processMergeEntries() {
@@ -96,24 +99,20 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     private Optional<String> processSingleEntryWithProgress(BibEntry entry) {
         updateProgress(++processedEntries, entries.size());
-        updateMessage(Localization.lang("Processing entry %0 of %1",
-                processedEntries,
-                entries.size()));
+        updateMessage(Localization.lang("Processing entry %0 of %1", processedEntries, entries.size()));
         return processSingleEntry(entry);
     }
 
     private Optional<String> processSingleEntry(BibEntry entry) {
         LOGGER.debug("Processing entry: {}", entry);
-        return fetcher.fetchEntry(entry)
-                      .filter(MergingIdBasedFetcher.FetcherResult::hasChanges)
-                      .flatMap(result -> {
-                          boolean changesApplied = MergeEntriesHelper.mergeEntries(result.mergedEntry(), entry, compoundEdit);
-                          if (changesApplied) {
-                              successfulUpdates++;
-                              return entry.getCitationKey();
-                          }
-                          return Optional.empty();
-                      });
+        return fetcher.fetchEntry(entry).filter(MergingIdBasedFetcher.FetcherResult::hasChanges).flatMap(result -> {
+            boolean changesApplied = MergeEntriesHelper.mergeEntries(result.mergedEntry(), entry, compoundEdit);
+            if (changesApplied) {
+                successfulUpdates++;
+                return entry.getCitationKey();
+            }
+            return Optional.empty();
+        });
     }
 
     private void updateUndoManager(List<String> updatedEntries) {
@@ -124,9 +123,9 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
     }
 
     private void notifySuccess(int updateCount) {
-        String message = updateCount == 0
-                ? Localization.lang("No updates found.")
+        String message = updateCount == 0 ? Localization.lang("No updates found.")
                 : Localization.lang("Batch update successful. %0 entry(s) updated.", updateCount);
         notificationService.notify(message);
     }
+
 }

@@ -41,8 +41,11 @@ import org.slf4j.LoggerFactory;
 class ModsExporter extends Exporter {
 
     private static final String MODS_NAMESPACE_URI = "http://www.loc.gov/mods/v3";
+
     private static final String MINUS = "-";
+
     private static final String DOUBLE_MINUS = "--";
+
     private static final String MODS_SCHEMA_LOCATION = "http://www.loc.gov/standards/mods/v3/mods-3-6.xsd";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModsExporter.class);
@@ -52,7 +55,8 @@ class ModsExporter extends Exporter {
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries) throws SaveException {
+    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries)
+            throws SaveException {
         Objects.requireNonNull(databaseContext);
         Objects.requireNonNull(entries);
         if (entries.isEmpty()) { // Only export if entries exist
@@ -69,7 +73,8 @@ class ModsExporter extends Exporter {
                 if (bibEntry.getCitationKey().isPresent()) {
                     String citekey = bibEntry.getCitationKey().get();
                     addIdentifier(writer, new UnknownField("citekey"), citekey);
-                } else {
+                }
+                else {
                     writer.writeStartElement("mods", "mods", MODS_NAMESPACE_URI);
                 }
 
@@ -86,37 +91,53 @@ class ModsExporter extends Exporter {
 
                     if (StandardField.AUTHOR == field) {
                         handleAuthors(writer, value);
-                    } else if (new UnknownField("affiliation").equals(field)) {
+                    }
+                    else if (new UnknownField("affiliation").equals(field)) {
                         addAffiliation(writer, value);
-                    } else if (StandardField.ABSTRACT == field) {
+                    }
+                    else if (StandardField.ABSTRACT == field) {
                         addAbstract(writer, value);
-                    } else if (StandardField.TITLE == field) {
+                    }
+                    else if (StandardField.TITLE == field) {
                         addTitle(writer, value);
-                    } else if (StandardField.LANGUAGE == field) {
+                    }
+                    else if (StandardField.LANGUAGE == field) {
                         addLanguage(writer, value);
-                    } else if (StandardField.LOCATION == field) {
+                    }
+                    else if (StandardField.LOCATION == field) {
                         addLocation(writer, value);
-                    } else if (StandardField.URL == field) {
+                    }
+                    else if (StandardField.URL == field) {
                         addUrl(writer, value);
-                    } else if (StandardField.NOTE == field) {
+                    }
+                    else if (StandardField.NOTE == field) {
                         addNote(writer, value);
-                    } else if (StandardField.KEYWORDS == field) {
+                    }
+                    else if (StandardField.KEYWORDS == field) {
                         addKeyWords(writer, value);
-                    } else if (StandardField.URI == field) {
+                    }
+                    else if (StandardField.URI == field) {
                         addIdentifier(writer, StandardField.URI, value);
-                    } else if (StandardField.ISBN == field) {
+                    }
+                    else if (StandardField.ISBN == field) {
                         addIdentifier(writer, StandardField.ISBN, value);
-                    } else if (StandardField.ISSN == field) {
+                    }
+                    else if (StandardField.ISSN == field) {
                         addIdentifier(writer, StandardField.ISSN, value);
-                    } else if (StandardField.DOI == field) {
+                    }
+                    else if (StandardField.DOI == field) {
                         addIdentifier(writer, StandardField.DOI, value);
-                    } else if (StandardField.PMID == field) {
+                    }
+                    else if (StandardField.PMID == field) {
                         addIdentifier(writer, StandardField.PMID, value);
-                    } else if (StandardField.PAGES == field) {
+                    }
+                    else if (StandardField.PAGES == field) {
                         addPart(parts, value);
-                    } else if (StandardField.VOLUME == field) {
+                    }
+                    else if (StandardField.VOLUME == field) {
                         addPart(parts, value);
-                    } else if (StandardField.ISSUE == field) {
+                    }
+                    else if (StandardField.ISSUE == field) {
                         addPart(parts, value);
                     }
                     trackOriginInformation(originItems, field, value);
@@ -128,15 +149,18 @@ class ModsExporter extends Exporter {
             }
             writer.writeEndDocument();
             writerFormatted(file, sw);
-        } catch (XMLStreamException | IOException | TransformerException ex) {
+        }
+        catch (XMLStreamException | IOException | TransformerException ex) {
             throw new SaveException(ex);
-        } finally {
+        }
+        finally {
             try {
                 if (writer != null) {
                     writer.flush();
                     writer.close();
                 }
-            } catch (XMLStreamException e) {
+            }
+            catch (XMLStreamException e) {
                 LOGGER.error("Error closing XML writer", e);
             }
         }
@@ -151,7 +175,8 @@ class ModsExporter extends Exporter {
         writer.writeNamespace("mods", MODS_NAMESPACE_URI);
         writer.writeNamespace("ns2", "http://www.w3.org/1999/xlink");
         writer.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", MODS_SCHEMA_LOCATION);
+        writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation",
+                MODS_SCHEMA_LOCATION);
         return writer;
     }
 
@@ -166,10 +191,12 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeOriginInformation(XMLStreamWriter writer, List<String> originItems, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writeOriginInformation(XMLStreamWriter writer, List<String> originItems, Map<Field, String> fieldMap)
+            throws XMLStreamException {
         if (originItems.isEmpty()) {
             writer.writeEmptyElement("mods", "originInfo", MODS_NAMESPACE_URI);
-        } else {
+        }
+        else {
             writer.writeStartElement("mods", "originInfo", MODS_NAMESPACE_URI);
             for (Map.Entry<Field, String> entry : fieldMap.entrySet()) {
                 Field field = entry.getKey();
@@ -180,7 +207,8 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap)
+            throws XMLStreamException {
         writer.writeStartElement("mods", "relatedItem", MODS_NAMESPACE_URI);
         writer.writeAttribute("type", "host");
 
@@ -200,19 +228,23 @@ class ModsExporter extends Exporter {
         writer.writeEndElement(); // end typeOfResource
     }
 
-    private void writePartInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writePartInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap)
+            throws XMLStreamException {
         if (parts.isEmpty()) {
             writer.writeEmptyElement("mods", "part", MODS_NAMESPACE_URI);
-        } else {
+        }
+        else {
             writer.writeStartElement("mods", "part", MODS_NAMESPACE_URI);
             for (Map.Entry<Field, String> entry : fieldMap.entrySet()) {
                 Field field = entry.getKey();
                 String value = entry.getValue();
                 if (StandardField.PAGES == field) {
                     addPages(writer, value);
-                } else if (StandardField.VOLUME == field) {
+                }
+                else if (StandardField.VOLUME == field) {
                     addDetail(writer, StandardField.VOLUME, value);
-                } else if (StandardField.ISSUE == field) {
+                }
+                else if (StandardField.ISSUE == field) {
                     addDetail(writer, StandardField.ISSUE, value);
                 }
             }
@@ -223,19 +255,26 @@ class ModsExporter extends Exporter {
     private void trackOriginInformation(List<String> originItems, Field field, String value) {
         if (field.equals(StandardField.YEAR)) {
             originItems.add(value);
-        } else if (field.equals(new UnknownField("created"))) {
+        }
+        else if (field.equals(new UnknownField("created"))) {
             originItems.add(value);
-        } else if (field.equals(StandardField.MODIFICATIONDATE)) {
+        }
+        else if (field.equals(StandardField.MODIFICATIONDATE)) {
             originItems.add(value);
-        } else if (field.equals(StandardField.CREATIONDATE)) {
+        }
+        else if (field.equals(StandardField.CREATIONDATE)) {
             originItems.add(value);
-        } else if (StandardField.PUBLISHER == field) {
+        }
+        else if (StandardField.PUBLISHER == field) {
             originItems.add(value);
-        } else if (field.equals(new UnknownField("issuance"))) {
+        }
+        else if (field.equals(new UnknownField("issuance"))) {
             originItems.add(value);
-        } else if (field.equals(StandardField.ADDRESS)) {
+        }
+        else if (field.equals(StandardField.ADDRESS)) {
             originItems.add(value);
-        } else if (field.equals(StandardField.EDITION)) {
+        }
+        else if (field.equals(StandardField.EDITION)) {
             originItems.add(value);
         }
     }
@@ -303,7 +342,17 @@ class ModsExporter extends Exporter {
         writer.writeEndElement();
     }
 
-    private void addJournal(XMLStreamWriter writer, String value) throws XMLStreamException { // this may also need to be called within second for loop?
+    private void addJournal(XMLStreamWriter writer, String value) throws XMLStreamException { // this
+                                                                                              // may
+                                                                                              // also
+                                                                                              // need
+                                                                                              // to
+                                                                                              // be
+                                                                                              // called
+                                                                                              // within
+                                                                                              // second
+                                                                                              // for
+                                                                                              // loop?
         // Start TitleInfoDefinition
         writer.writeStartElement("mods", "titleInfo", MODS_NAMESPACE_URI);
 
@@ -327,9 +376,11 @@ class ModsExporter extends Exporter {
     private void addPages(XMLStreamWriter writer, String value) throws XMLStreamException {
         if (value.contains(DOUBLE_MINUS)) {
             addStartAndEndPage(writer, value, DOUBLE_MINUS);
-        } else if (value.contains(MINUS)) {
+        }
+        else if (value.contains(MINUS)) {
             addStartAndEndPage(writer, value, MINUS);
-        } else {
+        }
+        else {
             BigInteger total = new BigInteger(value);
             writer.writeStartElement("mods", "extent", MODS_NAMESPACE_URI);
             writer.writeStartElement("mods", "total", MODS_NAMESPACE_URI);
@@ -358,7 +409,8 @@ class ModsExporter extends Exporter {
             writer.writeAttribute("type", "personal");
 
             if (author.contains(",")) {
-                // if author contains ","  then this indicates that the author has a forename and family name
+                // if author contains "," then this indicates that the author has a
+                // forename and family name
                 int commaIndex = author.indexOf(',');
                 String familyName = author.substring(0, commaIndex);
                 writer.writeStartElement("mods", "namePart", MODS_NAMESPACE_URI);
@@ -378,7 +430,8 @@ class ModsExporter extends Exporter {
                     }
                 }
                 writer.writeEndElement();
-            } else {
+            }
+            else {
                 // no "," indicates that there should only be a family name
                 writer.writeStartElement("mods", "namePart", MODS_NAMESPACE_URI);
                 writer.writeAttribute("type", "family");
@@ -407,7 +460,8 @@ class ModsExporter extends Exporter {
         String endPage = "";
         if (MINUS.equals(minus)) {
             endPage = value.substring(minusIndex + 1);
-        } else if (DOUBLE_MINUS.equals(minus)) {
+        }
+        else if (DOUBLE_MINUS.equals(minus)) {
             endPage = value.substring(minusIndex + 2);
         }
 
@@ -434,22 +488,28 @@ class ModsExporter extends Exporter {
 
         if (field.equals(StandardField.YEAR)) {
             addDate(writer, "dateIssued", value);
-        } else if (field.equals(new UnknownField("created"))) {
+        }
+        else if (field.equals(new UnknownField("created"))) {
             addDate(writer, "dateCreated", value);
-        } else if (field.equals(StandardField.MODIFICATIONDATE)) {
+        }
+        else if (field.equals(StandardField.MODIFICATIONDATE)) {
             addDate(writer, "dateModified", value);
-        } else if (field.equals(StandardField.CREATIONDATE)) {
+        }
+        else if (field.equals(StandardField.CREATIONDATE)) {
             addDate(writer, "dateCaptured", value);
-        } else if (StandardField.PUBLISHER == field) {
+        }
+        else if (StandardField.PUBLISHER == field) {
             writer.writeStartElement("mods", "publisher", MODS_NAMESPACE_URI);
             writer.writeAttribute("xsi", MODS_NAMESPACE_URI, "type", "mods:stringPlusLanguagePlusSupplied");
             writer.writeCharacters(value);
             writer.writeEndElement();
-        } else if (field.equals(new UnknownField("issuance"))) {
+        }
+        else if (field.equals(new UnknownField("issuance"))) {
             writer.writeStartElement("mods", "issuance", MODS_NAMESPACE_URI);
             writer.writeCharacters(value);
             writer.writeEndElement();
-        } else if (field.equals(StandardField.ADDRESS)) {
+        }
+        else if (field.equals(StandardField.ADDRESS)) {
             writer.writeStartElement("mods", "place", MODS_NAMESPACE_URI);
             String[] places = value.split(", ");
             for (String place : places) {
@@ -459,7 +519,8 @@ class ModsExporter extends Exporter {
                 writer.writeEndElement();
             }
             writer.writeEndElement();
-        } else if (field.equals(StandardField.EDITION)) {
+        }
+        else if (field.equals(StandardField.EDITION)) {
             writer.writeStartElement("mods", "edition", MODS_NAMESPACE_URI);
             writer.writeCharacters(value);
             writer.writeEndElement();
@@ -472,4 +533,5 @@ class ModsExporter extends Exporter {
         writer.writeCharacters(value);
         writer.writeEndElement(); // close date element
     }
+
 }

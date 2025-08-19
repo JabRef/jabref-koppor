@@ -12,7 +12,8 @@ import org.jabref.logic.util.io.FileHistory;
 
 public class LastFilesOpenedPreferences {
 
-    // the last libraries that were open when jabref closes and should be reopened on startup
+    // the last libraries that were open when jabref closes and should be reopened on
+    // startup
     private final ObservableList<Path> lastFilesOpened;
 
     private final ObjectProperty<Path> lastFocusedFile;
@@ -49,4 +50,5 @@ public class LastFilesOpenedPreferences {
     public FileHistory getFileHistory() {
         return fileHistory;
     }
+
 }

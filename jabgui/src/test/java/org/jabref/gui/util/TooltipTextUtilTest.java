@@ -133,7 +133,8 @@ class TooltipTextUtilTest {
     @Test
     void formatToTextsNoReplacements() {
         List<Text> expectedTextList = new ArrayList<>();
-        expectedTextList.add(TooltipTextUtil.createText("This search contains entries in which any field contains the regular expression "));
+        expectedTextList.add(TooltipTextUtil
+            .createText("This search contains entries in which any field contains the regular expression "));
         String test = "This search contains entries in which any field contains the regular expression ";
         List<Text> textList = TooltipTextUtil.formatToTexts(test);
 
@@ -143,10 +144,12 @@ class TooltipTextUtilTest {
     @Test
     void formatToTextsEnd() {
         List<Text> expectedTextList = new ArrayList<>();
-        expectedTextList.add(TooltipTextUtil.createText("This search contains entries in which any field contains the regular expression "));
+        expectedTextList.add(TooltipTextUtil
+            .createText("This search contains entries in which any field contains the regular expression "));
         expectedTextList.add(TooltipTextUtil.createText("replacing text", TooltipTextUtil.TextType.BOLD));
         String test = "This search contains entries in which any field contains the regular expression <b>%0</b>";
-        List<Text> textList = TooltipTextUtil.formatToTexts(test, new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
+        List<Text> textList = TooltipTextUtil.formatToTexts(test,
+                new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
 
         assertTrue(TextFlowEqualityHelper.checkIfTextsEqualsExpectedTexts(expectedTextList, textList));
     }
@@ -155,9 +158,11 @@ class TooltipTextUtilTest {
     void formatToTextsBegin() {
         List<Text> expectedTextList = new ArrayList<>();
         expectedTextList.add(TooltipTextUtil.createText("replacing text", TooltipTextUtil.TextType.BOLD));
-        expectedTextList.add(TooltipTextUtil.createText(" This search contains entries in which any field contains the regular expression"));
+        expectedTextList.add(TooltipTextUtil
+            .createText(" This search contains entries in which any field contains the regular expression"));
         String test = "<b>%0</b> This search contains entries in which any field contains the regular expression";
-        List<Text> textList = TooltipTextUtil.formatToTexts(test, new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
+        List<Text> textList = TooltipTextUtil.formatToTexts(test,
+                new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
 
         assertTrue(TextFlowEqualityHelper.checkIfTextsEqualsExpectedTexts(expectedTextList, textList));
     }
@@ -169,8 +174,10 @@ class TooltipTextUtilTest {
         expectedTextList.add(TooltipTextUtil.createText("replacing text", TooltipTextUtil.TextType.BOLD));
         expectedTextList.add(TooltipTextUtil.createText(" in which any field contains the regular expression"));
         String test = "This search contains entries <b>%0</b> in which any field contains the regular expression";
-        List<Text> textList = TooltipTextUtil.formatToTexts(test, new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
+        List<Text> textList = TooltipTextUtil.formatToTexts(test,
+                new TooltipTextUtil.TextReplacement("<b>%0</b>", "replacing text", TooltipTextUtil.TextType.BOLD));
 
         assertTrue(TextFlowEqualityHelper.checkIfTextsEqualsExpectedTexts(expectedTextList, textList));
     }
+
 }

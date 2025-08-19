@@ -8,6 +8,7 @@ import org.jabref.logic.util.NotificationService;
 import static org.mockito.Mockito.mock;
 
 class MVStoreSummariesStorageTest extends SummariesStorageTest {
+
     @Override
     SummariesStorage makeSummariesStorage(Path path) {
         return new MVStoreSummariesStorage(path, mock(NotificationService.class));
@@ -17,4 +18,5 @@ class MVStoreSummariesStorageTest extends SummariesStorageTest {
     void close(SummariesStorage summariesStorage) {
         ((MVStoreSummariesStorage) summariesStorage).close();
     }
+
 }

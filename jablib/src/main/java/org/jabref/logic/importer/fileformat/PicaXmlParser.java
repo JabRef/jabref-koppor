@@ -27,7 +27,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class PicaXmlParser implements Parser {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PicaXmlParser.class);
+
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
 
     @Override
@@ -36,7 +38,8 @@ public class PicaXmlParser implements Parser {
             DocumentBuilder dbuild = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             Document content = dbuild.parse(inputStream);
             return this.parseEntries(content);
-        } catch (ParserConfigurationException | SAXException | IOException exception) {
+        }
+        catch (ParserConfigurationException | SAXException | IOException exception) {
             throw new ParseException(exception);
         }
     }
@@ -60,7 +63,8 @@ public class PicaXmlParser implements Parser {
                 e = getChild("record", e);
                 if (e != null) {
                     BibEntry bibEntry = parseEntry(e);
-                    // TODO: Add filtering on years (based on org.jabref.logic.importer.fetcher.transformers.YearRangeByFilteringQueryTransformer.getStartYear)
+                    // TODO: Add filtering on years (based on
+                    // org.jabref.logic.importer.fetcher.transformers.YearRangeByFilteringQueryTransformer.getStartYear)
                     result.add(bibEntry);
                 }
             }
@@ -100,7 +104,8 @@ public class PicaXmlParser implements Parser {
             String tag = datafield.getAttribute("tag");
             LOGGER.trace("tag: {}", tag);
 
-            // genre/type of the entry https://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=0500&katalog=Standard
+            // genre/type of the entry
+            // https://swbtools.bsz-bw.de/cgi-bin/k10plushelp.pl?cmd=kat&val=0500&katalog=Standard
             if ("002@".equals(tag)) {
                 bibliographicGenre = getSubfield("0", datafield);
                 if (bibliographicGenre == null) {
@@ -120,7 +125,8 @@ public class PicaXmlParser implements Parser {
 
                 if (author == null) {
                     author = "";
-                } else {
+                }
+                else {
                     author = author.concat(" and ");
                 }
                 author = author.concat(vorname + " " + nachname);
@@ -132,7 +138,8 @@ public class PicaXmlParser implements Parser {
 
                 if (author == null) {
                     author = "";
-                } else {
+                }
+                else {
                     author = author.concat(" and ");
                 }
                 author = author.concat(vorname + " " + nachname);
@@ -145,7 +152,8 @@ public class PicaXmlParser implements Parser {
 
                 if (editor == null) {
                     editor = "";
-                } else {
+                }
+                else {
                     editor = editor.concat(" and ");
                 }
                 editor = editor.concat(vorname + " " + nachname);
@@ -168,7 +176,8 @@ public class PicaXmlParser implements Parser {
                 year = getSubfield("a", datafield);
             }
 
-            // year, volume, number, pages (year bei Zeitschriften (evtl. redundant mit 011@))
+            // year, volume, number, pages (year bei Zeitschriften (evtl. redundant mit
+            // 011@))
             if ("031A".equals(tag)) {
                 year = getSubfield("j", datafield);
 
@@ -249,15 +258,12 @@ public class PicaXmlParser implements Parser {
 
             // journal oder booktitle
 
-            /* Problematiken hier: Sowohl für Artikel in
-             * Zeitschriften als für Beiträge in Büchern
-             * wird 027D verwendet. Der Titel muß je nach
-             * Fall booktitle oder journal zugeordnet
-             * werden. Auch bei Zeitschriften werden hier
-             * ggf. Verlag und Ort angegeben (sind dann
-             * eigentlich überflüssig), während bei
-             * Buchbeiträgen Verlag und Ort wichtig sind
-             * (sonst in Kategorie 033A).
+            /*
+             * Problematiken hier: Sowohl für Artikel in Zeitschriften als für Beiträge in
+             * Büchern wird 027D verwendet. Der Titel muß je nach Fall booktitle oder
+             * journal zugeordnet werden. Auch bei Zeitschriften werden hier ggf. Verlag
+             * und Ort angegeben (sind dann eigentlich überflüssig), während bei
+             * Buchbeiträgen Verlag und Ort wichtig sind (sonst in Kategorie 033A).
              */
             if ("027D".equals(tag)) {
                 journal = getSubfield("a", datafield);
@@ -339,9 +345,11 @@ public class PicaXmlParser implements Parser {
             if (source.contains("ZDB-ID")) {
                 entryType = StandardEntryType.Article;
             }
-        } else if (bibliographicGenre.isEmpty()) {
+        }
+        else if (bibliographicGenre.isEmpty()) {
             entryType = BibEntry.DEFAULT_TYPE;
-        } else if (bibliographicGenre.startsWith("O")) {
+        }
+        else if (bibliographicGenre.startsWith("O")) {
             // Oa is standalone so we assume we have a book
             if (bibliographicGenre.startsWith("Oa") && isbn != null) {
                 entryType = StandardEntryType.Book;
@@ -353,11 +361,9 @@ public class PicaXmlParser implements Parser {
         }
 
         /*
-         * Wahrscheinlichkeit, dass ZDB-ID
-         * vorhanden ist, ist größer als ISBN bei
-         * Buchbeiträgen. Daher bei As?-Sätzen am besten immer
-         * dann @incollection annehmen, wenn weder ISBN noch
-         * ZDB-ID vorhanden sind.
+         * Wahrscheinlichkeit, dass ZDB-ID vorhanden ist, ist größer als ISBN bei
+         * Buchbeiträgen. Daher bei As?-Sätzen am besten immer dann @incollection
+         * annehmen, wenn weder ISBN noch ZDB-ID vorhanden sind.
          */
         BibEntry result = new BibEntry(entryType);
 
@@ -373,8 +379,12 @@ public class PicaXmlParser implements Parser {
         }
         if (!StringUtil.isNullOrEmpty(subtitle)) {
             // ensure that first letter is an upper case letter
-            // there could be the edge case that the string is only one character long, therefore, this special treatment
-            // this is Apache commons lang StringUtils.capitalize (https://commons.apache.org/proper/commons-lang/javadocs/api-release/org/apache/commons/lang3/StringUtils.html#capitalize%28java.lang.String%29), but we don't want to add an additional dependency  ('org.apache.commons:commons-lang3:3.4')
+            // there could be the edge case that the string is only one character long,
+            // therefore, this special treatment
+            // this is Apache commons lang StringUtils.capitalize
+            // (https://commons.apache.org/proper/commons-lang/javadocs/api-release/org/apache/commons/lang3/StringUtils.html#capitalize%28java.lang.String%29),
+            // but we don't want to add an additional dependency
+            // ('org.apache.commons:commons-lang3:3.4')
             StringBuilder newSubtitle = new StringBuilder(
                     Character.toString(Character.toUpperCase(subtitle.charAt(0))));
             if (subtitle.length() > 1) {
@@ -430,7 +440,8 @@ public class PicaXmlParser implements Parser {
 
         if ("article".equals(entryType.getName()) && (journal != null)) {
             result.setField(StandardField.JOURNAL, journal);
-        } else if ("incollection".equals(entryType.getName()) && (booktitle != null)) {
+        }
+        else if ("incollection".equals(entryType.getName()) && (booktitle != null)) {
             result.setField(StandardField.BOOKTITLE, booktitle);
         }
 
@@ -488,4 +499,5 @@ public class PicaXmlParser implements Parser {
     private String removeSortCharacters(String input) {
         return input.replaceAll("\\@", "");
     }
+
 }

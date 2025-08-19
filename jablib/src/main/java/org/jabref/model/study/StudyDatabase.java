@@ -2,7 +2,9 @@ package org.jabref.model.study;
 
 /// data model for the view `org.jabref.gui.slr.StudyCatalogItem`
 public class StudyDatabase {
+
     private String name;
+
     private boolean enabled;
 
     public StudyDatabase(String name, boolean enabled) {
@@ -60,9 +62,7 @@ public class StudyDatabase {
 
     @Override
     public String toString() {
-        return "LibraryEntry{" +
-                "name='" + name + '\'' +
-                ", enabled=" + enabled +
-                '}';
+        return "LibraryEntry{" + "name='" + name + '\'' + ", enabled=" + enabled + '}';
     }
+
 }

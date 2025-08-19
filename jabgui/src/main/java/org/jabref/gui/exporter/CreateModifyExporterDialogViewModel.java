@@ -17,10 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This view model can be used both for "add exporter" and "modify exporter" functionalities.
- * It takes an optional exporter which is empty for "add exporter," and takes the selected exporter
- * for "modify exporter."  It returns an optional exporter which empty if an invalid or no exporter is
- * created, and otherwise contains the exporter to be added or that is modified.
+ * This view model can be used both for "add exporter" and "modify exporter"
+ * functionalities. It takes an optional exporter which is empty for "add exporter," and
+ * takes the selected exporter for "modify exporter." It returns an optional exporter
+ * which empty if an invalid or no exporter is created, and otherwise contains the
+ * exporter to be added or that is modified.
  */
 
 public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
@@ -28,15 +29,17 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateModifyExporterDialogViewModel.class);
 
     private final DialogService dialogService;
+
     private final CliPreferences preferences;
 
     private final StringProperty name = new SimpleStringProperty("");
+
     private final StringProperty layoutFile = new SimpleStringProperty("");
+
     private final StringProperty extension = new SimpleStringProperty("");
 
-    public CreateModifyExporterDialogViewModel(ExporterViewModel exporter,
-                                               DialogService dialogService,
-                                               CliPreferences preferences) {
+    public CreateModifyExporterDialogViewModel(ExporterViewModel exporter, DialogService dialogService,
+            CliPreferences preferences) {
         this.dialogService = dialogService;
         this.preferences = preferences;
 
@@ -61,11 +64,9 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
             return null;
         }
 
-        // Create a new exporter to be returned to ExportCustomizationDialogViewModel, which requested it
-        TemplateExporter format = new TemplateExporter(
-                name.get(),
-                layoutFile.get(),
-                extension.get(),
+        // Create a new exporter to be returned to ExportCustomizationDialogViewModel,
+        // which requested it
+        TemplateExporter format = new TemplateExporter(name.get(), layoutFile.get(), extension.get(),
                 preferences.getLayoutFormatterPreferences(),
                 preferences.getSelfContainedExportConfiguration().getSelfContainedSaveOrder());
         format.setCustomExport(true);
@@ -74,14 +75,15 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
 
     public void browse() {
         String fileDir = layoutFile.getValue().isEmpty()
-                ? preferences.getExportPreferences().getExportWorkingDirectory().toString()
-                : layoutFile.getValue();
+                ? preferences.getExportPreferences().getExportWorkingDirectory().toString() : layoutFile.getValue();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
-                .withDefaultExtension(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
-                .withInitialDirectory(fileDir).build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(f -> layoutFile.set(f.toAbsolutePath().toString()));
+            .addExtensionFilter(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
+            .withDefaultExtension(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
+            .withInitialDirectory(fileDir)
+            .build();
+        dialogService.showFileOpenDialog(fileDialogConfiguration)
+            .ifPresent(f -> layoutFile.set(f.toAbsolutePath().toString()));
     }
 
     public StringProperty getName() {
@@ -95,4 +97,5 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
     public StringProperty getExtension() {
         return extension;
     }
+
 }

@@ -14,7 +14,8 @@ public class UnprotectTermsFormatter extends Formatter {
 
     @Override
     public String format(String text) {
-        // similar implementation at {@link org.jabref.logic.formatter.bibtexfields.RemoveBracesFormatter.hasNegativeBraceCount}
+        // similar implementation at {@link
+        // org.jabref.logic.formatter.bibtexfields.RemoveBracesFormatter.hasNegativeBraceCount}
         Objects.requireNonNull(text);
         if (text.isEmpty()) {
             return text;
@@ -26,13 +27,16 @@ public class UnprotectTermsFormatter extends Formatter {
             char charAtIndex = text.charAt(index);
             if (charAtIndex == '{') {
                 level++;
-            } else if (charAtIndex == '}') {
+            }
+            else if (charAtIndex == '}') {
                 level--;
-            } else {
+            }
+            else {
                 result.append(charAtIndex);
             }
             index++;
-        } while (index < text.length() && level >= 0);
+        }
+        while (index < text.length() && level >= 0);
         if (level != 0) {
             // in case of unbalanced braces, the original text is returned unmodified
             return text;
@@ -42,8 +46,7 @@ public class UnprotectTermsFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Removes all balanced {} braces around words.");
+        return Localization.lang("Removes all balanced {} braces around words.");
     }
 
     @Override
@@ -60,4 +63,5 @@ public class UnprotectTermsFormatter extends Formatter {
     public String getKey() {
         return "unprotect_terms";
     }
+
 }

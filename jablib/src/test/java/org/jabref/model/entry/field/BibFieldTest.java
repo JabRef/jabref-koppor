@@ -9,11 +9,14 @@ class BibFieldTest {
 
     @Test
     void bibFieldsConsideredEqualIfUnderlyingFieldIsEqual() {
-        assertEquals(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT), new BibField(StandardField.AUTHOR, FieldPriority.DETAIL));
+        assertEquals(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT),
+                new BibField(StandardField.AUTHOR, FieldPriority.DETAIL));
     }
 
     @Test
     void bibFieldsConsideredNotEqualIfUnderlyingFieldNotEqual() {
-        assertNotEquals(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT), new BibField(StandardField.TITLE, FieldPriority.IMPORTANT));
+        assertNotEquals(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT),
+                new BibField(StandardField.TITLE, FieldPriority.IMPORTANT));
     }
+
 }

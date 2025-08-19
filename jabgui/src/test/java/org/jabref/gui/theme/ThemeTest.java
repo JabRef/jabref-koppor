@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ThemeTest {
+
     @Test
     void lightThemeUsedWhenPathIsBlank() {
         Theme theme = new Theme("");
@@ -62,4 +63,5 @@ class ThemeTest {
         assertTrue(theme.getAdditionalStylesheet().isPresent());
         assertEquals("Idonotexist.css", theme.getAdditionalStylesheet().get().getWatchPath().getFileName().toString());
     }
+
 }

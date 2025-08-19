@@ -33,15 +33,19 @@ public class LibrariesResource {
         Stream<java.nio.file.Path> pathStream;
         if (!filesToServe.isEmpty()) {
             pathStream = filesToServe.getFilesToServe().stream();
-        } else {
-            pathStream = srvStateManager.getOpenDatabases().stream()
-                                        .filter(context -> context.getDatabasePath().isPresent())
-                                        .map(context -> context.getDatabasePath().get());
         }
-        List<String> fileNamesWithUniqueSuffix = pathStream.map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
-                                                           .toList();
+        else {
+            pathStream = srvStateManager.getOpenDatabases()
+                .stream()
+                .filter(context -> context.getDatabasePath().isPresent())
+                .map(context -> context.getDatabasePath().get());
+        }
+        List<String> fileNamesWithUniqueSuffix = pathStream
+            .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
+            .toList();
         List<String> result = new ArrayList<>(fileNamesWithUniqueSuffix);
         result.add("demo");
         return gson.toJson(result);
     }
+
 }

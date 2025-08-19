@@ -13,9 +13,7 @@ class CitaviXmlImporterTest {
     CitaviXmlImporter citaviXmlImporter = new CitaviXmlImporter();
 
     public static Stream<Arguments> cleanUpText() {
-        return Stream.of(
-                Arguments.of("no action", "no action"),
-                Arguments.of("\\{action\\}", "{action}"),
+        return Stream.of(Arguments.of("no action", "no action"), Arguments.of("\\{action\\}", "{action}"),
                 Arguments.of("\\}", "}"));
     }
 
@@ -24,4 +22,5 @@ class CitaviXmlImporterTest {
     void cleanUpText(String expected, String input) {
         assertEquals(expected, citaviXmlImporter.cleanUpText(input));
     }
+
 }

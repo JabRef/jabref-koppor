@@ -12,4 +12,5 @@ import org.jabref.logic.UiCommand;
 public interface UiMessageHandler {
 
     void handleUiCommands(List<UiCommand> uiCommands);
+
 }

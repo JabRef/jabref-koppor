@@ -13,12 +13,12 @@ import com.airhacks.afterburner.views.ViewLoader;
 import dev.langchain4j.data.message.ChatMessage;
 
 public class ChatHistoryComponent extends ScrollPane {
-    @FXML private VBox vBox;
+
+    @FXML
+    private VBox vBox;
 
     public ChatHistoryComponent() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         this.needsLayoutProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue) {
@@ -38,11 +38,11 @@ public class ChatHistoryComponent extends ScrollPane {
     private void fill(ObservableList<ChatMessage> items) {
         UiTaskExecutor.runInJavaFXThread(() -> {
             vBox.getChildren().clear();
-            items.forEach(chatMessage ->
-                    vBox.getChildren().add(new ChatMessageComponent(chatMessage, chatMessageComponent -> {
-                        int index = vBox.getChildren().indexOf(chatMessageComponent);
-                        items.remove(index);
-                    })));
+            items.forEach(chatMessage -> vBox.getChildren()
+                .add(new ChatMessageComponent(chatMessage, chatMessageComponent -> {
+                    int index = vBox.getChildren().indexOf(chatMessageComponent);
+                    items.remove(index);
+                })));
         });
     }
 
@@ -50,4 +50,5 @@ public class ChatHistoryComponent extends ScrollPane {
         this.layout();
         this.setVvalue(this.getVmax());
     }
+
 }

@@ -8,7 +8,9 @@ import org.jabref.model.database.BibDatabase;
 public class ParsedEntryLink {
 
     private String key;
+
     private Optional<BibEntry> linkedEntry;
+
     private BibDatabase database;
 
     public ParsedEntryLink(String key, BibDatabase database) {
@@ -54,4 +56,5 @@ public class ParsedEntryLink {
     public BibDatabase getDatabase() {
         return database;
     }
+
 }

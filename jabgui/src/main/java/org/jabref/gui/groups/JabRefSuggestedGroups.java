@@ -10,18 +10,13 @@ import org.jabref.model.search.SearchFlags;
 public class JabRefSuggestedGroups {
 
     public static SearchGroup createWithoutFilesGroup() {
-        return new SearchGroup(
-                Localization.lang("Entries without linked files"),
-                GroupHierarchyType.INDEPENDENT,
-                "file !=~.*",
-                EnumSet.noneOf(SearchFlags.class));
+        return new SearchGroup(Localization.lang("Entries without linked files"), GroupHierarchyType.INDEPENDENT,
+                "file !=~.*", EnumSet.noneOf(SearchFlags.class));
     }
 
     public static SearchGroup createWithoutGroupsGroup() {
-        return new SearchGroup(
-                Localization.lang("Entries without groups"),
-                GroupHierarchyType.INDEPENDENT,
-                "groups !=~.*",
-                EnumSet.noneOf(SearchFlags.class));
+        return new SearchGroup(Localization.lang("Entries without groups"), GroupHierarchyType.INDEPENDENT,
+                "groups !=~.*", EnumSet.noneOf(SearchFlags.class));
     }
+
 }

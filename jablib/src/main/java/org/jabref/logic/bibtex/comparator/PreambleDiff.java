@@ -8,6 +8,7 @@ import org.jabref.model.database.BibDatabaseContext;
 public class PreambleDiff {
 
     private final String originalPreamble;
+
     private final String newPreamble;
 
     PreambleDiff(String originalPreamble, String newPreamble) {
@@ -20,7 +21,8 @@ public class PreambleDiff {
         Optional<String> newPreamble = newDatabase.getDatabase().getPreamble();
         if (originalPreamble.equals(newPreamble)) {
             return Optional.empty();
-        } else {
+        }
+        else {
             return Optional.of(new PreambleDiff(originalPreamble.orElse(""), newPreamble.orElse("")));
         }
     }
@@ -53,9 +55,8 @@ public class PreambleDiff {
 
     @Override
     public String toString() {
-        return "PreambleDiff{" +
-                "originalPreamble='" + originalPreamble + '\'' +
-                ", newPreamble='" + newPreamble + '\'' +
-                '}';
+        return "PreambleDiff{" + "originalPreamble='" + originalPreamble + '\'' + ", newPreamble='" + newPreamble + '\''
+                + '}';
     }
+
 }

@@ -7,4 +7,5 @@ public interface OutputPrinter {
     void showMessage(String message, String title, int msgType);
 
     void showMessage(String string);
+
 }

@@ -15,25 +15,12 @@ public class DetailOptionalFieldsTab extends OptionalFieldsTabBase {
 
     public static final String NAME = "Optional fields 2";
 
-    public DetailOptionalFieldsTab(UndoManager undoManager,
-                                   UndoAction undoAction,
-                                   RedoAction redoAction,
-                                   GuiPreferences preferences,
-                                   BibEntryTypesManager entryTypesManager,
-                                   JournalAbbreviationRepository journalAbbreviationRepository,
-                                   StateManager stateManager,
-                                   PreviewPanel previewPanel) {
-        super(
-                Localization.lang("Optional fields 2"),
-                false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                entryTypesManager,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
-        );
+    public DetailOptionalFieldsTab(UndoManager undoManager, UndoAction undoAction, RedoAction redoAction,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository, StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(Localization.lang("Optional fields 2"), false, undoManager, undoAction, redoAction, preferences,
+                entryTypesManager, journalAbbreviationRepository, stateManager, previewPanel);
     }
+
 }

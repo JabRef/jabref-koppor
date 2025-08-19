@@ -28,7 +28,8 @@ public class NormalizeWhitespacesCleanup implements CleanupJob {
             if (NO_TEXT_FIELDS.contains(field)) {
                 continue;
             }
-            // We are sure that the field is set, because this is the assertion of getFields()
+            // We are sure that the field is set, because this is the assertion of
+            // getFields()
             String oldValue = entry.getField(field).orElseThrow();
             String newValue = formatter.format(oldValue, field);
             if (!newValue.equals(oldValue)) {
@@ -37,4 +38,5 @@ public class NormalizeWhitespacesCleanup implements CleanupJob {
         }
         return changes;
     }
+
 }

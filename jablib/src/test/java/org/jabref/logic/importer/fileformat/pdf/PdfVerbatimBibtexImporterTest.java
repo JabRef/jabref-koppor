@@ -25,8 +25,10 @@ class PdfVerbatimBibtexImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.fieldPreferences().getNonWrappableFields())
+            .thenReturn(FXCollections.emptyObservableList());
         importer = new PdfVerbatimBibtexImporter(importFormatPreferences);
     }
 
@@ -42,18 +44,18 @@ class PdfVerbatimBibtexImporterTest {
         Path file = Path.of(PdfVerbatimBibtexImporterTest.class.getResource("mixedMetadata.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
-        BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("jabreftest2021")
-                .withField(StandardField.AUTHOR, "Me, myself and I")
-                .withField(StandardField.TITLE, "Something")
-                .withField(StandardField.VOLUME, "1")
-                .withField(StandardField.JOURNAL, "Some Journal")
-                .withField(StandardField.YEAR, "2021")
-                .withField(StandardField.ISBN, "0134685997");
+        BibEntry expected = new BibEntry(StandardEntryType.Article).withCitationKey("jabreftest2021")
+            .withField(StandardField.AUTHOR, "Me, myself and I")
+            .withField(StandardField.TITLE, "Something")
+            .withField(StandardField.VOLUME, "1")
+            .withField(StandardField.JOURNAL, "Some Journal")
+            .withField(StandardField.YEAR, "2021")
+            .withField(StandardField.ISBN, "0134685997");
 
         List<BibEntry> resultSecondImport = importer.importDatabase(file).getDatabase().getEntries();
 
         assertEquals(List.of(expected), result);
         assertEquals(List.of(expected), resultSecondImport);
     }
+
 }

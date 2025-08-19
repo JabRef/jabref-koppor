@@ -7,7 +7,9 @@ import javax.swing.undo.CannotUndoException;
 import org.jabref.gui.undo.NamedCompound;
 
 public class LastAutomaticFieldEditorEdit extends AbstractUndoableEdit {
+
     private final Integer affectedEntries;
+
     private final NamedCompound edit;
 
     private final Integer tabIndex;
@@ -41,4 +43,5 @@ public class LastAutomaticFieldEditorEdit extends AbstractUndoableEdit {
         super.redo();
         edit.redo();
     }
+
 }

@@ -42,7 +42,9 @@ import static org.mockito.Mockito.when;
 
 class CleanupWorkerTest {
 
-    private final CleanupPreferences emptyPreset = new CleanupPreferences(EnumSet.noneOf(CleanupPreferences.CleanupStep.class));
+    private final CleanupPreferences emptyPreset = new CleanupPreferences(
+            EnumSet.noneOf(CleanupPreferences.CleanupStep.class));
+
     private CleanupWorker worker;
 
     // Ensure that the folder stays the same for all tests.
@@ -108,7 +110,8 @@ class CleanupWorkerTest {
 
     @Test
     void upgradeExternalLinksMoveFromPdfToFile() {
-        CleanupPreferences preset = new CleanupPreferences(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS);
+        CleanupPreferences preset = new CleanupPreferences(
+                CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS);
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.PDF, "aPdfFile");
 
@@ -119,7 +122,8 @@ class CleanupWorkerTest {
 
     @Test
     void upgradeExternalLinksMoveFromPsToFile() {
-        CleanupPreferences preset = new CleanupPreferences(CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS);
+        CleanupPreferences preset = new CleanupPreferences(
+                CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS);
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.PS, "aPsFile");
 
@@ -146,7 +150,8 @@ class CleanupWorkerTest {
 
         List<FieldChange> changes = worker.cleanup(preset, entry);
 
-        FieldChange expectedChange = new FieldChange(entry, StandardField.DOI, "http://dx.doi.org/10.1016/0001-8708(80)90035-3", "10.1016/0001-8708(80)90035-3");
+        FieldChange expectedChange = new FieldChange(entry, StandardField.DOI,
+                "http://dx.doi.org/10.1016/0001-8708(80)90035-3", "10.1016/0001-8708(80)90035-3");
         assertEquals(List.of(expectedChange), changes);
     }
 
@@ -170,7 +175,8 @@ class CleanupWorkerTest {
         List<FieldChange> changes = worker.cleanup(preset, entry);
         List<FieldChange> changeList = new ArrayList<>();
         changeList.add(new FieldChange(entry, StandardField.DOI, null, "10.1016/0001-8708(80)90035-3"));
-        changeList.add(new FieldChange(entry, StandardField.URL, "http://dx.doi.org/10.1016/0001-8708(80)90035-3", null));
+        changeList
+            .add(new FieldChange(entry, StandardField.URL, "http://dx.doi.org/10.1016/0001-8708(80)90035-3", null));
         assertEquals(changeList, changes);
     }
 
@@ -230,7 +236,8 @@ class CleanupWorkerTest {
 
         worker.cleanup(preset, entry);
         LinkedFile newFileField = new LinkedFile("", tempFile.getFileName(), "");
-        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)), entry.getField(StandardField.FILE));
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)),
+                entry.getField(StandardField.FILE));
     }
 
     @Test
@@ -245,7 +252,8 @@ class CleanupWorkerTest {
 
         worker.cleanup(preset, entry);
         LinkedFile newFileField = new LinkedFile("", path.getFileName(), "");
-        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)), entry.getField(StandardField.FILE));
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)),
+                entry.getField(StandardField.FILE));
     }
 
     @Test
@@ -254,14 +262,14 @@ class CleanupWorkerTest {
 
         Path path = pdfPath.resolve("AnotherRandomlyNamedFile.tmp");
         Files.createFile(path);
-        BibEntry entry = new BibEntry()
-                .withCitationKey("Toot");
+        BibEntry entry = new BibEntry().withCitationKey("Toot");
         LinkedFile fileField = new LinkedFile("", path.toAbsolutePath(), "");
         entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(fileField));
 
         worker.cleanup(preset, entry);
         LinkedFile newFileField = new LinkedFile("", Path.of("Toot.tmp"), "");
-        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)), entry.getField(StandardField.FILE));
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)),
+                entry.getField(StandardField.FILE));
     }
 
     @Test
@@ -288,11 +296,11 @@ class CleanupWorkerTest {
 
     @Test
     void cleanupCasesAddsBracketAroundAluminiumGalliumArsenid() {
-        ProtectedTermsLoader protectedTermsLoader = new ProtectedTermsLoader(
-                new ProtectedTermsPreferences(ProtectedTermsLoader.getInternalLists(), List.of(),
-                        List.of(), List.of()));
+        ProtectedTermsLoader protectedTermsLoader = new ProtectedTermsLoader(new ProtectedTermsPreferences(
+                ProtectedTermsLoader.getInternalLists(), List.of(), List.of(), List.of()));
         assertNotEquals(List.of(), protectedTermsLoader.getProtectedTerms());
-        CleanupPreferences preset = new CleanupPreferences(new FieldFormatterCleanups(true, List.of(new FieldFormatterCleanup(StandardField.TITLE, new ProtectTermsFormatter(protectedTermsLoader)))));
+        CleanupPreferences preset = new CleanupPreferences(new FieldFormatterCleanups(true, List
+            .of(new FieldFormatterCleanup(StandardField.TITLE, new ProtectTermsFormatter(protectedTermsLoader)))));
         BibEntry entry = new BibEntry();
         entry.setField(StandardField.TITLE, "AlGaAs");
 
@@ -343,4 +351,5 @@ class CleanupWorkerTest {
         worker.cleanup(preset, entry);
         assertEquals(Optional.of("01"), entry.getField(StandardField.MONTH));
     }
+
 }

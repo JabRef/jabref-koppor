@@ -14,12 +14,13 @@ public class LayoutFormatterPreferences {
     private final NameFormatterPreferences nameFormatterPreferences;
 
     private final DOIPreferences doiPreferences;
+
     private final StringProperty mainFileDirectoryProperty;
+
     private final Map<String, String> customExportNameFormatters = new HashMap<>();
 
-    public LayoutFormatterPreferences(NameFormatterPreferences nameFormatterPreferences,
-                                      DOIPreferences doiPreferences,
-                                      StringProperty mainFileDirectoryProperty) {
+    public LayoutFormatterPreferences(NameFormatterPreferences nameFormatterPreferences, DOIPreferences doiPreferences,
+            StringProperty mainFileDirectoryProperty) {
         this.nameFormatterPreferences = nameFormatterPreferences;
         this.mainFileDirectoryProperty = mainFileDirectoryProperty;
         this.doiPreferences = doiPreferences;
@@ -48,4 +49,5 @@ public class LayoutFormatterPreferences {
     public DOIPreferences getDoiPreferences() {
         return doiPreferences;
     }
+
 }

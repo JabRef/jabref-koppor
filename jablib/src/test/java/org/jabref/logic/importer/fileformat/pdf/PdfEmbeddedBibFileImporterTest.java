@@ -25,8 +25,10 @@ class PdfEmbeddedBibFileImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.fieldPreferences().getNonWrappableFields())
+            .thenReturn(FXCollections.emptyObservableList());
         importer = new PdfEmbeddedBibFileImporter(importFormatPreferences);
     }
 
@@ -42,13 +44,13 @@ class PdfEmbeddedBibFileImporterTest {
         Path file = Path.of(PdfEmbeddedBibFileImporterTest.class.getResource("mixedMetadata.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
-        BibEntry expected = new BibEntry(StandardEntryType.Misc)
-                .withCitationKey("jabreftext2021")
-                .withField(StandardField.AUTHOR, "Someone embedded")
-                .withField(StandardField.TITLE, "I like beds")
-                .withField(StandardField.DOI, "10.1002/9781118257517")
-                .withField(StandardField.COMMENT, "From embedded bib");
+        BibEntry expected = new BibEntry(StandardEntryType.Misc).withCitationKey("jabreftext2021")
+            .withField(StandardField.AUTHOR, "Someone embedded")
+            .withField(StandardField.TITLE, "I like beds")
+            .withField(StandardField.DOI, "10.1002/9781118257517")
+            .withField(StandardField.COMMENT, "From embedded bib");
 
         assertEquals(List.of(expected), result);
     }
+
 }

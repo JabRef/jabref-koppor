@@ -28,12 +28,15 @@ class MainTableDataModelTest {
     @Test
     void additionToObservableMapTriggersUpdate() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
-        ObservableList<BibEntry> entries = FXCollections.synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
+        ObservableList<BibEntry> entries = FXCollections
+            .synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
         ObservableList<BibEntry> allEntries = FXCollections.unmodifiableObservableList(entries);
-        NameDisplayPreferences nameDisplayPreferences = new NameDisplayPreferences(NameDisplayPreferences.DisplayStyle.AS_IS, NameDisplayPreferences.AbbreviationStyle.FULL);
-        SimpleObjectProperty<MainTableFieldValueFormatter> fieldValueFormatter = new SimpleObjectProperty<>(new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
-        ObservableList<BibEntryTableViewModel> entriesViewModel = EasyBind.mapBacked(allEntries, entry ->
-                new BibEntryTableViewModel(entry, bibDatabaseContext, fieldValueFormatter));
+        NameDisplayPreferences nameDisplayPreferences = new NameDisplayPreferences(
+                NameDisplayPreferences.DisplayStyle.AS_IS, NameDisplayPreferences.AbbreviationStyle.FULL);
+        SimpleObjectProperty<MainTableFieldValueFormatter> fieldValueFormatter = new SimpleObjectProperty<>(
+                new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
+        ObservableList<BibEntryTableViewModel> entriesViewModel = EasyBind.mapBacked(allEntries,
+                entry -> new BibEntryTableViewModel(entry, bibDatabaseContext, fieldValueFormatter));
         FilteredList<BibEntryTableViewModel> entriesFiltered = new FilteredList<>(entriesViewModel);
         IntegerProperty resultSize = new SimpleIntegerProperty();
         resultSize.bind(Bindings.size(entriesFiltered));
@@ -41,7 +44,7 @@ class MainTableDataModelTest {
         EntryComparator entryComparator = new EntryComparator(false, false, StandardField.AUTHOR);
         entriesFilteredAndSorted.setComparator((o1, o2) -> entryComparator.compare(o1.getEntry(), o2.getEntry()));
 
-        final boolean[] changed = {false};
+        final boolean[] changed = { false };
 
         entriesFilteredAndSorted.addListener((InvalidationListener) observable -> changed[0] = true);
 
@@ -62,4 +65,5 @@ class MainTableDataModelTest {
         result = entriesFilteredAndSorted.stream().map(BibEntryTableViewModel::getEntry).toList();
         assertEquals(List.of(bibEntryAuthorT, bibEntryNothingToZ), result);
     }
+
 }

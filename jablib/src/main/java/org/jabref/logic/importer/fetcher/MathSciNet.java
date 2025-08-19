@@ -48,17 +48,15 @@ import org.slf4j.LoggerFactory;
  * Fetches data from the <a href="http://www.ams.org/mathscinet">MathSciNet</a> API.
  */
 public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFetcher, IdBasedParserFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MathSciNet.class);
 
-    private static final Map<StandardField, List<String>> FIELD_MAPPINGS = Map.of(
-            StandardField.TITLE, List.of("titles", "title"),
-            StandardField.YEAR, List.of("issue", "issue", "pubYear"),
-            StandardField.JOURNAL, List.of("issue", "issue", "journal", "shortTitle"),
-            StandardField.VOLUME, List.of("issue", "issue", "volume"),
-            StandardField.NUMBER, List.of("issue", "issue", "number"),
-            StandardField.PAGES, List.of("paging", "paging", "text"),
-            StandardField.ISSN, List.of("issue", "issue", "journal", "issn")
-    );
+    private static final Map<StandardField, List<String>> FIELD_MAPPINGS = Map.of(StandardField.TITLE,
+            List.of("titles", "title"), StandardField.YEAR, List.of("issue", "issue", "pubYear"), StandardField.JOURNAL,
+            List.of("issue", "issue", "journal", "shortTitle"), StandardField.VOLUME,
+            List.of("issue", "issue", "volume"), StandardField.NUMBER, List.of("issue", "issue", "number"),
+            StandardField.PAGES, List.of("paging", "paging", "text"), StandardField.ISSN,
+            List.of("issue", "issue", "journal", "issn"));
 
     private final ImportFormatPreferences preferences;
 
@@ -72,8 +70,10 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
     }
 
     /**
-     * We use <a href="https://mathscinet.ams.org/mathscinet/freetools/mrlookup">MR Lookup</a> instead of the usual search since this tool is also available
-     * without subscription and, moreover, is optimized for finding a publication based on partial information.
+     * We use <a href="https://mathscinet.ams.org/mathscinet/freetools/mrlookup">MR
+     * Lookup</a> instead of the usual search since this tool is also available without
+     * subscription and, moreover, is optimized for finding a publication based on partial
+     * information.
      */
     @Override
     public URL getURLForEntry(BibEntry entry) throws URISyntaxException, MalformedURLException {
@@ -116,12 +116,14 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream)).lines()
+                .collect(Collectors.joining(OS.NEWLINE));
             List<BibEntry> entries = new ArrayList<>();
             BibtexParser bibtexParser = new BibtexParser(preferences, new DummyFileUpdateMonitor());
 
             try {
-                // Depending on the type of query we might get either a json object or directly a json array
+                // Depending on the type of query we might get either a json object or
+                // directly a json array
                 JsonNode node = new JsonNode(response);
 
                 if (node.isArray()) {
@@ -133,7 +135,8 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
                             entries.addAll(bibtexParser.parseEntries(bibTexFormat));
                         }
                     }
-                } else {
+                }
+                else {
                     JSONObject element = node.getObject();
 
                     if (element.has("all")) {
@@ -142,7 +145,8 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
                             String bibTexFormat = entriesArray.getJSONObject(i).getString("bibTexFormat");
                             entries.addAll(bibtexParser.parseEntries(bibTexFormat));
                         }
-                    } else if (element.has("results")) {
+                    }
+                    else if (element.has("results")) {
                         JSONArray entriesArray = element.getJSONArray("results");
                         for (int i = 0; i < entriesArray.length(); i++) {
                             JSONObject entryObject = entriesArray.getJSONObject(i);
@@ -151,7 +155,8 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
                         }
                     }
                 }
-            } catch (JSONException | ParseException e) {
+            }
+            catch (JSONException | ParseException e) {
                 LOGGER.error("An error occurred while parsing fetched data", e);
                 throw new ParseException("Error when parsing entry", e);
             }
@@ -178,12 +183,14 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
                 value.ifPresent(v -> entry.setField(field, v));
             }
 
-            // Handle articleUrl and mrnumber fields separately, as they are non-nested properties in the JSON and can be retrieved as Strings directly
+            // Handle articleUrl and mrnumber fields separately, as they are non-nested
+            // properties in the JSON and can be retrieved as Strings directly
             String doi = item.optString("articleUrl");
             if (!doi.isEmpty()) {
                 try {
                     DOI.parse(doi).ifPresent(validDoi -> entry.setField(StandardField.DOI, validDoi.asString()));
-                } catch (IllegalArgumentException e) {
+                }
+                catch (IllegalArgumentException e) {
                     // If DOI parsing fails, use the original DOI string
                     entry.setField(StandardField.DOI, doi);
                 }
@@ -195,7 +202,8 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
             }
 
             return entry;
-        } catch (JSONException exception) {
+        }
+        catch (JSONException exception) {
             throw new ParseException("MathSciNet API JSON format has changed", exception);
         }
     }
@@ -205,13 +213,10 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
             return Optional.empty();
         }
 
-        String authorsString = IntStream.range(0, authors.length())
-                                        .mapToObj(authors::getJSONObject)
-                                        .map(author -> {
-                                            String name = author.optString("name", "");
-                                            return fixStringEncoding(name);
-                                        })
-                                        .collect(Collectors.joining(" and "));
+        String authorsString = IntStream.range(0, authors.length()).mapToObj(authors::getJSONObject).map(author -> {
+            String name = author.optString("name", "");
+            return fixStringEncoding(name);
+        }).collect(Collectors.joining(" and "));
 
         return Optional.of(authorsString);
     }
@@ -228,16 +233,19 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
         for (String key : keys) {
             if (value instanceof JSONObject obj) {
                 value = obj.opt(key);
-            } else if (value instanceof JSONArray arr) {
+            }
+            else if (value instanceof JSONArray arr) {
                 value = arr.opt(Integer.parseInt(key));
-            } else {
+            }
+            else {
                 break;
             }
         }
 
         if (value instanceof String stringValue) {
             return Optional.of(fixStringEncoding(stringValue));
-        } else if (value instanceof Integer intValue) {
+        }
+        else if (value instanceof Integer intValue) {
             return Optional.of(intValue.toString());
         }
 
@@ -245,9 +253,9 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
     }
 
     /**
-     * Method to change character set, to fix output string encoding
-     * If we don't convert to the correct character set, the parser outputs anomalous characters.
-     * This is observed in case of non-UTF-8 characters, such as accented characters.
+     * Method to change character set, to fix output string encoding If we don't convert
+     * to the correct character set, the parser outputs anomalous characters. This is
+     * observed in case of non-UTF-8 characters, such as accented characters.
      */
 
     private String fixStringEncoding(String value) {
@@ -265,4 +273,5 @@ public class MathSciNet implements SearchBasedParserFetcher, EntryBasedParserFet
         // Remove comments: MathSciNet prepends a <pre> html tag
         entry.setCommentsBeforeEntry("");
     }
+
 }

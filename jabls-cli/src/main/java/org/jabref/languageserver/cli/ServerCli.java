@@ -12,8 +12,10 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import picocli.CommandLine;
 
 @AllowedToUseStandardStreams("This is a CLI application. It resides in the package languageserver.server to be close to the other languageserver related classes.")
-@CommandLine.Command(name = "languageserver", mixinStandardHelpOptions = true, description = "JabLS - JabRef LanguageServer")
+@CommandLine.Command(name = "languageserver", mixinStandardHelpOptions = true,
+        description = "JabLS - JabRef LanguageServer")
 public class ServerCli implements Callable<Void> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerCli.class);
 
     public static void main(final String[] args) throws InterruptedException {
@@ -33,4 +35,5 @@ public class ServerCli implements Callable<Void> {
 
         return null;
     }
+
 }

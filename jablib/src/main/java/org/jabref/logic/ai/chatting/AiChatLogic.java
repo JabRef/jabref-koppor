@@ -39,33 +39,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AiChatLogic {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AiChatLogic.class);
 
     private final AiPreferences aiPreferences;
+
     private final ChatModel chatLanguageModel;
+
     private final EmbeddingModel embeddingModel;
+
     private final EmbeddingStore<TextSegment> embeddingStore;
+
     private final AiTemplatesService aiTemplatesService;
 
     private final ObservableList<ChatMessage> chatHistory;
+
     private final ObservableList<BibEntry> entries;
+
     private final StringProperty name;
+
     private final BibDatabaseContext bibDatabaseContext;
 
     private ChatMemory chatMemory;
 
     private Optional<Filter> filter = Optional.empty();
 
-    public AiChatLogic(AiPreferences aiPreferences,
-                       ChatModel chatLanguageModel,
-                       EmbeddingModel embeddingModel,
-                       EmbeddingStore<TextSegment> embeddingStore,
-                       AiTemplatesService aiTemplatesService,
-                       StringProperty name,
-                       ObservableList<ChatMessage> chatHistory,
-                       ObservableList<BibEntry> entries,
-                       BibDatabaseContext bibDatabaseContext
-    ) {
+    public AiChatLogic(AiPreferences aiPreferences, ChatModel chatLanguageModel, EmbeddingModel embeddingModel,
+            EmbeddingStore<TextSegment> embeddingStore, AiTemplatesService aiTemplatesService, StringProperty name,
+            ObservableList<ChatMessage> chatHistory, ObservableList<BibEntry> entries,
+            BibDatabaseContext bibDatabaseContext) {
         this.aiPreferences = aiPreferences;
         this.chatLanguageModel = chatLanguageModel;
         this.embeddingModel = embeddingModel;
@@ -83,10 +85,8 @@ public class AiChatLogic {
     }
 
     private void setupListeningToPreferencesChanges() {
-        aiPreferences
-                .templateProperty(AiTemplate.CHATTING_SYSTEM_MESSAGE)
-                .addListener(obs ->
-                        setSystemMessage(aiTemplatesService.makeChattingSystemMessage(entries)));
+        aiPreferences.templateProperty(AiTemplate.CHATTING_SYSTEM_MESSAGE)
+            .addListener(obs -> setSystemMessage(aiTemplatesService.makeChattingSystemMessage(entries)));
 
         aiPreferences.contextWindowSizeProperty().addListener(obs -> rebuildFull(chatMemory.messages()));
     }
@@ -97,19 +97,23 @@ public class AiChatLogic {
     }
 
     private void rebuildChatMemory(List<ChatMessage> chatMessages) {
-        // Because we can't get a tokenizer for each model, {@link AiChatLogic} assumes that
+        // Because we can't get a tokenizer for each model, {@link AiChatLogic} assumes
+        // that
         // every text is tokenized like it's tokenized for OpenAI's GPT-4o-mini model.
         //
         // Reasons why we can't get tokenizer for each model:
         // - Some tokenizers might not be available in langchain4j.
-        // - User may use a custom model, but there is no way to supply a custom tokenizer.
-        // - OpenAI API (and compatible ones) doesn't have an endpoint for tokenizing text.
+        // - User may use a custom model, but there is no way to supply a custom
+        // tokenizer.
+        // - OpenAI API (and compatible ones) doesn't have an endpoint for tokenizing
+        // text.
         //
-        // This is another dark workaround of AI integration. But it works "good-enough" for now.
-        this.chatMemory = TokenWindowChatMemory
-                .builder()
-                .maxTokens(aiPreferences.getContextWindowSize(), new OpenAiTokenCountEstimator(OpenAiChatModelName.GPT_4_O_MINI))
-                .build();
+        // This is another dark workaround of AI integration. But it works "good-enough"
+        // for now.
+        this.chatMemory = TokenWindowChatMemory.builder()
+            .maxTokens(aiPreferences.getContextWindowSize(),
+                    new OpenAiTokenCountEstimator(OpenAiChatModelName.GPT_4_O_MINI))
+            .build();
 
         chatMessages.stream().filter(chatMessage -> !(chatMessage instanceof ErrorMessage)).forEach(chatMemory::add);
 
@@ -121,14 +125,10 @@ public class AiChatLogic {
 
         if (linkedFiles.isEmpty()) {
             filter = Optional.empty();
-        } else {
-            filter = Optional.of(MetadataFilterBuilder
-                    .metadataKey(FileEmbeddingsManager.LINK_METADATA_KEY)
-                    .isIn(linkedFiles
-                            .stream()
-                            .map(LinkedFile::getLink)
-                            .toList()
-                    ));
+        }
+        else {
+            filter = Optional.of(MetadataFilterBuilder.metadataKey(FileEmbeddingsManager.LINK_METADATA_KEY)
+                .isIn(linkedFiles.stream().map(LinkedFile::getLink).toList()));
         }
     }
 
@@ -137,51 +137,52 @@ public class AiChatLogic {
     }
 
     public AiMessage execute(UserMessage message) {
-        // Message will be automatically added to ChatMemory through ConversationalRetrievalChain.
+        // Message will be automatically added to ChatMemory through
+        // ConversationalRetrievalChain.
 
         chatHistory.add(message);
 
         LOGGER.info("Sending message to AI provider ({}) for answering in {}: {}",
-                aiPreferences.getAiProvider().getApiUrl(),
-                name.get(),
-                message.singleText());
+                aiPreferences.getAiProvider().getApiUrl(), name.get(), message.singleText());
 
-        EmbeddingSearchRequest embeddingSearchRequest = EmbeddingSearchRequest
-                .builder()
-                .maxResults(aiPreferences.getRagMaxResultsCount())
-                .minScore(aiPreferences.getRagMinScore())
-                .filter(filter.orElse(null))
-                .queryEmbedding(embeddingModel.embed(message.singleText()).content())
-                .build();
+        EmbeddingSearchRequest embeddingSearchRequest = EmbeddingSearchRequest.builder()
+            .maxResults(aiPreferences.getRagMaxResultsCount())
+            .minScore(aiPreferences.getRagMinScore())
+            .filter(filter.orElse(null))
+            .queryEmbedding(embeddingModel.embed(message.singleText()).content())
+            .build();
 
         EmbeddingSearchResult<TextSegment> embeddingSearchResult = embeddingStore.search(embeddingSearchRequest);
 
-        List<PaperExcerpt> excerpts = embeddingSearchResult
-                .matches()
-                .stream()
-                .map(EmbeddingMatch::embedded)
-                .map(textSegment -> {
-                    String link = textSegment.metadata().getString(FileEmbeddingsManager.LINK_METADATA_KEY);
+        List<PaperExcerpt> excerpts = embeddingSearchResult.matches()
+            .stream()
+            .map(EmbeddingMatch::embedded)
+            .map(textSegment -> {
+                String link = textSegment.metadata().getString(FileEmbeddingsManager.LINK_METADATA_KEY);
 
-                    if (link == null) {
-                        return new PaperExcerpt("", textSegment.text());
-                    } else {
-                        return new PaperExcerpt(findEntryByLink(link).flatMap(BibEntry::getCitationKey).orElse(""), textSegment.text());
-                    }
-                })
-                .toList();
+                if (link == null) {
+                    return new PaperExcerpt("", textSegment.text());
+                }
+                else {
+                    return new PaperExcerpt(findEntryByLink(link).flatMap(BibEntry::getCitationKey).orElse(""),
+                            textSegment.text());
+                }
+            })
+            .toList();
 
         LOGGER.debug("Found excerpts for the message: {}", excerpts);
 
-        // This is crazy, but langchain4j {@link ChatMemory} does not allow to remove single messages.
-        ChatMemory tempChatMemory = TokenWindowChatMemory
-                .builder()
-                .maxTokens(aiPreferences.getContextWindowSize(), new OpenAiTokenCountEstimator(OpenAiChatModelName.GPT_4_O_MINI))
-                .build();
+        // This is crazy, but langchain4j {@link ChatMemory} does not allow to remove
+        // single messages.
+        ChatMemory tempChatMemory = TokenWindowChatMemory.builder()
+            .maxTokens(aiPreferences.getContextWindowSize(),
+                    new OpenAiTokenCountEstimator(OpenAiChatModelName.GPT_4_O_MINI))
+            .build();
 
         chatMemory.messages().forEach(tempChatMemory::add);
 
-        tempChatMemory.add(new UserMessage(aiTemplatesService.makeChattingUserMessage(entries, message.singleText(), excerpts)));
+        tempChatMemory
+            .add(new UserMessage(aiTemplatesService.makeChattingUserMessage(entries, message.singleText(), excerpts)));
         chatMemory.add(message);
 
         AiMessage aiMessage = chatLanguageModel.chat(tempChatMemory.messages()).aiMessage();
@@ -195,14 +196,14 @@ public class AiChatLogic {
     }
 
     private Optional<BibEntry> findEntryByLink(String link) {
-        return bibDatabaseContext
-                .getEntries()
-                .stream()
-                .filter(entry -> entry.getFiles().stream().anyMatch(file -> file.getLink().equals(link)))
-                .findFirst();
+        return bibDatabaseContext.getEntries()
+            .stream()
+            .filter(entry -> entry.getFiles().stream().anyMatch(file -> file.getLink().equals(link)))
+            .findFirst();
     }
 
     public ObservableList<ChatMessage> getChatHistory() {
         return chatHistory;
     }
+
 }

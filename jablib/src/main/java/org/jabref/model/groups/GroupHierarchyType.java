@@ -8,7 +8,8 @@ public enum GroupHierarchyType {
     INDEPENDENT("Independent"),
 
     /**
-     * Group's content is the intersection of its own content with its supergroup's content.
+     * Group's content is the intersection of its own content with its supergroup's
+     * content.
      */
     REFINING("Intersection"), // INTERSECTION
 
@@ -24,14 +25,15 @@ public enum GroupHierarchyType {
     }
 
     /**
-     * Returns the hierarchy type from its position in this enum.
-     * If the specified position is out of the enums bounds, then {@link #INDEPENDENT} is returned.
+     * Returns the hierarchy type from its position in this enum. If the specified
+     * position is out of the enums bounds, then {@link #INDEPENDENT} is returned.
      */
     public static GroupHierarchyType getByNumberOrDefault(int type) {
         GroupHierarchyType[] types = values();
         if (type >= 0 && type < types.length) {
             return types[type];
-        } else {
+        }
+        else {
             return INDEPENDENT;
         }
     }
@@ -39,4 +41,5 @@ public enum GroupHierarchyType {
     public String getDisplayName() {
         return displayName;
     }
+
 }

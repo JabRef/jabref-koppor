@@ -18,16 +18,17 @@ import static org.jabref.gui.preferences.customentrytypes.FieldViewModel.Mandato
 public class EntryTypeViewModel {
 
     private final ObjectProperty<BibEntryType> entryType = new SimpleObjectProperty<>();
+
     private final ObservableList<FieldViewModel> fields;
 
     public EntryTypeViewModel(BibEntryType entryType, Predicate<Field> isMultiline) {
         this.entryType.set(entryType);
         List<FieldViewModel> allFieldsForType = entryType.getAllBibFields()
-                       .stream().map(bibField -> new FieldViewModel(bibField.field(),
-                                   entryType.isRequired(bibField.field()) ? Mandatory.REQUIRED : Mandatory.OPTIONAL,
-                                   bibField.priority(),
-                                   isMultiline.test(bibField.field())))
-                                                 .collect(Collectors.toList());
+            .stream()
+            .map(bibField -> new FieldViewModel(bibField.field(),
+                    entryType.isRequired(bibField.field()) ? Mandatory.REQUIRED : Mandatory.OPTIONAL,
+                    bibField.priority(), isMultiline.test(bibField.field())))
+            .collect(Collectors.toList());
         fields = FXCollections.observableArrayList(allFieldsForType);
     }
 
@@ -67,4 +68,5 @@ public class EntryTypeViewModel {
     public String toString() {
         return "CustomEntryTypeViewModel [entryType=" + entryType + ", fields=" + fields + "]";
     }
+
 }

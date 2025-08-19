@@ -25,7 +25,9 @@ import com.airhacks.afterburner.injection.Injector;
 class ProtectedTermsMenu extends Menu {
 
     private static Formatter FORMATTER;
+
     private final TextInputControl textInputControl;
+
     private final ActionFactory factory = new ActionFactory();
 
     private final Action protectSelectionActionInformation = new Action() {
@@ -58,6 +60,7 @@ class ProtectedTermsMenu extends Menu {
     };
 
     private class ProtectSelectionAction extends SimpleCommand {
+
         ProtectSelectionAction() {
             this.executable.bind(textInputControl.selectedTextProperty().isNotEmpty());
         }
@@ -67,7 +70,8 @@ class ProtectedTermsMenu extends Menu {
             String selectedText = textInputControl.getSelectedText();
             String firstStr = "{";
             String lastStr = "}";
-            // If the selected text contains spaces at the beginning and end, then add spaces before or after the brackets
+            // If the selected text contains spaces at the beginning and end, then add
+            // spaces before or after the brackets
             if (selectedText.startsWith(" ")) {
                 firstStr = " {";
             }
@@ -76,6 +80,7 @@ class ProtectedTermsMenu extends Menu {
             }
             textInputControl.replaceSelection(firstStr + selectedText.strip() + lastStr);
         }
+
     }
 
     private class UnprotectSelectionAction extends SimpleCommand {
@@ -90,9 +95,11 @@ class ProtectedTermsMenu extends Menu {
             String formattedString = new UnprotectTermsFormatter().format(selectedText);
             textInputControl.replaceSelection(formattedString);
         }
+
     }
 
     private class FormatFieldAction extends SimpleCommand {
+
         FormatFieldAction() {
             this.executable.bind(textInputControl.textProperty().isNotEmpty());
         }
@@ -101,9 +108,11 @@ class ProtectedTermsMenu extends Menu {
         public void execute() {
             textInputControl.setText(FORMATTER.format(textInputControl.getText()));
         }
+
     }
 
     private class AddToProtectedTermsAction extends SimpleCommand {
+
         ProtectedTermsList list;
 
         public AddToProtectedTermsAction(ProtectedTermsList list) {
@@ -129,11 +138,13 @@ class ProtectedTermsMenu extends Menu {
                     ++endIdx;
                 }
                 list.addProtectedTerm(text.substring(beginIdx, endIdx));
-            } else {
+            }
+            else {
                 // Remove leading and trailing whitespaces
                 list.addProtectedTerm(textInputControl.getSelectedText().strip());
             }
         }
+
     }
 
     public ProtectedTermsMenu(final TextInputControl textInputControl) {
@@ -142,8 +153,7 @@ class ProtectedTermsMenu extends Menu {
         FORMATTER = new ProtectTermsFormatter(Injector.instantiateModelOrService(ProtectedTermsLoader.class));
 
         getItems().addAll(factory.createMenuItem(protectSelectionActionInformation, new ProtectSelectionAction()),
-                getExternalFilesMenu(),
-                new SeparatorMenuItem(),
+                getExternalFilesMenu(), new SeparatorMenuItem(),
                 factory.createMenuItem(() -> Localization.lang("Format field"), new FormatFieldAction()),
                 factory.createMenuItem(unprotectSelectionActionInformation, new UnprotectSelectionAction()));
     }
@@ -151,10 +161,11 @@ class ProtectedTermsMenu extends Menu {
     private Menu getExternalFilesMenu() {
         Menu protectedTermsMenu = factory.createSubMenu(() -> Localization.lang("Add selected text to list"));
         ProtectedTermsLoader loader = Injector.instantiateModelOrService(ProtectedTermsLoader.class);
-        loader.getProtectedTermsLists().stream()
-              .filter(list -> !list.isInternalList())
-              .forEach(list -> protectedTermsMenu.getItems().add(
-                      factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
+        loader.getProtectedTermsLists()
+            .stream()
+            .filter(list -> !list.isInternalList())
+            .forEach(list -> protectedTermsMenu.getItems()
+                .add(factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
 
         if (protectedTermsMenu.getItems().isEmpty()) {
             MenuItem emptyItem = new MenuItem(Localization.lang("No list enabled"));
@@ -164,4 +175,5 @@ class ProtectedTermsMenu extends Menu {
 
         return protectedTermsMenu;
     }
+
 }

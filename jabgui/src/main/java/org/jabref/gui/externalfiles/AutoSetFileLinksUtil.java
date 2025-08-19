@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 public class AutoSetFileLinksUtil {
 
     public static class LinkFilesResult {
+
         private final List<BibEntry> changedEntries = new ArrayList<>();
+
         private final List<IOException> fileExceptions = new ArrayList<>();
 
         protected void addBibEntry(BibEntry bibEntry) {
@@ -46,28 +48,32 @@ public class AutoSetFileLinksUtil {
         public List<IOException> getFileExceptions() {
             return fileExceptions;
         }
+
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoSetFileLinksUtil.class);
 
     private final List<Path> directories;
+
     private final AutoLinkPreferences autoLinkPreferences;
+
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
     public AutoSetFileLinksUtil(BibDatabaseContext databaseContext,
-                                ExternalApplicationsPreferences externalApplicationsPreferences,
-                                FilePreferences filePreferences,
-                                AutoLinkPreferences autoLinkPreferences) {
+            ExternalApplicationsPreferences externalApplicationsPreferences, FilePreferences filePreferences,
+            AutoLinkPreferences autoLinkPreferences) {
         this(databaseContext.getFileDirectories(filePreferences), externalApplicationsPreferences, autoLinkPreferences);
     }
 
-    private AutoSetFileLinksUtil(List<Path> directories, ExternalApplicationsPreferences externalApplicationsPreferences, AutoLinkPreferences autoLinkPreferences) {
+    private AutoSetFileLinksUtil(List<Path> directories,
+            ExternalApplicationsPreferences externalApplicationsPreferences, AutoLinkPreferences autoLinkPreferences) {
         this.directories = directories;
         this.autoLinkPreferences = autoLinkPreferences;
         this.externalApplicationsPreferences = externalApplicationsPreferences;
     }
 
-    public LinkFilesResult linkAssociatedFiles(List<BibEntry> entries, BiConsumer<LinkedFile, BibEntry> onAddLinkedFile) {
+    public LinkFilesResult linkAssociatedFiles(List<BibEntry> entries,
+            BiConsumer<LinkedFile, BibEntry> onAddLinkedFile) {
         LinkFilesResult result = new LinkFilesResult();
 
         for (BibEntry entry : entries) {
@@ -75,7 +81,8 @@ public class AutoSetFileLinksUtil {
 
             try {
                 linkedFiles = findAssociatedNotLinkedFiles(entry);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 result.addFileException(e);
                 LOGGER.error("Problem finding files", e);
             }
@@ -92,13 +99,17 @@ public class AutoSetFileLinksUtil {
 
     /// Scans for missing files which should be linked to the given entry.
     ///
-    /// Related: {@link org.jabref.gui.externalfiles.UnlinkedFilesCrawler} for scanning files missing at all entries
+    /// Related: {@link org.jabref.gui.externalfiles.UnlinkedFilesCrawler} for scanning
+    /// files missing at all entries
     ///
     /// NOTE: This method does not check if the file is already linked to another entry.
     public List<LinkedFile> findAssociatedNotLinkedFiles(BibEntry entry) throws IOException {
         List<LinkedFile> linkedFiles = new ArrayList<>();
 
-        List<String> extensions = externalApplicationsPreferences.getExternalFileTypes().stream().map(ExternalFileType::getExtension).toList();
+        List<String> extensions = externalApplicationsPreferences.getExternalFileTypes()
+            .stream()
+            .map(ExternalFileType::getExtension)
+            .toList();
 
         LOGGER.debug("Searching for extensions {} in directories {}", extensions, directories);
 
@@ -109,21 +120,24 @@ public class AutoSetFileLinksUtil {
 
         // Collect the found files that are not yet linked
         for (Path foundFile : result) {
-            boolean fileAlreadyLinked = entry.getFiles().stream()
-                                             .map(file -> file.findIn(directories))
-                                             .anyMatch(linked -> linked.filter(path -> {
-                                                 try {
-                                                     return Files.isSameFile(path, foundFile);
-                                                 } catch (IOException e) {
-                                                     LOGGER.debug("Unable to check file identity, assuming no identity", e);
-                                                     return false;
-                                                 }
-                                             }).isPresent());
+            boolean fileAlreadyLinked = entry.getFiles()
+                .stream()
+                .map(file -> file.findIn(directories))
+                .anyMatch(linked -> linked.filter(path -> {
+                    try {
+                        return Files.isSameFile(path, foundFile);
+                    }
+                    catch (IOException e) {
+                        LOGGER.debug("Unable to check file identity, assuming no identity", e);
+                        return false;
+                    }
+                }).isPresent());
 
             if (!fileAlreadyLinked) {
                 Optional<ExternalFileType> type = FileUtil.getFileExtension(foundFile)
-                                                            .map(extension -> ExternalFileTypes.getExternalFileTypeByExt(extension, externalApplicationsPreferences))
-                                                            .orElse(Optional.of(new UnknownExternalFileType("")));
+                    .map(extension -> ExternalFileTypes.getExternalFileTypeByExt(extension,
+                            externalApplicationsPreferences))
+                    .orElse(Optional.of(new UnknownExternalFileType("")));
 
                 String strType = type.map(ExternalFileType::getName).orElse("");
                 Path relativeFilePath = FileUtil.relativize(foundFile, directories);
@@ -158,4 +172,5 @@ public class AutoSetFileLinksUtil {
 
         return matches;
     }
+
 }

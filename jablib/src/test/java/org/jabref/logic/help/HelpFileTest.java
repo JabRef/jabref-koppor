@@ -30,4 +30,5 @@ class HelpFileTest {
         http.setRequestProperty("User-Agent", URLDownload.USER_AGENT);
         assertEquals(200, http.getResponseCode(), "Wrong URL: " + url.toString());
     }
+
 }

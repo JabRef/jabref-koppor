@@ -30,6 +30,7 @@ public class HeadlessExecutorService implements Executor {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeadlessExecutorService.class);
 
     private static final String EXECUTOR_NAME = "JabRef CachedThreadPool";
+
     private static final String LOW_PRIORITY_EXECUTOR_NAME = "JabRef LowPriorityCachedThreadPool";
 
     private final ExecutorService executorService = Executors.newCachedThreadPool(r -> {
@@ -49,7 +50,7 @@ public class HeadlessExecutorService implements Executor {
     private final Timer timer = new Timer("timer", true);
 
     private HeadlessExecutorService() {
-   }
+    }
 
     public void execute(Runnable command) {
         Objects.requireNonNull(command);
@@ -61,16 +62,18 @@ public class HeadlessExecutorService implements Executor {
         Future<?> future = executorService.submit(command);
         try {
             future.get();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             LOGGER.debug("The thread is waiting, occupied or interrupted", e);
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e) {
             LOGGER.error("Problem executing command", e);
         }
     }
 
     /**
-     * Executes a callable task that provides a return value after the calculation is done.
-     *
+     * Executes a callable task that provides a return value after the calculation is
+     * done.
      * @param command The task to execute.
      * @return A Future object that provides the returning value.
      */
@@ -80,8 +83,8 @@ public class HeadlessExecutorService implements Executor {
     }
 
     /**
-     * Executes a collection of callable tasks and returns a List of the resulting Future objects after the calculation is done.
-     *
+     * Executes a collection of callable tasks and returns a List of the resulting Future
+     * objects after the calculation is done.
      * @param tasks The tasks to execute
      * @return A List of Future objects that provide the returning values.
      */
@@ -89,7 +92,8 @@ public class HeadlessExecutorService implements Executor {
         Objects.requireNonNull(tasks);
         try {
             return executorService.invokeAll(tasks);
-        } catch (InterruptedException exception) {
+        }
+        catch (InterruptedException exception) {
             // Ignored
             return List.of();
         }
@@ -99,7 +103,8 @@ public class HeadlessExecutorService implements Executor {
         Objects.requireNonNull(tasks);
         try {
             return executorService.invokeAll(tasks, timeout, timeUnit);
-        } catch (InterruptedException exception) {
+        }
+        catch (InterruptedException exception) {
             // Ignored
             return List.of();
         }
@@ -115,9 +120,11 @@ public class HeadlessExecutorService implements Executor {
         Future<?> future = lowPriorityExecutorService.submit(runnable);
         try {
             future.get();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             LOGGER.error("The thread is waiting, occupied or interrupted", e);
-        } catch (ExecutionException e) {
+        }
+        catch (ExecutionException e) {
             LOGGER.error("Problem executing command", e);
         }
     }
@@ -159,33 +166,40 @@ public class HeadlessExecutorService implements Executor {
             Thread.currentThread().setName(name);
             try {
                 task.run();
-            } finally {
+            }
+            finally {
                 Thread.currentThread().setName(orgName);
             }
         }
+
     }
 
     /**
-     * Shuts down the provided executor service by first trying a normal shutdown, then waiting for the shutdown and then forcibly shutting it down.
-     * Returns if the status of the shut down is known.
+     * Shuts down the provided executor service by first trying a normal shutdown, then
+     * waiting for the shutdown and then forcibly shutting it down. Returns if the status
+     * of the shut down is known.
      */
     public static void gracefullyShutdown(String name, ExecutorService executorService, int timeoutInSeconds) {
         try {
             // This is non-blocking. See https://stackoverflow.com/a/57383461/873282.
             executorService.shutdown();
             if (!executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {
-                LOGGER.debug("{} seconds passed, {} still not completed. Trying forced shutdown.", timeoutInSeconds, name);
+                LOGGER.debug("{} seconds passed, {} still not completed. Trying forced shutdown.", timeoutInSeconds,
+                        name);
                 // those threads will be interrupted in their current task
                 executorService.shutdownNow();
                 if (executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {
                     LOGGER.debug("{} seconds passed again - forced shutdown of {} worked.", timeoutInSeconds, name);
-                } else {
+                }
+                else {
                     LOGGER.error("{} did not terminate", name);
                 }
             }
-        } catch (InterruptedException ie) {
+        }
+        catch (InterruptedException ie) {
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
+
 }

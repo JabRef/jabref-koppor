@@ -17,4 +17,5 @@ class IdGeneratorTest {
             set.add(string);
         }
     }
+
 }

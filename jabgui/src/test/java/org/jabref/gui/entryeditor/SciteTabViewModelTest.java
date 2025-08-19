@@ -22,6 +22,7 @@ class SciteTabViewModelTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private TaskExecutor taskExecutor;
 
@@ -62,4 +63,5 @@ class SciteTabViewModelTest {
         Optional<DOI> actual = DOI.parse(viewModel.fetchTallies(doi).doi());
         assertEquals(Optional.of(doi), actual);
     }
+
 }

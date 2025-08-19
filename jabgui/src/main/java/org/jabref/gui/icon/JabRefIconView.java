@@ -13,10 +13,12 @@ import org.kordamp.ikonli.javafx.FontIcon;
 public class JabRefIconView extends FontIcon {
 
     /**
-     * This property is only needed to get proper IDE support in FXML files
-     * (e.g. validation that parameter passed to "icon" is indeed of type {@link IconTheme.JabRefIcons}).
+     * This property is only needed to get proper IDE support in FXML files (e.g.
+     * validation that parameter passed to "icon" is indeed of type
+     * {@link IconTheme.JabRefIcons}).
      */
     private final ObjectProperty<IconTheme.JabRefIcons> glyph;
+
     private final ObjectProperty<Number> glyphSize;
 
     public JabRefIconView(JabRefIcons icon, int size) {
@@ -71,4 +73,5 @@ public class JabRefIconView extends FontIcon {
     public Number getGlyphSize() {
         return glyphSize.getValue();
     }
+
 }

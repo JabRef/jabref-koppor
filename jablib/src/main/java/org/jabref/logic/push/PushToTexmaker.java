@@ -22,11 +22,12 @@ public class PushToTexmaker extends AbstractPushToApplication {
 
     @Override
     protected String[] getCommandLine(String keyString) {
-        return new String[] {commandPath, "-insert", getCitePrefix() + keyString + getCiteSuffix()};
+        return new String[] { commandPath, "-insert", getCitePrefix() + keyString + getCiteSuffix() };
     }
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "-line", Integer.toString(line), fileName.toString()};
+        return new String[] { commandPath, "-line", Integer.toString(line), fileName.toString() };
     }
+
 }

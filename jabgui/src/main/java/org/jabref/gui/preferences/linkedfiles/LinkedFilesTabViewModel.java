@@ -28,26 +28,42 @@ import de.saxsys.mvvmfx.utils.validation.Validator;
 public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
 
     private final StringProperty mainFileDirectoryProperty = new SimpleStringProperty("");
+
     private final BooleanProperty useMainFileDirectoryProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty useBibLocationAsPrimaryProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autolinkFileStartsBibtexProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autolinkFileExactBibtexProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty autolinkUseRegexProperty = new SimpleBooleanProperty();
+
     private final StringProperty autolinkRegexKeyProperty = new SimpleStringProperty("");
-    private final ListProperty<String> defaultFileNamePatternsProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList(FilePreferences.DEFAULT_FILENAME_PATTERNS));
+
+    private final ListProperty<String> defaultFileNamePatternsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList(FilePreferences.DEFAULT_FILENAME_PATTERNS));
+
     private final BooleanProperty fulltextIndex = new SimpleBooleanProperty();
+
     private final StringProperty fileNamePatternProperty = new SimpleStringProperty();
+
     private final StringProperty fileDirectoryPatternProperty = new SimpleStringProperty();
+
     private final BooleanProperty confirmLinkedFileDeleteProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty moveToTrashProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty openFileExplorerInFilesDirectory = new SimpleBooleanProperty();
+
     private final BooleanProperty openFileExplorerInLastDirectory = new SimpleBooleanProperty();
 
     private final Validator mainFileDirValidator;
 
     private final DialogService dialogService;
+
     private final FilePreferences filePreferences;
+
     private final AutoLinkPreferences autoLinkPreferences;
 
     public LinkedFilesTabViewModel(DialogService dialogService, CliPreferences preferences) {
@@ -55,24 +71,21 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         this.filePreferences = preferences.getFilePreferences();
         this.autoLinkPreferences = preferences.getAutoLinkPreferences();
 
-        mainFileDirValidator = new FunctionBasedValidator<>(
-                mainFileDirectoryProperty,
-                mainDirectoryPath -> {
-                    ValidationMessage error = ValidationMessage.error(
-                            Localization.lang("Main file directory '%0' not found.\nCheck the tab \"Linked files\".", mainDirectoryPath)
-                    );
-                    try {
-                        Path path = Path.of(mainDirectoryPath);
-                        if (!(Files.exists(path) && Files.isDirectory(path))) {
-                            return error;
-                        }
-                    } catch (InvalidPathException ex) {
-                        return error;
-                    }
-                    // main directory is valid
-                    return null;
+        mainFileDirValidator = new FunctionBasedValidator<>(mainFileDirectoryProperty, mainDirectoryPath -> {
+            ValidationMessage error = ValidationMessage.error(Localization
+                .lang("Main file directory '%0' not found.\nCheck the tab \"Linked files\".", mainDirectoryPath));
+            try {
+                Path path = Path.of(mainDirectoryPath);
+                if (!(Files.exists(path) && Files.isDirectory(path))) {
+                    return error;
                 }
-        );
+            }
+            catch (InvalidPathException ex) {
+                return error;
+            }
+            // main directory is valid
+            return null;
+        });
     }
 
     @Override
@@ -113,9 +126,11 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         // Autolink preferences
         if (autolinkFileStartsBibtexProperty.getValue()) {
             autoLinkPreferences.setCitationKeyDependency(AutoLinkPreferences.CitationKeyDependency.START);
-        } else if (autolinkFileExactBibtexProperty.getValue()) {
+        }
+        else if (autolinkFileExactBibtexProperty.getValue()) {
             autoLinkPreferences.setCitationKeyDependency(AutoLinkPreferences.CitationKeyDependency.EXACT);
-        } else if (autolinkUseRegexProperty.getValue()) {
+        }
+        else if (autolinkUseRegexProperty.getValue()) {
             autoLinkPreferences.setCitationKeyDependency(AutoLinkPreferences.CitationKeyDependency.REGEX);
         }
 
@@ -132,18 +147,19 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     public boolean validateSettings() {
         ValidationStatus validationStatus = mainFileDirValidationStatus();
         if (!validationStatus.isValid() && useMainFileDirectoryProperty().get()) {
-            validationStatus.getHighestMessage().ifPresent(message ->
-                    dialogService.showErrorDialogAndWait(message.getMessage()));
+            validationStatus.getHighestMessage()
+                .ifPresent(message -> dialogService.showErrorDialogAndWait(message.getMessage()));
             return false;
         }
         return true;
     }
 
     public void mainFileDirBrowse() {
-        DirectoryDialogConfiguration dirDialogConfiguration =
-                new DirectoryDialogConfiguration.Builder().withInitialDirectory(Path.of(mainFileDirectoryProperty.getValue())).build();
+        DirectoryDialogConfiguration dirDialogConfiguration = new DirectoryDialogConfiguration.Builder()
+            .withInitialDirectory(Path.of(mainFileDirectoryProperty.getValue()))
+            .build();
         dialogService.showDirectorySelectionDialog(dirDialogConfiguration)
-                     .ifPresent(f -> mainFileDirectoryProperty.setValue(f.toString()));
+            .ifPresent(f -> mainFileDirectoryProperty.setValue(f.toString()));
     }
 
     // External file links
@@ -206,5 +222,5 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     public BooleanProperty openFileExplorerInLastDirectoryProperty() {
         return openFileExplorerInLastDirectory;
     }
-}
 
+}

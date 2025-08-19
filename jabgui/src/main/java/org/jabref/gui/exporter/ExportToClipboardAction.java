@@ -41,27 +41,24 @@ public class ExportToClipboardAction extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportToClipboardAction.class);
 
     // Only text based exporters can be used
-    private static final Set<FileType> SUPPORTED_FILETYPES = Set.of(
-            StandardFileType.TXT,
-            StandardFileType.RTF,
-            StandardFileType.RDF,
-            StandardFileType.XML,
-            StandardFileType.HTML,
-            StandardFileType.CSV,
+    private static final Set<FileType> SUPPORTED_FILETYPES = Set.of(StandardFileType.TXT, StandardFileType.RTF,
+            StandardFileType.RDF, StandardFileType.XML, StandardFileType.HTML, StandardFileType.CSV,
             StandardFileType.RIS);
 
     private final DialogService dialogService;
+
     private final List<BibEntry> entries = new ArrayList<>();
+
     private final ClipBoardManager clipBoardManager;
+
     private final TaskExecutor taskExecutor;
+
     private final CliPreferences preferences;
+
     private final StateManager stateManager;
 
-    public ExportToClipboardAction(DialogService dialogService,
-                                   StateManager stateManager,
-                                   ClipBoardManager clipBoardManager,
-                                   TaskExecutor taskExecutor,
-                                   CliPreferences preferences) {
+    public ExportToClipboardAction(DialogService dialogService, StateManager stateManager,
+            ClipBoardManager clipBoardManager, TaskExecutor taskExecutor, CliPreferences preferences) {
         this.dialogService = dialogService;
         this.clipBoardManager = clipBoardManager;
         this.taskExecutor = taskExecutor;
@@ -79,34 +76,35 @@ public class ExportToClipboardAction extends SimpleCommand {
         }
 
         ExporterFactory exporterFactory = ExporterFactory.create(preferences);
-        List<Exporter> exporters = exporterFactory.getExporters().stream()
-                                                  .sorted(Comparator.comparing(Exporter::getName))
-                                                  .filter(exporter -> SUPPORTED_FILETYPES.contains(exporter.getFileType()))
-                                                  .collect(Collectors.toList());
+        List<Exporter> exporters = exporterFactory.getExporters()
+            .stream()
+            .sorted(Comparator.comparing(Exporter::getName))
+            .filter(exporter -> SUPPORTED_FILETYPES.contains(exporter.getFileType()))
+            .collect(Collectors.toList());
 
         // Find default choice, if any
         Exporter defaultChoice = exporters.stream()
-                                          .filter(exporter -> exporter.getName().equals(preferences.getExportPreferences().getLastExportExtension()))
-                                          .findAny()
-                                          .orElse(null);
+            .filter(exporter -> exporter.getName().equals(preferences.getExportPreferences().getLastExportExtension()))
+            .findAny()
+            .orElse(null);
 
-        Optional<Exporter> selectedExporter = dialogService.showChoiceDialogAndWait(
-                Localization.lang("Export"), Localization.lang("Select export format"),
-                Localization.lang("Export"), defaultChoice, exporters);
+        Optional<Exporter> selectedExporter = dialogService.showChoiceDialogAndWait(Localization.lang("Export"),
+                Localization.lang("Select export format"), Localization.lang("Export"), defaultChoice, exporters);
 
         selectedExporter.ifPresent(exporter -> BackgroundTask.wrap(() -> exportToClipboard(exporter))
-                                                             .onSuccess(this::setContentToClipboard)
-                                                             .onFailure(ex -> {
-                                                                 LOGGER.error("Error exporting to clipboard", ex);
-                                                                 dialogService.showErrorDialogAndWait("Error exporting to clipboard", ex);
-                                                             })
-                                                             .executeWith(taskExecutor));
+            .onSuccess(this::setContentToClipboard)
+            .onFailure(ex -> {
+                LOGGER.error("Error exporting to clipboard", ex);
+                dialogService.showErrorDialogAndWait("Error exporting to clipboard", ex);
+            })
+            .executeWith(taskExecutor));
     }
 
-    private ExportResult exportToClipboard(Exporter exporter) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    private ExportResult exportToClipboard(Exporter exporter)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         List<Path> fileDirForDatabase = stateManager.getActiveDatabase()
-                                                    .map(db -> db.getFileDirectories(preferences.getFilePreferences()))
-                                                    .orElse(List.of(preferences.getFilePreferences().getWorkingDirectory()));
+            .map(db -> db.getFileDirectories(preferences.getFilePreferences()))
+            .orElse(List.of(preferences.getFilePreferences().getWorkingDirectory()));
 
         // Add chosen export type to last used preference, to become default
         preferences.getExportPreferences().setLastExportExtension(exporter.getName());
@@ -120,21 +118,19 @@ public class ExportToClipboardAction extends SimpleCommand {
             entries.addAll(stateManager.getSelectedEntries());
 
             // Write to file:
-            exporter.export(
-                    stateManager.getActiveDatabase().get(),
-                    tmp,
-                    entries,
-                    fileDirForDatabase,
+            exporter.export(stateManager.getActiveDatabase().get(), tmp, entries, fileDirForDatabase,
                     Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
             // Read the file and put the contents on the clipboard:
 
             return new ExportResult(Files.readString(tmp), exporter.getFileType());
-        } finally {
+        }
+        finally {
             // Clean up:
             if ((tmp != null) && Files.exists(tmp)) {
                 try {
                     Files.delete(tmp);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     LOGGER.info("Cannot delete temporary clipboard file", e);
                 }
             }
@@ -146,9 +142,11 @@ public class ExportToClipboardAction extends SimpleCommand {
         List<String> extensions = result.fileType.getExtensions();
         if (extensions.contains("html")) {
             clipboardContent.putHtml(result.content);
-        } else if (extensions.contains("rtf")) {
+        }
+        else if (extensions.contains("rtf")) {
             clipboardContent.putRtf(result.content);
-        } else if (extensions.contains("rdf")) {
+        }
+        else if (extensions.contains("rdf")) {
             clipboardContent.putRtf(result.content);
         }
         clipboardContent.putString(result.content);
@@ -159,4 +157,5 @@ public class ExportToClipboardAction extends SimpleCommand {
 
     private record ExportResult(String content, FileType fileType) {
     }
+
 }

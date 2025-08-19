@@ -28,4 +28,5 @@ class AbstractCitationKeyPatternsTest {
         CitationKeyPattern expectedPattern = new CitationKeyPattern("[field1][field2]spacer2[field3]");
         assertEquals(expectedPattern, pattern.getDefaultValue());
     }
+
 }

@@ -17,7 +17,10 @@ class LocalizationKeyTest {
 
                 // Java code: Copy \\cite{citation key}
                 // String representation: "Copy \\\\cite{citation key}"
-                // In other words: The property is "Copy\ \\cite{citation\\ key}", because the "\" before "cite" is a backslash, not an escape for the c. That property is "Copy\ \\cite{citation\ key}" in Java code, because of the escaping of the backslash.
+                // In other words: The property is "Copy\ \\cite{citation\\ key}", because
+                // the "\" before "cite" is a backslash, not an escape for the c. That
+                // property is "Copy\ \\cite{citation\ key}" in Java code, because of the
+                // escaping of the backslash.
                 Arguments.of("Copy\\ \\\\cite{citation\\ key}", "Copy \\\\cite{citation key}"),
 
                 // Java code: Newline follows\n
@@ -26,9 +29,10 @@ class LocalizationKeyTest {
 
                 // Java code: First line\nSecond line
                 // String representation: "First line\\nSecond line"
-                // In other words: "First line\nSecond line" is the wrong test case, because the source code contains "First line\nSecond line", which is rendered as Java String as "First line\\nSecond line"
-                Arguments.of("First\\ line\\nSecond\\ line", "First line\\nSecond line")
-        );
+                // In other words: "First line\nSecond line" is the wrong test case,
+                // because the source code contains "First line\nSecond line", which is
+                // rendered as Java String as "First line\\nSecond line"
+                Arguments.of("First\\ line\\nSecond\\ line", "First line\\nSecond line"));
     }
 
     @ParameterizedTest
@@ -36,4 +40,5 @@ class LocalizationKeyTest {
     void getPropertiesKeyReturnsCorrectValue(String expected, String input) {
         assertEquals(expected, LocalizationKey.fromEscapedJavaString(input).getEscapedPropertiesKey());
     }
+
 }

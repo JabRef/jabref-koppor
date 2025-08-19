@@ -41,6 +41,7 @@ import static org.mockito.Mockito.mock;
 class MVStoreBibEntryRelationRepositoryTest {
 
     private final static String MV_STORE_NAME = "test-relations.mv";
+
     private final static String MAP_NAME = "test-relations";
 
     @TempDir
@@ -52,11 +53,7 @@ class MVStoreBibEntryRelationRepositoryTest {
     void initStore() throws Exception {
         Path file = Files.createFile(temporaryFolder.resolve(MV_STORE_NAME));
 
-        this.dao = new MVStoreBibEntryRelationRepository(
-                file.toAbsolutePath(),
-                MAP_NAME,
-                7,
-                new BibEntryTypesManager(),
+        this.dao = new MVStoreBibEntryRelationRepository(file.toAbsolutePath(), MAP_NAME, 7, new BibEntryTypesManager(),
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
@@ -64,43 +61,36 @@ class MVStoreBibEntryRelationRepositoryTest {
     @AfterEach
     void closeStore() {
         this.dao.close();
-        // On the CI, we sometimes get "OutOfMemoryException"s. This tries to prevent that.
+        // On the CI, we sometimes get "OutOfMemoryException"s. This tries to prevent
+        // that.
         System.gc();
     }
 
     private static Stream<BibEntry> createBibEntries() {
-        return IntStream
-            .range(0, 150)
-            .mapToObj(MVStoreBibEntryRelationRepositoryTest::createBibEntry);
+        return IntStream.range(0, 150).mapToObj(MVStoreBibEntryRelationRepositoryTest::createBibEntry);
     }
 
     private static BibEntry createBibEntry(int i) {
-        return new BibEntry()
-            .withCitationKey(String.valueOf(i))
-            .withField(StandardField.DOI, "10.1234/5678" + i);
+        return new BibEntry().withCitationKey(String.valueOf(i)).withField(StandardField.DOI, "10.1234/5678" + i);
     }
 
     /**
-     * Create a fake list of relations for a bibEntry based on the {@link PaperDetails#toBibEntry()} logic
-     * that corresponds to this use case: we want to make sure that relations coming from SemanticScholar
-     * and mapped as BibEntry will be serializable by the MVStore.
-     *
+     * Create a fake list of relations for a bibEntry based on the
+     * {@link PaperDetails#toBibEntry()} logic that corresponds to this use case: we want
+     * to make sure that relations coming from SemanticScholar and mapped as BibEntry will
+     * be serializable by the MVStore.
      * @param entry should not be null
      * @return never empty
      */
     private List<BibEntry> createRelations(BibEntry entry) {
-        return entry
-            .getCitationKey()
-            .map(key -> RandomGenerator.StreamableGenerator
-                .of("L128X256MixRandom").ints(150)
-                .mapToObj(i -> new BibEntry(StandardEntryType.Book)
-                    .withField(StandardField.TITLE, "A title: " + i)
+        return entry.getCitationKey()
+            .map(key -> RandomGenerator.StreamableGenerator.of("L128X256MixRandom")
+                .ints(150)
+                .mapToObj(i -> new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A title: " + i)
                     .withField(StandardField.YEAR, String.valueOf(2024))
                     .withField(StandardField.AUTHOR, "{A list of authors: " + i + "}")
                     .withField(StandardField.DOI, entry.getDOI().map(DOI::asString).orElse("") + ":" + i)
-                    .withField(StandardField.ABSTRACT, "The Universe is expanding: " + i)
-                )
-            )
+                    .withField(StandardField.ABSTRACT, "The Universe is expanding: " + i)))
             .orElseThrow()
             .toList();
     }
@@ -116,14 +106,10 @@ class MVStoreBibEntryRelationRepositoryTest {
         // WHEN
         dao.addRelations(bibEntry, firstRelations);
         dao.addRelations(bibEntry, secondRelations);
-        List<BibEntry> relationFromCache = dao
-                .getRelations(bibEntry)
-                .stream()
-                .toList();
+        List<BibEntry> relationFromCache = dao.getRelations(bibEntry).stream().toList();
 
         // THEN
-        List<BibEntry> uniqueRelations = Stream
-            .concat(firstRelations.stream(), secondRelations.stream())
+        List<BibEntry> uniqueRelations = Stream.concat(firstRelations.stream(), secondRelations.stream())
             .distinct()
             .toList();
         assertFalse(uniqueRelations.isEmpty());
@@ -178,9 +164,8 @@ class MVStoreBibEntryRelationRepositoryTest {
         // THEN
         assertFalse(dao.shouldUpdate(entry, clock));
         Clock clockOneWeekAfter = Clock.fixed(
-            LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).plusSeconds(1).toInstant(ZoneOffset.UTC),
-            ZoneId.of("UTC")
-        );
+                LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).plusSeconds(1).toInstant(ZoneOffset.UTC),
+                ZoneId.of("UTC"));
         assertTrue(dao.shouldUpdate(entry, clockOneWeekAfter));
     }
 
@@ -191,11 +176,8 @@ class MVStoreBibEntryRelationRepositoryTest {
         List<BibEntry> relations = createRelations(entry);
         Clock clock = Clock.fixed(Instant.now(), ZoneId.of("UTC"));
         Path file = Files.createFile(temporaryFolder.resolve("update_test" + MV_STORE_NAME));
-        MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(
-                file.toAbsolutePath(),
-                MAP_NAME,
-                30,
-                mock(BibEntryTypesManager.class, Answers.RETURNS_DEEP_STUBS),
+        MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(file.toAbsolutePath(),
+                MAP_NAME, 30, mock(BibEntryTypesManager.class, Answers.RETURNS_DEEP_STUBS),
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS));
         assertTrue(daoUnderTest.shouldUpdate(entry, clock));
@@ -205,10 +187,8 @@ class MVStoreBibEntryRelationRepositoryTest {
 
         // THEN
         assertFalse(daoUnderTest.shouldUpdate(entry, clock));
-        Clock clockOneWeekAfter = Clock.fixed(
-                LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).toInstant(ZoneOffset.UTC),
-                ZoneId.of("UTC")
-        );
+        Clock clockOneWeekAfter = Clock
+            .fixed(LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).toInstant(ZoneOffset.UTC), ZoneId.of("UTC"));
         assertFalse(daoUnderTest.shouldUpdate(entry, clockOneWeekAfter));
     }
 
@@ -216,20 +196,18 @@ class MVStoreBibEntryRelationRepositoryTest {
     @MethodSource("createBibEntries")
     void deserializerErrorShouldReturnEmptyList(BibEntry entry) throws IOException {
         // GIVEN
-        BibEntryHashSetSerializer serializer = new BibEntryHashSetSerializer(
-                new BibEntrySerializer(
-                        new BibEntryTypesManager(),
-                        mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                        mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS)) {
-                    @Override
-                    public BibEntry read(ByteBuffer buffer) {
-                        // Fake the return after an exception
-                        return new BibEntry();
-                    }
-                }
-        );
+        BibEntryHashSetSerializer serializer = new BibEntryHashSetSerializer(new BibEntrySerializer(
+                new BibEntryTypesManager(), mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS)) {
+            @Override
+            public BibEntry read(ByteBuffer buffer) {
+                // Fake the return after an exception
+                return new BibEntry();
+            }
+        });
         Path file = Files.createFile(temporaryFolder.resolve("serialization_error_" + MV_STORE_NAME));
-        MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(file.toAbsolutePath(), MAP_NAME, 7, serializer);
+        MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(file.toAbsolutePath(),
+                MAP_NAME, 7, serializer);
         List<BibEntry> relations = createRelations(entry);
 
         // WHEN
@@ -241,4 +219,5 @@ class MVStoreBibEntryRelationRepositoryTest {
         // THEN
         assertTrue(deserializedRelations.isEmpty());
     }
+
 }

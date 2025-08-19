@@ -22,11 +22,13 @@ public class BibliographyConsistencyCheckResultCsvWriter extends BibliographyCon
 
     private CSVPrinter csvPrinter;
 
-    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain) {
+    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer,
+            boolean isPorcelain) {
         super(result, writer, isPorcelain);
     }
 
-    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
+    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer,
+            boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
     }
 
@@ -38,7 +40,8 @@ public class BibliographyConsistencyCheckResultCsvWriter extends BibliographyCon
     }
 
     @Override
-    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields, Set<Field> optionalFields) throws IOException {
+    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields,
+            Set<Field> optionalFields) throws IOException {
         List<String> theRecord = getFindingsAsList(bibEntry, entryType, requiredFields, optionalFields);
         csvPrinter.printRecord(theRecord);
     }
@@ -47,4 +50,5 @@ public class BibliographyConsistencyCheckResultCsvWriter extends BibliographyCon
     public void close() throws IOException {
         csvPrinter.close();
     }
+
 }

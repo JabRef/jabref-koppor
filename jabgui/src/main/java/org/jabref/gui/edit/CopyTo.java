@@ -23,18 +23,20 @@ public class CopyTo extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(CopyTo.class);
 
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final CopyToPreferences copyToPreferences;
+
     private final ImportHandler importHandler;
+
     private final BibDatabaseContext sourceDatabaseContext;
+
     private final BibDatabaseContext targetDatabaseContext;
 
-    public CopyTo(DialogService dialogService,
-                  StateManager stateManager,
-                  CopyToPreferences copyToPreferences,
-                  ImportHandler importHandler,
-                  BibDatabaseContext sourceDatabaseContext,
-                  BibDatabaseContext targetDatabaseContext) {
+    public CopyTo(DialogService dialogService, StateManager stateManager, CopyToPreferences copyToPreferences,
+            ImportHandler importHandler, BibDatabaseContext sourceDatabaseContext,
+            BibDatabaseContext targetDatabaseContext) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.copyToPreferences = copyToPreferences;
@@ -47,7 +49,8 @@ public class CopyTo extends SimpleCommand {
 
     @Override
     public void execute() {
-        // we need to operate on a copy otherwise we might get ConcurrentModification issues
+        // we need to operate on a copy otherwise we might get ConcurrentModification
+        // issues
         List<BibEntry> selectedEntries = stateManager.getSelectedEntries().stream().toList();
 
         boolean includeCrossReferences = copyToPreferences.getShouldIncludeCrossReferences();
@@ -63,7 +66,8 @@ public class CopyTo extends SimpleCommand {
 
         if (includeCrossReferences) {
             copyEntriesWithCrossRef(selectedEntries, targetDatabaseContext);
-        } else {
+        }
+        else {
             copyEntriesWithoutCrossRef(selectedEntries, targetDatabaseContext);
         }
     }
@@ -71,8 +75,10 @@ public class CopyTo extends SimpleCommand {
     public void copyEntriesWithCrossRef(List<BibEntry> selectedEntries, BibDatabaseContext targetDatabaseContext) {
         List<BibEntry> entriesToAdd = new ArrayList<>(selectedEntries);
 
-        List<BibEntry> entriesWithCrossRef = selectedEntries.stream().filter(bibEntry -> bibEntry.hasField(StandardField.CROSSREF))
-                                                            .flatMap(entry -> getCrossRefEntry(entry, sourceDatabaseContext).stream()).toList();
+        List<BibEntry> entriesWithCrossRef = selectedEntries.stream()
+            .filter(bibEntry -> bibEntry.hasField(StandardField.CROSSREF))
+            .flatMap(entry -> getCrossRefEntry(entry, sourceDatabaseContext).stream())
+            .toList();
         entriesToAdd.addAll(entriesWithCrossRef);
 
         copyEntriesWithFeedback(entriesToAdd, targetDatabaseContext,
@@ -86,22 +92,26 @@ public class CopyTo extends SimpleCommand {
                 Localization.lang("Copied %0 entry(s) to %1. %2 were skipped without cross-references"));
     }
 
-    private void copyEntriesWithFeedback(List<BibEntry> entriesToAdd, BibDatabaseContext targetDatabaseContext, String successMessage, String partialMessage) {
+    private void copyEntriesWithFeedback(List<BibEntry> entriesToAdd, BibDatabaseContext targetDatabaseContext,
+            String successMessage, String partialMessage) {
         EntryImportHandlerTracker tracker = new EntryImportHandlerTracker(entriesToAdd.size());
         tracker.setOnFinish(() -> {
             int importedCount = tracker.getImportedCount();
             int skippedCount = tracker.getSkippedCount();
 
             String targetName = targetDatabaseContext.getDatabasePath()
-                                                     .map(path -> path.getFileName().toString())
-                                                     .orElse(Localization.lang("target library"));
+                .map(path -> path.getFileName().toString())
+                .orElse(Localization.lang("target library"));
 
             if (importedCount == entriesToAdd.size()) {
                 dialogService.notify(Localization.lang(successMessage, String.valueOf(importedCount), targetName));
-            } else if (importedCount == 0) {
+            }
+            else if (importedCount == 0) {
                 dialogService.notify(Localization.lang("No entry was copied to %0", targetName));
-            } else {
-                dialogService.notify(Localization.lang(partialMessage, String.valueOf(importedCount), targetName, String.valueOf(skippedCount)));
+            }
+            else {
+                dialogService.notify(Localization.lang(partialMessage, String.valueOf(importedCount), targetName,
+                        String.valueOf(skippedCount)));
             }
         });
 
@@ -109,7 +119,10 @@ public class CopyTo extends SimpleCommand {
     }
 
     public Optional<BibEntry> getCrossRefEntry(BibEntry bibEntryToCheck, BibDatabaseContext sourceDatabaseContext) {
-        return sourceDatabaseContext.getEntries().stream().filter(entry -> bibEntryToCheck.getField(StandardField.CROSSREF).equals(entry.getCitationKey())).findFirst();
+        return sourceDatabaseContext.getEntries()
+            .stream()
+            .filter(entry -> bibEntryToCheck.getField(StandardField.CROSSREF).equals(entry.getCitationKey()))
+            .findFirst();
     }
 
     private boolean askForCrossReferencedEntries() {
@@ -117,13 +130,12 @@ public class CopyTo extends SimpleCommand {
             return dialogService.showConfirmationDialogWithOptOutAndWait(
                     Localization.lang("Include or exclude cross-referenced entries"),
                     Localization.lang("Would you like to include cross-reference entries in the current operation?"),
-                    Localization.lang("Include"),
-                    Localization.lang("Exclude"),
-                    Localization.lang("Do not ask again"),
-                    optOut -> copyToPreferences.setShouldAskForIncludingCrossReferences(!optOut)
-            );
-        } else {
+                    Localization.lang("Include"), Localization.lang("Exclude"), Localization.lang("Do not ask again"),
+                    optOut -> copyToPreferences.setShouldAskForIncludingCrossReferences(!optOut));
+        }
+        else {
             return copyToPreferences.getShouldIncludeCrossReferences();
         }
     }
+
 }

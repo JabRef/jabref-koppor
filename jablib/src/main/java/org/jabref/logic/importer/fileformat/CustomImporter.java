@@ -17,11 +17,14 @@ import org.jabref.logic.util.FileType;
 /**
  * Object with data for a custom importer.
  *
- * <p>Is also responsible for instantiating the class loader.</p>
+ * <p>
+ * Is also responsible for instantiating the class loader.
+ * </p>
  */
 public class CustomImporter extends Importer {
 
     private final String className;
+
     private final Path basePath;
 
     private final Importer importer;
@@ -31,14 +34,14 @@ public class CustomImporter extends Importer {
         this.className = className;
         try {
             importer = load(this.basePath.toUri().toURL(), this.className);
-        } catch (IOException | ReflectiveOperationException exception) {
+        }
+        catch (IOException | ReflectiveOperationException exception) {
             throw new ImportException(exception);
         }
     }
 
-    private static Importer load(URL basePathURL, String className)
-            throws IOException, ReflectiveOperationException {
-        try (URLClassLoader cl = new URLClassLoader(new URL[]{basePathURL})) {
+    private static Importer load(URL basePathURL, String className) throws IOException, ReflectiveOperationException {
+        try (URLClassLoader cl = new URLClassLoader(new URL[] { basePathURL })) {
             Class<?> clazz = Class.forName(className, true, cl);
             return (Importer) clazz.getDeclaredConstructor().newInstance();
         }
@@ -108,4 +111,5 @@ public class CustomImporter extends Importer {
     public String toString() {
         return this.getName();
     }
+
 }

@@ -7,6 +7,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class FilesToServe {
+
     private List<Path> filesToServe;
 
     public void setFilesToServe(List<Path> filesToServe) {
@@ -20,4 +21,5 @@ public class FilesToServe {
     public boolean isEmpty() {
         return filesToServe == null || filesToServe.isEmpty();
     }
+
 }

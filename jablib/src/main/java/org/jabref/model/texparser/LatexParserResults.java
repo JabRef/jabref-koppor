@@ -14,6 +14,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public class LatexParserResults {
+
     private final Map<Path, LatexParserResult> parsedTexFiles;
 
     public LatexParserResults() {
@@ -77,4 +78,5 @@ public class LatexParserResults {
     public int hashCode() {
         return Objects.hash(parsedTexFiles);
     }
+
 }

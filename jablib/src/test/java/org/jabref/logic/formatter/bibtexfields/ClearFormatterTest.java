@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
+ * Tests in addition to the general tests from
+ * {@link org.jabref.logic.formatter.FormatterTest}
  */
 class ClearFormatterTest {
 
@@ -18,7 +19,8 @@ class ClearFormatterTest {
     }
 
     /**
-     * Check whether the clear formatter really returns the empty string for the empty string
+     * Check whether the clear formatter really returns the empty string for the empty
+     * string
      */
     @Test
     void formatReturnsEmptyForEmptyString() {
@@ -37,4 +39,5 @@ class ClearFormatterTest {
     void formatExample() {
         assertEquals("", formatter.format(formatter.getExampleInput()));
     }
+
 }

@@ -15,7 +15,8 @@ public abstract class StringMapBasedEditorViewModel extends MapBasedEditorViewMo
 
     private BiMap<String, String> itemMap;
 
-    public StringMapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager, Map<String, String> entries) {
+    public StringMapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers, UndoManager undoManager, Map<String, String> entries) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
         itemMap = HashBiMap.create(entries);
@@ -30,4 +31,5 @@ public abstract class StringMapBasedEditorViewModel extends MapBasedEditorViewMo
     public String convertToDisplayText(String object) {
         return object;
     }
+
 }

@@ -13,12 +13,12 @@ public class LibraryColumn extends MainTableColumn<String> {
         super(model);
 
         setText(Localization.lang("Library"));
-        new ValueTableCellFactory<BibEntryTableViewModel, String>().withText(FileUtil::getBaseName)
-                                                                   .install(this);
+        new ValueTableCellFactory<BibEntryTableViewModel, String>().withText(FileUtil::getBaseName).install(this);
         setCellValueFactory(param -> param.getValue().bibDatabasePathProperty());
     }
 
     public LibraryColumn() {
         this(new MainTableColumnModel(Type.LIBRARY_NAME));
     }
+
 }

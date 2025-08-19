@@ -10,4 +10,5 @@ public interface CommandSelectionTab {
     void clearAndSelect(final List<BibEntry> bibEntries);
 
     BibDatabaseContext getBibDatabaseContext();
+
 }

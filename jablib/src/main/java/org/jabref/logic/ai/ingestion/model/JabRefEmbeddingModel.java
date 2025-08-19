@@ -28,29 +28,37 @@ import org.slf4j.LoggerFactory;
  * This class listens to preferences changes.
  */
 public class JabRefEmbeddingModel implements EmbeddingModel, AutoCloseable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefEmbeddingModel.class);
 
     private final AiPreferences aiPreferences;
+
     private final NotificationService notificationService;
+
     private final TaskExecutor taskExecutor;
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool(
-            new ThreadFactoryBuilder().setNameFormat("ai-embedding-pool-%d").build()
-    );
+    private final ExecutorService executorService = Executors
+        .newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ai-embedding-pool-%d").build());
 
-    private final ObjectProperty<Optional<DeepJavaEmbeddingModel>> predictorProperty = new SimpleObjectProperty<>(Optional.empty());
+    private final ObjectProperty<Optional<DeepJavaEmbeddingModel>> predictorProperty = new SimpleObjectProperty<>(
+            Optional.empty());
 
     // Used to update the tab content after the data is available
     private final EventBus eventBus = new EventBus();
 
-    public static class EmbeddingModelBuiltEvent { }
+    public static class EmbeddingModelBuiltEvent {
 
-    public static class EmbeddingModelBuildingErrorEvent { }
+    }
+
+    public static class EmbeddingModelBuildingErrorEvent {
+
+    }
 
     // Empty if there is no error.
     private String errorWhileBuildingModel = "";
 
-    public JabRefEmbeddingModel(AiPreferences aiPreferences, NotificationService notificationService, TaskExecutor taskExecutor) {
+    public JabRefEmbeddingModel(AiPreferences aiPreferences, NotificationService notificationService,
+            TaskExecutor taskExecutor) {
         this.aiPreferences = aiPreferences;
         this.notificationService = notificationService;
         this.taskExecutor = taskExecutor;
@@ -71,19 +79,16 @@ public class JabRefEmbeddingModel implements EmbeddingModel, AutoCloseable {
 
         predictorProperty.set(Optional.empty());
 
-        new UpdateEmbeddingModelTask(aiPreferences, predictorProperty)
-                .onSuccess(v -> {
-                    LOGGER.info("Embedding model was successfully updated");
-                    errorWhileBuildingModel = "";
-                    eventBus.post(new EmbeddingModelBuiltEvent());
-                })
-                .onFailure(e -> {
-                    LOGGER.error("An error occurred while building the embedding model", e);
-                    notificationService.notify(Localization.lang("An error occurred while building the embedding model"));
-                    errorWhileBuildingModel = e.getMessage();
-                    eventBus.post(new EmbeddingModelBuildingErrorEvent());
-                })
-                .executeWith(taskExecutor);
+        new UpdateEmbeddingModelTask(aiPreferences, predictorProperty).onSuccess(v -> {
+            LOGGER.info("Embedding model was successfully updated");
+            errorWhileBuildingModel = "";
+            eventBus.post(new EmbeddingModelBuiltEvent());
+        }).onFailure(e -> {
+            LOGGER.error("An error occurred while building the embedding model", e);
+            notificationService.notify(Localization.lang("An error occurred while building the embedding model"));
+            errorWhileBuildingModel = e.getMessage();
+            eventBus.post(new EmbeddingModelBuildingErrorEvent());
+        }).executeWith(taskExecutor);
     }
 
     public boolean isPresent() {
@@ -119,11 +124,11 @@ public class JabRefEmbeddingModel implements EmbeddingModel, AutoCloseable {
         if (predictorProperty.get().isEmpty()) {
             // The rationale for RuntimeException here:
             // 1. langchain4j error handling is a mess, and it uses RuntimeExceptions
-            //    everywhere. Because this method implements a langchain4j interface,
-            //    we follow the same "practice".
+            // everywhere. Because this method implements a langchain4j interface,
+            // we follow the same "practice".
             // 2. There is no way to encode error information from type system: nor
-            //    in the result type, nor "throws" in method signature. Actually,
-            //    it's possible, but langchain4j doesn't do it.
+            // in the result type, nor "throws" in method signature. Actually,
+            // it's possible, but langchain4j doesn't do it.
 
             throw new RuntimeException(Localization.lang("Embedding model is not set up"));
         }
@@ -138,4 +143,5 @@ public class JabRefEmbeddingModel implements EmbeddingModel, AutoCloseable {
             predictorProperty.get().get().close();
         }
     }
+
 }

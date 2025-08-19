@@ -72,4 +72,5 @@ class NumericFieldComparatorTest {
     void compareNumericSignalAfterNumber() {
         assertEquals(-2, comparator.compare("5- ", "7+ "));
     }
+
 }

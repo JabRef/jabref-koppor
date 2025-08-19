@@ -9,14 +9,16 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public final class EntryAdd extends DatabaseChange {
+
     private final BibEntry addedEntry;
 
-    public EntryAdd(BibEntry addedEntry, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public EntryAdd(BibEntry addedEntry, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.addedEntry = addedEntry;
         setChangeName(addedEntry.getCitationKey()
-                           .map(key -> Localization.lang("Added entry '%0'", key))
-                           .orElse(Localization.lang("Added entry")));
+            .map(key -> Localization.lang("Added entry '%0'", key))
+            .orElse(Localization.lang("Added entry")));
     }
 
     @Override
@@ -28,4 +30,5 @@ public final class EntryAdd extends DatabaseChange {
     public BibEntry getAddedEntry() {
         return addedEntry;
     }
+
 }

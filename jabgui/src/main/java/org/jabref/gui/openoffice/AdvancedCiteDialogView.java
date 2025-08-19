@@ -13,16 +13,22 @@ import com.airhacks.afterburner.views.ViewLoader;
 
 public class AdvancedCiteDialogView extends BaseDialog<AdvancedCiteDialogViewModel> {
 
-    @FXML private TextField pageInfo;
-    @FXML private RadioButton inPar;
-    @FXML private RadioButton inText;
-    @FXML private ToggleGroup citeToggleGroup;
+    @FXML
+    private TextField pageInfo;
+
+    @FXML
+    private RadioButton inPar;
+
+    @FXML
+    private RadioButton inText;
+
+    @FXML
+    private ToggleGroup citeToggleGroup;
+
     private AdvancedCiteDialogViewModel viewModel;
 
     public AdvancedCiteDialogView() {
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
@@ -42,4 +48,5 @@ public class AdvancedCiteDialogView extends BaseDialog<AdvancedCiteDialogViewMod
         inText.selectedProperty().bindBidirectional(viewModel.citeInTextProperty());
         pageInfo.textProperty().bindBidirectional(viewModel.pageInfoProperty());
     }
+
 }

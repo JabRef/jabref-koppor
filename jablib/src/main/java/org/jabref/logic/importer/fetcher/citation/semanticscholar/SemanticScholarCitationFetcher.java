@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SemanticScholarCitationFetcher implements CitationFetcher, CustomizableKeyFetcher {
+
     public static final String FETCHER_NAME = "Semantic Scholar Citations Fetcher";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticScholarCitationFetcher.class);
@@ -38,14 +39,14 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
 
     public String getAPIUrl(String entryPoint, BibEntry entry) {
         return SEMANTIC_SCHOLAR_API + "paper/" + "DOI:" + entry.getDOI().orElseThrow().asString() + "/" + entryPoint
-                + "?fields=" + "title,authors,year,citationCount,referenceCount,externalIds,publicationTypes,abstract,url"
+                + "?fields="
+                + "title,authors,year,citationCount,referenceCount,externalIds,publicationTypes,abstract,url"
                 + "&limit=1000";
     }
 
     public String getUrlForCitationCount(BibEntry entry) {
-        return SEMANTIC_SCHOLAR_API + "paper/" + "DOI:" + entry.getDOI().orElseThrow().asString()
-                + "?fields=" + "citationCount"
-                + "&limit=1";
+        return SEMANTIC_SCHOLAR_API + "paper/" + "DOI:" + entry.getDOI().orElseThrow().asString() + "?fields="
+                + "citationCount" + "&limit=1";
     }
 
     @Override
@@ -58,19 +59,21 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         try {
             citationsUrl = URLUtil.create(getAPIUrl("citations", entry));
             LOGGER.debug("Cited URL {} ", citationsUrl);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Malformed URL", e);
         }
         URLDownload urlDownload = new URLDownload(citationsUrl);
 
         importerPreferences.getApiKey(getName()).ifPresent(apiKey -> urlDownload.addHeader("x-api-key", apiKey));
 
-        CitationsResponse citationsResponse = GSON
-                .fromJson(urlDownload.asString(), CitationsResponse.class);
+        CitationsResponse citationsResponse = GSON.fromJson(urlDownload.asString(), CitationsResponse.class);
 
         return citationsResponse.getData()
-                                .stream().filter(citationDataItem -> citationDataItem.getCitingPaper() != null)
-                                .map(citationDataItem -> citationDataItem.getCitingPaper().toBibEntry()).toList();
+            .stream()
+            .filter(citationDataItem -> citationDataItem.getCitingPaper() != null)
+            .map(citationDataItem -> citationDataItem.getCitingPaper().toBibEntry())
+            .toList();
     }
 
     @Override
@@ -83,7 +86,8 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         try {
             referencesUrl = URLUtil.create(getAPIUrl("references", entry));
             LOGGER.debug("Citing URL {} ", referencesUrl);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Malformed URL", e);
         }
 
@@ -96,22 +100,23 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
             // Get error message from citingPaperInfo.openAccessPdf.disclaimer
             JSONObject responseObject = new JSONObject(response);
             Optional.ofNullable(responseObject.optJSONObject("citingPaperInfo"))
-                    .flatMap(citingPaperInfo -> Optional.ofNullable(citingPaperInfo.optJSONObject("openAccessPdf")))
-                    .flatMap(openAccessPdf -> Optional.ofNullable(openAccessPdf.optString("disclaimer")))
-                    .ifPresent(Unchecked.consumer(disclaimer -> {
-                                LOGGER.debug("Received a disclaimer from Semantic Scholar: {}", disclaimer);
-                                if (disclaimer.contains("references")) {
-                                    throw new FetcherException(Localization.lang("Restricted access to references: %0", disclaimer));
-                                }
-                            }
-                    ));
+                .flatMap(citingPaperInfo -> Optional.ofNullable(citingPaperInfo.optJSONObject("openAccessPdf")))
+                .flatMap(openAccessPdf -> Optional.ofNullable(openAccessPdf.optString("disclaimer")))
+                .ifPresent(Unchecked.consumer(disclaimer -> {
+                    LOGGER.debug("Received a disclaimer from Semantic Scholar: {}", disclaimer);
+                    if (disclaimer.contains("references")) {
+                        throw new FetcherException(
+                                Localization.lang("Restricted access to references: %0", disclaimer));
+                    }
+                }));
             return List.of();
         }
 
         return referencesResponse.getData()
-                                 .stream()
-                                 .filter(citationDataItem -> citationDataItem.getCitedPaper() != null)
-                                 .map(referenceDataItem -> referenceDataItem.getCitedPaper().toBibEntry()).toList();
+            .stream()
+            .filter(citationDataItem -> citationDataItem.getCitedPaper() != null)
+            .map(referenceDataItem -> referenceDataItem.getCitedPaper().toBibEntry())
+            .toList();
     }
 
     @Override
@@ -122,7 +127,8 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         URL referencesUrl;
         try {
             referencesUrl = URLUtil.create(getUrlForCitationCount(entry));
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e) {
             throw new FetcherException("Malformed URL", e);
         }
         URLDownload urlDownload = new URLDownload(referencesUrl);
@@ -130,14 +136,14 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         String result;
         try {
             result = urlDownload.asString();
-        } catch (FetcherException e) {
+        }
+        catch (FetcherException e) {
             e.getHttpResponse().ifPresent(Unchecked.consumer(response -> {
                 Optional.ofNullable(response.responseBody())
-                        .map(JSONObject::new)
-                        .flatMap(json -> Optional.ofNullable(json.getString("error"))
-                                                 .map(Unchecked.function(error -> {
-                                                     throw new FetcherException(referencesUrl, error, e);
-                                                 })));
+                    .map(JSONObject::new)
+                    .flatMap(json -> Optional.ofNullable(json.getString("error")).map(Unchecked.function(error -> {
+                        throw new FetcherException(referencesUrl, error, e);
+                    })));
             }));
             throw e;
         }
@@ -153,4 +159,5 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
     public String getName() {
         return FETCHER_NAME;
     }
+
 }

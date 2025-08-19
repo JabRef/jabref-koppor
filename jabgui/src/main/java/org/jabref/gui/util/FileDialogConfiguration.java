@@ -15,13 +15,17 @@ import org.jabref.logic.util.FileType;
 public class FileDialogConfiguration {
 
     private final List<FileChooser.ExtensionFilter> extensionFilters;
+
     private final Path initialDirectory;
+
     private final FileChooser.ExtensionFilter defaultExtension;
+
     private final String initialFileName;
+
     private FileChooser.ExtensionFilter selectedExtensionFilter;
 
     private FileDialogConfiguration(Path initialDirectory, List<FileChooser.ExtensionFilter> extensionFilters,
-                                    FileChooser.ExtensionFilter defaultExtension, String initialFileName) {
+            FileChooser.ExtensionFilter defaultExtension, String initialFileName) {
         this.initialDirectory = initialDirectory;
         this.extensionFilters = Objects.requireNonNull(extensionFilters);
         this.defaultExtension = defaultExtension;
@@ -55,8 +59,11 @@ public class FileDialogConfiguration {
     public static class Builder {
 
         private final List<FileChooser.ExtensionFilter> extensionFilters = new ArrayList<>();
+
         private Path initialDirectory;
+
         private FileChooser.ExtensionFilter defaultExtension;
+
         private String initialFileName;
 
         public FileDialogConfiguration build() {
@@ -64,15 +71,18 @@ public class FileDialogConfiguration {
         }
 
         public Builder withInitialDirectory(Path directory) {
-            if (directory == null) { // It could be that somehow the path is null, for example if it got deleted in the meantime
+            if (directory == null) { // It could be that somehow the path is null, for
+                                     // example if it got deleted in the meantime
                 initialDirectory = null;
-            } else { // Dir must be a folder, not a file
+            }
+            else { // Dir must be a folder, not a file
                 if (!Files.isDirectory(directory)) {
                     directory = directory.getParent();
                 }
                 // The lines above work also if the dir does not exist at all!
                 // NULL is accepted by the filechooser as no inital path
-                // Explicit null check, if somehow the parent is null, as Files.exists throws an NPE otherwise
+                // Explicit null check, if somehow the parent is null, as Files.exists
+                // throws an NPE otherwise
                 if ((directory != null) && !Files.exists(directory)) {
                     directory = null;
                 }
@@ -84,7 +94,8 @@ public class FileDialogConfiguration {
         public Builder withInitialDirectory(String directory) {
             if (directory != null) {
                 withInitialDirectory(Path.of(directory));
-            } else {
+            }
+            else {
                 initialDirectory = null;
             }
             return this;
@@ -112,9 +123,9 @@ public class FileDialogConfiguration {
 
         public Builder withDefaultExtension(String fileTypeDescription) {
             extensionFilters.stream()
-                            .filter(type -> type.getDescription().equalsIgnoreCase(fileTypeDescription))
-                            .findFirst()
-                            .ifPresent(extensionFilter -> defaultExtension = extensionFilter);
+                .filter(type -> type.getDescription().equalsIgnoreCase(fileTypeDescription))
+                .findFirst()
+                .ifPresent(extensionFilter -> defaultExtension = extensionFilter);
 
             return this;
         }
@@ -130,9 +141,7 @@ public class FileDialogConfiguration {
         }
 
         public Builder addExtensionFilter(FileType... fileTypes) {
-            Stream.of(fileTypes)
-                  .map(FileFilterConverter::toExtensionFilter)
-                  .forEachOrdered(this::addExtensionFilter);
+            Stream.of(fileTypes).map(FileFilterConverter::toExtensionFilter).forEachOrdered(this::addExtensionFilter);
             return this;
         }
 
@@ -140,5 +149,7 @@ public class FileDialogConfiguration {
             extensionFilters.add(FileFilterConverter.toExtensionFilter(description, fileType));
             return this;
         }
+
     }
+
 }

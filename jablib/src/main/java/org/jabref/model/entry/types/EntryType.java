@@ -11,4 +11,5 @@ public interface EntryType {
      * Returns the name presented in the UI
      */
     String getDisplayName();
+
 }

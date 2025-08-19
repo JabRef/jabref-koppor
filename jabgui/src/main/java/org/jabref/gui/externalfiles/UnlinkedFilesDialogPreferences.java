@@ -9,13 +9,15 @@ import org.jabref.logic.externalfiles.DateRange;
 import org.jabref.logic.externalfiles.ExternalFileSorter;
 
 public class UnlinkedFilesDialogPreferences {
+
     private final StringProperty unlinkedFilesSelectedExtension;
+
     private final ObjectProperty<DateRange> unlinkedFilesSelectedDateRange;
+
     private final ObjectProperty<ExternalFileSorter> unlinkedFilesSelectedSort;
 
     public UnlinkedFilesDialogPreferences(String unlinkedFilesSelectedExtension,
-                                          DateRange unlinkedFilesSelectedDateRange,
-                                          ExternalFileSorter unlinkedFilesSelectedSort) {
+            DateRange unlinkedFilesSelectedDateRange, ExternalFileSorter unlinkedFilesSelectedSort) {
         this.unlinkedFilesSelectedExtension = new SimpleStringProperty(unlinkedFilesSelectedExtension);
         this.unlinkedFilesSelectedDateRange = new SimpleObjectProperty<>(unlinkedFilesSelectedDateRange);
         this.unlinkedFilesSelectedSort = new SimpleObjectProperty<>(unlinkedFilesSelectedSort);
@@ -56,4 +58,5 @@ public class UnlinkedFilesDialogPreferences {
     public void setUnlinkedFilesSelectedSort(ExternalFileSorter unlinkedFilesSelectedSort) {
         this.unlinkedFilesSelectedSort.set(unlinkedFilesSelectedSort);
     }
+
 }

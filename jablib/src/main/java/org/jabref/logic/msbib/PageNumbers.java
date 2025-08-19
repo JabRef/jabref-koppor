@@ -8,8 +8,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class PageNumbers {
+
     private static final Pattern PAGE_PATTERN = Pattern.compile("\\s*(\\d+)\\s*-{1,2}\\s*(\\d+)\\s*");
+
     private String freeform;
+
     private int start;
 
     private int end;
@@ -23,7 +26,8 @@ public class PageNumbers {
         if (matcher.matches()) {
             start = Integer.parseInt(matcher.group(1));
             end = Integer.parseInt(matcher.group(2));
-        } else {
+        }
+        else {
             freeform = pages;
         }
     }
@@ -38,7 +42,8 @@ public class PageNumbers {
             tmpEnd.appendChild(document.createTextNode(String.valueOf(this.end)));
             result.appendChild(tmpStart);
             result.appendChild(tmpEnd);
-        } else {
+        }
+        else {
             Node textNode = document.createTextNode(freeform);
             result.appendChild(textNode);
         }
@@ -56,4 +61,5 @@ public class PageNumbers {
     public String toString() {
         return toString("-");
     }
+
 }

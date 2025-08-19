@@ -28,4 +28,5 @@ class RemoveDigitsFormatterTest {
     void removeAllButOneSpacesIfTwo() {
         assertEquals("no digits", formatter.format("no digits"));
     }
+
 }

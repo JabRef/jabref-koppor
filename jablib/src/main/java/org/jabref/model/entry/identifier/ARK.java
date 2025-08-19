@@ -7,19 +7,23 @@ import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
 
 /**
- * Archival Resource Key (ARK) identifiers are URLs that support long-term access to information. They are similar to DOIs
- * only that we don't know of any service that can extract bibliography information from ARKs. For this reason, if an ARK
- * is used in an eprint field, it will only be possible to open the ARK in the browner; no lookup
- * or extraction of biography information will be possible.
- * <br><br>
+ * Archival Resource Key (ARK) identifiers are URLs that support long-term access to
+ * information. They are similar to DOIs only that we don't know of any service that can
+ * extract bibliography information from ARKs. For this reason, if an ARK is used in an
+ * eprint field, it will only be possible to open the ARK in the browner; no lookup or
+ * extraction of biography information will be possible. <br>
+ * <br>
  * <p>
- * ARK identifiers are typically prefixed with "ark:/". Even though the prefix does not help identify the resource, it appears
- * to be the standard because many websites that feature ARKs, such as archive.org, include it. For the convenience of our users
- * and to provide them with ability to copy/paste the ark as is, we support arks with or without the prefix.
+ * ARK identifiers are typically prefixed with "ark:/". Even though the prefix does not
+ * help identify the resource, it appears to be the standard because many websites that
+ * feature ARKs, such as archive.org, include it. For the convenience of our users and to
+ * provide them with ability to copy/paste the ark as is, we support arks with or without
+ * the prefix.
  * </p>
  */
 @AllowedToUseLogic("Because URL utility is needed")
 public class ARK extends EprintIdentifier {
+
     private final String ark;
 
     private ARK(String ark) {
@@ -41,4 +45,5 @@ public class ARK extends EprintIdentifier {
     public Optional<URI> getExternalURI() {
         return Optional.of(URLUtil.createUri("https://n2t.net/ark:/" + asString()));
     }
+
 }

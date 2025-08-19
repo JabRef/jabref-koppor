@@ -39,48 +39,92 @@ import org.slf4j.LoggerFactory;
 public class MetaData {
 
     public static final String META_FLAG = "jabref-meta: ";
+
     public static final String ENTRYTYPE_FLAG = "jabref-entrytype: ";
-    public static final String SAVE_ORDER_CONFIG = "saveOrderConfig"; // ToDo: Rename in next major version to saveOrder, adapt testbibs
+
+    public static final String SAVE_ORDER_CONFIG = "saveOrderConfig"; // ToDo: Rename in
+                                                                      // next major
+                                                                      // version to
+                                                                      // saveOrder, adapt
+                                                                      // testbibs
+
     public static final String SAVE_ACTIONS = "saveActions";
+
     public static final String PREFIX_KEYPATTERN = "keypattern_";
+
     public static final String KEYPATTERNDEFAULT = "keypatterndefault";
+
     public static final String DATABASE_TYPE = "databaseType";
+
     public static final String VERSION_DB_STRUCT = "VersionDBStructure";
+
     public static final String GROUPSTREE = "grouping";
+
     public static final String GROUPSTREE_LEGACY = "groupstree";
+
     public static final String GROUPS_SEARCH_SYNTAX_VERSION = "groups-search-syntax-version";
+
     public static final String FILE_DIRECTORY = "fileDirectory";
+
     public static final String FILE_DIRECTORY_LATEX = "fileDirectoryLatex";
+
     public static final String PROTECTED_FLAG_META = "protectedFlag";
+
     public static final String SELECTOR_META_PREFIX = "selector_";
+
     public static final String BIBDESK_STATIC_FLAG = "BibDesk Static Groups";
 
     public static final char ESCAPE_CHARACTER = '\\';
+
     public static final char SEPARATOR_CHARACTER = ';';
+
     public static final String SEPARATOR_STRING = String.valueOf(SEPARATOR_CHARACTER);
+
     public static final String BLG_FILE_PATH = "blgFilePath";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaData.class);
+
     private final EventBus eventBus = new EventBus();
-    private final Map<EntryType, String> citeKeyPatterns = new HashMap<>(); // <BibType, Pattern>
-    private final Map<String, String> userFileDirectory = new HashMap<>(); // <User, FilePath>
-    private final Map<String, Path> latexFileDirectory = new HashMap<>(); // <User-Host, FilePath>
+
+    private final Map<EntryType, String> citeKeyPatterns = new HashMap<>(); // <BibType,
+                                                                            // Pattern>
+
+    private final Map<String, String> userFileDirectory = new HashMap<>(); // <User,
+                                                                           // FilePath>
+
+    private final Map<String, Path> latexFileDirectory = new HashMap<>(); // <User-Host,
+                                                                          // FilePath>
 
     private final ObjectProperty<GroupTreeNode> groupsRoot = new SimpleObjectProperty<>(null);
+
     private final OptionalBinding<GroupTreeNode> groupsRootBinding = new OptionalWrapper<>(groupsRoot);
+
     private final Map<String, Path> blgFilePathMap = new HashMap<>();
+
     private Optional<Version> groupSearchSyntaxVersion = Optional.empty();
 
     private Charset encoding;
+
     private SaveOrder saveOrder;
+
     private String defaultCiteKeyPattern;
+
     private FieldFormatterCleanups saveActions;
+
     private BibDatabaseMode mode;
+
     private boolean isProtected;
+
     private String librarySpecificFileDirectory;
+
     private final ContentSelectors contentSelectors = new ContentSelectors();
+
     private final Map<String, List<String>> unknownMetaData = new HashMap<>();
+
     private boolean isEventPropagationEnabled = true;
+
     private boolean encodingExplicitlySupplied;
+
     private String versionDBStructure;
 
     /**
@@ -108,7 +152,8 @@ public class MetaData {
     }
 
     /**
-     * Sets a new group root node. <b>WARNING </b>: This invalidates everything returned by getGroups() so far!!!
+     * Sets a new group root node. <b>WARNING </b>: This invalidates everything returned
+     * by getGroups() so far!!!
      */
     public void setGroups(@NonNull GroupTreeNode root) {
         groupsRoot.setValue(root);
@@ -142,8 +187,9 @@ public class MetaData {
 
     /**
      * Updates the stored key patterns to the given key patterns.
-     *
-     * @param bibtexKeyPatterns the key patterns to update to. <br /> A reference to this object is stored internally and is returned at getCiteKeyPattern();
+     * @param bibtexKeyPatterns the key patterns to update to. <br />
+     * A reference to this object is stored internally and is returned at
+     * getCiteKeyPattern();
      */
     public void setCiteKeyPattern(@NonNull AbstractCitationKeyPatterns bibtexKeyPatterns) {
         CitationKeyPattern defaultValue = bibtexKeyPatterns.getDefaultValue();
@@ -151,7 +197,8 @@ public class MetaData {
         setCiteKeyPattern(defaultValue, nonDefaultPatterns);
     }
 
-    public void setCiteKeyPattern(CitationKeyPattern defaultValue, Map<EntryType, CitationKeyPattern> nonDefaultPatterns) {
+    public void setCiteKeyPattern(CitationKeyPattern defaultValue,
+            Map<EntryType, CitationKeyPattern> nonDefaultPatterns) {
         // Remove all patterns from metadata
         citeKeyPatterns.clear();
 
@@ -163,7 +210,8 @@ public class MetaData {
         // Store default pattern
         if (defaultValue.equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)) {
             defaultCiteKeyPattern = null;
-        } else {
+        }
+        else {
             defaultCiteKeyPattern = defaultValue.stringRepresentation();
         }
 
@@ -266,7 +314,7 @@ public class MetaData {
         if (path != null) {
             return Optional.of(path);
         }
-        
+
         // If not found, try to find a LaTeX file directory for the same host
         // This handles the case where a file is moved between hosts with different users
         UserHostInfo requestedUserHost = UserHostInfo.parse(userHostString);
@@ -279,7 +327,7 @@ public class MetaData {
                 }
             }
         }
-        
+
         return Optional.empty();
     }
 
@@ -329,7 +377,8 @@ public class MetaData {
     }
 
     /**
-     * This method (with additional parameter) has been introduced to avoid event loops while saving a database.
+     * This method (with additional parameter) has been introduced to avoid event loops
+     * while saving a database.
      */
     public void setEncoding(@NonNull Charset encoding, ChangePropagation postChanges) {
         this.encoding = encoding;
@@ -343,7 +392,8 @@ public class MetaData {
     }
 
     /**
-     * Sets the indication whether the encoding was set using "% Encoding: ..." or whether it was detected "magically"
+     * Sets the indication whether the encoding was set using "% Encoding: ..." or whether
+     * it was detected "magically"
      */
     public void setEncodingExplicitlySupplied(boolean encodingExplicitlySupplied) {
         this.encodingExplicitlySupplied = encodingExplicitlySupplied;
@@ -363,8 +413,10 @@ public class MetaData {
     public void unregisterListener(Object listener) {
         try {
             this.eventBus.unregister(listener);
-        } catch (IllegalArgumentException e) {
-            // occurs if the event source has not been registered, should not prevent shutdown
+        }
+        catch (IllegalArgumentException e) {
+            // occurs if the event source has not been registered, should not prevent
+            // shutdown
         }
     }
 
@@ -400,17 +452,14 @@ public class MetaData {
         if (!(o instanceof MetaData that)) {
             return false;
         }
-        return (isProtected == that.isProtected)
-                && Objects.equals(groupsRoot.getValue(), that.groupsRoot.getValue())
+        return (isProtected == that.isProtected) && Objects.equals(groupsRoot.getValue(), that.groupsRoot.getValue())
                 && Objects.equals(encoding, that.encoding)
                 && Objects.equals(encodingExplicitlySupplied, that.encodingExplicitlySupplied)
-                && Objects.equals(saveOrder, that.saveOrder)
-                && Objects.equals(citeKeyPatterns, that.citeKeyPatterns)
+                && Objects.equals(saveOrder, that.saveOrder) && Objects.equals(citeKeyPatterns, that.citeKeyPatterns)
                 && Objects.equals(userFileDirectory, that.userFileDirectory)
                 && Objects.equals(latexFileDirectory, that.latexFileDirectory)
                 && Objects.equals(defaultCiteKeyPattern, that.defaultCiteKeyPattern)
-                && Objects.equals(saveActions, that.saveActions)
-                && (mode == that.mode)
+                && Objects.equals(saveActions, that.saveActions) && (mode == that.mode)
                 && Objects.equals(librarySpecificFileDirectory, that.librarySpecificFileDirectory)
                 && Objects.equals(contentSelectors, that.contentSelectors)
                 && Objects.equals(versionDBStructure, that.versionDBStructure);
@@ -418,13 +467,20 @@ public class MetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(isProtected, groupsRoot.getValue(), encoding, encodingExplicitlySupplied, saveOrder, citeKeyPatterns, userFileDirectory,
-                latexFileDirectory, defaultCiteKeyPattern, saveActions, mode, librarySpecificFileDirectory, contentSelectors, versionDBStructure);
+        return Objects.hash(isProtected, groupsRoot.getValue(), encoding, encodingExplicitlySupplied, saveOrder,
+                citeKeyPatterns, userFileDirectory, latexFileDirectory, defaultCiteKeyPattern, saveActions, mode,
+                librarySpecificFileDirectory, contentSelectors, versionDBStructure);
     }
 
     @Override
     public String toString() {
-        return "MetaData [citeKeyPatterns=" + citeKeyPatterns + ", userFileDirectory=" + userFileDirectory + ", laTexFileDirectory=" + latexFileDirectory + ", groupsRoot=" + groupsRoot + ", encoding=" + encoding + ", saveOrderConfig=" + saveOrder + ", defaultCiteKeyPattern=" + defaultCiteKeyPattern + ", saveActions=" + saveActions + ", mode=" + mode + ", isProtected=" + isProtected + ", librarySpecificFileDirectory=" + librarySpecificFileDirectory + ", contentSelectors=" + contentSelectors + ", encodingExplicitlySupplied=" + encodingExplicitlySupplied + ", VersionDBStructure=" + versionDBStructure + "]";
+        return "MetaData [citeKeyPatterns=" + citeKeyPatterns + ", userFileDirectory=" + userFileDirectory
+                + ", laTexFileDirectory=" + latexFileDirectory + ", groupsRoot=" + groupsRoot + ", encoding=" + encoding
+                + ", saveOrderConfig=" + saveOrder + ", defaultCiteKeyPattern=" + defaultCiteKeyPattern
+                + ", saveActions=" + saveActions + ", mode=" + mode + ", isProtected=" + isProtected
+                + ", librarySpecificFileDirectory=" + librarySpecificFileDirectory + ", contentSelectors="
+                + contentSelectors + ", encodingExplicitlySupplied=" + encodingExplicitlySupplied
+                + ", VersionDBStructure=" + versionDBStructure + "]";
     }
 
     public Optional<Path> getBlgFilePath(String user) {
@@ -444,4 +500,5 @@ public class MetaData {
     public Map<String, Path> getBlgFilePaths() {
         return blgFilePathMap;
     }
+
 }

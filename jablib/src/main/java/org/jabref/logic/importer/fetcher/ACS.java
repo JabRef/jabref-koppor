@@ -18,17 +18,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FulltextFetcher implementation that attempts to find a PDF URL at <a href="https://pubs.acs.org/">ACS</a>.
+ * FulltextFetcher implementation that attempts to find a PDF URL at
+ * <a href="https://pubs.acs.org/">ACS</a>.
  */
 public class ACS implements FulltextFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ACS.class);
 
     private static final String SOURCE = "https://pubs.acs.org/doi/abs/%s";
 
     /**
-     * Tries to find a fulltext URL for a given BibTeX entry.
-     * Requires the entry to have a DOI field.
-     * In case no DOI is present, an empty Optional is returned.
+     * Tries to find a fulltext URL for a given BibTeX entry. Requires the entry to have a
+     * DOI field. In case no DOI is present, an empty Optional is returned.
      */
     @Override
     public Optional<URL> findFullText(BibEntry entry) throws IOException {
@@ -54,4 +55,5 @@ public class ACS implements FulltextFetcher {
     public TrustLevel getTrustLevel() {
         return TrustLevel.PUBLISHER;
     }
+
 }

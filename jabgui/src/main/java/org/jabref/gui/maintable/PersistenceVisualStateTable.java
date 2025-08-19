@@ -22,6 +22,7 @@ public class PersistenceVisualStateTable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceVisualStateTable.class);
 
     protected final TableView<BibEntryTableViewModel> table;
+
     protected final ColumnPreferences preferences;
 
     public PersistenceVisualStateTable(TableView<BibEntryTableViewModel> table, ColumnPreferences preferences) {
@@ -31,22 +32,23 @@ public class PersistenceVisualStateTable {
 
     public void addListeners() {
         table.getColumns().addListener((InvalidationListener) obs -> updateColumns());
-        table.getSortOrder().addListener((ListChangeListener<? super TableColumn<BibEntryTableViewModel, ?>>) obs -> updateSortOrder());
+        table.getSortOrder()
+            .addListener((ListChangeListener<? super TableColumn<BibEntryTableViewModel, ?>>) obs -> updateSortOrder());
 
-        // As we store the ColumnModels of the MainTable, we need to add the listener to the ColumnModel properties,
-        // since the value is bound to the model after the listener to the column itself is called.
+        // As we store the ColumnModels of the MainTable, we need to add the listener to
+        // the ColumnModel properties,
+        // since the value is bound to the model after the listener to the column itself
+        // is called.
 
-        table.getColumns().stream()
-             .map(col -> ((MainTableColumn<?>) col).getModel())
-             .forEach(model -> {
-                 model.widthProperty().addListener(obs -> updateColumns());
-                 model.sortTypeProperty().addListener(obs -> updateColumns());
-             });
+        table.getColumns().stream().map(col -> ((MainTableColumn<?>) col).getModel()).forEach(model -> {
+            model.widthProperty().addListener(obs -> updateColumns());
+            model.sortTypeProperty().addListener(obs -> updateColumns());
+        });
     }
 
     /**
-     * Stores shown columns, their width and their {@link TableColumn.SortType} in preferences.
-     * The conversion to the "real" string in the preferences is made at
+     * Stores shown columns, their width and their {@link TableColumn.SortType} in
+     * preferences. The conversion to the "real" string in the preferences is made at
      * {@link JabRefCliPreferences#getColumnSortTypesAsStringList(ColumnPreferences)}
      */
     private void updateColumns() {
@@ -56,10 +58,10 @@ public class PersistenceVisualStateTable {
     }
 
     /**
-     * Stores the SortOrder of the Table in the preferences. This includes {@link TableColumn.SortType}.
-     * <br>
-     * Cannot be combined with updateColumns, because JavaFX would provide just an empty list for the sort order
-     * on other changes.
+     * Stores the SortOrder of the Table in the preferences. This includes
+     * {@link TableColumn.SortType}. <br>
+     * Cannot be combined with updateColumns, because JavaFX would provide just an empty
+     * list for the sort order on other changes.
      */
     private void updateSortOrder() {
         LOGGER.debug("Updating sort order");
@@ -68,9 +70,10 @@ public class PersistenceVisualStateTable {
 
     private List<MainTableColumnModel> toList(List<TableColumn<BibEntryTableViewModel, ?>> columns) {
         return columns.stream()
-                      .filter(col -> col instanceof MainTableColumn<?>)
-                      .map(column -> ((MainTableColumn<?>) column).getModel())
-                      .filter(model -> model.getType() != MainTableColumnModel.Type.MATCH_CATEGORY)
-                      .collect(Collectors.toList());
+            .filter(col -> col instanceof MainTableColumn<?>)
+            .map(column -> ((MainTableColumn<?>) column).getModel())
+            .filter(model -> model.getType() != MainTableColumnModel.Type.MATCH_CATEGORY)
+            .collect(Collectors.toList());
     }
+
 }

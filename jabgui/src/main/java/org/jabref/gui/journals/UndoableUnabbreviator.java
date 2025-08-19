@@ -21,10 +21,9 @@ public class UndoableUnabbreviator {
 
     /**
      * Unabbreviate the journal name of the given entry.
-     *
      * @param entry The entry to be treated.
      * @param field The field
-     * @param ce    If the entry is changed, add an edit to this compound.
+     * @param ce If the entry is changed, add an edit to this compound.
      * @return true if the entry was changed, false otherwise.
      */
     public boolean unabbreviate(BibDatabase database, BibEntry entry, Field field, CompoundEdit ce) {
@@ -58,7 +57,8 @@ public class UndoableUnabbreviator {
     }
 
     public boolean restoreFromFJournal(BibEntry entry, Field field, CompoundEdit ce) {
-        if ((StandardField.JOURNAL != field && StandardField.JOURNALTITLE != field) || !entry.hasField(AMSField.FJOURNAL)) {
+        if ((StandardField.JOURNAL != field && StandardField.JOURNALTITLE != field)
+                || !entry.hasField(AMSField.FJOURNAL)) {
             return false;
         }
 
@@ -73,4 +73,5 @@ public class UndoableUnabbreviator {
 
         return true;
     }
+
 }

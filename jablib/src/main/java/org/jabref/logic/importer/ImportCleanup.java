@@ -39,9 +39,11 @@ public abstract class ImportCleanup {
     }
 
     /**
-     * Performs a format conversion of the given entry collection into the targeted format.
+     * Performs a format conversion of the given entry collection into the targeted
+     * format.
      */
     public void doPostCleanup(Collection<BibEntry> entries) {
         entries.forEach(this::doPostCleanup);
     }
+
 }

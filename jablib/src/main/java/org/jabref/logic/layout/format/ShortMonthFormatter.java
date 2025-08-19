@@ -12,4 +12,5 @@ public class ShortMonthFormatter implements LayoutFormatter {
         Optional<Month> month = Month.parse(fieldText);
         return month.map(Month::getShortName).orElse("");
     }
+
 }

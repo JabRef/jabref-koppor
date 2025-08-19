@@ -29,24 +29,30 @@ import jakarta.inject.Inject;
 
 public class UrlEditor extends HBox implements FieldEditorFX {
 
-    @FXML private final UrlEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
+    @FXML
+    private final UrlEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private UndoManager undoManager;
+    @FXML
+    private EditorTextField textField;
 
-    public UrlEditor(Field field,
-                     SuggestionProvider<?> suggestionProvider,
-                     FieldCheckers fieldCheckers,
-                     UndoAction undoAction,
-                     RedoAction redoAction) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private DialogService dialogService;
 
-        this.viewModel = new UrlEditorViewModel(field, suggestionProvider, dialogService, preferences, fieldCheckers, undoManager);
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private UndoManager undoManager;
+
+    public UrlEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoAction undoAction, RedoAction redoAction) {
+        ViewLoader.view(this).root(this).load();
+
+        this.viewModel = new UrlEditorViewModel(field, suggestionProvider, dialogService, preferences, fieldCheckers,
+                undoManager);
 
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
 
@@ -54,9 +60,11 @@ public class UrlEditor extends HBox implements FieldEditorFX {
         textField.initContextMenu(contextMenuSupplier, preferences.getKeyBindingRepository());
 
         // init paste handler for UrlEditor to format pasted url link in textArea
-        textField.setAdditionalPasteActionHandler(() -> textField.setText(new CleanupUrlFormatter().format(new TrimWhitespaceFormatter().format(textField.getText()))));
+        textField.setAdditionalPasteActionHandler(() -> textField
+            .setText(new CleanupUrlFormatter().format(new TrimWhitespaceFormatter().format(textField.getText()))));
 
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(),
+                textField);
     }
 
     public UrlEditorViewModel getViewModel() {
@@ -77,4 +85,5 @@ public class UrlEditor extends HBox implements FieldEditorFX {
     private void openExternalLink(ActionEvent event) {
         viewModel.openExternalLink();
     }
+
 }

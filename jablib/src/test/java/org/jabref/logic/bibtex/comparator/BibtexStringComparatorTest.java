@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BibtexStringComparatorTest {
 
     private final BibtexStringComparator bsc1 = new BibtexStringComparator(false);
+
     private final BibtexStringComparator bsc2 = new BibtexStringComparator(true);
 
     @Test
@@ -28,7 +29,8 @@ class BibtexStringComparatorTest {
 
         // Same, but with the comparator checking for internal strings (none)
         assertEquals(0, bsc2.compare(bs1, bs1), "Error when comparing the same string [internal checking enabled]");
-        assertEquals(0, bsc2.compare(bs2, bs3), "Different strings do not contain the same content [internal checking enabled]");
+        assertEquals(0, bsc2.compare(bs2, bs3),
+                "Different strings do not contain the same content [internal checking enabled]");
         assertTrue(bsc2.compare(bs1, bs2) > 0, "bs1 does not succeed bs2 [internal checking enabled]");
         assertTrue(bsc2.compare(bs2, bs1) < 0, "bs2 does not precede bs1 [internal checking enabled]");
 
@@ -42,4 +44,5 @@ class BibtexStringComparatorTest {
         assertTrue(bsc2.compare(bs1, bs4) < 0, "bs4 does not contain bs1 [internal checking enabled]");
         assertTrue(bsc2.compare(bs4, bs1) > 0, "bs4 contains bs1 [internal checking enabled]");
     }
+
 }

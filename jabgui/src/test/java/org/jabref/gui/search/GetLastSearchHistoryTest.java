@@ -17,8 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
 class GetLastSearchHistoryTest {
+
     private final StateManager stateManager = new JabRefGuiStateManager();
+
     private final BibDatabaseContext dbContext1 = new BibDatabaseContext();
+
     private final BibDatabaseContext dbContext2 = new BibDatabaseContext();
 
     @Start
@@ -82,4 +85,5 @@ class GetLastSearchHistoryTest {
         List<String> expected = List.of("queryA", "queryB", "queryC");
         assertEquals(expected, stateManager.getWholeSearchHistory());
     }
+
 }

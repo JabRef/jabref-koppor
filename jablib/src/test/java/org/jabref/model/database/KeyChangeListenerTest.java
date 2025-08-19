@@ -16,9 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class KeyChangeListenerTest {
 
     private BibDatabase db;
+
     private BibEntry entry1;
+
     private BibEntry entry2;
+
     private BibEntry entry3;
+
     private BibEntry entry4;
 
     @BeforeEach
@@ -90,4 +94,5 @@ class KeyChangeListenerTest {
         db.removeEntries(entries);
         assertEquals(Optional.empty(), entry2.getField(StandardField.RELATED));
     }
+
 }

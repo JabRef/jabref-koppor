@@ -10,15 +10,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Writer that similar to the built-in {@link java.io.FileWriter} but uses the {@link AtomicFileOutputStream} as the
- * underlying output stream. In this way, we make sure that the errors during the write process do not destroy the
- * contents of the target file.
- * Moreover, this writer checks if the chosen encoding supports all text that is written. Characters whose encoding
- * was problematic can be retrieved by {@link #getEncodingProblems()}.
+ * Writer that similar to the built-in {@link java.io.FileWriter} but uses the
+ * {@link AtomicFileOutputStream} as the underlying output stream. In this way, we make
+ * sure that the errors during the write process do not destroy the contents of the target
+ * file. Moreover, this writer checks if the chosen encoding supports all text that is
+ * written. Characters whose encoding was problematic can be retrieved by
+ * {@link #getEncodingProblems()}.
  */
 public class AtomicFileWriter extends OutputStreamWriter {
 
     private final CharsetEncoder encoder;
+
     private final Set<Character> problemCharacters = new TreeSet<>();
 
     public AtomicFileWriter(Path file, Charset encoding) throws IOException {
@@ -50,4 +52,5 @@ public class AtomicFileWriter extends OutputStreamWriter {
     public Set<Character> getEncodingProblems() {
         return Collections.unmodifiableSet(problemCharacters);
     }
+
 }

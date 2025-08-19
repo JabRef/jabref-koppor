@@ -36,4 +36,5 @@ public class DefaultQueryTransformer extends YearAndYearRangeByFilteringQueryTra
     protected String handleJournal(String journalTitle) {
         return StringUtil.quoteStringIfSpaceIsContained(journalTitle);
     }
+
 }

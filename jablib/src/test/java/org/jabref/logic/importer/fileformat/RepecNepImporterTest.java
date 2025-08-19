@@ -23,15 +23,15 @@ class RepecNepImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
 
         testImporter = new RepecNepImporter(importFormatPreferences);
     }
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("RepecNepImporter")
-                && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name -> name.startsWith("RepecNepImporter") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -57,4 +57,5 @@ class RepecNepImporterTest {
     void importEntries(String fileName) throws ImportException, IOException {
         ImporterTestEngine.testImportEntries(testImporter, fileName, FILE_ENDING);
     }
+
 }

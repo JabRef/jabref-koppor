@@ -35,19 +35,16 @@ public class LatexCitationsTab extends EntryEditorTab {
     private final LatexCitationsTabViewModel viewModel;
 
     private final GridPane searchPane;
+
     private final ProgressIndicator progressIndicator;
+
     private final CitationsDisplay citationsDisplay;
 
-    public LatexCitationsTab(GuiPreferences preferences,
-                             DialogService dialogService,
-                             StateManager stateManager,
-                             DirectoryMonitor directoryMonitor) {
+    public LatexCitationsTab(GuiPreferences preferences, DialogService dialogService, StateManager stateManager,
+            DirectoryMonitor directoryMonitor) {
         this.stateManager = stateManager;
 
-        this.viewModel = new LatexCitationsTabViewModel(
-                preferences,
-                dialogService,
-                directoryMonitor);
+        this.viewModel = new LatexCitationsTabViewModel(preferences, dialogService, directoryMonitor);
 
         this.searchPane = new GridPane();
         this.progressIndicator = new ProgressIndicator();
@@ -160,4 +157,5 @@ public class LatexCitationsTab extends EntryEditorTab {
     public boolean shouldShow(BibEntry entry) {
         return viewModel.shouldShow();
     }
+
 }

@@ -15,11 +15,15 @@ import org.jabref.model.entry.field.StandardField;
 
 // Undo redo stuff
 public class UndoableAbbreviator {
+
     private final JournalAbbreviationRepository journalAbbreviationRepository;
+
     private final AbbreviationType abbreviationType;
+
     private final boolean useFJournalField;
 
-    public UndoableAbbreviator(JournalAbbreviationRepository journalAbbreviationRepository, AbbreviationType abbreviationType, boolean useFJournalField) {
+    public UndoableAbbreviator(JournalAbbreviationRepository journalAbbreviationRepository,
+            AbbreviationType abbreviationType, boolean useFJournalField) {
         this.journalAbbreviationRepository = journalAbbreviationRepository;
         this.abbreviationType = abbreviationType;
         this.useFJournalField = useFJournalField;
@@ -27,11 +31,10 @@ public class UndoableAbbreviator {
 
     /**
      * Abbreviate the journal name of the given entry.
-     *
-     * @param database  The database the entry belongs to, or null if no database.
-     * @param entry     The entry to be treated.
+     * @param database The database the entry belongs to, or null if no database.
+     * @param entry The entry to be treated.
      * @param fieldName The field name (e.g. "journal")
-     * @param ce        If the entry is changed, add an edit to this compound.
+     * @param ce If the entry is changed, add an edit to this compound.
      * @return true if the entry was changed, false otherwise.
      */
     public boolean abbreviate(BibDatabase database, BibEntry entry, Field fieldName, CompoundEdit ce) {
@@ -75,14 +78,11 @@ public class UndoableAbbreviator {
 
     private String getAbbreviatedName(Abbreviation text) {
         return switch (abbreviationType) {
-            case DEFAULT ->
-                    text.getAbbreviation();
-            case DOTLESS ->
-                    text.getDotlessAbbreviation();
-            case SHORTEST_UNIQUE ->
-                    text.getShortestUniqueAbbreviation();
-            default ->
-                    throw new IllegalStateException("Unexpected value: %s".formatted(abbreviationType));
+            case DEFAULT -> text.getAbbreviation();
+            case DOTLESS -> text.getDotlessAbbreviation();
+            case SHORTEST_UNIQUE -> text.getShortestUniqueAbbreviation();
+            default -> throw new IllegalStateException("Unexpected value: %s".formatted(abbreviationType));
         };
     }
+
 }

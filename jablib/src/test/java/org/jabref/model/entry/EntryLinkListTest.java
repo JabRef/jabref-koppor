@@ -18,9 +18,13 @@ class EntryLinkListTest {
     private static final String KEY = "test";
 
     private BibDatabase database;
+
     private List<ParsedEntryLink> links;
+
     private ParsedEntryLink link;
+
     private BibEntry source;
+
     private BibEntry target;
 
     @BeforeEach
@@ -33,8 +37,7 @@ class EntryLinkListTest {
     }
 
     private BibEntry create(String citeKey) {
-        BibEntry entry = new BibEntry()
-                .withCitationKey(citeKey);
+        BibEntry entry = new BibEntry().withCitationKey(citeKey);
         database.insertEntry(entry);
         return entry;
     }
@@ -62,8 +65,8 @@ class EntryLinkListTest {
 
     @Test
     void givenBibEntryWhenParsingThenExpectLink() {
-      ParsedEntryLink expected = new ParsedEntryLink(new BibEntry().withCitationKey("key"));
-      assertFalse(expected.getLinkedEntry().isEmpty());
+        ParsedEntryLink expected = new ParsedEntryLink(new BibEntry().withCitationKey("key"));
+        assertFalse(expected.getLinkedEntry().isEmpty());
     }
 
     @Test
@@ -83,4 +86,5 @@ class EntryLinkListTest {
         Optional<String> targetCiteKey = target.getCitationKey();
         assertEquals(sourceCrossref, targetCiteKey);
     }
+
 }

@@ -19,11 +19,15 @@ import static org.jabref.gui.actions.ActionHelper.isFieldSetForSelectedEntry;
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 
 public class SearchShortScienceAction extends SimpleCommand {
+
     private final DialogService dialogService;
+
     private final StateManager stateManager;
+
     private final GuiPreferences preferences;
 
-    public SearchShortScienceAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences) {
+    public SearchShortScienceAction(DialogService dialogService, StateManager stateManager,
+            GuiPreferences preferences) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -43,11 +47,14 @@ public class SearchShortScienceAction extends SimpleCommand {
             }
             ExternalLinkCreator.getShortScienceSearchURL(bibEntries.getFirst()).ifPresent(url -> {
                 try {
-                    NativeDesktop.openExternalViewer(databaseContext, preferences, url, StandardField.URL, dialogService, bibEntries.getFirst());
-                } catch (IOException ex) {
+                    NativeDesktop.openExternalViewer(databaseContext, preferences, url, StandardField.URL,
+                            dialogService, bibEntries.getFirst());
+                }
+                catch (IOException ex) {
                     dialogService.showErrorDialogAndWait(Localization.lang("Unable to open ShortScience."), ex);
                 }
             });
         });
     }
+
 }

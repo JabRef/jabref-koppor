@@ -20,13 +20,20 @@ import org.jabref.model.util.FileUpdateMonitor;
 public class CitationsRelationsTabViewModel {
 
     private final GuiPreferences preferences;
+
     private final UndoManager undoManager;
+
     private final StateManager stateManager;
+
     private final DialogService dialogService;
+
     private final FileUpdateMonitor fileUpdateMonitor;
+
     private final TaskExecutor taskExecutor;
 
-    public CitationsRelationsTabViewModel(GuiPreferences preferences, UndoManager undoManager, StateManager stateManager, DialogService dialogService, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
+    public CitationsRelationsTabViewModel(GuiPreferences preferences, UndoManager undoManager,
+            StateManager stateManager, DialogService dialogService, FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.undoManager = undoManager;
         this.stateManager = stateManager;
@@ -35,24 +42,21 @@ public class CitationsRelationsTabViewModel {
         this.taskExecutor = taskExecutor;
     }
 
-    public void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
+    public void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType,
+            BibEntry existingEntry) {
         BibDatabaseContext databaseContext = stateManager.getActiveDatabase().orElse(new BibDatabaseContext());
 
         List<BibEntry> entries = entriesToImport.stream()
-                                                .map(CitationRelationItem::entry)
-                                                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
-                                                .map(BibEntry::new)
-                                                .toList();
+            .map(CitationRelationItem::entry)
+            // We need to have a clone of the entry, because we add the entry to the
+            // library (and keep it in the citation relation tab, too)
+            .map(BibEntry::new)
+            .toList();
 
-        ImportHandler importHandler = new ImportHandler(
-                databaseContext,
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
-                taskExecutor);
-        CitationKeyGenerator generator = new CitationKeyGenerator(databaseContext, preferences.getCitationKeyPatternPreferences());
+        ImportHandler importHandler = new ImportHandler(databaseContext, preferences, fileUpdateMonitor, undoManager,
+                stateManager, dialogService, taskExecutor);
+        CitationKeyGenerator generator = new CitationKeyGenerator(databaseContext,
+                preferences.getCitationKeyPatternPreferences());
         boolean generateNewKeyOnImport = preferences.getImporterPreferences().generateNewKeyOnImportProperty().get();
 
         switch (searchType) {
@@ -61,7 +65,8 @@ public class CitationsRelationsTabViewModel {
         }
     }
 
-    private void importCites(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler, CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
+    private void importCites(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler,
+            CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
         SequencedSet<String> citeKeys = existingEntry.getCites();
 
         for (BibEntry entryToCite : entries) {
@@ -77,11 +82,13 @@ public class CitationsRelationsTabViewModel {
     }
 
     /**
-     * "cited by" is the opposite of "cites", but not stored in field `CITED_BY`, but in the `CITES` field of the citing entry.
+     * "cited by" is the opposite of "cites", but not stored in field `CITED_BY`, but in
+     * the `CITES` field of the citing entry.
      * <p>
      * Therefore, some special handling is needed
      */
-    private void importCitedBy(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler, CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
+    private void importCitedBy(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler,
+            CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
         if (existingEntry.getCitationKey().isEmpty()) {
             if (!generateNewKeyOnImport) {
                 dialogService.notify(Localization.lang("No citation key for %0", existingEntry.getAuthorTitleYear()));
@@ -99,4 +106,5 @@ public class CitationsRelationsTabViewModel {
 
         importHandler.importEntries(entries);
     }
+
 }

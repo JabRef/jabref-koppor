@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BibEntrySuggestionProviderTest {
 
     private BibEntrySuggestionProvider autoCompleter;
+
     private BibDatabase database;
 
     @BeforeEach
@@ -111,4 +112,5 @@ class BibEntrySuggestionProviderTest {
         Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("k"));
         assertEquals(List.of(entry), result);
     }
+
 }

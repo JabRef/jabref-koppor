@@ -28,27 +28,41 @@ import com.airhacks.afterburner.views.ViewLoader;
 import com.dlsc.gemsfx.TagsField;
 
 public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> implements PreferencesTab {
+
     private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass("focused");
 
-    @FXML private TextField keywordSeparator;
+    @FXML
+    private TextField keywordSeparator;
 
-    @FXML private CheckBox resolveStrings;
+    @FXML
+    private CheckBox resolveStrings;
 
-    @FXML private TagsField<Field> resolvableTagsField;
-    @FXML private TagsField<Field> nonWrappableTagsField;
+    @FXML
+    private TagsField<Field> resolvableTagsField;
 
-    @FXML private CheckBox markOwner;
-    @FXML private TextField markOwnerName;
-    @FXML private CheckBox markOwnerOverwrite;
-    @FXML private Button markOwnerHelp;
+    @FXML
+    private TagsField<Field> nonWrappableTagsField;
 
-    @FXML private CheckBox addCreationDate;
-    @FXML private CheckBox addModificationDate;
+    @FXML
+    private CheckBox markOwner;
+
+    @FXML
+    private TextField markOwnerName;
+
+    @FXML
+    private CheckBox markOwnerOverwrite;
+
+    @FXML
+    private Button markOwnerHelp;
+
+    @FXML
+    private CheckBox addCreationDate;
+
+    @FXML
+    private CheckBox addModificationDate;
 
     public EntryTab() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     public void initialize() {
@@ -56,7 +70,8 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> imple
 
         keywordSeparator.textProperty().bindBidirectional(viewModel.keywordSeparatorProperty());
 
-        // Use TextFormatter to limit the length of the Input of keywordSeparator to 1 character only.
+        // Use TextFormatter to limit the length of the Input of keywordSeparator to 1
+        // character only.
         UnaryOperator<TextFormatter.Change> singleCharacterFilter = change -> {
             if (change.getControlNewText().length() <= 1) {
                 return change;
@@ -84,7 +99,9 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> imple
         addModificationDate.selectedProperty().bindBidirectional(viewModel.addModificationDateProperty());
 
         ActionFactory actionFactory = new ActionFactory();
-        actionFactory.configureIconButton(StandardActions.HELP, new HelpAction(HelpFile.OWNER, dialogService, preferences.getExternalApplicationsPreferences()), markOwnerHelp);
+        actionFactory.configureIconButton(StandardActions.HELP,
+                new HelpAction(HelpFile.OWNER, dialogService, preferences.getExternalApplicationsPreferences()),
+                markOwnerHelp);
     }
 
     private void setupTagsField(TagsField<Field> tagsField) {
@@ -98,7 +115,9 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> imple
         tagsField.setOnMouseClicked(event -> tagsField.getEditor().requestFocus());
         tagsField.getEditor().getStyleClass().clear();
         tagsField.getEditor().getStyleClass().add("tags-field-editor");
-        tagsField.getEditor().focusedProperty().addListener((_, _, newValue) -> tagsField.pseudoClassStateChanged(FOCUSED, newValue));
+        tagsField.getEditor()
+            .focusedProperty()
+            .addListener((_, _, newValue) -> tagsField.pseudoClassStateChanged(FOCUSED, newValue));
 
         tagsField.getEditor().setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -121,4 +140,5 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> imple
     public String getTabName() {
         return Localization.lang("Entry");
     }
+
 }

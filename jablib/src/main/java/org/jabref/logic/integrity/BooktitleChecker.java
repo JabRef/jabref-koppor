@@ -20,4 +20,5 @@ public class BooktitleChecker implements ValueChecker {
 
         return Optional.empty();
     }
+
 }

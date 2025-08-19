@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class UiThreadList<T> extends TransformationList<T, T> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UiThreadList.class);
 
     public UiThreadList(ObservableList<? extends T> source) {
@@ -21,7 +22,8 @@ class UiThreadList<T> extends TransformationList<T, T> {
     protected void sourceChanged(ListChangeListener.Change<? extends T> change) {
         if (Platform.isFxApplicationThread()) {
             fireChange(change);
-        } else {
+        }
+        else {
             CountDownLatch latch = new CountDownLatch(1);
             Platform.runLater(() -> {
                 fireChange(change);
@@ -30,7 +32,8 @@ class UiThreadList<T> extends TransformationList<T, T> {
 
             try {
                 latch.await();
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 LOGGER.error("Error while running on JavaFX thread", e);
             }
         }
@@ -55,4 +58,5 @@ class UiThreadList<T> extends TransformationList<T, T> {
     public int size() {
         return getSource().size();
     }
+
 }

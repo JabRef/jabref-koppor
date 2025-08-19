@@ -66,76 +66,132 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
     private static boolean useAutoColoring = false;
 
     // Basic Settings
-    @FXML private TextField nameField;
-    @FXML private TextField descriptionField;
-    @FXML private TextField iconField;
-    @FXML private Button iconPickerButton;
-    @FXML private CheckBox colorUseCheckbox;
-    @FXML private ColorPicker colorField;
-    @FXML private ComboBox<GroupHierarchyType> hierarchicalContextCombo;
-    @FXML private CheckBox autoColorCheckbox;
+    @FXML
+    private TextField nameField;
+
+    @FXML
+    private TextField descriptionField;
+
+    @FXML
+    private TextField iconField;
+
+    @FXML
+    private Button iconPickerButton;
+
+    @FXML
+    private CheckBox colorUseCheckbox;
+
+    @FXML
+    private ColorPicker colorField;
+
+    @FXML
+    private ComboBox<GroupHierarchyType> hierarchicalContextCombo;
+
+    @FXML
+    private CheckBox autoColorCheckbox;
 
     // Type
-    @FXML private RadioButton explicitRadioButton;
-    @FXML private RadioButton keywordsRadioButton;
-    @FXML private RadioButton searchRadioButton;
-    @FXML private RadioButton autoRadioButton;
-    @FXML private RadioButton texRadioButton;
+    @FXML
+    private RadioButton explicitRadioButton;
+
+    @FXML
+    private RadioButton keywordsRadioButton;
+
+    @FXML
+    private RadioButton searchRadioButton;
+
+    @FXML
+    private RadioButton autoRadioButton;
+
+    @FXML
+    private RadioButton texRadioButton;
 
     // Option Groups
-    @FXML private TextField keywordGroupSearchTerm;
-    @FXML private TextField keywordGroupSearchField;
-    @FXML private CheckBox keywordGroupCaseSensitive;
-    @FXML private CheckBox keywordGroupRegex;
+    @FXML
+    private TextField keywordGroupSearchTerm;
 
-    @FXML private TextField searchGroupSearchTerm;
-    @FXML private CheckBox searchGroupCaseSensitive;
-    @FXML private CheckBox searchGroupRegex;
+    @FXML
+    private TextField keywordGroupSearchField;
 
-    @FXML private RadioButton autoGroupKeywordsOption;
-    @FXML private TextField autoGroupKeywordsField;
-    @FXML private TextField autoGroupKeywordsDeliminator;
-    @FXML private TextField autoGroupKeywordsHierarchicalDeliminator;
-    @FXML private RadioButton autoGroupPersonsOption;
-    @FXML private TextField autoGroupPersonsField;
+    @FXML
+    private CheckBox keywordGroupCaseSensitive;
 
-    @FXML private TextField texGroupFilePath;
+    @FXML
+    private CheckBox keywordGroupRegex;
+
+    @FXML
+    private TextField searchGroupSearchTerm;
+
+    @FXML
+    private CheckBox searchGroupCaseSensitive;
+
+    @FXML
+    private CheckBox searchGroupRegex;
+
+    @FXML
+    private RadioButton autoGroupKeywordsOption;
+
+    @FXML
+    private TextField autoGroupKeywordsField;
+
+    @FXML
+    private TextField autoGroupKeywordsDeliminator;
+
+    @FXML
+    private TextField autoGroupKeywordsHierarchicalDeliminator;
+
+    @FXML
+    private RadioButton autoGroupPersonsOption;
+
+    @FXML
+    private TextField autoGroupPersonsField;
+
+    @FXML
+    private TextField texGroupFilePath;
 
     private final EnumMap<GroupHierarchyType, String> hierarchyText = new EnumMap<>(GroupHierarchyType.class);
+
     private final EnumMap<GroupHierarchyType, String> hierarchyToolTip = new EnumMap<>(GroupHierarchyType.class);
 
     private final ControlsFxVisualizer validationVisualizer = new ControlsFxVisualizer();
 
     private final BibDatabaseContext currentDatabase;
+
     private final @Nullable GroupTreeNode parentNode;
+
     private final @Nullable AbstractGroup editedGroup;
 
     private GroupDialogViewModel viewModel;
 
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private StateManager stateManager;
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
 
-    public GroupDialogView(BibDatabaseContext currentDatabase,
-                           @Nullable GroupTreeNode parentNode,
-                           @Nullable AbstractGroup editedGroup,
-                           GroupDialogHeader groupDialogHeader) {
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private StateManager stateManager;
+
+    public GroupDialogView(BibDatabaseContext currentDatabase, @Nullable GroupTreeNode parentNode,
+            @Nullable AbstractGroup editedGroup, GroupDialogHeader groupDialogHeader) {
         this.currentDatabase = currentDatabase;
         this.parentNode = parentNode;
         this.editedGroup = editedGroup;
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         if (editedGroup == null) {
             if (groupDialogHeader == GroupDialogHeader.GROUP) {
                 this.setTitle(Localization.lang("Add group"));
-            } else if (groupDialogHeader == GroupDialogHeader.SUBGROUP) {
+            }
+            else if (groupDialogHeader == GroupDialogHeader.SUBGROUP) {
                 this.setTitle(Localization.lang("Add subgroup"));
             }
-        } else {
+        }
+        else {
             this.setTitle(Localization.lang("Edit group") + " " + editedGroup.getName());
         }
 
@@ -146,11 +202,9 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
         final Button helpButton = (Button) getDialogPane().lookupButton(helpButtonType);
 
         ActionFactory actionFactory = new ActionFactory();
-        HelpAction helpAction = new HelpAction(HelpFile.GROUPS, dialogService, preferences.getExternalApplicationsPreferences());
-        actionFactory.configureIconButton(
-                StandardActions.HELP_GROUPS,
-                helpAction,
-                helpButton);
+        HelpAction helpAction = new HelpAction(HelpFile.GROUPS, dialogService,
+                preferences.getExternalApplicationsPreferences());
+        actionFactory.configureIconButton(StandardActions.HELP_GROUPS, helpAction, helpButton);
 
         // Consume the dialog close event, but execute the help action
         helpButton.addEventFilter(ActionEvent.ACTION, event -> {
@@ -166,23 +220,28 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
     private @Nullable AbstractGroup parentGroup() {
         if (parentNode == null) {
             return null;
-        } else {
+        }
+        else {
             return parentNode.getGroup();
         }
     }
 
     @FXML
     public void initialize() {
-        viewModel = new GroupDialogViewModel(dialogService, currentDatabase, preferences, editedGroup, parentNode, fileUpdateMonitor, stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, currentDatabase, preferences, editedGroup, parentNode,
+                fileUpdateMonitor, stateManager);
 
         setResultConverter(viewModel::resultConverter);
 
         hierarchyText.put(GroupHierarchyType.INCLUDING, Localization.lang("Union"));
-        hierarchyToolTip.put(GroupHierarchyType.INCLUDING, Localization.lang("Include subgroups: When selected, view entries contained in this group or its subgroups"));
+        hierarchyToolTip.put(GroupHierarchyType.INCLUDING, Localization
+            .lang("Include subgroups: When selected, view entries contained in this group or its subgroups"));
         hierarchyText.put(GroupHierarchyType.REFINING, Localization.lang("Intersection"));
-        hierarchyToolTip.put(GroupHierarchyType.REFINING, Localization.lang("Refine supergroup: When selected, view entries contained in both this group and its supergroup"));
+        hierarchyToolTip.put(GroupHierarchyType.REFINING, Localization
+            .lang("Refine supergroup: When selected, view entries contained in both this group and its supergroup"));
         hierarchyText.put(GroupHierarchyType.INDEPENDENT, Localization.lang("Independent"));
-        hierarchyToolTip.put(GroupHierarchyType.INDEPENDENT, Localization.lang("Independent group: When selected, view only this group's entries"));
+        hierarchyToolTip.put(GroupHierarchyType.INDEPENDENT,
+                Localization.lang("Independent group: When selected, view only this group's entries"));
 
         nameField.textProperty().bindBidirectional(viewModel.nameProperty());
         descriptionField.textProperty().bindBidirectional(viewModel.descriptionProperty());
@@ -190,10 +249,9 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
         colorUseCheckbox.selectedProperty().bindBidirectional(viewModel.colorUseProperty());
         colorField.valueProperty().bindBidirectional(viewModel.colorFieldProperty());
         hierarchicalContextCombo.itemsProperty().bind(viewModel.groupHierarchyListProperty());
-        new ViewModelListCellFactory<GroupHierarchyType>()
-                .withText(hierarchyText::get)
-                .withStringTooltip(hierarchyToolTip::get)
-                .install(hierarchicalContextCombo);
+        new ViewModelListCellFactory<GroupHierarchyType>().withText(hierarchyText::get)
+            .withStringTooltip(hierarchyToolTip::get)
+            .install(hierarchicalContextCombo);
         hierarchicalContextCombo.valueProperty().bindBidirectional(viewModel.groupHierarchySelectedProperty());
 
         explicitRadioButton.selectedProperty().bindBidirectional(viewModel.typeExplicitProperty());
@@ -208,15 +266,22 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
         keywordGroupRegex.selectedProperty().bindBidirectional(viewModel.keywordGroupRegexProperty());
 
         searchGroupSearchTerm.textProperty().bindBidirectional(viewModel.searchGroupSearchTermProperty());
-        searchGroupCaseSensitive.setSelected(viewModel.searchFlagsProperty().getValue().contains(SearchFlags.CASE_SENSITIVE));
-        searchGroupCaseSensitive.selectedProperty().addListener((observable, oldValue, newValue) -> viewModel.setSearchFlag(SearchFlags.CASE_SENSITIVE, newValue));
-        searchGroupRegex.setSelected(viewModel.searchFlagsProperty().getValue().contains(SearchFlags.REGULAR_EXPRESSION));
-        searchGroupRegex.selectedProperty().addListener((observable, oldValue, newValue) -> viewModel.setSearchFlag(SearchFlags.REGULAR_EXPRESSION, newValue));
+        searchGroupCaseSensitive
+            .setSelected(viewModel.searchFlagsProperty().getValue().contains(SearchFlags.CASE_SENSITIVE));
+        searchGroupCaseSensitive.selectedProperty()
+            .addListener(
+                    (observable, oldValue, newValue) -> viewModel.setSearchFlag(SearchFlags.CASE_SENSITIVE, newValue));
+        searchGroupRegex
+            .setSelected(viewModel.searchFlagsProperty().getValue().contains(SearchFlags.REGULAR_EXPRESSION));
+        searchGroupRegex.selectedProperty()
+            .addListener((observable, oldValue, newValue) -> viewModel.setSearchFlag(SearchFlags.REGULAR_EXPRESSION,
+                    newValue));
 
         autoGroupKeywordsOption.selectedProperty().bindBidirectional(viewModel.autoGroupKeywordsOptionProperty());
         autoGroupKeywordsField.textProperty().bindBidirectional(viewModel.autoGroupKeywordsFieldProperty());
         autoGroupKeywordsDeliminator.textProperty().bindBidirectional(viewModel.autoGroupKeywordsDeliminatorProperty());
-        autoGroupKeywordsHierarchicalDeliminator.textProperty().bindBidirectional(viewModel.autoGroupKeywordsHierarchicalDeliminatorProperty());
+        autoGroupKeywordsHierarchicalDeliminator.textProperty()
+            .bindBidirectional(viewModel.autoGroupKeywordsHierarchicalDeliminatorProperty());
         autoGroupPersonsOption.selectedProperty().bindBidirectional(viewModel.autoGroupPersonsOptionProperty());
         autoGroupPersonsField.textProperty().bindBidirectional(viewModel.autoGroupPersonsFieldProperty());
 
@@ -227,10 +292,13 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
             validationVisualizer.initVisualization(viewModel.nameValidationStatus(), nameField);
             validationVisualizer.initVisualization(viewModel.nameContainsDelimiterValidationStatus(), nameField, false);
             validationVisualizer.initVisualization(viewModel.sameNameValidationStatus(), nameField);
-            validationVisualizer.initVisualization(viewModel.searchSearchTermEmptyValidationStatus(), searchGroupSearchTerm);
+            validationVisualizer.initVisualization(viewModel.searchSearchTermEmptyValidationStatus(),
+                    searchGroupSearchTerm);
             validationVisualizer.initVisualization(viewModel.keywordRegexValidationStatus(), keywordGroupSearchTerm);
-            validationVisualizer.initVisualization(viewModel.keywordSearchTermEmptyValidationStatus(), keywordGroupSearchTerm);
-            validationVisualizer.initVisualization(viewModel.keywordFieldEmptyValidationStatus(), keywordGroupSearchField);
+            validationVisualizer.initVisualization(viewModel.keywordSearchTermEmptyValidationStatus(),
+                    keywordGroupSearchTerm);
+            validationVisualizer.initVisualization(viewModel.keywordFieldEmptyValidationStatus(),
+                    keywordGroupSearchField);
             validationVisualizer.initVisualization(viewModel.texGroupFilePathValidatonStatus(), texGroupFilePath);
             nameField.requestFocus();
         });
@@ -245,12 +313,15 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
                 viewModel.colorFieldProperty().setValue(IconTheme.getDefaultGroupColor());
                 return;
             }
-            List<Color> colorsOfSiblings = parentNode.getChildren().stream().map(child -> child.getGroup().getColor())
-                                                     .flatMap(Optional::stream)
-                                                     .toList();
+            List<Color> colorsOfSiblings = parentNode.getChildren()
+                .stream()
+                .map(child -> child.getGroup().getColor())
+                .flatMap(Optional::stream)
+                .toList();
             Optional<Color> parentColor = parentGroup().getColor();
             Color color;
-            color = parentColor.map(value -> GroupColorPicker.generateColor(colorsOfSiblings, value)).orElseGet(() -> GroupColorPicker.generateColor(colorsOfSiblings));
+            color = parentColor.map(value -> GroupColorPicker.generateColor(colorsOfSiblings, value))
+                .orElseGet(() -> GroupColorPicker.generateColor(colorsOfSiblings));
             viewModel.colorFieldProperty().setValue(color);
         });
     }
@@ -265,7 +336,8 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
         ObservableList<Ikon> ikonList = FXCollections.observableArrayList();
         FilteredList<Ikon> filteredList = new FilteredList<>(ikonList);
 
-        for (IkonProvider provider : ServiceLoader.load(IkonProvider.class.getModule().getLayer(), IkonProvider.class)) {
+        for (IkonProvider provider : ServiceLoader.load(IkonProvider.class.getModule().getLayer(),
+                IkonProvider.class)) {
             if (provider.getClass() != JabrefIconProvider.class) {
                 ikonList.addAll(EnumSet.allOf(provider.getIkon()));
             }
@@ -274,9 +346,9 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
         CustomTextField searchBox = new CustomTextField();
         searchBox.setPromptText(Localization.lang("Search..."));
         searchBox.setLeft(IconTheme.JabRefIcons.SEARCH.getGraphicNode());
-        searchBox.textProperty().addListener((obs, oldValue, newValue) ->
-                filteredList.setPredicate(ikon -> newValue.isEmpty() || ikon.getDescription().toLowerCase()
-                                                                            .contains(newValue.toLowerCase())));
+        searchBox.textProperty()
+            .addListener((obs, oldValue, newValue) -> filteredList.setPredicate(ikon -> newValue.isEmpty()
+                    || ikon.getDescription().toLowerCase().contains(newValue.toLowerCase())));
 
         GridView<Ikon> ikonGridView = new GridView<>(FXCollections.observableArrayList());
         ikonGridView.setCellFactory(gridView -> new IkonliCell());
@@ -302,20 +374,23 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
     }
 
     public class IkonliCell extends GridCell<Ikon> {
+
         @Override
         protected void updateItem(Ikon ikon, boolean empty) {
             super.updateItem(ikon, empty);
             if (empty || (ikon == null)) {
                 setText(null);
                 setGraphic(null);
-            } else {
+            }
+            else {
                 FontIcon fontIcon = FontIcon.of(ikon);
                 fontIcon.getStyleClass().setAll("font-icon");
                 fontIcon.setIconSize(22);
                 setGraphic(fontIcon);
                 setAlignment(Pos.BASELINE_CENTER);
                 setPadding(new Insets(1));
-                setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+                setBorder(new Border(
+                        new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
 
                 setOnMouseClicked(event -> {
                     iconField.textProperty().setValue(String.valueOf(fontIcon.getIconCode()));
@@ -324,5 +399,7 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
                 });
             }
         }
+
     }
+
 }

@@ -45,39 +45,43 @@ public class KeyChangeListener {
     private void updateEntryLinks(String newKey, @Nullable String oldKey) {
         Set<BibEntry> affectedEntries = database.getEntriesForCitationKey(oldKey);
         for (BibEntry entry : affectedEntries) {
-            entry.getFields(field -> field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK))
-                 .forEach(field -> {
-                     String fieldContent = entry.getField(field).orElseThrow();
-                     replaceSingleKeyInField(newKey, oldKey, entry, field, fieldContent);
-                 });
-            entry.getFields(field -> field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK))
-                 .forEach(field -> {
+            entry.getFields(field -> field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK)).forEach(field -> {
                 String fieldContent = entry.getField(field).orElseThrow();
-                replaceKeyInMultiplesKeyField(newKey, oldKey, entry, field, fieldContent);
+                replaceSingleKeyInField(newKey, oldKey, entry, field, fieldContent);
             });
+            entry.getFields(field -> field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK))
+                .forEach(field -> {
+                    String fieldContent = entry.getField(field).orElseThrow();
+                    replaceKeyInMultiplesKeyField(newKey, oldKey, entry, field, fieldContent);
+                });
         }
     }
 
-    private void replaceKeyInMultiplesKeyField(String newKey, String oldKey, BibEntry entry, Field field, String fieldContent) {
+    private void replaceKeyInMultiplesKeyField(String newKey, String oldKey, BibEntry entry, Field field,
+            String fieldContent) {
         List<String> keys = new ArrayList<>(Arrays.asList(fieldContent.split(",")));
         int index = keys.indexOf(oldKey);
         if (index != -1) {
             if (newKey == null) {
                 keys.remove(index);
-            } else {
+            }
+            else {
                 keys.set(index, newKey);
             }
             entry.setField(field, String.join(",", keys));
         }
     }
 
-    private void replaceSingleKeyInField(String newKey, String oldKey, BibEntry entry, Field field, String fieldContent) {
+    private void replaceSingleKeyInField(String newKey, String oldKey, BibEntry entry, Field field,
+            String fieldContent) {
         if (fieldContent.equals(oldKey)) {
             if (newKey == null) {
                 entry.clearField(field);
-            } else {
+            }
+            else {
                 entry.setField(field, newKey);
             }
         }
     }
+
 }

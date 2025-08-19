@@ -20,7 +20,9 @@ import org.jabref.model.openoffice.style.CitedKey;
 import org.jabref.model.openoffice.style.CitedKeys;
 
 public class OOFormatBibliography {
+
     private static final OOPreFormatter POSTFORMATTER = new OOPreFormatter();
+
     private static final Field UNIQUEFIER_FIELD = new UnknownField("uniq");
 
     private OOFormatBibliography() {
@@ -29,10 +31,8 @@ public class OOFormatBibliography {
     /**
      * @return The formatted bibliography, including its title.
      */
-    public static OOText formatBibliography(CitationGroups citationGroups,
-                                            CitedKeys bibliography,
-                                            JStyle style,
-                                            boolean alwaysAddCitedOnPages) {
+    public static OOText formatBibliography(CitationGroups citationGroups, CitedKeys bibliography, JStyle style,
+            boolean alwaysAddCitedOnPages) {
 
         OOText title = style.getFormattedBibliographyTitle();
         OOText body = formatBibliographyBody(citationGroups, bibliography, style, alwaysAddCitedOnPages);
@@ -42,10 +42,8 @@ public class OOFormatBibliography {
     /**
      * @return Formatted body of the bibliography. Excludes the title.
      */
-    public static OOText formatBibliographyBody(CitationGroups citationGroups,
-                                                CitedKeys bibliography,
-                                                JStyle style,
-                                                boolean alwaysAddCitedOnPages) {
+    public static OOText formatBibliographyBody(CitationGroups citationGroups, CitedKeys bibliography, JStyle style,
+            boolean alwaysAddCitedOnPages) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -60,18 +58,18 @@ public class OOFormatBibliography {
     /**
      * @return A paragraph. Includes label and "Cited on pages".
      */
-    public static OOText formatBibliographyEntry(CitationGroups citationGroups,
-                                                 CitedKey citedKey,
-                                                 JStyle style,
-                                                 boolean alwaysAddCitedOnPages) {
+    public static OOText formatBibliographyEntry(CitationGroups citationGroups, CitedKey citedKey, JStyle style,
+            boolean alwaysAddCitedOnPages) {
         StringBuilder stringBuilder = new StringBuilder();
 
         // insert marker "[1]"
         if (style.isNumberEntries()) {
             stringBuilder.append(style.getNumCitationMarkerForBibliography(citedKey).toString());
-        } else {
+        }
+        else {
             // !style.isNumberEntries() : emit no prefix
-            // Note: We might want [citationKey] prefix for style.isCitationKeyCiteMarkers();
+            // Note: We might want [citationKey] prefix for
+            // style.isCitationKeyCiteMarkers();
         }
 
         // Add entry body
@@ -89,39 +87,35 @@ public class OOFormatBibliography {
     }
 
     /**
-     * @return just the body of a bibliography entry. No label, "Cited on pages" or paragraph.
+     * @return just the body of a bibliography entry. No label, "Cited on pages" or
+     * paragraph.
      */
     public static OOText formatBibliographyEntryBody(CitedKey citedKey, JStyle style) {
         if (citedKey.getLookupResult().isEmpty()) {
             // Unresolved entry
             return OOText.fromString("Unresolved(%s)".formatted(citedKey.citationKey));
-        } else {
+        }
+        else {
             // Resolved entry, use the layout engine
             BibEntry bibentry = citedKey.getLookupResult().get().entry;
             Layout layout = style.getReferenceFormat(bibentry.getType());
             layout.setPostFormatter(POSTFORMATTER);
 
-            return formatFullReferenceOfBibEntry(layout,
-                                                 bibentry,
-                                                 citedKey.getLookupResult().get().database,
-                                                 citedKey.getUniqueLetter().orElse(null));
+            return formatFullReferenceOfBibEntry(layout, bibentry, citedKey.getLookupResult().get().database,
+                    citedKey.getUniqueLetter().orElse(null));
         }
     }
 
     /**
      * Format the reference part of a bibliography entry using a Layout.
-     *
-     * @param layout     The Layout to format the reference with.
-     * @param entry      The entry to insert.
-     * @param database   The database the entry belongs to.
+     * @param layout The Layout to format the reference with.
+     * @param entry The entry to insert.
+     * @param database The database the entry belongs to.
      * @param uniquefier Uniqiefier letter, if any, to append to the entry's year.
-     *
      * @return OOText The reference part of a bibliography entry formatted as OOText
      */
-    private static OOText formatFullReferenceOfBibEntry(Layout layout,
-                                                        BibEntry entry,
-                                                        BibDatabase database,
-                                                        String uniquefier) {
+    private static OOText formatFullReferenceOfBibEntry(Layout layout, BibEntry entry, BibDatabase database,
+            String uniquefier) {
 
         // Backup the value of the uniq field, just in case the entry already has it:
         Optional<String> oldUniqVal = entry.getField(UNIQUEFIER_FIELD);
@@ -129,7 +123,8 @@ public class OOFormatBibliography {
         // Set the uniq field with the supplied uniquefier:
         if (uniquefier == null) {
             entry.clearField(UNIQUEFIER_FIELD);
-        } else {
+        }
+        else {
             entry.setField(UNIQUEFIER_FIELD, uniquefier);
         }
 
@@ -139,7 +134,8 @@ public class OOFormatBibliography {
         // Afterwards, reset the old value:
         if (oldUniqVal.isPresent()) {
             entry.setField(UNIQUEFIER_FIELD, oldUniqVal.get());
-        } else {
+        }
+        else {
             entry.clearField(UNIQUEFIER_FIELD);
         }
 
@@ -151,8 +147,8 @@ public class OOFormatBibliography {
      *
      * Requires reference marks for the citation groups.
      *
-     * - The links are created as references that show page numbers of the reference marks.
-     *   - We do not control the text shown, that is provided by OpenOffice.
+     * - The links are created as references that show page numbers of the reference
+     * marks. - We do not control the text shown, that is provided by OpenOffice.
      */
     private static OOText formatCitedOnPages(CitationGroups citationGroups, CitedKey citedKey) {
         if (!citationGroups.citationGroupsProvideReferenceMarkNameForLinking()) {
@@ -177,10 +173,10 @@ public class OOFormatBibliography {
 
         // sort the citationGroups according to their indexInGlobalOrder
         filteredList.sort((a, b) -> {
-                Integer aa = a.getIndexInGlobalOrder().orElseThrow(IllegalStateException::new);
-                Integer bb = b.getIndexInGlobalOrder().orElseThrow(IllegalStateException::new);
-                return aa.compareTo(bb);
-            });
+            Integer aa = a.getIndexInGlobalOrder().orElseThrow(IllegalStateException::new);
+            Integer bb = b.getIndexInGlobalOrder().orElseThrow(IllegalStateException::new);
+            return aa.compareTo(bb);
+        });
 
         int index = 0;
         for (CitationGroup group : filteredList) {
@@ -195,4 +191,5 @@ public class OOFormatBibliography {
         stringBuilder.append(suffix);
         return OOText.fromString(stringBuilder.toString());
     }
+
 }

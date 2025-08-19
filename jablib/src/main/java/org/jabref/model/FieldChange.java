@@ -11,8 +11,11 @@ import org.jabref.model.entry.field.Field;
 public class FieldChange {
 
     private final BibEntry entry;
+
     private final Field field;
+
     private final String oldValue;
+
     private final String newValue;
 
     public FieldChange(BibEntry entry, Field field, String oldValue, String newValue) {
@@ -53,26 +56,30 @@ public class FieldChange {
                 if (other.entry != null) {
                     return false;
                 }
-            } else if (!entry.equals(other.entry)) {
+            }
+            else if (!entry.equals(other.entry)) {
                 return false;
             }
             if (field == null) {
                 if (other.field != null) {
                     return false;
                 }
-            } else if (!field.equals(other.field)) {
+            }
+            else if (!field.equals(other.field)) {
                 return false;
             }
             if (newValue == null) {
                 if (other.newValue != null) {
                     return false;
                 }
-            } else if (!newValue.equals(other.newValue)) {
+            }
+            else if (!newValue.equals(other.newValue)) {
                 return false;
             }
             if (oldValue == null) {
                 return other.oldValue == null;
-            } else {
+            }
+            else {
                 return oldValue.equals(other.oldValue);
             }
         }
@@ -81,7 +88,8 @@ public class FieldChange {
 
     @Override
     public String toString() {
-        return "FieldChange [entry=" + entry.getCitationKey().orElse("") + ", field=" + field + ", oldValue="
-                + oldValue + ", newValue=" + newValue + "]";
+        return "FieldChange [entry=" + entry.getCitationKey().orElse("") + ", field=" + field + ", oldValue=" + oldValue
+                + ", newValue=" + newValue + "]";
     }
+
 }

@@ -21,7 +21,8 @@ public class FieldsUtil {
         public String toString(Field object) {
             if (object != null) {
                 return object.getDisplayName();
-            } else {
+            }
+            else {
                 return "";
             }
         }
@@ -35,8 +36,8 @@ public class FieldsUtil {
     public static String getNameWithType(Field field, CliPreferences preferences, UndoManager undoManager) {
         return switch (field) {
             case SpecialField specialField ->
-                    new SpecialFieldViewModel(specialField, preferences, undoManager).getLocalization()
-                            + " (" + Localization.lang("Special") + ")";
+                new SpecialFieldViewModel(specialField, preferences, undoManager).getLocalization() + " ("
+                        + Localization.lang("Special") + ")";
             case IEEEField _ -> field.getDisplayName() + " (" + Localization.lang("IEEE") + ")";
             case InternalField _ -> field.getDisplayName() + " (" + Localization.lang("Internal") + ")";
             case UnknownField _ -> field.getDisplayName() + " (" + Localization.lang("Custom") + ")";
@@ -44,4 +45,5 @@ public class FieldsUtil {
             default -> field.getDisplayName();
         };
     }
+
 }

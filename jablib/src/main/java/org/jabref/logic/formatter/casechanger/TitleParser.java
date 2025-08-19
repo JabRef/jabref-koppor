@@ -10,6 +10,7 @@ import java.util.Optional;
 public final class TitleParser {
 
     private StringBuilder buffer;
+
     private int wordStart;
 
     public List<Word> parse(String title) {
@@ -23,7 +24,8 @@ public final class TitleParser {
         for (char c : title.toCharArray()) {
             if (Character.isWhitespace(c)) {
                 createWord(isProtected).ifPresent(words::add);
-            } else {
+            }
+            else {
                 if (wordStart == -1) {
                     wordStart = index;
                 }
@@ -66,13 +68,16 @@ public final class TitleParser {
         for (int i = 0; i < title.length(); i++) {
             if (chars[i] == '{') {
                 brackets++;
-            } else if (chars[i] == '}') {
+            }
+            else if (chars[i] == '}') {
                 brackets--;
-            } else {
+            }
+            else {
                 isProtected[i] = brackets > 0;
             }
         }
 
         return isProtected;
     }
+
 }

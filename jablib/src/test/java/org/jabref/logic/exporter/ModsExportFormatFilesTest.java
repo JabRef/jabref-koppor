@@ -31,31 +31,43 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ModsExportFormatFilesTest {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ModsExportFormatFilesTest.class);
+
     private static Path resourceDir;
 
     public Charset charset;
 
     private BibDatabaseContext databaseContext;
+
     private Path exportedFile;
+
     private ModsExporter exporter;
+
     private BibtexImporter bibtexImporter;
+
     private ModsImporter modsImporter;
+
     private Path importFile;
 
     public static Stream<String> fileNames() throws URISyntaxException, IOException {
-        resourceDir = Path.of(MSBibExportFormatFilesTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI()).getParent();
+        resourceDir = Path.of(MSBibExportFormatFilesTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI())
+            .getParent();
         LOGGER.debug("Mods export resouce dir {}", resourceDir);
 
         try (Stream<Path> stream = Files.list(resourceDir)) {
-            return stream.map(n -> n.getFileName().toString()).filter(n -> n.endsWith(".bib"))
-                         .filter(n -> n.startsWith("Mods")).toList().stream();
+            return stream.map(n -> n.getFileName().toString())
+                .filter(n -> n.endsWith(".bib"))
+                .filter(n -> n.startsWith("Mods"))
+                .toList()
+                .stream();
         }
     }
 
     @BeforeEach
     void setUp(@TempDir Path testFolder) throws IOException {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
 
@@ -80,8 +92,7 @@ public class ModsExportFormatFilesTest {
 
         exporter.export(databaseContext, exportedFile, entries);
 
-        assertEquals(
-                String.join("\n", Files.readAllLines(expectedFile)),
+        assertEquals(String.join("\n", Files.readAllLines(expectedFile)),
                 String.join("\n", Files.readAllLines(exportedFile)));
     }
 
@@ -106,8 +117,8 @@ public class ModsExportFormatFilesTest {
 
         exporter.export(databaseContext, exportedFile, entries);
 
-        assertEquals(
-                String.join("\n", Files.readAllLines(xmlFile)),
+        assertEquals(String.join("\n", Files.readAllLines(xmlFile)),
                 String.join("\n", Files.readAllLines(exportedFile)));
     }
+
 }

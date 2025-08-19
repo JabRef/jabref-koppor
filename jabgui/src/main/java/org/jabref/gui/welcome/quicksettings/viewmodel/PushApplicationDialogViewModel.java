@@ -34,23 +34,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PushApplicationDialogViewModel extends AbstractViewModel {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PushApplicationDialogViewModel.class);
 
-    private final ListProperty<GuiPushToApplication> applicationsProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<GuiPushToApplication> applicationsProperty = new SimpleListProperty<>(
+            FXCollections.observableArrayList());
+
     private final ObjectProperty<GuiPushToApplication> selectedApplicationProperty = new SimpleObjectProperty<>();
+
     private final StringProperty pathProperty = new SimpleStringProperty("");
+
     private final ObservableSet<GuiPushToApplication> detectedApplications = FXCollections.observableSet();
 
     private final GuiPreferences preferences;
+
     private final DialogService dialogService;
+
     private final TaskExecutor taskExecutor;
+
     private final PushToApplicationPreferences pushToApplicationPreferences;
 
     private final Map<PushToApplication, String> detectedApplicationPaths = new ConcurrentHashMap<>();
+
     private Future<?> detectionFuture;
 
-    public PushApplicationDialogViewModel(GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor) {
+    public PushApplicationDialogViewModel(GuiPreferences preferences, DialogService dialogService,
+            TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -62,33 +71,34 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
     }
 
     private void initializeApplications() {
-        List<GuiPushToApplication> allApplications = GuiPushToApplications.getAllGUIApplications(dialogService, pushToApplicationPreferences);
+        List<GuiPushToApplication> allApplications = GuiPushToApplications.getAllGUIApplications(dialogService,
+                pushToApplicationPreferences);
         applicationsProperty.setAll(allApplications);
 
         if (!pushToApplicationPreferences.getActiveApplicationName().isEmpty()) {
             allApplications.stream()
-                           .filter(app -> app.getDisplayName().equals(pushToApplicationPreferences.getActiveApplicationName()))
-                           .findFirst()
-                           .ifPresent(selectedApplicationProperty::set);
+                .filter(app -> app.getDisplayName().equals(pushToApplicationPreferences.getActiveApplicationName()))
+                .findFirst()
+                .ifPresent(selectedApplicationProperty::set);
         }
     }
 
     private void detectApplications() {
         detectionFuture = BackgroundTask
-                .wrap(() -> PushToApplicationDetector.detectApplicationPaths(applicationsProperty))
-                .onSuccess(detectedPaths -> {
-                    detectedApplicationPaths.putAll(detectedPaths);
-                    List<GuiPushToApplication> sortedApplications = new ArrayList<>(detectedPaths.keySet());
-                    applicationsProperty.stream()
-                                        .filter(app -> !detectedPaths.containsKey(app))
-                                        .forEach(sortedApplications::add);
-                    applicationsProperty.setAll(sortedApplications);
-                    detectedApplications.clear();
-                    detectedApplications.addAll(detectedPaths.keySet());
-                    LOGGER.info("Application detection completed. Found {} applications", detectedPaths.size());
-                })
-                .onFailure(throwable -> LOGGER.warn("Application detection failed", throwable))
-                .executeWith(taskExecutor);
+            .wrap(() -> PushToApplicationDetector.detectApplicationPaths(applicationsProperty))
+            .onSuccess(detectedPaths -> {
+                detectedApplicationPaths.putAll(detectedPaths);
+                List<GuiPushToApplication> sortedApplications = new ArrayList<>(detectedPaths.keySet());
+                applicationsProperty.stream()
+                    .filter(app -> !detectedPaths.containsKey(app))
+                    .forEach(sortedApplications::add);
+                applicationsProperty.setAll(sortedApplications);
+                detectedApplications.clear();
+                detectedApplications.addAll(detectedPaths.keySet());
+                LOGGER.info("Application detection completed. Found {} applications", detectedPaths.size());
+            })
+            .onFailure(throwable -> LOGGER.warn("Application detection failed", throwable))
+            .executeWith(taskExecutor);
     }
 
     private void setupPathUpdates() {
@@ -98,9 +108,8 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
                 return;
             }
             String existingPath = pushToApplicationPreferences.getCommandPaths().get(selectedApp.getDisplayName());
-            pathProperty.set(PushToApplicationDetector.isValidAbsolutePath(existingPath) ?
-                    existingPath :
-                    Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
+            pathProperty.set(PushToApplicationDetector.isValidAbsolutePath(existingPath) ? existingPath
+                    : Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
         });
     }
 
@@ -126,10 +135,9 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
 
     public void browseForApplication() {
         FileDialogConfiguration fileConfig = new FileDialogConfiguration.Builder()
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
-                .build();
-        dialogService.showFileOpenDialog(fileConfig)
-                     .ifPresent(selectedFile -> setPath(selectedFile.toString()));
+            .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
+            .build();
+        dialogService.showFileOpenDialog(fileConfig).ifPresent(selectedFile -> setPath(selectedFile.toString()));
     }
 
     public boolean isValidConfiguration() {
@@ -157,4 +165,5 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
             detectionFuture.cancel(true);
         }
     }
+
 }

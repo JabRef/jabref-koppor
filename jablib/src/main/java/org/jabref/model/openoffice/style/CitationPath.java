@@ -1,7 +1,8 @@
 package org.jabref.model.openoffice.style;
 
 /**
- * Identifies a citation with the identifier of the citation group containing it and its storage index within.
+ * Identifies a citation with the identifier of the citation group containing it and its
+ * storage index within.
  */
 public class CitationPath {
 
@@ -13,4 +14,5 @@ public class CitationPath {
         this.group = group;
         this.storageIndexInGroup = storageIndexInGroup;
     }
+
 }

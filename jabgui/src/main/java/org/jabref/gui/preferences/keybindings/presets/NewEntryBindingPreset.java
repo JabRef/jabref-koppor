@@ -37,4 +37,5 @@ public class NewEntryBindingPreset implements KeyBindingPreset {
 
         return keyBindings;
     }
+
 }

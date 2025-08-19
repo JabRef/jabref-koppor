@@ -36,10 +36,12 @@ public class CollectionOfComputerScienceBibliographiesFetcher implements SearchB
     @Override
     public URL getURLForQuery(QueryNode luceneQuery) throws URISyntaxException, MalformedURLException {
         return new URIBuilder(BASIC_SEARCH_URL)
-                .addParameter("query", new CollectionOfComputerScienceBibliographiesQueryTransformer().transformLuceneQuery(luceneQuery).orElse(""))
-                .addParameter("sort", "score")
-                .build()
-                .toURL();
+            .addParameter("query",
+                    new CollectionOfComputerScienceBibliographiesQueryTransformer().transformLuceneQuery(luceneQuery)
+                        .orElse(""))
+            .addParameter("sort", "score")
+            .build()
+            .toURL();
     }
 
     @Override
@@ -59,31 +61,34 @@ public class CollectionOfComputerScienceBibliographiesFetcher implements SearchB
         new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveRedundantSpacesFormatter()).cleanup(entry);
         new FieldFormatterCleanup(StandardField.EDITOR, new RemoveDigitsFormatter()).cleanup(entry);
         // identifier fields is a key-value field
-        // example: "urn:isbn:978-1-4503-5217-8; doi:10.1145/3129790.3129810; ISI:000505046100032; Scopus 2-s2.0-85037741580"
-        // thus, key can contain multiple ":"; sometimes value separated by " " instead of ":"
+        // example: "urn:isbn:978-1-4503-5217-8; doi:10.1145/3129790.3129810;
+        // ISI:000505046100032; Scopus 2-s2.0-85037741580"
+        // thus, key can contain multiple ":"; sometimes value separated by " " instead of
+        // ":"
         UnknownField identifierField = new UnknownField("identifier");
         entry.getField(identifierField)
-             .stream()
-             .flatMap(value -> Arrays.stream(value.split("; ")))
-             .forEach(identifierKeyValue -> {
-                 // check for pattern "Scopus 2-..."
-                 String[] identifierKeyValueSplit = identifierKeyValue.split(" ");
-                 if (identifierKeyValueSplit.length == 1) {
-                     // check for pattern "doi:..."
-                     identifierKeyValueSplit = identifierKeyValue.split(":");
-                 }
-                 int length = identifierKeyValueSplit.length;
-                 if (length < 2) {
-                     return;
-                 }
-                 // in the case "urn:isbn:", just "isbn" is used
-                 String key = identifierKeyValueSplit[length - 2];
-                 String value = identifierKeyValueSplit[length - 1];
-                 Field field = FieldFactory.parseField(key);
-                 if (!entry.hasField(field)) {
-                     entry.setField(field, value);
-                 }
-             });
+            .stream()
+            .flatMap(value -> Arrays.stream(value.split("; ")))
+            .forEach(identifierKeyValue -> {
+                // check for pattern "Scopus 2-..."
+                String[] identifierKeyValueSplit = identifierKeyValue.split(" ");
+                if (identifierKeyValueSplit.length == 1) {
+                    // check for pattern "doi:..."
+                    identifierKeyValueSplit = identifierKeyValue.split(":");
+                }
+                int length = identifierKeyValueSplit.length;
+                if (length < 2) {
+                    return;
+                }
+                // in the case "urn:isbn:", just "isbn" is used
+                String key = identifierKeyValueSplit[length - 2];
+                String value = identifierKeyValueSplit[length - 1];
+                Field field = FieldFactory.parseField(key);
+                if (!entry.hasField(field)) {
+                    entry.setField(field, value);
+                }
+            });
         entry.clearField(identifierField);
     }
+
 }

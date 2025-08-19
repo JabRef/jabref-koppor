@@ -137,10 +137,8 @@ class BstVMVisitorTest {
                 READ
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
@@ -157,10 +155,8 @@ class BstVMVisitorTest {
                 READ
                 REVERSE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
@@ -177,8 +173,7 @@ class BstVMVisitorTest {
                 ITERATE { presort }
                 SORT
                 """);
-        List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.Article).withCitationKey("c"),
+        List<BibEntry> testEntries = List.of(new BibEntry(StandardEntryType.Article).withCitationKey("c"),
                 new BibEntry(StandardEntryType.Article).withCitationKey("b"),
                 new BibEntry(StandardEntryType.Article).withCitationKey("d"),
                 new BibEntry(StandardEntryType.Article).withCitationKey("a"));
@@ -246,4 +241,5 @@ class BstVMVisitorTest {
     }
 
     // stackitem
+
 }

@@ -29,17 +29,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FrameDndHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FrameDndHandler.class);
 
     private final TabPane tabPane;
+
     private final Supplier<Scene> scene;
+
     private final Supplier<OpenDatabaseAction> openDatabaseAction;
+
     private final StateManager stateManager;
 
-    public FrameDndHandler(TabPane tabPane,
-                           Supplier<Scene> scene,
-                           Supplier<OpenDatabaseAction> openDatabaseAction,
-                           StateManager stateManager) {
+    public FrameDndHandler(TabPane tabPane, Supplier<Scene> scene, Supplier<OpenDatabaseAction> openDatabaseAction,
+            StateManager stateManager) {
         this.tabPane = tabPane;
         this.scene = scene;
         this.openDatabaseAction = openDatabaseAction;
@@ -60,11 +62,13 @@ public class FrameDndHandler {
             scene.get().setOnDragOver(event -> onSceneDragOver(event, dndIndicator));
             scene.get().setOnDragEntered(event -> {
                 // It is necessary to setOnDragOver for newly opened tabs
-                // drag'n'drop on tabs covered dnd on tabbedPane, so dnd on tabs should contain all dnds on tabbedPane
+                // drag'n'drop on tabs covered dnd on tabbedPane, so dnd on tabs should
+                // contain all dnds on tabbedPane
                 for (Node destinationTabNode : tabPane.lookupAll(".tab")) {
                     destinationTabNode.setOnDragOver(tabDragEvent -> onTabDragOver(event, tabDragEvent, dndIndicator));
                     destinationTabNode.setOnDragExited(tabDragEvent -> tabPane.getTabs().remove(dndIndicator));
-                    destinationTabNode.setOnDragDropped(tabDragEvent -> onTabDragDropped(destinationTabNode, tabDragEvent, dndIndicator));
+                    destinationTabNode.setOnDragDropped(
+                            tabDragEvent -> onTabDragDropped(destinationTabNode, tabDragEvent, dndIndicator));
                 }
                 event.consume();
             });
@@ -83,7 +87,8 @@ public class FrameDndHandler {
             openDatabaseAction.openFiles(bibFiles);
             tabDragEvent.setDropCompleted(true);
             tabDragEvent.consume();
-        } else {
+        }
+        else {
             if (stateManager.getActiveDatabase().isEmpty()) {
                 LOGGER.warn("Active library is empty when dropping entries");
                 return;
@@ -91,8 +96,8 @@ public class FrameDndHandler {
 
             LibraryTab destinationLibraryTab = null;
             for (Tab libraryTab : tabPane.getTabs()) {
-                if (libraryTab.getId().equals(destinationTabNode.getId()) &&
-                        !tabPane.getSelectionModel().getSelectedItem().equals(libraryTab)) {
+                if (libraryTab.getId().equals(destinationTabNode.getId())
+                        && !tabPane.getSelectionModel().getSelectedItem().equals(libraryTab)) {
                     destinationLibraryTab = (LibraryTab) libraryTab;
                     break;
                 }
@@ -104,10 +109,14 @@ public class FrameDndHandler {
             }
 
             if (hasEntries(dragboard)) {
-                List<BibEntry> entryCopies = stateManager.getLocalDragboard().getBibEntries().stream()
-                                                         .map(BibEntry::new).toList();
+                List<BibEntry> entryCopies = stateManager.getLocalDragboard()
+                    .getBibEntries()
+                    .stream()
+                    .map(BibEntry::new)
+                    .toList();
                 destinationLibraryTab.dropEntry(entryCopies);
-            } else if (hasGroups(dragboard)) {
+            }
+            else if (hasGroups(dragboard)) {
                 dropGroups(dragboard, destinationLibraryTab);
             }
 
@@ -120,20 +129,15 @@ public class FrameDndHandler {
 
         copyRootNode(destinationLibraryTab);
 
-        GroupTreeNode destinationLibraryGroupRoot = destinationLibraryTab
-                .getBibDatabaseContext()
-                .getMetaData()
-                .getGroups().get();
+        GroupTreeNode destinationLibraryGroupRoot = destinationLibraryTab.getBibDatabaseContext()
+            .getMetaData()
+            .getGroups()
+            .get();
 
-        GroupTreeNode groupsTreeNode = stateManager.getActiveDatabase().get()
-                                                   .getMetaData()
-                                                   .getGroups()
-                                                   .get();
+        GroupTreeNode groupsTreeNode = stateManager.getActiveDatabase().get().getMetaData().getGroups().get();
 
         for (String pathToSource : groupPathToSources) {
-            GroupTreeNode groupTreeNodeToCopy = groupsTreeNode
-                    .getChildByPath(pathToSource)
-                    .get();
+            GroupTreeNode groupTreeNodeToCopy = groupsTreeNode.getChildByPath(pathToSource).get();
             copyGroupTreeNode(destinationLibraryTab, destinationLibraryGroupRoot, groupTreeNodeToCopy);
         }
     }
@@ -149,7 +153,8 @@ public class FrameDndHandler {
                 tabPane.getTabs().add(dndIndicator);
             }
             event.consume();
-        } else {
+        }
+        else {
             tabPane.getTabs().remove(dndIndicator);
         }
 
@@ -166,7 +171,8 @@ public class FrameDndHandler {
                 tabPane.getTabs().add(dndIndicator);
             }
             event.consume();
-        } else {
+        }
+        else {
             tabPane.getTabs().remove(dndIndicator);
         }
         // Accept drag entries from MainTable
@@ -192,25 +198,26 @@ public class FrameDndHandler {
         }
 
         // a root (all entries) GroupTreeNode
-        GroupTreeNode currentLibraryGroupRoot = stateManager.getActiveDatabase().get()
-                                                            .getMetaData()
-                                                            .getGroups()
-                                                            .get()
-                                                            .copyNode();
+        GroupTreeNode currentLibraryGroupRoot = stateManager.getActiveDatabase()
+            .get()
+            .getMetaData()
+            .getGroups()
+            .get()
+            .copyNode();
 
         // add currentLibraryGroupRoot to the Library if it does not have a root.
-        destinationLibraryTab.getBibDatabaseContext()
-                             .getMetaData()
-                             .setGroups(currentLibraryGroupRoot);
+        destinationLibraryTab.getBibDatabaseContext().getMetaData().setGroups(currentLibraryGroupRoot);
     }
 
-    private void copyGroupTreeNode(LibraryTab destinationLibraryTab, GroupTreeNode parent, GroupTreeNode groupTreeNodeToCopy) {
+    private void copyGroupTreeNode(LibraryTab destinationLibraryTab, GroupTreeNode parent,
+            GroupTreeNode groupTreeNodeToCopy) {
         if (stateManager.getActiveDatabase().isEmpty()) {
             return;
         }
 
         List<BibEntry> allEntries = stateManager.getActiveDatabase().get().getEntries();
-        // add groupTreeNodeToCopy to the parent-- in the first run that will the source/main GroupTreeNode
+        // add groupTreeNodeToCopy to the parent-- in the first run that will the
+        // source/main GroupTreeNode
         GroupTreeNode copiedNode = parent.addSubgroup(groupTreeNodeToCopy.copyNode().getGroup());
         // add all entries of a groupTreeNode to the new library.
         destinationLibraryTab.dropEntry(groupTreeNodeToCopy.getEntriesInGroup(allEntries));
@@ -232,8 +239,13 @@ public class FrameDndHandler {
     private List<Path> getBibFiles(Dragboard dragboard) {
         if (!dragboard.hasFiles()) {
             return List.of();
-        } else {
-            return dragboard.getFiles().stream().map(File::toPath).filter(FileUtil::isBibFile).collect(Collectors.toList());
+        }
+        else {
+            return dragboard.getFiles()
+                .stream()
+                .map(File::toPath)
+                .filter(FileUtil::isBibFile)
+                .collect(Collectors.toList());
         }
     }
 
@@ -244,8 +256,10 @@ public class FrameDndHandler {
     private List<String> getGroups(Dragboard dragboard) {
         if (!dragboard.hasContent(DragAndDropDataFormats.GROUP)) {
             return List.of();
-        } else {
+        }
+        else {
             return (List<String>) dragboard.getContent(DragAndDropDataFormats.GROUP);
         }
     }
+
 }

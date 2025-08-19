@@ -33,18 +33,18 @@ import org.jabref.model.entry.LinkedFile;
 public class FileColumn extends MainTableColumn<List<LinkedFile>> {
 
     private final DialogService dialogService;
+
     private final BibDatabaseContext database;
+
     private final GuiPreferences preferences;
+
     private final TaskExecutor taskExecutor;
 
     /**
      * Creates a joined column for all the linked files.
      */
-    public FileColumn(MainTableColumnModel model,
-                      BibDatabaseContext database,
-                      DialogService dialogService,
-                      GuiPreferences preferences,
-                      TaskExecutor taskExecutor) {
+    public FileColumn(MainTableColumnModel model, BibDatabaseContext database, DialogService dialogService,
+            GuiPreferences preferences, TaskExecutor taskExecutor) {
         super(model);
         this.database = Objects.requireNonNull(database);
         this.dialogService = dialogService;
@@ -57,34 +57,25 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
         Tooltip.install(headerGraphic, new Tooltip(Localization.lang("Linked files")));
         this.setGraphic(headerGraphic);
 
-        new ValueTableCellFactory<BibEntryTableViewModel, List<LinkedFile>>()
-                .withGraphic(this::createFileIcon)
-                .withTooltip(this::createFileTooltip)
-                .withMenu(this::createFileMenu)
-                .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
-                    if ((event.getButton() == MouseButton.PRIMARY) && (linkedFiles.size() == 1)) {
-                        // Only one linked file -> open directly
-                        LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFiles.getFirst(),
-                                entry.getEntry(),
-                                database,
-                                taskExecutor,
-                                dialogService,
-                                preferences);
-                        linkedFileViewModel.open();
-                    }
-                })
-                .install(this);
+        new ValueTableCellFactory<BibEntryTableViewModel, List<LinkedFile>>().withGraphic(this::createFileIcon)
+            .withTooltip(this::createFileTooltip)
+            .withMenu(this::createFileMenu)
+            .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
+                if ((event.getButton() == MouseButton.PRIMARY) && (linkedFiles.size() == 1)) {
+                    // Only one linked file -> open directly
+                    LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFiles.getFirst(),
+                            entry.getEntry(), database, taskExecutor, dialogService, preferences);
+                    linkedFileViewModel.open();
+                }
+            })
+            .install(this);
     }
 
     /**
      * Creates a column for all the linked files of a single file type.
      */
-    public FileColumn(MainTableColumnModel model,
-                      BibDatabaseContext database,
-                      DialogService dialogService,
-                      GuiPreferences preferences,
-                      String fileType,
-                      TaskExecutor taskExecutor) {
+    public FileColumn(MainTableColumnModel model, BibDatabaseContext database, DialogService dialogService,
+            GuiPreferences preferences, String fileType, TaskExecutor taskExecutor) {
         super(model);
         this.database = Objects.requireNonNull(database);
         this.dialogService = dialogService;
@@ -93,41 +84,45 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
 
         setCommonSettings();
 
-        this.setGraphic(ExternalFileTypes.getExternalFileTypeByName(fileType, preferences.getExternalApplicationsPreferences())
-                                         .map(ExternalFileType::getIcon).orElse(IconTheme.JabRefIcons.FILE)
-                                         .getGraphicNode());
+        this.setGraphic(
+                ExternalFileTypes.getExternalFileTypeByName(fileType, preferences.getExternalApplicationsPreferences())
+                    .map(ExternalFileType::getIcon)
+                    .orElse(IconTheme.JabRefIcons.FILE)
+                    .getGraphicNode());
 
         new ValueTableCellFactory<BibEntryTableViewModel, List<LinkedFile>>()
-                .withGraphic((entry, linkedFiles) -> createFileIcon(entry, linkedFiles.stream()
-                                                                                      .filter(linkedFile -> linkedFile.getFileType().equalsIgnoreCase(fileType))
-                                                                                      .collect(Collectors.toList())))
-                .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
-                    List<LinkedFile> filteredFiles = linkedFiles.stream()
-                                                                .filter(linkedFile -> linkedFile.getFileType().equalsIgnoreCase(fileType))
-                                                                .toList();
+            .withGraphic((entry, linkedFiles) -> createFileIcon(entry,
+                    linkedFiles.stream()
+                        .filter(linkedFile -> linkedFile.getFileType().equalsIgnoreCase(fileType))
+                        .collect(Collectors.toList())))
+            .withOnMouseClickedEvent((entry, linkedFiles) -> event -> {
+                List<LinkedFile> filteredFiles = linkedFiles.stream()
+                    .filter(linkedFile -> linkedFile.getFileType().equalsIgnoreCase(fileType))
+                    .toList();
 
-                    if (event.getButton() == MouseButton.PRIMARY) {
-                        if (filteredFiles.size() == 1) {
-                            // Only one file - open directly
-                            LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(filteredFiles.getFirst(),
-                                    entry.getEntry(), database, taskExecutor, dialogService, preferences);
-                            linkedFileViewModel.open();
-                        } else if (filteredFiles.size() > 1) {
-                            // Multiple files - show context menu to choose file
-                            ContextMenu contextMenu = new ContextMenu();
-                            for (LinkedFile linkedFile : filteredFiles) {
-                                LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFile,
-                                        entry.getEntry(), database, taskExecutor, dialogService, preferences);
-                                MenuItem menuItem = new MenuItem(linkedFileViewModel.getTruncatedDescriptionAndLink(),
-                                        linkedFileViewModel.getTypeIcon().getGraphicNode());
-                                menuItem.setOnAction(_ -> linkedFileViewModel.open());
-                                contextMenu.getItems().add(menuItem);
-                            }
-                            contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
-                        }
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (filteredFiles.size() == 1) {
+                        // Only one file - open directly
+                        LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(filteredFiles.getFirst(),
+                                entry.getEntry(), database, taskExecutor, dialogService, preferences);
+                        linkedFileViewModel.open();
                     }
-                })
-                .install(this);
+                    else if (filteredFiles.size() > 1) {
+                        // Multiple files - show context menu to choose file
+                        ContextMenu contextMenu = new ContextMenu();
+                        for (LinkedFile linkedFile : filteredFiles) {
+                            LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFile,
+                                    entry.getEntry(), database, taskExecutor, dialogService, preferences);
+                            MenuItem menuItem = new MenuItem(linkedFileViewModel.getTruncatedDescriptionAndLink(),
+                                    linkedFileViewModel.getTypeIcon().getGraphicNode());
+                            menuItem.setOnAction(_ -> linkedFileViewModel.open());
+                            contextMenu.getItems().add(menuItem);
+                        }
+                        contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
+                    }
+                }
+            })
+            .install(this);
     }
 
     private void setCommonSettings() {
@@ -142,9 +137,7 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
             return null;
         }
 
-        String filePaths = linkedFiles.stream()
-                                      .map(LinkedFile::getLink)
-                                      .collect(Collectors.joining("\n"));
+        String filePaths = linkedFiles.stream().map(LinkedFile::getLink).collect(Collectors.joining("\n"));
 
         if (linkedFiles.size() == 1) {
             return Localization.lang("Open file %0", filePaths);
@@ -160,12 +153,8 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
         ContextMenu contextMenu = new ContextMenu();
 
         for (LinkedFile linkedFile : linkedFiles) {
-            LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFile,
-                    entry.getEntry(),
-                    database,
-                    taskExecutor,
-                    dialogService,
-                    preferences);
+            LinkedFileViewModel linkedFileViewModel = new LinkedFileViewModel(linkedFile, entry.getEntry(), database,
+                    taskExecutor, dialogService, preferences);
 
             MenuItem menuItem = new MenuItem(linkedFileViewModel.getTruncatedDescriptionAndLink(),
                     linkedFileViewModel.getTypeIcon().getGraphicNode());
@@ -182,13 +171,18 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
         }
         if (linkedFiles.size() > 1) {
             return IconTheme.JabRefIcons.FILE_MULTIPLE.getGraphicNode();
-        } else if (linkedFiles.size() == 1) {
-            return ExternalFileTypes.getExternalFileTypeByLinkedFile(linkedFiles.getFirst(), true, preferences.getExternalApplicationsPreferences())
-                                    .map(ExternalFileType::getIcon)
-                                    .orElse(IconTheme.JabRefIcons.FILE)
-                                    .getGraphicNode();
-        } else {
+        }
+        else if (linkedFiles.size() == 1) {
+            return ExternalFileTypes
+                .getExternalFileTypeByLinkedFile(linkedFiles.getFirst(), true,
+                        preferences.getExternalApplicationsPreferences())
+                .map(ExternalFileType::getIcon)
+                .orElse(IconTheme.JabRefIcons.FILE)
+                .getGraphicNode();
+        }
+        else {
             return null;
         }
     }
+
 }

@@ -12,15 +12,19 @@ public class SpecialFieldComparator implements Comparator<Optional<SpecialFieldV
         if (val1.isPresent()) {
             if (val2.isPresent()) {
                 return val1.get().getValue().compareTo(val2.get().getValue());
-            } else {
+            }
+            else {
                 return -1;
             }
-        } else {
+        }
+        else {
             if (val2.isPresent()) {
                 return 1;
-            } else {
+            }
+            else {
                 return 0;
             }
         }
     }
+
 }

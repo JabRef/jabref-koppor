@@ -19,11 +19,8 @@ class EntryTypeFormatterTest {
     }
 
     private static Stream<Arguments> formatTests() {
-        return Stream.of(
-                Arguments.of("Article", "article"),
-                Arguments.of("Banana", "banana"),
-                Arguments.of("InBook", "inbook"),
-                Arguments.of("Aarticle", "aarticle")
-        );
+        return Stream.of(Arguments.of("Article", "article"), Arguments.of("Banana", "banana"),
+                Arguments.of("InBook", "inbook"), Arguments.of("Aarticle", "aarticle"));
     }
+
 }

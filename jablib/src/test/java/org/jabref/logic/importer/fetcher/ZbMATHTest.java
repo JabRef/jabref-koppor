@@ -21,12 +21,15 @@ import static org.mockito.Mockito.when;
 
 @FetcherTest
 class ZbMATHTest {
+
     private ZbMATH fetcher;
+
     private BibEntry donaldsonEntry;
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class,
+                Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
 
         fetcher = new ZbMATH(importFormatPreferences);
@@ -88,4 +91,5 @@ class ZbMATHTest {
         List<BibEntry> fetchedEntries = fetcher.performSearch(searchEntry);
         assertEquals(List.of(donaldsonEntry), fetchedEntries);
     }
+
 }

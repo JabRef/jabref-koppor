@@ -21,30 +21,33 @@ import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
 import org.jabref.logic.preferences.FetcherApiKey;
 
 public class ImporterPreferences {
+
     private final BooleanProperty importerEnabled;
+
     private final BooleanProperty generateNewKeyOnImport;
+
     private final BooleanProperty warnAboutDuplicatesOnImport;
+
     private final ObjectProperty<Path> importWorkingDirectory;
+
     private final ObservableSet<FetcherApiKey> apiKeys;
+
     private final Map<String, String> defaultApiKeys;
+
     private final ObservableSet<CustomImporter> customImporters;
+
     private final BooleanProperty persistCustomKeys;
+
     private final ObservableList<String> catalogs;
+
     private final ObjectProperty<PlainCitationParserChoice> defaultPlainCitationParser;
+
     private final IntegerProperty citationsRelationsStoreTTL;
 
-    public ImporterPreferences(boolean importerEnabled,
-                               boolean generateNewKeyOnImport,
-                               Path importWorkingDirectory,
-                               boolean warnAboutDuplicatesOnImport,
-                               Set<CustomImporter> customImporters,
-                               Set<FetcherApiKey> apiKeys,
-                               Map<String, String> defaultApiKeys,
-                               boolean persistCustomKeys,
-                               List<String> catalogs,
-                               PlainCitationParserChoice defaultPlainCitationParser,
-                               int citationsRelationsStoreTTL
-    ) {
+    public ImporterPreferences(boolean importerEnabled, boolean generateNewKeyOnImport, Path importWorkingDirectory,
+            boolean warnAboutDuplicatesOnImport, Set<CustomImporter> customImporters, Set<FetcherApiKey> apiKeys,
+            Map<String, String> defaultApiKeys, boolean persistCustomKeys, List<String> catalogs,
+            PlainCitationParserChoice defaultPlainCitationParser, int citationsRelationsStoreTTL) {
         this.importerEnabled = new SimpleBooleanProperty(importerEnabled);
         this.generateNewKeyOnImport = new SimpleBooleanProperty(generateNewKeyOnImport);
         this.importWorkingDirectory = new SimpleObjectProperty<>(importWorkingDirectory);
@@ -137,11 +140,11 @@ public class ImporterPreferences {
      */
     public Optional<String> getApiKey(String name) {
         return apiKeys.stream()
-                      .filter(key -> key.getName().equalsIgnoreCase(name))
-                      .filter(FetcherApiKey::shouldUse)
-                      .findFirst()
-                      .map(FetcherApiKey::getKey)
-                      .or(() -> Optional.ofNullable(defaultApiKeys.get(name)));
+            .filter(key -> key.getName().equalsIgnoreCase(name))
+            .filter(FetcherApiKey::shouldUse)
+            .findFirst()
+            .map(FetcherApiKey::getKey)
+            .or(() -> Optional.ofNullable(defaultApiKeys.get(name)));
     }
 
     public void setCatalogs(List<String> catalogs) {
@@ -150,7 +153,7 @@ public class ImporterPreferences {
     }
 
     public ObservableList<String> getCatalogs() {
-          return catalogs;
+        return catalogs;
     }
 
     public PlainCitationParserChoice getDefaultPlainCitationParser() {
@@ -176,4 +179,5 @@ public class ImporterPreferences {
     public void setCitationsRelationsStoreTTL(int citationsRelationsStoreTTL) {
         this.citationsRelationsStoreTTL.set(citationsRelationsStoreTTL);
     }
+
 }

@@ -40,25 +40,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fetch or search from PubMed <a href="http://www.ncbi.nlm.nih.gov/sites/entrez/">www.ncbi.nlm.nih.gov</a>
- * The MedlineFetcher fetches the entries from the PubMed database.
- * See <a href="https://docs.jabref.org/collect/import-using-online-bibliographic-database#medline-pubmed">docs.jabref.org</a> for a detailed documentation of the available fields.
+ * Fetch or search from PubMed
+ * <a href="http://www.ncbi.nlm.nih.gov/sites/entrez/">www.ncbi.nlm.nih.gov</a> The
+ * MedlineFetcher fetches the entries from the PubMed database. See <a href=
+ * "https://docs.jabref.org/collect/import-using-online-bibliographic-database#medline-pubmed">docs.jabref.org</a>
+ * for a detailed documentation of the available fields.
  */
 public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MedlineFetcher.class);
 
     private static final int NUMBER_TO_FETCH = 50;
+
     private static final String ID_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+
     private static final String SEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
 
     private int numberOfResultsFound;
 
     /**
-     * When using 'esearch.fcgi?db=&lt;database>&term=&lt;query>' we will get a list of IDs matching the query.
-     * Input: Any text query (&term)
-     * Output: List of UIDs matching the query
+     * When using 'esearch.fcgi?db=&lt;database>&term=&lt;query>' we will get a list of
+     * IDs matching the query. Input: Any text query (&term) Output: List of UIDs matching
+     * the query
      *
-     * @see <a href="https://www.ncbi.nlm.nih.gov/books/NBK25500/">www.ncbi.nlm.nih.gov/books/NBK25500/</a>
+     * @see <a href=
+     * "https://www.ncbi.nlm.nih.gov/books/NBK25500/">www.ncbi.nlm.nih.gov/books/NBK25500/</a>
      */
     private List<String> getPubMedIdsFromQuery(String query) throws FetcherException {
         boolean fetchIDs = false;
@@ -70,8 +76,7 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
             XMLInputFactory inputFactory = XMLInputFactory.newFactory();
             XMLStreamReader streamReader = inputFactory.createXMLStreamReader(ncbi.openStream());
 
-            fetchLoop:
-            while (streamReader.hasNext()) {
+            fetchLoop: while (streamReader.hasNext()) {
                 int event = streamReader.getEventType();
 
                 switch (event) {
@@ -97,7 +102,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
                         break;
 
                     case XMLStreamConstants.END_ELEMENT:
-                        // Everything relevant is listed before the IdList. So we break the loop right after the IdList tag closes.
+                        // Everything relevant is listed before the IdList. So we break
+                        // the loop right after the IdList tag closes.
                         if ("IdList".equals(streamReader.getName().toString())) {
                             break fetchLoop;
                         }
@@ -106,9 +112,11 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
             }
             streamReader.close();
             return idList;
-        } catch (IOException | URISyntaxException e) {
+        }
+        catch (IOException | URISyntaxException e) {
             throw new FetcherException("Unable to get PubMed IDs", Localization.lang("Unable to get PubMed IDs"), e);
-        } catch (XMLStreamException e) {
+        }
+        catch (XMLStreamException e) {
             throw new FetcherException("Error while parsing ID list", Localization.lang("Error while parsing ID list"),
                     e);
         }
@@ -158,9 +166,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
     }
 
     /**
-     * Fetch and parse an medline item from eutils.ncbi.nlm.nih.gov.
-     * The E-utilities generate a huge XML file containing all entries for the ids
-     *
+     * Fetch and parse an medline item from eutils.ncbi.nlm.nih.gov. The E-utilities
+     * generate a huge XML file containing all entries for the ids
      * @param ids A list of IDs to search for.
      * @return Will return an empty list on error.
      */
@@ -177,10 +184,12 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
             List<BibEntry> resultList = result.getDatabase().getEntries();
             resultList.forEach(this::doPostCleanup);
             return resultList;
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Error while generating fetch URL",
                     Localization.lang("Error while generating fetch URL"), e);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new FetcherException("Error while fetching from Medline",
                     Localization.lang("Error while fetching from %0", "Medline"), e);
         }
@@ -194,7 +203,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
 
         if (transformedQuery.isEmpty() || transformedQuery.get().isBlank()) {
             return List.of();
-        } else {
+        }
+        else {
             // searching for pubmed ids matching the query
             List<String> idList = getPubMedIdsFromQuery(transformedQuery.get());
 
@@ -203,13 +213,16 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher 
                 return List.of();
             }
             if (numberOfResultsFound > NUMBER_TO_FETCH) {
-                LOGGER.info("{} results found. Only 50 relevant results will be fetched by default.", numberOfResultsFound);
+                LOGGER.info("{} results found. Only 50 relevant results will be fetched by default.",
+                        numberOfResultsFound);
             }
 
-            // pass the list of ids to fetchMedline to download them. like a id fetcher for mutliple ids
+            // pass the list of ids to fetchMedline to download them. like a id fetcher
+            // for mutliple ids
             entryList = fetchMedline(idList);
 
             return entryList;
         }
     }
+
 }

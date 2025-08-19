@@ -14,8 +14,7 @@ public class ConsistencySymbolsDialog extends BaseDialog<Void> {
         this.initModality(Modality.NONE);
         this.setResizable(false);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
     }
+
 }

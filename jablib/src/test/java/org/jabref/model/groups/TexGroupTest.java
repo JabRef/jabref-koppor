@@ -31,7 +31,8 @@ class TexGroupTest {
     @Test
     void containsReturnsTrueForEntryInAux() throws IOException, URISyntaxException {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData);
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile,
+                new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData);
         BibEntry inAux = new BibEntry();
         inAux.setCitationKey("Darwin1888");
 
@@ -41,7 +42,8 @@ class TexGroupTest {
     @Test
     void containsReturnsTrueForEntryNotInAux() throws IOException, URISyntaxException {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData);
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile,
+                new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData);
         BibEntry notInAux = new BibEntry();
         notInAux.setCitationKey("NotInAux2017");
 
@@ -53,8 +55,10 @@ class TexGroupTest {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
         String user = "Darwin";
         metaData.setLatexFileDirectory(user, auxFile.getParent());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, user);
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile,
+                new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, user);
 
         assertEquals("paper.aux", group.getFilePath().toString());
     }
+
 }

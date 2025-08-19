@@ -21,7 +21,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class GitFileWriterTest {
+
     private ImportFormatPreferences importFormatPreferences;
+
     @BeforeEach
     void setUp() {
         SystemReader.setInstance(new NoopGitSystemReader());
@@ -33,21 +35,21 @@ class GitFileWriterTest {
     @Test
     void writeThenReadBack() throws Exception {
         BibDatabaseContext inputDatabaseContext = BibDatabaseContext.of("""
-        @article{a,
-            author = {Alice},
-            title = {Test},
-        }
-        """, importFormatPreferences);
+                @article{a,
+                    author = {Alice},
+                    title = {Test},
+                }
+                """, importFormatPreferences);
 
         Path tempFile = Files.createTempFile("tempgitwriter", ".bib");
         GitFileWriter.write(tempFile, inputDatabaseContext, importFormatPreferences);
 
         String written = Files.readString(tempFile);
         BibDatabaseContext parsedContext = BibDatabaseContext.of(written, importFormatPreferences);
-        BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("a")
-                .withField(StandardField.AUTHOR, "Alice")
-                .withField(StandardField.TITLE, "Test");
+        BibEntry expected = new BibEntry(StandardEntryType.Article).withCitationKey("a")
+            .withField(StandardField.AUTHOR, "Alice")
+            .withField(StandardField.TITLE, "Test");
         assertEquals(List.of(expected), parsedContext.getDatabase().getEntries());
     }
+
 }

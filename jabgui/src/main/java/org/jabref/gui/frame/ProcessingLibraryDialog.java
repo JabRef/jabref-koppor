@@ -10,7 +10,8 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 
 /**
- * Dialog shown when <em>closing</em> of application needs to wait for a save operation to finish.
+ * Dialog shown when <em>closing</em> of application needs to wait for a save operation to
+ * finish.
  */
 public class ProcessingLibraryDialog {
 
@@ -28,7 +29,8 @@ public class ProcessingLibraryDialog {
                     while (libraryTabs.stream().anyMatch(LibraryTab::isSaving)) {
                         if (isCancelled()) {
                             return null;
-                        } else {
+                        }
+                        else {
                             Thread.sleep(100);
                         }
                     }
@@ -37,11 +39,9 @@ public class ProcessingLibraryDialog {
             };
 
             UiTaskExecutor.runInJavaFXThread(waitForSaveFinished);
-            dialogService.showProgressDialogAndWait(
-                    Localization.lang("Please wait..."),
-                    Localization.lang("Waiting for save operation to finish..."),
-                    waitForSaveFinished
-            );
+            dialogService.showProgressDialogAndWait(Localization.lang("Please wait..."),
+                    Localization.lang("Waiting for save operation to finish..."), waitForSaveFinished);
         }
     }
+
 }

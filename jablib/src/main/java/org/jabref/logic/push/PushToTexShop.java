@@ -47,7 +47,8 @@ public class PushToTexShop extends AbstractPushToApplication {
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
-        } catch (IOException excep) {
+        }
+        catch (IOException excep) {
             LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
@@ -65,17 +66,18 @@ public class PushToTexShop extends AbstractPushToApplication {
             citeCommand = sb.toString();
         }
 
-        String osascriptTexShop = "osascript -e 'tell application \"TeXShop\"\n" +
-                "activate\n" +
-                "set TheString to \"" + citeCommand + keyString + getCiteSuffix() + "\"\n" +
-                "set content of selection of front document to TheString\n" +
-                "end tell'";
+        String osascriptTexShop = "osascript -e 'tell application \"TeXShop\"\n" + "activate\n" + "set TheString to \""
+                + citeCommand + keyString + getCiteSuffix() + "\"\n"
+                + "set content of selection of front document to TheString\n" + "end tell'";
 
         if (OS.OS_X) {
-            return new String[] {"sh", "-c", osascriptTexShop};
-        } else {
-            sendErrorNotification(Localization.lang("Push to application"), Localization.lang("Pushing citations to TeXShop is only possible on macOS!"));
+            return new String[] { "sh", "-c", osascriptTexShop };
+        }
+        else {
+            sendErrorNotification(Localization.lang("Push to application"),
+                    Localization.lang("Pushing citations to TeXShop is only possible on macOS!"));
             return new String[] {};
         }
     }
+
 }

@@ -29,7 +29,7 @@ class BibDatabaseFilesTest {
     @Test
     void resolveStrings() throws IOException {
         try (InputStream stream = Files.newInputStream(Path.of("src/test/resources/org/jabref/util/twente.bib"));
-             InputStreamReader fr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                InputStreamReader fr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             ParserResult result = new BibtexParser(importFormatPreferences).parse(fr);
 
             BibDatabase db = result.getDatabase();
@@ -42,4 +42,5 @@ class BibDatabaseFilesTest {
             assertEquals("#unknown#", db.resolveForStrings("#unknown#"));
         }
     }
+
 }

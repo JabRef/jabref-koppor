@@ -39,17 +39,17 @@ public class MetaDataSerializerTest {
     private static final EntryType CUSTOM_TYPE = new UnknownEntryType("customType");
 
     private MetaData metaData;
+
     private GlobalCitationKeyPatterns pattern;
+
     private BibEntryType newCustomType;
 
     @BeforeEach
     void setUp() {
         metaData = new MetaData();
         pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
-        newCustomType = new BibEntryType(
-                CUSTOM_TYPE,
-                List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)),
-                Set.of());
+        newCustomType = new BibEntryType(CUSTOM_TYPE,
+                List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)), Set.of());
     }
 
     @Test
@@ -64,18 +64,13 @@ public class MetaDataSerializerTest {
         metaData.setSaveActions(saveActions);
 
         Map<String, String> expectedSerialization = new TreeMap<>();
-        expectedSerialization.put("saveActions",
-                "enabled;" + OS.NEWLINE + "title[lower_case]" + OS.NEWLINE + ";");
+        expectedSerialization.put("saveActions", "enabled;" + OS.NEWLINE + "title[lower_case]" + OS.NEWLINE + ";");
         assertEquals(expectedSerialization, MetaDataSerializer.getSerializedStringMap(metaData, pattern));
     }
 
     @Test
     void serializeSingleContentSelectors() {
-        List<String> values = List.of(
-                "approved",
-                "captured",
-                "received",
-                "status");
+        List<String> values = List.of("approved", "captured", "received", "status");
 
         metaData.addContentSelector(new ContentSelector(StandardField.PUBSTATE, values));
 
@@ -93,10 +88,7 @@ public class MetaDataSerializerTest {
 
     @Test
     void parsingEmptyOptionalFieldsFieldsReturnsEmptyCollections() {
-        newCustomType = new BibEntryType(
-                CUSTOM_TYPE,
-                Set.of(),
-                Set.of(new OrFields(StandardField.AUTHOR)));
+        newCustomType = new BibEntryType(CUSTOM_TYPE, Set.of(), Set.of(new OrFields(StandardField.AUTHOR)));
 
         String serialized = MetaDataSerializer.serializeCustomEntryTypes(newCustomType);
         Optional<BibEntryType> type = MetaDataParser.parseCustomEntryType(serialized);
@@ -104,36 +96,26 @@ public class MetaDataSerializerTest {
     }
 
     /**
-     * Code clone of {@link org.jabref.logic.importer.util.MetaDataParserTest#parseCustomizedEntryType()}
+     * Code clone of
+     * {@link org.jabref.logic.importer.util.MetaDataParserTest#parseCustomizedEntryType()}
      */
     public static Stream<Arguments> serializeCustomizedEntryType() {
         return Stream.of(
                 Arguments.of(
-                        new BibEntryTypeBuilder()
-                                .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(StandardField.AUTHOR, StandardField.TITLE),
-                        "jabref-entrytype: test: req[author;title] opt[]"
-                ),
+                        new BibEntryTypeBuilder().withType(new UnknownEntryType("test"))
+                            .withRequiredFields(StandardField.AUTHOR, StandardField.TITLE),
+                        "jabref-entrytype: test: req[author;title] opt[]"),
                 Arguments.of(
-                        new BibEntryTypeBuilder()
-                                .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(StandardField.AUTHOR)
-                                .withImportantFields(StandardField.TITLE),
-                        "jabref-entrytype: test: req[author] opt[title]"
-                ),
-                Arguments.of(
-                        new BibEntryTypeBuilder()
-                                .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(UnknownField.fromDisplayName("Test1"), UnknownField.fromDisplayName("Test2")),
-                        "jabref-entrytype: test: req[Test1;Test2] opt[]"
-                ),
-                Arguments.of(
-                        new BibEntryTypeBuilder()
-                                .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(UnknownField.fromDisplayName("tEST"), UnknownField.fromDisplayName("tEsT2")),
-                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"
-                )
-        );
+                        new BibEntryTypeBuilder().withType(new UnknownEntryType("test"))
+                            .withRequiredFields(StandardField.AUTHOR)
+                            .withImportantFields(StandardField.TITLE),
+                        "jabref-entrytype: test: req[author] opt[title]"),
+                Arguments.of(new BibEntryTypeBuilder().withType(new UnknownEntryType("test"))
+                    .withRequiredFields(UnknownField.fromDisplayName("Test1"), UnknownField.fromDisplayName("Test2")),
+                        "jabref-entrytype: test: req[Test1;Test2] opt[]"),
+                Arguments.of(new BibEntryTypeBuilder().withType(new UnknownEntryType("test"))
+                    .withRequiredFields(UnknownField.fromDisplayName("tEST"), UnknownField.fromDisplayName("tEsT2")),
+                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"));
     }
 
     @ParameterizedTest
@@ -143,8 +125,8 @@ public class MetaDataSerializerTest {
     }
 
     /**
-     * Ensures that user-specific .blg path is correctly serialized
-     * to the form: blgFilePath-{username}=/path/to/file.blg;
+     * Ensures that user-specific .blg path is correctly serialized to the form:
+     * blgFilePath-{username}=/path/to/file.blg;
      */
     @Test
     void serializeUserSpecificBlgPath() {
@@ -154,7 +136,9 @@ public class MetaDataSerializerTest {
 
         Map<String, String> serialized = MetaDataSerializer.getSerializedStringMap(metaData, pattern);
 
-        // On Windows, the path separator is a backslash, which is escaped in JabRef (see org.jabref.logic.exporter.MetaDataSerializer.serializeMetaData)
+        // On Windows, the path separator is a backslash, which is escaped in JabRef (see
+        // org.jabref.logic.exporter.MetaDataSerializer.serializeMetaData)
         assertEquals(blgPath.toString().replace("\\", "\\\\") + ";", serialized.get("blgFilePath-" + user));
     }
+
 }
