@@ -73,13 +73,6 @@
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
 
-        <module name="CustomImportOrder">
-            <property name="sortImportsInGroupAlphabetically" value="true"/>
-            <property name="separateLineBetweenGroups" value="true"/>
-            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-            <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
-        </module>
-
         <!-- Checks for whitespace: https://checkstyle.org/config_whitespace.html -->
 
         <module name="EmptyForInitializerPad"/>
