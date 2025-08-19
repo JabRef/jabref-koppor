@@ -81,8 +81,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
-      - run: find . -name "*.java"
-
       - name: Prettify code
         uses: creyD/prettier_action@v4.6
         with:
