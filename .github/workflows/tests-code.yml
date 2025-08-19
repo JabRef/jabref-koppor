@@ -86,6 +86,8 @@ jobs:
           node-version: 'latest'
           cache: 'npm'
 
+      - run: npm ci
+
       - run: npx prettier "**/*.java" --check
 
   openrewrite:

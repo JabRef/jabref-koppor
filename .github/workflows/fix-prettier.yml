@@ -30,6 +30,8 @@ jobs:
           node-version: 'latest'
           cache: 'npm'
 
+      - run: npm ci
+
       - run: npx prettier --write "**/*.java"
 
       - name: Commit & Push changes
