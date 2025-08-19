@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -15,12 +14,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
-
 import org.jabref.logic.importer.fileformat.CustomImporter;
 import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
 import org.jabref.logic.preferences.FetcherApiKey;
 
 public class ImporterPreferences {
+
     private final BooleanProperty importerEnabled;
     private final BooleanProperty generateNewKeyOnImport;
     private final BooleanProperty warnAboutDuplicatesOnImport;
@@ -30,32 +29,45 @@ public class ImporterPreferences {
     private final ObservableSet<CustomImporter> customImporters;
     private final BooleanProperty persistCustomKeys;
     private final ObservableList<String> catalogs;
-    private final ObjectProperty<PlainCitationParserChoice> defaultPlainCitationParser;
+    private final ObjectProperty<
+        PlainCitationParserChoice
+    > defaultPlainCitationParser;
     private final IntegerProperty citationsRelationsStoreTTL;
 
-    public ImporterPreferences(boolean importerEnabled,
-                               boolean generateNewKeyOnImport,
-                               Path importWorkingDirectory,
-                               boolean warnAboutDuplicatesOnImport,
-                               Set<CustomImporter> customImporters,
-                               Set<FetcherApiKey> apiKeys,
-                               Map<String, String> defaultApiKeys,
-                               boolean persistCustomKeys,
-                               List<String> catalogs,
-                               PlainCitationParserChoice defaultPlainCitationParser,
-                               int citationsRelationsStoreTTL
+    public ImporterPreferences(
+        boolean importerEnabled,
+        boolean generateNewKeyOnImport,
+        Path importWorkingDirectory,
+        boolean warnAboutDuplicatesOnImport,
+        Set<CustomImporter> customImporters,
+        Set<FetcherApiKey> apiKeys,
+        Map<String, String> defaultApiKeys,
+        boolean persistCustomKeys,
+        List<String> catalogs,
+        PlainCitationParserChoice defaultPlainCitationParser,
+        int citationsRelationsStoreTTL
     ) {
         this.importerEnabled = new SimpleBooleanProperty(importerEnabled);
-        this.generateNewKeyOnImport = new SimpleBooleanProperty(generateNewKeyOnImport);
-        this.importWorkingDirectory = new SimpleObjectProperty<>(importWorkingDirectory);
-        this.warnAboutDuplicatesOnImport = new SimpleBooleanProperty(warnAboutDuplicatesOnImport);
+        this.generateNewKeyOnImport = new SimpleBooleanProperty(
+            generateNewKeyOnImport
+        );
+        this.importWorkingDirectory = new SimpleObjectProperty<>(
+            importWorkingDirectory
+        );
+        this.warnAboutDuplicatesOnImport = new SimpleBooleanProperty(
+            warnAboutDuplicatesOnImport
+        );
         this.customImporters = FXCollections.observableSet(customImporters);
         this.apiKeys = FXCollections.observableSet(apiKeys);
         this.defaultApiKeys = defaultApiKeys;
         this.persistCustomKeys = new SimpleBooleanProperty(persistCustomKeys);
         this.catalogs = FXCollections.observableArrayList(catalogs);
-        this.defaultPlainCitationParser = new SimpleObjectProperty<>(defaultPlainCitationParser);
-        this.citationsRelationsStoreTTL = new SimpleIntegerProperty(citationsRelationsStoreTTL);
+        this.defaultPlainCitationParser = new SimpleObjectProperty<>(
+            defaultPlainCitationParser
+        );
+        this.citationsRelationsStoreTTL = new SimpleIntegerProperty(
+            citationsRelationsStoreTTL
+        );
     }
 
     public boolean areImporterEnabled() {
@@ -102,7 +114,9 @@ public class ImporterPreferences {
         return warnAboutDuplicatesOnImport;
     }
 
-    public void setWarnAboutDuplicatesOnImport(boolean warnAboutDuplicatesOnImport) {
+    public void setWarnAboutDuplicatesOnImport(
+        boolean warnAboutDuplicatesOnImport
+    ) {
         this.warnAboutDuplicatesOnImport.set(warnAboutDuplicatesOnImport);
     }
 
@@ -136,12 +150,13 @@ public class ImporterPreferences {
      * @return either a customized API key if configured or the default key
      */
     public Optional<String> getApiKey(String name) {
-        return apiKeys.stream()
-                      .filter(key -> key.getName().equalsIgnoreCase(name))
-                      .filter(FetcherApiKey::shouldUse)
-                      .findFirst()
-                      .map(FetcherApiKey::getKey)
-                      .or(() -> Optional.ofNullable(defaultApiKeys.get(name)));
+        return apiKeys
+            .stream()
+            .filter(key -> key.getName().equalsIgnoreCase(name))
+            .filter(FetcherApiKey::shouldUse)
+            .findFirst()
+            .map(FetcherApiKey::getKey)
+            .or(() -> Optional.ofNullable(defaultApiKeys.get(name)));
     }
 
     public void setCatalogs(List<String> catalogs) {
@@ -150,18 +165,22 @@ public class ImporterPreferences {
     }
 
     public ObservableList<String> getCatalogs() {
-          return catalogs;
+        return catalogs;
     }
 
     public PlainCitationParserChoice getDefaultPlainCitationParser() {
         return defaultPlainCitationParser.get();
     }
 
-    public ObjectProperty<PlainCitationParserChoice> defaultPlainCitationParserProperty() {
+    public ObjectProperty<
+        PlainCitationParserChoice
+    > defaultPlainCitationParserProperty() {
         return defaultPlainCitationParser;
     }
 
-    public void setDefaultPlainCitationParser(PlainCitationParserChoice defaultPlainCitationParser) {
+    public void setDefaultPlainCitationParser(
+        PlainCitationParserChoice defaultPlainCitationParser
+    ) {
         this.defaultPlainCitationParser.set(defaultPlainCitationParser);
     }
 

@@ -1,6 +1,7 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
 public class JstorQueryTransformer extends AbstractQueryTransformer {
+
     @Override
     protected String getLogicalAndOperator() {
         return " AND ";

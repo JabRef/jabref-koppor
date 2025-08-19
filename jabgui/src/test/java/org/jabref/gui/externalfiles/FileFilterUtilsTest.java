@@ -1,5 +1,10 @@
 package org.jabref.gui.externalfiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,16 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileFilterUtilsTest {
 
@@ -43,7 +42,9 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastWeekPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastWeek(time.minusDays(6).minusHours(23)));
+        assertTrue(
+            fileFilterUtils.isDuringLastWeek(time.minusDays(6).minusHours(23))
+        );
     }
 
     @Test
@@ -53,7 +54,9 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastMonthPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastMonth(time.minusDays(29).minusHours(23)));
+        assertTrue(
+            fileFilterUtils.isDuringLastMonth(time.minusDays(29).minusHours(23))
+        );
     }
 
     @Test
@@ -63,21 +66,24 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastYearPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastYear(time.minusDays(364).minusHours(23)));
+        assertTrue(
+            fileFilterUtils.isDuringLastYear(time.minusDays(364).minusHours(23))
+        );
     }
 
     @Nested
     class SortingTests {
 
         private final List<Path> files = new ArrayList<>();
-        private final List<String> expectedSortByDateAscending = new ArrayList<>();
-        private final List<String> expectedSortByDateDescending = new ArrayList<>();
+        private final List<String> expectedSortByDateAscending =
+            new ArrayList<>();
+        private final List<String> expectedSortByDateDescending =
+            new ArrayList<>();
         private final List<String> wrongOrder = new ArrayList<>();
 
         /* Initialize the directory and files used in the sorting tests, and change their last edited dates. */
         @BeforeEach
         void setUp(@TempDir Path tempDir) throws IOException {
-
             Path firstPath = tempDir.resolve("firstFile.pdf");
             Path secondPath = tempDir.resolve("secondFile.pdf");
             Path thirdPath = tempDir.resolve("thirdFile.pdf");
@@ -160,6 +166,7 @@ class FileFilterUtilsTest {
 
     @Nested
     class filteringTests {
+
         private final List<Path> files = new ArrayList<>();
         private final List<Path> targetFiles = new ArrayList<>();
         private final Set<String> ignoreFileSet = new HashSet<>();

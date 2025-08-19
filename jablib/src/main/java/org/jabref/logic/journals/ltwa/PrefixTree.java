@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class PrefixTree<D> {
+
     /**
      * Wildcard character used to match any character in the prefix tree.
      * For example, WILD_CARD + WILD_CARD + WILD_CARD + "Hello World" -> would match .{,3}Hello World in this prefix tree
@@ -49,7 +50,13 @@ public class PrefixTree<D> {
         return new ArrayList<>(result);
     }
 
-    private void searchRecursive(Node<D> node, String word, int index, Set<D> result, Set<SearchState> visited) {
+    private void searchRecursive(
+        Node<D> node,
+        String word,
+        int index,
+        Set<D> result,
+        Set<SearchState> visited
+    ) {
         result.addAll(node.data);
 
         if (index == word.length()) {
@@ -67,22 +74,34 @@ public class PrefixTree<D> {
 
         Node<D> exactMatch = node.children.get(codepoint);
         if (exactMatch != null) {
-            searchRecursive(exactMatch, word, index + charCount, result, visited);
+            searchRecursive(
+                exactMatch,
+                word,
+                index + charCount,
+                result,
+                visited
+            );
         }
 
         Node<D> wildcardMatch = node.children.get(WILD_CARD);
         if (wildcardMatch != null) {
             searchRecursive(wildcardMatch, word, index, result, visited);
             if (index + charCount <= word.length()) {
-                searchRecursive(wildcardMatch, word, index + charCount, result, visited);
+                searchRecursive(
+                    wildcardMatch,
+                    word,
+                    index + charCount,
+                    result,
+                    visited
+                );
             }
         }
     }
 
-    private record SearchState(Node<?> node, int index) {
-    }
+    private record SearchState(Node<?> node, int index) {}
 
     private static class Node<D> {
+
         private final Map<Integer, Node<D>> children;
         private final List<D> data;
 
@@ -96,7 +115,9 @@ public class PrefixTree<D> {
             for (int i = 0; i < key.length(); ) {
                 int codepoint = key.codePointAt(i);
                 i += Character.charCount(codepoint);
-                current = current.children.computeIfAbsent(codepoint, _ -> new Node<>());
+                current = current.children.computeIfAbsent(codepoint, _ ->
+                    new Node<>()
+                );
             }
             current.data.addAll(data);
         }

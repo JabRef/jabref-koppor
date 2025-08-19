@@ -1,12 +1,12 @@
 package org.jabref.gui.fieldeditors;
 
-import javax.swing.undo.UndoManager;
-
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.AutoCompletionTextInputBinding;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -21,45 +21,73 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class JournalEditor extends HBox implements FieldEditorFX {
 
-    @FXML private JournalEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
+    @FXML
+    private JournalEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private JournalAbbreviationRepository abbreviationRepository;
-    @Inject private UndoManager undoManager;
+    @FXML
+    private EditorTextField textField;
 
-    public JournalEditor(Field field,
-                         SuggestionProvider<?> suggestionProvider,
-                         FieldCheckers fieldCheckers,
-                         UndoAction undoAction,
-                         RedoAction redoAction) {
+    @FXML
+    private Button journalInfoButton;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private JournalAbbreviationRepository abbreviationRepository;
+
+    @Inject
+    private UndoManager undoManager;
+
+    public JournalEditor(
+        Field field,
+        SuggestionProvider<?> suggestionProvider,
+        FieldCheckers fieldCheckers,
+        UndoAction undoAction,
+        RedoAction redoAction
+    ) {
+        ViewLoader.view(this).root(this).load();
 
         this.viewModel = new JournalEditorViewModel(
-                field,
-                suggestionProvider,
-                abbreviationRepository,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager);
+            field,
+            suggestionProvider,
+            abbreviationRepository,
+            fieldCheckers,
+            taskExecutor,
+            dialogService,
+            undoManager
+        );
 
-        establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
-        textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
-        AutoCompletionTextInputBinding.autoComplete(textField, viewModel::complete);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        establishBinding(
+            textField,
+            viewModel.textProperty(),
+            keyBindingRepository,
+            undoAction,
+            redoAction
+        );
+        textField.initContextMenu(
+            new DefaultMenu(textField),
+            keyBindingRepository
+        );
+        AutoCompletionTextInputBinding.autoComplete(
+            textField,
+            viewModel::complete
+        );
+        new EditorValidator(preferences).configureValidation(
+            viewModel.getFieldValidator().getValidationStatus(),
+            textField
+        );
     }
 
     public JournalEditorViewModel getViewModel() {
@@ -83,7 +111,12 @@ public class JournalEditor extends HBox implements FieldEditorFX {
 
     @FXML
     private void showJournalInfo() {
-        if (JournalInfoOptInDialogHelper.isJournalInfoEnabled(dialogService, preferences.getEntryEditorPreferences())) {
+        if (
+            JournalInfoOptInDialogHelper.isJournalInfoEnabled(
+                dialogService,
+                preferences.getEntryEditorPreferences()
+            )
+        ) {
             viewModel.showJournalInfo(journalInfoButton);
         }
     }

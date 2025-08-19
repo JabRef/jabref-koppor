@@ -1,14 +1,13 @@
 package org.jabref.logic.ai.processingstatus;
 
+import jakarta.annotation.Nullable;
 import java.util.Optional;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import jakarta.annotation.Nullable;
-
 public class ProcessingInfo<O, D> {
+
     private final O object;
     private final ObjectProperty<ProcessingState> state;
     private Optional<Exception> exception = Optional.empty();

@@ -2,9 +2,7 @@ package org.jabref.gui.entryeditor.citationrelationtab;
 
 import java.util.List;
 import java.util.SequencedSet;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.externalfiles.ImportHandler;
@@ -26,7 +24,14 @@ public class CitationsRelationsTabViewModel {
     private final FileUpdateMonitor fileUpdateMonitor;
     private final TaskExecutor taskExecutor;
 
-    public CitationsRelationsTabViewModel(GuiPreferences preferences, UndoManager undoManager, StateManager stateManager, DialogService dialogService, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
+    public CitationsRelationsTabViewModel(
+        GuiPreferences preferences,
+        UndoManager undoManager,
+        StateManager stateManager,
+        DialogService dialogService,
+        FileUpdateMonitor fileUpdateMonitor,
+        TaskExecutor taskExecutor
+    ) {
         this.preferences = preferences;
         this.undoManager = undoManager;
         this.stateManager = stateManager;
@@ -35,37 +40,71 @@ public class CitationsRelationsTabViewModel {
         this.taskExecutor = taskExecutor;
     }
 
-    public void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
-        BibDatabaseContext databaseContext = stateManager.getActiveDatabase().orElse(new BibDatabaseContext());
+    public void importEntries(
+        List<CitationRelationItem> entriesToImport,
+        CitationFetcher.SearchType searchType,
+        BibEntry existingEntry
+    ) {
+        BibDatabaseContext databaseContext = stateManager
+            .getActiveDatabase()
+            .orElse(new BibDatabaseContext());
 
-        List<BibEntry> entries = entriesToImport.stream()
-                                                .map(CitationRelationItem::entry)
-                                                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
-                                                .map(BibEntry::new)
-                                                .toList();
+        List<BibEntry> entries = entriesToImport
+            .stream()
+            .map(CitationRelationItem::entry)
+            // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
+            .map(BibEntry::new)
+            .toList();
 
         ImportHandler importHandler = new ImportHandler(
-                databaseContext,
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
-                taskExecutor);
-        CitationKeyGenerator generator = new CitationKeyGenerator(databaseContext, preferences.getCitationKeyPatternPreferences());
-        boolean generateNewKeyOnImport = preferences.getImporterPreferences().generateNewKeyOnImportProperty().get();
+            databaseContext,
+            preferences,
+            fileUpdateMonitor,
+            undoManager,
+            stateManager,
+            dialogService,
+            taskExecutor
+        );
+        CitationKeyGenerator generator = new CitationKeyGenerator(
+            databaseContext,
+            preferences.getCitationKeyPatternPreferences()
+        );
+        boolean generateNewKeyOnImport = preferences
+            .getImporterPreferences()
+            .generateNewKeyOnImportProperty()
+            .get();
 
         switch (searchType) {
-            case CITES -> importCites(entries, existingEntry, importHandler, generator, generateNewKeyOnImport);
-            case CITED_BY -> importCitedBy(entries, existingEntry, importHandler, generator, generateNewKeyOnImport);
+            case CITES -> importCites(
+                entries,
+                existingEntry,
+                importHandler,
+                generator,
+                generateNewKeyOnImport
+            );
+            case CITED_BY -> importCitedBy(
+                entries,
+                existingEntry,
+                importHandler,
+                generator,
+                generateNewKeyOnImport
+            );
         }
     }
 
-    private void importCites(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler, CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
+    private void importCites(
+        List<BibEntry> entries,
+        BibEntry existingEntry,
+        ImportHandler importHandler,
+        CitationKeyGenerator generator,
+        boolean generateNewKeyOnImport
+    ) {
         SequencedSet<String> citeKeys = existingEntry.getCites();
 
         for (BibEntry entryToCite : entries) {
-            if (generateNewKeyOnImport || entryToCite.getCitationKey().isEmpty()) {
+            if (
+                generateNewKeyOnImport || entryToCite.getCitationKey().isEmpty()
+            ) {
                 String key = generator.generateKey(entryToCite);
                 entryToCite.setCitationKey(key);
             }
@@ -81,10 +120,21 @@ public class CitationsRelationsTabViewModel {
      * <p>
      * Therefore, some special handling is needed
      */
-    private void importCitedBy(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler, CitationKeyGenerator generator, boolean generateNewKeyOnImport) {
+    private void importCitedBy(
+        List<BibEntry> entries,
+        BibEntry existingEntry,
+        ImportHandler importHandler,
+        CitationKeyGenerator generator,
+        boolean generateNewKeyOnImport
+    ) {
         if (existingEntry.getCitationKey().isEmpty()) {
             if (!generateNewKeyOnImport) {
-                dialogService.notify(Localization.lang("No citation key for %0", existingEntry.getAuthorTitleYear()));
+                dialogService.notify(
+                    Localization.lang(
+                        "No citation key for %0",
+                        existingEntry.getAuthorTitleYear()
+                    )
+                );
                 return;
             }
             existingEntry.setCitationKey(generator.generateKey(existingEntry));

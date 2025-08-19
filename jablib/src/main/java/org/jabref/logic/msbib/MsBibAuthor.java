@@ -5,7 +5,8 @@ import org.jabref.model.entry.Author;
 
 public class MsBibAuthor {
 
-    private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER = new RemoveEnclosingBracesFormatter();
+    private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER =
+        new RemoveEnclosingBracesFormatter();
 
     private String firstName;
     private String middleName;
@@ -16,16 +17,17 @@ public class MsBibAuthor {
         this.author = author;
 
         StringBuilder sb = new StringBuilder();
-        author.getGivenName().ifPresent(firstNames -> {
-
-            String[] names = firstNames.split(" ");
-            for (int i = 1; i < names.length; i++) {
-                sb.append(names[i]);
-                sb.append(" ");
-            }
-            this.middleName = sb.toString().trim();
-            this.firstName = names[0];
-        });
+        author
+            .getGivenName()
+            .ifPresent(firstNames -> {
+                String[] names = firstNames.split(" ");
+                for (int i = 1; i < names.length; i++) {
+                    sb.append(names[i]);
+                    sb.append(" ");
+                }
+                this.middleName = sb.toString().trim();
+                this.firstName = names[0];
+            });
     }
 
     public MsBibAuthor(Author author, boolean isCorporate) {
@@ -48,7 +50,9 @@ public class MsBibAuthor {
     }
 
     public String getLastName() {
-        return REMOVE_BRACES_FORMATTER.format(author.getNamePrefixAndFamilyName());
+        return REMOVE_BRACES_FORMATTER.format(
+            author.getNamePrefixAndFamilyName()
+        );
     }
 
     public String getFirstLast() {

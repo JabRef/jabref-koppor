@@ -3,13 +3,11 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilReader;
 import org.jabref.model.entry.BibEntry;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 /**
  * Wraps the XMPUtility function to be used as an Importer.
@@ -24,7 +22,8 @@ public class PdfXmpImporter extends PdfImporter {
         xmpUtilReader = new XmpUtilReader();
     }
 
-    public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException {
+    public List<BibEntry> importDatabase(Path filePath, PDDocument document)
+        throws IOException {
         return xmpUtilReader.readXmp(filePath, document, xmpPreferences);
     }
 
@@ -40,6 +39,8 @@ public class PdfXmpImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Imports BibTeX data using XMP data of a PDF.");
+        return Localization.lang(
+            "Imports BibTeX data using XMP data of a PDF."
+        );
     }
 }

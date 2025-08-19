@@ -1,9 +1,14 @@
 package org.jabref.gui.groups;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
@@ -22,16 +27,9 @@ import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.WordKeywordGroup;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GroupTreeViewModelTest {
 
@@ -46,44 +44,83 @@ class GroupTreeViewModelTest {
     void setUp() {
         databaseContext = new BibDatabaseContext();
         stateManager = new JabRefGuiStateManager();
-        stateManager.activeDatabaseProperty().setValue(Optional.of(databaseContext));
+        stateManager
+            .activeDatabaseProperty()
+            .setValue(Optional.of(databaseContext));
         taskExecutor = new CurrentThreadTaskExecutor();
         preferences = mock(GuiPreferences.class);
         dialogService = mock(DialogService.class, Answers.RETURNS_DEEP_STUBS);
 
-        when(preferences.getLibraryPreferences()).thenReturn(new LibraryPreferences(
+        when(preferences.getLibraryPreferences()).thenReturn(
+            new LibraryPreferences(
                 databaseContext.getMode(),
                 false,
                 false,
                 false,
                 "Imported entries"
-        ));
-        when(preferences.getGroupsPreferences()).thenReturn(new GroupsPreferences(
+            )
+        );
+        when(preferences.getGroupsPreferences()).thenReturn(
+            new GroupsPreferences(
                 EnumSet.noneOf(GroupViewMode.class),
                 true,
                 true,
-                GroupHierarchyType.INDEPENDENT));
-        groupTree = new GroupTreeViewModel(stateManager, mock(DialogService.class), mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+                GroupHierarchyType.INDEPENDENT
+            )
+        );
+        groupTree = new GroupTreeViewModel(
+            stateManager,
+            mock(DialogService.class),
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
     }
 
     @Test
     void rootGroupIsAllEntriesByDefault() {
         AllEntriesGroup allEntriesGroup = new AllEntriesGroup("All entries");
-        assertEquals(new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, allEntriesGroup, new CustomLocalDragboard(), preferences), groupTree.rootGroupProperty().getValue());
+        assertEquals(
+            new GroupNodeViewModel(
+                databaseContext,
+                stateManager,
+                taskExecutor,
+                allEntriesGroup,
+                new CustomLocalDragboard(),
+                preferences
+            ),
+            groupTree.rootGroupProperty().getValue()
+        );
     }
 
     @Test
     void rootGroupIsSelectedByDefault() {
-        assertEquals(groupTree.rootGroupProperty().get().getGroupNode(), stateManager.getSelectedGroups(databaseContext).getFirst());
+        assertEquals(
+            groupTree.rootGroupProperty().get().getGroupNode(),
+            stateManager.getSelectedGroups(databaseContext).getFirst()
+        );
     }
 
     @Test
     void explicitGroupsAreRemovedFromEntriesOnDelete() {
-        ExplicitGroup group = new ExplicitGroup("group", GroupHierarchyType.INDEPENDENT, ',');
+        ExplicitGroup group = new ExplicitGroup(
+            "group",
+            GroupHierarchyType.INDEPENDENT,
+            ','
+        );
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupNodeViewModel model = new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
+        GroupNodeViewModel model = new GroupNodeViewModel(
+            databaseContext,
+            stateManager,
+            taskExecutor,
+            group,
+            new CustomLocalDragboard(),
+            preferences
+        );
         model.addEntriesToGroup(databaseContext.getEntries());
         groupTree.removeGroupsAndSubGroupsFromEntries(model);
 
@@ -93,11 +130,26 @@ class GroupTreeViewModelTest {
     @Test
     void keywordGroupsAreNotRemovedFromEntriesOnDelete() {
         String groupName = "A";
-        WordKeywordGroup group = new WordKeywordGroup(groupName, GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, groupName, true, ',', true);
+        WordKeywordGroup group = new WordKeywordGroup(
+            groupName,
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            groupName,
+            true,
+            ',',
+            true
+        );
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupNodeViewModel model = new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
+        GroupNodeViewModel model = new GroupNodeViewModel(
+            databaseContext,
+            stateManager,
+            taskExecutor,
+            group,
+            new CustomLocalDragboard(),
+            preferences
+        );
         model.addEntriesToGroup(databaseContext.getEntries());
         groupTree.removeGroupsAndSubGroupsFromEntries(model);
 
@@ -106,48 +158,136 @@ class GroupTreeViewModelTest {
 
     @Test
     void shouldNotShowDialogWhenGroupNameChanges() {
-        AbstractGroup oldGroup = new ExplicitGroup("group", GroupHierarchyType.INDEPENDENT, ',');
-        AbstractGroup newGroup = new ExplicitGroup("newGroupName", GroupHierarchyType.INDEPENDENT, ',');
+        AbstractGroup oldGroup = new ExplicitGroup(
+            "group",
+            GroupHierarchyType.INDEPENDENT,
+            ','
+        );
+        AbstractGroup newGroup = new ExplicitGroup(
+            "newGroupName",
+            GroupHierarchyType.INDEPENDENT,
+            ','
+        );
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         assertTrue(model.onlyMinorChanges(oldGroup, newGroup));
     }
 
     @Test
     void shouldNotShowDialogWhenGroupsAreEqual() {
-        AbstractGroup oldGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordTest", true, ',', true);
-        AbstractGroup newGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordTest", true, ',', true);
+        AbstractGroup oldGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordTest",
+            true,
+            ',',
+            true
+        );
+        AbstractGroup newGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordTest",
+            true,
+            ',',
+            true
+        );
 
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         assertTrue(model.onlyMinorChanges(oldGroup, newGroup));
     }
 
     @Test
     void shouldShowDialogWhenKeywordDiffers() {
-        AbstractGroup oldGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordTest", true, ',', true);
-        AbstractGroup newGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordChanged", true, ',', true);
+        AbstractGroup oldGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordTest",
+            true,
+            ',',
+            true
+        );
+        AbstractGroup newGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordChanged",
+            true,
+            ',',
+            true
+        );
 
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         assertFalse(model.onlyMinorChanges(oldGroup, newGroup));
     }
 
     @Test
     void shouldShowDialogWhenCaseSensitivyDiffers() {
-        AbstractGroup oldGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordTest", false, ',', true);
-        AbstractGroup newGroup = new WordKeywordGroup("group", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "keywordChanged", true, ',', true);
+        AbstractGroup oldGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordTest",
+            false,
+            ',',
+            true
+        );
+        AbstractGroup newGroup = new WordKeywordGroup(
+            "group",
+            GroupHierarchyType.INCLUDING,
+            StandardField.KEYWORDS,
+            "keywordChanged",
+            true,
+            ',',
+            true
+        );
 
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         assertFalse(model.onlyMinorChanges(oldGroup, newGroup));
     }
 
@@ -159,7 +299,15 @@ class GroupTreeViewModelTest {
 
     @Test
     void shouldAddsAllSuggestedGroupsWhenNoneExist() {
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         GroupNodeViewModel rootGroup = model.rootGroupProperty().getValue();
         assertFalse(rootGroup.hasAllSuggestedGroups());
 
@@ -171,9 +319,19 @@ class GroupTreeViewModelTest {
 
     @Test
     void shouldAddOnlyMissingGroup() {
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         GroupNodeViewModel rootGroup = model.rootGroupProperty().getValue();
-        rootGroup.getGroupNode().addSubgroup(JabRefSuggestedGroups.createWithoutFilesGroup());
+        rootGroup
+            .getGroupNode()
+            .addSubgroup(JabRefSuggestedGroups.createWithoutFilesGroup());
         assertEquals(1, rootGroup.getChildren().size());
 
         model.addSuggestedGroups(rootGroup);
@@ -184,10 +342,22 @@ class GroupTreeViewModelTest {
 
     @Test
     void shouldNotAddSuggestedGroupsWhenAllExist() {
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
         GroupNodeViewModel rootGroup = model.rootGroupProperty().getValue();
-        rootGroup.getGroupNode().addSubgroup(JabRefSuggestedGroups.createWithoutFilesGroup());
-        rootGroup.getGroupNode().addSubgroup(JabRefSuggestedGroups.createWithoutGroupsGroup());
+        rootGroup
+            .getGroupNode()
+            .addSubgroup(JabRefSuggestedGroups.createWithoutFilesGroup());
+        rootGroup
+            .getGroupNode()
+            .addSubgroup(JabRefSuggestedGroups.createWithoutGroupsGroup());
         assertEquals(2, rootGroup.getChildren().size());
 
         model.addSuggestedGroups(rootGroup);
@@ -200,9 +370,25 @@ class GroupTreeViewModelTest {
     void shouldCreateImportedEntriesGroupWhenEnabled() {
         preferences.getLibraryPreferences().setAddImportedEntries(true);
 
-        List<GroupNodeViewModel> prevModel = groupTree.rootGroupProperty().getValue().getChildren();
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
-        String actualGrpName = model.rootGroupProperty().getValue().getChildren().getFirst().getDisplayName();
+        List<GroupNodeViewModel> prevModel = groupTree
+            .rootGroupProperty()
+            .getValue()
+            .getChildren();
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
+        String actualGrpName = model
+            .rootGroupProperty()
+            .getValue()
+            .getChildren()
+            .getFirst()
+            .getDisplayName();
 
         assertEquals(0, prevModel.size());
         assertEquals("Imported entries", actualGrpName);
@@ -211,10 +397,25 @@ class GroupTreeViewModelTest {
     @Test
     void shouldReflectUpdatedNameForImportedEntriesGroup() {
         preferences.getLibraryPreferences().setAddImportedEntries(true);
-        preferences.getLibraryPreferences().setAddImportedEntriesGroupName("Review list");
+        preferences
+            .getLibraryPreferences()
+            .setAddImportedEntriesGroupName("Review list");
 
-        GroupTreeViewModel model = new GroupTreeViewModel(stateManager, dialogService, mock(AiService.class), preferences, mock(AdaptVisibleTabs.class), taskExecutor, new CustomLocalDragboard());
-        String actualGrpName = model.rootGroupProperty().getValue().getChildren().getFirst().getDisplayName();
+        GroupTreeViewModel model = new GroupTreeViewModel(
+            stateManager,
+            dialogService,
+            mock(AiService.class),
+            preferences,
+            mock(AdaptVisibleTabs.class),
+            taskExecutor,
+            new CustomLocalDragboard()
+        );
+        String actualGrpName = model
+            .rootGroupProperty()
+            .getValue()
+            .getChildren()
+            .getFirst()
+            .getDisplayName();
 
         assertEquals("Review list", actualGrpName);
     }

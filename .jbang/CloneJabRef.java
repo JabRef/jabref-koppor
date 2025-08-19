@@ -9,6 +9,7 @@ import java.nio.file.Path;
 //DEPS org.eclipse.jgit:org.eclipse.jgit.pgm:7.3.0.202506031305-r
 
 public class CloneJabRef {
+
     public static void main(String[] args) throws Exception {
         Path targetDir;
         if (args.length == 1) {
@@ -22,7 +23,12 @@ public class CloneJabRef {
             return;
         }
 
-        String[] jGitArgs = {"clone", "https://github.com/JabRef/jabref.git", "--recurse-submodules", targetDir.toString()};
+        String[] jGitArgs = {
+            "clone",
+            "https://github.com/JabRef/jabref.git",
+            "--recurse-submodules",
+            targetDir.toString(),
+        };
         org.eclipse.jgit.pgm.Main.main(jGitArgs);
 
         System.out.println("JabRef code available at: " + targetDir);

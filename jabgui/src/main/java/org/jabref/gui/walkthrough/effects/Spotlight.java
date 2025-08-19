@@ -1,7 +1,6 @@
 package org.jabref.gui.walkthrough.effects;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -14,13 +13,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
-
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class Spotlight extends BaseWindowEffect {
+
     private static final Duration TRANSITION_DURATION = Duration.millis(300);
 
     private @Nullable Node node;
@@ -41,7 +39,9 @@ public final class Spotlight extends BaseWindowEffect {
     /// 3. Now, we have two overlay shapes in the pane, one from caller 1 and one from
     /// caller 2. We only have reference to the one from caller 2, but the one from
     /// caller 1 is still in the pane, leading to unexpected behavior.
-    private final AtomicBoolean isUpdatingOverlayShape = new AtomicBoolean(false);
+    private final AtomicBoolean isUpdatingOverlayShape = new AtomicBoolean(
+        false
+    );
 
     public Spotlight(@NonNull Pane pane) {
         super(pane);
@@ -49,7 +49,9 @@ public final class Spotlight extends BaseWindowEffect {
 
     public void attach(@NonNull Node node) {
         if (this.node != null) {
-            throw new IllegalStateException("Spotlight is already attached to a node. Detach it first.");
+            throw new IllegalStateException(
+                "Spotlight is already attached to a node. Detach it first."
+            );
         }
 
         backdrop = new Rectangle();
@@ -73,7 +75,9 @@ public final class Spotlight extends BaseWindowEffect {
         }
 
         Bounds oldBounds = hole.getBoundsInParent();
-        Bounds newBoundsInScene = newNode.localToScene(newNode.getBoundsInLocal());
+        Bounds newBoundsInScene = newNode.localToScene(
+            newNode.getBoundsInLocal()
+        );
         Bounds newBoundsInPane = pane.sceneToLocal(newBoundsInScene);
 
         hole.setX(oldBounds.getMinX());
@@ -82,15 +86,33 @@ public final class Spotlight extends BaseWindowEffect {
         hole.setHeight(oldBounds.getHeight());
 
         transitionAnimation = new Timeline(
-                new KeyFrame(TRANSITION_DURATION,
-                        new KeyValue(hole.xProperty(), newBoundsInPane.getMinX(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.yProperty(), newBoundsInPane.getMinY(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.widthProperty(), newBoundsInPane.getWidth(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.heightProperty(), newBoundsInPane.getHeight(), Interpolator.EASE_BOTH)
+            new KeyFrame(
+                TRANSITION_DURATION,
+                new KeyValue(
+                    hole.xProperty(),
+                    newBoundsInPane.getMinX(),
+                    Interpolator.EASE_BOTH
+                ),
+                new KeyValue(
+                    hole.yProperty(),
+                    newBoundsInPane.getMinY(),
+                    Interpolator.EASE_BOTH
+                ),
+                new KeyValue(
+                    hole.widthProperty(),
+                    newBoundsInPane.getWidth(),
+                    Interpolator.EASE_BOTH
+                ),
+                new KeyValue(
+                    hole.heightProperty(),
+                    newBoundsInPane.getHeight(),
+                    Interpolator.EASE_BOTH
                 )
+            )
         );
 
-        ChangeListener<Number> changeListener = (_, _, _) -> updateOverlayShape();
+        ChangeListener<Number> changeListener = (_, _, _) ->
+            updateOverlayShape();
         hole.xProperty().addListener(changeListener);
         hole.yProperty().addListener(changeListener);
         hole.widthProperty().addListener(changeListener);
@@ -120,7 +142,9 @@ public final class Spotlight extends BaseWindowEffect {
     @Override
     public void detach() {
         if (node == null) {
-            throw new IllegalStateException("Spotlight is not attached to any node.");
+            throw new IllegalStateException(
+                "Spotlight is not attached to any node."
+            );
         }
         if (transitionAnimation != null) {
             transitionAnimation.stop();
@@ -128,7 +152,10 @@ public final class Spotlight extends BaseWindowEffect {
         }
         super.detach();
         Shape overlayShape = this.overlayShape;
-        if (overlayShape != null && overlayShape.getParent() instanceof Pane parentPane) {
+        if (
+            overlayShape != null &&
+            overlayShape.getParent() instanceof Pane parentPane
+        ) {
             parentPane.getChildren().remove(overlayShape);
             this.overlayShape = null;
         }
@@ -144,7 +171,9 @@ public final class Spotlight extends BaseWindowEffect {
 
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
 
-        if (bounds == null || bounds.getWidth() <= 0 || bounds.getHeight() <= 0) {
+        if (
+            bounds == null || bounds.getWidth() <= 0 || bounds.getHeight() <= 0
+        ) {
             hideEffect();
             return;
         }
@@ -173,11 +202,15 @@ public final class Spotlight extends BaseWindowEffect {
 
     private void updateOverlayShape() {
         if (isUpdatingOverlayShape.getAndSet(true)) {
-            throw new IllegalStateException("Overlay shape is enjoying an update!");
+            throw new IllegalStateException(
+                "Overlay shape is enjoying an update!"
+            );
         }
 
         int oldIndex;
-        if (overlayShape == null || !pane.getChildren().contains(overlayShape)) {
+        if (
+            overlayShape == null || !pane.getChildren().contains(overlayShape)
+        ) {
             oldIndex = pane.getChildren().size();
         } else {
             oldIndex = this.pane.getChildren().indexOf(overlayShape);

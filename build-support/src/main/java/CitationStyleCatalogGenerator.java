@@ -16,6 +16,7 @@
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/UnknownFileType.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/model/util/OptionalUtil.java
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,12 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyle;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +38,17 @@ import org.slf4j.LoggerFactory;
 /// Has to be started in the root of the repository due to <https://github.com/jbangdev/jbang-gradle-plugin/issues/11>
 @AllowedToUseClassGetResource("Required for loading internal CSL styles")
 public class CitationStyleCatalogGenerator {
-    private static final Path STYLES_ROOT = Path.of("jablib/src/main/resources/csl-styles");
-    private static final String CATALOG_PATH = "jablib/build/generated/resources/citation-style-catalog.json";
+
+    private static final Path STYLES_ROOT = Path.of(
+        "jablib/src/main/resources/csl-styles"
+    );
+    private static final String CATALOG_PATH =
+        "jablib/build/generated/resources/citation-style-catalog.json";
     private static final String DEFAULT_STYLE = "ieee.csl";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CitationStyleCatalogGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        CitationStyleCatalogGenerator.class
+    );
 
     public static void main(String[] args) {
         generateCitationStyleCatalog();
@@ -53,7 +57,10 @@ public class CitationStyleCatalogGenerator {
     public static void generateCitationStyleCatalog() {
         try {
             if (!Files.exists(STYLES_ROOT.resolve(DEFAULT_STYLE))) {
-                LOGGER.error("Could not find any citation style. Tried with {}.", DEFAULT_STYLE);
+                LOGGER.error(
+                    "Could not find any citation style. Tried with {}.",
+                    DEFAULT_STYLE
+                );
                 return;
             }
 
@@ -65,38 +72,54 @@ public class CitationStyleCatalogGenerator {
         }
     }
 
-    private static List<CitationStyle> discoverStyles(Path path) throws IOException {
-        try (Stream<Path> stream = Files.find(path, 1, (file, _) -> file.toString().endsWith("csl"))) {
-            return stream.map(Path::toAbsolutePath)
-                         .map(Path::toString)
-                         .map(CSLStyleUtils::createCitationStyleFromFile)
-                         .flatMap(Optional::stream)
-                         .toList();
+    private static List<CitationStyle> discoverStyles(Path path)
+        throws IOException {
+        try (
+            Stream<Path> stream = Files.find(path, 1, (file, _) ->
+                file.toString().endsWith("csl")
+            )
+        ) {
+            return stream
+                .map(Path::toAbsolutePath)
+                .map(Path::toString)
+                .map(CSLStyleUtils::createCitationStyleFromFile)
+                .flatMap(Optional::stream)
+                .toList();
         }
     }
 
-    private static void generateCatalog(List<CitationStyle> styles) throws IOException {
+    private static void generateCatalog(List<CitationStyle> styles)
+        throws IOException {
         Path catalogFile = Path.of(CATALOG_PATH);
 
         // Create a JSON representation of the styles
         ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> styleInfoList = styles.stream()
-                                                        .map(style -> {
-                                                            Map<String, Object> info = new HashMap<>();
-                                                            Path stylePath = Path.of(style.getFilePath());
-                                                            Path relativePath = STYLES_ROOT.toAbsolutePath().relativize(stylePath.toAbsolutePath());
-                                                            info.put("path", relativePath.toString());
-                                                            info.put("title", style.getTitle());
-                                                            info.put("isNumeric", style.isNumericStyle());
-                                                            info.put("hasBibliography", style.hasBibliography());
-                                                            info.put("usesHangingIndent", style.usesHangingIndent());
-                                                            return info;
-                                                        })
-                                                        .toList();
+        List<Map<String, Object>> styleInfoList = styles
+            .stream()
+            .map(style -> {
+                Map<String, Object> info = new HashMap<>();
+                Path stylePath = Path.of(style.getFilePath());
+                Path relativePath = STYLES_ROOT.toAbsolutePath().relativize(
+                    stylePath.toAbsolutePath()
+                );
+                info.put("path", relativePath.toString());
+                info.put("title", style.getTitle());
+                info.put("isNumeric", style.isNumericStyle());
+                info.put("hasBibliography", style.hasBibliography());
+                info.put("usesHangingIndent", style.usesHangingIndent());
+                return info;
+            })
+            .toList();
 
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(styleInfoList);
+        String json = mapper
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(styleInfoList);
         Files.writeString(catalogFile, json);
 
-        LOGGER.info("Generated citation style catalog with {} styles at {}", styles.size(), catalogFile);
+        LOGGER.info(
+            "Generated citation style catalog with {} styles at {}",
+            styles.size(),
+            catalogFile
+        );
     }
 }

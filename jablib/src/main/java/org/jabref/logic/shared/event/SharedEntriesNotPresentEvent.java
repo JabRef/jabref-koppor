@@ -1,7 +1,6 @@
 package org.jabref.logic.shared.event;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /**
@@ -10,6 +9,4 @@ import org.jabref.model.entry.BibEntry;
  *
  * @param bibEntries Affected {@link BibEntry}
  */
-public record SharedEntriesNotPresentEvent(
-        List<BibEntry> bibEntries) {
-}
+public record SharedEntriesNotPresentEvent(List<BibEntry> bibEntries) {}

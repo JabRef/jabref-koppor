@@ -25,16 +25,18 @@ public class SelectedItemsContainer extends FlowPane {
 
         items.forEach(this::addChip);
 
-        items.addListener((ListChangeListener<CAYWEntry>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(this::addChip);
-                }
-                if (change.wasRemoved()) {
-                    change.getRemoved().forEach(this::removeChip);
+        items.addListener(
+            (ListChangeListener<CAYWEntry>) change -> {
+                while (change.next()) {
+                    if (change.wasAdded()) {
+                        change.getAddedSubList().forEach(this::addChip);
+                    }
+                    if (change.wasRemoved()) {
+                        change.getRemoved().forEach(this::removeChip);
+                    }
                 }
             }
-        });
+        );
     }
 
     private void addChip(CAYWEntry entry) {
@@ -44,14 +46,15 @@ public class SelectedItemsContainer extends FlowPane {
 
     private void removeChip(CAYWEntry entry) {
         getChildren().removeIf(node -> {
-            if (node instanceof SelectedItemsContainer.Chip chip) {
-                return chip.getEntry().equals(entry);
-            }
-            return false;
-        });
+                if (node instanceof SelectedItemsContainer.Chip chip) {
+                    return chip.getEntry().equals(entry);
+                }
+                return false;
+            });
     }
 
     private static class Chip extends HBox {
+
         private final CAYWEntry entry;
 
         public Chip(CAYWEntry entry, ObservableList<CAYWEntry> parentList) {
@@ -76,8 +79,8 @@ public class SelectedItemsContainer extends FlowPane {
             getChildren().addAll(label, removeButton);
 
             this.setOnMouseClicked(e -> {
-                // TODO: Handle the click event and show custom fields like prefix/suffix etc.
-            });
+                    // TODO: Handle the click event and show custom fields like prefix/suffix etc.
+                });
         }
 
         public CAYWEntry getEntry() {

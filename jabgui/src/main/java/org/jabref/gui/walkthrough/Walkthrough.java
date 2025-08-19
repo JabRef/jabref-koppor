@@ -3,20 +3,17 @@ package org.jabref.gui.walkthrough;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.walkthrough.declarative.step.PanelStep;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -24,7 +21,10 @@ import org.slf4j.LoggerFactory;
 
 /// Maintains the state of a walkthrough.
 public class Walkthrough {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Walkthrough.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        Walkthrough.class
+    );
 
     private final IntegerProperty currentStep;
     private final BooleanProperty active;
@@ -38,7 +38,9 @@ public class Walkthrough {
     public Walkthrough(StateManager stateManager, List<WalkthroughStep> steps) {
         if (steps.isEmpty() || steps.stream().anyMatch(Objects::isNull)) {
             // This throwing is acceptable, since the Walkthrough is often hardcoded and won't make the application crash
-            throw new IllegalArgumentException("Walkthrough must have at least one step and no null steps allowed.");
+            throw new IllegalArgumentException(
+                "Walkthrough must have at least one step and no null steps allowed."
+            );
         }
         this.currentStep = new SimpleIntegerProperty(0);
         this.active = new SimpleBooleanProperty(false);
@@ -46,7 +48,10 @@ public class Walkthrough {
         this.stateManager = stateManager;
     }
 
-    public Walkthrough(StateManager stateManager, @NonNull WalkthroughStep... steps) {
+    public Walkthrough(
+        StateManager stateManager,
+        @NonNull WalkthroughStep... steps
+    ) {
         this(stateManager, List.of(steps));
     }
 
@@ -75,7 +80,9 @@ public class Walkthrough {
         stateManager.setActiveWalkthrough(this);
 
         if (overlay == null) {
-            LOGGER.warn("Overlay is null after initialization, cannot display step");
+            LOGGER.warn(
+                "Overlay is null after initialization, cannot display step"
+            );
             return;
         }
 
@@ -129,7 +136,11 @@ public class Walkthrough {
 
     public void goToStep(int stepIndex) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            LOGGER.debug("Invalid step index: {}. Valid range is 0 to {}.", stepIndex, steps.size() - 1);
+            LOGGER.debug(
+                "Invalid step index: {}. Valid range is 0 to {}.",
+                stepIndex,
+                steps.size() - 1
+            );
             return;
         }
 
@@ -170,6 +181,7 @@ public class Walkthrough {
     }
 
     public static class Builder {
+
         private final StateManager stateManager;
         private final List<WalkthroughStep> steps;
 
@@ -200,10 +212,11 @@ public class Walkthrough {
 
         public Walkthrough build() {
             if (steps.isEmpty()) {
-                throw new IllegalArgumentException("Walkthrough must have at least one step.");
+                throw new IllegalArgumentException(
+                    "Walkthrough must have at least one step."
+                );
             }
             return new Walkthrough(stateManager, steps);
         }
     }
 }
-

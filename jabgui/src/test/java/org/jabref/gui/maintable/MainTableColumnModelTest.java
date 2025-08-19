@@ -1,66 +1,82 @@
 package org.jabref.gui.maintable;
 
-import org.jabref.logic.preferences.CliPreferences;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+
+import com.airhacks.afterburner.injection.Injector;
+import org.jabref.logic.preferences.CliPreferences;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 class MainTableColumnModelTest {
 
     private static String testName = "field:author";
-    private static MainTableColumnModel.Type testType = MainTableColumnModel.Type.NORMALFIELD;
+    private static MainTableColumnModel.Type testType =
+        MainTableColumnModel.Type.NORMALFIELD;
     private static String testQualifier = "author";
 
     private static String testTypeOnlyName = "linked_id";
-    private static MainTableColumnModel.Type testTypeOnlyType = MainTableColumnModel.Type.LINKED_IDENTIFIER;
+    private static MainTableColumnModel.Type testTypeOnlyType =
+        MainTableColumnModel.Type.LINKED_IDENTIFIER;
 
     @BeforeAll
     static void setup() {
-        Injector.setModelOrService(CliPreferences.class, mock(CliPreferences.class));
+        Injector.setModelOrService(
+            CliPreferences.class,
+            mock(CliPreferences.class)
+        );
     }
 
     @Test
     void mainTableColumnModelParserRetrievesCorrectType() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testQualifier);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testQualifier
+        );
 
         assertEquals(testType, testColumnModel.getType());
     }
 
     @Test
     void mainTableColumnModelParserRetrievesCorrectQualifier() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testQualifier);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testQualifier
+        );
 
         assertEquals(testQualifier, testColumnModel.getQualifier());
     }
 
     @Test
     void fullMainTableColumnModelParserRetrievesCorrectType() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testName);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testName
+        );
 
         assertEquals(testType, testColumnModel.getType());
     }
 
     @Test
     void fullMainTableColumnModelParserRetrievesCorrectQualifier() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testName);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testName
+        );
 
         assertEquals(testQualifier, testColumnModel.getQualifier());
     }
 
     @Test
     void typeOnlyMainTableColumnModelParserRetrievesCorrectType() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testTypeOnlyName);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testTypeOnlyName
+        );
 
         assertEquals(testTypeOnlyType, testColumnModel.getType());
     }
 
     @Test
     void typeOnlyMainTableColumnModelParserRetrievesCorrectQualifier() {
-        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(testTypeOnlyName);
+        MainTableColumnModel testColumnModel = MainTableColumnModel.parse(
+            testTypeOnlyName
+        );
 
         assertEquals("", testColumnModel.getQualifier());
     }

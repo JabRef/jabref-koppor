@@ -3,7 +3,6 @@ package org.jabref.logic.cleanup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.formatter.bibtexfields.NormalizeWhitespaceFormatter;
 import org.jabref.model.FieldChange;
@@ -13,7 +12,8 @@ import org.jabref.model.entry.field.FieldFactory;
 
 public class NormalizeWhitespacesCleanup implements CleanupJob {
 
-    private static final Collection<Field> NO_TEXT_FIELDS = FieldFactory.getNotTextFields();
+    private static final Collection<Field> NO_TEXT_FIELDS =
+        FieldFactory.getNotTextFields();
 
     private final NormalizeWhitespaceFormatter formatter;
 

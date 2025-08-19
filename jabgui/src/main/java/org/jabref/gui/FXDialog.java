@@ -1,5 +1,6 @@
 package org.jabref.gui;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
@@ -7,12 +8,9 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-
-import com.airhacks.afterburner.injection.Injector;
 
 /**
  * This class provides a super class for all dialogs implemented in JavaFX.
@@ -26,7 +24,12 @@ import com.airhacks.afterburner.injection.Injector;
  */
 public class FXDialog extends Alert {
 
-    public FXDialog(AlertType type, String title, Image image, boolean isModal) {
+    public FXDialog(
+        AlertType type,
+        String title,
+        Image image,
+        boolean isModal
+    ) {
         this(type, title, isModal);
         setDialogIcon(image);
     }
@@ -48,7 +51,6 @@ public class FXDialog extends Alert {
 
     public FXDialog(AlertType type, boolean isModal) {
         super(type);
-
         setDialogIcon(IconTheme.getJabRefImage());
 
         Stage dialogWindow = getDialogWindow();
@@ -59,12 +61,22 @@ public class FXDialog extends Alert {
             initModality(Modality.NONE);
         }
 
-        dialogWindow.getScene().setOnKeyPressed(event -> {
-            KeyBindingRepository keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
-            if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.CLOSE, event)) {
-                dialogWindow.close();
-            }
-        });
+        dialogWindow
+            .getScene()
+            .setOnKeyPressed(event -> {
+                KeyBindingRepository keyBindingRepository =
+                    Injector.instantiateModelOrService(
+                        KeyBindingRepository.class
+                    );
+                if (
+                    keyBindingRepository.checkKeyCombinationEquality(
+                        KeyBinding.CLOSE,
+                        event
+                    )
+                ) {
+                    dialogWindow.close();
+                }
+            });
     }
 
     public FXDialog(AlertType type) {

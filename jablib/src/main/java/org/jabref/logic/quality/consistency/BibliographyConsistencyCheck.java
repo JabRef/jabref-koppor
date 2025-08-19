@@ -10,7 +10,6 @@ import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.bibtex.comparator.BibEntryByCitationKeyComparator;
 import org.jabref.logic.bibtex.comparator.BibEntryByFieldsComparator;
 import org.jabref.logic.bibtex.comparator.FieldComparatorStack;
@@ -24,32 +23,36 @@ import org.jabref.model.entry.types.EntryType;
 public class BibliographyConsistencyCheck {
 
     private static final Set<Field> EXPLICITLY_EXCLUDED_FIELDS = Set.of(
-                            StandardField.COMMENT,
-                            StandardField.CROSSREF,
-                            StandardField.GROUPS,
-                            StandardField.CITES,
-                            StandardField.PDF,
-                            StandardField.REVIEW,
-                            StandardField.SORTKEY,
-                            StandardField.SORTNAME,
-                            StandardField.TYPE,
-                            StandardField.XREF
-                    );
+        StandardField.COMMENT,
+        StandardField.CROSSREF,
+        StandardField.GROUPS,
+        StandardField.CITES,
+        StandardField.PDF,
+        StandardField.REVIEW,
+        StandardField.SORTKEY,
+        StandardField.SORTNAME,
+        StandardField.TYPE,
+        StandardField.XREF
+    );
 
     private static Set<Field> filterExcludedFields(Collection<Field> fields) {
-        return fields.stream()
-                     .filter(field -> !EXPLICITLY_EXCLUDED_FIELDS.contains(field))
-                     .filter(field -> !StandardField.AUTOMATIC_FIELDS.contains(field))
-                     .filter(field -> !(field instanceof SpecialField))
-                     .filter(field -> !(field instanceof UserSpecificCommentField))
-                     .collect(Collectors.toSet());
+        return fields
+            .stream()
+            .filter(field -> !EXPLICITLY_EXCLUDED_FIELDS.contains(field))
+            .filter(field -> !StandardField.AUTOMATIC_FIELDS.contains(field))
+            .filter(field -> !(field instanceof SpecialField))
+            .filter(field -> !(field instanceof UserSpecificCommentField))
+            .collect(Collectors.toSet());
     }
 
-    public record Result(Map<EntryType, EntryTypeResult> entryTypeToResultMap) {
-    }
+    public record Result(
+        Map<EntryType, EntryTypeResult> entryTypeToResultMap
+    ) {}
 
-    public record EntryTypeResult(Collection<Field> fields, SequencedCollection<BibEntry> sortedEntries) {
-    }
+    public record EntryTypeResult(
+        Collection<Field> fields,
+        SequencedCollection<BibEntry> sortedEntries
+    ) {}
 
     /**
      * Checks the consistency of the given entries by looking at the present and absent fields.
@@ -62,24 +65,42 @@ public class BibliographyConsistencyCheck {
      *
      * @implNote This class does not implement {@link org.jabref.logic.integrity.DatabaseChecker}, because it returns a list of {@link org.jabref.logic.integrity.IntegrityMessage}, which are too fine-grained.
      */
-    public Result check(List<BibEntry> entries, BiConsumer<Integer, Integer> entriesGroupingProgress) {
+    public Result check(
+        List<BibEntry> entries,
+        BiConsumer<Integer, Integer> entriesGroupingProgress
+    ) {
         // collects fields existing in any entry, scoped by entry type
-        Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap = new HashMap<>();
+        Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap =
+            new HashMap<>();
         // collects fields existing in all entries, scoped by entry type
-        Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap = new HashMap<>();
+        Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap =
+            new HashMap<>();
         // collects entries of the same type
         Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap = new HashMap<>();
 
-        collectEntriesIntoMaps(entries, entryTypeToFieldsInAnyEntryMap, entryTypeToFieldsInAllEntriesMap, entryTypeToEntriesMap);
+        collectEntriesIntoMaps(
+            entries,
+            entryTypeToFieldsInAnyEntryMap,
+            entryTypeToFieldsInAllEntriesMap,
+            entryTypeToEntriesMap
+        );
 
         Map<EntryType, EntryTypeResult> resultMap = new HashMap<>();
 
         int counter = 0;
-        for (Map.Entry<EntryType, Set<Field>> mapEntry : entryTypeToFieldsInAnyEntryMap.entrySet()) {
-            entriesGroupingProgress.accept(counter++, entryTypeToFieldsInAnyEntryMap.size());
+        for (Map.Entry<
+            EntryType,
+            Set<Field>
+        > mapEntry : entryTypeToFieldsInAnyEntryMap.entrySet()) {
+            entriesGroupingProgress.accept(
+                counter++,
+                entryTypeToFieldsInAnyEntryMap.size()
+            );
             EntryType entryType = mapEntry.getKey();
             Set<Field> fields = mapEntry.getValue();
-            Set<Field> commonFields = entryTypeToFieldsInAllEntriesMap.get(entryType);
+            Set<Field> commonFields = entryTypeToFieldsInAllEntriesMap.get(
+                entryType
+            );
             assert commonFields != null;
             Set<Field> uniqueFields = new HashSet<>(fields);
             uniqueFields.removeAll(commonFields);
@@ -89,37 +110,54 @@ public class BibliographyConsistencyCheck {
             }
 
             List<Comparator<BibEntry>> comparators = List.of(
-                    new BibEntryByCitationKeyComparator(),
-                    new BibEntryByFieldsComparator());
-            FieldComparatorStack<BibEntry> comparatorStack = new FieldComparatorStack<>(comparators);
+                new BibEntryByCitationKeyComparator(),
+                new BibEntryByFieldsComparator()
+            );
+            FieldComparatorStack<BibEntry> comparatorStack =
+                new FieldComparatorStack<>(comparators);
 
             List<BibEntry> differingEntries = entryTypeToEntriesMap
-                    .get(entryType).stream()
-                    .filter(entry -> !filterExcludedFields(entry.getFields()).equals(commonFields))
-                    .sorted(comparatorStack)
-                    .toList();
+                .get(entryType)
+                .stream()
+                .filter(entry ->
+                    !filterExcludedFields(entry.getFields()).equals(
+                        commonFields
+                    )
+                )
+                .sorted(comparatorStack)
+                .toList();
 
-            resultMap.put(entryType, new EntryTypeResult(uniqueFields, differingEntries));
+            resultMap.put(
+                entryType,
+                new EntryTypeResult(uniqueFields, differingEntries)
+            );
         }
 
         return new Result(resultMap);
     }
 
-    private static void collectEntriesIntoMaps(List<BibEntry> entries, Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap, Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap, Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap) {
+    private static void collectEntriesIntoMaps(
+        List<BibEntry> entries,
+        Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap,
+        Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap,
+        Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap
+    ) {
         for (BibEntry entry : entries) {
             EntryType entryType = entry.getType();
 
             entryTypeToFieldsInAnyEntryMap
-                    .computeIfAbsent(entryType, _ -> new HashSet<>())
-                    .addAll(filterExcludedFields(entry.getFields()));
+                .computeIfAbsent(entryType, _ -> new HashSet<>())
+                .addAll(filterExcludedFields(entry.getFields()));
 
             entryTypeToFieldsInAllEntriesMap
-                    .computeIfAbsent(entryType, _ -> new HashSet<>(filterExcludedFields(entry.getFields())))
-                    .retainAll(filterExcludedFields(entry.getFields()));
+                .computeIfAbsent(entryType, _ ->
+                    new HashSet<>(filterExcludedFields(entry.getFields()))
+                )
+                .retainAll(filterExcludedFields(entry.getFields()));
 
             entryTypeToEntriesMap
-                    .computeIfAbsent(entryType, _ -> new HashSet<>())
-                    .add(entry);
+                .computeIfAbsent(entryType, _ -> new HashSet<>())
+                .add(entry);
         }
     }
 }

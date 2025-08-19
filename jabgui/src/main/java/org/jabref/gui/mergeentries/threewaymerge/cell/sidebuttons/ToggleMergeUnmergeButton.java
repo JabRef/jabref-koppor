@@ -1,13 +1,11 @@
 package org.jabref.gui.mergeentries.threewaymerge.cell.sidebuttons;
 
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
-
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -17,8 +15,12 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 
 public class ToggleMergeUnmergeButton extends Button {
-    private final ObjectProperty<FieldState> fieldState = new SimpleObjectProperty<>(FieldState.UNMERGED);
-    private final BooleanProperty canMerge = new SimpleBooleanProperty(Boolean.TRUE);
+
+    private final ObjectProperty<FieldState> fieldState =
+        new SimpleObjectProperty<>(FieldState.UNMERGED);
+    private final BooleanProperty canMerge = new SimpleBooleanProperty(
+        Boolean.TRUE
+    );
 
     private final ActionFactory actionFactory = new ActionFactory();
 
@@ -35,12 +37,20 @@ public class ToggleMergeUnmergeButton extends Button {
 
     private void configureMergeButton() {
         ToggleMergeCommand mergeCommand = new ToggleMergeCommand();
-        actionFactory.configureIconButton(mergeCommand.mergeAction, mergeCommand, this);
+        actionFactory.configureIconButton(
+            mergeCommand.mergeAction,
+            mergeCommand,
+            this
+        );
     }
 
     private void configureUnmergeButton() {
         ToggleMergeCommand unmergeCommand = new ToggleMergeCommand();
-        actionFactory.configureIconButton(unmergeCommand.unmergeAction, unmergeCommand, this);
+        actionFactory.configureIconButton(
+            unmergeCommand.unmergeAction,
+            unmergeCommand,
+            this
+        );
     }
 
     public ObjectProperty<FieldState> fieldStateProperty() {
@@ -71,6 +81,7 @@ public class ToggleMergeUnmergeButton extends Button {
     }
 
     private class ToggleMergeCommand extends SimpleCommand {
+
         private final Action mergeAction = new Action() {
             @Override
             public Optional<JabRefIcon> getIcon() {
@@ -108,6 +119,7 @@ public class ToggleMergeUnmergeButton extends Button {
     }
 
     public enum FieldState {
-        MERGED, UNMERGED
+        MERGED,
+        UNMERGED,
     }
 }

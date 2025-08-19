@@ -3,7 +3,6 @@ package org.jabref.gui.welcome;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,7 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -44,12 +42,14 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WelcomeTab extends Tab {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WelcomeTab.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WelcomeTab.class
+    );
 
     private final VBox recentLibrariesBox;
     private final LibraryTabContainer tabContainer;
@@ -66,19 +66,21 @@ public class WelcomeTab extends Tab {
     private final BuildInfo buildInfo;
     private final Stage stage;
 
-    public WelcomeTab(Stage stage,
-                      LibraryTabContainer tabContainer,
-                      GuiPreferences preferences,
-                      AiService aiService,
-                      DialogService dialogService,
-                      StateManager stateManager,
-                      FileUpdateMonitor fileUpdateMonitor,
-                      BibEntryTypesManager entryTypesManager,
-                      CountingUndoManager undoManager,
-                      ClipBoardManager clipBoardManager,
-                      TaskExecutor taskExecutor,
-                      FileHistoryMenu fileHistoryMenu,
-                      BuildInfo buildInfo) {
+    public WelcomeTab(
+        Stage stage,
+        LibraryTabContainer tabContainer,
+        GuiPreferences preferences,
+        AiService aiService,
+        DialogService dialogService,
+        StateManager stateManager,
+        FileUpdateMonitor fileUpdateMonitor,
+        BibEntryTypesManager entryTypesManager,
+        CountingUndoManager undoManager,
+        ClipBoardManager clipBoardManager,
+        TaskExecutor taskExecutor,
+        FileHistoryMenu fileHistoryMenu,
+        BuildInfo buildInfo
+    ) {
         super(Localization.lang("Welcome"));
         setClosable(true);
         this.tabContainer = tabContainer;
@@ -97,7 +99,11 @@ public class WelcomeTab extends Tab {
         this.recentLibrariesBox = new VBox();
         recentLibrariesBox.getStyleClass().add("welcome-recent-libraries");
 
-        VBox mainContainer = new VBox(createTopTitles(), createColumnsContainer(), createCommunityBox());
+        VBox mainContainer = new VBox(
+            createTopTitles(),
+            createColumnsContainer(),
+            createCommunityBox()
+        );
         mainContainer.getStyleClass().add("welcome-main-container");
 
         VBox container = new VBox();
@@ -108,19 +114,32 @@ public class WelcomeTab extends Tab {
         setContent(container);
     }
 
-    private Button createWalkthroughButton(String text, IconTheme.JabRefIcons icon, String walkthroughId) {
+    private Button createWalkthroughButton(
+        String text,
+        IconTheme.JabRefIcons icon,
+        String walkthroughId
+    ) {
         Button button = new Button(text);
         button.setGraphic(icon.getGraphicNode());
         button.getStyleClass().add("quick-settings-button");
         button.setMaxWidth(Double.MAX_VALUE);
-        button.setOnAction(_ -> new WalkthroughAction(stage, tabContainer, stateManager, walkthroughId).execute());
+        button.setOnAction(_ ->
+            new WalkthroughAction(
+                stage,
+                tabContainer,
+                stateManager,
+                walkthroughId
+            ).execute()
+        );
         return button;
     }
 
     private VBox createTopTitles() {
         Label welcomeLabel = new Label(Localization.lang("Welcome to JabRef"));
         welcomeLabel.getStyleClass().add("welcome-label");
-        Label descriptionLabel = new Label(Localization.lang("Stay on top of your literature"));
+        Label descriptionLabel = new Label(
+            Localization.lang("Stay on top of your literature")
+        );
         descriptionLabel.getStyleClass().add("welcome-description-label");
         VBox topTitles = new VBox();
         topTitles.getStyleClass().add("welcome-top-titles");
@@ -143,15 +162,18 @@ public class WelcomeTab extends Tab {
 
     private VBox createLeftColumn() {
         VBox leftColumn = new VBox(
-                createWelcomeStartBox(),
-                createWelcomeRecentBox()
+            createWelcomeStartBox(),
+            createWelcomeRecentBox()
         );
         leftColumn.getStyleClass().add("welcome-content-column");
         return leftColumn;
     }
 
     private VBox createRightColumn() {
-        VBox rightColumn = new VBox(new QuickSettings(), createWalkthroughBox());
+        VBox rightColumn = new VBox(
+            new QuickSettings(),
+            createWalkthroughBox()
+        );
         rightColumn.getStyleClass().add("welcome-content-column");
         return rightColumn;
     }
@@ -164,24 +186,30 @@ public class WelcomeTab extends Tab {
         walkthroughsContainer.getStyleClass().add("walkthroughs-container");
 
         Button mainFileDirWalkthroughButton = createWalkthroughButton(
-                Localization.lang("Set main file directory"),
-                IconTheme.JabRefIcons.FOLDER,
-                WalkthroughAction.MAIN_FILE_DIRECTORY_WALKTHROUGH_NAME
+            Localization.lang("Set main file directory"),
+            IconTheme.JabRefIcons.FOLDER,
+            WalkthroughAction.MAIN_FILE_DIRECTORY_WALKTHROUGH_NAME
         );
 
         Button entryTableWalkthroughButton = createWalkthroughButton(
-                Localization.lang("Customize entry table"),
-                IconTheme.JabRefIcons.TOGGLE_GROUPS,
-                WalkthroughAction.CUSTOMIZE_ENTRY_TABLE_WALKTHROUGH_NAME
+            Localization.lang("Customize entry table"),
+            IconTheme.JabRefIcons.TOGGLE_GROUPS,
+            WalkthroughAction.CUSTOMIZE_ENTRY_TABLE_WALKTHROUGH_NAME
         );
 
         Button linkPdfWalkthroughButton = createWalkthroughButton(
-                Localization.lang("Link PDF to entries"),
-                IconTheme.JabRefIcons.TOGGLE_GROUPS,
-                WalkthroughAction.PDF_LINK_WALKTHROUGH_NAME
+            Localization.lang("Link PDF to entries"),
+            IconTheme.JabRefIcons.TOGGLE_GROUPS,
+            WalkthroughAction.PDF_LINK_WALKTHROUGH_NAME
         );
 
-        walkthroughsContainer.getChildren().addAll(mainFileDirWalkthroughButton, entryTableWalkthroughButton, linkPdfWalkthroughButton);
+        walkthroughsContainer
+            .getChildren()
+            .addAll(
+                mainFileDirWalkthroughButton,
+                entryTableWalkthroughButton,
+                linkPdfWalkthroughButton
+            );
 
         return createVBoxContainer(header, walkthroughsContainer);
     }
@@ -194,7 +222,9 @@ public class WelcomeTab extends Tab {
         HBox versionContainer = createVersionContainer();
         VBox container = new VBox();
         container.getStyleClass().add("welcome-community-content");
-        container.getChildren().addAll(iconLinksContainer, textLinksContainer, versionContainer);
+        container
+            .getChildren()
+            .addAll(iconLinksContainer, textLinksContainer, versionContainer);
         return createVBoxContainer(header, container);
     }
 
@@ -202,20 +232,38 @@ public class WelcomeTab extends Tab {
         Label header = new Label(Localization.lang("Start"));
         header.getStyleClass().add("welcome-header-label");
 
-        Hyperlink newLibraryLink = createActionLink(Localization.lang("New empty library"),
-                () -> new NewDatabaseAction(tabContainer, preferences).execute());
+        Hyperlink newLibraryLink = createActionLink(
+            Localization.lang("New empty library"),
+            () -> new NewDatabaseAction(tabContainer, preferences).execute()
+        );
 
-        Hyperlink openLibraryLink = createActionLink(Localization.lang("Open library"),
-                () -> new OpenDatabaseAction(tabContainer, preferences, aiService, dialogService,
-                        stateManager, fileUpdateMonitor, entryTypesManager, undoManager, clipBoardManager,
-                        taskExecutor).execute());
+        Hyperlink openLibraryLink = createActionLink(
+            Localization.lang("Open library"),
+            () ->
+                new OpenDatabaseAction(
+                    tabContainer,
+                    preferences,
+                    aiService,
+                    dialogService,
+                    stateManager,
+                    fileUpdateMonitor,
+                    entryTypesManager,
+                    undoManager,
+                    clipBoardManager,
+                    taskExecutor
+                ).execute()
+        );
 
-        Hyperlink openExampleLibraryLink = createActionLink(Localization.lang("New example library"),
-                this::openExampleLibrary);
+        Hyperlink openExampleLibraryLink = createActionLink(
+            Localization.lang("New example library"),
+            this::openExampleLibrary
+        );
 
         VBox container = new VBox();
         container.getStyleClass().add("welcome-links-content");
-        container.getChildren().addAll(newLibraryLink, openExampleLibraryLink, openLibraryLink);
+        container
+            .getChildren()
+            .addAll(newLibraryLink, openExampleLibraryLink, openLibraryLink);
 
         return createVBoxContainer(header, container);
     }
@@ -225,7 +273,12 @@ public class WelcomeTab extends Tab {
         header.getStyleClass().add("welcome-header-label");
 
         updateWelcomeRecentLibraries();
-        fileHistoryMenu.getItems().addListener((ListChangeListener<MenuItem>) _ -> updateWelcomeRecentLibraries());
+        fileHistoryMenu
+            .getItems()
+            .addListener(
+                (ListChangeListener<MenuItem>) _ ->
+                    updateWelcomeRecentLibraries()
+            );
 
         return createVBoxContainer(header, recentLibrariesBox);
     }
@@ -238,17 +291,36 @@ public class WelcomeTab extends Tab {
     }
 
     private void openExampleLibrary() {
-        try (InputStream in = WelcomeTab.class.getClassLoader().getResourceAsStream("Chocolate.bib")) {
+        try (
+            InputStream in =
+                WelcomeTab.class.getClassLoader().getResourceAsStream(
+                    "Chocolate.bib"
+                )
+        ) {
             if (in == null) {
                 LOGGER.warn("Example library file not found.");
                 return;
             }
             Reader reader = Importer.getReader(in);
-            BibtexParser bibtexParser = new BibtexParser(preferences.getImportFormatPreferences(), fileUpdateMonitor);
+            BibtexParser bibtexParser = new BibtexParser(
+                preferences.getImportFormatPreferences(),
+                fileUpdateMonitor
+            );
             ParserResult result = bibtexParser.parse(reader);
             BibDatabaseContext databaseContext = result.getDatabaseContext();
-            LibraryTab libraryTab = LibraryTab.createLibraryTab(databaseContext, tabContainer, dialogService, aiService,
-                    preferences, stateManager, fileUpdateMonitor, entryTypesManager, undoManager, clipBoardManager, taskExecutor);
+            LibraryTab libraryTab = LibraryTab.createLibraryTab(
+                databaseContext,
+                tabContainer,
+                dialogService,
+                aiService,
+                preferences,
+                stateManager,
+                fileUpdateMonitor,
+                entryTypesManager,
+                undoManager,
+                clipBoardManager,
+                taskExecutor
+            );
             tabContainer.addTab(libraryTab, true);
         } catch (IOException e) {
             LOGGER.error("Failed to load example library", e);
@@ -274,7 +346,9 @@ public class WelcomeTab extends Tab {
 
     private void displayNoRecentLibrariesMessage() {
         recentLibrariesBox.getChildren().clear();
-        Label noRecentLibrariesLabel = new Label(Localization.lang("No recent libraries"));
+        Label noRecentLibrariesLabel = new Label(
+            Localization.lang("No recent libraries")
+        );
         noRecentLibrariesLabel.getStyleClass().add("welcome-no-recent-label");
         recentLibrariesBox.getChildren().add(noRecentLibrariesLabel);
         fileHistoryMenu.disableProperty().unbind();
@@ -292,14 +366,47 @@ public class WelcomeTab extends Tab {
         FlowPane container = new FlowPane();
         container.getStyleClass().add("welcome-community-icons");
 
-        Hyperlink onlineHelpLink = createFooterLink(Localization.lang("Online help"), StandardActions.HELP, IconTheme.JabRefIcons.HELP);
-        Hyperlink privacyPolicyLink = createFooterLink(Localization.lang("Privacy policy"), StandardActions.OPEN_PRIVACY_POLICY, IconTheme.JabRefIcons.BOOK);
-        Hyperlink forumLink = createFooterLink(Localization.lang("Community forum"), StandardActions.OPEN_FORUM, IconTheme.JabRefIcons.FORUM);
-        Hyperlink mastodonLink = createFooterLink(Localization.lang("Mastodon"), StandardActions.OPEN_MASTODON, IconTheme.JabRefIcons.MASTODON);
-        Hyperlink linkedInLink = createFooterLink(Localization.lang("LinkedIn"), StandardActions.OPEN_LINKEDIN, IconTheme.JabRefIcons.LINKEDIN);
-        Hyperlink donationLink = createFooterLink(Localization.lang("Donation"), StandardActions.DONATE, IconTheme.JabRefIcons.DONATE);
+        Hyperlink onlineHelpLink = createFooterLink(
+            Localization.lang("Online help"),
+            StandardActions.HELP,
+            IconTheme.JabRefIcons.HELP
+        );
+        Hyperlink privacyPolicyLink = createFooterLink(
+            Localization.lang("Privacy policy"),
+            StandardActions.OPEN_PRIVACY_POLICY,
+            IconTheme.JabRefIcons.BOOK
+        );
+        Hyperlink forumLink = createFooterLink(
+            Localization.lang("Community forum"),
+            StandardActions.OPEN_FORUM,
+            IconTheme.JabRefIcons.FORUM
+        );
+        Hyperlink mastodonLink = createFooterLink(
+            Localization.lang("Mastodon"),
+            StandardActions.OPEN_MASTODON,
+            IconTheme.JabRefIcons.MASTODON
+        );
+        Hyperlink linkedInLink = createFooterLink(
+            Localization.lang("LinkedIn"),
+            StandardActions.OPEN_LINKEDIN,
+            IconTheme.JabRefIcons.LINKEDIN
+        );
+        Hyperlink donationLink = createFooterLink(
+            Localization.lang("Donation"),
+            StandardActions.DONATE,
+            IconTheme.JabRefIcons.DONATE
+        );
 
-        container.getChildren().addAll(onlineHelpLink, privacyPolicyLink, forumLink, mastodonLink, linkedInLink, donationLink);
+        container
+            .getChildren()
+            .addAll(
+                onlineHelpLink,
+                privacyPolicyLink,
+                forumLink,
+                mastodonLink,
+                linkedInLink,
+                donationLink
+            );
         return container;
     }
 
@@ -307,14 +414,26 @@ public class WelcomeTab extends Tab {
         HBox container = new HBox();
         container.getStyleClass().add("welcome-community-links");
 
-        Hyperlink devVersionLink = createFooterLink(Localization.lang("Download development version"), StandardActions.OPEN_DEV_VERSION_LINK, null);
-        Hyperlink changelogLink = createFooterLink(Localization.lang("CHANGELOG"), StandardActions.OPEN_CHANGELOG, null);
+        Hyperlink devVersionLink = createFooterLink(
+            Localization.lang("Download development version"),
+            StandardActions.OPEN_DEV_VERSION_LINK,
+            null
+        );
+        Hyperlink changelogLink = createFooterLink(
+            Localization.lang("CHANGELOG"),
+            StandardActions.OPEN_CHANGELOG,
+            null
+        );
 
         container.getChildren().addAll(devVersionLink, changelogLink);
         return container;
     }
 
-    private Hyperlink createFooterLink(String text, StandardActions action, IconTheme.JabRefIcons icon) {
+    private Hyperlink createFooterLink(
+        String text,
+        StandardActions action,
+        IconTheme.JabRefIcons icon
+    ) {
         Hyperlink link = new Hyperlink(text);
         link.getStyleClass().add("welcome-community-link");
         String url = switch (action) {
@@ -329,7 +448,13 @@ public class WelcomeTab extends Tab {
             default -> null;
         };
         if (url != null) {
-            link.setOnAction(_ -> new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences()).execute());
+            link.setOnAction(_ ->
+                new OpenBrowserAction(
+                    url,
+                    dialogService,
+                    preferences.getExternalApplicationsPreferences()
+                ).execute()
+            );
         }
         if (icon != null) {
             link.setGraphic(icon.getGraphicNode());
@@ -340,7 +465,9 @@ public class WelcomeTab extends Tab {
     private HBox createVersionContainer() {
         HBox container = new HBox();
         container.getStyleClass().add("welcome-community-version");
-        Label versionLabel = new Label(Localization.lang("Current JabRef version: %0", buildInfo.version));
+        Label versionLabel = new Label(
+            Localization.lang("Current JabRef version: %0", buildInfo.version)
+        );
         versionLabel.getStyleClass().add("welcome-community-version-text");
         container.getChildren().add(versionLabel);
         return container;

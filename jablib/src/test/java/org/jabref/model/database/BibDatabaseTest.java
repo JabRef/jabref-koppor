@@ -1,5 +1,11 @@
 package org.jabref.model.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,27 +14,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.event.EventListenerTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BibDatabaseTest {
 
     private BibDatabase database;
-    private final BibtexString bibtexString = new BibtexString("DSP", "Digital Signal Processing");
+    private final BibtexString bibtexString = new BibtexString(
+        "DSP",
+        "Digital Signal Processing"
+    );
 
     @BeforeEach
     void setUp() {
@@ -106,12 +107,16 @@ class BibDatabaseTest {
 
     @Test
     void insertNullEntryThrowsException() {
-        assertThrows(NullPointerException.class, () -> database.insertEntry(null));
+        assertThrows(NullPointerException.class, () ->
+            database.insertEntry(null)
+        );
     }
 
     @Test
     void removeNullEntryThrowsException() {
-        assertThrows(NullPointerException.class, () -> database.removeEntry(null));
+        assertThrows(NullPointerException.class, () ->
+            database.removeEntry(null)
+        );
     }
 
     @Test
@@ -229,42 +234,66 @@ class BibDatabaseTest {
     void setSingleStringAsCollection() {
         List<BibtexString> strings = List.of(bibtexString);
         database.setStrings(strings);
-        assertEquals(Optional.of(bibtexString), database.getStringByName("DSP"));
+        assertEquals(
+            Optional.of(bibtexString),
+            database.getStringByName("DSP")
+        );
     }
 
     @Test
     void setStringAsCollectionWithUpdatedContentThrowsKeyCollisionException() {
         BibtexString newContent = new BibtexString("DSP", "ABCD");
         List<BibtexString> strings = Arrays.asList(bibtexString, newContent);
-        assertThrows(KeyCollisionException.class, () -> database.setStrings(strings));
+        assertThrows(KeyCollisionException.class, () ->
+            database.setStrings(strings)
+        );
     }
 
     @Test
     void setStringAsCollectionWithNewContent() {
-        BibtexString vlsi = new BibtexString("VLSI", "Very Large Scale Integration");
+        BibtexString vlsi = new BibtexString(
+            "VLSI",
+            "Very Large Scale Integration"
+        );
         List<BibtexString> strings = Arrays.asList(bibtexString, vlsi);
         database.setStrings(strings);
-        assertEquals(Optional.of(bibtexString), database.getStringByName("DSP"));
+        assertEquals(
+            Optional.of(bibtexString),
+            database.getStringByName("DSP")
+        );
         assertEquals(Optional.of(vlsi), database.getStringByName("VLSI"));
     }
 
     @Test
     void addSameStringLabelTwiceThrowsKeyCollisionException() {
         database.addString(bibtexString);
-        final BibtexString finalString = new BibtexString("DSP", "Digital Signal Processor");
+        final BibtexString finalString = new BibtexString(
+            "DSP",
+            "Digital Signal Processor"
+        );
 
-        assertThrows(KeyCollisionException.class, () -> database.addString(finalString));
+        assertThrows(KeyCollisionException.class, () ->
+            database.addString(finalString)
+        );
     }
 
     @Test
     void addSameStringIdTwiceThrowsKeyCollisionException() {
-        BibtexString string = new BibtexString("DSP", "Digital Signal Processing");
+        BibtexString string = new BibtexString(
+            "DSP",
+            "Digital Signal Processing"
+        );
         string.setId("duplicateid");
         database.addString(string);
-        final BibtexString finalString = new BibtexString("VLSI", "Very Large Scale Integration");
+        final BibtexString finalString = new BibtexString(
+            "VLSI",
+            "Very Large Scale Integration"
+        );
         finalString.setId("duplicateid");
 
-        assertThrows(KeyCollisionException.class, () -> database.addString(finalString));
+        assertThrows(KeyCollisionException.class, () ->
+            database.addString(finalString)
+        );
     }
 
     @Test
@@ -285,7 +314,10 @@ class BibDatabaseTest {
         database.registerListener(tel);
         database.insertEntries(firstEntry, secondEntry);
         assertEquals(firstEntry, tel.getFirstInsertedEntry());
-        assertEquals(Arrays.asList(firstEntry, secondEntry), tel.getAddedEntries());
+        assertEquals(
+            Arrays.asList(firstEntry, secondEntry),
+            tel.getAddedEntries()
+        );
     }
 
     @Test
@@ -391,8 +423,10 @@ class BibDatabaseTest {
 
     @Test
     void getUsedStrings() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "#AAA#");
+        BibEntry entry = new BibEntry().withField(
+            StandardField.AUTHOR,
+            "#AAA#"
+        );
         BibtexString tripleA = new BibtexString("AAA", "Some other #BBB#");
         BibtexString tripleB = new BibtexString("BBB", "Some more text");
         BibtexString tripleC = new BibtexString("CCC", "Even more text");
@@ -405,14 +439,18 @@ class BibDatabaseTest {
         database.addString(tripleC);
         database.insertEntry(entry);
 
-        Set<BibtexString> usedStrings = new HashSet<>(database.getUsedStrings(List.of(entry)));
+        Set<BibtexString> usedStrings = new HashSet<>(
+            database.getUsedStrings(List.of(entry))
+        );
         assertEquals(stringSet, usedStrings);
     }
 
     @Test
     void getUsedStringsSingleString() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "#AAA#");
+        BibEntry entry = new BibEntry().withField(
+            StandardField.AUTHOR,
+            "#AAA#"
+        );
         BibtexString tripleA = new BibtexString("AAA", "Some other text");
         BibtexString tripleB = new BibtexString("BBB", "Some more text");
         List<BibtexString> strings = new ArrayList<>(1);
@@ -422,18 +460,24 @@ class BibDatabaseTest {
         database.addString(tripleB);
         database.insertEntry(entry);
 
-        List<BibtexString> usedStrings = database.getUsedStrings(List.of(entry));
+        List<BibtexString> usedStrings = database.getUsedStrings(
+            List.of(entry)
+        );
         assertEquals(strings, usedStrings);
     }
 
     @Test
     void getUsedStringsNoString() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "Oscar Gustafsson");
+        BibEntry entry = new BibEntry().withField(
+            StandardField.AUTHOR,
+            "Oscar Gustafsson"
+        );
         BibtexString string = new BibtexString("AAA", "Some other text");
         database.addString(string);
         database.insertEntry(entry);
-        Collection<BibtexString> usedStrings = database.getUsedStrings(List.of(entry));
+        Collection<BibtexString> usedStrings = database.getUsedStrings(
+            List.of(entry)
+        );
         assertEquals(List.of(), usedStrings);
     }
 
@@ -444,7 +488,10 @@ class BibDatabaseTest {
         BibEntry entryA = new BibEntry(StandardEntryType.Article);
         entryB.setId("1");
         database.insertEntries(entryB, entryA);
-        assertEquals(Arrays.asList(entryA, entryB), database.getEntriesSorted(Comparator.comparing(BibEntry::getId)));
+        assertEquals(
+            Arrays.asList(entryA, entryB),
+            database.getEntriesSorted(Comparator.comparing(BibEntry::getId))
+        );
     }
 
     @Test

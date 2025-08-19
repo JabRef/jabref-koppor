@@ -4,6 +4,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 
 public class LinkedPdfFileDTO {
+
     private final String fileName;
     private final String parentCitationKey;
     private final String path;

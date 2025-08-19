@@ -2,7 +2,6 @@ package org.jabref.logic.biblog;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.model.biblog.BibWarning;
 import org.jabref.model.database.BibDatabaseContext;
@@ -23,29 +22,41 @@ import org.jabref.model.entry.field.InternalField;
 /// - Consider defining a proper interface (e.g., IntegrityMessageWithField / WithoutField)
 ///   to support warnings without fields cleanly.
 public class BibWarningToIntegrityMessageConverter {
+
     public static List<IntegrityMessage> convert(
-            List<BibWarning> bibWarnings,
-            BibDatabaseContext context) {
+        List<BibWarning> bibWarnings,
+        BibDatabaseContext context
+    ) {
         if (bibWarnings.isEmpty()) {
             return List.of();
         }
 
         List<IntegrityMessage> messages = new ArrayList<>();
         for (BibWarning bibWarning : bibWarnings) {
-            if (context.getDatabase().getEntryByCitationKey(bibWarning.entryKey()).isEmpty()) {
+            if (
+                context
+                    .getDatabase()
+                    .getEntryByCitationKey(bibWarning.entryKey())
+                    .isEmpty()
+            ) {
                 continue;
             }
 
-            BibEntry entry = context.getDatabase().getEntryByCitationKey(bibWarning.entryKey()).get();
+            BibEntry entry = context
+                .getDatabase()
+                .getEntryByCitationKey(bibWarning.entryKey())
+                .get();
 
-            Field field = bibWarning.getFieldName()
-                                    .map(FieldFactory::parseField)
-                                    .orElse(InternalField.KEY_FIELD);
+            Field field = bibWarning
+                .getFieldName()
+                .map(FieldFactory::parseField)
+                .orElse(InternalField.KEY_FIELD);
 
             IntegrityMessage message = new IntegrityMessage(
-                    bibWarning.message(),
-                    entry,
-                    field);
+                bibWarning.message(),
+                entry,
+                field
+            );
             messages.add(message);
         }
         return messages;

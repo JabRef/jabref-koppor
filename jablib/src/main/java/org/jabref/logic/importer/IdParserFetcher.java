@@ -10,10 +10,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +21,8 @@ import org.slf4j.LoggerFactory;
  * 2. Parse the response to get a list of {@link BibEntry}
  * 3. Extract identifier
  */
-public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, ParserFetcher {
-
+public interface IdParserFetcher<T extends Identifier>
+    extends IdFetcher<T>, ParserFetcher {
     Logger LOGGER = LoggerFactory.getLogger(IdParserFetcher.class);
 
     /**
@@ -32,7 +30,8 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
      *
      * @param entry the entry to look information for
      */
-    URL getURLForEntry(BibEntry entry) throws URISyntaxException, MalformedURLException, FetcherException;
+    URL getURLForEntry(BibEntry entry)
+        throws URISyntaxException, MalformedURLException, FetcherException;
 
     /**
      * Returns the parser used to convert the response to a list of {@link BibEntry}.
@@ -46,7 +45,10 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
      *                       the result)
      * @param fetchedEntries list of entries returned by the web service
      */
-    Optional<T> extractIdentifier(BibEntry inputEntry, List<BibEntry> fetchedEntries) throws FetcherException;
+    Optional<T> extractIdentifier(
+        BibEntry inputEntry,
+        List<BibEntry> fetchedEntries
+    ) throws FetcherException;
 
     @Override
     default Optional<T> findIdentifier(BibEntry entry) throws FetcherException {
@@ -58,7 +60,11 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
         } catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URL is malformed", e);
         }
-        try (InputStream stream = new BufferedInputStream(urlForEntry.openStream())) {
+        try (
+            InputStream stream = new BufferedInputStream(
+                urlForEntry.openStream()
+            )
+        ) {
             List<BibEntry> fetchedEntries = getParser().parseEntries(stream);
 
             if (fetchedEntries.isEmpty()) {
@@ -77,9 +83,17 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
             if (e.getCause() instanceof FetcherException fe) {
                 throw fe;
             }
-            throw new FetcherException(urlForEntry, "An I/O exception occurred", e);
+            throw new FetcherException(
+                urlForEntry,
+                "An I/O exception occurred",
+                e
+            );
         } catch (ParseException e) {
-            throw new FetcherException(urlForEntry, "An internal parser error occurred", e);
+            throw new FetcherException(
+                urlForEntry,
+                "An internal parser error occurred",
+                e
+            );
         }
     }
 }

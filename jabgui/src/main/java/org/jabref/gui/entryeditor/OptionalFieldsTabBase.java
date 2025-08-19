@@ -3,11 +3,8 @@ package org.jabref.gui.entryeditor;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.SequencedSet;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.scene.control.Tooltip;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -24,27 +21,32 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 
 public class OptionalFieldsTabBase extends FieldsEditorTab {
+
     private final BibEntryTypesManager entryTypesManager;
     private final boolean isImportantOptionalFields;
 
-    public OptionalFieldsTabBase(String title,
-                                 boolean isImportantOptionalFields,
-                                 UndoManager undoManager,
-                                 UndoAction undoAction,
-                                 RedoAction redoAction,
-                                 GuiPreferences preferences,
-                                 BibEntryTypesManager entryTypesManager,
-                                 JournalAbbreviationRepository journalAbbreviationRepository,
-                                 StateManager stateManager,
-                                 PreviewPanel previewPanel) {
-        super(true,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel);
+    public OptionalFieldsTabBase(
+        String title,
+        boolean isImportantOptionalFields,
+        UndoManager undoManager,
+        UndoAction undoAction,
+        RedoAction redoAction,
+        GuiPreferences preferences,
+        BibEntryTypesManager entryTypesManager,
+        JournalAbbreviationRepository journalAbbreviationRepository,
+        StateManager stateManager,
+        PreviewPanel previewPanel
+    ) {
+        super(
+            true,
+            undoManager,
+            undoAction,
+            redoAction,
+            preferences,
+            journalAbbreviationRepository,
+            stateManager,
+            previewPanel
+        );
         this.entryTypesManager = entryTypesManager;
         this.isImportantOptionalFields = isImportantOptionalFields;
         setText(title);
@@ -54,14 +56,21 @@ public class OptionalFieldsTabBase extends FieldsEditorTab {
 
     @Override
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
-        Optional<BibEntryType> entryType = entryTypesManager.enrich(entry.getType(), mode);
+        BibDatabaseMode mode = stateManager
+            .getActiveDatabase()
+            .map(BibDatabaseContext::getMode)
+            .orElse(BibDatabaseMode.BIBLATEX);
+        Optional<BibEntryType> entryType = entryTypesManager.enrich(
+            entry.getType(),
+            mode
+        );
         if (entryType.isPresent()) {
             if (isImportantOptionalFields) {
                 return entryType.get().getImportantOptionalFields();
             } else {
-                return entryType.get().getDetailOptionalNotDeprecatedFields(mode);
+                return entryType
+                    .get()
+                    .getDetailOptionalNotDeprecatedFields(mode);
             }
         } else {
             // Entry type unknown -> treat all fields as required (thus no optional fields)

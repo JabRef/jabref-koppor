@@ -1,7 +1,6 @@
 package org.jabref.logic.git.io;
 
 import java.util.Optional;
-
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.jspecify.annotations.NullMarked;
 
@@ -15,9 +14,9 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public record RevisionTriple(
-        Optional<RevCommit> base,
-        RevCommit local,
-        RevCommit remote) {
-    public RevisionTriple {
-    }
+    Optional<RevCommit> base,
+    RevCommit local,
+    RevCommit remote
+) {
+    public RevisionTriple {}
 }

@@ -1,18 +1,16 @@
 package org.jabref.gui.autocompleter;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibEntry;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.jabref.gui.autocompleter.AutoCompleterUtil.getRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibEntry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class BibEntrySuggestionProviderTest {
 
@@ -27,7 +25,9 @@ class BibEntrySuggestionProviderTest {
 
     @Test
     void completeWithoutAddingAnythingReturnsNothing() {
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("test"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("test")
+        );
         assertEquals(List.of(), result);
     }
 
@@ -36,7 +36,9 @@ class BibEntrySuggestionProviderTest {
         BibEntry entry = new BibEntry();
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("test"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("test")
+        );
         assertEquals(List.of(), result);
     }
 
@@ -46,7 +48,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("testKey");
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("testKey"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("testKey")
+        );
         assertEquals(List.of(entry), result);
     }
 
@@ -56,7 +60,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("testKey");
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("test"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("test")
+        );
         assertEquals(List.of(entry), result);
     }
 
@@ -66,7 +72,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("testKey");
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("testkey"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("testkey")
+        );
         assertEquals(List.of(entry), result);
     }
 
@@ -76,7 +84,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("testKey");
         database.insertEntry(entry);
 
-        assertThrows(NullPointerException.class, () -> autoCompleter.provideSuggestions(getRequest(null)));
+        assertThrows(NullPointerException.class, () ->
+            autoCompleter.provideSuggestions(getRequest(null))
+        );
     }
 
     @Test
@@ -85,7 +95,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("testKey");
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest(""));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("")
+        );
         assertEquals(List.of(), result);
     }
 
@@ -98,7 +110,9 @@ class BibEntrySuggestionProviderTest {
         entryTwo.setCitationKey("testKeyTwo");
         database.insertEntry(entryTwo);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("testKey"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("testKey")
+        );
         assertEquals(Arrays.asList(entryTwo, entryOne), result);
     }
 
@@ -108,7 +122,9 @@ class BibEntrySuggestionProviderTest {
         entry.setCitationKey("key");
         database.insertEntry(entry);
 
-        Collection<BibEntry> result = autoCompleter.provideSuggestions(getRequest("k"));
+        Collection<BibEntry> result = autoCompleter.provideSuggestions(
+            getRequest("k")
+        );
         assertEquals(List.of(entry), result);
     }
 }

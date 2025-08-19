@@ -4,7 +4,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.ai.components.privacynotice.AiPrivacyNoticeGuardedComponent;
 
 /**
@@ -16,6 +15,7 @@ import org.jabref.gui.ai.components.privacynotice.AiPrivacyNoticeGuardedComponen
  * See {@link AiPrivacyNoticeGuardedComponent#rebuildUi()} for example.
  */
 public class DynamicallyChangeableNode extends VBox {
+
     protected void setContent(Node node) {
         getChildren().clear();
         VBox.setVgrow(node, Priority.ALWAYS);

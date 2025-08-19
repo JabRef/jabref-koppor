@@ -12,17 +12,29 @@ import org.jabref.logic.util.TaskExecutor;
  * configured Kindle email
  */
 public class SendAsKindleEmailAction extends SendAsEMailAction {
+
     private final GuiPreferences preferences;
 
-    public SendAsKindleEmailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager, TaskExecutor taskExecutor) {
+    public SendAsKindleEmailAction(
+        DialogService dialogService,
+        GuiPreferences preferences,
+        StateManager stateManager,
+        TaskExecutor taskExecutor
+    ) {
         super(dialogService, preferences, stateManager, taskExecutor);
         this.preferences = preferences;
-        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager).and(ActionHelper.hasLinkedFileForSelectedEntries(stateManager)));
+        this.executable.bind(
+            ActionHelper.needsEntriesSelected(stateManager).and(
+                ActionHelper.hasLinkedFileForSelectedEntries(stateManager)
+            )
+        );
     }
 
     @Override
     protected String getEmailAddress() {
-        return preferences.getExternalApplicationsPreferences().getKindleEmail();
+        return preferences
+            .getExternalApplicationsPreferences()
+            .getKindleEmail();
     }
 
     @Override

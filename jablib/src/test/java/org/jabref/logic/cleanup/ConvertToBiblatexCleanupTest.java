@@ -1,16 +1,14 @@
 package org.jabref.logic.cleanup;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConvertToBiblatexCleanupTest {
 
@@ -31,7 +29,10 @@ class ConvertToBiblatexCleanupTest {
 
         assertEquals(Optional.empty(), entry.getField(StandardField.YEAR));
         assertEquals(Optional.empty(), entry.getField(StandardField.MONTH));
-        assertEquals(Optional.of("2011-01"), entry.getField(StandardField.DATE));
+        assertEquals(
+            Optional.of("2011-01"),
+            entry.getField(StandardField.DATE)
+        );
     }
 
     @Test
@@ -45,7 +46,10 @@ class ConvertToBiblatexCleanupTest {
 
         assertEquals(Optional.of("2011"), entry.getField(StandardField.YEAR));
         assertEquals(Optional.of("#jan#"), entry.getField(StandardField.MONTH));
-        assertEquals(Optional.of("2012-01"), entry.getField(StandardField.DATE));
+        assertEquals(
+            Optional.of("2012-01"),
+            entry.getField(StandardField.DATE)
+        );
     }
 
     @Test
@@ -59,7 +63,10 @@ class ConvertToBiblatexCleanupTest {
 
         assertEquals(Optional.of("2011"), entry.getField(StandardField.YEAR));
         assertEquals(Optional.of("#jan#"), entry.getField(StandardField.MONTH));
-        assertEquals(Optional.of("2011-02"), entry.getField(StandardField.DATE));
+        assertEquals(
+            Optional.of("2011-02"),
+            entry.getField(StandardField.DATE)
+        );
     }
 
     @Test
@@ -87,29 +94,37 @@ class ConvertToBiblatexCleanupTest {
 
         assertEquals(Optional.empty(), entry.getField(StandardField.YEAR));
         assertEquals(Optional.empty(), entry.getField(StandardField.MONTH));
-        assertEquals(Optional.of("2011-01"), entry.getField(StandardField.DATE));
+        assertEquals(
+            Optional.of("2011-01"),
+            entry.getField(StandardField.DATE)
+        );
     }
 
     @Test
     void cleanupMovesJournalToJournaltitle() {
-        BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Best of JabRef");
+        BibEntry entry = new BibEntry().withField(
+            StandardField.JOURNAL,
+            "Best of JabRef"
+        );
 
         worker.cleanup(entry);
 
         assertEquals(Optional.empty(), entry.getField(StandardField.JOURNAL));
-        assertEquals(Optional.of("Best of JabRef"), entry.getField(StandardField.JOURNALTITLE));
+        assertEquals(
+            Optional.of("Best of JabRef"),
+            entry.getField(StandardField.JOURNALTITLE)
+        );
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "2011-11",
-            "2011-11-11",
-            "2010/2011",
-            "0030 BC",
-            "-0876",
-            "2004-22"
-    })
-    void fallbackDateParsing_shouldAcceptTypicalBibLatexValues(String fakeYear) {
+    @ValueSource(
+        strings = {
+            "2011-11", "2011-11-11", "2010/2011", "0030 BC", "-0876", "2004-22",
+        }
+    )
+    void fallbackDateParsing_shouldAcceptTypicalBibLatexValues(
+        String fakeYear
+    ) {
         BibEntry entry = new BibEntry().withField(StandardField.YEAR, fakeYear);
 
         worker.cleanup(entry);

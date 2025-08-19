@@ -1,12 +1,5 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.model.openoffice.DocumentAnnotation;
-
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNamed;
@@ -16,11 +9,15 @@ import com.sun.star.text.XReferenceMarksSupplier;
 import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.model.openoffice.DocumentAnnotation;
 
 public class UnoReferenceMark {
 
-    private UnoReferenceMark() {
-    }
+    private UnoReferenceMark() {}
 
     /**
      * @throws NoDocumentException If cannot get reference marks
@@ -28,15 +25,18 @@ public class UnoReferenceMark {
      *                             Note: also used by `isDocumentConnectionMissing` to test if we have a working connection.
      */
     public static XNameAccess getNameAccess(XTextDocument doc)
-            throws
-            NoDocumentException {
-
-        XReferenceMarksSupplier supplier = UnoCast.cast(XReferenceMarksSupplier.class, doc).get();
+        throws NoDocumentException {
+        XReferenceMarksSupplier supplier = UnoCast.cast(
+            XReferenceMarksSupplier.class,
+            doc
+        ).get();
 
         try {
             return supplier.getReferenceMarks();
         } catch (DisposedException ex) {
-            throw new NoDocumentException("UnoReferenceMarks.getNameAccess failed with" + ex);
+            throw new NoDocumentException(
+                "UnoReferenceMarks.getNameAccess failed with" + ex
+            );
         }
     }
 
@@ -46,8 +46,7 @@ public class UnoReferenceMark {
      * Empty list for nothing.
      */
     public static List<String> getListOfNames(XTextDocument doc)
-            throws NoDocumentException {
-
+        throws NoDocumentException {
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         String[] names = nameAccess.getElementNames();
         if (names == null) {
@@ -62,14 +61,14 @@ public class UnoReferenceMark {
      * Removes both the text and the mark itself.
      */
     public static void removeIfExists(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
-
+        throws WrappedTargetException, NoDocumentException {
         XNameAccess xReferenceMarks = UnoReferenceMark.getNameAccess(doc);
 
         if (xReferenceMarks.hasByName(name)) {
-            Optional<XTextContent> mark = UnoNameAccess.getTextContentByName(xReferenceMarks, name);
+            Optional<XTextContent> mark = UnoNameAccess.getTextContentByName(
+                xReferenceMarks,
+                name
+            );
             if (mark.isEmpty()) {
                 return;
             }
@@ -84,11 +83,10 @@ public class UnoReferenceMark {
     /**
      * @return reference mark as XTextContent, Optional.empty if not found.
      */
-    public static Optional<XTextContent> getAsTextContent(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
-
+    public static Optional<XTextContent> getAsTextContent(
+        XTextDocument doc,
+        String name
+    ) throws NoDocumentException, WrappedTargetException {
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         return UnoNameAccess.getTextContentByName(nameAccess, name);
     }
@@ -97,11 +95,10 @@ public class UnoReferenceMark {
      * XTextRange for the named reference mark, Optional.empty if not found.
      */
     public static Optional<XTextRange> getAnchor(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
-        return UnoReferenceMark.getAsTextContent(doc, name)
-                                .map(XTextContent::getAnchor);
+        throws NoDocumentException, WrappedTargetException {
+        return UnoReferenceMark.getAsTextContent(doc, name).map(
+            XTextContent::getAnchor
+        );
     }
 
     /**
@@ -113,8 +110,10 @@ public class UnoReferenceMark {
      *
      */
     public static XNamed create(DocumentAnnotation documentAnnotation)
-            throws
-            CreationException {
-        return UnoNamed.insertNamedTextContent("com.sun.star.text.ReferenceMark", documentAnnotation);
+        throws CreationException {
+        return UnoNamed.insertNamedTextContent(
+            "com.sun.star.text.ReferenceMark",
+            documentAnnotation
+        );
     }
 }

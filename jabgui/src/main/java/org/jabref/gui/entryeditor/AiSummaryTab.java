@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.ai.components.summary.SummaryComponent;
@@ -15,6 +14,7 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public class AiSummaryTab extends EntryEditorTab {
+
     private final AiService aiService;
     private final DialogService dialogService;
     private final StateManager stateManager;
@@ -24,23 +24,31 @@ public class AiSummaryTab extends EntryEditorTab {
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
     private final EntryEditorPreferences entryEditorPreferences;
 
-    public AiSummaryTab(AiService aiService,
-                        DialogService dialogService,
-                        StateManager stateManager,
-                        AdaptVisibleTabs adaptVisibleTabs,
-                        GuiPreferences preferences) {
+    public AiSummaryTab(
+        AiService aiService,
+        DialogService dialogService,
+        StateManager stateManager,
+        AdaptVisibleTabs adaptVisibleTabs,
+        GuiPreferences preferences
+    ) {
         this.aiService = aiService;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.adaptVisibleTabs = adaptVisibleTabs;
 
         this.aiPreferences = preferences.getAiPreferences();
-        this.externalApplicationsPreferences = preferences.getExternalApplicationsPreferences();
-        this.citationKeyPatternPreferences = preferences.getCitationKeyPatternPreferences();
+        this.externalApplicationsPreferences =
+            preferences.getExternalApplicationsPreferences();
+        this.citationKeyPatternPreferences =
+            preferences.getCitationKeyPatternPreferences();
         this.entryEditorPreferences = preferences.getEntryEditorPreferences();
 
         setText(Localization.lang("AI summary"));
-        setTooltip(new Tooltip(Localization.lang("AI-generated summary of attached file(s)")));
+        setTooltip(
+            new Tooltip(
+                Localization.lang("AI-generated summary of attached file(s)")
+            )
+        );
     }
 
     @Override
@@ -53,8 +61,11 @@ public class AiSummaryTab extends EntryEditorTab {
      */
     @Override
     protected void bindToEntry(BibEntry entry) {
-        BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().orElse(new BibDatabaseContext());
-        setContent(new SummaryComponent(
+        BibDatabaseContext bibDatabaseContext = stateManager
+            .getActiveDatabase()
+            .orElse(new BibDatabaseContext());
+        setContent(
+            new SummaryComponent(
                 bibDatabaseContext,
                 entry,
                 aiService,
@@ -63,6 +74,7 @@ public class AiSummaryTab extends EntryEditorTab {
                 citationKeyPatternPreferences,
                 dialogService,
                 adaptVisibleTabs
-        ));
+            )
+        );
     }
 }

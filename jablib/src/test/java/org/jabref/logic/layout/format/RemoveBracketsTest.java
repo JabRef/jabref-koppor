@@ -1,13 +1,13 @@
 package org.jabref.logic.layout.format;
 
-import org.jabref.logic.layout.LayoutFormatter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.jabref.logic.layout.LayoutFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class RemoveBracketsTest {
+
     private LayoutFormatter formatter;
 
     @BeforeEach

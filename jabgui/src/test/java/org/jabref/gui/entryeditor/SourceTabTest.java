@@ -1,7 +1,9 @@
 package org.jabref.gui.entryeditor;
 
-import java.util.List;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
@@ -9,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
-
+import org.fxmisc.richtext.CodeArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.keyboard.KeyBindingRepository;
@@ -22,17 +24,12 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import org.fxmisc.richtext.CodeArea;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(ApplicationExtension.class)
 class SourceTabTest {
@@ -46,30 +43,49 @@ class SourceTabTest {
     @Start
     public void onStart(Stage stage) {
         area = new CodeArea();
-        area.appendText("some example\n text to go here\n across a couple of \n lines....");
+        area.appendText(
+            "some example\n text to go here\n across a couple of \n lines...."
+        );
         StateManager stateManager = mock(StateManager.class);
-        when(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH)).thenReturn(OptionalObjectProperty.empty());
-        when(stateManager.searchQueryProperty()).thenReturn(mock(StringProperty.class));
-        when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
-        KeyBindingRepository keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(
+            stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH)
+        ).thenReturn(OptionalObjectProperty.empty());
+        when(stateManager.searchQueryProperty()).thenReturn(
+            mock(StringProperty.class)
+        );
+        when(stateManager.activeTabProperty()).thenReturn(
+            OptionalObjectProperty.empty()
+        );
+        KeyBindingRepository keyBindingRepository = new KeyBindingRepository(
+            List.of(),
+            List.of()
+        );
+        ImportFormatPreferences importFormatPreferences = mock(
+            ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
+        when(
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+        ).thenReturn(',');
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
-        when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        when(fieldPreferences.getNonWrappableFields()).thenReturn(
+            FXCollections.emptyObservableList()
+        );
 
         sourceTab = new SourceTab(
-                new CountingUndoManager(),
-                fieldPreferences,
-                importFormatPreferences,
-                new DummyFileUpdateMonitor(),
-                mock(DialogService.class),
-                mock(BibEntryTypesManager.class),
-                keyBindingRepository,
-                stateManager);
+            new CountingUndoManager(),
+            fieldPreferences,
+            importFormatPreferences,
+            new DummyFileUpdateMonitor(),
+            mock(DialogService.class),
+            mock(BibEntryTypesManager.class),
+            keyBindingRepository,
+            stateManager
+        );
         pane = new TabPane(
-                new Tab("main area", area),
-                new Tab("other tab", new Label("some text")),
-                sourceTab
+            new Tab("main area", area),
+            new Tab("other tab", new Label("some text")),
+            sourceTab
         );
         scene = new Scene(pane);
         this.stage = stage;
@@ -97,7 +113,9 @@ class SourceTabTest {
         // Switch to different tab & update entry
         robot.interact(() -> pane.getSelectionModel().select(1));
         robot.interact(() -> stage.setWidth(600));
-        robot.interact(() -> entry.setField(new UnknownField("test"), "new value"));
+        robot.interact(() ->
+            entry.setField(new UnknownField("test"), "new value")
+        );
 
         // No exception should be thrown
         robot.interrupt(100);

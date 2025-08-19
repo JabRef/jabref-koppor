@@ -8,12 +8,13 @@ import org.jabref.logic.push.PushToApplicationPreferences;
 
 public class GuiPushToLyxSettings extends GuiPushToApplicationSettings {
 
-    public GuiPushToLyxSettings(PushToApplication application,
-                                DialogService dialogService,
-                                FilePreferences filePreferences,
-                                PushToApplicationPreferences preferences) {
+    public GuiPushToLyxSettings(
+        PushToApplication application,
+        DialogService dialogService,
+        FilePreferences filePreferences,
+        PushToApplicationPreferences preferences
+    ) {
         super(application, dialogService, filePreferences, preferences);
-
         commandLabel.setText(Localization.lang("Path to LyX pipe") + ":");
     }
 }

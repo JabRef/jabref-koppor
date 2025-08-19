@@ -4,10 +4,10 @@ import java.time.Year;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.integrity.YearChecker;
 
-public class YearFieldValuePlausibilityComparator extends FieldValuePlausibilityComparator {
+public class YearFieldValuePlausibilityComparator
+    extends FieldValuePlausibilityComparator {
 
     private static final Pattern YEAR_PATTERN = Pattern.compile("(\\d{4})");
 
@@ -29,19 +29,21 @@ public class YearFieldValuePlausibilityComparator extends FieldValuePlausibility
             Optional<Integer> leftYear = extractYear(leftValue);
             Optional<Integer> rightYear = extractYear(rightValue);
 
-            boolean leftYearInRange = (leftYear.get() >= 1800) && (leftYear.get() <= Year.now().getValue() + 2);
+            boolean leftYearInRange =
+                (leftYear.get() >= 1800) &&
+                (leftYear.get() <= Year.now().getValue() + 2);
 
             if (leftYearInRange) {
                 int diff = Math.abs(leftYear.get() - rightYear.get());
                 if (diff > 10) {
                     return rightYear.get() > leftYear.get()
-                            ? ComparisonResult.RIGHT_BETTER
-                            : ComparisonResult.LEFT_BETTER;
+                        ? ComparisonResult.RIGHT_BETTER
+                        : ComparisonResult.LEFT_BETTER;
                 }
                 return ComparisonResult.UNDETERMINED; // years are close, undetermined
             }
             return ComparisonResult.RIGHT_BETTER;
-            }
+        }
         return ComparisonResult.RIGHT_BETTER;
     }
 

@@ -1,11 +1,8 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
 import java.util.List;
-
 import javafx.beans.Observable;
-
 import org.jabref.gui.walkthrough.Walkthrough;
-
 import org.jspecify.annotations.NonNull;
 
 /// Walkthrough side effects that can be executed between steps.

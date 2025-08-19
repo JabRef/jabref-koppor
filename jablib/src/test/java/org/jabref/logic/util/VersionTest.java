@@ -1,19 +1,17 @@
 package org.jabref.logic.util;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.support.DisabledOnCIServer;
-import org.jabref.testutils.category.FetcherTest;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.support.DisabledOnCIServer;
+import org.jabref.testutils.category.FetcherTest;
+import org.junit.jupiter.api.Test;
 
 class VersionTest {
 
@@ -217,13 +215,19 @@ class VersionTest {
     @Test
     void changelogOfDevelopmentVersionWithDash() {
         Version version = Version.parse("4.0-dev");
-        assertEquals("https://github.com/JabRef/jabref/blob/main/CHANGELOG.md#unreleased", version.getChangelogUrl());
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/main/CHANGELOG.md#unreleased",
+            version.getChangelogUrl()
+        );
     }
 
     @Test
     void changelogOfDevelopmentVersionWithoutDash() {
         Version version = Version.parse("3.7dev");
-        assertEquals("https://github.com/JabRef/jabref/blob/main/CHANGELOG.md#unreleased", version.getChangelogUrl());
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/main/CHANGELOG.md#unreleased",
+            version.getChangelogUrl()
+        );
     }
 
     @Test
@@ -232,22 +236,40 @@ class VersionTest {
         Version version2 = Version.parse("4.0-beta");
         Version version3 = Version.parse("4.0-beta2");
         Version version4 = Version.parse("4.0-beta3");
-        assertEquals("https://github.com/JabRef/jabref/blob/v4.0/CHANGELOG.md", version1.getChangelogUrl());
-        assertEquals("https://github.com/JabRef/jabref/blob/v4.0-beta/CHANGELOG.md", version2.getChangelogUrl());
-        assertEquals("https://github.com/JabRef/jabref/blob/v4.0-beta2/CHANGELOG.md", version3.getChangelogUrl());
-        assertEquals("https://github.com/JabRef/jabref/blob/v4.0-beta3/CHANGELOG.md", version4.getChangelogUrl());
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v4.0/CHANGELOG.md",
+            version1.getChangelogUrl()
+        );
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v4.0-beta/CHANGELOG.md",
+            version2.getChangelogUrl()
+        );
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v4.0-beta2/CHANGELOG.md",
+            version3.getChangelogUrl()
+        );
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v4.0-beta3/CHANGELOG.md",
+            version4.getChangelogUrl()
+        );
     }
 
     @Test
     void changelogWithTwoDigits() {
         Version version = Version.parse("3.4");
-        assertEquals("https://github.com/JabRef/jabref/blob/v3.4/CHANGELOG.md", version.getChangelogUrl());
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v3.4/CHANGELOG.md",
+            version.getChangelogUrl()
+        );
     }
 
     @Test
     void changelogWithThreeDigits() {
         Version version = Version.parse("3.4.1");
-        assertEquals("https://github.com/JabRef/jabref/blob/v3.4.1/CHANGELOG.md", version.getChangelogUrl());
+        assertEquals(
+            "https://github.com/JabRef/jabref/blob/v3.4.1/CHANGELOG.md",
+            version.getChangelogUrl()
+        );
     }
 
     @Test
@@ -310,8 +332,14 @@ class VersionTest {
     void alphaShouldBeUpdatedToStables() {
         Version alpha = Version.parse("2.8-alpha");
         Version stable = Version.parse("2.8");
-        List<Version> availableVersions = Arrays.asList(Version.parse("2.8-beta"), stable);
-        assertEquals(Optional.of(stable), alpha.shouldBeUpdatedTo(availableVersions));
+        List<Version> availableVersions = Arrays.asList(
+            Version.parse("2.8-beta"),
+            stable
+        );
+        assertEquals(
+            Optional.of(stable),
+            alpha.shouldBeUpdatedTo(availableVersions)
+        );
     }
 
     @Test

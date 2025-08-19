@@ -3,7 +3,6 @@ package org.jabref.logic.preferences;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.prefs.BackingStoreException;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.InternalPreferences;
 import org.jabref.logic.JabRefException;
@@ -71,7 +70,9 @@ public interface CliPreferences {
 
     BibEntryTypesManager getCustomEntryTypesRepository();
 
-    void storeCustomEntryTypesRepository(BibEntryTypesManager entryTypesManager);
+    void storeCustomEntryTypesRepository(
+        BibEntryTypesManager entryTypesManager
+    );
 
     CleanupPreferences getCleanupPreferences();
 
@@ -115,7 +116,9 @@ public interface CliPreferences {
 
     LastFilesOpenedPreferences getLastFilesOpenedPreferences();
 
-    OpenOfficePreferences getOpenOfficePreferences(JournalAbbreviationRepository journalAbbreviationRepository);
+    OpenOfficePreferences getOpenOfficePreferences(
+        JournalAbbreviationRepository journalAbbreviationRepository
+    );
 
     PushToApplicationPreferences getPushToApplicationPreferences();
 

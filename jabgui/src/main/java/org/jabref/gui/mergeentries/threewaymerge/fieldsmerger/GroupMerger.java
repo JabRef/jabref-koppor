@@ -1,12 +1,10 @@
 package org.jabref.gui.mergeentries.threewaymerge.fieldsmerger;
 
 import java.util.Objects;
-
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.strings.StringUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -31,7 +29,9 @@ public class GroupMerger implements FieldMerger {
         } else if (StringUtil.isBlank(groupsB)) {
             return groupsA;
         } else {
-            return KeywordList.merge(groupsA, groupsB, delimiter).getAsString(delimiter);
+            return KeywordList.merge(groupsA, groupsB, delimiter).getAsString(
+                delimiter
+            );
         }
     }
 }

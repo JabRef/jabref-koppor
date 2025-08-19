@@ -1,27 +1,27 @@
 package org.jabref.logic.bst;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.types.StandardEntryType;
-
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.types.StandardEntryType;
+import org.junit.jupiter.api.Test;
+
 class BstVMVisitorTest {
 
     @Test
     void visitStringsCommand() {
-        BstVM vm = new BstVM("STRINGS { test.string1 test.string2 test.string3 }");
+        BstVM vm = new BstVM(
+            "STRINGS { test.string1 test.string2 test.string3 }"
+        );
 
         vm.render(List.of());
 
@@ -51,28 +51,34 @@ class BstVMVisitorTest {
 
     @Test
     void visitFunctionCommand() {
-        BstVM vm = new BstVM("""
-                FUNCTION { test.func } { #1 'test.var := }
-                EXECUTE { test.func }
-                """);
+        BstVM vm = new BstVM(
+            """
+            FUNCTION { test.func } { #1 'test.var := }
+            EXECUTE { test.func }
+            """
+        );
 
         vm.render(List.of());
 
-        Map<String, BstFunctions.BstFunction> functions = vm.latestContext.functions();
+        Map<String, BstFunctions.BstFunction> functions =
+            vm.latestContext.functions();
         assertTrue(functions.containsKey("test.func"));
         assertNotNull(functions.get("test.func"));
     }
 
     @Test
     void visitMacroCommand() {
-        BstVM vm = new BstVM("""
-                MACRO { jan } { "January" }
-                EXECUTE { jan }
-                """);
+        BstVM vm = new BstVM(
+            """
+            MACRO { jan } { "January" }
+            EXECUTE { jan }
+            """
+        );
 
         vm.render(List.of());
 
-        Map<String, BstFunctions.BstFunction> functions = vm.latestContext.functions();
+        Map<String, BstFunctions.BstFunction> functions =
+            vm.latestContext.functions();
         assertTrue(functions.containsKey("jan"));
         assertNotNull(functions.get("jan"));
         assertEquals("January", vm.latestContext.stack().pop());
@@ -81,7 +87,9 @@ class BstVMVisitorTest {
 
     @Test
     void visitEntryCommand() {
-        BstVM vm = new BstVM("ENTRY { address author title type } { variable } { label }");
+        BstVM vm = new BstVM(
+            "ENTRY { address author title type } { variable } { label }"
+        );
         List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
@@ -98,31 +106,50 @@ class BstVMVisitorTest {
 
     @Test
     void visitReadCommand() {
-        BstVM vm = new BstVM("""
-                ENTRY { author title booktitle year owner timestamp url } { } { }
-                READ
-                """);
+        BstVM vm = new BstVM(
+            """
+            ENTRY { author title booktitle year owner timestamp url } { } { }
+            READ
+            """
+        );
         List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
 
-        Map<String, String> fields = vm.latestContext.entries().getFirst().fields;
-        assertEquals("Crowston, K. and Annabi, H. and Howison, J. and Masango, C.", fields.get("author"));
-        assertEquals("Effective work practices for floss development: A model and propositions", fields.get("title"));
-        assertEquals("Hawaii International Conference On System Sciences (HICSS)", fields.get("booktitle"));
+        Map<String, String> fields = vm.latestContext
+            .entries()
+            .getFirst()
+            .fields;
+        assertEquals(
+            "Crowston, K. and Annabi, H. and Howison, J. and Masango, C.",
+            fields.get("author")
+        );
+        assertEquals(
+            "Effective work practices for floss development: A model and propositions",
+            fields.get("title")
+        );
+        assertEquals(
+            "Hawaii International Conference On System Sciences (HICSS)",
+            fields.get("booktitle")
+        );
         assertEquals("2005", fields.get("year"));
         assertEquals("oezbek", fields.get("owner"));
         assertEquals("2006.05.29", fields.get("timestamp"));
-        assertEquals("http://james.howison.name/publications.html", fields.get("url"));
+        assertEquals(
+            "http://james.howison.name/publications.html",
+            fields.get("url")
+        );
     }
 
     @Test
     void visitExecuteCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                INTEGERS { variable.a }
-                FUNCTION { init.state.consts } { #5 'variable.a := }
-                EXECUTE { init.state.consts }
-                """);
+        BstVM vm = new BstVM(
+            """
+            INTEGERS { variable.a }
+            FUNCTION { init.state.consts } { #5 'variable.a := }
+            EXECUTE { init.state.consts }
+            """
+        );
 
         vm.render(List.of());
 
@@ -131,16 +158,18 @@ class BstVMVisitorTest {
 
     @Test
     void visitIterateCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { test } { cite$ }
-                READ
-                ITERATE { test }
-                """);
+        BstVM vm = new BstVM(
+            """
+            ENTRY { } { } { }
+            FUNCTION { test } { cite$ }
+            READ
+            ITERATE { test }
+            """
+        );
         List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+            BstVMTest.defaultTestEntry(),
+            new BibEntry(StandardEntryType.Article).withCitationKey("test")
+        );
 
         vm.render(testEntries);
 
@@ -151,16 +180,18 @@ class BstVMVisitorTest {
 
     @Test
     void visitReverseCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { test } { cite$ }
-                READ
-                REVERSE { test }
-                """);
+        BstVM vm = new BstVM(
+            """
+            ENTRY { } { } { }
+            FUNCTION { test } { cite$ }
+            READ
+            REVERSE { test }
+            """
+        );
         List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+            BstVMTest.defaultTestEntry(),
+            new BibEntry(StandardEntryType.Article).withCitationKey("test")
+        );
 
         vm.render(testEntries);
 
@@ -171,44 +202,61 @@ class BstVMVisitorTest {
 
     @Test
     void visitSortCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { presort } { cite$ 'sort.key$ := }
-                ITERATE { presort }
-                SORT
-                """);
+        BstVM vm = new BstVM(
+            """
+            ENTRY { } { } { }
+            FUNCTION { presort } { cite$ 'sort.key$ := }
+            ITERATE { presort }
+            SORT
+            """
+        );
         List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.Article).withCitationKey("c"),
-                new BibEntry(StandardEntryType.Article).withCitationKey("b"),
-                new BibEntry(StandardEntryType.Article).withCitationKey("d"),
-                new BibEntry(StandardEntryType.Article).withCitationKey("a"));
+            new BibEntry(StandardEntryType.Article).withCitationKey("c"),
+            new BibEntry(StandardEntryType.Article).withCitationKey("b"),
+            new BibEntry(StandardEntryType.Article).withCitationKey("d"),
+            new BibEntry(StandardEntryType.Article).withCitationKey("a")
+        );
 
         vm.render(testEntries);
 
         List<BstEntry> sortedEntries = vm.latestContext.entries();
-        assertEquals(Optional.of("a"), sortedEntries.getFirst().entry.getCitationKey());
-        assertEquals(Optional.of("b"), sortedEntries.get(1).entry.getCitationKey());
-        assertEquals(Optional.of("c"), sortedEntries.get(2).entry.getCitationKey());
-        assertEquals(Optional.of("d"), sortedEntries.get(3).entry.getCitationKey());
+        assertEquals(
+            Optional.of("a"),
+            sortedEntries.getFirst().entry.getCitationKey()
+        );
+        assertEquals(
+            Optional.of("b"),
+            sortedEntries.get(1).entry.getCitationKey()
+        );
+        assertEquals(
+            Optional.of("c"),
+            sortedEntries.get(2).entry.getCitationKey()
+        );
+        assertEquals(
+            Optional.of("d"),
+            sortedEntries.get(3).entry.getCitationKey()
+        );
     }
 
     @Test
     void visitIdentifier() {
-        BstVM vm = new BstVM("""
-                ENTRY { } { local.variable } { local.label }
-                READ
-                STRINGS { label }
-                INTEGERS { variable }
-                FUNCTION { test } {
-                    #1 'local.variable :=
-                    #2 'variable :=
-                    "TEST" 'local.label :=
-                    "TEST-GLOBAL" 'label :=
-                    local.label local.variable
-                    label variable
-                }
-                ITERATE { test }
-                """);
+        BstVM vm = new BstVM(
+            """
+            ENTRY { } { local.variable } { local.label }
+            READ
+            STRINGS { label }
+            INTEGERS { variable }
+            FUNCTION { test } {
+                #1 'local.variable :=
+                #2 'variable :=
+                "TEST" 'local.label :=
+                "TEST-GLOBAL" 'label :=
+                local.label local.variable
+                label variable
+            }
+            ITERATE { test }
+            """
+        );
         List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
@@ -222,18 +270,20 @@ class BstVMVisitorTest {
 
     @Test
     void visitStackitem() {
-        BstVM vm = new BstVM("""
-                STRINGS { t }
-                FUNCTION { test2 } { #3 }
-                FUNCTION { test } {
-                    "HELLO"
-                    #1
-                    't
-                    { #2 }
-                    test2
-                }
-                EXECUTE { test }
-                """);
+        BstVM vm = new BstVM(
+            """
+            STRINGS { t }
+            FUNCTION { test2 } { #3 }
+            FUNCTION { test } {
+                "HELLO"
+                #1
+                't
+                { #2 }
+                test2
+            }
+            EXECUTE { test }
+            """
+        );
 
         vm.render(List.of());
 

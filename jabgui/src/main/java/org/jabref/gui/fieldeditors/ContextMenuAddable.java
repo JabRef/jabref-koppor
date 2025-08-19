@@ -2,9 +2,7 @@ package org.jabref.gui.fieldeditors;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.keyboard.KeyBindingRepository;
 
 public interface ContextMenuAddable {
@@ -13,5 +11,8 @@ public interface ContextMenuAddable {
      * to be instantiated at this point. They are populated when the user needs them which prevents many unnecessary
      * allocations when the main table is just scrolled with the entry editor open.
      */
-    void initContextMenu(final Supplier<List<MenuItem>> items, KeyBindingRepository keyBindingRepository);
+    void initContextMenu(
+        final Supplier<List<MenuItem>> items,
+        KeyBindingRepository keyBindingRepository
+    );
 }

@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 import org.jabref.logic.l10n.Localization;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,19 +20,35 @@ import org.slf4j.LoggerFactory;
  */
 public class ProtectedTermsParser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProtectedTermsParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ProtectedTermsParser.class
+    );
 
     private final List<String> terms = new ArrayList<>();
-    private String description = Localization.lang("The text after the last line starting with # will be used");
+    private String description = Localization.lang(
+        "The text after the last line starting with # will be used"
+    );
 
     private String location;
 
-    public void readTermsFromResource(String resourceFileName, String descriptionString) {
+    public void readTermsFromResource(
+        String resourceFileName,
+        String descriptionString
+    ) {
         description = descriptionString;
         location = resourceFileName;
-        try (InputStream inputStream = ProtectedTermsLoader.class.getResourceAsStream(Objects.requireNonNull(resourceFileName))) {
+        try (
+            InputStream inputStream =
+                ProtectedTermsLoader.class.getResourceAsStream(
+                    Objects.requireNonNull(resourceFileName)
+                )
+        ) {
             if (inputStream == null) {
-                LOGGER.error("Cannot find resource '{}' ({})", resourceFileName, descriptionString);
+                LOGGER.error(
+                    "Cannot find resource '{}' ({})",
+                    resourceFileName,
+                    descriptionString
+                );
                 return;
             }
             readTermsList(inputStream);
@@ -59,8 +73,17 @@ public class ProtectedTermsParser {
     }
 
     private void readTermsList(InputStream inputStream) {
-        try (Stream<String> lines = new BufferedReader(new InputStreamReader(inputStream)).lines()) {
-            this.terms.addAll(lines.map(this::setDescription).filter(Objects::nonNull).toList());
+        try (
+            Stream<String> lines = new BufferedReader(
+                new InputStreamReader(inputStream)
+            ).lines()
+        ) {
+            this.terms.addAll(
+                lines
+                    .map(this::setDescription)
+                    .filter(Objects::nonNull)
+                    .toList()
+            );
         } catch (UncheckedIOException e) {
             LOGGER.warn("Could not read terms from stream", e);
         }
@@ -79,8 +102,16 @@ public class ProtectedTermsParser {
         return line;
     }
 
-    public ProtectedTermsList getProtectTermsList(boolean enabled, boolean internal) {
-        ProtectedTermsList termList = new ProtectedTermsList(description, terms, location, internal);
+    public ProtectedTermsList getProtectTermsList(
+        boolean enabled,
+        boolean internal
+    ) {
+        ProtectedTermsList termList = new ProtectedTermsList(
+            description,
+            terms,
+            location,
+            internal
+        );
         termList.setEnabled(enabled);
         return termList;
     }

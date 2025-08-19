@@ -17,7 +17,7 @@ import java.util.List;
  *                     "eng", "fre", "deu").
  */
 public record LtwaEntry(
-        String word,
-        String abbreviation,
-        List<String> languages) implements Serializable {
-}
+    String word,
+    String abbreviation,
+    List<String> languages
+) implements Serializable {}

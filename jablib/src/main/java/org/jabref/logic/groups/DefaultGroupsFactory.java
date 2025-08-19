@@ -8,13 +8,15 @@ import org.jabref.model.groups.AllEntriesGroup;
  */
 public class DefaultGroupsFactory {
 
-    public static final String ALL_ENTRIES_GROUP_DEFAULT_ICON = "ALL_ENTRIES_GROUP_ICON";
+    public static final String ALL_ENTRIES_GROUP_DEFAULT_ICON =
+        "ALL_ENTRIES_GROUP_ICON";
 
-    private DefaultGroupsFactory() {
-    }
+    private DefaultGroupsFactory() {}
 
     public static AllEntriesGroup getAllEntriesGroup() {
-        AllEntriesGroup group = new AllEntriesGroup(Localization.lang("All entries"));
+        AllEntriesGroup group = new AllEntriesGroup(
+            Localization.lang("All entries")
+        );
         group.setIconName(ALL_ENTRIES_GROUP_DEFAULT_ICON);
         return group;
     }

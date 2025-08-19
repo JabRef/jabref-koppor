@@ -1,16 +1,14 @@
 package org.jabref.gui.push;
 
-import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
+import java.nio.file.Path;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 class PushToWinEdtTest {
 
@@ -25,6 +23,11 @@ class PushToWinEdtTest {
 
     @Test
     void jumpToLineCommandlineArguments() {
-        assertNotNull(new GuiPushToWinEdt(dialogService, preferences.getPushToApplicationPreferences()).jumpToLineCommandlineArguments(Path.of("test.tex"), 1, 5));
+        assertNotNull(
+            new GuiPushToWinEdt(
+                dialogService,
+                preferences.getPushToApplicationPreferences()
+            ).jumpToLineCommandlineArguments(Path.of("test.tex"), 1, 5)
+        );
     }
 }

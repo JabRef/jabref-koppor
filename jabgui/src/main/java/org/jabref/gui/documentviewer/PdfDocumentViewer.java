@@ -1,9 +1,10 @@
 package org.jabref.gui.documentviewer;
 
+import com.dlsc.pdfviewfx.PDFView;
+import com.tobiasdiez.easybind.EasyBind;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,11 +12,7 @@ import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.logic.l10n.Localization;
-
-import com.dlsc.pdfviewfx.PDFView;
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +21,9 @@ import org.slf4j.LoggerFactory;
  */
 public class PdfDocumentViewer extends StackPane {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PdfDocumentViewer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        PdfDocumentViewer.class
+    );
 
     private final PDFView pdfView;
     private final IntegerProperty currentPage = new SimpleIntegerProperty(0);
@@ -34,7 +33,9 @@ public class PdfDocumentViewer extends StackPane {
     public PdfDocumentViewer() {
         pdfView = new PDFView();
 
-        placeholderLabel = new Label(Localization.lang("No PDF available for preview"));
+        placeholderLabel = new Label(
+            Localization.lang("No PDF available for preview")
+        );
         placeholderLabel.getStyleClass().add("message");
         placeholderLabel.setAlignment(Pos.CENTER);
 
@@ -43,7 +44,9 @@ public class PdfDocumentViewer extends StackPane {
         pdfView.setVisible(false);
         placeholderLabel.setVisible(true);
 
-        EasyBind.subscribe(currentPage, current -> pdfView.setPage(current.intValue()));
+        EasyBind.subscribe(currentPage, current ->
+            pdfView.setPage(current.intValue())
+        );
         EasyBind.subscribe(highlightText, pdfView::setSearchText);
     }
 
@@ -67,16 +70,26 @@ public class PdfDocumentViewer extends StackPane {
                 pdfView.setVisible(true);
                 placeholderLabel.setVisible(false);
                 LOGGER.debug("Successfully loaded PDF document: {}", document);
-            } catch (IOException | PDFView.Document.DocumentProcessingException e) {
+            } catch (
+                IOException
+                | PDFView.Document.DocumentProcessingException e
+            ) {
                 LOGGER.error("Could not load PDF document {}", document, e);
                 pdfView.setVisible(false);
-                placeholderLabel.setText(Localization.lang("Could not load PDF: %0", document.getFileName().toString()));
+                placeholderLabel.setText(
+                    Localization.lang(
+                        "Could not load PDF: %0",
+                        document.getFileName().toString()
+                    )
+                );
                 placeholderLabel.setVisible(true);
             }
         } else {
             LOGGER.debug("No document provided to viewer, showing placeholder");
             pdfView.setVisible(false);
-            placeholderLabel.setText(Localization.lang("No PDF available for preview"));
+            placeholderLabel.setText(
+                Localization.lang("No PDF available for preview")
+            );
             placeholderLabel.setVisible(true);
         }
     }

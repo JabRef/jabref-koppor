@@ -1,14 +1,12 @@
 package org.jabref.model.entry;
 
 import java.util.Optional;
-
 import org.jabref.model.strings.StringUtil;
 
 /**
  * Represents a Season of the Year.
  */
 public enum Season {
-
     SPRING("spring", 21),
     SUMMER("summer", 22),
     AUTUMN("autumn", 23),

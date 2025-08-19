@@ -7,12 +7,12 @@ import java.util.List;
  * This is an abstract implementation of ParamLayoutFormatter, which provides some
  * functionality for the handling of argument strings.
  */
-public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatter {
+public abstract class AbstractParamLayoutFormatter
+    implements ParamLayoutFormatter {
 
     private static final char SEPARATOR = ',';
 
-    protected AbstractParamLayoutFormatter() {
-    }
+    protected AbstractParamLayoutFormatter() {}
 
     /**
      * Parse an argument string and return the parts of the argument. The parts are
@@ -42,7 +42,10 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
         return parts;
     }
 
-    private static void handleEscapedCharacter(StringBuilder current, char currentChar) {
+    private static void handleEscapedCharacter(
+        StringBuilder current,
+        char currentChar
+    ) {
         switch (currentChar) {
             case 'n' -> current.append('\n');
             case 't' -> current.append('\t');

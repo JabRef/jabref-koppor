@@ -2,7 +2,6 @@ package org.jabref.logic.biblog;
 
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.metadata.MetaData;
 
@@ -29,7 +28,11 @@ public class BibLogPathResolver {
     /**
      * Test-friendly API (allows direct input of MetaData and Path)
      */
-    public static Optional<Path> resolve(MetaData metaData, Optional<Path> databasePath, String user) {
+    public static Optional<Path> resolve(
+        MetaData metaData,
+        Optional<Path> databasePath,
+        String user
+    ) {
         if (metaData == null || user == null) {
             return Optional.empty();
         }
@@ -44,9 +47,9 @@ public class BibLogPathResolver {
         }
 
         return databasePath.map(path ->
-                path.resolveSibling(
-                        path.getFileName().toString().replaceFirst("\\.bib$", ".blg")
-                )
+            path.resolveSibling(
+                path.getFileName().toString().replaceFirst("\\.bib$", ".blg")
+            )
         );
     }
 }

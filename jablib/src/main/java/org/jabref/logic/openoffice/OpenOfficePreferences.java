@@ -1,7 +1,6 @@
 package org.jabref.logic.openoffice;
 
 import java.util.List;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -10,21 +9,24 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.openoffice.oocsltext.CSLFormatUtils;
 import org.jabref.logic.openoffice.style.OOStyle;
 
 public class OpenOfficePreferences {
 
-    public static final String DEFAULT_WIN_EXEC_PATH = "C:\\Program Files\\LibreOffice\\program";
+    public static final String DEFAULT_WIN_EXEC_PATH =
+        "C:\\Program Files\\LibreOffice\\program";
     public static final String WINDOWS_EXECUTABLE = "soffice.exe";
 
-    public static final String DEFAULT_OSX_EXEC_PATH = "/Applications/LibreOffice.app/Contents/MacOS/soffice";
+    public static final String DEFAULT_OSX_EXEC_PATH =
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice";
     public static final String OSX_EXECUTABLE = "soffice";
 
-    public static final String DEFAULT_LINUX_EXEC_PATH = "/usr/lib/libreoffice/program/soffice";
-    public static final String DEFAULT_LINUX_FLATPAK_EXEC_PATH = "/app/bin/soffice";
+    public static final String DEFAULT_LINUX_EXEC_PATH =
+        "/usr/lib/libreoffice/program/soffice";
+    public static final String DEFAULT_LINUX_FLATPAK_EXEC_PATH =
+        "/app/bin/soffice";
     public static final String LINUX_EXECUTABLE = "soffice";
 
     private final StringProperty executablePath;
@@ -40,29 +42,43 @@ public class OpenOfficePreferences {
     private final ObservableList<String> externalCslStyles;
     private final BooleanProperty addSpaceAfter;
 
-    public OpenOfficePreferences(String executablePath,
-                                 boolean useAllDatabases,
-                                 boolean syncWhenCiting,
-                                 List<String> externalJStyles,
-                                 String currentJStyle,
-                                 OOStyle currentStyle,
-                                 boolean alwaysAddCitedOnPages,
-                                 String cslBibliographyTitle,
-                                 String cslBibliographyHeaderFormat,
-                                 String cslBibliographyBodyFormat,
-                                 List<String> externalCslStyles,
-                                 boolean addSpaceAfter) {
+    public OpenOfficePreferences(
+        String executablePath,
+        boolean useAllDatabases,
+        boolean syncWhenCiting,
+        List<String> externalJStyles,
+        String currentJStyle,
+        OOStyle currentStyle,
+        boolean alwaysAddCitedOnPages,
+        String cslBibliographyTitle,
+        String cslBibliographyHeaderFormat,
+        String cslBibliographyBodyFormat,
+        List<String> externalCslStyles,
+        boolean addSpaceAfter
+    ) {
         this.executablePath = new SimpleStringProperty(executablePath);
         this.useAllDatabases = new SimpleBooleanProperty(useAllDatabases);
         this.syncWhenCiting = new SimpleBooleanProperty(syncWhenCiting);
-        this.externalJStyles = FXCollections.observableArrayList(externalJStyles);
+        this.externalJStyles = FXCollections.observableArrayList(
+            externalJStyles
+        );
         this.currentJStyle = new SimpleStringProperty(currentJStyle);
         this.currentStyle = new SimpleObjectProperty<>(currentStyle);
-        this.alwaysAddCitedOnPages = new SimpleBooleanProperty(alwaysAddCitedOnPages);
-        this.cslBibliographyTitle = new SimpleStringProperty(cslBibliographyTitle);
-        this.cslBibliographyHeaderFormat = new SimpleStringProperty(cslBibliographyHeaderFormat);
-        this.cslBibliographyBodyFormat = new SimpleStringProperty(cslBibliographyBodyFormat);
-        this.externalCslStyles = FXCollections.observableArrayList(externalCslStyles);
+        this.alwaysAddCitedOnPages = new SimpleBooleanProperty(
+            alwaysAddCitedOnPages
+        );
+        this.cslBibliographyTitle = new SimpleStringProperty(
+            cslBibliographyTitle
+        );
+        this.cslBibliographyHeaderFormat = new SimpleStringProperty(
+            cslBibliographyHeaderFormat
+        );
+        this.cslBibliographyBodyFormat = new SimpleStringProperty(
+            cslBibliographyBodyFormat
+        );
+        this.externalCslStyles = FXCollections.observableArrayList(
+            externalCslStyles
+        );
         this.addSpaceAfter = new SimpleBooleanProperty(addSpaceAfter);
     }
 
@@ -157,7 +173,9 @@ public class OpenOfficePreferences {
     public void setCurrentStyle(OOStyle style) {
         this.currentStyle.set(style);
         if (style instanceof CitationStyle citationStyle) {
-            this.cslBibliographyBodyFormat.set(CSLFormatUtils.getDefaultBodyFormatForStyle(citationStyle));
+            this.cslBibliographyBodyFormat.set(
+                CSLFormatUtils.getDefaultBodyFormatForStyle(citationStyle)
+            );
         }
     }
 

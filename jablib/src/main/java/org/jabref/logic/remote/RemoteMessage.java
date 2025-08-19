@@ -20,5 +20,5 @@ public enum RemoteMessage {
     /**
      * Request the running instance to focus its window when a second instance tries to execute. No message content.
      */
-    FOCUS
+    FOCUS,
 }

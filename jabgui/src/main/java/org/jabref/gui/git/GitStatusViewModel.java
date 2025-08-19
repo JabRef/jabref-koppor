@@ -1,15 +1,14 @@
 package org.jabref.gui.git;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.git.GitHandler;
@@ -17,8 +16,6 @@ import org.jabref.logic.git.status.GitStatusChecker;
 import org.jabref.logic.git.status.GitStatusSnapshot;
 import org.jabref.logic.git.status.SyncStatus;
 import org.jabref.model.database.BibDatabaseContext;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,39 +30,58 @@ import org.slf4j.LoggerFactory;
 ///   <li>The current sync status (e.g., {@code UP_TO_DATE}, {@code DIVERGED}, etc.)</li>
 /// </ul>
 public class GitStatusViewModel extends AbstractViewModel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GitStatusViewModel.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GitStatusViewModel.class
+    );
     private final StateManager stateManager;
-    private final ObjectProperty<BibDatabaseContext> databaseContext = new SimpleObjectProperty<>();
-    private final ObjectProperty<SyncStatus> syncStatus = new SimpleObjectProperty<>(SyncStatus.UNTRACKED);
+    private final ObjectProperty<BibDatabaseContext> databaseContext =
+        new SimpleObjectProperty<>();
+    private final ObjectProperty<SyncStatus> syncStatus =
+        new SimpleObjectProperty<>(SyncStatus.UNTRACKED);
     private final BooleanProperty isTracking = new SimpleBooleanProperty(false);
-    private final BooleanProperty conflictDetected = new SimpleBooleanProperty(false);
+    private final BooleanProperty conflictDetected = new SimpleBooleanProperty(
+        false
+    );
     // "" denotes that no commit was pulled
-    private final StringProperty lastPulledCommit = new SimpleStringProperty("");
+    private final StringProperty lastPulledCommit = new SimpleStringProperty(
+        ""
+    );
     private @Nullable GitHandler activeHandler = null;
 
     public GitStatusViewModel(StateManager stateManager, Path bibFilePath) {
         this.stateManager = stateManager;
         EasyBind.subscribe(stateManager.activeDatabaseProperty(), newDb -> {
-            if (newDb != null && newDb.isPresent() && newDb.get().getDatabasePath().isPresent()) {
+            if (
+                newDb != null &&
+                newDb.isPresent() &&
+                newDb.get().getDatabasePath().isPresent()
+            ) {
                 BibDatabaseContext databaseContext1 = newDb.get();
                 databaseContext.set(databaseContext1);
                 updateStatusFromContext(databaseContext1);
             } else {
-                LOGGER.debug("No active database with path; resetting Git status.");
+                LOGGER.debug(
+                    "No active database with path; resetting Git status."
+                );
                 reset();
             }
         });
 
-        stateManager.getActiveDatabase().ifPresent(presentContext -> {
-            databaseContext.set(presentContext);
-            updateStatusFromContext(presentContext);
-        });
+        stateManager
+            .getActiveDatabase()
+            .ifPresent(presentContext -> {
+                databaseContext.set(presentContext);
+                updateStatusFromContext(presentContext);
+            });
     }
 
     protected void updateStatusFromContext(BibDatabaseContext context) {
         Optional<Path> databasePathOpt = context.getDatabasePath();
         if (databasePathOpt.isEmpty()) {
-            LOGGER.debug("No .bib file path available in database context; resetting Git status.");
+            LOGGER.debug(
+                "No .bib file path available in database context; resetting Git status."
+            );
             reset();
             return;
         }
@@ -74,13 +90,18 @@ public class GitStatusViewModel extends AbstractViewModel {
 
         Optional<GitHandler> gitHandlerOpt = GitHandler.fromAnyPath(path);
         if (gitHandlerOpt.isEmpty()) {
-            LOGGER.debug("No Git repository found for path {}; resetting Git status.", path);
+            LOGGER.debug(
+                "No Git repository found for path {}; resetting Git status.",
+                path
+            );
             reset();
             return;
         }
         this.activeHandler = gitHandlerOpt.get();
 
-        GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(activeHandler);
+        GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(
+            activeHandler
+        );
         setTracking(snapshot.tracking());
         setSyncStatus(snapshot.syncStatus());
         setConflictDetected(snapshot.conflict());
@@ -104,8 +125,9 @@ public class GitStatusViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getCurrentBibFile() {
-        return getDatabaseContext()
-                .flatMap(BibDatabaseContext::getDatabasePath);
+        return getDatabaseContext().flatMap(
+            BibDatabaseContext::getDatabasePath
+        );
     }
 
     public ObjectProperty<SyncStatus> syncStatusProperty() {

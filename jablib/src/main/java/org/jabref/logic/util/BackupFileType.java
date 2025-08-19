@@ -3,7 +3,6 @@ package org.jabref.logic.util;
 import java.util.List;
 
 public enum BackupFileType implements FileType {
-
     // Used at BackupManager
     BACKUP("Backup", "bak"),
 

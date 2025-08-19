@@ -1,10 +1,5 @@
 package org.jabref.logic.ai.chatting.model;
 
-import java.net.http.HttpClient;
-import java.util.List;
-
-import org.jabref.logic.ai.AiPreferences;
-
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -19,55 +14,83 @@ import io.github.stefanbratanov.jvm.openai.ChatCompletion;
 import io.github.stefanbratanov.jvm.openai.CreateChatCompletionRequest;
 import io.github.stefanbratanov.jvm.openai.OpenAI;
 import io.github.stefanbratanov.jvm.openai.Usage;
+import java.net.http.HttpClient;
+import java.util.List;
+import org.jabref.logic.ai.AiPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JvmOpenAiChatLanguageModel implements ChatModel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JvmOpenAiChatLanguageModel.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        JvmOpenAiChatLanguageModel.class
+    );
 
     private final AiPreferences aiPreferences;
 
     private final ChatClient chatClient;
 
-    public JvmOpenAiChatLanguageModel(AiPreferences aiPreferences, HttpClient httpClient) {
+    public JvmOpenAiChatLanguageModel(
+        AiPreferences aiPreferences,
+        HttpClient httpClient
+    ) {
         this.aiPreferences = aiPreferences;
 
-        OpenAI openAI = OpenAI
-                .newBuilder(aiPreferences.getApiKeyForAiProvider(aiPreferences.getAiProvider()))
-                .httpClient(httpClient)
-                .baseUrl(aiPreferences.getSelectedApiBaseUrl())
-                .build();
+        OpenAI openAI = OpenAI.newBuilder(
+            aiPreferences.getApiKeyForAiProvider(aiPreferences.getAiProvider())
+        )
+            .httpClient(httpClient)
+            .baseUrl(aiPreferences.getSelectedApiBaseUrl())
+            .build();
 
         this.chatClient = openAI.chatClient();
     }
 
     @Override
     public ChatResponse chat(List<ChatMessage> list) {
-        LOGGER.debug("Generating response from jvm-openai chat model with {} messages: {}", list.size(), list);
+        LOGGER.debug(
+            "Generating response from jvm-openai chat model with {} messages: {}",
+            list.size(),
+            list
+        );
 
-        List<io.github.stefanbratanov.jvm.openai.ChatMessage> messages =
-                list.stream().map(chatMessage -> (io.github.stefanbratanov.jvm.openai.ChatMessage) switch (chatMessage) {
-                    case AiMessage aiMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.assistantMessage(aiMessage.text());
-                    case SystemMessage systemMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.systemMessage(systemMessage.text());
-                    case ToolExecutionResultMessage toolExecutionResultMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.toolMessage(toolExecutionResultMessage.text(), toolExecutionResultMessage.id());
-                    case UserMessage userMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.userMessage(userMessage.singleText());
-                    default ->
-                            throw new IllegalStateException("unknown conversion of chat message from langchain4j to jvm-openai");
-                }).toList();
+        List<io.github.stefanbratanov.jvm.openai.ChatMessage> messages = list
+            .stream()
+            .map(chatMessage ->
+                (io.github.stefanbratanov.jvm.openai.ChatMessage) switch (
+                    chatMessage
+                ) {
+                    case AiMessage aiMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.assistantMessage(
+                        aiMessage.text()
+                    );
+                    case SystemMessage systemMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.systemMessage(
+                        systemMessage.text()
+                    );
+                    case ToolExecutionResultMessage toolExecutionResultMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.toolMessage(
+                        toolExecutionResultMessage.text(),
+                        toolExecutionResultMessage.id()
+                    );
+                    case UserMessage userMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.userMessage(
+                        userMessage.singleText()
+                    );
+                    default -> throw new IllegalStateException(
+                        "unknown conversion of chat message from langchain4j to jvm-openai"
+                    );
+                }
+            )
+            .toList();
 
-        CreateChatCompletionRequest request = CreateChatCompletionRequest
-                .newBuilder()
+        CreateChatCompletionRequest request =
+            CreateChatCompletionRequest.newBuilder()
                 .model(aiPreferences.getSelectedChatModel())
                 .temperature(aiPreferences.getTemperature())
                 .n(1)
                 .messages(messages)
                 .build();
 
-        ChatCompletion chatCompletion = chatClient.createChatCompletion(request);
+        ChatCompletion chatCompletion = chatClient.createChatCompletion(
+            request
+        );
         Usage usage = chatCompletion.usage();
         List<ChatCompletion.Choice> choices = chatCompletion.choices();
 
@@ -84,8 +107,12 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
 
         ChatCompletion.Choice choice = choices.getFirst();
 
-        return new ChatResponse.Builder().aiMessage(new AiMessage(choice.message().content()))
-                                         .tokenUsage(new TokenUsage(usage.promptTokens(), usage.completionTokens()))
-                                         .finishReason(FinishReason.OTHER).build();
+        return new ChatResponse.Builder()
+            .aiMessage(new AiMessage(choice.message().content()))
+            .tokenUsage(
+                new TokenUsage(usage.promptTokens(), usage.completionTokens())
+            )
+            .finishReason(FinishReason.OTHER)
+            .build();
     }
 }

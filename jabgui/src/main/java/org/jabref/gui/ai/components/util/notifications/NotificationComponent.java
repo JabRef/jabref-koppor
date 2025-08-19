@@ -10,6 +10,7 @@ import javafx.scene.text.Font;
  * details.
  */
 public class NotificationComponent extends VBox {
+
     private final Label title = new Label("Title");
     private final Label message = new Label("Message");
 
