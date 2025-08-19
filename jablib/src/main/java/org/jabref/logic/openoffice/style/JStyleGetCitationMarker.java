@@ -153,7 +153,6 @@ class JStyleGetCitationMarker {
         boolean emitAllAuthors = (nAuthors <= maxAuthors) || (maxAuthors == -1);
 
         int nAuthorsToEmit;
-
         if (emitAllAuthors) {
             nAuthorsToEmit = nAuthors;
         } else {
