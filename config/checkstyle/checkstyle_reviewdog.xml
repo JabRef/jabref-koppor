@@ -35,13 +35,6 @@
         <property name="fileExtensions" value="groovy,java" />
     </module>
 
-    <!-- Prevent newline after catch opening parenthesis -->
-    <module name="RegexpMultiline">
-        <property name="message" value="No newline allowed after catch opening parenthesis" />
-        <property name="format" value="catch\s*\(\s*[\r]?\n" />
-        <property name="fileExtensions" value="groovy,java" />
-    </module>
-
     <!-- Prevent multiple closing curly braces in the same line -->
     <module name="RegexpSingleline">
         <property name="id" value="NoMultipleClosingBracesAtEndOfLine"/>
@@ -130,10 +123,11 @@
         <module name="NoWhitespaceBeforeCaseDefaultColon"/>
         <module name="WhitespaceAfter"/>
         <module name="WhitespaceAround">
+            <!-- LCULRY not contained because of prettier-java -->
             <!-- RCULRY causes issues if classes are nested within arrays, therefore not activated -->
             <property name="tokens"
                       value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV,
-                      DIV_ASSIGN, DO_WHILE, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE,
+                      DIV_ASSIGN, DO_WHILE, EQUAL, GE, GT, LAND, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE,
                       LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SWITCH, LITERAL_SYNCHRONIZED,
                       LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL,
                       PLUS, PLUS_ASSIGN, QUESTION,
