@@ -1,8 +1,16 @@
 name: Fix prettier
 
 on:
-  workflow_dispatch:
   push:
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: read
 
 jobs:
   prettier:
