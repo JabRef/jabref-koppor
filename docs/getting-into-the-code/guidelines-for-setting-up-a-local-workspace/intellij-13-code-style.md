@@ -6,7 +6,30 @@ nav_order: 13
 
 # Step 3: Set up JabRef's code style
 
-Contributions to JabRef's source code need to have a code formatting that is consistent with existing source code. For that purpose, JabRef provides code-style and check-style definitions.
+Contributions to JabRef's source code need to have a code formatting that is consistent with existing source code.
+For that purpose, JabRef relies on [Prettier Java](https://www.jhipster.tech/prettier-java/) and [checkstyle](https://checkstyle.sourceforge.io/).
+On each push, there is a check running if the code is consistent with the rules.
+
+## Prettier
+
+{ .note}
+This works on IntelliJ Ultimate only
+
+This part guides you to configure [Prettier Java](https://github.com/jhipster/prettier-java/tree/main#prettier-java) for code autoformatting on save and when pressing <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>.
+
+1. Ensure that you have [Node.js](https://nodejs.org/en#downloadhttps://nodejs.org/en#download) installed.
+2. Install prettier: `npm install --global prettier prettier-plugin-java`
+3. **File > Settings... > Languages & Frameworks > JavaScript > Prettier**
+4. Select "Automatic Prettier Configuration"
+5. Change "Run for files" to `{**/*,*}.{java}`
+6. Select "Run on save"
+
+{: .note }
+You can read more information at <https://www.jetbrains.com/help/idea/prettier.html>.
+
+## Checkstyle
+
+### Install checkstyle plugin
 
 Install the [Checkstyle-IDEA plugin](http://plugins.jetbrains.com/plugin/1065?pr=idea), it can be found via the plug-in repository:
 Navigate to **File > Settings... > Plugins"**.
