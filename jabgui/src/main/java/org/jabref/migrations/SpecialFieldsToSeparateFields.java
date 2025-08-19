@@ -43,8 +43,8 @@ public class SpecialFieldsToSeparateFields implements PostOpenMigration {
     private void migrateEntry(BibEntry entry) {
         for (Keyword keyword : possibleKeywordsToMigrate) {
             if (
-                entry.getKeywords(keywordDelimiter).contains(keyword) &&
-                migrationTable.containsKey(keyword.get())
+                entry.getKeywords(keywordDelimiter).contains(keyword)
+                && migrationTable.containsKey(keyword.get())
             ) {
                 entry.setField(
                     migrationTable.get(keyword.get()),

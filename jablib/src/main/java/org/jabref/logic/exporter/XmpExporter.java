@@ -58,10 +58,10 @@ public class XmpExporter extends Exporter {
                 // Avoid situations, where two citation keys are null
                 Path entryFile;
                 String suffix =
-                    entry.getId() +
-                    "_" +
-                    entry.getField(InternalField.KEY_FIELD).orElse("null") +
-                    ".xmp";
+                    entry.getId()
+                    + "_"
+                    + entry.getField(InternalField.KEY_FIELD).orElse("null")
+                    + ".xmp";
                 if (file.getParent() == null) {
                     entryFile = Path.of(suffix);
                 } else {

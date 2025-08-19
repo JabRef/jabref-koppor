@@ -171,15 +171,15 @@ public class PushToApplicationDetector {
     private static boolean isExecutableNameMatch(String file, String name) {
         if (OS.WINDOWS) {
             return (
-                file.equals(name + ".exe") ||
-                file.equals(name + ".bat") ||
-                file.equals(name + ".cmd")
+                file.equals(name + ".exe")
+                || file.equals(name + ".bat")
+                || file.equals(name + ".cmd")
             );
         } else {
             return (
-                file.equals(name) ||
-                file.equals(name + ".sh") ||
-                file.equals(name + ".app")
+                file.equals(name)
+                || file.equals(name + ".sh")
+                || file.equals(name + ".app")
             );
         }
     }

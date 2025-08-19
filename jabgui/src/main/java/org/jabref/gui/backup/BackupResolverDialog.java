@@ -62,13 +62,13 @@ public class BackupResolverDialog extends FXDialog {
                 "A backup file for '%0' was found at [%1]",
                 originalPath.getFileName().toString(),
                 backupFilename
-            ) +
-            "\n" +
-            Localization.lang(
+            )
+            + "\n"
+            + Localization.lang(
                 "This could indicate that JabRef did not shut down cleanly last time the file was used."
-            ) +
-            "\n\n" +
-            Localization.lang(
+            )
+            + "\n\n"
+            + Localization.lang(
                 "Do you want to recover the library from the backup file?"
             );
         setContentText(content);

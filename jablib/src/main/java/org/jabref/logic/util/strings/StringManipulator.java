@@ -47,8 +47,8 @@ public class StringManipulator {
         // Preserve whitespaces
         int wordStartPosition = caretPosition;
         while (
-            wordStartPosition < nextWordBoundary &&
-            Character.isWhitespace(text.charAt(wordStartPosition))
+            wordStartPosition < nextWordBoundary
+            && Character.isWhitespace(text.charAt(wordStartPosition))
         ) {
             wordStartPosition++;
         }
@@ -67,9 +67,9 @@ public class StringManipulator {
 
         return new ResultingStringState(
             nextWordBoundary,
-            text.substring(0, wordStartPosition) +
-            result +
-            text.substring(nextWordBoundary)
+            text.substring(0, wordStartPosition)
+            + result
+            + text.substring(nextWordBoundary)
         );
     }
 
@@ -98,13 +98,13 @@ public class StringManipulator {
         return switch (direction) {
             case NEXT -> new ResultingStringState(
                 caretPosition,
-                text.substring(0, caretPosition) +
-                text.substring(nextWordBoundary)
+                text.substring(0, caretPosition)
+                + text.substring(nextWordBoundary)
             );
             case PREVIOUS -> new ResultingStringState(
                 nextWordBoundary,
-                text.substring(0, nextWordBoundary) +
-                text.substring(caretPosition)
+                text.substring(0, nextWordBoundary)
+                + text.substring(caretPosition)
             );
         };
     }
@@ -128,16 +128,16 @@ public class StringManipulator {
         if (direction == Direction.PREVIOUS) {
             // Swallow whitespaces
             while (
-                i > 0 &&
-                Character.isWhitespace(text.charAt(i + direction.OFFSET))
+                i > 0
+                && Character.isWhitespace(text.charAt(i + direction.OFFSET))
             ) {
                 i += direction.OFFSET;
             }
 
             // Read next word
             while (
-                i > 0 &&
-                !Character.isWhitespace(text.charAt(i + direction.OFFSET))
+                i > 0
+                && !Character.isWhitespace(text.charAt(i + direction.OFFSET))
             ) {
                 i += direction.OFFSET;
             }

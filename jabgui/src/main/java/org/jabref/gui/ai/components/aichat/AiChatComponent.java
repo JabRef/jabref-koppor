@@ -157,9 +157,9 @@ public class AiChatComponent extends VBox {
             .getText()
             .replaceAll(
                 "%0",
-                aiPreferences.getAiProvider().getLabel() +
-                " " +
-                aiPreferences.getSelectedChatModel()
+                aiPreferences.getAiProvider().getLabel()
+                + " "
+                + aiPreferences.getSelectedChatModel()
             );
 
         noticeText.setText(newNotice);
@@ -358,8 +358,8 @@ public class AiChatComponent extends VBox {
                 // Typically, if user has entered an invalid API base URL, we get either "401 - null" or "404 - null" strings.
                 // Since there might be other strings returned from other API endpoints, we use startsWith() here.
                 if (
-                    e.getMessage().startsWith("404") ||
-                    e.getMessage().startsWith("401")
+                    e.getMessage().startsWith("404")
+                    || e.getMessage().startsWith("401")
                 ) {
                     addError(
                         Localization.lang(

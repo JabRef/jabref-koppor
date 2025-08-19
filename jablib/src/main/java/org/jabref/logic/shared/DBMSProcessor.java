@@ -390,25 +390,25 @@ public abstract class DBMSProcessor {
 
             // update only if local version is higher or the entries are equal
             if (
-                (localBibEntry.getSharedBibEntryData().getVersion() >=
-                    sharedBibEntry.getSharedBibEntryData().getVersion()) ||
-                localBibEntry.equals(sharedBibEntry)
+                (localBibEntry.getSharedBibEntryData().getVersion()
+                    >= sharedBibEntry.getSharedBibEntryData().getVersion())
+                || localBibEntry.equals(sharedBibEntry)
             ) {
                 insertOrUpdateFields(localBibEntry);
 
                 // updating entry type
                 String updateEntryTypeQuery =
-                    "UPDATE " +
-                    escape_Table("ENTRY") +
-                    " SET " +
-                    escape("TYPE") +
-                    " = ?, " +
-                    escape("VERSION") +
-                    " = " +
-                    escape("VERSION") +
-                    " + 1 WHERE " +
-                    escape("SHARED_ID") +
-                    " = ?";
+                    "UPDATE "
+                    + escape_Table("ENTRY")
+                    + " SET "
+                    + escape("TYPE")
+                    + " = ?, "
+                    + escape("VERSION")
+                    + " = "
+                    + escape("VERSION")
+                    + " + 1 WHERE "
+                    + escape("SHARED_ID")
+                    + " = ?";
 
                 try (
                     PreparedStatement preparedUpdateEntryTypeStatement =
@@ -448,13 +448,13 @@ public abstract class DBMSProcessor {
         nullFields.removeAll(localBibEntry.getFields());
         for (Field nullField : nullFields) {
             String deleteFieldQuery =
-                "DELETE FROM " +
-                escape_Table("FIELD") +
-                " WHERE " +
-                escape("NAME") +
-                " = ? AND " +
-                escape("ENTRY_SHARED_ID") +
-                " = ?";
+                "DELETE FROM "
+                + escape_Table("FIELD")
+                + " WHERE "
+                + escape("NAME")
+                + " = ? AND "
+                + escape("ENTRY_SHARED_ID")
+                + " = ?";
 
             try (
                 PreparedStatement preparedDeleteFieldStatement =
@@ -485,13 +485,13 @@ public abstract class DBMSProcessor {
             }
 
             String selectFieldQuery =
-                "SELECT * FROM " +
-                escape_Table("FIELD") +
-                " WHERE " +
-                escape("NAME") +
-                " = ? AND " +
-                escape("ENTRY_SHARED_ID") +
-                " = ?";
+                "SELECT * FROM "
+                + escape_Table("FIELD")
+                + " WHERE "
+                + escape("NAME")
+                + " = ? AND "
+                + escape("ENTRY_SHARED_ID")
+                + " = ?";
 
             try (
                 PreparedStatement preparedSelectFieldStatement =
@@ -510,15 +510,15 @@ public abstract class DBMSProcessor {
                     if (selectFieldResultSet.next()) {
                         // check if field already exists
                         String updateFieldQuery =
-                            "UPDATE " +
-                            escape_Table("FIELD") +
-                            " SET " +
-                            escape("VALUE") +
-                            " = ? WHERE " +
-                            escape("NAME") +
-                            " = ? AND " +
-                            escape("ENTRY_SHARED_ID") +
-                            " = ?";
+                            "UPDATE "
+                            + escape_Table("FIELD")
+                            + " SET "
+                            + escape("VALUE")
+                            + " = ? WHERE "
+                            + escape("NAME")
+                            + " = ? AND "
+                            + escape("ENTRY_SHARED_ID")
+                            + " = ?";
 
                         try (
                             PreparedStatement preparedUpdateFieldStatement =
@@ -539,15 +539,15 @@ public abstract class DBMSProcessor {
                         }
                     } else {
                         String insertFieldQuery =
-                            "INSERT INTO " +
-                            escape_Table("FIELD") +
-                            "(" +
-                            escape("ENTRY_SHARED_ID") +
-                            ", " +
-                            escape("NAME") +
-                            ", " +
-                            escape("VALUE") +
-                            ") VALUES(?, ?, ?)";
+                            "INSERT INTO "
+                            + escape_Table("FIELD")
+                            + "("
+                            + escape("ENTRY_SHARED_ID")
+                            + ", "
+                            + escape("NAME")
+                            + ", "
+                            + escape("VALUE")
+                            + ") VALUES(?, ?, ?)";
 
                         try (
                             PreparedStatement preparedFieldStatement =
@@ -763,10 +763,10 @@ public abstract class DBMSProcessor {
     public Map<Integer, Integer> getSharedIDVersionMapping() {
         Map<Integer, Integer> sharedIDVersionMapping = new HashMap<>();
         String selectEntryQuery =
-            "SELECT * FROM " +
-            escape_Table("ENTRY") +
-            " ORDER BY " +
-            escape("SHARED_ID");
+            "SELECT * FROM "
+            + escape_Table("ENTRY")
+            + " ORDER BY "
+            + escape("SHARED_ID");
 
         try (
             ResultSet selectEntryResultSet = connection

@@ -368,21 +368,21 @@ public class MainTableDataModel {
                             BibEntryTableViewModel viewModel =
                                 entriesViewModel.get(index);
                             boolean isFloatingMode =
-                                searchPreferences.getSearchDisplayMode() ==
-                                SearchDisplayMode.FLOAT;
+                                searchPreferences.getSearchDisplayMode()
+                                == SearchDisplayMode.FLOAT;
                             boolean isMatched;
                             if (searchQueryProperty.get().isPresent()) {
                                 SearchQuery searchQuery = searchQueryProperty
                                     .get()
                                     .get();
                                 String newSearchExpression =
-                                    "(" +
-                                    ENTRY_ID +
-                                    "= " +
-                                    entry.getId() +
-                                    ") AND (" +
-                                    searchQuery.getSearchExpression() +
-                                    ")";
+                                    "("
+                                    + ENTRY_ID
+                                    + "= "
+                                    + entry.getId()
+                                    + ") AND ("
+                                    + searchQuery.getSearchExpression()
+                                    + ")";
                                 SearchQuery entryQuery = new SearchQuery(
                                     newSearchExpression,
                                     searchQuery.getSearchFlags()

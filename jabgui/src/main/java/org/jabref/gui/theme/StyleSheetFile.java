@@ -120,8 +120,8 @@ final class StyleSheetFile extends StyleSheet {
                 byte[] data = inputStream.readNBytes(MAX_IN_MEMORY_CSS_LENGTH);
                 if (data.length < MAX_IN_MEMORY_CSS_LENGTH) {
                     String embeddedDataUrl =
-                        DATA_URL_PREFIX +
-                        Base64.getEncoder().encodeToString(data);
+                        DATA_URL_PREFIX
+                        + Base64.getEncoder().encodeToString(data);
                     LOGGER.trace(
                         "Embedded css in data URL of length {}",
                         embeddedDataUrl.length()

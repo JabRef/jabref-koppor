@@ -56,10 +56,8 @@ public class ModsImporter extends Importer implements Parser {
 
     public ModsImporter(ImportFormatPreferences importFormatPreferences) {
         keywordSeparator =
-            importFormatPreferences
-                .bibEntryPreferences()
-                .getKeywordSeparator() +
-            " ";
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+            + " ";
         xmlInputFactory = XMLInputFactory.newInstance();
         // prevent xxe (https://rules.sonarsource.com/java/RSPEC-2755)
         // Not supported by aalto-xml
@@ -100,8 +98,8 @@ public class ModsImporter extends Importer implements Parser {
         while (reader.hasNext()) {
             reader.next();
             if (
-                isStartXMLEvent(reader) &&
-                "mods".equals(reader.getName().getLocalPart())
+                isStartXMLEvent(reader)
+                && "mods".equals(reader.getName().getLocalPart())
             ) {
                 BibEntry entry = new BibEntry();
                 Map<Field, String> fields = new HashMap<>();
@@ -185,8 +183,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "mods".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "mods".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -232,8 +230,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "relatedItem".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "relatedItem".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -272,8 +270,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "extent".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "extent".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -315,8 +313,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "detail".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "detail".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -353,8 +351,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "name".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "name".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -428,8 +426,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "originInfo".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "originInfo".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -478,8 +476,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "subject".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "subject".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -518,8 +516,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "recordInfo".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "recordInfo".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -543,8 +541,8 @@ public class ModsImporter extends Importer implements Parser {
             reader.next();
 
             if (
-                isStartXMLEvent(reader) &&
-                "languageTerm".equals(reader.getName().getLocalPart())
+                isStartXMLEvent(reader)
+                && "languageTerm".equals(reader.getName().getLocalPart())
             ) {
                 reader.next();
                 if (isCharacterXMLEvent(reader)) {
@@ -557,8 +555,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "language".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "language".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -571,8 +569,8 @@ public class ModsImporter extends Importer implements Parser {
             reader.next();
 
             if (
-                isStartXMLEvent(reader) &&
-                "title".equals(reader.getName().getLocalPart())
+                isStartXMLEvent(reader)
+                && "title".equals(reader.getName().getLocalPart())
             ) {
                 reader.next();
                 if (isCharacterXMLEvent(reader)) {
@@ -585,8 +583,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "titleInfo".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "titleInfo".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -620,8 +618,8 @@ public class ModsImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "location".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "location".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }

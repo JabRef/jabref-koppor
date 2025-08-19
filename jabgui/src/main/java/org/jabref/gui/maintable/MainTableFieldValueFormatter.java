@@ -41,8 +41,8 @@ public class MainTableFieldValueFormatter {
     ) {
         for (Field field : fields.getFields()) {
             if (
-                field.getProperties().contains(FieldProperty.PERSON_NAMES) &&
-                (displayStyle != DisplayStyle.AS_IS)
+                field.getProperties().contains(FieldProperty.PERSON_NAMES)
+                && (displayStyle != DisplayStyle.AS_IS)
             ) {
                 Optional<String> name = entry.getResolvedFieldOrAlias(
                     field,
@@ -79,9 +79,9 @@ public class MainTableFieldValueFormatter {
         AuthorList authors = AuthorList.parse(nameToFormat);
 
         if (
-            ((displayStyle == DisplayStyle.FIRSTNAME_LASTNAME) ||
-                (displayStyle == DisplayStyle.LASTNAME_FIRSTNAME)) &&
-            (abbreviationStyle == AbbreviationStyle.LASTNAME_ONLY)
+            ((displayStyle == DisplayStyle.FIRSTNAME_LASTNAME)
+                || (displayStyle == DisplayStyle.LASTNAME_FIRSTNAME))
+            && (abbreviationStyle == AbbreviationStyle.LASTNAME_ONLY)
         ) {
             return authors.latexFree().getAsLastNames(false);
         }

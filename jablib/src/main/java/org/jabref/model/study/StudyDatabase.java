@@ -64,13 +64,13 @@ public class StudyDatabase {
     @Override
     public String toString() {
         return (
-            "LibraryEntry{" +
-            "name='" +
-            name +
-            '\'' +
-            ", enabled=" +
-            enabled +
-            '}'
+            "LibraryEntry{"
+            + "name='"
+            + name
+            + '\''
+            + ", enabled="
+            + enabled
+            + '}'
         );
     }
 }

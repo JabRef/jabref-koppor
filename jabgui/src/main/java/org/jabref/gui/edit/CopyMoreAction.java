@@ -58,8 +58,8 @@ public class CopyMoreAction extends SimpleCommand {
     @Override
     public void execute() {
         if (
-            stateManager.getActiveDatabase().isEmpty() ||
-            stateManager.getSelectedEntries().isEmpty()
+            stateManager.getActiveDatabase().isEmpty()
+            || stateManager.getSelectedEntries().isEmpty()
         ) {
             return;
         }
@@ -216,9 +216,9 @@ public class CopyMoreAction extends SimpleCommand {
                 .getPushToApplicationPreferences()
                 .getCiteCommand();
             return (
-                citeCommand.prefix() +
-                String.join(citeCommand.delimiter(), keys) +
-                citeCommand.suffix()
+                citeCommand.prefix()
+                + String.join(citeCommand.delimiter(), keys)
+                + citeCommand.suffix()
             );
         });
     }

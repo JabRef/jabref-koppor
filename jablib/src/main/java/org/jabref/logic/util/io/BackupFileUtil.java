@@ -56,11 +56,11 @@ public class BackupFileUtil {
             return result;
         }
         String baseFileName =
-            getUniqueFilePrefix(targetFile) +
-            "--" +
-            targetFile.getFileName() +
-            "--" +
-            timeSuffix;
+            getUniqueFilePrefix(targetFile)
+            + "--"
+            + targetFile.getFileName()
+            + "--"
+            + timeSuffix;
         Path fileName = FileUtil.addExtension(Path.of(baseFileName), extension);
         return directory.resolve(fileName);
     }

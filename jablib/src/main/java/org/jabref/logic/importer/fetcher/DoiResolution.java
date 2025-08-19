@@ -118,15 +118,16 @@ public class DoiResolution implements FulltextFetcher {
                     element
                         .attr("title")
                         .toLowerCase(Locale.ENGLISH)
-                        .contains("pdf") &&
-                    new URLDownload(href).isPdf()
+                        .contains("pdf")
+                    && new URLDownload(href).isPdf()
                 ) {
                     return Optional.of(URLUtil.create(href));
                 }
 
                 if (
-                    href.contains("pdf") ||
-                    (hrefText.contains("pdf") && new URLDownload(href).isPdf())
+                    href.contains("pdf")
+                    || (hrefText.contains("pdf")
+                        && new URLDownload(href).isPdf())
                 ) {
                     links.add(URLUtil.create(href));
                 }

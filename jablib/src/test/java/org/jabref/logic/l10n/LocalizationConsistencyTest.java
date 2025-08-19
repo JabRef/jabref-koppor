@@ -142,9 +142,9 @@ class LocalizationConsistencyTest {
         assertEquals(
             List.of(),
             quotedEntries,
-            "Language keys must not use underscores for spaces! Use \"This is a message\" instead of \"This_is_a_message\".\n" +
-            "Please correct the following entries:\n" +
-            quotedEntries
+            "Language keys must not use underscores for spaces! Use \"This is a message\" instead of \"This_is_a_message\".\n"
+            + "Please correct the following entries:\n"
+            + quotedEntries
                 .stream()
                 .map(key ->
                     "\n%s (%s)\n".formatted(key.getKey(), key.getPath())
@@ -162,16 +162,16 @@ class LocalizationConsistencyTest {
                 .stream()
                 .filter(
                     key ->
-                        key.getKey().contains("<br>") ||
-                        key.getKey().contains("<p>")
+                        key.getKey().contains("<br>")
+                        || key.getKey().contains("<p>")
                 )
                 .collect(Collectors.toList());
         assertEquals(
             List.of(),
             entriesWithHtml,
-            "Language keys must not contain HTML <br> or <p>. Use \\n for a line break.\n" +
-            "Please correct the following entries:\n" +
-            entriesWithHtml
+            "Language keys must not contain HTML <br> or <p>. Use \\n for a line break.\n"
+            + "Please correct the following entries:\n"
+            + entriesWithHtml
                 .stream()
                 .map(key ->
                     "\n%s (%s)\n".formatted(key.getKey(), key.getPath())
@@ -256,8 +256,8 @@ class LocalizationConsistencyTest {
             //       JabRef's infrastructure only supports Localization.lang("Some Message"); and not something else.
             assertTrue(
                 e.getKey().startsWith("\""),
-                "Illegal localization parameter found. Must include a String with potential concatenation or replacement parameters. Illegal parameter: Localization.lang(" +
-                e.getKey()
+                "Illegal localization parameter found. Must include a String with potential concatenation or replacement parameters. Illegal parameter: Localization.lang("
+                + e.getKey()
             );
         }
 
@@ -267,8 +267,8 @@ class LocalizationConsistencyTest {
         for (LocalizationEntry e : keys) {
             assertTrue(
                 e.getKey().startsWith("\""),
-                "Illegal localization parameter found. Must include a String with potential concatenation or replacement parameters. Illegal parameter: Localization.lang(" +
-                e.getKey()
+                "Illegal localization parameter found. Must include a String with potential concatenation or replacement parameters. Illegal parameter: Localization.lang("
+                + e.getKey()
             );
         }
     }
@@ -281,10 +281,10 @@ class LocalizationConsistencyTest {
     @MethodSource("installedLanguages")
     void resourceBundleExists(Language language) {
         Path messagesPropertyFile = Path.of("src/main/resources").resolve(
-            Localization.RESOURCE_PREFIX +
-            "_" +
-            language.getId() +
-            ".properties"
+            Localization.RESOURCE_PREFIX
+            + "_"
+            + language.getId()
+            + ".properties"
         );
         assertTrue(Files.exists(messagesPropertyFile));
     }

@@ -94,12 +94,12 @@ public class SearchQueryExtractorVisitor
         if (ctx.operator() != null) {
             int operator = ctx.operator().getStart().getType();
             if (
-                operator == SearchParser.NEQUAL ||
-                operator == SearchParser.NCEQUAL ||
-                operator == SearchParser.NEEQUAL ||
-                operator == SearchParser.NCEEQUAL ||
-                operator == SearchParser.NREQUAL ||
-                operator == SearchParser.NCREEQUAL
+                operator == SearchParser.NEQUAL
+                || operator == SearchParser.NCEQUAL
+                || operator == SearchParser.NEEQUAL
+                || operator == SearchParser.NCEEQUAL
+                || operator == SearchParser.NREQUAL
+                || operator == SearchParser.NCREEQUAL
             ) {
                 return List.of();
             }
@@ -131,8 +131,8 @@ public class SearchQueryExtractorVisitor
         if (ctx.operator() != null) {
             int operator = ctx.operator().getStart().getType();
             if (
-                operator != SearchParser.REQUAL &&
-                operator != SearchParser.CREEQUAL
+                operator != SearchParser.REQUAL
+                && operator != SearchParser.CREEQUAL
             ) {
                 term = term.replace("\\", "\\\\");
             }

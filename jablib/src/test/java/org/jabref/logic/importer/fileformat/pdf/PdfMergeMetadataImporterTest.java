@@ -165,9 +165,9 @@ class PdfMergeMetadataImporterTest {
             .withField(FieldFactory.parseField("collection"), "SPLC ’24")
             .withField(
                 StandardField.FILE,
-                ":" +
-                file.toString().replace("\\", "/").replace(":", "\\:") +
-                ":PDF"
+                ":"
+                + file.toString().replace("\\", "/").replace(":", "\\:")
+                + ":PDF"
             )
             // TODO: Abstract not correct yet --> parsing logic needs to be improved
             // Abstract is CC-BY, thus no issue to include it here.
@@ -210,9 +210,9 @@ class PdfMergeMetadataImporterTest {
             .withField(StandardField.EPRINTTYPE, "arXiv")
             .withField(
                 StandardField.FILE,
-                ":http\\://arxiv.org/pdf/2408.06224v2:PDF;:" +
-                file.toString().replace("\\", "/").replace(":", "\\:") +
-                ":PDF"
+                ":http\\://arxiv.org/pdf/2408.06224v2:PDF;:"
+                + file.toString().replace("\\", "/").replace(":", "\\:")
+                + ":PDF"
             )
             .withField(StandardField.EPRINTCLASS, "cs.SE")
             .withField(

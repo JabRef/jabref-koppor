@@ -76,8 +76,8 @@ public class MsBibImporter extends Importer {
             return false;
         }
         return (
-            (docin == null) ||
-            docin.getDocumentElement().getTagName().contains("Sources")
+            (docin == null)
+            || docin.getDocumentElement().getTagName().contains("Sources")
         );
     }
 

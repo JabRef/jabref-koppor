@@ -307,9 +307,9 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
         removePreviewPanelFromThisTab();
 
         if (
-            (this.getContent() instanceof SplitPane splitPane) &&
-            !splitPane.getItems().contains(previewPanel) &&
-            this.getContent().isVisible()
+            (this.getContent() instanceof SplitPane splitPane)
+            && !splitPane.getItems().contains(previewPanel)
+            && this.getContent().isVisible()
         ) {
             splitPane.getItems().add(1, previewPanel);
             splitPane.setDividerPositions(

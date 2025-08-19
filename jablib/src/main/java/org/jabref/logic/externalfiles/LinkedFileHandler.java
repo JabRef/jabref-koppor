@@ -92,8 +92,8 @@ public class LinkedFileHandler {
             );
             if (getTargetPathResult.exists) {
                 if (
-                    shouldMove &&
-                    !Files.isSameFile(sourcePath, getTargetPathResult.path)
+                    shouldMove
+                    && !Files.isSameFile(sourcePath, getTargetPathResult.path)
                 ) {
                     Files.delete(sourcePath);
                 }
@@ -108,8 +108,8 @@ public class LinkedFileHandler {
             }
         }
         if (
-            !shouldRenameToFilenamePattern ||
-            (getTargetPathResult.renamed && !entry.getFiles().isEmpty())
+            !shouldRenameToFilenamePattern
+            || (getTargetPathResult.renamed && !entry.getFiles().isEmpty())
         ) {
             // Either we do not rename to pattern - or UX feature:
             // UX feature: If user adds a file to the entry and JabRef could only add it when renaming to the suggested pattern,
@@ -121,8 +121,8 @@ public class LinkedFileHandler {
             );
             if (getTargetPathResult.exists) {
                 if (
-                    shouldMove &&
-                    !Files.isSameFile(sourcePath, getTargetPathResult.path)
+                    shouldMove
+                    && !Files.isSameFile(sourcePath, getTargetPathResult.path)
                 ) {
                     Files.delete(sourcePath);
                 }
@@ -246,8 +246,8 @@ public class LinkedFileHandler {
 
         Path newPath;
         if (
-            newExtension.isPresent() ||
-            (oldExtension.isEmpty() && newExtension.isEmpty())
+            newExtension.isPresent()
+            || (oldExtension.isEmpty() && newExtension.isEmpty())
         ) {
             newPath = oldPath.resolveSibling(targetFileName);
         } else {
@@ -259,15 +259,15 @@ public class LinkedFileHandler {
 
         String expandedOldFilePath = oldPath.toString();
         boolean pathsDifferOnlyByCase =
-            newPath.toString().equalsIgnoreCase(expandedOldFilePath) &&
-            !newPath.toString().equals(expandedOldFilePath);
+            newPath.toString().equalsIgnoreCase(expandedOldFilePath)
+            && !newPath.toString().equals(expandedOldFilePath);
 
         // Since Files.exists is sometimes not case-sensitive, the check pathsDifferOnlyByCase ensures that we
         // nonetheless rename files to a new name which just differs by case.
         if (
-            Files.exists(newPath) &&
-            !pathsDifferOnlyByCase &&
-            !overwriteExistingFile
+            Files.exists(newPath)
+            && !pathsDifferOnlyByCase
+            && !overwriteExistingFile
         ) {
             LOGGER.debug(
                 "The file {} would have been moved to {}. However, there exists already a file with that name so we do nothing.",
@@ -278,9 +278,9 @@ public class LinkedFileHandler {
         }
 
         if (
-            Files.exists(newPath) &&
-            !pathsDifferOnlyByCase &&
-            overwriteExistingFile
+            Files.exists(newPath)
+            && !pathsDifferOnlyByCase
+            && overwriteExistingFile
         ) {
             Files.createDirectories(newPath.getParent());
             LOGGER.debug("Overwriting existing file {}", newPath);
@@ -322,8 +322,8 @@ public class LinkedFileHandler {
             filePreferences.getFileNamePattern()
         ).trim();
         if (
-            (targetFileName.isEmpty() || "-".equals(targetFileName)) &&
-            linkedFile.isOnlineLink()
+            (targetFileName.isEmpty() || "-".equals(targetFileName))
+            && linkedFile.isOnlineLink()
         ) {
             String oldFileName = linkedFile.getLink();
             int lastSlashIndex = oldFileName.lastIndexOf('/');
@@ -341,8 +341,8 @@ public class LinkedFileHandler {
                     Optional<String> existingExtension =
                         FileUtil.getFileExtension(fileNameFromUrl);
                     if (
-                        existingExtension.isEmpty() ||
-                        !existingExtension.get().equalsIgnoreCase(extension)
+                        existingExtension.isEmpty()
+                        || !existingExtension.get().equalsIgnoreCase(extension)
                     ) {
                         String baseName = FileUtil.getBaseName(fileNameFromUrl);
                         fileNameFromUrl = baseName + "." + extension;

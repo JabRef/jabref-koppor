@@ -115,27 +115,27 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         if (notDefined) {
             sendErrorNotification(
                 Localization.lang("Error pushing entries"),
-                Localization.lang("Path to %0 not defined", getDisplayName()) +
-                "."
+                Localization.lang("Path to %0 not defined", getDisplayName())
+                + "."
             );
         } else if (couldNotCall) {
             sendErrorNotification(
                 Localization.lang("Error pushing entries"),
-                Localization.lang("Could not call executable") +
-                " '" +
-                commandPath +
-                "'."
+                Localization.lang("Could not call executable")
+                + " '"
+                + commandPath
+                + "'."
             );
         } else if (couldNotPush) {
             sendErrorNotification(
                 Localization.lang("Error pushing entries"),
-                Localization.lang("Could not connect to %0", getDisplayName()) +
-                "."
+                Localization.lang("Could not connect to %0", getDisplayName())
+                + "."
             );
         } else {
             notificationService.notify(
-                Localization.lang("Pushed citations to %0", getDisplayName()) +
-                "."
+                Localization.lang("Pushed citations to %0", getDisplayName())
+                + "."
             );
         }
     }

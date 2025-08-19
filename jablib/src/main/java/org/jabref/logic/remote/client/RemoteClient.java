@@ -32,8 +32,8 @@ public class RemoteClient {
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
 
             if (
-                (response.getKey() == RemoteMessage.PONG) &&
-                Protocol.IDENTIFIER.equals(response.getValue())
+                (response.getKey() == RemoteMessage.PONG)
+                && Protocol.IDENTIFIER.equals(response.getValue())
             ) {
                 return true;
             } else {

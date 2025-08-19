@@ -39,8 +39,8 @@ class BibEntryHashSetSerializer extends BasicDataType<LinkedHashSet<BibEntry>> {
             bibEntries
                 .stream()
                 .map(this.bibEntryDataType::getMemory)
-                .reduce(0, Integer::sum) +
-            4
+                .reduce(0, Integer::sum)
+            + 4
         );
     }
 

@@ -64,9 +64,9 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
             auxParser,
             fileMonitor,
             metaData,
-            System.getProperty("user.name") +
-            '-' +
-            InetAddress.getLocalHost().getHostName()
+            System.getProperty("user.name")
+            + '-'
+            + InetAddress.getLocalHost().getHostName()
         );
     }
 
@@ -166,17 +166,17 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
     @Override
     public String toString() {
         return (
-            "TexGroup{" +
-            "filePath=" +
-            filePath +
-            ", keysUsedInAux=" +
-            keysUsedInAux +
-            ", auxParser=" +
-            auxParser +
-            ", fileMonitor=" +
-            fileMonitor +
-            "} " +
-            super.toString()
+            "TexGroup{"
+            + "filePath="
+            + filePath
+            + ", keysUsedInAux="
+            + keysUsedInAux
+            + ", auxParser="
+            + auxParser
+            + ", fileMonitor="
+            + fileMonitor
+            + "} "
+            + super.toString()
         );
     }
 

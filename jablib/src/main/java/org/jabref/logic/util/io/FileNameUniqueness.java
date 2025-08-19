@@ -57,11 +57,11 @@ public class FileNameUniqueness {
         int counter = 1;
         while (Files.exists(targetDirectory.resolve(newFileName))) {
             newFileName =
-                fileNameWithoutExtension +
-                " (" +
-                counter +
-                ")" +
-                extensionSuffix;
+                fileNameWithoutExtension
+                + " ("
+                + counter
+                + ")"
+                + extensionSuffix;
             counter++;
         }
 
@@ -134,11 +134,11 @@ public class FileNameUniqueness {
             }
 
             originalFileName =
-                fileNameWithoutDuplicated +
-                " (" +
-                counter +
-                ")" +
-                extensionSuffix;
+                fileNameWithoutDuplicated
+                + " ("
+                + counter
+                + ")"
+                + extensionSuffix;
             counter++;
 
             if (newFilename.equals(originalFileName)) {
@@ -171,8 +171,8 @@ public class FileNameUniqueness {
             .orElse("");
 
         return filePath.resolveSibling(
-            eraseDuplicateMarks(FileUtil.getBaseName(filePath)) +
-            extensionSuffix
+            eraseDuplicateMarks(FileUtil.getBaseName(filePath))
+            + extensionSuffix
         );
     }
 }

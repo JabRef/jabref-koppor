@@ -83,9 +83,9 @@ public class Localization {
         // avoid reinitialization of the language bundles
         final Locale langLocale = knownLanguage.get();
         if (
-            (locale != null) &&
-            locale.equals(langLocale) &&
-            locale.equals(defaultLocale)
+            (locale != null)
+            && locale.equals(langLocale)
+            && locale.equals(defaultLocale)
         ) {
             return;
         }

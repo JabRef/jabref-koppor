@@ -12,8 +12,8 @@ public class SelectableTextFlowKeyBindings {
         KeyBindingRepository keyBindingRepository
     ) {
         if (
-            scene.focusOwnerProperty().get() instanceof
-            SelectableTextFlow selectableTextFlow
+            scene.focusOwnerProperty().get()
+            instanceof SelectableTextFlow selectableTextFlow
         ) {
             keyBindingRepository
                 .mapToKeyBinding(event)

@@ -63,8 +63,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                         Thread.yield();
                         continue;
                     } else if (
-                        kind == StandardWatchEventKinds.ENTRY_CREATE ||
-                        kind == StandardWatchEventKinds.ENTRY_MODIFY
+                        kind == StandardWatchEventKinds.ENTRY_CREATE
+                        || kind == StandardWatchEventKinds.ENTRY_MODIFY
                     ) {
                         // We only handle "ENTRY_CREATE" and "ENTRY_MODIFY" here, so the context is always a Path
                         @SuppressWarnings("unchecked")

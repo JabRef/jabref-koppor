@@ -219,15 +219,15 @@ public class DownloadLinkedFileAction extends SimpleCommand {
             externalApplicationsPreferences
         );
         if (
-            newLinkedFile.getDescription().isEmpty() &&
-            !linkedFile.getDescription().isEmpty()
+            newLinkedFile.getDescription().isEmpty()
+            && !linkedFile.getDescription().isEmpty()
         ) {
             newLinkedFile.setDescription(linkedFile.getDescription());
         }
         if (
-            linkedFile.getSourceUrl().isEmpty() &&
-            LinkedFile.isOnlineLink(linkedFile.getLink()) &&
-            filePreferences.shouldKeepDownloadUrl()
+            linkedFile.getSourceUrl().isEmpty()
+            && LinkedFile.isOnlineLink(linkedFile.getLink())
+            && filePreferences.shouldKeepDownloadUrl()
         ) {
             newLinkedFile.setSourceURL(linkedFile.getLink());
         } else if (filePreferences.shouldKeepDownloadUrl()) {

@@ -90,8 +90,8 @@ public class GitSyncService {
         }
 
         if (
-            status.syncStatus() == SyncStatus.UP_TO_DATE ||
-            status.syncStatus() == SyncStatus.AHEAD
+            status.syncStatus() == SyncStatus.UP_TO_DATE
+            || status.syncStatus() == SyncStatus.AHEAD
         ) {
             LOGGER.info(
                 "Pull skipped: Local branch is already up to date with remote."

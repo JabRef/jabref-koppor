@@ -38,14 +38,14 @@ class BiblioscapeImporterTypesTest {
         EntryType bibtexType
     ) throws IOException {
         String bsInput =
-            "--AU-- Baklouti, F.\n" +
-            "--YP-- 1999\n" +
-            "--KW-- Cells; Rna; Isoforms\n" +
-            "--TI-- Blood\n" +
-            "--RT-- " +
-            biblioscapeType +
-            "\n" +
-            "------";
+            "--AU-- Baklouti, F.\n"
+            + "--YP-- 1999\n"
+            + "--KW-- Cells; Rna; Isoforms\n"
+            + "--TI-- Blood\n"
+            + "--RT-- "
+            + biblioscapeType
+            + "\n"
+            + "------";
 
         List<BibEntry> bibEntries = new BiblioscapeImporter()
             .importDatabase(new BufferedReader(Reader.of(bsInput)))

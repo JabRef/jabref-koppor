@@ -25,8 +25,8 @@ public class EntryLinkChecker implements EntryChecker {
         for (Entry<Field, String> field : entry.getFieldMap().entrySet()) {
             Set<FieldProperty> properties = field.getKey().getProperties();
             if (
-                properties.contains(FieldProperty.MULTIPLE_ENTRY_LINK) ||
-                properties.contains(FieldProperty.SINGLE_ENTRY_LINK)
+                properties.contains(FieldProperty.MULTIPLE_ENTRY_LINK)
+                || properties.contains(FieldProperty.SINGLE_ENTRY_LINK)
             ) {
                 entry
                     .getEntryLinkList(field.getKey(), database)

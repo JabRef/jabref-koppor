@@ -64,8 +64,8 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
 
     public void addFormatter() {
         if (
-            !StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue()) &&
-            !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())
+            !StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue())
+            && !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())
         ) {
             formatterListProperty.add(
                 new NameFormatterItemModel(

@@ -169,9 +169,9 @@ class ExportToClipboardActionTest {
             anyCollection()
         );
         verify(dialogService, times(1)).notify(
-            Localization.lang("Entries exported to clipboard") +
-            ": " +
-            selectedEntries.size()
+            Localization.lang("Entries exported to clipboard")
+            + ": "
+            + selectedEntries.size()
         );
     }
 }

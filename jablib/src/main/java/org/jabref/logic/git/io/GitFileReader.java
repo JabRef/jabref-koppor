@@ -48,8 +48,8 @@ public class GitFileReader {
             );
         } catch (MissingObjectException | IncorrectObjectTypeException e) {
             throw new JabRefException(
-                "Git object missing or incorrect when reading file: " +
-                relativePath,
+                "Git object missing or incorrect when reading file: "
+                + relativePath,
                 e
             );
         } catch (IOException e) {

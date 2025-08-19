@@ -221,8 +221,8 @@ public class StyleSelectDialogViewModel {
     public void setAvailableCslLayoutsFilter(String searchTerm) {
         filteredAvailableCslLayouts.setPredicate(
             layout ->
-                searchTerm.isEmpty() ||
-                layout
+                searchTerm.isEmpty()
+                || layout
                     .getDisplayName()
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase())
@@ -344,8 +344,8 @@ public class StyleSelectDialogViewModel {
 
                 // If the deleted style was the current selection, select another style
                 if (
-                    selectedCslLayoutProperty.get() != null &&
-                    selectedCslLayoutProperty
+                    selectedCslLayoutProperty.get() != null
+                    && selectedCslLayoutProperty
                         .get()
                         .getFilePath()
                         .equals(style.getFilePath())
@@ -361,9 +361,9 @@ public class StyleSelectDialogViewModel {
 
                 // Update the currently set style to default (ieee) if it was the deleted one
                 if (
-                    openOfficePreferences.getCurrentStyle() instanceof
-                        CitationStyle currentStyle &&
-                    currentStyle.getFilePath().equals(style.getFilePath())
+                    openOfficePreferences.getCurrentStyle()
+                        instanceof CitationStyle currentStyle
+                    && currentStyle.getFilePath().equals(style.getFilePath())
                 ) {
                     openOfficePreferences.setCurrentStyle(
                         CSLStyleLoader.getDefaultStyle()

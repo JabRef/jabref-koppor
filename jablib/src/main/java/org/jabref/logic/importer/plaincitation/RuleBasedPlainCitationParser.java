@@ -29,9 +29,9 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private static final String LASTNAME_GROUP = "LASTNAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(
-        "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" +
-        "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*" +
-        "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+        "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+        + "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*"
+        + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
     );
 
@@ -41,22 +41,22 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     );
 
     private static final Pattern AUTHOR_PATTERN = Pattern.compile(
-        "(?<" +
-        LASTNAME_GROUP +
-        ">\\p{Lu}\\w+),?\\s(?<" +
-        INITIALS_GROUP +
-        ">(\\p{Lu}\\.\\s){1,2})" +
-        "\\s*(and|,|\\.)*",
+        "(?<"
+        + LASTNAME_GROUP
+        + ">\\p{Lu}\\w+),?\\s(?<"
+        + INITIALS_GROUP
+        + ">(\\p{Lu}\\.\\s){1,2})"
+        + "\\s*(and|,|\\.)*",
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
     );
 
     private static final Pattern AUTHOR_PATTERN_2 = Pattern.compile(
-        "(?<" +
-        INITIALS_GROUP +
-        ">(\\p{Lu}\\.\\s){1,2})(?<" +
-        LASTNAME_GROUP +
-        ">\\p{Lu}\\w+)" +
-        "\\s*(and|,|\\.)*",
+        "(?<"
+        + INITIALS_GROUP
+        + ">(\\p{Lu}\\.\\s){1,2})(?<"
+        + LASTNAME_GROUP
+        + ">\\p{Lu}\\w+)"
+        + "\\s*(and|,|\\.)*",
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
     );
 
@@ -126,8 +126,9 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
             );
             int intYearCandidate = Integer.parseInt(yearCandidate);
             if (
-                (intYearCandidate > 1700) &&
-                (intYearCandidate <= Calendar.getInstance().get(Calendar.YEAR))
+                (intYearCandidate > 1700)
+                && (intYearCandidate
+                    <= Calendar.getInstance().get(Calendar.YEAR))
             ) {
                 year = yearCandidate;
                 return fixSpaces(input.replace(year, YEAR_TAG));

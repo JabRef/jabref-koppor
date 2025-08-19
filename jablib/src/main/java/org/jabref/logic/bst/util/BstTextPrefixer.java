@@ -56,9 +56,9 @@ public class BstTextPrefixer {
         }
         prefixState.braceLevel++;
         if (
-            (prefixState.braceLevel == 1) &&
-            (prefixState.index < cs.length) &&
-            (cs[prefixState.index] == '\\')
+            (prefixState.braceLevel == 1)
+            && (prefixState.index < cs.length)
+            && (cs[prefixState.index] == '\\')
         ) {
             prefixState.index++; // skip backslash
             while (

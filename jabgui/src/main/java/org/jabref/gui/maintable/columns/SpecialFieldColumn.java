@@ -145,8 +145,8 @@ public class SpecialFieldColumn
 
         ranking.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
             if (
-                event.getButton() == MouseButton.PRIMARY &&
-                event.getClickCount() == 2
+                event.getButton() == MouseButton.PRIMARY
+                && event.getClickCount() == 2
             ) {
                 ranking.setRating(0);
                 event.consume();

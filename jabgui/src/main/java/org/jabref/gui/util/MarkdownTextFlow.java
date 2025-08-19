@@ -183,9 +183,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                     if (astNode instanceof DelimitedNode delimitedNode) {
                         // e.g., select "llo" inside "*hello*" would return "*llo*"
                         partialText =
-                            delimitedNode.getOpeningMarker() +
-                            partialText +
-                            delimitedNode.getClosingMarker();
+                            delimitedNode.getOpeningMarker()
+                            + partialText
+                            + delimitedNode.getClosingMarker();
                     }
                     result.add(partialText);
                 }
@@ -215,9 +215,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             return renderedText;
         } else if (astNode instanceof Heading heading) {
             return (
-                "#".repeat(heading.getLevel()) +
-                " " +
-                heading.getText().toString().trim()
+                "#".repeat(heading.getLevel())
+                + " "
+                + heading.getText().toString().trim()
             );
         } else if (astNode instanceof Code) {
             return "`" + astNode.getChildChars() + "`";
@@ -245,10 +245,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             // NOTE: Hack. Flexmark always add \n at beginning, \n\n at end.
             String content = fencedCodeBlock.getContentChars().toString();
             return (
-                openingFence +
-                info +
-                content.substring(0, content.length() - 1) +
-                closingFence
+                openingFence
+                + info
+                + content.substring(0, content.length() - 1)
+                + closingFence
             );
         } else if (astNode instanceof IndentedCodeBlock) {
             return astNode.getChars().toString();
@@ -369,9 +369,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
              */
             String processedContent = content;
             if (
-                content.length() >= 3 &&
-                content.startsWith("\n") &&
-                content.endsWith("\n\n")
+                content.length() >= 3
+                && content.startsWith("\n")
+                && content.endsWith("\n\n")
             ) {
                 processedContent = content.substring(1, content.length() - 2);
             }
@@ -385,9 +385,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             // NOTE: Similar to FencedCodeBlock, Flexmark always appends \n at the beginning and \n\n at the end.
             String processedContent = content;
             if (
-                content.length() >= 3 &&
-                content.startsWith("\n") &&
-                content.endsWith("\n\n")
+                content.length() >= 3
+                && content.startsWith("\n")
+                && content.endsWith("\n\n")
             ) {
                 processedContent = content.substring(1, content.length() - 2);
             }
@@ -523,8 +523,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             int newlineCount = 1;
 
             if (
-                previousBlock instanceof Heading ||
-                currentBlock instanceof Heading
+                previousBlock instanceof Heading
+                || currentBlock instanceof Heading
             ) {
                 newlineCount = 2;
             } else if (previousBlock instanceof Paragraph) {
@@ -534,10 +534,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             ) {
                 newlineCount = 2;
             } else if (
-                previousBlock instanceof FencedCodeBlock ||
-                previousBlock instanceof IndentedCodeBlock ||
-                currentBlock instanceof FencedCodeBlock ||
-                currentBlock instanceof IndentedCodeBlock
+                previousBlock instanceof FencedCodeBlock
+                || previousBlock instanceof IndentedCodeBlock
+                || currentBlock instanceof FencedCodeBlock
+                || currentBlock instanceof IndentedCodeBlock
             ) {
                 newlineCount = 2;
             }

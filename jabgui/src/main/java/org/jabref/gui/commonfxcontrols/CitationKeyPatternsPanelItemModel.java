@@ -46,11 +46,11 @@ public class CitationKeyPatternsPanelItemModel {
     @Override
     public String toString() {
         return (
-            "[" +
-            entryType.getValue().getName() +
-            "," +
-            pattern.getValue() +
-            "]"
+            "["
+            + entryType.getValue().getName()
+            + ","
+            + pattern.getValue()
+            + "]"
         );
     }
 }

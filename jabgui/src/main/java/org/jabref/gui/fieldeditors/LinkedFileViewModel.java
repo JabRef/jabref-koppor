@@ -132,8 +132,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
                 .and(downloadProgress.lessThan(1))
         );
         isOfflinePdf.setValue(
-            !linkedFile.isOnlineLink() &&
-            "pdf".equalsIgnoreCase(linkedFile.getFileType())
+            !linkedFile.isOnlineLink()
+            && "pdf".equalsIgnoreCase(linkedFile.getFileType())
         );
     }
 
@@ -212,15 +212,15 @@ public class LinkedFileViewModel extends AbstractViewModel {
                     -1,
                     "...",
                     ControlHelper.EllipsisPosition.CENTER
-                ) +
-                " (" +
-                ControlHelper.truncateString(
+                )
+                + " ("
+                + ControlHelper.truncateString(
                     linkedFile.getLink(),
                     -1,
                     "...",
                     ControlHelper.EllipsisPosition.CENTER
-                ) +
-                ")"
+                )
+                + ")"
             );
         }
     }
@@ -609,8 +609,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
     public void redownload() {
         LOGGER.info("Redownloading file from {}", linkedFile.getSourceUrl());
         if (
-            linkedFile.getSourceUrl().isEmpty() ||
-            !LinkedFile.isOnlineLink(linkedFile.getSourceUrl())
+            linkedFile.getSourceUrl().isEmpty()
+            || !LinkedFile.isOnlineLink(linkedFile.getSourceUrl())
         ) {
             throw new UnsupportedOperationException(
                 "In order to download the file, the source url has to be an online link"

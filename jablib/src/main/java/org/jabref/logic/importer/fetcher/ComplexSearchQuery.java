@@ -120,28 +120,28 @@ public class ComplexSearchQuery {
         if (
             !(getDefaultFieldPhrases().containsAll(
                     that.getDefaultFieldPhrases()
-                ) &&
-                that
+                )
+                && that
                     .getDefaultFieldPhrases()
                     .containsAll(getDefaultFieldPhrases()))
         ) {
             return false;
         }
         if (
-            !(getAuthors().containsAll(that.getAuthors()) &&
-                that.getAuthors().containsAll(getAuthors()))
+            !(getAuthors().containsAll(that.getAuthors())
+                && that.getAuthors().containsAll(getAuthors()))
         ) {
             return false;
         }
         if (
-            !(getTitlePhrases().containsAll(that.getTitlePhrases()) &&
-                that.getTitlePhrases().containsAll(getTitlePhrases()))
+            !(getTitlePhrases().containsAll(that.getTitlePhrases())
+                && that.getTitlePhrases().containsAll(getTitlePhrases()))
         ) {
             return false;
         }
         if (
-            !(getAbstractPhrases().containsAll(that.getAbstractPhrases()) &&
-                that.getAbstractPhrases().containsAll(getAbstractPhrases()))
+            !(getAbstractPhrases().containsAll(that.getAbstractPhrases())
+                && that.getAbstractPhrases().containsAll(getAbstractPhrases()))
         ) {
             return false;
         }
@@ -399,13 +399,13 @@ public class ComplexSearchQuery {
 
         private boolean textSearchFieldsAndYearFieldsAreEmpty() {
             return (
-                this.stringListIsBlank(defaultFieldPhrases) &&
-                this.stringListIsBlank(titlePhrases) &&
-                this.stringListIsBlank(authors) &&
-                this.stringListIsBlank(abstractPhrases) &&
-                StringUtil.isBlank(journal) &&
-                StringUtil.isBlank(doi) &&
-                yearFieldsAreEmpty()
+                this.stringListIsBlank(defaultFieldPhrases)
+                && this.stringListIsBlank(titlePhrases)
+                && this.stringListIsBlank(authors)
+                && this.stringListIsBlank(abstractPhrases)
+                && StringUtil.isBlank(journal)
+                && StringUtil.isBlank(doi)
+                && yearFieldsAreEmpty()
             );
         }
 
@@ -415,8 +415,8 @@ public class ComplexSearchQuery {
 
         private boolean stringListIsBlank(List<String> stringList) {
             return (
-                stringList == null ||
-                stringList.stream().allMatch(String::isBlank)
+                stringList == null
+                || stringList.stream().allMatch(String::isBlank)
             );
         }
     }

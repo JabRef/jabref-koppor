@@ -33,8 +33,8 @@ public class HowPublishedChecker implements ValueChecker {
 
         // BibTeX
         if (
-            !databaseContext.isBiblatexMode() &&
-            !FIRST_LETTER_CAPITALIZED.test(value.trim())
+            !databaseContext.isBiblatexMode()
+            && !FIRST_LETTER_CAPITALIZED.test(value.trim())
         ) {
             return Optional.of(
                 Localization.lang("should have the first letter capitalized")

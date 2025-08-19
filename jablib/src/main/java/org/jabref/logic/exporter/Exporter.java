@@ -151,9 +151,9 @@ public abstract class Exporter {
                         databaseContext.getFileDirectories(filePreferences)
                     );
                     if (
-                        linkedFilePath.isPresent() &&
-                        Files.exists(linkedFilePath.get()) &&
-                        Files.isSameFile(linkedFilePath.get(), filePath)
+                        linkedFilePath.isPresent()
+                        && Files.exists(linkedFilePath.get())
+                        && Files.isSameFile(linkedFilePath.get(), filePath)
                     ) {
                         export(
                             databaseContext,

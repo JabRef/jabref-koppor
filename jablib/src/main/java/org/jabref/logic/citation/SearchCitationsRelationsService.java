@@ -57,8 +57,8 @@ public class SearchCitationsRelationsService {
     public List<BibEntry> searchCites(BibEntry referencing)
         throws FetcherException {
         boolean isFetchingAllowed =
-            !relationsRepository.containsReferences(referencing) ||
-            relationsRepository.isReferencesUpdatable(referencing);
+            !relationsRepository.containsReferences(referencing)
+            || relationsRepository.isReferencesUpdatable(referencing);
         if (isFetchingAllowed) {
             List<BibEntry> referencedBy = citationFetcher.searchCiting(
                 referencing
@@ -76,8 +76,8 @@ public class SearchCitationsRelationsService {
     public List<BibEntry> searchCitedBy(BibEntry cited)
         throws FetcherException {
         boolean isFetchingAllowed =
-            !relationsRepository.containsCitations(cited) ||
-            relationsRepository.isCitationsUpdatable(cited);
+            !relationsRepository.containsCitations(cited)
+            || relationsRepository.isCitationsUpdatable(cited);
         if (isFetchingAllowed) {
             List<BibEntry> citedBy = citationFetcher.searchCitedBy(cited);
             relationsRepository.insertCitations(cited, citedBy);
@@ -90,8 +90,8 @@ public class SearchCitationsRelationsService {
         Optional<String> actualFieldValue
     ) throws FetcherException {
         boolean isFetchingAllowed =
-            actualFieldValue.isEmpty() ||
-            relationsRepository.isCitationsUpdatable(citationCounted);
+            actualFieldValue.isEmpty()
+            || relationsRepository.isCitationsUpdatable(citationCounted);
         if (isFetchingAllowed) {
             Optional<Integer> citationCountResult =
                 citationFetcher.searchCitationCount(citationCounted);

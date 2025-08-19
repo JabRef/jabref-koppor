@@ -220,9 +220,9 @@ class CitationStyleGeneratorTest {
 
         // if the default citation style changes this has to be modified
         String expected =
-            "  <div class=\"csl-entry\">\n" +
-            "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n" +
-            "  </div>\n";
+            "  <div class=\"csl-entry\">\n"
+            + "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n"
+            + "  </div>\n";
         String citation = CitationStyleGenerator.generateBibliography(
             List.of(entry),
             DEFAULT_STYLE,
@@ -238,9 +238,9 @@ class CitationStyleGeneratorTest {
 
         // if the default citation style changes this has to be modified
         String expected =
-            "  <div class=\"csl-entry\">\n" +
-            "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n" +
-            "  </div>\n";
+            "  <div class=\"csl-entry\">\n"
+            + "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n"
+            + "  </div>\n";
         String citation = CitationStyleGenerator.generateBibliography(
             List.of(entry),
             DEFAULT_STYLE,
@@ -267,9 +267,9 @@ class CitationStyleGeneratorTest {
     @Test
     void htmlFormat() {
         String expectedCitation =
-            "  <div class=\"csl-entry\">\n" +
-            "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">B. Smith, B. Jones, and J. Williams, &ldquo;Title of the test entry,&rdquo; <span style=\"font-style: italic\">BibTeX Journal</span>, vol. 34, no. 3, pp. 45&ndash;67, July 2016, doi: 10.1001/bla.blubb.</div>\n" +
-            "  </div>\n";
+            "  <div class=\"csl-entry\">\n"
+            + "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">B. Smith, B. Jones, and J. Williams, &ldquo;Title of the test entry,&rdquo; <span style=\"font-style: italic\">BibTeX Journal</span>, vol. 34, no. 3, pp. 45&ndash;67, July 2016, doi: 10.1001/bla.blubb.</div>\n"
+            + "  </div>\n";
 
         String actualCitation = CitationStyleGenerator.generateBibliography(
             List.of(testEntry),
@@ -305,9 +305,9 @@ class CitationStyleGeneratorTest {
         // if the default citation style changes this has to be modified.
         // in this case ä was added to check if it is formatted appropriately
         String expected =
-            "  <div class=\"csl-entry\">\n" +
-            "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. L&auml;st and J. Doe, </div>\n" +
-            "  </div>\n";
+            "  <div class=\"csl-entry\">\n"
+            + "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. L&auml;st and J. Doe, </div>\n"
+            + "  </div>\n";
         String citation = CitationStyleGenerator.generateBibliography(
             List.of(entry),
             DEFAULT_STYLE,

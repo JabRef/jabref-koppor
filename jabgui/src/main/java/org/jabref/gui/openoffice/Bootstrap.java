@@ -410,8 +410,8 @@ public class Bootstrap {
 
             // connection string
             String sConnect =
-                "uno:socket,host=localhost,port=2083" +
-                ";urp;StarOffice.ComponentContext";
+                "uno:socket,host=localhost,port=2083"
+                + ";urp;StarOffice.ComponentContext";
 
             // wait until office is started
             for (int i = 0; ; ++i) {

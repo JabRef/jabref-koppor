@@ -71,13 +71,13 @@ public class CheckoutPR {
             while (prIterator.hasNext()) {
                 pr = prIterator.next();
                 if (
-                    (contributor.isEmpty() ||
-                        pr
+                    (contributor.isEmpty()
+                        || pr
                             .getHead()
                             .getUser()
                             .getLogin()
-                            .equals(contributor)) &&
-                    pr.getHead().getRef().equals(branchName)
+                            .equals(contributor))
+                    && pr.getHead().getRef().equals(branchName)
                 ) {
                     found = true;
                     System.out.println("Found pull request #" + pr.getNumber());
@@ -117,12 +117,12 @@ public class CheckoutPR {
 
         final String remoteName = "tmp-remote";
         final String localBranchName =
-            "pr--" +
-            pr.getNumber() +
-            "--" +
-            pr.getUser().getLogin() +
-            "--" +
-            headRef;
+            "pr--"
+            + pr.getNumber()
+            + "--"
+            + pr.getUser().getLogin()
+            + "--"
+            + headRef;
 
         // Open the repository in the current directory (".")
         File repoDir = new File(".");
@@ -188,13 +188,13 @@ public class CheckoutPR {
         }
 
         System.out.println(
-            "Checked out PR #" +
-            pr.getNumber() +
-            " (" +
-            pr.getTitle() +
-            ") to branch " +
-            localBranchName +
-            "."
+            "Checked out PR #"
+            + pr.getNumber()
+            + " ("
+            + pr.getTitle()
+            + ") to branch "
+            + localBranchName
+            + "."
         );
         System.out.println("Checked out commit " + pr.getHead().getSha() + ".");
     }

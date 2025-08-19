@@ -8,22 +8,22 @@ public class AbstractUndoableJabRefEdit extends AbstractUndoableEdit {
     @Override
     public String getUndoPresentationName() {
         return (
-            "<html>" +
-            Localization.lang("Undo") +
-            ": " +
-            getPresentationName() +
-            "</html>"
+            "<html>"
+            + Localization.lang("Undo")
+            + ": "
+            + getPresentationName()
+            + "</html>"
         );
     }
 
     @Override
     public String getRedoPresentationName() {
         return (
-            "<html>" +
-            Localization.lang("Redo") +
-            ": " +
-            getPresentationName() +
-            "</html>"
+            "<html>"
+            + Localization.lang("Redo")
+            + ": "
+            + getPresentationName()
+            + "</html>"
         );
     }
 }

@@ -174,10 +174,10 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
                 }
                 if (database.getLocation() == DatabaseLocation.SHARED) {
                     return (
-                        database.getDBMSSynchronizer().getDBName() +
-                        " [" +
-                        Localization.lang("shared") +
-                        "]"
+                        database.getDBMSSynchronizer().getDBName()
+                        + " ["
+                        + Localization.lang("shared")
+                        + "]"
                     );
                 }
 

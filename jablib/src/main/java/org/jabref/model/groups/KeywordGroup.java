@@ -55,9 +55,9 @@ public abstract class KeywordGroup extends AbstractGroup {
         }
         KeywordGroup that = (KeywordGroup) o;
         return (
-            isCaseSensitive() == that.isCaseSensitive() &&
-            Objects.equals(getSearchField(), that.getSearchField()) &&
-            Objects.equals(getSearchExpression(), that.getSearchExpression())
+            isCaseSensitive() == that.isCaseSensitive()
+            && Objects.equals(getSearchField(), that.getSearchField())
+            && Objects.equals(getSearchExpression(), that.getSearchExpression())
         );
     }
 

@@ -250,12 +250,12 @@ public class OpenOfficePanel {
                         ex
                     );
                     String msg =
-                        Localization.lang("Unable to reload style file") +
-                        "'" +
-                        jStyle.getPath() +
-                        "'" +
-                        "\n" +
-                        ex.getMessage();
+                        Localization.lang("Unable to reload style file")
+                        + "'"
+                        + jStyle.getPath()
+                        + "'"
+                        + "\n"
+                        + ex.getMessage();
                     new OOError(title, msg, ex).showErrorDialog(dialogService);
                     return FAIL;
                 }
@@ -537,8 +537,8 @@ public class OpenOfficePanel {
                 Optional<Path> chosenInstallationDirectory =
                     officeInstallation.chooseAmongInstallations(installations);
                 if (
-                    chosenInstallationDirectory.isPresent() &&
-                    officeInstallation.setOpenOfficePreferences(
+                    chosenInstallationDirectory.isPresent()
+                    && officeInstallation.setOpenOfficePreferences(
                         chosenInstallationDirectory.get()
                     )
                 ) {
@@ -619,9 +619,9 @@ public class OpenOfficePanel {
         boolean canRefreshDocument = isConnectedToDocument && hasStyle;
         boolean cslStyleSelected = currentStyle instanceof CitationStyle;
         boolean canGenerateBibliography =
-            (currentStyle instanceof JStyle) ||
-            (currentStyle instanceof CitationStyle citationStyle &&
-                citationStyle.hasBibliography());
+            (currentStyle instanceof JStyle)
+            || (currentStyle instanceof CitationStyle citationStyle
+                && citationStyle.hasBibliography());
 
         selectDocument.setDisable(!isConnectedToDocument);
 
@@ -680,8 +680,8 @@ public class OpenOfficePanel {
 
                     dialogService.showErrorDialogAndWait(
                         Localization.lang(
-                            "Unable to connect. One possible reason is that JabRef " +
-                            "and OpenOffice/LibreOffice are not both running in either 32 bit mode or 64 bit mode."
+                            "Unable to connect. One possible reason is that JabRef "
+                            + "and OpenOffice/LibreOffice are not both running in either 32 bit mode or 64 bit mode."
                         )
                     );
                 }
@@ -697,18 +697,18 @@ public class OpenOfficePanel {
                         ),
                         Localization.lang(
                             "Could not connect to running OpenOffice/LibreOffice."
-                        ) +
-                        "\n" +
-                        Localization.lang(
+                        )
+                        + "\n"
+                        + Localization.lang(
                             "Make sure you have installed OpenOffice/LibreOffice with Java support."
-                        ) +
-                        "\n" +
-                        Localization.lang(
+                        )
+                        + "\n"
+                        + Localization.lang(
                             "If connecting manually, please verify program and library paths."
-                        ) +
-                        "\n" +
-                        "\n" +
-                        Localization.lang("Error message:"),
+                        )
+                        + "\n"
+                        + "\n"
+                        + Localization.lang("Error message:"),
                         ex
                     );
                 }
@@ -770,8 +770,8 @@ public class OpenOfficePanel {
             stateManager.getActiveDatabase();
 
         if (
-            activeDatabase.isEmpty() ||
-            (activeDatabase.get().getDatabase() == null)
+            activeDatabase.isEmpty()
+            || (activeDatabase.get().getDatabase() == null)
         ) {
             OOError.noDataBaseIsOpenForCiting()
                 .setTitle(errorDialogTitle)

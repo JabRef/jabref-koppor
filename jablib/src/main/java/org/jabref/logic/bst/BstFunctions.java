@@ -316,8 +316,8 @@ public class BstFunctions {
 
             if (o2 instanceof String value) {
                 if (
-                    (bstEntry != null) &&
-                    bstEntry.localStrings.containsKey(name)
+                    (bstEntry != null)
+                    && bstEntry.localStrings.containsKey(name)
                 ) {
                     bstEntry.localStrings.put(name, value);
                     return;
@@ -328,8 +328,8 @@ public class BstFunctions {
                 }
             } else if (o2 instanceof Integer value) {
                 if (
-                    (bstEntry != null) &&
-                    bstEntry.localIntegers.containsKey(name)
+                    (bstEntry != null)
+                    && bstEntry.localIntegers.containsKey(name)
                 ) {
                     bstEntry.localIntegers.put(name, value);
                     return;
@@ -613,9 +613,9 @@ public class BstFunctions {
         Object o3 = stack.pop();
 
         if (
-            !(o1 instanceof String) &&
-            !(o2 instanceof Integer) &&
-            !(o3 instanceof String)
+            !(o1 instanceof String)
+            && !(o2 instanceof Integer)
+            && !(o3 instanceof String)
         ) {
             // warning("A string is needed for change.case$");
             stack.push("");
@@ -665,11 +665,11 @@ public class BstFunctions {
         Object i = stack.pop();
 
         if (
-            !((f1 instanceof BstVMVisitor.Identifier) ||
-                (f1 instanceof ParseTree)) &&
-            ((f2 instanceof BstVMVisitor.Identifier) ||
-                (f2 instanceof ParseTree)) &&
-            (i instanceof Integer)
+            !((f1 instanceof BstVMVisitor.Identifier)
+                || (f1 instanceof ParseTree))
+            && ((f2 instanceof BstVMVisitor.Identifier)
+                || (f2 instanceof ParseTree))
+            && (i instanceof Integer)
         ) {
             throw new BstVMException(
                 "Expecting two functions and an integer for if$ (line %d)".formatted(
@@ -910,9 +910,9 @@ public class BstFunctions {
         Object o3 = stack.pop();
 
         if (
-            !((o1 instanceof Integer length) &&
-                (o2 instanceof Integer start) &&
-                (o3 instanceof String string))
+            !((o1 instanceof Integer length)
+                && (o2 instanceof Integer start)
+                && (o3 instanceof String string))
         ) {
             throw new BstVMException(
                 "Expecting two integers and a string for substring$ (line %d)".formatted(
@@ -1149,10 +1149,10 @@ public class BstFunctions {
         Object f1 = stack.pop();
 
         if (
-            !((f1 instanceof BstVMVisitor.Identifier) ||
-                (f1 instanceof ParseTree)) &&
-            ((f2 instanceof BstVMVisitor.Identifier) ||
-                (f2 instanceof ParseTree))
+            !((f1 instanceof BstVMVisitor.Identifier)
+                || (f1 instanceof ParseTree))
+            && ((f2 instanceof BstVMVisitor.Identifier)
+                || (f2 instanceof ParseTree))
         ) {
             throw new BstVMException(
                 "Expecting two functions for while$ (line %d)".formatted(

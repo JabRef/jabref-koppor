@@ -63,8 +63,8 @@ public class Benchmarks {
             entry.setField(StandardField.TITLE, "This is my title " + i);
             entry.setField(
                 StandardField.AUTHOR,
-                "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB" +
-                i
+                "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB"
+                + i
             );
             entry.setField(StandardField.JOURNAL, "Journal Title " + i);
             entry.setField(StandardField.KEYWORDS, "testkeyword");

@@ -46,8 +46,8 @@ public class DiffHighlighting {
                     result.set(
                         startPos + offset - 1,
                         forRemoved(
-                            baseStringSplit.get((startPos + offset) - 1) +
-                            separator
+                            baseStringSplit.get((startPos + offset) - 1)
+                            + separator
                         )
                     );
                     result.add(

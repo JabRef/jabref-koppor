@@ -37,9 +37,9 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
         "Copied file successfully"
     );
     private final String localizedErrorMessage =
-        Localization.lang("Could not copy file") +
-        ": " +
-        Localization.lang("File exists");
+        Localization.lang("Could not copy file")
+        + ": "
+        + Localization.lang("File exists");
     private final long totalFilesCount;
     private final List<BibEntry> entries;
     private final List<CopyFilesResultItemViewModel> results =

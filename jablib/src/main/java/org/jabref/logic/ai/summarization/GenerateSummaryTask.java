@@ -268,9 +268,9 @@ public class GenerateSummaryTask extends BackgroundTask<Summary> {
         addMoreWork(1); // For the combination of summary chunks.
 
         DocumentSplitter documentSplitter = DocumentSplitters.recursive(
-            aiPreferences.getContextWindowSize() -
-            MAX_OVERLAP_SIZE_IN_CHARS * 2 -
-            estimateTokenCount(
+            aiPreferences.getContextWindowSize()
+            - MAX_OVERLAP_SIZE_IN_CHARS * 2
+            - estimateTokenCount(
                 aiPreferences.getTemplate(
                     AiTemplate.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE
                 )
@@ -344,9 +344,9 @@ public class GenerateSummaryTask extends BackgroundTask<Summary> {
 
             chunkSummaries = list;
         } while (
-            estimateTokenCount(chunkSummaries) >
-            aiPreferences.getContextWindowSize() -
-            estimateTokenCount(
+            estimateTokenCount(chunkSummaries)
+            > aiPreferences.getContextWindowSize()
+            - estimateTokenCount(
                 aiPreferences.getTemplate(
                     AiTemplate.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE
                 )

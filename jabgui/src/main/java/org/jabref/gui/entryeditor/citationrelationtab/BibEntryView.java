@@ -98,10 +98,10 @@ public class BibEntryView {
     private static boolean isRTL(String text) {
         for (char c : text.toCharArray()) {
             if (
-                Character.getDirectionality(c) ==
-                    Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
-                Character.getDirectionality(c) ==
-                Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+                Character.getDirectionality(c)
+                    == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+                || Character.getDirectionality(c)
+                == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
             ) {
                 return true;
             }

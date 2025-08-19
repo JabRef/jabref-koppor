@@ -367,8 +367,8 @@ public class CitationRelationsTab extends EntryEditorTab {
                 }
 
                 if (
-                    entry.entry().getDOI().isPresent() ||
-                    entry.entry().getField(StandardField.URL).isPresent()
+                    entry.entry().getDOI().isPresent()
+                    || entry.entry().getField(StandardField.URL).isPresent()
                 ) {
                     Button openWeb = IconTheme.JabRefIcons.OPEN_LINK.asButton();
                     openWeb.setTooltip(
@@ -660,17 +660,16 @@ public class CitationRelationsTab extends EntryEditorTab {
 
         // TODO: It should not be possible to cancel a search task that is already running for same tab
         if (
-            citationComponents.searchType() ==
-                CitationFetcher.SearchType.CITES &&
-            citingTask != null &&
-            !citingTask.isCancelled()
+            citationComponents.searchType() == CitationFetcher.SearchType.CITES
+            && citingTask != null
+            && !citingTask.isCancelled()
         ) {
             citingTask.cancel();
         } else if (
-            citationComponents.searchType() ==
-                CitationFetcher.SearchType.CITED_BY &&
-            citedByTask != null &&
-            !citedByTask.isCancelled()
+            citationComponents.searchType()
+                == CitationFetcher.SearchType.CITED_BY
+            && citedByTask != null
+            && !citedByTask.isCancelled()
         ) {
             citedByTask.cancel();
         }
@@ -692,8 +691,8 @@ public class CitationRelationsTab extends EntryEditorTab {
             .onFailure(exception -> {
                 LOGGER.error(
                     "Error while fetching {} papers",
-                    citationComponents.searchType() ==
-                        CitationFetcher.SearchType.CITES
+                    citationComponents.searchType()
+                        == CitationFetcher.SearchType.CITES
                         ? "cited"
                         : "citing",
                     exception
@@ -705,8 +704,8 @@ public class CitationRelationsTab extends EntryEditorTab {
                 );
                 String labelText;
                 if (
-                    citationComponents.searchType() ==
-                    CitationFetcher.SearchType.CITES
+                    citationComponents.searchType()
+                    == CitationFetcher.SearchType.CITES
                 ) {
                     labelText = Localization.lang(
                         "Error while fetching cited entries: %0",

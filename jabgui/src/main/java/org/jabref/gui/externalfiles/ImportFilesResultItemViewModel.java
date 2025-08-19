@@ -50,11 +50,11 @@ public class ImportFilesResultItemViewModel {
     @Override
     public String toString() {
         return (
-            "ImportFilesResultItemViewModel [file=" +
-            file.get() +
-            ", message=" +
-            message.get() +
-            "]"
+            "ImportFilesResultItemViewModel [file="
+            + file.get()
+            + ", message="
+            + message.get()
+            + "]"
         );
     }
 }

@@ -54,23 +54,23 @@ public class WalkthroughPane extends StackPane {
                 window.getClass().getSimpleName()
             );
             throw new IllegalStateException(
-                "WalkthroughPane already attached to window: " +
-                window.getClass().getSimpleName()
+                "WalkthroughPane already attached to window: "
+                + window.getClass().getSimpleName()
             );
         }
         Scene scene = window.getScene();
         if (scene == null) {
             throw new IllegalStateException(
-                "Cannot attach WalkthroughPane: scene is null for window: " +
-                window.getClass().getSimpleName()
+                "Cannot attach WalkthroughPane: scene is null for window: "
+                + window.getClass().getSimpleName()
             );
         }
 
         root = scene.getRoot();
         if (root == null) {
             throw new IllegalStateException(
-                "Cannot attach WalkthroughPane: original root is null for window: " +
-                window.getClass().getSimpleName()
+                "Cannot attach WalkthroughPane: original root is null for window: "
+                + window.getClass().getSimpleName()
             );
         }
         getChildren().add(root);
@@ -90,15 +90,15 @@ public class WalkthroughPane extends StackPane {
                 window.getClass().getSimpleName()
             );
             throw new IllegalStateException(
-                "WalkthroughPane not attached to window: " +
-                window.getClass().getSimpleName()
+                "WalkthroughPane not attached to window: "
+                + window.getClass().getSimpleName()
             );
         }
         Scene scene = window.getScene();
         if (scene == null || root == null) {
             throw new IllegalStateException(
-                "Cannot detach WalkthroughPane: scene or root is null for window: " +
-                window.getClass().getSimpleName()
+                "Cannot detach WalkthroughPane: scene or root is null for window: "
+                + window.getClass().getSimpleName()
             );
         }
 

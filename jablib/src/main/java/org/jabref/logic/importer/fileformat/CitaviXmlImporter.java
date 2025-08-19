@@ -503,8 +503,8 @@ public class CitaviXmlImporter extends Importer implements Parser {
                     if ("OnetoN".equals(elementName)) {
                         String rawString = reader.getElementText();
                         if (
-                            rawString != null &&
-                            rawString.length() > UUID_SEMICOLON_OFFSET_INDEX
+                            rawString != null
+                            && rawString.length() > UUID_SEMICOLON_OFFSET_INDEX
                         ) {
                             String referenceId = rawString.substring(
                                 0,
@@ -816,8 +816,8 @@ public class CitaviXmlImporter extends Importer implements Parser {
         throws IOException {
         Objects.requireNonNull(reader);
         throw new UnsupportedOperationException(
-            "CitaviXmlImporter does not support importDatabase(BufferedReader reader). " +
-            "Instead use importDatabase(Path filePath, Charset defaultEncoding)."
+            "CitaviXmlImporter does not support importDatabase(BufferedReader reader). "
+            + "Instead use importDatabase(Path filePath, Charset defaultEncoding)."
         );
     }
 

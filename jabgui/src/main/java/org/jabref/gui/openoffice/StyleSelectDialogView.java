@@ -273,9 +273,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
                 (ListChangeListener<CitationStylePreviewLayout>) c -> {
                     updateCslStylesTable();
                     if (
-                        c.next() &&
-                        c.wasAdded() &&
-                        !initialScrollPerformed.get()
+                        c.next()
+                        && c.wasAdded()
+                        && !initialScrollPerformed.get()
                     ) {
                         Platform.runLater(this::scrollToCurrentStyle); // taking care of slight delay in table population
                     }

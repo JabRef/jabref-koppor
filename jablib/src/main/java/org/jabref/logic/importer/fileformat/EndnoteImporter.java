@@ -64,8 +64,8 @@ public class EndnoteImporter extends Importer {
         String str;
         while ((str = reader.readLine()) != null) {
             if (
-                A_PATTERN.matcher(str).matches() ||
-                E_PATTERN.matcher(str).matches()
+                A_PATTERN.matcher(str).matches()
+                || E_PATTERN.matcher(str).matches()
             ) {
                 return true;
             }
@@ -181,8 +181,8 @@ public class EndnoteImporter extends Importer {
                         if (type.equals(StandardEntryType.Article)) {
                             hm.put(StandardField.JOURNAL, val);
                         } else if (
-                            type.equals(StandardEntryType.Book) ||
-                            type.equals(StandardEntryType.InBook)
+                            type.equals(StandardEntryType.Book)
+                            || type.equals(StandardEntryType.InBook)
                         ) {
                             hm.put(StandardField.SERIES, val);
                         } else {
@@ -254,9 +254,9 @@ public class EndnoteImporter extends Importer {
             }
             // if pages missing and article number given, use the article number
             if (
-                ((hm.get(StandardField.PAGES) == null) ||
-                    "-".equals(hm.get(StandardField.PAGES))) &&
-                !"".equals(artnum)
+                ((hm.get(StandardField.PAGES) == null)
+                    || "-".equals(hm.get(StandardField.PAGES)))
+                && !"".equals(artnum)
             ) {
                 hm.put(StandardField.PAGES, artnum);
             }

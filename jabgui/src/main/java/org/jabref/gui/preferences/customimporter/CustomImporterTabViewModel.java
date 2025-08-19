@@ -113,8 +113,8 @@ public class CustomImporterTabViewModel implements PreferenceTabViewModel {
             boolean isArchive = FileUtil.getFileExtension(selectedFile.get())
                 .filter(
                     extension ->
-                        "jar".equalsIgnoreCase(extension) ||
-                        "zip".equalsIgnoreCase(extension)
+                        "jar".equalsIgnoreCase(extension)
+                        || "zip".equalsIgnoreCase(extension)
                 )
                 .isPresent();
 
@@ -148,9 +148,9 @@ public class CustomImporterTabViewModel implements PreferenceTabViewModel {
                         Localization.lang(
                             "Could not open %0",
                             selectedFile.get().toString()
-                        ) +
-                        "\n" +
-                        Localization.lang(
+                        )
+                        + "\n"
+                        + Localization.lang(
                             "Have you chosen the correct package path?"
                         ),
                         exc

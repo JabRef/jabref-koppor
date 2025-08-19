@@ -75,8 +75,8 @@ class StudyFetcher {
             List<BibEntry> fetchResult = new ArrayList<>();
             if (fetcher instanceof PagedSearchBasedFetcher basedFetcher) {
                 int pages = (int) Math.ceil(
-                    ((double) MAX_AMOUNT_OF_RESULTS_PER_FETCHER) /
-                    basedFetcher.getPageSize()
+                    ((double) MAX_AMOUNT_OF_RESULTS_PER_FETCHER)
+                    / basedFetcher.getPageSize()
                 );
                 for (int page = 0; page < pages; page++) {
                     fetchResult.addAll(

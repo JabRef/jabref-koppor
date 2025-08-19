@@ -34,8 +34,8 @@ public class PostgreSQLProcessor extends DBMSProcessor {
     @Override
     public void setUp() throws SQLException {
         if (
-            CURRENT_VERSION_DB_STRUCT == 1 &&
-            checkTableAvailability("ENTRY", "FIELD", "METADATA")
+            CURRENT_VERSION_DB_STRUCT == 1
+            && checkTableAvailability("ENTRY", "FIELD", "METADATA")
         ) {
             // checkTableAvailability does not distinguish if same table name exists in different schemas
             // VERSION_DB_STRUCT_DEFAULT must be forced
@@ -49,35 +49,35 @@ public class PostgreSQLProcessor extends DBMSProcessor {
         connection
             .createStatement()
             .executeUpdate(
-                "CREATE TABLE IF NOT EXISTS " +
-                escape_Table("ENTRY") +
-                " (" +
-                "\"SHARED_ID\" SERIAL PRIMARY KEY, " +
-                "\"TYPE\" VARCHAR, " +
-                "\"VERSION\" INTEGER DEFAULT 1)"
+                "CREATE TABLE IF NOT EXISTS "
+                + escape_Table("ENTRY")
+                + " ("
+                + "\"SHARED_ID\" SERIAL PRIMARY KEY, "
+                + "\"TYPE\" VARCHAR, "
+                + "\"VERSION\" INTEGER DEFAULT 1)"
             );
 
         connection
             .createStatement()
             .executeUpdate(
-                "CREATE TABLE IF NOT EXISTS " +
-                escape_Table("FIELD") +
-                " (" +
-                "\"ENTRY_SHARED_ID\" INTEGER REFERENCES " +
-                escape_Table("ENTRY") +
-                "(\"SHARED_ID\") ON DELETE CASCADE, " +
-                "\"NAME\" VARCHAR, " +
-                "\"VALUE\" TEXT)"
+                "CREATE TABLE IF NOT EXISTS "
+                + escape_Table("FIELD")
+                + " ("
+                + "\"ENTRY_SHARED_ID\" INTEGER REFERENCES "
+                + escape_Table("ENTRY")
+                + "(\"SHARED_ID\") ON DELETE CASCADE, "
+                + "\"NAME\" VARCHAR, "
+                + "\"VALUE\" TEXT)"
             );
 
         connection
             .createStatement()
             .executeUpdate(
-                "CREATE TABLE IF NOT EXISTS " +
-                escape_Table("METADATA") +
-                " (" +
-                "\"KEY\" VARCHAR," +
-                "\"VALUE\" TEXT)"
+                "CREATE TABLE IF NOT EXISTS "
+                + escape_Table("METADATA")
+                + " ("
+                + "\"KEY\" VARCHAR,"
+                + "\"VALUE\" TEXT)"
             );
 
         Map<String, String> metadata = getSharedMetaData();
@@ -104,23 +104,23 @@ public class PostgreSQLProcessor extends DBMSProcessor {
                 connection
                     .createStatement()
                     .executeUpdate(
-                        "INSERT INTO " +
-                        escape_Table("ENTRY") +
-                        " SELECT * FROM \"ENTRY\""
+                        "INSERT INTO "
+                        + escape_Table("ENTRY")
+                        + " SELECT * FROM \"ENTRY\""
                     );
                 connection
                     .createStatement()
                     .executeUpdate(
-                        "INSERT INTO " +
-                        escape_Table("FIELD") +
-                        " SELECT * FROM \"FIELD\""
+                        "INSERT INTO "
+                        + escape_Table("FIELD")
+                        + " SELECT * FROM \"FIELD\""
                     );
                 connection
                     .createStatement()
                     .executeUpdate(
-                        "INSERT INTO " +
-                        escape_Table("METADATA") +
-                        " SELECT * FROM \"METADATA\""
+                        "INSERT INTO "
+                        + escape_Table("METADATA")
+                        + " SELECT * FROM \"METADATA\""
                     );
                 connection
                     .createStatement()

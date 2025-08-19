@@ -184,9 +184,9 @@ public class EditMerge {
                 currentRange
             );
             if (textOrder != -1) {
-                String msg = ("MergeCitationGroups:" +
-                    " \"%s\" supposed to be followed by \"%s\"," +
-                    " but %s").formatted(
+                String msg = ("MergeCitationGroups:"
+                    + " \"%s\" supposed to be followed by \"%s\","
+                    + " but %s").formatted(
                     state.prevRange.getString(),
                     currentRange.getString(),
                     (textOrder == 0
@@ -210,8 +210,8 @@ public class EditMerge {
             UnoTextRange.compareEnds(
                 state.cursorBetween,
                 state.currentGroupCursor
-            ) !=
-            0
+            )
+            != 0
         ) {
             LOGGER.warn(
                 "MergeCitationGroups: cursorBetween.end != currentGroupCursor.end"
@@ -230,8 +230,8 @@ public class EditMerge {
             .createTextCursorByRange(state.cursorBetween.getEnd());
 
         while (
-            couldExpand &&
-            (UnoTextRange.compareEnds(state.cursorBetween, rangeStart) < 0)
+            couldExpand
+            && (UnoTextRange.compareEnds(state.cursorBetween, rangeStart) < 0)
         ) {
             //
             // Check that we only walk through inline whitespace.
@@ -240,9 +240,9 @@ public class EditMerge {
             String thisChar = thisCharCursor.getString();
             thisCharCursor.collapseToEnd();
             if (
-                thisChar.isEmpty() ||
-                "\n".equals(thisChar) ||
-                !thisChar.trim().isEmpty()
+                thisChar.isEmpty()
+                || "\n".equals(thisChar)
+                || !thisChar.trim().isEmpty()
             ) {
                 couldExpand = false;
                 if (!thisChar.isEmpty()) {
@@ -258,8 +258,8 @@ public class EditMerge {
                 UnoTextRange.compareEnds(
                     state.cursorBetween,
                     state.currentGroupCursor
-                ) !=
-                0
+                )
+                != 0
             ) {
                 LOGGER.warn(
                     "MergeCitationGroups: cursorBetween.end != currentGroupCursor.end (during expand)"
@@ -313,8 +313,8 @@ public class EditMerge {
             UnoTextRange.compareEnds(
                 state.cursorBetween,
                 state.currentGroupCursor
-            ) !=
-            0
+            )
+            != 0
         ) {
             LOGGER.warn(
                 "MergeCitationGroups: cursorBetween.end != currentGroupCursor.end"

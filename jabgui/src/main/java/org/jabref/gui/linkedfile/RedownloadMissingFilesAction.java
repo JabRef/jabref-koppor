@@ -76,8 +76,8 @@ public class RedownloadMissingFilesAction extends SimpleCommand {
                     .getFiles()
                     .forEach(linkedFile -> {
                         if (
-                            linkedFile.isOnlineLink() ||
-                            linkedFile.getSourceUrl().isEmpty()
+                            linkedFile.isOnlineLink()
+                            || linkedFile.getSourceUrl().isEmpty()
                         ) {
                             return;
                         }

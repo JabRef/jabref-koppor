@@ -504,12 +504,12 @@ class DOITest {
             Arguments.of(
                 "10/1234",
                 DOI.findInText(
-                    "10/B(C)/15 \n" +
-                    " \n" +
-                    "10:51 \n" +
-                    " \n" +
-                    " \n" +
-                    "doi.org/10/1234 "
+                    "10/B(C)/15 \n"
+                    + " \n"
+                    + "10:51 \n"
+                    + " \n"
+                    + " \n"
+                    + "doi.org/10/1234 "
                 )
                     .get()
                     .asString()

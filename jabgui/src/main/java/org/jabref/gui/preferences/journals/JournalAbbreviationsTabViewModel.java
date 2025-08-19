@@ -88,8 +88,8 @@ public class JournalAbbreviationsTabViewModel
             boolean isAbbreviation =
                 (newValue != null) && !newValue.isPseudoAbbreviation();
             boolean isEditableFile =
-                (currentFile.get() != null) &&
-                !currentFile.get().isBuiltInListProperty().get();
+                (currentFile.get() != null)
+                && !currentFile.get().isBuiltInListProperty().get();
             isEditableAndRemovable.set(isEditableFile);
             isAbbreviationEditableAndRemovable.set(
                 isAbbreviation && isEditableFile
@@ -125,8 +125,8 @@ public class JournalAbbreviationsTabViewModel
                 if (lcl.next()) {
                     if (!lcl.wasReplaced()) {
                         if (
-                            lcl.wasAdded() &&
-                            !lcl
+                            lcl.wasAdded()
+                            && !lcl
                                 .getAddedSubList()
                                 .getFirst()
                                 .isBuiltInListProperty()
@@ -366,8 +366,8 @@ public class JournalAbbreviationsTabViewModel
      */
     public void deleteAbbreviation() {
         if (
-            (currentAbbreviation.get() != null) &&
-            !currentAbbreviation.get().isPseudoAbbreviation()
+            (currentAbbreviation.get() != null)
+            && !currentAbbreviation.get().isPseudoAbbreviation()
         ) {
             int index = abbreviations.indexOf(currentAbbreviation.get());
             if (index > 1) {

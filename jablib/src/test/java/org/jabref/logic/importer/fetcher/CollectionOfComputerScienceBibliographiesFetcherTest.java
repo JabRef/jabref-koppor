@@ -89,28 +89,28 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
             )
             .withField(
                 StandardField.ABSTRACT,
-                "The open source application JabRef has existed since" +
-                " 2003. In 2015, the developers decided to make an" +
-                " architectural refactoring as continued development was" +
-                " deemed too demanding. The developers also introduced" +
-                " Static Architecture Conformance Checking (SACC) to" +
-                " prevent violations to the intended architecture." +
-                " Measurements mined from source code repositories such" +
-                " as code churn and code ownership has been linked to" +
-                " several problems, for example fault proneness, security" +
-                " vulnerabilities, code smells, and degraded" +
-                " maintainability. The root cause of such problems can be" +
-                " architectural. To determine the impact of the" +
-                " refactoring of JabRef, we measure the code churn and" +
-                " code ownership before and after the refactoring and" +
-                " find that large files with violations had a" +
-                " significantly higher code churn than large files" +
-                " without violations before the refactoring. After the" +
-                " refactoring, the files that had violations show a more" +
-                " normal code churn. We find no such effect on code" +
-                " ownership. We conclude that files that contain" +
-                " violations detectable by SACC methods are connected to" +
-                " higher than normal code churn."
+                "The open source application JabRef has existed since"
+                + " 2003. In 2015, the developers decided to make an"
+                + " architectural refactoring as continued development was"
+                + " deemed too demanding. The developers also introduced"
+                + " Static Architecture Conformance Checking (SACC) to"
+                + " prevent violations to the intended architecture."
+                + " Measurements mined from source code repositories such"
+                + " as code churn and code ownership has been linked to"
+                + " several problems, for example fault proneness, security"
+                + " vulnerabilities, code smells, and degraded"
+                + " maintainability. The root cause of such problems can be"
+                + " architectural. To determine the impact of the"
+                + " refactoring of JabRef, we measure the code churn and"
+                + " code ownership before and after the refactoring and"
+                + " find that large files with violations had a"
+                + " significantly higher code churn than large files"
+                + " without violations before the refactoring. After the"
+                + " refactoring, the files that had violations show a more"
+                + " normal code churn. We find no such effect on code"
+                + " ownership. We conclude that files that contain"
+                + " violations detectable by SACC methods are connected to"
+                + " higher than normal code churn."
             )
             .withField(
                 StandardField.TYPE,

@@ -110,17 +110,17 @@ class CSLFormatUtilsTest {
             ),
             // Comprehensive test
             Arguments.of(
-                "[1] <b>Smith & Jones</b>, " +
-                "\"<i>Analysis of <code> in HTML</i>,\" " +
-                "<smallcaps>Journal of Web Development</smallcaps>, " +
-                "vol. 1, no. 1, pp. 1-10, 2023. " +
-                "https://doi.org/10.1000/example",
-                "<div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">" +
-                "<span style=\"font-weight:bold;\">Smith&nbsp;&amp;&nbsp;Jones</span>, " +
-                "&quot;<span style=\"font-style:italic;\">Analysis of &lt;code&gt; in HTML</span>,&quot; " +
-                "<span style=\"font-variant:small-caps;\">Journal of Web&nbsp;Development</span>, " +
-                "vol. 1, no. 1, pp. 1-10, 2023. " +
-                "<a href=\"https://doi.org/10.1000/example\">https://doi.org/10.1000/example</a></div>"
+                "[1] <b>Smith & Jones</b>, "
+                + "\"<i>Analysis of <code> in HTML</i>,\" "
+                + "<smallcaps>Journal of Web Development</smallcaps>, "
+                + "vol. 1, no. 1, pp. 1-10, 2023. "
+                + "https://doi.org/10.1000/example",
+                "<div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">"
+                + "<span style=\"font-weight:bold;\">Smith&nbsp;&amp;&nbsp;Jones</span>, "
+                + "&quot;<span style=\"font-style:italic;\">Analysis of &lt;code&gt; in HTML</span>,&quot; "
+                + "<span style=\"font-variant:small-caps;\">Journal of Web&nbsp;Development</span>, "
+                + "vol. 1, no. 1, pp. 1-10, 2023. "
+                + "<a href=\"https://doi.org/10.1000/example\">https://doi.org/10.1000/example</a></div>"
             )
         );
     }

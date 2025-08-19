@@ -152,8 +152,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             // TODO: Remove "null"
             throw new FetcherException(
                 queryURL,
-                "Fetching from Google Scholar failed: Captacha hit." +
-                Localization.lang(
+                "Fetching from Google Scholar failed: Captacha hit."
+                + Localization.lang(
                     "This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."
                 ),
                 null

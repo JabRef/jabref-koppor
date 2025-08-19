@@ -52,8 +52,8 @@ public class LatexBibEntriesResolverResult {
             (LatexBibEntriesResolverResult) obj;
 
         return (
-            Objects.equals(latexParserResults, that.latexParserResults) &&
-            Objects.equals(newEntries, that.newEntries)
+            Objects.equals(latexParserResults, that.latexParserResults)
+            && Objects.equals(newEntries, that.newEntries)
         );
     }
 

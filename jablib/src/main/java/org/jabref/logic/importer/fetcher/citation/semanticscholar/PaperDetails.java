@@ -155,21 +155,21 @@ public class PaperDetails {
     @Override
     public String toString() {
         return (
-            "PaperDetails{" +
-            "paperId='" +
-            paperId +
-            '\'' +
-            ", title='" +
-            title +
-            '\'' +
-            ", year='" +
-            year +
-            '\'' +
-            ", citationCount=" +
-            citationCount +
-            ", referenceCount=" +
-            referenceCount +
-            '}'
+            "PaperDetails{"
+            + "paperId='"
+            + paperId
+            + '\''
+            + ", title='"
+            + title
+            + '\''
+            + ", year='"
+            + year
+            + '\''
+            + ", citationCount="
+            + citationCount
+            + ", referenceCount="
+            + referenceCount
+            + '}'
         );
     }
 }

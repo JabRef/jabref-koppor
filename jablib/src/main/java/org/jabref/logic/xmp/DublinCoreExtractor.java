@@ -442,10 +442,10 @@ public class DublinCoreExtractor {
         // BibTeX data is stored. Thus, we do not need to get rid of BibTeX, but can keep it.
         String value = bibEntry.getField(field).get();
         dcSchema.addRelation(
-            XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX +
-            field.getName() +
-            '/' +
-            value
+            XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX
+            + field.getName()
+            + '/'
+            + value
         );
     }
 
@@ -480,8 +480,8 @@ public class DublinCoreExtractor {
         fields.addAll(bibEntry.getFields());
         for (Field field : fields) {
             if (
-                useXmpPrivacyFilter &&
-                xmpPreferences.getXmpPrivacyFilter().contains(field)
+                useXmpPrivacyFilter
+                && xmpPreferences.getXmpPrivacyFilter().contains(field)
             ) {
                 continue;
             }

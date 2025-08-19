@@ -217,23 +217,23 @@ public class ViewModelTreeTableRowFactory<S>
                         KeyEvent.KEY_RELEASED,
                         event -> {
                             boolean rowFocused =
-                                !isEmpty() &&
-                                treeTableView
+                                !isEmpty()
+                                && treeTableView
                                     .getFocusModel()
-                                    .getFocusedIndex() ==
-                                getIndex();
+                                    .getFocusedIndex()
+                                == getIndex();
                             if (
-                                event.getCode() == KeyCode.CONTEXT_MENU &&
-                                rowFocused
+                                event.getCode() == KeyCode.CONTEXT_MENU
+                                && rowFocused
                             ) {
                                 // Get center of focused cell
                                 Bounds anchorBounds = getBoundsInParent();
                                 double x =
-                                    anchorBounds.getMinX() +
-                                    anchorBounds.getWidth() / 2;
+                                    anchorBounds.getMinX()
+                                    + anchorBounds.getWidth() / 2;
                                 double y =
-                                    anchorBounds.getMinY() +
-                                    anchorBounds.getHeight() / 2;
+                                    anchorBounds.getMinY()
+                                    + anchorBounds.getHeight() / 2;
                                 Point2D screenPosition =
                                     getParent().localToScreen(x, y);
 

@@ -58,14 +58,14 @@ class DoiFetcherTest {
     )
         .withField(
             StandardField.AUTHOR,
-            "" +
-            "Iannarelli Riccardo  and " +
-            "Novello Anna  and " +
-            "Stricker Damien  and " +
-            "Cisternino Marco  and " +
-            "Gallizio Federico  and " +
-            "Telib Haysam  and " +
-            "Meyer Thierry "
+            ""
+            + "Iannarelli Riccardo  and "
+            + "Novello Anna  and "
+            + "Stricker Damien  and "
+            + "Cisternino Marco  and "
+            + "Gallizio Federico  and "
+            + "Telib Haysam  and "
+            + "Meyer Thierry "
         )
         .withField(
             StandardField.PUBLISHER,

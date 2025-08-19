@@ -141,8 +141,8 @@ class SidePaneViewModelTest {
         );
 
         assertTrue(
-            sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE &&
-            sidePaneComponents.get(2) == SidePaneType.GROUPS
+            sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE
+            && sidePaneComponents.get(2) == SidePaneType.GROUPS
         );
     }
 }

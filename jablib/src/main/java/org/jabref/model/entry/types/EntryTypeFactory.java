@@ -27,16 +27,16 @@ public class EntryTypeFactory {
             return false;
         } else {
             return (
-                Objects.equals(type1.getType(), type2.getType()) &&
-                Objects.equals(
+                Objects.equals(type1.getType(), type2.getType())
+                && Objects.equals(
                     type1.getRequiredFields(),
                     type2.getRequiredFields()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     type1.getOptionalFields(),
                     type2.getOptionalFields()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     type1.getDetailOptionalFields(),
                     type2.getDetailOptionalFields()
                 )

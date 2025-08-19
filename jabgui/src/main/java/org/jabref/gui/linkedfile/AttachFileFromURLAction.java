@@ -101,9 +101,9 @@ public class AttachFileFromURLAction extends SimpleCommand {
         Optional<String> urlText;
         String urlField = entry.getField(StandardField.URL).orElse("");
         if (
-            clipText.startsWith("http://") ||
-            clipText.startsWith("https://") ||
-            clipText.startsWith("ftp://")
+            clipText.startsWith("http://")
+            || clipText.startsWith("https://")
+            || clipText.startsWith("ftp://")
         ) {
             urlText = dialogService.showInputDialogWithDefaultAndWait(
                 Localization.lang("Download file"),
@@ -111,9 +111,9 @@ public class AttachFileFromURLAction extends SimpleCommand {
                 clipText
             );
         } else if (
-            urlField.startsWith("http://") ||
-            urlField.startsWith("https://") ||
-            urlField.startsWith("ftp://")
+            urlField.startsWith("http://")
+            || urlField.startsWith("https://")
+            || urlField.startsWith("ftp://")
         ) {
             urlText = dialogService.showInputDialogWithDefaultAndWait(
                 Localization.lang("Download file"),

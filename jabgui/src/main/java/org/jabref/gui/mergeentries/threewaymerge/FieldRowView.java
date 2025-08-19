@@ -217,9 +217,9 @@ public class FieldRowView {
 
     public void showDiff(ShowDiffConfig diffConfig) {
         if (
-            !rightValueCell.isVisible() ||
-            StringUtil.isNullOrEmpty(viewModel.getLeftFieldValue()) ||
-            StringUtil.isNullOrEmpty(viewModel.getRightFieldValue())
+            !rightValueCell.isVisible()
+            || StringUtil.isNullOrEmpty(viewModel.getLeftFieldValue())
+            || StringUtil.isNullOrEmpty(viewModel.getRightFieldValue())
         ) {
             return;
         }
@@ -315,17 +315,17 @@ public class FieldRowView {
     @Override
     public String toString() {
         return (
-            "FieldRowView [shouldShowDiffs=" +
-            shouldShowDiffs.get() +
-            ", fieldNameCell=" +
-            fieldNameCell +
-            ", leftValueCell=" +
-            leftValueCell +
-            ", rightValueCell=" +
-            rightValueCell +
-            ", mergedValueCell=" +
-            mergedValueCell +
-            "]"
+            "FieldRowView [shouldShowDiffs="
+            + shouldShowDiffs.get()
+            + ", fieldNameCell="
+            + fieldNameCell
+            + ", leftValueCell="
+            + leftValueCell
+            + ", rightValueCell="
+            + rightValueCell
+            + ", mergedValueCell="
+            + mergedValueCell
+            + "]"
         );
     }
 }

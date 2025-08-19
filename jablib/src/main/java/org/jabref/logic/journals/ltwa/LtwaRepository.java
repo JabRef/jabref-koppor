@@ -309,12 +309,12 @@ public class LtwaRepository {
         @Override
         public void exitEveryRule(ParserRuleContext ctx) {
             isFirstElement =
-                ctx.getParent() instanceof LtwaParser.TitleElementContext &&
-                isFirstElement;
+                ctx.getParent() instanceof LtwaParser.TitleElementContext
+                && isFirstElement;
             if (
-                !(ctx instanceof LtwaParser.PartContext ||
-                    ctx instanceof LtwaParser.PartElementContext ||
-                    ctx instanceof LtwaParser.OrdinalContext)
+                !(ctx instanceof LtwaParser.PartContext
+                    || ctx instanceof LtwaParser.PartElementContext
+                    || ctx instanceof LtwaParser.OrdinalContext)
             ) {
                 lastPartPosition = -1;
             }
@@ -326,9 +326,9 @@ public class LtwaRepository {
 
         private void appendWithSpace(String text) {
             if (
-                addSpace &&
-                !result.isEmpty() &&
-                result.charAt(result.length() - 1) != ' '
+                addSpace
+                && !result.isEmpty()
+                && result.charAt(result.length() - 1) != ' '
             ) {
                 result.append(" ");
             }
@@ -407,8 +407,8 @@ public class LtwaRepository {
         NormalizeUtils.toNFKC(origCharStr)
             .filter(
                 normalizedOrigChar ->
-                    !normalizedOrigChar.isEmpty() &&
-                    normalizedCharStr.equalsIgnoreCase(normalizedOrigChar)
+                    !normalizedOrigChar.isEmpty()
+                    && normalizedCharStr.equalsIgnoreCase(normalizedOrigChar)
             )
             .ifPresent(_ -> resultCodePoints[index] = originalChar);
     }

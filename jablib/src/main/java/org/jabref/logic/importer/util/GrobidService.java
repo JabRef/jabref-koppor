@@ -90,9 +90,9 @@ public class GrobidService {
         );
 
         if (
-            httpResponse == null ||
-            "@misc{-1,\n  author = {}\n}\n".equals(httpResponse) ||
-            httpResponse.equals(
+            httpResponse == null
+            || "@misc{-1,\n  author = {}\n}\n".equals(httpResponse)
+            || httpResponse.equals(
                 "@misc{-1,\n  author = {" + rawCitation + "}\n}\n"
             )
         ) {
@@ -169,8 +169,8 @@ public class GrobidService {
         String httpResponse
     ) throws IOException, ParseException {
         if (
-            httpResponse == null ||
-            "@misc{-1,\n  author = {}\n}\n".equals(httpResponse)
+            httpResponse == null
+            || "@misc{-1,\n  author = {}\n}\n".equals(httpResponse)
         ) {
             // This filters empty BibTeX entries
             throw new IOException(

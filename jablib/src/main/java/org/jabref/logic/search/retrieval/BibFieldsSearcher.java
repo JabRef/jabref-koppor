@@ -42,13 +42,13 @@ public class BibFieldsSearcher {
         SearchQuery oldSearchQuery
     ) {
         String newSearchExpression =
-            "( " +
-            ENTRY_ID +
-            "= " +
-            entry.getId() +
-            ") AND (" +
-            oldSearchQuery.getSearchExpression() +
-            " )";
+            "( "
+            + ENTRY_ID
+            + "= "
+            + entry.getId()
+            + ") AND ("
+            + oldSearchQuery.getSearchExpression()
+            + " )";
         return new SearchQuery(
             newSearchExpression,
             oldSearchQuery.getSearchFlags()

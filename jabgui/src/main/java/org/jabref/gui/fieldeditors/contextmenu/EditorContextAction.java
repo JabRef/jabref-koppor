@@ -45,8 +45,8 @@ public class EditorContextAction extends SimpleCommand {
         );
         BooleanBinding allSelectedBinding = Bindings.createBooleanBinding(
             () ->
-                textInputControl.getSelection().getLength() ==
-                textInputControl.getLength()
+                textInputControl.getSelection().getLength()
+                == textInputControl.getLength()
         );
         BooleanBinding maskTextBinding =
             (BooleanBinding) BindingsHelper.constantOf(

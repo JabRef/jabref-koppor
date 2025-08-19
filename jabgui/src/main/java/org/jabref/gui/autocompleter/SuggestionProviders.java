@@ -31,8 +31,8 @@ public class SuggestionProviders {
 
     public SuggestionProvider<?> getForField(Field field) {
         if (
-            isEmpty ||
-            !autoCompletePreferences.getCompleteFields().contains(field)
+            isEmpty
+            || !autoCompletePreferences.getCompleteFields().contains(field)
         ) {
             return new EmptySuggestionProvider();
         }
@@ -41,13 +41,13 @@ public class SuggestionProviders {
         if (fieldProperties.contains(FieldProperty.PERSON_NAMES)) {
             return new PersonNameSuggestionProvider(field, database);
         } else if (
-            fieldProperties.contains(FieldProperty.SINGLE_ENTRY_LINK) ||
-            fieldProperties.contains(FieldProperty.MULTIPLE_ENTRY_LINK)
+            fieldProperties.contains(FieldProperty.SINGLE_ENTRY_LINK)
+            || fieldProperties.contains(FieldProperty.MULTIPLE_ENTRY_LINK)
         ) {
             return new BibEntrySuggestionProvider(database);
         } else if (
-            fieldProperties.contains(FieldProperty.JOURNAL_NAME) ||
-            StandardField.PUBLISHER == field
+            fieldProperties.contains(FieldProperty.JOURNAL_NAME)
+            || StandardField.PUBLISHER == field
         ) {
             return new JournalsSuggestionProvider(
                 field,

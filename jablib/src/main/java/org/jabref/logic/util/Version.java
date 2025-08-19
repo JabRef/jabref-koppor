@@ -62,10 +62,10 @@ public class Version {
      */
     public static Version parse(String version) {
         if (
-            (version == null) ||
-            version.isEmpty() ||
-            BuildInfo.UNKNOWN_VERSION.equals(version) ||
-            "${version}".equals(version)
+            (version == null)
+            || version.isEmpty()
+            || BuildInfo.UNKNOWN_VERSION.equals(version)
+            || "${version}".equals(version)
         ) {
             return UNKNOWN_VERSION;
         }
@@ -184,18 +184,18 @@ public class Version {
                     ) {
                         // if the development stage are equal compare the development number
                         if (
-                            this.getDevelopmentNum() >
-                            otherVersion.getDevelopmentNum()
+                            this.getDevelopmentNum()
+                            > otherVersion.getDevelopmentNum()
                         ) {
                             return true;
                         } else if (
-                            this.getDevelopmentNum() ==
-                            otherVersion.getDevelopmentNum()
+                            this.getDevelopmentNum()
+                            == otherVersion.getDevelopmentNum()
                         ) {
                             // if the stage is equal check if this version is in development and the other is not
                             return (
-                                !this.isDevelopmentVersion &&
-                                otherVersion.isDevelopmentVersion
+                                !this.isDevelopmentVersion
+                                && otherVersion.isDevelopmentVersion
                             );
                         }
                     }
@@ -216,9 +216,9 @@ public class Version {
         Optional<Version> newerVersion = Optional.empty();
         for (Version version : availableVersions) {
             if (
-                this.shouldBeUpdatedTo(version) &&
-                (newerVersion.isEmpty() ||
-                    version.isNewerThan(newerVersion.get()))
+                this.shouldBeUpdatedTo(version)
+                && (newerVersion.isEmpty()
+                    || version.isNewerThan(newerVersion.get()))
             ) {
                 newerVersion = Optional.of(version);
             }
@@ -234,8 +234,8 @@ public class Version {
     public boolean shouldBeUpdatedTo(Version otherVersion) {
         // ignoring the other version if it is not stable, except if this version itself is not stable
         if (
-            developmentStage == Version.DevelopmentStage.STABLE &&
-            otherVersion.developmentStage != Version.DevelopmentStage.STABLE
+            developmentStage == Version.DevelopmentStage.STABLE
+            && otherVersion.developmentStage != Version.DevelopmentStage.STABLE
         ) {
             return false;
         }

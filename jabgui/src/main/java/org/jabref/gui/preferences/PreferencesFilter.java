@@ -62,8 +62,8 @@ public class PreferencesFilter {
             this.type = Objects.requireNonNull(getType(value));
 
             if (
-                (defaultValue != null) &&
-                !Objects.equals(this.type, getType(defaultValue))
+                (defaultValue != null)
+                && !Objects.equals(this.type, getType(defaultValue))
             ) {
                 throw new IllegalStateException(
                     "types must match between default value and value"

@@ -238,8 +238,8 @@ public class XmpUtilWriter {
             xmpPreferences.shouldUseXmpPrivacyFilter();
         for (Field field : resolvedEntry.getFields()) {
             if (
-                useXmpPrivacyFilter &&
-                xmpPreferences.getXmpPrivacyFilter().contains(field)
+                useXmpPrivacyFilter
+                && xmpPreferences.getXmpPrivacyFilter().contains(field)
             ) {
                 // erase field instead of adding it
                 switch (field) {
@@ -250,8 +250,8 @@ public class XmpUtilWriter {
                     // do not write file field
                     case StandardField.FILE -> {}
                     case null, default -> di.setCustomMetadataValue(
-                        XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX +
-                        field.getName(),
+                        XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX
+                        + field.getName(),
                         null
                     );
                 }
@@ -276,8 +276,8 @@ public class XmpUtilWriter {
                     .getField(field)
                     .ifPresent(val ->
                         di.setCustomMetadataValue(
-                            XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX +
-                            field.getName(),
+                            XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX
+                            + field.getName(),
                             val
                         )
                     );

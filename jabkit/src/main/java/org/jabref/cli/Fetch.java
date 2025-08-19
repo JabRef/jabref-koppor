@@ -81,8 +81,8 @@ class Fetch implements Runnable {
 
             if (!sharedOptions.porcelain) {
                 System.out.println(
-                    "\r" +
-                    Localization.lang(
+                    "\r"
+                    + Localization.lang(
                         "Found %0 results.",
                         String.valueOf(matches.size())
                     )

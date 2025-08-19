@@ -103,9 +103,9 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
                     Node lastChildAsShown = super.getChildren().getLast();
                     Node lastChild = allChildren.getLast();
                     if (
-                        lastChildAsShown instanceof Text text &&
-                        text.getText().length() <
-                        ((Text) lastChild).getText().length()
+                        lastChildAsShown instanceof Text text
+                        && text.getText().length()
+                        < ((Text) lastChild).getText().length()
                     ) {
                         text.setText(((Text) lastChild).getText());
                     } else {
@@ -127,8 +127,8 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
         while (getHeight() > getMaxHeight() || getWidth() > getMaxWidth()) {
             Text lastChildAsShown = (Text) super.getChildren().removeLast();
             while (
-                getEllipsisString().equals(lastChildAsShown.getText()) ||
-                "".equals(lastChildAsShown.getText())
+                getEllipsisString().equals(lastChildAsShown.getText())
+                || "".equals(lastChildAsShown.getText())
             ) {
                 if (super.getChildren().isEmpty()) {
                     return false;
@@ -150,8 +150,8 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
     public void highlightDiff() {
         allChildren.clear();
         if (
-            comparisonString.get() != null &&
-            !comparisonString.get().equals(fullText)
+            comparisonString.get() != null
+            && !comparisonString.get().equals(fullText)
         ) {
             final List<Text> highlightedText = switch (diffMode.getValue()) {
                 case PLAIN -> {

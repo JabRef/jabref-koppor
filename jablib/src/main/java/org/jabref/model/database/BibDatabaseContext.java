@@ -155,8 +155,8 @@ public class BibDatabaseContext {
                 path ->
                     Crawler.FILENAME_STUDY_RESULT_BIB.equals(
                         path.getFileName().toString()
-                    ) &&
-                    Files.exists(
+                    )
+                    && Files.exists(
                         path.resolveSibling(
                             StudyRepository.STUDY_DEFINITION_FILE_NAME
                         )
@@ -312,9 +312,9 @@ public class BibDatabaseContext {
             Path databasePath = getDatabasePath().get();
             // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as separator between "groups"
             String fileName =
-                BackupFileUtil.getUniqueFilePrefix(databasePath) +
-                "--" +
-                databasePath.getFileName();
+                BackupFileUtil.getUniqueFilePrefix(databasePath)
+                + "--"
+                + databasePath.getFileName();
             indexPath = appData.resolve(fileName);
             LOGGER.debug(
                 "Index path for {} is {}",
@@ -371,20 +371,20 @@ public class BibDatabaseContext {
     @Override
     public String toString() {
         return (
-            "BibDatabaseContext{" +
-            "metaData=" +
-            metaData +
-            ", mode=" +
-            getMode() +
-            ", databasePath=" +
-            getDatabasePath() +
-            ", biblatexMode=" +
-            isBiblatexMode() +
-            ", uid= " +
-            getUid() +
-            ", fulltextIndexPath=" +
-            getFulltextIndexPath() +
-            '}'
+            "BibDatabaseContext{"
+            + "metaData="
+            + metaData
+            + ", mode="
+            + getMode()
+            + ", databasePath="
+            + getDatabasePath()
+            + ", biblatexMode="
+            + isBiblatexMode()
+            + ", uid= "
+            + getUid()
+            + ", fulltextIndexPath="
+            + getFulltextIndexPath()
+            + '}'
         );
     }
 
@@ -397,10 +397,10 @@ public class BibDatabaseContext {
             return false;
         }
         return (
-            Objects.equals(database, that.database) &&
-            Objects.equals(metaData, that.metaData) &&
-            Objects.equals(path, that.path) &&
-            location == that.location
+            Objects.equals(database, that.database)
+            && Objects.equals(metaData, that.metaData)
+            && Objects.equals(path, that.path)
+            && location == that.location
         );
     }
 

@@ -193,9 +193,9 @@ class CompositeIdFetcherTest {
     void rejectsInvalidDOI() {
         Optional<Identifier> result = Identifier.from("123456789");
         boolean isInvalid =
-            result.isEmpty() ||
-            (result.get() instanceof DOI &&
-                !DOI.isValid(result.get().asString()));
+            result.isEmpty()
+            || (result.get() instanceof DOI
+                && !DOI.isValid(result.get().asString()));
         assertTrue(isInvalid);
     }
 

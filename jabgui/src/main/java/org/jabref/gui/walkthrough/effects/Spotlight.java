@@ -153,8 +153,8 @@ public final class Spotlight extends BaseWindowEffect {
         super.detach();
         Shape overlayShape = this.overlayShape;
         if (
-            overlayShape != null &&
-            overlayShape.getParent() instanceof Pane parentPane
+            overlayShape != null
+            && overlayShape.getParent() instanceof Pane parentPane
         ) {
             parentPane.getChildren().remove(overlayShape);
             this.overlayShape = null;

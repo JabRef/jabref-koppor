@@ -33,9 +33,9 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
     public String format(String value) {
         String formatted = value;
         while (
-            (formatted.length() >= 2) &&
-            (formatted.charAt(0) == '{') &&
-            (formatted.charAt(formatted.length() - 1) == '}')
+            (formatted.length() >= 2)
+            && (formatted.charAt(0) == '{')
+            && (formatted.charAt(formatted.length() - 1) == '}')
         ) {
             String trimmed = formatted.substring(1, formatted.length() - 1);
 

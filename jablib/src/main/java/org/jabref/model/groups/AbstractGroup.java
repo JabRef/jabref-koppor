@@ -36,21 +36,21 @@ public abstract class AbstractGroup implements SearchMatcher {
     @Override
     public String toString() {
         return (
-            "AbstractGroup{" +
-            "name='" +
-            name.getValue() +
-            '\'' +
-            ", context=" +
-            context +
-            ", color=" +
-            color +
-            ", isExpanded=" +
-            isExpanded +
-            ", description=" +
-            description +
-            ", iconName=" +
-            iconName +
-            '}'
+            "AbstractGroup{"
+            + "name='"
+            + name.getValue()
+            + '\''
+            + ", context="
+            + context
+            + ", color="
+            + color
+            + ", isExpanded="
+            + isExpanded
+            + ", description="
+            + description
+            + ", iconName="
+            + iconName
+            + '}'
         );
     }
 
@@ -64,9 +64,9 @@ public abstract class AbstractGroup implements SearchMatcher {
         }
         AbstractGroup that = (AbstractGroup) other;
         return (
-            Objects.equals(this.name.getValue(), that.name.getValue()) &&
-            Objects.equals(this.description, that.description) &&
-            Objects.equals(this.context, that.context)
+            Objects.equals(this.name.getValue(), that.name.getValue())
+            && Objects.equals(this.description, that.description)
+            && Objects.equals(this.context, that.context)
         );
     }
 

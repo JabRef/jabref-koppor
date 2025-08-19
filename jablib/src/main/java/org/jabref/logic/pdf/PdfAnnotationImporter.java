@@ -68,8 +68,8 @@ public class PdfAnnotationImporter implements AnnotationImporter {
                             pageIndex + 1
                         );
                         if (
-                            (fileAnnotation.getContent() != null) &&
-                            !fileAnnotation.getContent().isEmpty()
+                            (fileAnnotation.getContent() != null)
+                            && !fileAnnotation.getContent().isEmpty()
                         ) {
                             annotationsList.add(fileAnnotation);
                         }
@@ -87,8 +87,8 @@ public class PdfAnnotationImporter implements AnnotationImporter {
             return false;
         }
         if (
-            "Link".equals(annotation.getSubtype()) ||
-            "Widget".equals(annotation.getSubtype())
+            "Link".equals(annotation.getSubtype())
+            || "Widget".equals(annotation.getSubtype())
         ) {
             LOGGER.debug(
                 "{} is excluded from the supported file annotations",

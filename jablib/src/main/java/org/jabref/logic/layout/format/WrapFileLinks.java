@@ -194,8 +194,8 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
         for (LinkedFile flEntry : fileList) {
             // Use this entry if we don't discriminate on types, or if the type fits:
             if (
-                (fileType == null) ||
-                flEntry.getFileType().equalsIgnoreCase(fileType)
+                (fileType == null)
+                || flEntry.getFileType().equalsIgnoreCase(fileType)
             ) {
                 for (FormatEntry entry : format) {
                     switch (entry.getType()) {

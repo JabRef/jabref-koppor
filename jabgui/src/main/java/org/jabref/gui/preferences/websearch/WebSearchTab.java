@@ -153,8 +153,8 @@ public class WebSearchTab
             .citationsRelationsStoreTTLProperty()
             .addListener((_, _, newValue) -> {
                 if (
-                    newValue != null &&
-                    !newValue
+                    newValue != null
+                    && !newValue
                         .toString()
                         .equals(citationsRelationStoreTTL.getText())
                 ) {

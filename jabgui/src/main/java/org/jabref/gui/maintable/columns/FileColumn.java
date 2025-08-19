@@ -68,8 +68,8 @@ public class FileColumn extends MainTableColumn<List<LinkedFile>> {
                 (entry, linkedFiles) ->
                     event -> {
                         if (
-                            (event.getButton() == MouseButton.PRIMARY) &&
-                            (linkedFiles.size() == 1)
+                            (event.getButton() == MouseButton.PRIMARY)
+                            && (linkedFiles.size() == 1)
                         ) {
                             // Only one linked file -> open directly
                             LinkedFileViewModel linkedFileViewModel =

@@ -46,8 +46,8 @@ class EndnoteImporterTest {
     @Test
     void getDescription() {
         assertEquals(
-            "Importer for the Refer/Endnote format." +
-            " Modified to use article number for pages if pages are missing.",
+            "Importer for the Refer/Endnote format."
+            + " Modified to use article number for pages if pages are missing.",
             importer.getDescription()
         );
     }

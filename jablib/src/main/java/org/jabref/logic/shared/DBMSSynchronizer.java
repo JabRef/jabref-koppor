@@ -104,10 +104,10 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
         // While synchronizing the local database (see synchronizeLocalDatabase() below), some EntriesEvents may be posted.
         // In this case DBSynchronizer should not try to update the bibEntry entry again (but it would not harm).
         if (
-            isPresentLocalBibEntry(bibEntry) &&
-            isEventSourceAccepted(event) &&
-            checkCurrentConnection() &&
-            !event.isFilteredOut()
+            isPresentLocalBibEntry(bibEntry)
+            && isEventSourceAccepted(event)
+            && checkCurrentConnection()
+            && !event.isFilteredOut()
         ) {
             synchronizeLocalMetaData();
             pullWithLastEntry();
@@ -212,8 +212,8 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
                 ) {
                     remoteEntryMatchingOneLocalEntryFound = true;
                     if (
-                        idVersionEntry.getValue() >
-                        localEntry.getSharedBibEntryData().getVersion()
+                        idVersionEntry.getValue()
+                        > localEntry.getSharedBibEntryData().getVersion()
                     ) {
                         Optional<BibEntry> sharedEntry =
                             dbmsProcessor.getSharedEntry(
@@ -446,8 +446,8 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
      */
     private void pullWithLastEntry() {
         if (
-            lastEntryChanged.isPresent() &&
-            isPresentLocalBibEntry(lastEntryChanged.get())
+            lastEntryChanged.isPresent()
+            && isPresentLocalBibEntry(lastEntryChanged.get())
         ) {
             synchronizeSharedEntry(lastEntryChanged.get());
         }
@@ -484,8 +484,8 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
     public boolean isEventSourceAccepted(EntriesEvent event) {
         EntriesEventSource eventSource = event.getEntriesEventSource();
         return (
-            (eventSource == EntriesEventSource.LOCAL) ||
-            (eventSource == EntriesEventSource.UNDO)
+            (eventSource == EntriesEventSource.LOCAL)
+            || (eventSource == EntriesEventSource.UNDO)
         );
     }
 

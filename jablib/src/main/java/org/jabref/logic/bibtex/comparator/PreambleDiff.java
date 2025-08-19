@@ -53,8 +53,8 @@ public class PreambleDiff {
 
         PreambleDiff that = (PreambleDiff) other;
         return (
-            Objects.equals(newPreamble, that.newPreamble) &&
-            Objects.equals(originalPreamble, that.originalPreamble)
+            Objects.equals(newPreamble, that.newPreamble)
+            && Objects.equals(originalPreamble, that.originalPreamble)
         );
     }
 
@@ -66,14 +66,14 @@ public class PreambleDiff {
     @Override
     public String toString() {
         return (
-            "PreambleDiff{" +
-            "originalPreamble='" +
-            originalPreamble +
-            '\'' +
-            ", newPreamble='" +
-            newPreamble +
-            '\'' +
-            '}'
+            "PreambleDiff{"
+            + "originalPreamble='"
+            + originalPreamble
+            + '\''
+            + ", newPreamble='"
+            + newPreamble
+            + '\''
+            + '}'
         );
     }
 }

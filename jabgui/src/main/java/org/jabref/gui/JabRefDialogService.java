@@ -151,8 +151,8 @@ public class JabRefDialogService implements DialogService {
             return dialogMessage.trim();
         }
         return (
-            dialogMessage.substring(0, JabRefDialogService.DIALOG_SIZE_LIMIT) +
-            "..."
+            dialogMessage.substring(0, JabRefDialogService.DIALOG_SIZE_LIMIT)
+            + "..."
         ).trim();
     }
 
@@ -306,27 +306,27 @@ public class JabRefDialogService implements DialogService {
         if (httpResponse.isPresent()) {
             this.showInformationDialogAndWait(
                 failedTitle,
-                getContentByCode(httpResponse.get().statusCode()) +
-                "\n\n" +
-                localizedMessage
+                getContentByCode(httpResponse.get().statusCode())
+                + "\n\n"
+                + localizedMessage
             );
         } else if (fetcherException instanceof FetcherClientException) {
             this.showErrorDialogAndWait(
                 failedTitle,
                 Localization.lang(
                     "Something is wrong on JabRef side. Please check the URL and try again."
-                ) +
-                "\n\n" +
-                localizedMessage
+                )
+                + "\n\n"
+                + localizedMessage
             );
         } else if (fetcherException instanceof FetcherServerException) {
             this.showInformationDialogAndWait(
                 failedTitle,
                 Localization.lang(
                     "Error downloading from URL. Cause is likely the server side.\nPlease try again later or contact the server administrator."
-                ) +
-                "\n\n" +
-                localizedMessage
+                )
+                + "\n\n"
+                + localizedMessage
             );
         } else {
             this.showErrorDialogAndWait(failedTitle, localizedMessage);
@@ -671,13 +671,13 @@ public class JabRefDialogService implements DialogService {
                     Notifications.create()
                         .title(Localization.lang("Last notification"))
                         .text(
-                            "(" +
-                            Localization.lang(
+                            "("
+                            + Localization.lang(
                                 "Check the event log to see all notifications"
-                            ) +
-                            ")" +
-                            "\n\n" +
-                            message
+                            )
+                            + ")"
+                            + "\n\n"
+                            + message
                         )
                         .onAction(e -> {
                             ErrorConsoleAction ec = new ErrorConsoleAction();

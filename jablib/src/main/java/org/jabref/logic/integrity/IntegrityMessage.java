@@ -11,12 +11,12 @@ public record IntegrityMessage(
     @Override
     public String toString() {
         return (
-            "[" +
-            entry().getCitationKey().orElse(entry().getAuthorTitleYear(50)) +
-            "] in " +
-            field.getDisplayName() +
-            ": " +
-            message()
+            "["
+            + entry().getCitationKey().orElse(entry().getAuthorTitleYear(50))
+            + "] in "
+            + field.getDisplayName()
+            + ": "
+            + message()
         );
     }
 

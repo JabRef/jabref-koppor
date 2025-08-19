@@ -625,17 +625,17 @@ class DBMSProcessorTest {
                 .getConnection()
                 .createStatement()
                 .executeUpdate(
-                    "INSERT INTO " +
-                    escape_Table("METADATA", dbmsProcessor) +
-                    "(" +
-                    escape("KEY", dbmsProcessor) +
-                    ", " +
-                    escape("VALUE", dbmsProcessor) +
-                    ") VALUES(" +
-                    escapeValue(key) +
-                    ", " +
-                    escapeValue(value) +
-                    ")"
+                    "INSERT INTO "
+                    + escape_Table("METADATA", dbmsProcessor)
+                    + "("
+                    + escape("KEY", dbmsProcessor)
+                    + ", "
+                    + escape("VALUE", dbmsProcessor)
+                    + ") VALUES("
+                    + escapeValue(key)
+                    + ", "
+                    + escapeValue(value)
+                    + ")"
                 );
         });
     }

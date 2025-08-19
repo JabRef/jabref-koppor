@@ -135,8 +135,8 @@ class MSBibEntry {
             addressBuffer.append(city);
         }
         if (
-            ((state != null) && !state.isEmpty()) &&
-            ((city != null) && !city.isEmpty())
+            ((state != null) && !state.isEmpty())
+            && ((city != null) && !city.isEmpty())
         ) {
             addressBuffer.append(",").append(' ');
             addressBuffer.append(state);
@@ -427,9 +427,9 @@ class MSBibEntry {
         Matcher matcher = ADDRESS_PATTERN.matcher(addressToSplit);
 
         if (
-            addressToSplit.contains(",") &&
-            matcher.matches() &&
-            (matcher.groupCount() >= 3)
+            addressToSplit.contains(",")
+            && matcher.matches()
+            && (matcher.groupCount() >= 3)
         ) {
             addField(document, parent, "City", matcher.group(1));
             addField(document, parent, "StateProvince", matcher.group(2));

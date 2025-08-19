@@ -38,8 +38,8 @@ public class SelfContainedSaveOrder extends SaveOrder {
             return order;
         }
         if (
-            (saveOrder.getOrderType() == OrderType.TABLE) &&
-            (!saveOrder.getSortCriteria().isEmpty())
+            (saveOrder.getOrderType() == OrderType.TABLE)
+            && (!saveOrder.getSortCriteria().isEmpty())
         ) {
             // We map from TABLE to SPECIFIED to have the users of this class just to `switch` between
             //   ORIGINAL and SPECIFIED

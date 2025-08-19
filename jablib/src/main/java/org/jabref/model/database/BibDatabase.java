@@ -290,10 +290,8 @@ public class BibDatabase {
     ) {
         for (Field field : entry.getFields()) {
             if (
-                field
-                    .getProperties()
-                    .contains(FieldProperty.SINGLE_ENTRY_LINK) ||
-                field
+                field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK)
+                || field
                     .getProperties()
                     .contains(FieldProperty.MULTIPLE_ENTRY_LINK)
             ) {
@@ -621,8 +619,8 @@ public class BibDatabase {
                 (next = res.indexOf(
                         FieldWriter.BIBTEX_STRING_START_END_SYMBOL,
                         piv
-                    )) >=
-                0
+                    ))
+                >= 0
             ) {
                 // We found the next string ref. Append the text
                 // up to it.
@@ -820,12 +818,12 @@ public class BibDatabase {
             return false;
         }
         return (
-            Objects.equals(entries, that.entries) &&
-            Objects.equals(bibtexStrings, that.bibtexStrings) &&
-            Objects.equals(preamble, that.preamble) &&
-            Objects.equals(epilog, that.epilog) &&
-            Objects.equals(sharedDatabaseID, that.sharedDatabaseID) &&
-            Objects.equals(newLineSeparator, that.newLineSeparator)
+            Objects.equals(entries, that.entries)
+            && Objects.equals(bibtexStrings, that.bibtexStrings)
+            && Objects.equals(preamble, that.preamble)
+            && Objects.equals(epilog, that.epilog)
+            && Objects.equals(sharedDatabaseID, that.sharedDatabaseID)
+            && Objects.equals(newLineSeparator, that.newLineSeparator)
         );
     }
 

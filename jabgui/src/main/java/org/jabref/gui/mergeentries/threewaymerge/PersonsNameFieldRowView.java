@@ -40,8 +40,8 @@ public class PersonsNameFieldRowView extends FieldRowView {
         rightEntryNames = authorsParser.parse(viewModel.getRightFieldValue());
 
         if (
-            !viewModel.hasEqualLeftAndRightValues() &&
-            leftEntryNames.equals(rightEntryNames)
+            !viewModel.hasEqualLeftAndRightValues()
+            && leftEntryNames.equals(rightEntryNames)
         ) {
             showPersonsNamesAreTheSameInfo();
             shouldShowDiffs.set(false);

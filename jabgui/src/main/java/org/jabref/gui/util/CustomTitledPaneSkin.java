@@ -131,10 +131,10 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
             () -> {
                 double rightInset = title.getPadding().getRight();
                 return (
-                    title.getWidth() -
-                    arrowButton.getLayoutX() -
-                    arrowButton.getWidth() -
-                    rightInset
+                    title.getWidth()
+                    - arrowButton.getLayoutX()
+                    - arrowButton.getWidth()
+                    - rightInset
                 );
             },
             title.paddingProperty(),

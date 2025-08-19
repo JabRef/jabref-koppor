@@ -101,8 +101,8 @@ public class SummariesService {
         @Subscribe
         public void listen(FieldChangedEvent e) {
             if (
-                e.getField() == StandardField.FILE &&
-                aiPreferences.getAutoGenerateSummaries()
+                e.getField() == StandardField.FILE
+                && aiPreferences.getAutoGenerateSummaries()
             ) {
                 summarize(e.getBibEntry(), bibDatabaseContext);
             }
@@ -234,8 +234,8 @@ public class SummariesService {
                 "No database path is present. Could not clear stored summary for regeneration"
             );
         } else if (
-            bibEntry.getCitationKey().isEmpty() ||
-            CitationKeyCheck.citationKeyIsPresentAndUnique(
+            bibEntry.getCitationKey().isEmpty()
+            || CitationKeyCheck.citationKeyIsPresentAndUnique(
                 bibDatabaseContext,
                 bibEntry
             )

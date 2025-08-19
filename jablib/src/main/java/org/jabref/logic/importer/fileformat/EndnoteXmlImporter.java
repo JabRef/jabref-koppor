@@ -492,8 +492,8 @@ public class EndnoteXmlImporter extends Importer implements Parser {
 
     private boolean isStartElement(XMLStreamReader reader, String elementName) {
         return (
-            isStartElement(reader) &&
-            reader.getName().getLocalPart().equals(elementName)
+            isStartElement(reader)
+            && reader.getName().getLocalPart().equals(elementName)
         );
     }
 
@@ -503,8 +503,8 @@ public class EndnoteXmlImporter extends Importer implements Parser {
 
     private boolean isEndElement(XMLStreamReader reader, String elementName) {
         return (
-            isEndElement(reader) &&
-            reader.getName().getLocalPart().equals(elementName)
+            isEndElement(reader)
+            && reader.getName().getLocalPart().equals(elementName)
         );
     }
 

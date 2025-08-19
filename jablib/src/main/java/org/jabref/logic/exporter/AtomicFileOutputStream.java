@@ -133,9 +133,9 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             }
         } catch (OverlappingFileLockException exception) {
             throw new IOException(
-                "Could not obtain write access to " +
-                temporaryFile +
-                ". Maybe another instance of JabRef is currently writing to the same file?",
+                "Could not obtain write access to "
+                + temporaryFile
+                + ". Maybe another instance of JabRef is currently writing to the same file?",
                 exception
             );
         }

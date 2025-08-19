@@ -15,8 +15,8 @@ public record ThreeWayEntryConflict(
     @Nullable BibEntry remote
 ) {
     public ThreeWayEntryConflict {
-        assert !(local == null &&
-            remote ==
-            null) : "Both local and remote are null: conflict must involve at least one side.";
+        assert !(local == null
+            && remote
+            == null) : "Both local and remote are null: conflict must involve at least one side.";
     }
 }

@@ -79,8 +79,8 @@ public class FieldFormatterCleanupsPanelViewModel {
 
     public void addCleanup() {
         if (
-            selectedFieldProperty.getValue() == null ||
-            selectedFormatterProperty.getValue() == null
+            selectedFieldProperty.getValue() == null
+            || selectedFormatterProperty.getValue() == null
         ) {
             return;
         }

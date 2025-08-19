@@ -76,10 +76,10 @@ public class EscapeAmpersandsFormatter extends Formatter {
             // We add a backslash before any ampersand characters, with one exception: if
             // we are inside an \\url{...} command, we should write it as it is. Maybe.
             if (
-                (c == '&') &&
-                !escape &&
-                !(inCommand && "url".contentEquals(commandName)) &&
-                (nestedEnvironments == 0)
+                (c == '&')
+                && !escape
+                && !(inCommand && "url".contentEquals(commandName))
+                && (nestedEnvironments == 0)
             ) {
                 result.append("\\&");
             } else {

@@ -25,8 +25,8 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
     public GitIgnoreFileFilter(Path path) {
         Path currentPath = path;
         while (
-            (currentPath != null) &&
-            !Files.exists(currentPath.resolve(".gitignore"))
+            (currentPath != null)
+            && !Files.exists(currentPath.resolve(".gitignore"))
         ) {
             currentPath = currentPath.getParent();
         }
@@ -84,9 +84,9 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
             .noneMatch(
                 filter ->
                     // we need this one for "*.png"
-                    filter.matches(path.getFileName()) ||
+                    filter.matches(path.getFileName())
                     // we need this one for "**/*.png"
-                    filter.matches(path)
+                    || filter.matches(path)
             );
     }
 }

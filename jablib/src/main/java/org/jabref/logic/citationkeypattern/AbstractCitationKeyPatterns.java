@@ -23,14 +23,14 @@ public abstract class AbstractCitationKeyPatterns {
     @Override
     public String toString() {
         return (
-            "AbstractCitationKeyPattern{" +
-            "defaultPattern='" +
-            defaultPattern +
-            '\'' +
-            ", data='" +
-            data +
-            '\'' +
-            "}"
+            "AbstractCitationKeyPattern{"
+            + "defaultPattern='"
+            + defaultPattern
+            + '\''
+            + ", data='"
+            + data
+            + '\''
+            + "}"
         );
     }
 
@@ -44,8 +44,8 @@ public abstract class AbstractCitationKeyPatterns {
         }
         AbstractCitationKeyPatterns that = (AbstractCitationKeyPatterns) o;
         return (
-            Objects.equals(defaultPattern, that.defaultPattern) &&
-            Objects.equals(data, that.data)
+            Objects.equals(defaultPattern, that.defaultPattern)
+            && Objects.equals(data, that.data)
         );
     }
 
@@ -70,8 +70,8 @@ public abstract class AbstractCitationKeyPatterns {
             // check default value
             result = getDefaultValue();
             if (
-                result == null ||
-                CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(result)
+                result == null
+                || CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(result)
             ) {
                 // we are the "last" to ask
                 // we don't have anything left

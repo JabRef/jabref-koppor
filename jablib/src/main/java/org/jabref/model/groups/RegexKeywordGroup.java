@@ -53,11 +53,11 @@ public class RegexKeywordGroup extends KeywordGroup {
             return false;
         }
         return (
-            getName().equals(other.getName()) &&
-            (getHierarchicalContext() == other.getHierarchicalContext()) &&
-            searchField.equals(other.searchField) &&
-            searchExpression.equals(other.searchExpression) &&
-            (caseSensitive == other.caseSensitive)
+            getName().equals(other.getName())
+            && (getHierarchicalContext() == other.getHierarchicalContext())
+            && searchField.equals(other.searchField)
+            && searchExpression.equals(other.searchExpression)
+            && (caseSensitive == other.caseSensitive)
         );
     }
 

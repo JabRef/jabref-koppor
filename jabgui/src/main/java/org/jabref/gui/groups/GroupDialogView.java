@@ -494,8 +494,8 @@ public class GroupDialogView extends BaseDialog<AbstractGroup> {
             .addListener((obs, oldValue, newValue) ->
                 filteredList.setPredicate(
                     ikon ->
-                        newValue.isEmpty() ||
-                        ikon
+                        newValue.isEmpty()
+                        || ikon
                             .getDescription()
                             .toLowerCase()
                             .contains(newValue.toLowerCase())

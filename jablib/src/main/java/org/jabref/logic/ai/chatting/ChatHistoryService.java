@@ -140,9 +140,9 @@ public class ChatHistoryService implements AutoCloseable {
             ObservableList<ChatMessage> chatHistory;
 
             if (
-                entry.getCitationKey().isEmpty() ||
-                !correctCitationKey(bibDatabaseContext, entry) ||
-                bibDatabaseContext.getDatabasePath().isEmpty()
+                entry.getCitationKey().isEmpty()
+                || !correctCitationKey(bibDatabaseContext, entry)
+                || bibDatabaseContext.getDatabasePath().isEmpty()
             ) {
                 chatHistory = FXCollections.observableArrayList();
             } else {
@@ -183,10 +183,10 @@ public class ChatHistoryService implements AutoCloseable {
             chatHistoryManagementRecord.bibDatabaseContext();
 
         if (
-            bibDatabaseContext.isPresent() &&
-            entry.getCitationKey().isPresent() &&
-            correctCitationKey(bibDatabaseContext.get(), entry) &&
-            bibDatabaseContext.get().getDatabasePath().isPresent()
+            bibDatabaseContext.isPresent()
+            && entry.getCitationKey().isPresent()
+            && correctCitationKey(bibDatabaseContext.get(), entry)
+            && bibDatabaseContext.get().getDatabasePath().isPresent()
         ) {
             // Method `correctCitationKey` will already check `entry.getCitationKey().isPresent()`, but it is still
             // there, to suppress warning from IntelliJ IDEA on `entry.getCitationKey().get()`.
@@ -249,8 +249,8 @@ public class ChatHistoryService implements AutoCloseable {
             chatHistoryManagementRecord.bibDatabaseContext();
 
         if (
-            bibDatabaseContext.isPresent() &&
-            bibDatabaseContext.get().getDatabasePath().isPresent()
+            bibDatabaseContext.isPresent()
+            && bibDatabaseContext.get().getDatabasePath().isPresent()
         ) {
             implementation.storeMessagesForGroup(
                 bibDatabaseContext.get().getDatabasePath().get(),

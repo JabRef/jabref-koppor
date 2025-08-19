@@ -169,9 +169,9 @@ public class BiodiversityLibrary
                     itemsDetails.optString("ItemUrl", "")
                 );
                 if (
-                    itemsDetails.has("Date") &&
-                    !entry.hasField(StandardField.DATE) &&
-                    !entry.hasField(StandardField.YEAR)
+                    itemsDetails.has("Date")
+                    && !entry.hasField(StandardField.DATE)
+                    && !entry.hasField(StandardField.YEAR)
                 ) {
                     entry.setField(
                         StandardField.DATE,

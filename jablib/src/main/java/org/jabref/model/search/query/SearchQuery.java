@@ -84,8 +84,8 @@ public class SearchQuery {
             return false;
         }
         return (
-            Objects.equals(searchExpression, that.searchExpression) &&
-            Objects.equals(searchFlags, that.searchFlags)
+            Objects.equals(searchExpression, that.searchExpression)
+            && Objects.equals(searchFlags, that.searchFlags)
         );
     }
 

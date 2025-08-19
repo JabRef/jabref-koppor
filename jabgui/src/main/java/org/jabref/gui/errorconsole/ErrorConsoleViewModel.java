@@ -118,37 +118,37 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
                 "Steps to reproduce:\n\n1. ...\n2. ...\n3. ...";
             // Log messages
             String issueDetails =
-                "<details>\n" +
-                "<summary>" +
-                "Detail information:" +
-                "</summary>\n\n```\n" +
-                getLogMessagesAsString(allMessagesData) +
-                "\n```\n\n</details>";
+                "<details>\n"
+                + "<summary>"
+                + "Detail information:"
+                + "</summary>\n\n```\n"
+                + getLogMessagesAsString(allMessagesData)
+                + "\n```\n\n</details>";
             clipBoardManager.setContent(issueDetails);
             // Bug report body
             String issueBody =
-                systemInfo +
-                "\n\n" +
-                howToReproduce +
-                "\n\n" +
-                "Paste your log details here.";
+                systemInfo
+                + "\n\n"
+                + howToReproduce
+                + "\n\n"
+                + "Paste your log details here.";
 
             dialogService.notify(
                 Localization.lang("Issue on GitHub successfully reported.")
             );
             dialogService.showInformationDialogAndWait(
                 Localization.lang("Issue report successful"),
-                Localization.lang("Your issue was reported in your browser.") +
-                "\n" +
-                Localization.lang(
+                Localization.lang("Your issue was reported in your browser.")
+                + "\n"
+                + Localization.lang(
                     "The log and exception information was copied to your clipboard."
-                ) +
-                " " +
-                Localization.lang(
+                )
+                + " "
+                + Localization.lang(
                     "Please paste this information (with Ctrl+V) in the issue description."
-                ) +
-                "\n" +
-                Localization.lang(
+                )
+                + "\n"
+                + Localization.lang(
                     "Please also add all steps to reproduce this issue, if possible."
                 )
             );

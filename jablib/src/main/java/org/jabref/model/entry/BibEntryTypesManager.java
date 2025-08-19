@@ -183,8 +183,8 @@ public class BibEntryTypesManager {
         Set<BibField> entryTypeOptionalFields = entryType.getOptionalFields();
 
         if (
-            standardRequiredFields.equals(entryTypeRequiredFields) &&
-            standardOptionalFields.equals(entryTypeOptionalFields)
+            standardRequiredFields.equals(entryTypeRequiredFields)
+            && standardOptionalFields.equals(entryTypeOptionalFields)
         ) {
             entryTypes.removeCustomOrModifiedEntryType(entryType);
             return;
@@ -214,8 +214,8 @@ public class BibEntryTypesManager {
      */
     public boolean isCustomType(EntryType type, BibDatabaseMode mode) {
         return (
-            !getEntryTypes(mode).isStandardType(type) &&
-            enrich(type, mode).isPresent()
+            !getEntryTypes(mode).isStandardType(type)
+            && enrich(type, mode).isPresent()
         );
     }
 
@@ -225,8 +225,8 @@ public class BibEntryTypesManager {
      */
     public boolean isCustomType(BibEntryType type, BibDatabaseMode mode) {
         return (
-            !getEntryTypes(mode).isStandardType(type) &&
-            getEntryTypes(mode).isCustomOrModifiedType(type)
+            !getEntryTypes(mode).isStandardType(type)
+            && getEntryTypes(mode).isCustomOrModifiedType(type)
         );
     }
 

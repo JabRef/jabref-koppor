@@ -10,8 +10,8 @@ public class CitationKeyCheck {
         BibEntry bibEntry
     ) {
         return (
-            !hasEmptyCitationKey(bibEntry) &&
-            bibEntry
+            !hasEmptyCitationKey(bibEntry)
+            && bibEntry
                 .getCitationKey()
                 .map(key -> citationKeyIsUnique(bibDatabaseContext, key))
                 .orElse(false)
@@ -29,8 +29,8 @@ public class CitationKeyCheck {
         return (
             bibDatabaseContext
                 .getDatabase()
-                .getNumberOfCitationKeyOccurrences(citationKey) ==
-            1
+                .getNumberOfCitationKeyOccurrences(citationKey)
+            == 1
         );
     }
 }

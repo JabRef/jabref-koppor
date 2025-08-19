@@ -169,9 +169,9 @@ public class AuthorList implements Iterable<Author> {
             case 0 -> "";
             case 1 -> authors.getFirst();
             case 2 -> authors.getFirst() + " and " + authors.get(1);
-            default -> String.join(", ", authors.subList(0, lastIndex)) +
-            lastDelimiter +
-            authors.get(lastIndex);
+            default -> String.join(", ", authors.subList(0, lastIndex))
+            + lastDelimiter
+            + authors.get(lastIndex);
         };
     }
 
@@ -349,11 +349,11 @@ public class AuthorList implements Iterable<Author> {
         return switch (authors.size()) {
             case 0 -> "";
             case 1 -> authors.getFirst().getNamePrefixAndFamilyName();
-            case 2 -> authors.getFirst().getNamePrefixAndFamilyName() +
-            " and " +
-            authors.get(1).getNamePrefixAndFamilyName();
-            default -> authors.getFirst().getNamePrefixAndFamilyName() +
-            " et al.";
+            case 2 -> authors.getFirst().getNamePrefixAndFamilyName()
+            + " and "
+            + authors.get(1).getNamePrefixAndFamilyName();
+            default -> authors.getFirst().getNamePrefixAndFamilyName()
+            + " et al.";
         };
     }
 

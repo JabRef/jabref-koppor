@@ -100,9 +100,9 @@ public class ArgumentProcessor implements Runnable {
         String address = data[0];
         Path file;
         if (
-            address.startsWith("http://") ||
-            address.startsWith("https://") ||
-            address.startsWith("ftp://")
+            address.startsWith("http://")
+            || address.startsWith("https://")
+            || address.startsWith("ftp://")
         ) {
             // Download web resource to temporary file
             try {
@@ -248,9 +248,9 @@ public class ArgumentProcessor implements Runnable {
                 // Show just a warning message if encoding did not work for all characters:
                 if (fileWriter.hasEncodingProblems()) {
                     System.err.println(
-                        Localization.lang("Warning") +
-                        ": " +
-                        Localization.lang(
+                        Localization.lang("Warning")
+                        + ": "
+                        + Localization.lang(
                             "UTF-8 could not be used to encode the following characters: %0",
                             fileWriter.getEncodingProblems()
                         )
@@ -260,9 +260,9 @@ public class ArgumentProcessor implements Runnable {
             }
         } catch (IOException ex) {
             System.err.println(
-                Localization.lang("Could not save file.") +
-                "\n" +
-                ex.getLocalizedMessage()
+                Localization.lang("Could not save file.")
+                + "\n"
+                + ex.getLocalizedMessage()
             );
         }
     }

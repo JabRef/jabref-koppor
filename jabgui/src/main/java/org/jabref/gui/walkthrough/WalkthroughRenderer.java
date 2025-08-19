@@ -111,8 +111,8 @@ public class WalkthroughRenderer {
 
     private void configurePanelSize(VBox panel, PanelStep step) {
         boolean isVertical =
-            step.position() == PanelPosition.LEFT ||
-            step.position() == PanelPosition.RIGHT;
+            step.position() == PanelPosition.LEFT
+            || step.position() == PanelPosition.RIGHT;
 
         if (isVertical) {
             panel.getStyleClass().add("walkthrough-side-panel-vertical");
@@ -120,8 +120,8 @@ public class WalkthroughRenderer {
             panel.setMaxHeight(Double.MAX_VALUE);
             step.maxWidth().ifPresent(panel::setMaxWidth);
         } else if (
-            step.position() == PanelPosition.TOP ||
-            step.position() == PanelPosition.BOTTOM
+            step.position() == PanelPosition.TOP
+            || step.position() == PanelPosition.BOTTOM
         ) {
             panel.getStyleClass().add("walkthrough-side-panel-horizontal");
             HBox.setHgrow(panel, Priority.ALWAYS);

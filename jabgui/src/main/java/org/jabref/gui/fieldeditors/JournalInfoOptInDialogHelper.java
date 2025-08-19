@@ -14,15 +14,15 @@ public class JournalInfoOptInDialogHelper {
         EntryEditorPreferences preferences
     ) {
         if (
-            preferences.shouldEnableJournalPopup() ==
-            EntryEditorPreferences.JournalPopupEnabled.ENABLED
+            preferences.shouldEnableJournalPopup()
+            == EntryEditorPreferences.JournalPopupEnabled.ENABLED
         ) {
             return true;
         }
 
         if (
-            preferences.shouldEnableJournalPopup() ==
-            EntryEditorPreferences.JournalPopupEnabled.DISABLED
+            preferences.shouldEnableJournalPopup()
+            == EntryEditorPreferences.JournalPopupEnabled.DISABLED
         ) {
             boolean enableJournalPopup =
                 dialogService.showConfirmationDialogAndWait(

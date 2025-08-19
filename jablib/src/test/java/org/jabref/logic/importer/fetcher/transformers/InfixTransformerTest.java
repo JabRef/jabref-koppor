@@ -117,11 +117,11 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            getAuthorPrefix() +
-            "\"Igor Steinmacher\"" +
-            getTransformer().getLogicalAndOperator() +
-            getAuthorPrefix() +
-            "\"Christoph Treude\""
+            getAuthorPrefix()
+            + "\"Igor Steinmacher\""
+            + getTransformer().getLogicalAndOperator()
+            + getAuthorPrefix()
+            + "\"Christoph Treude\""
         );
         assertEquals(expected, searchQuery);
     }
@@ -138,19 +138,19 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            "(" +
-            getAuthorPrefix() +
-            "\"Igor Steinmacher\"" +
-            getTransformer().getLogicalOrOperator() +
-            "(" +
-            getAuthorPrefix() +
-            "\"Christoph Treude\"" +
-            getTransformer().getLogicalAndOperator() +
-            getAuthorPrefix() +
-            "\"Christoph Freunde\"))" +
-            getTransformer().getLogicalAndOperator() +
-            getTitlePrefix() +
-            "test"
+            "("
+            + getAuthorPrefix()
+            + "\"Igor Steinmacher\""
+            + getTransformer().getLogicalOrOperator()
+            + "("
+            + getAuthorPrefix()
+            + "\"Christoph Treude\""
+            + getTransformer().getLogicalAndOperator()
+            + getAuthorPrefix()
+            + "\"Christoph Freunde\"))"
+            + getTransformer().getLogicalAndOperator()
+            + getTitlePrefix()
+            + "test"
         );
         assertEquals(expected, searchQuery);
     }
@@ -167,13 +167,13 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            getTransformer().getLogicalNotOperator() +
-            "(" +
-            getAuthorPrefix() +
-            "\"Igor Steinmacher\"" +
-            getTransformer().getLogicalOrOperator() +
-            getAuthorPrefix() +
-            "\"Christoph Treude\")"
+            getTransformer().getLogicalNotOperator()
+            + "("
+            + getAuthorPrefix()
+            + "\"Igor Steinmacher\""
+            + getTransformer().getLogicalOrOperator()
+            + getAuthorPrefix()
+            + "\"Christoph Treude\")"
         );
         assertEquals(expected, searchQuery);
     }

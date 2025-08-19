@@ -37,8 +37,8 @@ class IconsPropertiesTest {
         }
         assertFalse(
             properties.entrySet().isEmpty(),
-            "There must be loaded properties after loading " +
-            iconsPropertiesPath
+            "There must be loaded properties after loading "
+            + iconsPropertiesPath
         );
 
         // check that each key references an existing file
@@ -48,12 +48,12 @@ class IconsPropertiesTest {
 
             assertTrue(
                 Files.exists(Path.of(folder, value)),
-                "Referenced image (" +
-                name +
-                " --> " +
-                value +
-                " does not exist in folder " +
-                folder
+                "Referenced image ("
+                + name
+                + " --> "
+                + value
+                + " does not exist in folder "
+                + folder
             );
         }
 

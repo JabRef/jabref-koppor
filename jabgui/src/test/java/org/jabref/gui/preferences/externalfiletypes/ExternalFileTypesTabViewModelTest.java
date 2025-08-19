@@ -65,20 +65,16 @@ public class ExternalFileTypesTabViewModelTest {
 
     public boolean viewModelIsSameValue(ExternalFileTypeItemViewModel item) {
         return !(
-            !item.getName().equals(externalFileTypeItemViewModel.getName()) ||
-            !item
+            !item.getName().equals(externalFileTypeItemViewModel.getName())
+            || !item
                 .extensionProperty()
                 .get()
-                .equals(
-                    externalFileTypeItemViewModel.extensionProperty().get()
-                ) ||
-            !item
+                .equals(externalFileTypeItemViewModel.extensionProperty().get())
+            || !item
                 .mimetypeProperty()
                 .get()
-                .equals(
-                    externalFileTypeItemViewModel.mimetypeProperty().get()
-                ) ||
-            !item
+                .equals(externalFileTypeItemViewModel.mimetypeProperty().get())
+            || !item
                 .applicationProperty()
                 .get()
                 .equals(

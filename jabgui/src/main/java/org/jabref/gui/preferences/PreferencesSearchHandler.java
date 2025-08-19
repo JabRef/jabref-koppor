@@ -113,8 +113,8 @@ class PreferencesSearchHandler {
         }
 
         if (
-            control instanceof ComboBox<?> comboBox &&
-            !comboBox.getItems().isEmpty()
+            control instanceof ComboBox<?> comboBox
+            && !comboBox.getItems().isEmpty()
         ) {
             return comboBox
                 .getItems()
@@ -126,8 +126,8 @@ class PreferencesSearchHandler {
         }
 
         if (
-            control instanceof TextField textField &&
-            textField.getText() != null
+            control instanceof TextField textField
+            && textField.getText() != null
         ) {
             return textField.getText().toLowerCase(Locale.ROOT).contains(query);
         }

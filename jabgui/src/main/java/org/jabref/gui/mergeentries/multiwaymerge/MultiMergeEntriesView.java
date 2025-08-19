@@ -146,8 +146,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             .addListener(
                 (MapChangeListener<Field, String>) change -> {
                     if (
-                        change.wasAdded() &&
-                        !fieldRows.containsKey(change.getKey())
+                        change.wasAdded()
+                        && !fieldRows.containsKey(change.getKey())
                     ) {
                         FieldRow fieldRow = new FieldRow(
                             change.getKey(),
@@ -155,8 +155,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                                 .mergedEntryProperty()
                                 .get()
                                 .getFields()
-                                .size() -
-                            1
+                                .size()
+                            - 1
                         );
                         fieldRows.put(change.getKey(), fieldRow);
                     }
@@ -191,8 +191,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                         )
                 );
                 int activeColumns =
-                    viewModel.entriesProperty().get().size() -
-                    viewModel.failedSuppliersProperty().get().size();
+                    viewModel.entriesProperty().get().size()
+                    - viewModel.failedSuppliersProperty().get().size();
                 if (activeColumns < ACTIVE_COLUMNS_MINIMUM) {
                     // [impl->req~ux.auto-close.merge-entries~1]
                     close();
@@ -248,8 +248,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                 .isLoadingProperty()
                 .addListener((_, _, newValue) -> {
                     if (
-                        !newValue &&
-                        entrySourceColumn.entryProperty().get() != null
+                        !newValue
+                        && entrySourceColumn.entryProperty().get() != null
                     ) {
                         writeBibEntryToColumn(entrySourceColumn, columnIndex);
                         header.setDisable(false);

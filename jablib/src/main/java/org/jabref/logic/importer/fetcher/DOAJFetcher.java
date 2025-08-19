@@ -105,9 +105,9 @@ public class DOAJFetcher implements SearchBasedParserFetcher {
             if (bibJsonEntry.has("end_page")) {
                 entry.setField(
                     StandardField.PAGES,
-                    bibJsonEntry.getString("start_page") +
-                    "--" +
-                    bibJsonEntry.getString("end_page")
+                    bibJsonEntry.getString("start_page")
+                    + "--"
+                    + bibJsonEntry.getString("end_page")
                 );
             } else {
                 entry.setField(
@@ -183,8 +183,8 @@ public class DOAJFetcher implements SearchBasedParserFetcher {
                 if (links.getJSONObject(i).has("type")) {
                     String type = links.getJSONObject(i).getString("type");
                     if (
-                        "fulltext".equals(type) &&
-                        links.getJSONObject(i).has("url")
+                        "fulltext".equals(type)
+                        && links.getJSONObject(i).has("url")
                     ) {
                         entry.setField(
                             StandardField.URL,

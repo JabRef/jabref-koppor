@@ -119,8 +119,8 @@ public class ClipBoardManager {
         if (primary != null) {
             Transferable contents = primary.getContents(null);
             if (
-                (contents != null) &&
-                contents.isDataFlavorSupported(DataFlavor.stringFlavor)
+                (contents != null)
+                && contents.isDataFlavorSupported(DataFlavor.stringFlavor)
             ) {
                 try {
                     return (String) contents.getTransferData(

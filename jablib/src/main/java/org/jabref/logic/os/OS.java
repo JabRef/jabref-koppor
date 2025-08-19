@@ -108,8 +108,8 @@ public class OS {
         }
         if (Objects.equals(programName, "texworks")) {
             Path texworksLinkPath = Path.of(
-                System.getenv("APPDATA") +
-                "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk"
+                System.getenv("APPDATA")
+                + "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk"
             );
             if (Files.exists(texworksLinkPath)) {
                 try {

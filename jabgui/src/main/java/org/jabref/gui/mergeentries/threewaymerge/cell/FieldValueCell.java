@@ -178,8 +178,8 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
                 EasyBind.map(
                     textProperty(),
                     input ->
-                        StringUtil.isNotBlank(input) &&
-                        (URLUtil.isURL(input) || DOI.isValid(input))
+                        StringUtil.isNotBlank(input)
+                        && (URLUtil.isURL(input) || DOI.isValid(input))
                 )
             );
 
@@ -194,9 +194,9 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
     private void preventTextSelectionViaMouseEvents() {
         label.addEventFilter(MouseEvent.ANY, e -> {
             if (
-                (e.getEventType() == MouseEvent.MOUSE_DRAGGED) ||
-                (e.getEventType() == MouseEvent.DRAG_DETECTED) ||
-                (e.getEventType() == MouseEvent.MOUSE_ENTERED)
+                (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
+                || (e.getEventType() == MouseEvent.DRAG_DETECTED)
+                || (e.getEventType() == MouseEvent.MOUSE_ENTERED)
             ) {
                 e.consume();
             } else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {

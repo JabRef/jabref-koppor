@@ -81,8 +81,8 @@ public class CommentsTab extends FieldsEditorTab {
 
         // Only show the user-specific comment field if it's enabled and should be visible
         if (
-            entryEditorPreferences.shouldShowUserCommentsFields() &&
-            shouldShowHideButton
+            entryEditorPreferences.shouldShowUserCommentsFields()
+            && shouldShowHideButton
         ) {
             comments.add(userSpecificCommentField);
         }
@@ -94,9 +94,9 @@ public class CommentsTab extends FieldsEditorTab {
                 .stream()
                 .filter(
                     field ->
-                        (field instanceof UserSpecificCommentField &&
-                            !field.equals(userSpecificCommentField)) ||
-                        field.getName().toLowerCase().contains("comment")
+                        (field instanceof UserSpecificCommentField
+                            && !field.equals(userSpecificCommentField))
+                        || field.getName().toLowerCase().contains("comment")
                 )
                 .sorted(Comparator.comparing(Field::getName))
                 .collect(Collectors.toCollection(LinkedHashSet::new))
@@ -177,9 +177,8 @@ public class CommentsTab extends FieldsEditorTab {
                         gridPane
                             .getChildren()
                             .removeIf(node ->
-                                (node instanceof
-                                        FieldNameLabel fieldNameLabel &&
-                                    fieldNameLabel
+                                (node instanceof FieldNameLabel fieldNameLabel
+                                    && fieldNameLabel
                                         .getText()
                                         .equals(
                                             userSpecificCommentField.getName()

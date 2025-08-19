@@ -112,8 +112,8 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         String searchTerm
     ) {
         if (
-            keyBinding.getLocalization().toLowerCase().contains(searchTerm) ||
-            keyBinding
+            keyBinding.getLocalization().toLowerCase().contains(searchTerm)
+            || keyBinding
                 .getCategory()
                 .getName()
                 .toLowerCase()

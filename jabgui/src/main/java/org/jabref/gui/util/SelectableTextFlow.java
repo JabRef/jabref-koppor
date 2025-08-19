@@ -61,9 +61,9 @@ public class SelectableTextFlow extends TextFlow {
 
         String fullText = getTextFlowContent();
         if (
-            startIndex < 0 ||
-            endIndex > fullText.length() ||
-            startIndex >= endIndex
+            startIndex < 0
+            || endIndex > fullText.length()
+            || startIndex >= endIndex
         ) {
             return;
         }
@@ -94,9 +94,9 @@ public class SelectableTextFlow extends TextFlow {
 
     public boolean isSelectionActive() {
         return (
-            startHit != null &&
-            endHit != null &&
-            startHit.getCharIndex() != endHit.getCharIndex()
+            startHit != null
+            && endHit != null
+            && startHit.getCharIndex() != endHit.getCharIndex()
         );
     }
 

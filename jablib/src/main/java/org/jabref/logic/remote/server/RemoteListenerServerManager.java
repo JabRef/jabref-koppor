@@ -47,8 +47,8 @@ public class RemoteListenerServerManager implements AutoCloseable {
             );
         } catch (BindException e) {
             LOGGER.error(
-                "There was an error opening the configured network port {}. Please ensure there isn't another" +
-                " application already using that port.",
+                "There was an error opening the configured network port {}. Please ensure there isn't another"
+                + " application already using that port.",
                 port
             );
             remoteServerThread = null;
@@ -72,8 +72,8 @@ public class RemoteListenerServerManager implements AutoCloseable {
     public boolean isNotStartedBefore() {
         // threads can only be started when in state NEW
         return (
-            (remoteServerThread == null) ||
-            (remoteServerThread.getState() == Thread.State.NEW)
+            (remoteServerThread == null)
+            || (remoteServerThread.getState() == Thread.State.NEW)
         );
     }
 

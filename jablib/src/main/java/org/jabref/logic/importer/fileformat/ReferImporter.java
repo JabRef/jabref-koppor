@@ -218,8 +218,8 @@ public class ReferImporter extends Importer {
                 if (type.equals(StandardEntryType.Article)) {
                     m.put(StandardField.JOURNAL, val);
                 } else if (
-                    type.equals(StandardEntryType.Book) ||
-                    type.equals(StandardEntryType.InBook)
+                    type.equals(StandardEntryType.Book)
+                    || type.equals(StandardEntryType.InBook)
                 ) {
                     m.put(StandardField.SERIES, val);
                 } else {

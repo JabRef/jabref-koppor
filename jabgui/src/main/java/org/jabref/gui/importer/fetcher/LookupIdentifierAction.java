@@ -114,8 +114,8 @@ public class LookupIdentifierAction<T extends Identifier>
                 );
             }
             if (
-                identifier.isPresent() &&
-                !bibEntry.hasField(identifier.get().getDefaultField())
+                identifier.isPresent()
+                && !bibEntry.hasField(identifier.get().getDefaultField())
             ) {
                 Optional<FieldChange> fieldChange = bibEntry.setField(
                     identifier.get().getDefaultField(),

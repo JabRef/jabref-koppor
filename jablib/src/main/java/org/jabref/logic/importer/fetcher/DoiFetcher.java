@@ -178,16 +178,13 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
 
             // Check if the entry is an APS journal and add the article id as the page count if page field is missing
             if (
-                fetchedEntry.isPresent() &&
-                fetchedEntry.get().hasField(StandardField.DOI)
+                fetchedEntry.isPresent()
+                && fetchedEntry.get().hasField(StandardField.DOI)
             ) {
                 BibEntry entry = fetchedEntry.get();
                 if (
-                    isAPSJournal(
-                        entry,
-                        entry.getField(StandardField.DOI).get()
-                    ) &&
-                    !entry.hasField(StandardField.PAGES)
+                    isAPSJournal(entry, entry.getField(StandardField.DOI).get())
+                    && !entry.hasField(StandardField.PAGES)
                 ) {
                     setPageCountToArticleId(
                         entry,
@@ -247,8 +244,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
             );
 
             double newRate =
-                Double.parseDouble(xRateLimit) /
-                Double.parseDouble(xRateLimitInterval);
+                Double.parseDouble(xRateLimit)
+                / Double.parseDouble(xRateLimitInterval);
             double oldRate = CROSSREF_DCN_RATE_LIMITER.getRate();
 
             // In theory, the actual update might rarely happen...
@@ -289,9 +286,9 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         try {
             URLDownload download = getUrlDownload(
                 URLUtil.create(
-                    DOI.AGENCY_RESOLVER +
-                    "/" +
-                    URLEncoder.encode(doi.asString(), StandardCharsets.UTF_8)
+                    DOI.AGENCY_RESOLVER
+                    + "/"
+                    + URLEncoder.encode(doi.asString(), StandardCharsets.UTF_8)
                 )
             );
             JSONObject response = new JSONArray(
@@ -326,8 +323,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
             doiAsString.indexOf('/')
         );
         return (
-            APS_JOURNAL_ORG_DOI_ID.equals(organizationId) &&
-            APS_SUFFIX_PATTERN.matcher(suffix).matches()
+            APS_JOURNAL_ORG_DOI_ID.equals(organizationId)
+            && APS_SUFFIX_PATTERN.matcher(suffix).matches()
         );
     }
 }

@@ -48,8 +48,8 @@ public class ParsedEntryLink {
             return false;
         }
         return (
-            Objects.equals(key, other.key) &&
-            Objects.equals(linkedEntry, other.linkedEntry)
+            Objects.equals(key, other.key)
+            && Objects.equals(linkedEntry, other.linkedEntry)
         );
     }
 

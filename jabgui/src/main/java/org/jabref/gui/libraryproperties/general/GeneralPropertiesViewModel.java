@@ -194,9 +194,9 @@ public class GeneralPropertiesViewModel implements PropertiesTabViewModel {
         ValidationStatus laTexFileDirectoryStatus = laTexFileDirectoryStatus();
 
         return (
-            promptUserToConfirmAction(librarySpecificFileDirectoryStatus) &&
-            promptUserToConfirmAction(userSpecificFileDirectoryStatus) &&
-            promptUserToConfirmAction(laTexFileDirectoryStatus)
+            promptUserToConfirmAction(librarySpecificFileDirectoryStatus)
+            && promptUserToConfirmAction(userSpecificFileDirectoryStatus)
+            && promptUserToConfirmAction(laTexFileDirectoryStatus)
         );
     }
 
@@ -362,9 +362,9 @@ public class GeneralPropertiesViewModel implements PropertiesTabViewModel {
                         Localization.lang(
                             "Action required: override default file directories"
                         ),
-                        message.getMessage() +
-                        "\n" +
-                        Localization.lang(
+                        message.getMessage()
+                        + "\n"
+                        + Localization.lang(
                             "Would you like to save your other preferences?"
                         ),
                         Localization.lang("Save"),
@@ -421,8 +421,8 @@ public class GeneralPropertiesViewModel implements PropertiesTabViewModel {
         Optional<Path> libPath = this.databaseContext.getDatabasePath();
 
         if (
-            libPath.isEmpty() ||
-            !selectedDirPath.startsWith(libPath.get().getParent())
+            libPath.isEmpty()
+            || !selectedDirPath.startsWith(libPath.get().getParent())
         ) {
             // set absolute path
             fileDirectory.setValue(selectedDirPath.toAbsolutePath().toString());

@@ -28,9 +28,9 @@ class IsiImporterTest {
 
     private static Stream<String> fileNames() throws IOException {
         Predicate<String> fileName = name ->
-            name.startsWith("IsiImporterTest") &&
-            !name.contains("Empty") &&
-            name.endsWith(FILE_ENDING);
+            name.startsWith("IsiImporterTest")
+            && !name.contains("Empty")
+            && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -366,9 +366,9 @@ class IsiImporterTest {
         );
         assertEquals(
             Optional.of(
-                "Improving Urban Road Extraction in High-Resolution " +
-                "Images Exploiting Directional Filtering, Perceptual " +
-                "Grouping, and Simple Topological Concepts"
+                "Improving Urban Road Extraction in High-Resolution "
+                + "Images Exploiting Directional Filtering, Perceptual "
+                + "Grouping, and Simple Topological Concepts"
             ),
             entry.getField(StandardField.TITLE)
         );

@@ -53,9 +53,9 @@ public class GitStatusViewModel extends AbstractViewModel {
         this.stateManager = stateManager;
         EasyBind.subscribe(stateManager.activeDatabaseProperty(), newDb -> {
             if (
-                newDb != null &&
-                newDb.isPresent() &&
-                newDb.get().getDatabasePath().isPresent()
+                newDb != null
+                && newDb.isPresent()
+                && newDb.get().getDatabasePath().isPresent()
             ) {
                 BibDatabaseContext databaseContext1 = newDb.get();
                 databaseContext.set(databaseContext1);

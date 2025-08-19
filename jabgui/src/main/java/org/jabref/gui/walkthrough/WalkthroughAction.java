@@ -252,9 +252,9 @@ public class WalkthroughAction extends SimpleCommand {
                         NodeResolver.selectorWithText(
                             ".table-row-cell",
                             text ->
-                                "Ding_2006".equals(text) ||
-                                "Ding et al.".equals(text) ||
-                                "Chocolate and Prevention of Cardiovascular Disease: A Systematic Review".equals(
+                                "Ding_2006".equals(text)
+                                || "Ding et al.".equals(text)
+                                || "Chocolate and Prevention of Cardiovascular Disease: A Systematic Review".equals(
                                     text
                                 )
                         )

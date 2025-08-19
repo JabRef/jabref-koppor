@@ -73,8 +73,8 @@ public class LinkedIdentifierColumn
                     event -> {
                         // If we only have one identifer, open directly
                         if (
-                            (linkedFiles.size() == 1) &&
-                            (event.getButton() == MouseButton.PRIMARY)
+                            (linkedFiles.size() == 1)
+                            && (event.getButton() == MouseButton.PRIMARY)
                         ) {
                             new OpenUrlAction(
                                 dialogService,
@@ -125,9 +125,9 @@ public class LinkedIdentifierColumn
             .keySet()
             .forEach(field -> {
                 MenuItem menuItem = new MenuItem(
-                    field.getDisplayName() +
-                    ": " +
-                    ControlHelper.truncateString(
+                    field.getDisplayName()
+                    + ": "
+                    + ControlHelper.truncateString(
                         values.get(field),
                         -1,
                         "...",

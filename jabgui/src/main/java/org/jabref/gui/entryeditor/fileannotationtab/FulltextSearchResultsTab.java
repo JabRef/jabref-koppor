@@ -90,8 +90,8 @@ public class FulltextSearchResultsTab extends EntryEditorTab {
             .get()
             .map(
                 query ->
-                    query.isValid() &&
-                    query.getSearchFlags().contains(SearchFlags.FULLTEXT)
+                    query.isValid()
+                    && query.getSearchFlags().contains(SearchFlags.FULLTEXT)
             )
             .orElse(false);
     }
@@ -176,12 +176,12 @@ public class FulltextSearchResultsTab extends EntryEditorTab {
                                                 .isEmpty()
                                         ) {
                                             Text annotationsText = new Text(
-                                                System.lineSeparator() +
-                                                Localization.lang(
-                                                    "Found matches in annotations:"
-                                                ) +
-                                                System.lineSeparator() +
                                                 System.lineSeparator()
+                                                + Localization.lang(
+                                                    "Found matches in annotations:"
+                                                )
+                                                + System.lineSeparator()
+                                                + System.lineSeparator()
                                             );
                                             annotationsText.setStyle(
                                                 "-fx-font-style: italic;"
@@ -227,9 +227,9 @@ public class FulltextSearchResultsTab extends EntryEditorTab {
 
     private Text createFileLink(LinkedFile linkedFile) {
         Text fileLinkText = new Text(
-            Localization.lang("Found match in %0", linkedFile.getLink()) +
-            System.lineSeparator() +
-            System.lineSeparator()
+            Localization.lang("Found match in %0", linkedFile.getLink())
+            + System.lineSeparator()
+            + System.lineSeparator()
         );
         fileLinkText.setStyle("-fx-font-weight: bold;");
 
@@ -271,9 +271,9 @@ public class FulltextSearchResultsTab extends EntryEditorTab {
         String searchExpression
     ) {
         Text pageLink = new Text(
-            Localization.lang("On page %0", pageNumber) +
-            System.lineSeparator() +
-            System.lineSeparator()
+            Localization.lang("On page %0", pageNumber)
+            + System.lineSeparator()
+            + System.lineSeparator()
         );
         pageLink.setStyle("-fx-font-style: italic; -fx-font-weight: bold;");
 

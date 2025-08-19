@@ -83,16 +83,16 @@ public class SearchGroup extends AbstractGroup {
             return false;
         }
         return (
-            Objects.equals(getName(), other.getName()) &&
-            Objects.equals(
+            Objects.equals(getName(), other.getName())
+            && Objects.equals(
                 getHierarchicalContext(),
                 other.getHierarchicalContext()
-            ) &&
-            Objects.equals(
+            )
+            && Objects.equals(
                 getSearchExpression(),
                 other.getSearchExpression()
-            ) &&
-            Objects.equals(getSearchFlags(), other.getSearchFlags())
+            )
+            && Objects.equals(getSearchFlags(), other.getSearchFlags())
         );
     }
 
@@ -114,8 +114,8 @@ public class SearchGroup extends AbstractGroup {
             // this should never happen, because the constructor obviously
             // succeeded in creating _this_ instance!
             LOGGER.error(
-                "Internal error in SearchGroup.deepCopy(). " +
-                "Please report this on https://github.com/JabRef/jabref/issues",
+                "Internal error in SearchGroup.deepCopy(). "
+                + "Please report this on https://github.com/JabRef/jabref/issues",
                 t
             );
             return null;
@@ -125,23 +125,23 @@ public class SearchGroup extends AbstractGroup {
     @Override
     public String toString() {
         return (
-            "SearchGroup [query=" +
-            searchQuery +
-            ", name=" +
-            name +
-            ", searchFlags=" +
-            getSearchFlags() +
-            ",  context=" +
-            context +
-            ", color=" +
-            color +
-            ", isExpanded=" +
-            isExpanded +
-            ", description=" +
-            description +
-            ", iconName=" +
-            iconName +
-            "]"
+            "SearchGroup [query="
+            + searchQuery
+            + ", name="
+            + name
+            + ", searchFlags="
+            + getSearchFlags()
+            + ",  context="
+            + context
+            + ", color="
+            + color
+            + ", isExpanded="
+            + isExpanded
+            + ", description="
+            + description
+            + ", iconName="
+            + iconName
+            + "]"
         );
     }
 

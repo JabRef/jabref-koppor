@@ -124,16 +124,16 @@ public class WordKeywordGroup
             return false;
         }
         return (
-            Objects.equals(getName(), other.getName()) &&
-            Objects.equals(
+            Objects.equals(getName(), other.getName())
+            && Objects.equals(
                 getHierarchicalContext(),
                 other.getHierarchicalContext()
-            ) &&
-            Objects.equals(searchField, other.searchField) &&
-            Objects.equals(searchExpression, other.searchExpression) &&
-            Objects.equals(caseSensitive, other.caseSensitive) &&
-            Objects.equals(keywordSeparator, other.keywordSeparator) &&
-            Objects.equals(
+            )
+            && Objects.equals(searchField, other.searchField)
+            && Objects.equals(searchExpression, other.searchExpression)
+            && Objects.equals(caseSensitive, other.caseSensitive)
+            && Objects.equals(keywordSeparator, other.keywordSeparator)
+            && Objects.equals(
                 onlySplitWordsAtSeparator,
                 other.onlySplitWordsAtSeparator
             )

@@ -150,8 +150,8 @@ class BibtexParserTest {
             importFormatPreferences
         );
         assertTrue(
-            parsed.get().getCitationKey().equals(Optional.of("canh05")) ||
-            parsed.get().getCitationKey().equals(Optional.of("foo"))
+            parsed.get().getCitationKey().equals(Optional.of("canh05"))
+            || parsed.get().getCitationKey().equals(Optional.of("foo"))
         );
     }
 
@@ -336,12 +336,12 @@ class BibtexParserTest {
     @Test
     void parseRecognizesEntryPrecedingComment() throws IOException {
         String comment =
-            "@Comment{@article{myarticle,}" +
-            OS.NEWLINE +
-            "@inproceedings{blabla, title={the proceedings of bl@bl@}; }" +
-            OS.NEWLINE +
-            "}" +
-            OS.NEWLINE;
+            "@Comment{@article{myarticle,}"
+            + OS.NEWLINE
+            + "@inproceedings{blabla, title={the proceedings of bl@bl@}; }"
+            + OS.NEWLINE
+            + "}"
+            + OS.NEWLINE;
         String entryWithComment =
             comment + "@article{test,author={Ed von T@st}}";
         BibEntry expected = new BibEntry(StandardEntryType.Article)
@@ -384,11 +384,11 @@ class BibtexParserTest {
     @Test
     void parseSetsParsedSerialization() throws IOException {
         String firstEntry =
-            "@article{canh05," +
-            "  author = {Crowston, K. and Annabi, H.}," +
-            OS.NEWLINE +
-            "  title = {Title A}}" +
-            OS.NEWLINE;
+            "@article{canh05,"
+            + "  author = {Crowston, K. and Annabi, H.},"
+            + OS.NEWLINE
+            + "  title = {Title A}}"
+            + OS.NEWLINE;
         String secondEntry = "@inProceedings{foo," + "  author={Norton Bar}}";
         List<BibEntry> parsedEntries = parser
             .parse(Reader.of(firstEntry + secondEntry))
@@ -884,8 +884,8 @@ class BibtexParserTest {
         throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@article{test,author={author missing bracket}" +
-                "@article{test,author={Ed von Test}}"
+                "@article{test,author={author missing bracket}"
+                + "@article{test,author={Ed von Test}}"
             )
         );
 
@@ -1073,8 +1073,8 @@ class BibtexParserTest {
     void parseRecognizesMultipleStrings() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@string{bourdieu = {Bourdieu, Pierre}}" +
-                "@string{adieu = {Adieu, Pierre}}"
+                "@string{bourdieu = {Bourdieu, Pierre}}"
+                + "@string{adieu = {Adieu, Pierre}}"
             )
         );
 
@@ -1102,15 +1102,15 @@ class BibtexParserTest {
     void parseRecognizesStringAndEntry() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@string{bourdieu = {Bourdieu, Pierre}}" +
-                "@book{bourdieu-2002-questions-sociologie, " +
-                "    Address = {Paris}," +
-                "    Author = bourdieu," +
-                "    Isbn = 2707318256," +
-                "    Publisher = {Minuit}," +
-                "    Title = {Questions de sociologie}," +
-                "    Year = 2002" +
-                "}"
+                "@string{bourdieu = {Bourdieu, Pierre}}"
+                + "@book{bourdieu-2002-questions-sociologie, "
+                + "    Address = {Paris},"
+                + "    Author = bourdieu,"
+                + "    Isbn = 2707318256,"
+                + "    Publisher = {Minuit},"
+                + "    Title = {Questions de sociologie},"
+                + "    Year = 2002"
+                + "}"
             )
         );
 
@@ -1162,8 +1162,8 @@ class BibtexParserTest {
         throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@string{bourdieu = {Bourdieu, Pierre}}" +
-                "@string{bourdieu = {Other}}"
+                "@string{bourdieu = {Bourdieu, Pierre}}"
+                + "@string{bourdieu = {Other}}"
             )
         );
 
@@ -1194,8 +1194,8 @@ class BibtexParserTest {
     void parseKeepsCommentsAsUserComments() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@comment{some text and \\latex}" +
-                "@article{test,author={Ed von Test}}"
+                "@comment{some text and \\latex}"
+                + "@article{test,author={Ed von Test}}"
             )
         );
 
@@ -1214,8 +1214,8 @@ class BibtexParserTest {
     void parseIgnoresCommentsAfterEntry() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@article{test,author={Ed von Test}}" +
-                "@comment{some text and \\latex}"
+                "@article{test,author={Ed von Test}}"
+                + "@comment{some text and \\latex}"
             )
         );
 
@@ -1246,8 +1246,8 @@ class BibtexParserTest {
     void parseIgnoresTextBeforeEntry() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "comment{some text and \\latex" +
-                "@article{test,author={Ed von Test}}"
+                "comment{some text and \\latex"
+                + "@article{test,author={Ed von Test}}"
             )
         );
 
@@ -1268,8 +1268,8 @@ class BibtexParserTest {
     void parseIgnoresTextAfterEntry() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@article{test,author={Ed von Test}}" +
-                "comment{some text and \\latex"
+                "@article{test,author={Ed von Test}}"
+                + "comment{some text and \\latex"
             )
         );
 
@@ -1352,9 +1352,9 @@ class BibtexParserTest {
     void parsKeepsMultipleTabs() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@article{test,a = {a\t\tb}," +
-                "b = {a\t \tb}," +
-                "c = {a \t \t b}}"
+                "@article{test,a = {a\t\tb},"
+                + "b = {a\t \tb},"
+                + "c = {a \t \t b}}"
             )
         );
 
@@ -1541,11 +1541,11 @@ class BibtexParserTest {
         String testEntry = "@article{test,author={Ed von Test}}";
         ParserResult result = parser.parse(
             Reader.of(
-                SaveConfiguration.ENCODING_PREFIX +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                testEntry
+                SaveConfiguration.ENCODING_PREFIX
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + testEntry
             )
         );
 
@@ -1565,11 +1565,11 @@ class BibtexParserTest {
         String testEntryTwo = "@article{test2,author={Ed von Test}}";
         ParserResult result = parser.parse(
             Reader.of(
-                testEntryOne +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                testEntryTwo
+                testEntryOne
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + testEntryTwo
             )
         );
 
@@ -1605,12 +1605,12 @@ class BibtexParserTest {
         String testEntry = "@article{test,author={Ed von Test}}";
         ParserResult result = parser.parse(
             Reader.of(
-                testEntry +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                "  " +
-                OS.NEWLINE
+                testEntry
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + "  "
+                + OS.NEWLINE
             )
         );
 
@@ -1630,12 +1630,12 @@ class BibtexParserTest {
         String testEntry = "@article{test,author={Ed von Test}}";
         ParserResult result = parser.parse(
             Reader.of(
-                testEntry +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                OS.NEWLINE +
-                " epilogue " +
-                OS.NEWLINE
+                testEntry
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + OS.NEWLINE
+                + " epilogue "
+                + OS.NEWLINE
             )
         );
 
@@ -1889,9 +1889,9 @@ class BibtexParserTest {
     void integrationTestCustomKeyPattern() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@comment{jabref-meta: keypattern_article:articleTest;}" +
-                OS.NEWLINE +
-                "@comment{jabref-meta: keypatterndefault:test;}"
+                "@comment{jabref-meta: keypattern_article:articleTest;}"
+                + OS.NEWLINE
+                + "@comment{jabref-meta: keypatterndefault:test;}"
             )
         );
 
@@ -2396,29 +2396,29 @@ class BibtexParserTest {
     void integrationTestTexGroup() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@comment{jabref-meta: grouping:" +
-                OS.NEWLINE +
-                "0 AllEntriesGroup:;" +
-                OS.NEWLINE +
-                "1 TexGroup:cited entries\\;0\\;paper.aux\\;1\\;0x8a8a8aff\\;\\;\\;;" +
-                "}" +
-                OS.NEWLINE +
-                "@Comment{jabref-meta: databaseType:biblatex;}" +
-                OS.NEWLINE +
-                "@Comment{jabref-meta: fileDirectory:src/test/resources/org/jabref/model/groups;}" +
-                OS.NEWLINE +
-                "@Comment{jabref-meta: fileDirectory-" +
-                System.getProperty("user.name") +
-                "-" +
-                InetAddress.getLocalHost().getHostName() +
-                ":src/test/resources/org/jabref/model/groups;}" +
-                OS.NEWLINE +
-                "@Comment{jabref-meta: fileDirectoryLatex-" +
-                System.getProperty("user.name") +
-                "-" +
-                InetAddress.getLocalHost().getHostName() +
-                ":src/test/resources/org/jabref/model/groups;}" +
-                OS.NEWLINE
+                "@comment{jabref-meta: grouping:"
+                + OS.NEWLINE
+                + "0 AllEntriesGroup:;"
+                + OS.NEWLINE
+                + "1 TexGroup:cited entries\\;0\\;paper.aux\\;1\\;0x8a8a8aff\\;\\;\\;;"
+                + "}"
+                + OS.NEWLINE
+                + "@Comment{jabref-meta: databaseType:biblatex;}"
+                + OS.NEWLINE
+                + "@Comment{jabref-meta: fileDirectory:src/test/resources/org/jabref/model/groups;}"
+                + OS.NEWLINE
+                + "@Comment{jabref-meta: fileDirectory-"
+                + System.getProperty("user.name")
+                + "-"
+                + InetAddress.getLocalHost().getHostName()
+                + ":src/test/resources/org/jabref/model/groups;}"
+                + OS.NEWLINE
+                + "@Comment{jabref-meta: fileDirectoryLatex-"
+                + System.getProperty("user.name")
+                + "-"
+                + InetAddress.getLocalHost().getHostName()
+                + ":src/test/resources/org/jabref/model/groups;}"
+                + OS.NEWLINE
             )
         );
 
@@ -2514,11 +2514,11 @@ class BibtexParserTest {
     @Test
     void parseDoesNotRecognizeDatabaseIDasUserComment() throws IOException {
         String sharedDatabaseFileContent =
-            "\\% Encoding: UTF-8" +
-            OS.NEWLINE +
-            "\\% DBID: q1w2e3r4t5z6" +
-            OS.NEWLINE +
-            "@Article{a}";
+            "\\% Encoding: UTF-8"
+            + OS.NEWLINE
+            + "\\% DBID: q1w2e3r4t5z6"
+            + OS.NEWLINE
+            + "@Article{a}";
 
         ParserResult parserResult = parser.parse(
             Reader.of(sharedDatabaseFileContent)
@@ -2533,9 +2533,9 @@ class BibtexParserTest {
     void integrationTestFileDirectories() throws IOException {
         ParserResult result = parser.parse(
             Reader.of(
-                "@comment{jabref-meta: fileDirectory:\\\\Literature\\\\;}" +
-                "@comment{jabref-meta: fileDirectory-defaultOwner-user:D:\\\\Documents;}" +
-                "@comment{jabref-meta: fileDirectoryLatex-defaultOwner-user:D:\\\\Latex;}"
+                "@comment{jabref-meta: fileDirectory:\\\\Literature\\\\;}"
+                + "@comment{jabref-meta: fileDirectory-defaultOwner-user:D:\\\\Documents;}"
+                + "@comment{jabref-meta: fileDirectoryLatex-defaultOwner-user:D:\\\\Latex;}"
             )
         );
 
@@ -2851,10 +2851,10 @@ class BibtexParserTest {
         throws ParseException {
         // source of the example: https://docs.jabref.org/fields/strings
         Collection<BibEntry> parsed = parser.parseEntries(
-            "@String { kopp = \"Kopp, Oliver\" }" +
-            "@String { kubovy = \"Kubovy, Jan\" }" +
-            "@String { et = \" and \" }" +
-            "@Misc{m1, author = kopp # et # kubovy }"
+            "@String { kopp = \"Kopp, Oliver\" }"
+            + "@String { kubovy = \"Kubovy, Jan\" }"
+            + "@String { et = \" and \" }"
+            + "@Misc{m1, author = kopp # et # kubovy }"
         );
 
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Misc)
@@ -2869,10 +2869,10 @@ class BibtexParserTest {
         throws ParseException {
         // source of the example: https://docs.jabref.org/fields/strings
         Collection<BibEntry> parsed = parser.parseEntries(
-            "@String { kopp = \"Kopp, Oliver\" }" +
-            "@String { kubovy = \"Kubovy, Jan\" }" +
-            "@String { et = \" and \" }" +
-            "@Misc{m2, author = kopp # \" and \" # kubovy }"
+            "@String { kopp = \"Kopp, Oliver\" }"
+            + "@String { kubovy = \"Kubovy, Jan\" }"
+            + "@String { et = \" and \" }"
+            + "@Misc{m2, author = kopp # \" and \" # kubovy }"
         );
 
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Misc)
@@ -2886,10 +2886,10 @@ class BibtexParserTest {
     void parseStringConstantsForTwoAuthors() throws ParseException {
         // source of the example: https://docs.jabref.org/fields/strings
         Collection<BibEntry> parsed = parser.parseEntries(
-            "@String { kopp = \"Kopp, Oliver\" }" +
-            "@String { kubovy = \"Kubovy, Jan\" }" +
-            "@String { et = \" and \" }" +
-            "@Misc{m2, author = kopp # \" and \" # kubovy }"
+            "@String { kopp = \"Kopp, Oliver\" }"
+            + "@String { kubovy = \"Kubovy, Jan\" }"
+            + "@String { et = \" and \" }"
+            + "@Misc{m2, author = kopp # \" and \" # kubovy }"
         );
 
         assertEquals(

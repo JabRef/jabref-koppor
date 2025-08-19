@@ -84,8 +84,8 @@ public class WebSearchPaneView extends VBox {
             viewModel.queryValidationStatus().validProperty(),
             valid -> {
                 if (
-                    !valid &&
-                    viewModel
+                    !valid
+                    && viewModel
                         .queryValidationStatus()
                         .getHighestMessage()
                         .isPresent()

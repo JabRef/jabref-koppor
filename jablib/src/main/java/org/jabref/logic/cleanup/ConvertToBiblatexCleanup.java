@@ -30,8 +30,8 @@ public class ConvertToBiblatexCleanup implements CleanupJob {
                 .getField(oldField)
                 .ifPresent(oldValue -> {
                     if (
-                        !oldValue.isEmpty() &&
-                        (entry.getField(newField).isEmpty())
+                        !oldValue.isEmpty()
+                        && (entry.getField(newField).isEmpty())
                     ) {
                         // There is content in the old field and no value in the new, so just copy
                         entry

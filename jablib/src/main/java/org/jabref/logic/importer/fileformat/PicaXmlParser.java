@@ -319,10 +319,10 @@ public class PicaXmlParser implements Parser {
 
             // URLs behandeln
             if (
-                "009P".equals(tag) &&
-                ("03".equals(datafield.getAttribute("occurrence")) ||
-                    "05".equals(datafield.getAttribute("occurrence"))) &&
-                (url == null)
+                "009P".equals(tag)
+                && ("03".equals(datafield.getAttribute("occurrence"))
+                    || "05".equals(datafield.getAttribute("occurrence")))
+                && (url == null)
             ) {
                 url = getSubfield("a", datafield);
             }

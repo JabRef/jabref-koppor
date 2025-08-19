@@ -215,8 +215,8 @@ public class IndexManager {
             .executeWith(taskExecutor);
 
         if (
-            shouldIndexLinkedFiles.get() &&
-            event.getField().equals(StandardField.FILE)
+            shouldIndexLinkedFiles.get()
+            && event.getField().equals(StandardField.FILE)
         ) {
             new BackgroundTask<>() {
                 @Override
@@ -304,10 +304,10 @@ public class IndexManager {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(appData)) {
             for (Path path : stream) {
                 if (
-                    Files.isDirectory(path) &&
-                    !path.toString().endsWith("ssl") &&
-                    path.toString().contains("lucene") &&
-                    !path.equals(currentIndexPath)
+                    Files.isDirectory(path)
+                    && !path.toString().endsWith("ssl")
+                    && path.toString().contains("lucene")
+                    && !path.equals(currentIndexPath)
                 ) {
                     LOGGER.info(
                         "Deleting out-of-date fulltext search index at {}.",

@@ -204,18 +204,18 @@ public record PanelStep(
 
         public PanelStep build() {
             if (
-                height != null &&
-                (position == PanelPosition.LEFT ||
-                    position == PanelPosition.RIGHT)
+                height != null
+                && (position == PanelPosition.LEFT
+                    || position == PanelPosition.RIGHT)
             ) {
                 throw new IllegalArgumentException(
                     "Height is not applicable for left/right positioned panels."
                 );
             }
             if (
-                width != null &&
-                (position == PanelPosition.TOP ||
-                    position == PanelPosition.BOTTOM)
+                width != null
+                && (position == PanelPosition.TOP
+                    || position == PanelPosition.BOTTOM)
             ) {
                 throw new IllegalArgumentException(
                     "Width is not applicable for top/bottom positioned panels."

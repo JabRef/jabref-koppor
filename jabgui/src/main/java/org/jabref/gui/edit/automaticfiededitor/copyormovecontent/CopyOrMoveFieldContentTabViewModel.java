@@ -181,9 +181,9 @@ public class CopyOrMoveFieldContentTabViewModel
             String toFieldValue = entry.getField(toField.get()).orElse("");
 
             if (
-                overwriteFieldContent.get() &&
-                StringUtil.isNotBlank(fromFieldValue) &&
-                StringUtil.isNotBlank(toFieldValue)
+                overwriteFieldContent.get()
+                && StringUtil.isNotBlank(fromFieldValue)
+                && StringUtil.isNotBlank(toFieldValue)
             ) {
                 entry.setField(toField.get(), fromFieldValue);
                 entry.setField(fromField.get(), toFieldValue);

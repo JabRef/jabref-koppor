@@ -41,9 +41,9 @@ public class MonthChecker implements ValueChecker {
 
         // biblatex
         if (
-            bibDatabaseContextMonth.isBiblatexMode() &&
-            !(ONLY_AN_INTEGER.test(value.trim()) ||
-                MONTH_NORMALIZED.test(value.trim()))
+            bibDatabaseContextMonth.isBiblatexMode()
+            && !(ONLY_AN_INTEGER.test(value.trim())
+                || MONTH_NORMALIZED.test(value.trim()))
         ) {
             return Optional.of(
                 Localization.lang("should be an integer or normalized")
@@ -52,8 +52,8 @@ public class MonthChecker implements ValueChecker {
 
         // BibTeX
         if (
-            !bibDatabaseContextMonth.isBiblatexMode() &&
-            !MONTH_NORMALIZED.test(value.trim())
+            !bibDatabaseContextMonth.isBiblatexMode()
+            && !MONTH_NORMALIZED.test(value.trim())
         ) {
             return Optional.of(Localization.lang("should be normalized"));
         }

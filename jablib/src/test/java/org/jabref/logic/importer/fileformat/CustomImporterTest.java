@@ -102,9 +102,9 @@ class CustomImporterTest {
     private CustomImporter asCustomImporter(Importer importer)
         throws ImportException {
         return new CustomImporter(
-            "src/main/java/org/jabref/logic/importer/fileformat/" +
-            importer.getName() +
-            "Importer.java",
+            "src/main/java/org/jabref/logic/importer/fileformat/"
+            + importer.getName()
+            + "Importer.java",
             importer.getClass().getName()
         );
     }

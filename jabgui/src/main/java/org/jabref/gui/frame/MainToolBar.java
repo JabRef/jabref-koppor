@@ -315,8 +315,8 @@ public class MainToolBar extends ToolBar {
 
         indicator.setOnMouseClicked(event -> {
             if (
-                (progressViewPopOver != null) &&
-                (progressViewPopOver.isShowing())
+                (progressViewPopOver != null)
+                && (progressViewPopOver.isShowing())
             ) {
                 progressViewPopOver.hide();
                 taskProgressSubscription.unsubscribe();

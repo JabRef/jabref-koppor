@@ -90,8 +90,8 @@ public class MetaDataParser {
             indexEndOfRequiredFields + 1
         );
         if (
-            (indexEndOfRequiredFields < 4) ||
-            (indexEndOfOptionalFields < (indexEndOfRequiredFields + 6))
+            (indexEndOfRequiredFields < 4)
+            || (indexEndOfOptionalFields < (indexEndOfRequiredFields + 6))
         ) {
             return Optional.empty();
         }
@@ -217,8 +217,8 @@ public class MetaDataParser {
                 String currentHost = org.jabref.logic.os.OS.getHostName();
 
                 if (
-                    !userHostInfo.host().isEmpty() &&
-                    !userHostInfo.host().equals(currentHost)
+                    !userHostInfo.host().isEmpty()
+                    && !userHostInfo.host().equals(currentHost)
                 ) {
                     // If the host doesn't match the current host, we need to use the current user-host
                     // This w that the LaTeX file directory is set for the current user on the current host
@@ -249,8 +249,8 @@ public class MetaDataParser {
             } else if (MetaData.SAVE_ORDER_CONFIG.equals(entry.getKey())) {
                 metaData.setSaveOrder(SaveOrder.parse(values));
             } else if (
-                MetaData.GROUPSTREE.equals(entry.getKey()) ||
-                MetaData.GROUPSTREE_LEGACY.equals(entry.getKey())
+                MetaData.GROUPSTREE.equals(entry.getKey())
+                || MetaData.GROUPSTREE_LEGACY.equals(entry.getKey())
             ) {
                 metaData.setGroups(
                     GroupsParser.importGroups(
@@ -276,8 +276,8 @@ public class MetaDataParser {
         if (
             !defaultCiteKeyPattern.equals(
                 CitationKeyPattern.NULL_CITATION_KEY_PATTERN
-            ) ||
-            !nonDefaultCiteKeyPatterns.isEmpty()
+            )
+            || !nonDefaultCiteKeyPatterns.isEmpty()
         ) {
             metaData.setCiteKeyPattern(
                 defaultCiteKeyPattern,
@@ -319,11 +319,11 @@ public class MetaDataParser {
 
     private static Comparator<? super Map.Entry<String, String>> groupsLast() {
         return (s1, s2) ->
-            MetaData.GROUPSTREE.equals(s1.getKey()) ||
-                MetaData.GROUPSTREE_LEGACY.equals(s1.getKey())
+            MetaData.GROUPSTREE.equals(s1.getKey())
+                || MetaData.GROUPSTREE_LEGACY.equals(s1.getKey())
                 ? 1
-                : MetaData.GROUPSTREE.equals(s2.getKey()) ||
-                    MetaData.GROUPSTREE_LEGACY.equals(s2.getKey())
+                : MetaData.GROUPSTREE.equals(s2.getKey())
+                    || MetaData.GROUPSTREE_LEGACY.equals(s2.getKey())
                     ? -1
                     : 0;
     }
@@ -377,8 +377,8 @@ public class MetaDataParser {
                 // That means ; and \\
                 char character = (char) c;
                 if (
-                    character != MetaData.SEPARATOR_CHARACTER &&
-                    character != MetaData.ESCAPE_CHARACTER
+                    character != MetaData.SEPARATOR_CHARACTER
+                    && character != MetaData.ESCAPE_CHARACTER
                 ) {
                     // Keep the escape character
                     res.append("\\");

@@ -248,20 +248,20 @@ class IacrEprintFetcherTest {
         assertNotEquals(
             Optional.empty(),
             fetchedEntry.get().getField(StandardField.DATE),
-            "Expected non empty date field, entry is\n" +
-            fetchedEntry.toString()
+            "Expected non empty date field, entry is\n"
+            + fetchedEntry.toString()
         );
         assertEquals(
             10,
             fetchedEntry.get().getField(StandardField.DATE).get().length(),
-            "Expected yyyy-MM-dd date format, entry is\n" +
-            fetchedEntry.toString()
+            "Expected yyyy-MM-dd date format, entry is\n"
+            + fetchedEntry.toString()
         );
         assertNotEquals(
             Optional.empty(),
             fetchedEntry.get().getField(StandardField.ABSTRACT),
-            "Expected non empty abstract field, entry is\n" +
-            fetchedEntry.toString()
+            "Expected non empty abstract field, entry is\n"
+            + fetchedEntry.toString()
         );
     }
 

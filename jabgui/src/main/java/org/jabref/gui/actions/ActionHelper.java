@@ -34,8 +34,8 @@ public class ActionHelper {
                 context
                     .filter(
                         c ->
-                            c.getLocation() == DatabaseLocation.LOCAL &&
-                            c.getDatabasePath().isPresent()
+                            c.getLocation() == DatabaseLocation.LOCAL
+                            && c.getDatabasePath().isPresent()
                     )
                     .isPresent()
         );
@@ -120,8 +120,8 @@ public class ActionHelper {
                 List<LinkedFile> files = entry.getFiles();
 
                 if (
-                    (!entry.getFiles().isEmpty()) &&
-                    stateManager.getActiveDatabase().isPresent()
+                    (!entry.getFiles().isEmpty())
+                    && stateManager.getActiveDatabase().isPresent()
                 ) {
                     if (files.getFirst().isOnlineLink()) {
                         return true;

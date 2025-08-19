@@ -29,8 +29,8 @@ public class EntryTableConfigurationDialogViewModel extends AbstractViewModel {
             .stream()
             .anyMatch(
                 column ->
-                    column.getType() == MainTableColumnModel.Type.NORMALFIELD &&
-                    InternalField.KEY_FIELD.getName().equals(
+                    column.getType() == MainTableColumnModel.Type.NORMALFIELD
+                    && InternalField.KEY_FIELD.getName().equals(
                         column.getQualifier()
                     )
             );
@@ -52,8 +52,8 @@ public class EntryTableConfigurationDialogViewModel extends AbstractViewModel {
             .stream()
             .anyMatch(
                 column ->
-                    column.getType() == MainTableColumnModel.Type.NORMALFIELD &&
-                    InternalField.KEY_FIELD.getName().equals(
+                    column.getType() == MainTableColumnModel.Type.NORMALFIELD
+                    && InternalField.KEY_FIELD.getName().equals(
                         column.getQualifier()
                     )
             );
@@ -69,9 +69,9 @@ public class EntryTableConfigurationDialogViewModel extends AbstractViewModel {
                 .getColumns()
                 .removeIf(
                     column ->
-                        column.getType() ==
-                            MainTableColumnModel.Type.NORMALFIELD &&
-                        InternalField.KEY_FIELD.getName().equals(
+                        column.getType()
+                            == MainTableColumnModel.Type.NORMALFIELD
+                        && InternalField.KEY_FIELD.getName().equals(
                             column.getQualifier()
                         )
                 );

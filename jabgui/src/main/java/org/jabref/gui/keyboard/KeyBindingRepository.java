@@ -46,9 +46,9 @@ public class KeyBindingRepository {
         );
 
         if (
-            (bindNames.isEmpty()) ||
-            (bindings.isEmpty()) ||
-            (bindNames.size() != bindings.size())
+            (bindNames.isEmpty())
+            || (bindings.isEmpty())
+            || (bindNames.size() != bindings.size())
         ) {
             // Use default key bindings
             for (KeyBinding keyBinding : KeyBinding.values()) {

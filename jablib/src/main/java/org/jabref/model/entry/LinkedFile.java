@@ -205,10 +205,10 @@ public class LinkedFile implements Serializable {
         }
         if (o instanceof LinkedFile that) {
             return (
-                Objects.equals(description.get(), that.description.get()) &&
-                Objects.equals(link.get(), that.link.get()) &&
-                Objects.equals(fileType.get(), that.fileType.get()) &&
-                Objects.equals(sourceURL.get(), that.sourceURL.get())
+                Objects.equals(description.get(), that.description.get())
+                && Objects.equals(link.get(), that.link.get())
+                && Objects.equals(fileType.get(), that.fileType.get())
+                && Objects.equals(sourceURL.get(), that.sourceURL.get())
             );
         }
         return false;
@@ -261,20 +261,20 @@ public class LinkedFile implements Serializable {
     @Override
     public String toString() {
         return (
-            "ParsedFileField{" +
-            "description='" +
-            description.get() +
-            '\'' +
-            ", link='" +
-            link.get() +
-            '\'' +
-            ", fileType='" +
-            fileType.get() +
-            '\'' +
-            (StringUtil.isNullOrEmpty(sourceURL.get())
+            "ParsedFileField{"
+            + "description='"
+            + description.get()
+            + '\''
+            + ", link='"
+            + link.get()
+            + '\''
+            + ", fileType='"
+            + fileType.get()
+            + '\''
+            + (StringUtil.isNullOrEmpty(sourceURL.get())
                     ? ""
-                    : (", sourceUrl='" + sourceURL.get() + '\'')) +
-            '}'
+                    : (", sourceUrl='" + sourceURL.get() + '\''))
+            + '}'
         );
     }
 

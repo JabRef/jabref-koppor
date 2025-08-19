@@ -152,9 +152,9 @@ public abstract class Importer implements Comparable<Importer> {
             if (
                 Arrays.stream(matches).anyMatch(
                     charset ->
-                        "ASCII".equals(charset.getName()) ||
-                        ("UTF-8".equals(charset.getName()) &&
-                            charset.getConfidence() == 100)
+                        "ASCII".equals(charset.getName())
+                        || ("UTF-8".equals(charset.getName())
+                            && charset.getConfidence() == 100)
                 )
             ) {
                 return defaultCharSet;

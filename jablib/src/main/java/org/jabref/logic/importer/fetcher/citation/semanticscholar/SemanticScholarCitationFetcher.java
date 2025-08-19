@@ -44,27 +44,27 @@ public class SemanticScholarCitationFetcher
 
     public String getAPIUrl(String entryPoint, BibEntry entry) {
         return (
-            SEMANTIC_SCHOLAR_API +
-            "paper/" +
-            "DOI:" +
-            entry.getDOI().orElseThrow().asString() +
-            "/" +
-            entryPoint +
-            "?fields=" +
-            "title,authors,year,citationCount,referenceCount,externalIds,publicationTypes,abstract,url" +
-            "&limit=1000"
+            SEMANTIC_SCHOLAR_API
+            + "paper/"
+            + "DOI:"
+            + entry.getDOI().orElseThrow().asString()
+            + "/"
+            + entryPoint
+            + "?fields="
+            + "title,authors,year,citationCount,referenceCount,externalIds,publicationTypes,abstract,url"
+            + "&limit=1000"
         );
     }
 
     public String getUrlForCitationCount(BibEntry entry) {
         return (
-            SEMANTIC_SCHOLAR_API +
-            "paper/" +
-            "DOI:" +
-            entry.getDOI().orElseThrow().asString() +
-            "?fields=" +
-            "citationCount" +
-            "&limit=1"
+            SEMANTIC_SCHOLAR_API
+            + "paper/"
+            + "DOI:"
+            + entry.getDOI().orElseThrow().asString()
+            + "?fields="
+            + "citationCount"
+            + "&limit=1"
         );
     }
 

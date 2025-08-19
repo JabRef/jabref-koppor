@@ -191,9 +191,9 @@ public class MarcXmlParser implements Parser {
                 String ind1 = datafield.getAttribute("ind1");
                 String brackedName;
                 if (
-                    field.get() == StandardField.PUBLISHER &&
-                    StringUtil.isNotBlank(ind1) &&
-                    "2".equals(ind1)
+                    field.get() == StandardField.PUBLISHER
+                    && StringUtil.isNotBlank(ind1)
+                    && "2".equals(ind1)
                 ) {
                     // ind == 2 -> Corporate publisher
                     brackedName = "{" + name.getAsFirstLastNamesWithAnd() + "}";
@@ -304,11 +304,11 @@ public class MarcXmlParser implements Parser {
         String pagetotal = getSubfield("a", datafield);
 
         if (
-            StringUtil.isNotBlank(pagetotal) &&
-            (pagetotal.contains("pages") ||
-                pagetotal.contains("p.") ||
-                pagetotal.contains("S") ||
-                pagetotal.contains("Seiten"))
+            StringUtil.isNotBlank(pagetotal)
+            && (pagetotal.contains("pages")
+                || pagetotal.contains("p.")
+                || pagetotal.contains("S")
+                || pagetotal.contains("Seiten"))
         ) {
             pagetotal = pagetotal.replaceAll(
                 ".*?(\\d+)(?:\\s*Seiten|\\s*S|\\s*pages|\\s*p).*",
@@ -358,9 +358,9 @@ public class MarcXmlParser implements Parser {
 
         String ind1 = datafield.getAttribute("ind1");
         if (
-            StringUtil.isNotBlank(summary) &&
-            StringUtil.isNotBlank(ind1) &&
-            "3".equals(ind1)
+            StringUtil.isNotBlank(summary)
+            && StringUtil.isNotBlank(ind1)
+            && "3".equals(ind1)
         ) {
             // Abstract
             if (bibEntry.getField(StandardField.ABSTRACT).isPresent()) {
@@ -443,9 +443,9 @@ public class MarcXmlParser implements Parser {
         String resource = getSubfield("u", datafield);
 
         if (
-            "e".equals(ind1) &&
-            StringUtil.isNotBlank("u") &&
-            StringUtil.isNotBlank(resource)
+            "e".equals(ind1)
+            && StringUtil.isNotBlank("u")
+            && StringUtil.isNotBlank(resource)
         ) {
             // DOI
             String fulltext = getSubfield("3", datafield);

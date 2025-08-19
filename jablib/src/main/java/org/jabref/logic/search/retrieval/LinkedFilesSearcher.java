@@ -72,8 +72,8 @@ public final class LinkedFilesSearcher {
 
         EnumSet<SearchFlags> searchFlags = searchQuery.getSearchFlags();
         boolean shouldSearchInLinkedFiles =
-            searchFlags.contains(SearchFlags.FULLTEXT) &&
-            filePreferences.shouldFulltextIndexLinkedFiles();
+            searchFlags.contains(SearchFlags.FULLTEXT)
+            && filePreferences.shouldFulltextIndexLinkedFiles();
         if (!shouldSearchInLinkedFiles) {
             return new SearchResults();
         }

@@ -297,13 +297,13 @@ public class SourceTab extends EntryEditorTab {
                                 String content =
                                     Localization.lang(
                                         "User input via entry-editor in `{}bibtex source` tab led to failure."
-                                    ) +
-                                    "\n" +
-                                    Localization.lang(
+                                    )
+                                    + "\n"
+                                    + Localization.lang(
                                         "Please check your library file for wrong syntax."
-                                    ) +
-                                    "\n\n" +
-                                    message.getMessage();
+                                    )
+                                    + "\n\n"
+                                    + message.getMessage();
                                 dialogService.showWarningDialogAndWait(
                                     Localization.lang("SourceTab error"),
                                     content
@@ -354,9 +354,9 @@ public class SourceTab extends EntryEditorTab {
             } catch (IOException ex) {
                 codeArea.setEditable(false);
                 codeArea.appendText(
-                    ex.getMessage() +
-                    "\n\n" +
-                    Localization.lang(
+                    ex.getMessage()
+                    + "\n\n"
+                    + Localization.lang(
                         "Correct the entry, and reopen editor to display/edit source."
                     )
                 );
@@ -497,9 +497,9 @@ public class SourceTab extends EntryEditorTab {
         ) {
             sourceIsValid.setValue(
                 ValidationMessage.error(
-                    Localization.lang("Problem with parsing entry") +
-                    ": " +
-                    ex.getMessage()
+                    Localization.lang("Problem with parsing entry")
+                    + ": "
+                    + ex.getMessage()
                 )
             );
             LOGGER.debug("Incorrect source", ex);

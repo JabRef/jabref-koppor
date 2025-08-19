@@ -204,11 +204,11 @@ public class BibtexString implements Cloneable {
         }
         BibtexString that = (BibtexString) o;
         return (
-            Objects.equals(hasChanged, that.hasChanged) &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(content, that.content) &&
-            Objects.equals(type, that.type) &&
-            Objects.equals(parsedSerialization, that.parsedSerialization)
+            Objects.equals(hasChanged, that.hasChanged)
+            && Objects.equals(name, that.name)
+            && Objects.equals(content, that.content)
+            && Objects.equals(type, that.type)
+            && Objects.equals(parsedSerialization, that.parsedSerialization)
         );
     }
 

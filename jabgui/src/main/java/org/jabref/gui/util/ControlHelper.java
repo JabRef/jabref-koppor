@@ -46,8 +46,8 @@ public class ControlHelper {
 
     public static boolean childIsFocused(Parent node) {
         return (
-            node.isFocused() ||
-            node
+            node.isFocused()
+            || node
                 .getChildrenUnmodifiable()
                 .stream()
                 .anyMatch(child -> {
@@ -159,23 +159,23 @@ public class ControlHelper {
         if (text.length() > maxCharacters) {
             // truncation necessary
             return switch (ellipsisPosition) {
-                case BEGINNING -> ellipsisString +
-                text.substring(
+                case BEGINNING -> ellipsisString
+                + text.substring(
                     text.length() - (maxCharacters - ellipsisString.length())
                 );
                 case CENTER -> {
                     int partialLength = (int) Math.floor(
                         (maxCharacters - ellipsisString.length()) / 2f
                     );
-                    yield text.substring(0, partialLength) +
-                    ellipsisString +
-                    text.substring(text.length() - partialLength);
+                    yield text.substring(0, partialLength)
+                    + ellipsisString
+                    + text.substring(text.length() - partialLength);
                 }
                 case ENDING -> text.substring(
                     0,
                     maxCharacters - ellipsisString.length()
-                ) +
-                ellipsisString;
+                )
+                + ellipsisString;
             };
         }
 

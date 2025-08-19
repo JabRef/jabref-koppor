@@ -111,9 +111,9 @@ class OOBibStyleTestHelper {
         if (inList) {
             if (num.size() != 1) {
                 throw new IllegalArgumentException(
-                    "Numeric label for the bibliography with " +
-                    num.size() +
-                    " numbers?"
+                    "Numeric label for the bibliography with "
+                    + num.size()
+                    + " numbers?"
                 );
             }
             int n = num.getFirst();

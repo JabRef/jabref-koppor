@@ -195,9 +195,9 @@ public class ExportToClipboardAction extends SimpleCommand {
         this.clipBoardManager.setContent(clipboardContent);
 
         dialogService.notify(
-            Localization.lang("Entries exported to clipboard") +
-            ": " +
-            entries.size()
+            Localization.lang("Entries exported to clipboard")
+            + ": "
+            + entries.size()
         );
     }
 

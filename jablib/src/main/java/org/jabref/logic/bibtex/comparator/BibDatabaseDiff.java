@@ -55,10 +55,10 @@ public class BibDatabaseDiff {
 
     private boolean isEmpty() {
         return (
-            metaDataDiff.isEmpty() &&
-            preambleDiff.isEmpty() &&
-            bibStringDiffs.isEmpty() &&
-            entryDiffs.isEmpty()
+            metaDataDiff.isEmpty()
+            && preambleDiff.isEmpty()
+            && bibStringDiffs.isEmpty()
+            && entryDiffs.isEmpty()
         );
     }
 
@@ -185,9 +185,9 @@ public class BibDatabaseDiff {
                 bestMatch > MATCH_THRESHOLD;
 
             if (
-                isDuplicate ||
-                hasEqualCitationKey ||
-                ratioOfEqualFieldsAboveThreshold
+                isDuplicate
+                || hasEqualCitationKey
+                || ratioOfEqualFieldsAboveThreshold
             ) {
                 matchedEntries.add(bestMatchIndex);
                 differences.add(
@@ -216,9 +216,9 @@ public class BibDatabaseDiff {
         BibEntry twoEntry
     ) {
         return (
-            oneEntry.hasCitationKey() &&
-            twoEntry.hasCitationKey() &&
-            oneEntry.getCitationKey().equals(twoEntry.getCitationKey())
+            oneEntry.hasCitationKey()
+            && twoEntry.hasCitationKey()
+            && oneEntry.getCitationKey().equals(twoEntry.getCitationKey())
         );
     }
 

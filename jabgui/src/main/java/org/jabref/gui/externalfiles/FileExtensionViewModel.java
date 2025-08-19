@@ -35,8 +35,8 @@ public class FileExtensionViewModel {
 
     public String getDescription() {
         return (
-            this.description +
-            extensions.stream().collect(Collectors.joining(", ", " (", ")"))
+            this.description
+            + extensions.stream().collect(Collectors.joining(", ", " (", ")"))
         );
     }
 

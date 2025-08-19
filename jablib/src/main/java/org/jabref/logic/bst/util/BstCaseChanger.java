@@ -98,9 +98,9 @@ public final class BstCaseChanger {
                     continue;
                 }
                 if (
-                    (format == FormatMode.TITLE_LOWERS) &&
-                    ((i == 0) ||
-                        (prevColon && Character.isWhitespace(c[i - 1])))
+                    (format == FormatMode.TITLE_LOWERS)
+                    && ((i == 0)
+                        || (prevColon && Character.isWhitespace(c[i - 1])))
                 ) {
                     sb.append('{');
                     i++;

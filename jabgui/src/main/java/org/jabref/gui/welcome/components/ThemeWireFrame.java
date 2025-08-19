@@ -18,9 +18,9 @@ public class ThemeWireFrame extends VBox {
     public void setThemeType(@NonNull ThemeTypes themeType) {
         getStyleClass().removeIf(
             styleClass ->
-                styleClass.startsWith("wireframe-light") ||
-                styleClass.startsWith("wireframe-dark") ||
-                styleClass.startsWith("wireframe-custom")
+                styleClass.startsWith("wireframe-light")
+                || styleClass.startsWith("wireframe-dark")
+                || styleClass.startsWith("wireframe-custom")
         );
 
         String themeClassName = switch (themeType) {

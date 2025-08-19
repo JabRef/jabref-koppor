@@ -258,8 +258,8 @@ public class FieldFormatterCleanups {
         }
         if (obj instanceof FieldFormatterCleanups other) {
             return (
-                Objects.equals(actions, other.actions) &&
-                (enabled == other.enabled)
+                Objects.equals(actions, other.actions)
+                && (enabled == other.enabled)
             );
         }
         return false;
@@ -268,13 +268,13 @@ public class FieldFormatterCleanups {
     @Override
     public String toString() {
         return (
-            "FieldFormatterCleanups{" +
-            "enabled=" +
-            enabled +
-            "," +
-            "actions=" +
-            actions +
-            "}"
+            "FieldFormatterCleanups{"
+            + "enabled="
+            + enabled
+            + ","
+            + "actions="
+            + actions
+            + "}"
         );
     }
 }

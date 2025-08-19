@@ -14,8 +14,8 @@ public class TextInputKeyBindings {
         KeyBindingRepository keyBindingRepository
     ) {
         if (
-            scene.focusOwnerProperty().get() instanceof
-            TextInputControl focusedTextField
+            scene.focusOwnerProperty().get()
+            instanceof TextInputControl focusedTextField
         ) {
             keyBindingRepository
                 .mapToKeyBinding(event)

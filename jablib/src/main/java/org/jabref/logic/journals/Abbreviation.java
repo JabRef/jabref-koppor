@@ -67,8 +67,8 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
 
     public boolean isDefaultShortestUniqueAbbreviation() {
         return (
-            (shortestUniqueAbbreviation.isEmpty()) ||
-            this.shortestUniqueAbbreviation.equals(this.abbreviation)
+            (shortestUniqueAbbreviation.isEmpty())
+            || this.shortestUniqueAbbreviation.equals(this.abbreviation)
         );
     }
 
@@ -103,8 +103,8 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
                 ? getName()
                 : getShortestUniqueAbbreviation();
         } else if (
-            getShortestUniqueAbbreviation().equals(currentTrimmed) &&
-            !getShortestUniqueAbbreviation().equals(getAbbreviation())
+            getShortestUniqueAbbreviation().equals(currentTrimmed)
+            && !getShortestUniqueAbbreviation().equals(getAbbreviation())
         ) {
             return getName();
         } else if (getName().equals(currentTrimmed)) {
@@ -134,9 +134,9 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
         }
         Abbreviation that = (Abbreviation) o;
         return (
-            getName().equals(that.getName()) &&
-            getAbbreviation().equals(that.getAbbreviation()) &&
-            getShortestUniqueAbbreviation().equals(
+            getName().equals(that.getName())
+            && getAbbreviation().equals(that.getAbbreviation())
+            && getShortestUniqueAbbreviation().equals(
                 that.getShortestUniqueAbbreviation()
             )
         );

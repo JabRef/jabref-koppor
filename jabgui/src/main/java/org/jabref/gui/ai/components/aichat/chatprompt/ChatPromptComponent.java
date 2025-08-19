@@ -100,10 +100,9 @@ public class ChatPromptComponent extends HBox {
             } else if (keyEvent.getCode() == KeyCode.UP) {
                 // [impl->req~ai.chat.new-message-based-on-previous~1]
                 if (
-                    (currentUserMessageScroll.get() <
-                        history.get().size() - 1) &&
-                    (userPromptTextArea.getText().isEmpty() ||
-                        showingHistoryMessage.get())
+                    (currentUserMessageScroll.get() < history.get().size() - 1)
+                    && (userPromptTextArea.getText().isEmpty()
+                        || showingHistoryMessage.get())
                 ) {
                     // 1. We should not go up the maximum number of user messages.
                     // 2. We can scroll history only on two conditions:
@@ -117,8 +116,8 @@ public class ChatPromptComponent extends HBox {
             } else {
                 // Cursor left/right should not stop history scrolling
                 if (
-                    keyEvent.getCode() != KeyCode.RIGHT &&
-                    keyEvent.getCode() != KeyCode.LEFT
+                    keyEvent.getCode() != KeyCode.RIGHT
+                    && keyEvent.getCode() != KeyCode.LEFT
                 ) {
                     // It is okay to go back and forth in the prompt while showing a history message.
                     // But if user begins doing something else, we should not track the history and reset
@@ -143,12 +142,12 @@ public class ChatPromptComponent extends HBox {
                 // 1) either to NEW_NON_EXISTENT_MESSAGE,
                 // 2) or to a new history entry.
                 if (
-                    newValue.intValue() != NEW_NON_EXISTENT_MESSAGE &&
-                    showingHistoryMessage.get()
+                    newValue.intValue() != NEW_NON_EXISTENT_MESSAGE
+                    && showingHistoryMessage.get()
                 ) {
                     if (
-                        userPromptTextArea.getCaretPosition() == 0 ||
-                        !userPromptTextArea.getText().contains("\n")
+                        userPromptTextArea.getCaretPosition() == 0
+                        || !userPromptTextArea.getText().contains("\n")
                     ) {
                         // If there are new lines in the prompt, then it is ambiguous whether the user tries to scroll up or down in history or editing lines in the current prompt.
                         // The easy way to get rid of this ambiguity is to disallow scrolling when there are new lines in the prompt.

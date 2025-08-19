@@ -134,10 +134,10 @@ class BackupManagerTest {
             Path directory = backupDir;
             String timeSuffix = "2020-02-03--00.00.0" + i;
             String fileName =
-                BackupFileUtil.getUniqueFilePrefix(noChangesBib) +
-                "--no-changes.bib--" +
-                timeSuffix +
-                ".bak";
+                BackupFileUtil.getUniqueFilePrefix(noChangesBib)
+                + "--no-changes.bib--"
+                + timeSuffix
+                + ".bak";
             target = directory.resolve(fileName);
             Files.copy(
                 changesBibBak,

@@ -138,9 +138,9 @@ public class FileAnnotationTabViewModel extends AbstractViewModel {
         }
         StringJoiner sj = new StringJoiner("," + OS.NEWLINE);
         sj.add(
-            Localization.lang("Author") +
-            ": " +
-            getCurrentAnnotation().getAuthor()
+            Localization.lang("Author")
+            + ": "
+            + getCurrentAnnotation().getAuthor()
         );
         sj.add(
             Localization.lang("Date") + ": " + getCurrentAnnotation().getDate()
@@ -149,14 +149,14 @@ public class FileAnnotationTabViewModel extends AbstractViewModel {
             Localization.lang("Page") + ": " + getCurrentAnnotation().getPage()
         );
         sj.add(
-            Localization.lang("Content") +
-            ": " +
-            getCurrentAnnotation().getContent()
+            Localization.lang("Content")
+            + ": "
+            + getCurrentAnnotation().getContent()
         );
         sj.add(
-            Localization.lang("Marking") +
-            ": " +
-            getCurrentAnnotation().markingProperty().get()
+            Localization.lang("Marking")
+            + ": "
+            + getCurrentAnnotation().markingProperty().get()
         );
 
         clipBoardManager.setContent(sj.toString());

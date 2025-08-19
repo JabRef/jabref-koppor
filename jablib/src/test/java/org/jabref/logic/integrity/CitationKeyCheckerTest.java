@@ -48,9 +48,9 @@ class CitationKeyCheckerTest {
             .withField(StandardField.YEAR, "2021");
         List<IntegrityMessage> expected = List.of(
             new IntegrityMessage(
-                Localization.lang("empty citation key") +
-                ": " +
-                entry.getAuthorTitleYear(100),
+                Localization.lang("empty citation key")
+                + ": "
+                + entry.getAuthorTitleYear(100),
                 entry,
                 InternalField.KEY_FIELD
             )

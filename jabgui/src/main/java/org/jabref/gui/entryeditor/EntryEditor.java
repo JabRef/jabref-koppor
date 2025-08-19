@@ -236,8 +236,8 @@ public class EntryEditor
                         .selectedItemProperty()
                         .get();
                     if (
-                        newValue &&
-                        tab instanceof FieldsEditorTab fieldsEditorTab
+                        newValue
+                        && tab instanceof FieldsEditorTab fieldsEditorTab
                     ) {
                         fieldsEditorTab.removePreviewPanelFromThisTab();
                     }
@@ -711,8 +711,8 @@ public class EntryEditor
         for (EntryBasedFetcher fetcher : entryBasedFetchers) {
             MenuItem fetcherMenuItem = new MenuItem(fetcher.getName());
             if (
-                fetcher instanceof
-                PdfMergeMetadataImporter.EntryBasedFetcherWrapper
+                fetcher
+                instanceof PdfMergeMetadataImporter.EntryBasedFetcherWrapper
             ) {
                 // Handle Grobid Opt-In in case of the PdfMergeMetadataImporter
                 fetcherMenuItem.setOnAction(event -> {
@@ -756,8 +756,8 @@ public class EntryEditor
             for (Tab tab : tabbed.getTabs()) {
                 tabbed.getSelectionModel().select(tab);
                 if (
-                    (tab instanceof FieldsEditorTab fieldsEditorTab) &&
-                    fieldsEditorTab.getShownFields().contains(actualField)
+                    (tab instanceof FieldsEditorTab fieldsEditorTab)
+                    && fieldsEditorTab.getShownFields().contains(actualField)
                 ) {
                     tabbed.getSelectionModel().select(tab);
                     Platform.runLater(() ->

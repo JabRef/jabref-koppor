@@ -120,8 +120,8 @@ public class WalkthroughHighlighter {
         }
 
         if (
-            config.windowEffects().isEmpty() &&
-            config.fallbackEffect().isPresent()
+            config.windowEffects().isEmpty()
+            && config.fallbackEffect().isPresent()
         ) {
             newEffects.put(
                 fallbackWindow.getWindow(),
@@ -149,8 +149,8 @@ public class WalkthroughHighlighter {
                     .orElse(fallbackTarget);
 
                 if (
-                    targetNode != null ||
-                    effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN
+                    targetNode != null
+                    || effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN
                 ) {
                     newEffects.put(
                         window,

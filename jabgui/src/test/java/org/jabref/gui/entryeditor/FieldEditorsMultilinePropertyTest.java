@@ -75,10 +75,10 @@ public class FieldEditorsMultilinePropertyTest {
                 .getResult()
                 .orElseThrow(() ->
                     new NullPointerException(
-                        "Failed to parse " +
-                        filePath +
-                        ", java parser returned null CompilationUnit" +
-                        ", please check if the file exists"
+                        "Failed to parse "
+                        + filePath
+                        + ", java parser returned null CompilationUnit"
+                        + ", please check if the file exists"
                     )
                 );
 
@@ -90,11 +90,11 @@ public class FieldEditorsMultilinePropertyTest {
                 // If the editor has MULTILINE_TEXT property, we are going to check if the class holds a `TextInputControl` field
                 // and have performed Text Area creation
                 assertTrue(
-                    holdTextInputControlField(cu) &&
-                    hasEditorTextAreaCreationExisted(cu),
-                    "Class " +
-                    filePath +
-                    " should hold a TextInputControl field and have EditorTextArea creation"
+                    holdTextInputControlField(cu)
+                    && hasEditorTextAreaCreationExisted(cu),
+                    "Class "
+                    + filePath
+                    + " should hold a TextInputControl field and have EditorTextArea creation"
                 );
             }
         }
@@ -206,17 +206,17 @@ public class FieldEditorsMultilinePropertyTest {
                                     String classPath =
                                         importDeclaration.getNameAsString();
                                     Path classFilePath = Path.of(
-                                        "src/main/java/" +
-                                        classPath.replace(".", "/") +
-                                        ".java"
+                                        "src/main/java/"
+                                        + classPath.replace(".", "/")
+                                        + ".java"
                                     );
                                     result.put(classFilePath, properties);
                                 },
                                 () -> {
                                     Path classFilePath = Path.of(
-                                        "src/main/java/org/jabref/gui/fieldeditors/" +
-                                        createdClassName +
-                                        ".java"
+                                        "src/main/java/org/jabref/gui/fieldeditors/"
+                                        + createdClassName
+                                        + ".java"
                                     );
                                     result.put(classFilePath, properties);
                                 }

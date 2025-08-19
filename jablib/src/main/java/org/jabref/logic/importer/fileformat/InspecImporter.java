@@ -127,8 +127,8 @@ public class InspecImporter extends Importer {
                         if ("Journal-Paper".equals(frest)) {
                             type = StandardEntryType.Article;
                         } else if (
-                            "Conference-Paper".equals(frest) ||
-                            "Conference-Paper; Journal-Paper".equals(frest)
+                            "Conference-Paper".equals(frest)
+                            || "Conference-Paper; Journal-Paper".equals(frest)
                         ) {
                             type = StandardEntryType.InProceedings;
                         } else {

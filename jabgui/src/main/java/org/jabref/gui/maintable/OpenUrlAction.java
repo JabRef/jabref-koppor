@@ -88,8 +88,8 @@ public class OpenUrlAction extends SimpleCommand {
                 if (link.isPresent()) {
                     try {
                         if (
-                            field.equals(StandardField.DOI) &&
-                            preferences.getDOIPreferences().isUseCustom()
+                            field.equals(StandardField.DOI)
+                            && preferences.getDOIPreferences().isUseCustom()
                         ) {
                             NativeDesktop.openCustomDoi(
                                 link.get(),

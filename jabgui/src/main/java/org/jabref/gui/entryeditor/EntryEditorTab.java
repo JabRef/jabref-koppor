@@ -42,8 +42,8 @@ public abstract class EntryEditorTab extends Tab {
      */
     public void notifyAboutFocus(BibEntry entry) {
         if (
-            !entry.equals(currentEntry) ||
-            !entry.getType().equals(currentEntryType)
+            !entry.equals(currentEntry)
+            || !entry.getType().equals(currentEntryType)
         ) {
             // TODO: Shouldn't "bindToEntry" called when changing the entry?
             LOGGER.trace(

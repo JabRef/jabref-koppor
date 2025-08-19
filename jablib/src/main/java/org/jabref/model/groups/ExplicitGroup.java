@@ -60,16 +60,16 @@ public class ExplicitGroup extends WordKeywordGroup {
             return false;
         }
         return (
-            Objects.equals(getName(), other.getName()) &&
-            Objects.equals(
+            Objects.equals(getName(), other.getName())
+            && Objects.equals(
                 getHierarchicalContext(),
                 other.getHierarchicalContext()
-            ) &&
-            Objects.equals(getIconName(), other.getIconName()) &&
-            Objects.equals(getDescription(), other.getDescription()) &&
-            Objects.equals(getColor(), other.getColor()) &&
-            Objects.equals(isExpanded(), other.isExpanded()) &&
-            Objects.equals(getLegacyEntryKeys(), other.getLegacyEntryKeys())
+            )
+            && Objects.equals(getIconName(), other.getIconName())
+            && Objects.equals(getDescription(), other.getDescription())
+            && Objects.equals(getColor(), other.getColor())
+            && Objects.equals(isExpanded(), other.isExpanded())
+            && Objects.equals(getLegacyEntryKeys(), other.getLegacyEntryKeys())
         );
     }
 

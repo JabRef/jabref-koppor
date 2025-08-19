@@ -57,11 +57,11 @@ public class Author {
         String nameSuffix
     ) {
         boolean keepBracesAtLastPart =
-            StringUtil.isBlank(givenName) &&
-            StringUtil.isBlank(givenNameAbbreviated) &&
-            StringUtil.isBlank(namePrefix) &&
-            !StringUtil.isBlank(familyName) &&
-            StringUtil.isBlank(nameSuffix);
+            StringUtil.isBlank(givenName)
+            && StringUtil.isBlank(givenNameAbbreviated)
+            && StringUtil.isBlank(namePrefix)
+            && !StringUtil.isBlank(familyName)
+            && StringUtil.isBlank(nameSuffix);
 
         if (!StringUtil.isBlank(givenName)) {
             this.givenName = addDotIfAbbreviation(FORMATTER.format(givenName));
@@ -102,9 +102,9 @@ public class Author {
         }
         // If only one character (uppercase letter), add a dot and return immediately:
         if (
-            (name.length() == 1) &&
-            Character.isLetter(name.charAt(0)) &&
-            Character.isUpperCase(name.charAt(0))
+            (name.length() == 1)
+            && Character.isLetter(name.charAt(0))
+            && Character.isUpperCase(name.charAt(0))
         ) {
             return name + ".";
         }
@@ -121,16 +121,16 @@ public class Author {
             if (currentChar == '.') {
                 // A.A. -> A. A.
                 if (
-                    ((i + 1) < name.length()) &&
-                    Character.isUpperCase(name.charAt(i + 1))
+                    ((i + 1) < name.length())
+                    && Character.isUpperCase(name.charAt(i + 1))
                 ) {
                     sb.append(' ');
                 }
             }
 
             boolean currentIsUppercaseLetter =
-                Character.isLetter(currentChar) &&
-                Character.isUpperCase(currentChar);
+                Character.isLetter(currentChar)
+                && Character.isUpperCase(currentChar);
             if (!currentIsUppercaseLetter) {
                 // No uppercase letter, hence nothing to do
                 continue;
@@ -167,18 +167,18 @@ public class Author {
             for (int j = i + 1; j < name.length(); j++) {
                 furtherChar = name.charAt(j);
                 if (
-                    Character.isWhitespace(furtherChar) ||
-                    (furtherChar == '-') ||
-                    (furtherChar == '~') ||
-                    (furtherChar == '.')
+                    Character.isWhitespace(furtherChar)
+                    || (furtherChar == '-')
+                    || (furtherChar == '~')
+                    || (furtherChar == '.')
                 ) {
                     // end of word
                     break;
                 }
 
                 boolean furtherIsUppercaseLetter =
-                    Character.isLetter(furtherChar) &&
-                    Character.isUpperCase(furtherChar);
+                    Character.isLetter(furtherChar)
+                    && Character.isUpperCase(furtherChar);
                 if (!furtherIsUppercaseLetter) {
                     nextWordIsUppercase = false;
                     break;
@@ -220,14 +220,14 @@ public class Author {
 
         if (other instanceof Author that) {
             return (
-                Objects.equals(givenName, that.givenName) &&
-                Objects.equals(
+                Objects.equals(givenName, that.givenName)
+                && Objects.equals(
                     givenNameAbbreviated,
                     that.givenNameAbbreviated
-                ) &&
-                Objects.equals(namePrefix, that.namePrefix) &&
-                Objects.equals(familyName, that.familyName) &&
-                Objects.equals(nameSuffix, that.nameSuffix)
+                )
+                && Objects.equals(namePrefix, that.namePrefix)
+                && Objects.equals(familyName, that.familyName)
+                && Objects.equals(nameSuffix, that.nameSuffix)
             );
         }
 
@@ -338,23 +338,23 @@ public class Author {
     @Override
     public String toString() {
         return (
-            "Author{" +
-            "givenName='" +
-            givenName +
-            '\'' +
-            ", givenNameAbbreviated='" +
-            givenNameAbbreviated +
-            '\'' +
-            ", namePrefix='" +
-            namePrefix +
-            '\'' +
-            ", familyName='" +
-            familyName +
-            '\'' +
-            ", nameSuffix='" +
-            nameSuffix +
-            '\'' +
-            '}'
+            "Author{"
+            + "givenName='"
+            + givenName
+            + '\''
+            + ", givenNameAbbreviated='"
+            + givenNameAbbreviated
+            + '\''
+            + ", namePrefix='"
+            + namePrefix
+            + '\''
+            + ", familyName='"
+            + familyName
+            + '\''
+            + ", nameSuffix='"
+            + nameSuffix
+            + '\''
+            + '}'
         );
     }
 

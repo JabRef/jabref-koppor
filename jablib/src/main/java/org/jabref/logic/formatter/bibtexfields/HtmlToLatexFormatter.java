@@ -92,41 +92,41 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
             if (HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.containsKey(num)) {
                 if ("i".equals(m.group(1))) {
                     result = result.replace(
-                        m.group(1) +
-                        "&#" +
-                        m.group(2) +
-                        m.group(3) +
-                        m.group(4) +
-                        ";",
-                        "{\\" +
-                        HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) +
-                        "{\\i}}"
+                        m.group(1)
+                        + "&#"
+                        + m.group(2)
+                        + m.group(3)
+                        + m.group(4)
+                        + ";",
+                        "{\\"
+                        + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num)
+                        + "{\\i}}"
                     );
                 } else if ("j".equals(m.group(1))) {
                     result = result.replace(
-                        m.group(1) +
-                        "&#" +
-                        m.group(2) +
-                        m.group(3) +
-                        m.group(4) +
-                        ";",
-                        "{\\" +
-                        HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) +
-                        "{\\j}}"
+                        m.group(1)
+                        + "&#"
+                        + m.group(2)
+                        + m.group(3)
+                        + m.group(4)
+                        + ";",
+                        "{\\"
+                        + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num)
+                        + "{\\j}}"
                     );
                 } else {
                     result = result.replace(
-                        m.group(1) +
-                        "&#" +
-                        m.group(2) +
-                        m.group(3) +
-                        m.group(4) +
-                        ";",
-                        "{\\" +
-                        HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) +
-                        "{" +
-                        m.group(1) +
-                        "}}"
+                        m.group(1)
+                        + "&#"
+                        + m.group(2)
+                        + m.group(3)
+                        + m.group(4)
+                        + ";",
+                        "{\\"
+                        + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num)
+                        + "{"
+                        + m.group(1)
+                        + "}}"
                     );
                 }
             }

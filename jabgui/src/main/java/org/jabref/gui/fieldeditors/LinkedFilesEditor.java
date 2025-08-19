@@ -166,8 +166,10 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         DragEvent event
     ) {
         if (
-            (event.getGestureSource() != originalItem) &&
-            event.getDragboard().hasContent(DragAndDropDataFormats.LINKED_FILE)
+            (event.getGestureSource() != originalItem)
+            && event
+                .getDragboard()
+                .hasContent(DragAndDropDataFormats.LINKED_FILE)
         ) {
             event.acceptTransferModes(TransferMode.MOVE);
         }
@@ -415,13 +417,13 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         MouseEvent event
     ) {
         if (
-            event.getButton() == MouseButton.PRIMARY &&
-            (event.getClickCount() == 2)
+            event.getButton() == MouseButton.PRIMARY
+            && (event.getClickCount() == 2)
         ) {
             linkedFile.open(); // Double-click: open file
         } else if (
-            activeContextMenu != null &&
-            event.getButton() == MouseButton.PRIMARY
+            activeContextMenu != null
+            && event.getButton() == MouseButton.PRIMARY
         ) {
             activeContextMenu.hide(); // Hide context menu if left-click
             activeContextMenu = null;

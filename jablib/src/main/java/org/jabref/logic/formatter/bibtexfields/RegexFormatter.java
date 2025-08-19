@@ -42,11 +42,11 @@ public class RegexFormatter extends Formatter {
      * RegexFormatter#regex} and {@link RegexFormatter#replacement} used in {@link RegexFormatter#format(String)}
      */
     private static final Pattern CONSTRUCTOR_ARGUMENT = Pattern.compile(
-        "^\\(\"(?<" +
-        REGEX_CAPTURING_GROUP +
-        ">.*?)\" *?, *?\"(?<" +
-        REPLACEMENT_CAPTURING_GROUP +
-        ">.*)\"\\)$"
+        "^\\(\"(?<"
+        + REGEX_CAPTURING_GROUP
+        + ">.*?)\" *?, *?\"(?<"
+        + REPLACEMENT_CAPTURING_GROUP
+        + ">.*)\"\\)$"
     );
 
     // Magic arbitrary unicode char, which will never appear in bibtex files

@@ -85,8 +85,8 @@ public class FetcherException extends JabRefException {
         if (httpResponse != null) {
             // We decided to not "translate" technical terms (URL, HTTP)
             return (
-                getPrefix() +
-                "URL: %s\nHTTP %d %s\n%s".formatted(
+                getPrefix()
+                + "URL: %s\nHTTP %d %s\n%s".formatted(
                     getRedactedUrl(),
                     httpResponse.statusCode(),
                     httpResponse.responseMessage(),

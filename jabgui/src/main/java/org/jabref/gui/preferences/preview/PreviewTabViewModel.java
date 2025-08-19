@@ -122,8 +122,8 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
 
         sourceTextProperty.addListener((observable, oldValue, newValue) -> {
             if (
-                selectedLayoutProperty.getValue() instanceof
-                TextBasedPreviewLayout layout
+                selectedLayoutProperty.getValue()
+                instanceof TextBasedPreviewLayout layout
             ) {
                 layout.setText(sourceTextProperty.getValue());
             }
@@ -219,9 +219,9 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
             LOGGER.warn("Parsing error.", exception);
             dialogService.showErrorDialogAndWait(
                 Localization.lang("Parsing error"),
-                Localization.lang("Parsing error") +
-                ": " +
-                Localization.lang("illegal backslash expression"),
+                Localization.lang("Parsing error")
+                + ": "
+                + Localization.lang("illegal backslash expression"),
                 exception
             );
         }
@@ -394,8 +394,8 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
         for (int i = selected.size() - 1; i >= 0; i--) {
             int oldIndex = selected.get(i);
             boolean alreadyTaken = newIndices.contains(oldIndex + 1);
-            int newIndex = (oldIndex < (chosenListProperty.size() - 1)) &&
-                !alreadyTaken
+            int newIndex = (oldIndex < (chosenListProperty.size() - 1))
+                && !alreadyTaken
                 ? oldIndex + 1
                 : oldIndex;
             chosenListProperty.add(
@@ -436,8 +436,8 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
      */
     public StyleSpans<Collection<String>> computeHighlighting(String text) {
         final Pattern XML_TAG = Pattern.compile(
-            "(?<ELEMENT>(</?\\h*)(\\w+)([^<>]*)(\\h*/?>))" +
-            "|(?<COMMENT><!--[^<>]+-->)"
+            "(?<ELEMENT>(</?\\h*)(\\w+)([^<>]*)(\\h*/?>))"
+            + "|(?<COMMENT><!--[^<>]+-->)"
         );
         final Pattern ATTRIBUTES = Pattern.compile(
             "(\\w+\\h*)(=)(\\h*\"[^\"]+\")"
@@ -470,13 +470,13 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
 
                     spansBuilder.add(
                         Set.of("tagmark"),
-                        matcher.end(GROUP_OPEN_BRACKET) -
-                        matcher.start(GROUP_OPEN_BRACKET)
+                        matcher.end(GROUP_OPEN_BRACKET)
+                        - matcher.start(GROUP_OPEN_BRACKET)
                     );
                     spansBuilder.add(
                         Set.of("anytag"),
-                        matcher.end(GROUP_ELEMENT_NAME) -
-                        matcher.end(GROUP_OPEN_BRACKET)
+                        matcher.end(GROUP_ELEMENT_NAME)
+                        - matcher.end(GROUP_OPEN_BRACKET)
                     );
 
                     if (!attributesText.isEmpty()) {
@@ -492,18 +492,18 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
                             );
                             spansBuilder.add(
                                 Set.of("attribute"),
-                                attributesMatcher.end(GROUP_ATTRIBUTE_NAME) -
-                                attributesMatcher.start(GROUP_ATTRIBUTE_NAME)
+                                attributesMatcher.end(GROUP_ATTRIBUTE_NAME)
+                                - attributesMatcher.start(GROUP_ATTRIBUTE_NAME)
                             );
                             spansBuilder.add(
                                 Set.of("tagmark"),
-                                attributesMatcher.end(GROUP_EQUAL_SYMBOL) -
-                                attributesMatcher.end(GROUP_ATTRIBUTE_NAME)
+                                attributesMatcher.end(GROUP_EQUAL_SYMBOL)
+                                - attributesMatcher.end(GROUP_ATTRIBUTE_NAME)
                             );
                             spansBuilder.add(
                                 Set.of("avalue"),
-                                attributesMatcher.end(GROUP_ATTRIBUTE_VALUE) -
-                                attributesMatcher.end(GROUP_EQUAL_SYMBOL)
+                                attributesMatcher.end(GROUP_ATTRIBUTE_VALUE)
+                                - attributesMatcher.end(GROUP_EQUAL_SYMBOL)
                             );
                             lastKeywordEnd = attributesMatcher.end();
                         }
@@ -630,8 +630,8 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
 
                 if (targetLayout != null) {
                     targetId =
-                        chosenListProperty.getValue().indexOf(targetLayout) +
-                        onSelectedDelta;
+                        chosenListProperty.getValue().indexOf(targetLayout)
+                        + onSelectedDelta;
                 } else if (targetId != 0) {
                     targetId = chosenListProperty.getValue().size();
                 }
@@ -670,8 +670,8 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
     public void setAvailableFilter(String searchTerm) {
         this.filteredAvailableLayouts.setPredicate(
             preview ->
-                searchTerm.isEmpty() ||
-                preview.containsCaseIndependent(searchTerm)
+                searchTerm.isEmpty()
+                || preview.containsCaseIndependent(searchTerm)
         );
     }
 

@@ -105,8 +105,8 @@ public class IngestionService {
         @Subscribe
         public void listen(FieldChangedEvent e) {
             if (
-                e.getField() == StandardField.FILE &&
-                aiPreferences.getAutoGenerateEmbeddings()
+                e.getField() == StandardField.FILE
+                && aiPreferences.getAutoGenerateEmbeddings()
             ) {
                 e
                     .getBibEntry()

@@ -331,8 +331,8 @@ public class TableTabViewModel implements PreferenceTabViewModel {
             .getSelectedItem();
         int row = columnsListProperty.getValue().indexOf(selectedColumn);
         if (
-            (selectedColumn == null) ||
-            (row > (columnsListProperty.getValue().size() - 2))
+            (selectedColumn == null)
+            || (row > (columnsListProperty.getValue().size() - 2))
         ) {
             return;
         }

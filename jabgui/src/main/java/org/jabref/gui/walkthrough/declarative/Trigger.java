@@ -130,9 +130,11 @@ public interface Trigger {
                 final EventDispatcher newDispatcher = (event, tail) -> {
                     EventType<? extends Event> eventType = event.getEventType();
                     if (
-                        eventType == MouseEvent.MOUSE_CLICKED || // Catch all
-                        eventType == MouseEvent.MOUSE_RELEASED || // MenuItem on ContextWindow hide upon MOUSE_RELEASED, catch ACTION is too late
-                        eventType == ActionEvent.ACTION
+                        eventType == MouseEvent.MOUSE_CLICKED
+                        // Catch all
+                        || eventType == MouseEvent.MOUSE_RELEASED
+                        // MenuItem on ContextWindow hide upon MOUSE_RELEASED, catch ACTION is too late
+                        || eventType == ActionEvent.ACTION
                     ) {
                         // Buttons, especially Buttons on DialogPane
                         node.setEventDispatcher(originalDispatcher);
@@ -216,8 +218,8 @@ public interface Trigger {
                 ListChangeListener<Object> listener = change -> {
                     while (change.next()) {
                         if (
-                            change.wasAdded() &&
-                            !change.getAddedSubList().isEmpty()
+                            change.wasAdded()
+                            && !change.getAddedSubList().isEmpty()
                         ) {
                             onNavigate.apply(NOTHING);
                             break;

@@ -68,11 +68,11 @@ public class GroupEditor extends SimpleEditor {
                                     .getField(StandardField.GROUPS)
                                     .map(
                                         oldGroups ->
-                                            oldGroups +
-                                            (preferences
+                                            oldGroups
+                                            + (preferences
                                                     .getBibEntryPreferences()
-                                                    .getKeywordSeparator()) +
-                                            (draggedGroups.getFirst())
+                                                    .getKeywordSeparator())
+                                            + (draggedGroups.getFirst())
                                     )
                                     .orElse(draggedGroups.getFirst())
                             )

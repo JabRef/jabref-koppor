@@ -71,10 +71,8 @@ public class SelectEntriesCommand implements Command {
             .stream()
             .filter(
                 entry ->
-                    citationKeys.contains(
-                        entry.getCitationKey().orElse(null)
-                    ) ||
-                    entryIds.contains(entry.getId())
+                    citationKeys.contains(entry.getCitationKey().orElse(null))
+                    || entryIds.contains(entry.getId())
             )
             .collect(Collectors.toList());
 
@@ -90,9 +88,9 @@ public class SelectEntriesCommand implements Command {
             .getDatabasePath()
             .map(
                 path ->
-                    path.getFileName() +
-                    "-" +
-                    BackupFileUtil.getUniqueFilePrefix(path)
+                    path.getFileName()
+                    + "-"
+                    + BackupFileUtil.getUniqueFilePrefix(path)
             )
             .orElse("");
     }

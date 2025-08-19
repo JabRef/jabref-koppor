@@ -38,8 +38,8 @@ public class SearchGroupsMigrationAction implements GUIPostOpenAction {
             if (currentVersion.get().equals(VERSION_6_0_ALPHA)) {
                 // TODO: This text will only be shown after releasing 6.0-alpha and then removed
                 dialogService.showErrorDialogAndWait(
-                    "Search groups migration of " +
-                    parserResult.getPath().map(Path::toString).orElse(""),
+                    "Search groups migration of "
+                    + parserResult.getPath().map(Path::toString).orElse(""),
                     "The search groups syntax has been reverted to the old one. Please use the backup you made before using 6.0-alpha."
                 );
             }

@@ -84,8 +84,8 @@ public class SaveOrderConfigPanel extends VBox {
                         } else if (change.wasAdded()) {
                             for (SortCriterionViewModel criterionViewModel : change.getAddedSubList()) {
                                 int row =
-                                    change.getFrom() +
-                                    change
+                                    change.getFrom()
+                                    + change
                                         .getAddedSubList()
                                         .indexOf(criterionViewModel);
                                 createCriterionRow(criterionViewModel, row);
@@ -213,8 +213,8 @@ public class SaveOrderConfigPanel extends VBox {
             .bind(
                 Bindings.createBooleanBinding(
                     () ->
-                        viewModel.sortCriteriaProperty().size() >= limit ||
-                        !exportInSpecifiedOrder.selectedProperty().get(),
+                        viewModel.sortCriteriaProperty().size() >= limit
+                        || !exportInSpecifiedOrder.selectedProperty().get(),
                     viewModel.sortCriteriaProperty().sizeProperty(),
                     exportInSpecifiedOrder.selectedProperty()
                 )

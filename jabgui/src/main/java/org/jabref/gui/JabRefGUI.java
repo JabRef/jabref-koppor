@@ -133,9 +133,9 @@ public class JabRefGUI extends Application {
         if (!fileUpdateMonitor.isActive()) {
             dialogService.showErrorDialogAndWait(
                 Localization.lang(
-                    "Unable to monitor file changes. Please close files " +
-                    "and processes and restart. You may encounter errors if you continue " +
-                    "with this session."
+                    "Unable to monitor file changes. Please close files "
+                    + "and processes and restart. You may encounter errors if you continue "
+                    + "with this session."
                 )
             );
         }
@@ -274,8 +274,8 @@ public class JabRefGUI extends Application {
         assert preferences.getProxyPreferences().shouldUseAuthentication();
 
         if (
-            preferences.getProxyPreferences().shouldPersistPassword() &&
-            StringUtil.isNotBlank(
+            preferences.getProxyPreferences().shouldPersistPassword()
+            && StringUtil.isNotBlank(
                 preferences.getProxyPreferences().getPassword()
             )
         ) {
@@ -389,8 +389,8 @@ public class JabRefGUI extends Application {
         if (
             uiCommands
                 .stream()
-                .noneMatch(UiCommand.BlankWorkspace.class::isInstance) &&
-            preferences.getWorkspacePreferences().shouldOpenLastEdited()
+                .noneMatch(UiCommand.BlankWorkspace.class::isInstance)
+            && preferences.getWorkspacePreferences().shouldOpenLastEdited()
         ) {
             mainFrame.openLastEditedDatabases();
         }
@@ -470,8 +470,8 @@ public class JabRefGUI extends Application {
         }
 
         return (
-            lowerLeftIsInBounds(coreGuiPreferences) &&
-            upperRightIsInBounds(coreGuiPreferences)
+            lowerLeftIsInBounds(coreGuiPreferences)
+            && upperRightIsInBounds(coreGuiPreferences)
         );
     }
 
@@ -495,9 +495,9 @@ public class JabRefGUI extends Application {
         // The upper right corner is checked as there are most probably the window controls.
         // Windows/PowerToys somehow adds 10 pixels to the right and top of the screen, they are removed
         double rightX =
-            coreGuiPreferences.getPositionX() +
-            coreGuiPreferences.getSizeX() -
-            10.0;
+            coreGuiPreferences.getPositionX()
+            + coreGuiPreferences.getSizeX()
+            - 10.0;
         double topY = coreGuiPreferences.getPositionY();
         LOGGER.debug("right x: {}, top y: {}", rightX, topY);
 

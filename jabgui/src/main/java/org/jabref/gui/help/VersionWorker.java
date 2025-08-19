@@ -110,11 +110,11 @@ public class VersionWorker {
     ) {
         // no new version could be found, only respect the ignored version on automated version checks
         if (
-            newerVersion.isEmpty() ||
-            (newerVersion
+            newerVersion.isEmpty()
+            || (newerVersion
                     .get()
-                    .equals(internalPreferences.getIgnoredVersion()) &&
-                !manualExecution)
+                    .equals(internalPreferences.getIgnoredVersion())
+                && !manualExecution)
         ) {
             if (manualExecution) {
                 dialogService.notify(

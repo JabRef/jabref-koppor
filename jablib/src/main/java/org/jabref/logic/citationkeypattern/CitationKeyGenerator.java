@@ -98,8 +98,8 @@ public class CitationKeyGenerator extends BracketedPattern {
         if (number >= APPENDIX_CHARACTERS.length()) {
             int lastChar = number % APPENDIX_CHARACTERS.length();
             return (
-                getAppendix((number / APPENDIX_CHARACTERS.length()) - 1) +
-                APPENDIX_CHARACTERS.charAt(lastChar)
+                getAppendix((number / APPENDIX_CHARACTERS.length()) - 1)
+                + APPENDIX_CHARACTERS.charAt(lastChar)
             );
         } else {
             return APPENDIX_CHARACTERS.substring(number, number + 1);
@@ -168,14 +168,14 @@ public class CitationKeyGenerator extends BracketedPattern {
         }
 
         boolean alwaysAddLetter =
-            citationKeyPatternPreferences.getKeySuffix() ==
-            CitationKeyPatternPreferences.KeySuffix.ALWAYS;
+            citationKeyPatternPreferences.getKeySuffix()
+            == CitationKeyPatternPreferences.KeySuffix.ALWAYS;
 
         if (alwaysAddLetter || occurrences != 0) {
             // The key is already in use, so we must modify it.
             boolean firstLetterA =
-                citationKeyPatternPreferences.getKeySuffix() ==
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A;
+                citationKeyPatternPreferences.getKeySuffix()
+                == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A;
 
             int number = !alwaysAddLetter && !firstLetterA ? 1 : 0;
             String moddedKey;
@@ -230,8 +230,8 @@ public class CitationKeyGenerator extends BracketedPattern {
             entryType
         );
         if (
-            citationKeyPattern == null ||
-            CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(
+            citationKeyPattern == null
+            || CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(
                 citationKeyPattern
             )
         ) {

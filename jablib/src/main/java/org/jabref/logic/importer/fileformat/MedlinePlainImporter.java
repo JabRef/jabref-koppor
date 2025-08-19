@@ -73,9 +73,9 @@ public class MedlinePlainImporter extends Importer {
         String str;
         while ((str = reader.readLine()) != null) {
             if (
-                PMID_PATTERN.matcher(str).find() ||
-                PMC_PATTERN.matcher(str).find() ||
-                PMCR_PATTERN.matcher(str).find()
+                PMID_PATTERN.matcher(str).find()
+                || PMC_PATTERN.matcher(str).find()
+                || PMCR_PATTERN.matcher(str).find()
             ) {
                 return true;
             }
@@ -124,8 +124,8 @@ public class MedlinePlainImporter extends Importer {
                     }
                     if (lines[j + 1].charAt(4) != '-') {
                         if (
-                            (!current.isEmpty()) &&
-                            !Character.isWhitespace(
+                            (!current.isEmpty())
+                            && !Character.isWhitespace(
                                 current.charAt(current.length() - 1)
                             )
                         ) {
@@ -224,12 +224,12 @@ public class MedlinePlainImporter extends Importer {
                             fieldConversionMap.compute(
                                 StandardField.KEYWORDS,
                                 (k, kw) ->
-                                    kw +
-                                    importFormatPreferences
+                                    kw
+                                    + importFormatPreferences
                                         .bibEntryPreferences()
-                                        .getKeywordSeparator() +
-                                    " " +
-                                    value
+                                        .getKeywordSeparator()
+                                    + " "
+                                    + value
                             );
                         }
                     }
@@ -354,8 +354,8 @@ public class MedlinePlainImporter extends Importer {
                 int startOfIdentifier = value.indexOf('[');
                 int endOfIdentifier = value.indexOf(']');
                 key = new UnknownField(
-                    "article-" +
-                    value.substring(startOfIdentifier + 1, endOfIdentifier)
+                    "article-"
+                    + value.substring(startOfIdentifier + 1, endOfIdentifier)
                 );
                 idValue = value.substring(0, startOfIdentifier - 1);
             }
@@ -385,9 +385,9 @@ public class MedlinePlainImporter extends Importer {
                 hm.put(StandardField.TITLE, val);
             } else {
                 if (
-                    oldVal.endsWith(":") ||
-                    oldVal.endsWith(".") ||
-                    oldVal.endsWith("?")
+                    oldVal.endsWith(":")
+                    || oldVal.endsWith(".")
+                    || oldVal.endsWith("?")
                 ) {
                     hm.put(StandardField.TITLE, oldVal + " " + val);
                 } else {

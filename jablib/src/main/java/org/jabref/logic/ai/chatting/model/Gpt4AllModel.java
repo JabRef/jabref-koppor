@@ -103,8 +103,8 @@ public class Gpt4AllModel implements ChatModel {
                 TextGenerationResponse.class
             );
             if (
-                textGenerationResponse.choices() == null ||
-                textGenerationResponse.choices().isEmpty()
+                textGenerationResponse.choices() == null
+                || textGenerationResponse.choices().isEmpty()
             ) {
                 throw new IllegalArgumentException(
                     "No choices returned in the response"

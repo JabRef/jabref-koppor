@@ -88,8 +88,8 @@ public class ThemeDialogViewModel extends AbstractViewModel {
     public boolean isValidConfiguration() {
         if (selectedThemeProperty.get() == ThemeTypes.CUSTOM) {
             return (
-                !customPathProperty.get().trim().isEmpty() &&
-                Path.of(customPathProperty.get()).toFile().exists()
+                !customPathProperty.get().trim().isEmpty()
+                && Path.of(customPathProperty.get()).toFile().exists()
             );
         }
         return selectedThemeProperty.get() != null;

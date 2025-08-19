@@ -99,8 +99,9 @@ public class FileFieldParser {
                 inXmlChar = false;
             } else if (!escaped && (c == ':')) {
                 if (
-                    (linkedFileData.size() == 1) && // we already parsed the description
-                    (charactersOfCurrentElement.length() == 1)
+                    (linkedFileData.size() == 1)
+                    // we already parsed the description
+                    && (charactersOfCurrentElement.length() == 1)
                 ) {
                     // we parsed one character
                     // special case of Windows paths
@@ -111,8 +112,8 @@ public class FileFieldParser {
                     // special case for zotero absolute path on windows that do not have a colon in front
                     // e.g. A:\zotero\paper.pdf
                 } else if (
-                    charactersOfCurrentElement.length() == 1 &&
-                    value.charAt(i + 1) == '\\'
+                    charactersOfCurrentElement.length() == 1
+                    && value.charAt(i + 1) == '\\'
                 ) {
                     charactersOfCurrentElement.append(c);
                     windowsPath = true;
@@ -214,15 +215,15 @@ public class FileFieldParser {
 
         // link is the only mandatory field
         if (
-            field.getDescription().isEmpty() &&
-            field.getLink().isEmpty() &&
-            !field.getFileType().isEmpty()
+            field.getDescription().isEmpty()
+            && field.getLink().isEmpty()
+            && !field.getFileType().isEmpty()
         ) {
             field = new LinkedFile("", Path.of(field.getFileType()), "");
         } else if (
-            !field.getDescription().isEmpty() &&
-            field.getLink().isEmpty() &&
-            field.getFileType().isEmpty()
+            !field.getDescription().isEmpty()
+            && field.getLink().isEmpty()
+            && field.getFileType().isEmpty()
         ) {
             field = new LinkedFile("", Path.of(field.getDescription()), "");
         }

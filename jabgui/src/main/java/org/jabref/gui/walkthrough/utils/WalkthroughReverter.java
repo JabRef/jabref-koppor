@@ -116,8 +116,8 @@ public class WalkthroughReverter {
 
         for (int i = from - 1; i >= 0; i--) {
             if (
-                !(walkthrough.getStepAtIndex(i) instanceof
-                    VisibleComponent previousStep)
+                !(walkthrough.getStepAtIndex(i)
+                    instanceof VisibleComponent previousStep)
             ) {
                 continue;
             }
@@ -130,9 +130,9 @@ public class WalkthroughReverter {
             }
             Window activeWindow = window.orElse(fallbackWindow);
             if (
-                activeWindow.getScene() != null &&
-                (previousStep.nodeResolver().isEmpty() ||
-                    previousStep
+                activeWindow.getScene() != null
+                && (previousStep.nodeResolver().isEmpty()
+                    || previousStep
                         .nodeResolver()
                         .get()
                         .resolve(activeWindow.getScene())
@@ -151,8 +151,11 @@ public class WalkthroughReverter {
     private void undo(int stepIndex) {
         WalkthroughStep step = walkthrough.getStepAtIndex(stepIndex);
         if (
-            step instanceof
-            SideEffect(String title, WalkthroughSideEffect sideEffect)
+            step
+            instanceof SideEffect(
+                String title,
+                WalkthroughSideEffect sideEffect
+            )
         ) {
             if (!sideEffectExecutor.executeBackward(sideEffect, walkthrough)) {
                 LOGGER.warn(

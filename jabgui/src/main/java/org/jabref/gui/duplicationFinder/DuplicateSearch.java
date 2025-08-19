@@ -214,8 +214,8 @@ public class DuplicateSearch extends SimpleCommand {
             .orElse(DuplicateResolverResult.BREAK);
 
         if (
-            (resolverResult == DuplicateResolverResult.KEEP_LEFT) ||
-            (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)
+            (resolverResult == DuplicateResolverResult.KEEP_LEFT)
+            || (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)
         ) {
             result.remove(second);
             result.replace(first, dialog.getNewLeftEntry());
@@ -271,13 +271,13 @@ public class DuplicateSearch extends SimpleCommand {
         duplicateProgress.set(0);
 
         dialogService.notify(
-            Localization.lang("Duplicates found") +
-            ": " +
-            duplicateCount.get() +
-            ' ' +
-            Localization.lang("pairs processed") +
-            ": " +
-            result.getDuplicateCount()
+            Localization.lang("Duplicates found")
+            + ": "
+            + duplicateCount.get()
+            + ' '
+            + Localization.lang("pairs processed")
+            + ": "
+            + result.getDuplicateCount()
         );
         compoundEdit.end();
         libraryTab.getUndoManager().addEdit(compoundEdit);

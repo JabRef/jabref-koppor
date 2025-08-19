@@ -190,16 +190,16 @@ public class TooltipTextUtil {
                 );
             } else {
                 throw new IllegalStateException(
-                    "It is not allowed that the toReplace string: '" +
-                    replacement.toReplace +
-                    "' exists multiple times in the original string"
+                    "It is not allowed that the toReplace string: '"
+                    + replacement.toReplace
+                    + "' exists multiple times in the original string"
                 );
             }
         } else {
             throw new IllegalStateException(
-                "It is not allowed that the toReplace string: '" +
-                replacement.toReplace +
-                "' does not exist in the original string"
+                "It is not allowed that the toReplace string: '"
+                + replacement.toReplace
+                + "' does not exist in the original string"
             );
         }
     }

@@ -133,8 +133,8 @@ public class FileUtil {
             Optional<String> extension = getFileExtension(fileName);
             String shortName = nameWithoutExtension.substring(
                 0,
-                MAXIMUM_FILE_NAME_LENGTH -
-                extension.map(s -> s.length() + 1).orElse(0)
+                MAXIMUM_FILE_NAME_LENGTH
+                - extension.map(s -> s.length() + 1).orElse(0)
             );
             LOGGER.info(
                 "Truncated the too long filename '{}' ({}} characters) to '{}'.",
@@ -179,9 +179,9 @@ public class FileUtil {
             .stream()
             .filter(
                 part ->
-                    comparePath.toString().contains(part) &&
-                    !part.equals(fileName) &&
-                    part.contains(File.separator)
+                    comparePath.toString().contains(part)
+                    && !part.equals(fileName)
+                    && part.contains(File.separator)
             )
             .findFirst()
             .map(part -> part.substring(0, part.lastIndexOf(File.separator)));
@@ -603,8 +603,8 @@ public class FileUtil {
     public static boolean isPDFFile(Path file) {
         Optional<String> extension = FileUtil.getFileExtension(file);
         return (
-            extension.isPresent() &&
-            StandardFileType.PDF.getExtensions().contains(extension.get())
+            extension.isPresent()
+            && StandardFileType.PDF.getExtensions().contains(extension.get())
         );
     }
 
@@ -714,10 +714,10 @@ public class FileUtil {
         );
 
         return (
-            name.substring(0, numCharsBeforeEllipsis) +
-            ELLIPSIS +
-            name.substring(name.length() - numCharsAfterEllipsis) +
-            extension
+            name.substring(0, numCharsBeforeEllipsis)
+            + ELLIPSIS
+            + name.substring(name.length() - numCharsAfterEllipsis)
+            + extension
         );
     }
 

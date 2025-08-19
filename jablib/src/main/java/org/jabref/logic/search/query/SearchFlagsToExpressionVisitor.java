@@ -75,11 +75,11 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
         SearchParser.BinaryExpressionContext ctx
     ) {
         return (
-            visit(ctx.left) +
-            " " +
-            ctx.bin_op.getText() +
-            " " +
-            visit(ctx.right)
+            visit(ctx.left)
+            + " "
+            + ctx.bin_op.getText()
+            + " "
+            + visit(ctx.right)
         );
     }
 
@@ -113,14 +113,14 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
             searchFlags.add(REGULAR_EXPRESSION);
         } else {
             if (
-                operator == SearchParser.EQUAL ||
-                operator == SearchParser.CONTAINS ||
-                operator == SearchParser.NEQUAL
+                operator == SearchParser.EQUAL
+                || operator == SearchParser.CONTAINS
+                || operator == SearchParser.NEQUAL
             ) {
                 searchFlags.add(INEXACT_MATCH);
             } else if (
-                operator == SearchParser.EEQUAL ||
-                operator == SearchParser.MATCHES
+                operator == SearchParser.EEQUAL
+                || operator == SearchParser.MATCHES
             ) {
                 searchFlags.add(EXACT_MATCH);
             }

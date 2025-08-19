@@ -754,12 +754,12 @@ public class BracketedPattern {
      */
     private static boolean isInstitution(Author author) {
         return (
-            author.getGivenName().isEmpty() &&
-            author.getGivenNameAbbreviated().isEmpty() &&
-            author.getNameSuffix().isEmpty() &&
-            author.getNamePrefix().isEmpty() &&
-            author.getFamilyName().isPresent() &&
-            WHITESPACE.matcher(author.getFamilyName().get()).find()
+            author.getGivenName().isEmpty()
+            && author.getGivenNameAbbreviated().isEmpty()
+            && author.getNameSuffix().isEmpty()
+            && author.getNamePrefix().isEmpty()
+            && author.getFamilyName().isPresent()
+            && WHITESPACE.matcher(author.getFamilyName().get()).find()
         );
     }
 
@@ -800,10 +800,10 @@ public class BracketedPattern {
                 if (formatter.isPresent()) {
                     resultingLabel = formatter.get().format(resultingLabel);
                 } else if (
-                    !modifier.isEmpty() &&
-                    (modifier.length() >= 2) &&
-                    (modifier.charAt(0) == '(') &&
-                    modifier.endsWith(")")
+                    !modifier.isEmpty()
+                    && (modifier.length() >= 2)
+                    && (modifier.charAt(0) == '(')
+                    && modifier.endsWith(")")
                 ) {
                     // Alternate text modifier in parentheses. Should be inserted if the label is empty
                     if (label.isEmpty() && (modifier.length() > 2)) {
@@ -844,9 +844,9 @@ public class BracketedPattern {
             current = new StringBuilder();
             // Get the next word:
             while (
-                (piv < ss.length()) &&
-                !Character.isWhitespace(ss.charAt(piv)) &&
-                (ss.charAt(piv) != '-')
+                (piv < ss.length())
+                && !Character.isWhitespace(ss.charAt(piv))
+                && (ss.charAt(piv) != '-')
             ) {
                 current.append(ss.charAt(piv));
                 piv++;
@@ -885,8 +885,8 @@ public class BracketedPattern {
 
                 // Camelize the word
                 word =
-                    word.substring(0, 1).toUpperCase(Locale.ROOT) +
-                    word.substring(1);
+                    word.substring(0, 1).toUpperCase(Locale.ROOT)
+                    + word.substring(1);
 
                 if (!stringBuilder.isEmpty()) {
                     stringBuilder.append(' ');
@@ -915,8 +915,8 @@ public class BracketedPattern {
 
                 // Camelize the word
                 word =
-                    word.substring(0, 1).toUpperCase(Locale.ROOT) +
-                    word.substring(1);
+                    word.substring(0, 1).toUpperCase(Locale.ROOT)
+                    + word.substring(1);
 
                 if (!stringBuilder.isEmpty()) {
                     stringBuilder.append(' ');
@@ -949,12 +949,12 @@ public class BracketedPattern {
                 // We want to capitalize significant words and the first word of the title
                 if (camelize || (stringJoiner.length() == 0)) {
                     word =
-                        word.substring(0, 1).toUpperCase(Locale.ROOT) +
-                        word.substring(1);
+                        word.substring(0, 1).toUpperCase(Locale.ROOT)
+                        + word.substring(1);
                 } else {
                     word =
-                        word.substring(0, 1).toLowerCase(Locale.ROOT) +
-                        word.substring(1);
+                        word.substring(0, 1).toLowerCase(Locale.ROOT)
+                        + word.substring(1);
                 }
 
                 stringJoiner.add(word);
@@ -1188,8 +1188,8 @@ public class BracketedPattern {
         StringBuilder alphaStyle = new StringBuilder();
         int numberOfAuthors = authorList.getNumberOfAuthors();
         boolean andOthersPresent =
-            numberOfAuthors > 1 &&
-            authorList.getAuthor(numberOfAuthors - 1).equals(Author.OTHERS);
+            numberOfAuthors > 1
+            && authorList.getAuthor(numberOfAuthors - 1).equals(Author.OTHERS);
 
         if (numberOfAuthors == 1 || andOthersPresent) {
             // Single author or "and others" case
@@ -1316,9 +1316,9 @@ public class BracketedPattern {
             return "";
         }
         if (
-            (authorList.getNumberOfAuthors() <= 2) &&
-            ((authorList.getNumberOfAuthors() == 1) ||
-                !authorList.getAuthor(1).equals(Author.OTHERS))
+            (authorList.getNumberOfAuthors() <= 2)
+            && ((authorList.getNumberOfAuthors() == 1)
+                || !authorList.getAuthor(1).equals(Author.OTHERS))
         ) {
             // in case 1 or two authors, just name them
             // exception: If the second author is "and others", then do the appendix handling (in the other branch)
@@ -1337,9 +1337,9 @@ public class BracketedPattern {
         int mminusone = m - 1;
 
         if (
-            (authorList.getNumberOfAuthors() <= mminusone) ||
-            (n < 0) ||
-            (mminusone < 0)
+            (authorList.getNumberOfAuthors() <= mminusone)
+            || (n < 0)
+            || (mminusone < 0)
         ) {
             return "";
         }
@@ -1651,9 +1651,9 @@ public class BracketedPattern {
                     department = institutionNameTokens[index - 1];
                 }
             } else if (
-                (tokenTypes.contains(Institution.SCHOOL) ||
-                    tokenTypes.contains(Institution.DEPARTMENT)) &&
-                (institutionNameTokens.length > 1)
+                (tokenTypes.contains(Institution.SCHOOL)
+                    || tokenTypes.contains(Institution.DEPARTMENT))
+                && (institutionNameTokens.length > 1)
             ) {
                 // School is an abbreviation of all the words beginning with a
                 // capital letter excluding: department, school and faculty words.
@@ -1698,9 +1698,9 @@ public class BracketedPattern {
 
         // Putting parts together.
         return (
-            (university == null ? Objects.toString(rest, "") : university) +
-            (school == null ? "" : school) +
-            ((department == null) || (department.equals(school))
+            (university == null ? Objects.toString(rest, "") : university)
+            + (school == null ? "" : school)
+            + ((department == null) || (department.equals(school))
                     ? ""
                     : department)
         );
@@ -1714,10 +1714,10 @@ public class BracketedPattern {
      */
     private static boolean noOtherInstitutionKeyWord(String word) {
         return (
-            !DEPARTMENTS.matcher(word).matches() &&
-            !StandardField.SCHOOL.getName().equalsIgnoreCase(word) &&
-            !"faculty".equalsIgnoreCase(word) &&
-            !NOT_CAPITAL_CHARACTER.matcher(word).replaceAll("").isEmpty()
+            !DEPARTMENTS.matcher(word).matches()
+            && !StandardField.SCHOOL.getName().equalsIgnoreCase(word)
+            && !"faculty".equalsIgnoreCase(word)
+            && !NOT_CAPITAL_CHARACTER.matcher(word).replaceAll("").isEmpty()
         );
     }
 
@@ -1728,12 +1728,14 @@ public class BracketedPattern {
         // Cleanup: remove unnecessary words.
         for (String part : name.replaceAll("\\{[A-Z]+}", "").split("[ \\-_]")) {
             if (
-                (!part.isEmpty() && // remove empty
-                    !ignore.contains(part.toLowerCase(Locale.ENGLISH)) && // remove ignored words
-                    (part.charAt(part.length() - 1) != '.') &&
-                    Character.isUpperCase(part.charAt(0))) ||
-                ((part.length() >= 3) &&
-                    "uni".equalsIgnoreCase(part.substring(0, 3)))
+                (!part.isEmpty()
+                    // remove empty
+                    && !ignore.contains(part.toLowerCase(Locale.ENGLISH))
+                    // remove ignored words
+                    && (part.charAt(part.length() - 1) != '.')
+                    && Character.isUpperCase(part.charAt(0)))
+                || ((part.length() >= 3)
+                    && "uni".equalsIgnoreCase(part.substring(0, 3)))
             ) {
                 nameParts.add(part);
             }

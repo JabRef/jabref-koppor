@@ -1452,8 +1452,8 @@ public class AuthorListTest {
         assertEquals(
             "Last-Name et al.",
             AuthorList.parse(
-                "First Second Last-Name" +
-                " and John Smith and Black Brown, Peter"
+                "First Second Last-Name"
+                + " and John Smith and Black Brown, Peter"
             ).getAsNatbib()
         );
 

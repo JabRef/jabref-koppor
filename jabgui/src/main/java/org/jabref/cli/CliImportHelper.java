@@ -41,9 +41,9 @@ public class CliImportHelper {
         String address = data[0];
         Path file;
         if (
-            address.startsWith("http://") ||
-            address.startsWith("https://") ||
-            address.startsWith("ftp://")
+            address.startsWith("http://")
+            || address.startsWith("https://")
+            || address.startsWith("ftp://")
         ) {
             // Download web resource to temporary file
             try {

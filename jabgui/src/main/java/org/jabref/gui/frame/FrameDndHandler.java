@@ -121,8 +121,8 @@ public class FrameDndHandler {
             LibraryTab destinationLibraryTab = null;
             for (Tab libraryTab : tabPane.getTabs()) {
                 if (
-                    libraryTab.getId().equals(destinationTabNode.getId()) &&
-                    !tabPane
+                    libraryTab.getId().equals(destinationTabNode.getId())
+                    && !tabPane
                         .getSelectionModel()
                         .getSelectedItem()
                         .equals(libraryTab)
@@ -196,8 +196,8 @@ public class FrameDndHandler {
         Tab dndIndicator
     ) {
         if (
-            hasBibFiles(tabDragEvent.getDragboard()) ||
-            hasGroups(tabDragEvent.getDragboard())
+            hasBibFiles(tabDragEvent.getDragboard())
+            || hasGroups(tabDragEvent.getDragboard())
         ) {
             tabDragEvent.acceptTransferModes(TransferMode.ANY);
             if (!tabPane.getTabs().contains(dndIndicator)) {
@@ -250,8 +250,8 @@ public class FrameDndHandler {
                 .getBibDatabaseContext()
                 .getMetaData()
                 .getGroups()
-                .isPresent() &&
-            stateManager.getActiveDatabase().isEmpty()
+                .isPresent()
+            && stateManager.getActiveDatabase().isEmpty()
         ) {
             return;
         }

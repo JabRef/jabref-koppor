@@ -152,13 +152,13 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                 tab ->
                     WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName).equals(
                         tab.getText()
-                    ) ||
-                    (tab.getBibDatabaseContext().getDatabasePath().isEmpty() &&
-                        tab
+                    )
+                    || (tab.getBibDatabaseContext().getDatabasePath().isEmpty()
+                        && tab
                             .getBibDatabaseContext()
                             .getDatabase()
-                            .getEntryCount() >
-                        0)
+                            .getEntryCount()
+                        > 0)
             )
             .findFirst();
     }

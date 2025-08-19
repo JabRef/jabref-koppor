@@ -235,12 +235,12 @@ public class BibEntryWriter {
                     ex
                 );
                 throw new IOException(
-                    "Error in field '" +
-                    field +
-                    " of entry " +
-                    entry.getCitationKey().orElse("") +
-                    "': " +
-                    ex.getMessage(),
+                    "Error in field '"
+                    + field
+                    + " of entry "
+                    + entry.getCitationKey().orElse("")
+                    + "': "
+                    + ex.getMessage(),
                     ex
                 );
             }
@@ -275,9 +275,9 @@ public class BibEntryWriter {
     static String getFormattedFieldName(Field field, int indent) {
         String fieldName = field.getName();
         return (
-            fieldName.toLowerCase(Locale.ROOT) +
-            StringUtil.repeatSpaces(indent - fieldName.length()) +
-            " = "
+            fieldName.toLowerCase(Locale.ROOT)
+            + StringUtil.repeatSpaces(indent - fieldName.length())
+            + " = "
         );
     }
 

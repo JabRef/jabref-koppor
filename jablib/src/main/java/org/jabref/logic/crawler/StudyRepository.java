@@ -135,8 +135,8 @@ public class StudyRepository {
             // If study definition does not exist on this branch or was changed on work branch, copy it from work
             boolean studyDefinitionDoesNotExistOrChanged = !(Files.exists(
                     studyDefinitionFile
-                ) &&
-                new StudyYamlParser()
+                )
+                && new StudyYamlParser()
                     .parseStudyYamlFile(studyDefinitionFile)
                     .equals(study));
             if (studyDefinitionDoesNotExistOrChanged) {
@@ -269,8 +269,8 @@ public class StudyRepository {
         try {
             // First commit changes to search branch and update remote
             String commitMessage =
-                "Conducted search: " +
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+                "Conducted search: "
+                + LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
             boolean newSearchResults = gitHandler.createCommitOnCurrentBranch(
                 commitMessage,
                 false

@@ -56,14 +56,14 @@ public class UndoableAbbreviator {
             journalAbbreviationRepository.get(text);
 
         if (
-            foundAbbreviation.isEmpty() &&
-            abbreviationType != AbbreviationType.LTWA
+            foundAbbreviation.isEmpty()
+            && abbreviationType != AbbreviationType.LTWA
         ) {
             return false; // Unknown, cannot abbreviate anything.
         }
 
-        Optional<String> newTextOptional = abbreviationType ==
-            AbbreviationType.LTWA
+        Optional<String> newTextOptional = abbreviationType
+            == AbbreviationType.LTWA
             ? journalAbbreviationRepository.getLtwaAbbreviation(text)
             : foundAbbreviation.map(this::getAbbreviatedName);
 
@@ -79,9 +79,9 @@ public class UndoableAbbreviator {
         // Store full name into fjournal but only if it exists
         foundAbbreviation.ifPresent(abbr -> {
             if (
-                useFJournalField &&
-                (StandardField.JOURNAL == fieldName ||
-                    StandardField.JOURNALTITLE == fieldName)
+                useFJournalField
+                && (StandardField.JOURNAL == fieldName
+                    || StandardField.JOURNALTITLE == fieldName)
             ) {
                 String fullName = abbr.getName();
                 entry.setField(AMSField.FJOURNAL, fullName);

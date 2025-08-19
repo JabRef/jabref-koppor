@@ -14,9 +14,9 @@ public class PageInfo {
         Optional<OOText> optionalText
     ) {
         if (
-            optionalText == null ||
-            optionalText.isEmpty() ||
-            "".equals(OOText.toString(optionalText.get()))
+            optionalText == null
+            || optionalText.isEmpty()
+            || "".equals(OOText.toString(optionalText.get()))
         ) {
             return Optional.empty();
         }

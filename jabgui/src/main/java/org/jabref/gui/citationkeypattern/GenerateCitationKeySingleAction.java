@@ -42,8 +42,8 @@ public class GenerateCitationKeySingleAction extends SimpleCommand {
     @Override
     public void execute() {
         if (
-            !entry.hasCitationKey() ||
-            GenerateCitationKeyAction.confirmOverwriteKeys(
+            !entry.hasCitationKey()
+            || GenerateCitationKeyAction.confirmOverwriteKeys(
                 dialogService,
                 preferences
             )

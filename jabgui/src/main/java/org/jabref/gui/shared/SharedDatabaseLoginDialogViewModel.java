@@ -321,13 +321,13 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                     Localization.lang("Migration help information"),
                     Localization.lang(
                         "Entered database has obsolete structure and is no longer supported."
-                    ) +
-                    "\n" +
-                    Localization.lang(
+                    )
+                    + "\n"
+                    + Localization.lang(
                         "Click help to learn about the migration of pre-3.6 databases."
-                    ) +
-                    "\n" +
-                    Localization.lang(
+                    )
+                    + "\n"
+                    + Localization.lang(
                         "However, a new database was created alongside the pre-3.6 one."
                     ),
                     ButtonType.OK,
@@ -463,8 +463,8 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                 BibDatabaseContext context = panel.getBibDatabaseContext();
 
                 return (
-                    (context.getLocation() == DatabaseLocation.SHARED) &&
-                    connectionProperties.equals(
+                    (context.getLocation() == DatabaseLocation.SHARED)
+                    && connectionProperties.equals(
                         context.getDBMSSynchronizer().getConnectionProperties()
                     )
                 );

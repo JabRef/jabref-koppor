@@ -295,24 +295,24 @@ public class GroupNodeViewModel {
     @Override
     public String toString() {
         return (
-            "GroupNodeViewModel{" +
-            "displayName='" +
-            displayName +
-            '\'' +
-            ", isRoot=" +
-            isRoot +
-            ", icon='" +
-            getIcon() +
-            '\'' +
-            ", children=" +
-            children +
-            ", databaseContext=" +
-            databaseContext +
-            ", groupNode=" +
-            groupNode +
-            ", matchedEntries=" +
-            matchedEntries +
-            '}'
+            "GroupNodeViewModel{"
+            + "displayName='"
+            + displayName
+            + '\''
+            + ", isRoot="
+            + isRoot
+            + ", icon='"
+            + getIcon()
+            + '\''
+            + ", children="
+            + children
+            + ", databaseContext="
+            + databaseContext
+            + ", groupNode="
+            + groupNode
+            + ", matchedEntries="
+            + matchedEntries
+            + '}'
         );
     }
 
@@ -430,8 +430,8 @@ public class GroupNodeViewModel {
 
     boolean isMatchedBy(String searchString) {
         return (
-            StringUtil.isBlank(searchString) ||
-            StringUtil.containsIgnoreCase(getDisplayName(), searchString)
+            StringUtil.isBlank(searchString)
+            || StringUtil.containsIgnoreCase(getDisplayName(), searchString)
         );
     }
 
@@ -463,8 +463,8 @@ public class GroupNodeViewModel {
             DragAndDropDataFormats.GROUP
         );
         boolean canDropEntries =
-            localDragBoard.hasBibEntries() &&
-            (groupNode.getGroup() instanceof GroupEntryChanger);
+            localDragBoard.hasBibEntries()
+            && (groupNode.getGroup() instanceof GroupEntryChanger);
         boolean canDropFiles = dragboard.hasFiles();
         return canDropOtherGroup || canDropEntries || canDropFiles;
     }
@@ -549,8 +549,8 @@ public class GroupNodeViewModel {
         return (
             hasSimilarSearchGroup(
                 JabRefSuggestedGroups.createWithoutFilesGroup()
-            ) &&
-            hasSimilarSearchGroup(
+            )
+            && hasSimilarSearchGroup(
                 JabRefSuggestedGroups.createWithoutGroupsGroup()
             )
         );
@@ -572,8 +572,8 @@ public class GroupNodeViewModel {
                 .map(GroupTreeNode::getGroup)
                 .map(
                     groupParent ->
-                        groupParent instanceof AutomaticKeywordGroup ||
-                        groupParent instanceof AutomaticPersonsGroup
+                        groupParent instanceof AutomaticKeywordGroup
+                        || groupParent instanceof AutomaticPersonsGroup
                 )
                 .orElse(false);
         } else if (group instanceof KeywordGroup) {
@@ -589,8 +589,8 @@ public class GroupNodeViewModel {
             return false;
         } else {
             throw new UnsupportedOperationException(
-                "canAddEntriesIn method not yet implemented in group: " +
-                group.getClass().getName()
+                "canAddEntriesIn method not yet implemented in group: "
+                + group.getClass().getName()
             );
         }
     }
@@ -610,16 +610,16 @@ public class GroupNodeViewModel {
                 .getParent()
                 .map(GroupTreeNode::getGroup)
                 .map(groupParent ->
-                    !(groupParent instanceof AutomaticKeywordGroup ||
-                        groupParent instanceof AutomaticPersonsGroup)
+                    !(groupParent instanceof AutomaticKeywordGroup
+                        || groupParent instanceof AutomaticPersonsGroup)
                 )
                 .orElse(false);
             case null -> throw new IllegalArgumentException(
                 "Group cannot be null"
             );
             default -> throw new UnsupportedOperationException(
-                "canBeDragged method not yet implemented in group: " +
-                group.getClass().getName()
+                "canBeDragged method not yet implemented in group: "
+                + group.getClass().getName()
             );
         };
     }
@@ -641,16 +641,16 @@ public class GroupNodeViewModel {
                 .getParent()
                 .map(GroupTreeNode::getGroup)
                 .map(groupParent ->
-                    !(groupParent instanceof AutomaticKeywordGroup ||
-                        groupParent instanceof AutomaticPersonsGroup)
+                    !(groupParent instanceof AutomaticKeywordGroup
+                        || groupParent instanceof AutomaticPersonsGroup)
                 )
                 .orElse(false);
             case null -> throw new IllegalArgumentException(
                 "Group cannot be null"
             );
             default -> throw new UnsupportedOperationException(
-                "canAddGroupsIn method not yet implemented in group: " +
-                group.getClass().getName()
+                "canAddGroupsIn method not yet implemented in group: "
+                + group.getClass().getName()
             );
         };
     }
@@ -670,16 +670,16 @@ public class GroupNodeViewModel {
                 .getParent()
                 .map(GroupTreeNode::getGroup)
                 .map(groupParent ->
-                    !(groupParent instanceof AutomaticKeywordGroup ||
-                        groupParent instanceof AutomaticPersonsGroup)
+                    !(groupParent instanceof AutomaticKeywordGroup
+                        || groupParent instanceof AutomaticPersonsGroup)
                 )
                 .orElse(false);
             case null -> throw new IllegalArgumentException(
                 "Group cannot be null"
             );
             default -> throw new UnsupportedOperationException(
-                "canRemove method not yet implemented in group: " +
-                group.getClass().getName()
+                "canRemove method not yet implemented in group: "
+                + group.getClass().getName()
             );
         };
     }
@@ -699,16 +699,16 @@ public class GroupNodeViewModel {
                 .getParent()
                 .map(GroupTreeNode::getGroup)
                 .map(groupParent ->
-                    !(groupParent instanceof AutomaticKeywordGroup ||
-                        groupParent instanceof AutomaticPersonsGroup)
+                    !(groupParent instanceof AutomaticKeywordGroup
+                        || groupParent instanceof AutomaticPersonsGroup)
                 )
                 .orElse(false);
             case null -> throw new IllegalArgumentException(
                 "Group cannot be null"
             );
             default -> throw new UnsupportedOperationException(
-                "isEditable method not yet implemented in group: " +
-                group.getClass().getName()
+                "isEditable method not yet implemented in group: "
+                + group.getClass().getName()
             );
         };
     }

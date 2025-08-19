@@ -56,13 +56,13 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
             )
         );
         if (
-            autoCompletePreferences.getNameFormat() ==
-            AutoCompletePreferences.NameFormat.FIRST_LAST
+            autoCompletePreferences.getNameFormat()
+            == AutoCompletePreferences.NameFormat.FIRST_LAST
         ) {
             autoCompleteFirstLastProperty.setValue(true);
         } else if (
-            autoCompletePreferences.getNameFormat() ==
-            AutoCompletePreferences.NameFormat.LAST_FIRST
+            autoCompletePreferences.getNameFormat()
+            == AutoCompletePreferences.NameFormat.LAST_FIRST
         ) {
             autoCompleteLastFirstProperty.setValue(true);
         } else {
@@ -113,8 +113,8 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
         }
 
         if (
-            autoCompletePreferences.shouldAutoComplete() !=
-            enableAutoCompleteProperty.getValue()
+            autoCompletePreferences.shouldAutoComplete()
+            != enableAutoCompleteProperty.getValue()
         ) {
             if (enableAutoCompleteProperty.getValue()) {
                 restartWarnings.add(

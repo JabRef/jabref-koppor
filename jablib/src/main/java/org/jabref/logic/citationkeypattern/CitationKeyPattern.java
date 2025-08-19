@@ -211,11 +211,13 @@ public record CitationKeyPattern(
             .filter(field -> {
                 int modifiers = field.getModifiers();
                 return (
-                    Modifier.isPublic(modifiers) &&
-                    Modifier.isStatic(modifiers) &&
-                    Modifier.isFinal(modifiers) &&
-                    field.getType() == CitationKeyPattern.class &&
-                    !field.equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)
+                    Modifier.isPublic(modifiers)
+                    && Modifier.isStatic(modifiers)
+                    && Modifier.isFinal(modifiers)
+                    && field.getType() == CitationKeyPattern.class
+                    && !field.equals(
+                        CitationKeyPattern.NULL_CITATION_KEY_PATTERN
+                    )
                 );
             })
             .map(field -> {

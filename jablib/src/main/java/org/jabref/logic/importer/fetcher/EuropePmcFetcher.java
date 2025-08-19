@@ -37,9 +37,9 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
     public URL getUrlForIdentifier(String identifier)
         throws URISyntaxException, MalformedURLException {
         return new URI(
-            "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" +
-            identifier +
-            "&resultType=core&format=json"
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query="
+            + identifier
+            + "&resultType=core&format=json"
         ).toURL();
     }
 
@@ -104,15 +104,15 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
             if (result.has("pmid")) {
                 entry.setField(
                     StandardField.URL,
-                    "https://pubmed.ncbi.nlm.nih.gov/" +
-                    result.getString("pmid") +
-                    "/"
+                    "https://pubmed.ncbi.nlm.nih.gov/"
+                    + result.getString("pmid")
+                    + "/"
                 );
             }
 
             if (
-                result.has("journalInfo") &&
-                result.getJSONObject("journalInfo").has("issn")
+                result.has("journalInfo")
+                && result.getJSONObject("journalInfo").has("issn")
             ) {
                 entry.setField(
                     StandardField.ISSN,
@@ -122,8 +122,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
 
             // Handle authors
             if (
-                result.has("authorList") &&
-                result.getJSONObject("authorList").has("author")
+                result.has("authorList")
+                && result.getJSONObject("authorList").has("author")
             ) {
                 JSONArray authors = result
                     .getJSONObject("authorList")
@@ -148,8 +148,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher {
             }
 
             if (
-                result.has("pubTypeList") &&
-                result.getJSONObject("pubTypeList").has("pubType")
+                result.has("pubTypeList")
+                && result.getJSONObject("pubTypeList").has("pubType")
             ) {
                 JSONArray pubTypes = result
                     .getJSONObject("pubTypeList")

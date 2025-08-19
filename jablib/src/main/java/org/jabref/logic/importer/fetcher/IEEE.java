@@ -124,9 +124,9 @@ public class IEEE
         );
         entry.setField(
             StandardField.PAGES,
-            jsonEntry.optString("start_page") +
-            "--" +
-            jsonEntry.optString("end_page")
+            jsonEntry.optString("start_page")
+            + "--"
+            + jsonEntry.optString("end_page")
         );
 
         JSONObject keywordsContainer = jsonEntry.optJSONObject("index_terms");
@@ -215,9 +215,9 @@ public class IEEE
                 .getField(StandardField.DOI)
                 .flatMap(DOI::parse);
             if (
-                doi.isPresent() &&
-                doi.get().asString().startsWith(IEEE_DOI) &&
-                doi.get().getExternalURI().isPresent()
+                doi.isPresent()
+                && doi.get().asString().startsWith(IEEE_DOI)
+                && doi.get().getExternalURI().isPresent()
             ) {
                 // Download the HTML page from IEEE
                 URLDownload urlDownload = null;
@@ -315,8 +315,8 @@ public class IEEE
                                             startYear ->
                                                 yearAsInteger >= startYear
                                         )
-                                        .orElse(true) &&
-                                    transformer
+                                        .orElse(true)
+                                    && transformer
                                         .getEndYear()
                                         .map(
                                             endYear -> yearAsInteger <= endYear

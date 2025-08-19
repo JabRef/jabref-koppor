@@ -214,20 +214,20 @@ public class DBMSConnectionProperties implements DatabaseConnectionProperties {
             return false;
         }
         return (
-            Objects.equals(type, properties.getType()) &&
-            this.host.equalsIgnoreCase(properties.getHost()) &&
-            Objects.equals(port, properties.getPort()) &&
-            Objects.equals(database, properties.getDatabase()) &&
-            Objects.equals(user, properties.getUser()) &&
-            Objects.equals(useSSL, properties.isUseSSL()) &&
-            Objects.equals(
+            Objects.equals(type, properties.getType())
+            && this.host.equalsIgnoreCase(properties.getHost())
+            && Objects.equals(port, properties.getPort())
+            && Objects.equals(database, properties.getDatabase())
+            && Objects.equals(user, properties.getUser())
+            && Objects.equals(useSSL, properties.isUseSSL())
+            && Objects.equals(
                 allowPublicKeyRetrieval,
                 properties.isAllowPublicKeyRetrieval()
-            ) &&
-            Objects.equals(serverTimezone, properties.getServerTimezone()) &&
-            Objects.equals(keyStore, properties.getKeyStore()) &&
-            Objects.equals(jdbcUrl, properties.getJdbcUrl()) &&
-            Objects.equals(expertMode, properties.isUseExpertMode())
+            )
+            && Objects.equals(serverTimezone, properties.getServerTimezone())
+            && Objects.equals(keyStore, properties.getKeyStore())
+            && Objects.equals(jdbcUrl, properties.getJdbcUrl())
+            && Objects.equals(expertMode, properties.isUseExpertMode())
         );
     }
 
@@ -251,12 +251,12 @@ public class DBMSConnectionProperties implements DatabaseConnectionProperties {
     @Override
     public boolean isValid() {
         return (
-            type != null &&
-            host != null &&
-            port > 0 &&
-            database != null &&
-            user != null &&
-            password != null
+            type != null
+            && host != null
+            && port > 0
+            && database != null
+            && user != null
+            && password != null
         );
     }
 }

@@ -276,10 +276,10 @@ public class LibraryResource {
             .getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
             throw new NotFoundException(
-                "Entry with citation key '" +
-                entryId +
-                "' not found in library " +
-                id
+                "Entry with citation key '"
+                + entryId
+                + "' not found in library "
+                + id
             );
         }
         if (entriesByCitationKey.size() > 1) {
@@ -303,20 +303,20 @@ public class LibraryResource {
 
         // the only difference to the HTML version of this method is the format of the output:
         String preview =
-            "Author: " +
-            author +
-            "\nTitle: " +
-            title +
-            "\nJournal: " +
-            journal +
-            "\nVolume: " +
-            volume +
-            "\nNumber: " +
-            number +
-            "\nPages: " +
-            pages +
-            "\nReleased on: " +
-            releaseDate;
+            "Author: "
+            + author
+            + "\nTitle: "
+            + title
+            + "\nJournal: "
+            + journal
+            + "\nVolume: "
+            + volume
+            + "\nNumber: "
+            + number
+            + "\nPages: "
+            + pages
+            + "\nReleased on: "
+            + releaseDate;
 
         return preview;
     }
@@ -343,10 +343,10 @@ public class LibraryResource {
             .getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
             throw new NotFoundException(
-                "Entry with citation key '" +
-                entryId +
-                "' not found in library " +
-                id
+                "Entry with citation key '"
+                + entryId
+                + "' not found in library "
+                + id
             );
         }
         if (entriesByCitationKey.size() > 1) {
@@ -370,26 +370,26 @@ public class LibraryResource {
 
         // the only difference to the plain text version of this method is the format of the output:
         String preview =
-            "<strong>Author:</strong> " +
-            author +
-            "<br>" +
-            "<strong>Title:</strong> " +
-            title +
-            "<br>" +
-            "<strong>Journal:</strong> " +
-            journal +
-            "<br>" +
-            "<strong>Volume:</strong> " +
-            volume +
-            "<br>" +
-            "<strong>Number:</strong> " +
-            number +
-            "<br>" +
-            "<strong>Pages:</strong> " +
-            pages +
-            "<br>" +
-            "<strong>Released on:</strong> " +
-            releaseDate;
+            "<strong>Author:</strong> "
+            + author
+            + "<br>"
+            + "<strong>Title:</strong> "
+            + title
+            + "<br>"
+            + "<strong>Journal:</strong> "
+            + journal
+            + "<br>"
+            + "<strong>Volume:</strong> "
+            + volume
+            + "<br>"
+            + "<strong>Number:</strong> "
+            + number
+            + "<br>"
+            + "<strong>Pages:</strong> "
+            + pages
+            + "<br>"
+            + "<strong>Released on:</strong> "
+            + releaseDate;
 
         return preview;
     }
@@ -420,8 +420,8 @@ public class LibraryResource {
                 for (LinkedFile file : pathsToFiles) {
                     // ignore all non pdf files and online references
                     if (
-                        !"PDF".equals(file.getFileType()) ||
-                        LinkedFile.isOnlineLink(file.getLink())
+                        !"PDF".equals(file.getFileType())
+                        || LinkedFile.isOnlineLink(file.getLink())
                     ) {
                         continue;
                     }

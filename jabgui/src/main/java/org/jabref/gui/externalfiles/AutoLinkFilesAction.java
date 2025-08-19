@@ -129,9 +129,9 @@ public class AutoLinkFilesAction extends SimpleCommand {
                             "Automatically set file links",
                             Localization.lang(
                                 "Finished automatically setting external links."
-                            ) +
-                            "\n" +
-                            Localization.lang("No files found.")
+                            )
+                            + "\n"
+                            + Localization.lang("No files found.")
                         );
                         return;
                     }
@@ -144,9 +144,9 @@ public class AutoLinkFilesAction extends SimpleCommand {
                     dialogService.notify(
                         Localization.lang(
                             "Finished automatically setting external links."
-                        ) +
-                        " " +
-                        Localization.lang(
+                        )
+                        + " "
+                        + Localization.lang(
                             "Changed %0 entries.",
                             String.valueOf(result.getChangedEntries().size())
                         )

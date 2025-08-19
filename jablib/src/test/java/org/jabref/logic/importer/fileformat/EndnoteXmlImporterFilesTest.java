@@ -20,8 +20,8 @@ class EndnoteXmlImporterFilesTest {
 
     private static Stream<String> fileNames() throws IOException {
         Predicate<String> fileName = name ->
-            name.startsWith("EndnoteXmlImporterTest") &&
-            name.endsWith(FILE_ENDING);
+            name.startsWith("EndnoteXmlImporterTest")
+            && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 

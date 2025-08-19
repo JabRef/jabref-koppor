@@ -67,8 +67,8 @@ public class FieldWriter {
                 text
             );
             throw new InvalidFieldValueException(
-                "Unescaped '}' character without opening bracket ends string prematurely. Field value: " +
-                text
+                "Unescaped '}' character without opening bracket ends string prematurely. Field value: "
+                + text
             );
         }
         if (right != 0 && (right < left)) {
@@ -77,8 +77,8 @@ public class FieldWriter {
                 text
             );
             throw new InvalidFieldValueException(
-                "Unescaped '}' character without opening bracket ends string prematurely. Field value: " +
-                text
+                "Unescaped '}' character without opening bracket ends string prematurely. Field value: "
+                + text
             );
         }
         if (left != right) {
@@ -105,8 +105,8 @@ public class FieldWriter {
         }
 
         if (
-            !shouldResolveStrings(field) ||
-            field.equals(InternalField.BIBTEX_STRING)
+            !shouldResolveStrings(field)
+            || field.equals(InternalField.BIBTEX_STRING)
         ) {
             return formatWithoutResolvingStrings(content);
         }
@@ -151,22 +151,22 @@ public class FieldWriter {
                     pos1 = content.length(); // just write out the rest of the text, and throw no exception
                 } else {
                     LOGGER.error(
-                        "The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. " +
-                        "In JabRef, use pairs of # characters to indicate a string. " +
-                        "Note that the entry causing the problem has been selected. Field value: {}",
+                        "The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. "
+                        + "In JabRef, use pairs of # characters to indicate a string. "
+                        + "Note that the entry causing the problem has been selected. Field value: {}",
                         BIBTEX_STRING_START_END_SYMBOL,
                         BIBTEX_STRING_START_END_SYMBOL,
                         content
                     );
                     throw new InvalidFieldValueException(
-                        "The character " +
-                        BIBTEX_STRING_START_END_SYMBOL +
-                        " is not allowed in BibTeX strings unless escaped as in '\\" +
-                        BIBTEX_STRING_START_END_SYMBOL +
-                        "'.\n" +
-                        "In JabRef, use pairs of # characters to indicate a string.\n" +
-                        "Note that the entry causing the problem has been selected. Field value: " +
-                        content
+                        "The character "
+                        + BIBTEX_STRING_START_END_SYMBOL
+                        + " is not allowed in BibTeX strings unless escaped as in '\\"
+                        + BIBTEX_STRING_START_END_SYMBOL
+                        + "'.\n"
+                        + "In JabRef, use pairs of # characters to indicate a string.\n"
+                        + "Note that the entry causing the problem has been selected. Field value: "
+                        + content
                     );
                 }
             }
@@ -265,9 +265,9 @@ public class FieldWriter {
         boolean isLast
     ) {
         String line =
-            (isFirst ? "" : " # ") +
-            text.substring(startPos, endPos) +
-            (isLast ? "" : " # ");
+            (isFirst ? "" : " # ")
+            + text.substring(startPos, endPos)
+            + (isLast ? "" : " # ");
         stringBuilder.append(line);
     }
 }

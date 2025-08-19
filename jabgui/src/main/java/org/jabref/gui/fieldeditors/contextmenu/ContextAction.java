@@ -33,15 +33,15 @@ public class ContextAction extends SimpleCommand {
                 switch (command) {
                     case RENAME_FILE_TO_PATTERN -> Bindings.createBooleanBinding(
                         () ->
-                            !linkedFile.getFile().isOnlineLink() &&
-                            linkedFile
+                            !linkedFile.getFile().isOnlineLink()
+                            && linkedFile
                                 .getFile()
                                 .findIn(
                                     databaseContext,
                                     preferences.getFilePreferences()
                                 )
-                                .isPresent() &&
-                            !linkedFile.isGeneratedNameSameAsOriginal(),
+                                .isPresent()
+                            && !linkedFile.isGeneratedNameSameAsOriginal(),
                         linkedFile.getFile().linkProperty(),
                         bibEntry
                             .getValue()
@@ -52,15 +52,15 @@ public class ContextAction extends SimpleCommand {
                         MOVE_FILE_TO_FOLDER,
                         MOVE_FILE_TO_FOLDER_AND_RENAME -> Bindings.createBooleanBinding(
                         () ->
-                            !linkedFile.getFile().isOnlineLink() &&
-                            linkedFile
+                            !linkedFile.getFile().isOnlineLink()
+                            && linkedFile
                                 .getFile()
                                 .findIn(
                                     databaseContext,
                                     preferences.getFilePreferences()
                                 )
-                                .isPresent() &&
-                            !linkedFile.isGeneratedPathSameAsOriginal(),
+                                .isPresent()
+                            && !linkedFile.isGeneratedPathSameAsOriginal(),
                         linkedFile.getFile().linkProperty(),
                         bibEntry
                             .getValue()
@@ -89,8 +89,8 @@ public class ContextAction extends SimpleCommand {
                         RENAME_FILE_TO_NAME,
                         DELETE_FILE -> Bindings.createBooleanBinding(
                         () ->
-                            !linkedFile.getFile().isOnlineLink() &&
-                            linkedFile
+                            !linkedFile.getFile().isOnlineLink()
+                            && linkedFile
                                 .getFile()
                                 .findIn(
                                     databaseContext,

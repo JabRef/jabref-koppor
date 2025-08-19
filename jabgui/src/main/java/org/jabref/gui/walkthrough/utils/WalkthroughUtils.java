@@ -23,10 +23,10 @@ public class WalkthroughUtils {
 
     public static boolean cannotPositionNode(@Nullable Node node) {
         return (
-            node == null ||
-            node.getScene() == null ||
-            !isNodeVisible(node) ||
-            node.getBoundsInLocal().isEmpty()
+            node == null
+            || node.getScene() == null
+            || !isNodeVisible(node)
+            || node.getBoundsInLocal().isEmpty()
         );
     }
 

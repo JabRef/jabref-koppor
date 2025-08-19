@@ -41,15 +41,15 @@ public class EprintCleanup implements CleanupJob {
                 String normalizedEprint = arXivIdentifier.get().asString();
 
                 if (
-                    version.isPresent() &&
-                    !normalizedEprint.contains("v" + version.get())
+                    version.isPresent()
+                    && !normalizedEprint.contains("v" + version.get())
                 ) {
                     normalizedEprint += "v" + version.get();
                 }
 
                 if (
-                    institution.isPresent() &&
-                    "arxiv".equalsIgnoreCase(institution.get())
+                    institution.isPresent()
+                    && "arxiv".equalsIgnoreCase(institution.get())
                 ) {
                     entry
                         .clearField(StandardField.INSTITUTION)

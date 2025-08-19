@@ -46,9 +46,9 @@ public class BibsonomyScraper {
                 .replace("=", "%3D");
 
             URL url = URLUtil.create(
-                BibsonomyScraper.BIBSONOMY_SCRAPER +
-                cleanURL +
-                BibsonomyScraper.BIBSONOMY_SCRAPER_POST
+                BibsonomyScraper.BIBSONOMY_SCRAPER
+                + cleanURL
+                + BibsonomyScraper.BIBSONOMY_SCRAPER_POST
             );
             String bibtex = new URLDownload(url).asString();
             return BibtexParser.singleFromString(

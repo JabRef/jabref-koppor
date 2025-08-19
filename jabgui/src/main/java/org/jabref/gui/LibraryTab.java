@@ -190,8 +190,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         this.dialogService = dialogService;
         this.preferences = Objects.requireNonNull(preferences);
         this.stateManager = Objects.requireNonNull(stateManager);
-        assert bibDatabaseContext.getDatabasePath().isEmpty() ||
-        fileUpdateMonitor != null;
+        assert bibDatabaseContext.getDatabasePath().isEmpty()
+        || fileUpdateMonitor != null;
         this.fileUpdateMonitor = fileUpdateMonitor;
         this.entryTypesManager = entryTypesManager;
         this.clipBoardManager = clipBoardManager;
@@ -441,8 +441,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
             );
         }
         if (
-            isDatabaseReadyForBackup(bibDatabaseContext) &&
-            preferences.getFilePreferences().shouldCreateBackup()
+            isDatabaseReadyForBackup(bibDatabaseContext)
+            && preferences.getFilePreferences().shouldCreateBackup()
         ) {
             BackupManager.start(
                 this,
@@ -456,17 +456,17 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
 
     private boolean isDatabaseReadyForAutoSave(BibDatabaseContext context) {
         return (
-            ((context.getLocation() == DatabaseLocation.SHARED) ||
-                ((context.getLocation() == DatabaseLocation.LOCAL) &&
-                    preferences.getLibraryPreferences().shouldAutoSave())) &&
-            context.getDatabasePath().isPresent()
+            ((context.getLocation() == DatabaseLocation.SHARED)
+                || ((context.getLocation() == DatabaseLocation.LOCAL)
+                    && preferences.getLibraryPreferences().shouldAutoSave()))
+            && context.getDatabasePath().isPresent()
         );
     }
 
     private boolean isDatabaseReadyForBackup(BibDatabaseContext context) {
         return (
-            (context.getLocation() == DatabaseLocation.LOCAL) &&
-            context.getDatabasePath().isPresent()
+            (context.getLocation() == DatabaseLocation.LOCAL)
+            && context.getDatabasePath().isPresent()
         );
     }
 
@@ -533,8 +533,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
             }
             addModeInfo(toolTipText, bibDatabaseContext);
             if (
-                (databaseLocation == DatabaseLocation.LOCAL) &&
-                bibDatabaseContext.getDatabase().hasEntries()
+                (databaseLocation == DatabaseLocation.LOCAL)
+                && bibDatabaseContext.getDatabase().hasEntries()
             ) {
                 addChangedInformation(
                     toolTipText,
@@ -952,8 +952,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
 
     public void resetChangeMonitor() {
         changeMonitor.ifPresent(DatabaseChangeMonitor::unregister);
-        assert bibDatabaseContext.getDatabasePath().isEmpty() ||
-        fileUpdateMonitor != null;
+        assert bibDatabaseContext.getDatabasePath().isEmpty()
+        || fileUpdateMonitor != null;
         changeMonitor = Optional.of(
             new DatabaseChangeMonitor(
                 bibDatabaseContext,
@@ -1125,8 +1125,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
             return 0;
         }
         if (
-            mode == StandardActions.DELETE_ENTRY &&
-            !showDeleteConfirmationDialog(entries.size())
+            mode == StandardActions.DELETE_ENTRY
+            && !showDeleteConfirmationDialog(entries.size())
         ) {
             return -1;
         }
@@ -1281,8 +1281,8 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         public void listen(EntriesAddedEvent addedEntriesEvent) {
             // if the event is an undo, don't add it to the current group
             if (
-                addedEntriesEvent.getEntriesEventSource() ==
-                EntriesEventSource.UNDO
+                addedEntriesEvent.getEntriesEventSource()
+                == EntriesEventSource.UNDO
             ) {
                 return;
             }

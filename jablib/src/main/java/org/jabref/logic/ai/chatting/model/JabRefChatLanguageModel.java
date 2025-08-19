@@ -62,9 +62,9 @@ public class JabRefChatLanguageModel implements ChatModel, AutoCloseable {
             aiPreferences.getAiProvider()
         );
         if (
-            !aiPreferences.getEnableAi() ||
-            (apiKey.isEmpty() &&
-                aiPreferences.getAiProvider() != AiProvider.GPT4ALL)
+            !aiPreferences.getEnableAi()
+            || (apiKey.isEmpty()
+                && aiPreferences.getAiProvider() != AiProvider.GPT4ALL)
         ) {
             langchainChatModel = Optional.empty();
             return;
@@ -155,8 +155,8 @@ public class JabRefChatLanguageModel implements ChatModel, AutoCloseable {
             } else if (
                 aiPreferences
                     .getApiKeyForAiProvider(aiPreferences.getAiProvider())
-                    .isEmpty() &&
-                aiPreferences.getAiProvider() != AiProvider.GPT4ALL
+                    .isEmpty()
+                && aiPreferences.getAiProvider() != AiProvider.GPT4ALL
             ) {
                 throw new RuntimeException(
                     Localization.lang(

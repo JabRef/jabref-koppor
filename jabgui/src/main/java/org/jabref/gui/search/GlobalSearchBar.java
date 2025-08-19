@@ -366,9 +366,9 @@ public class GlobalSearchBar extends HBox {
         regexButton.setSelected(searchPreferences.isRegularExpression());
         regexButton.setTooltip(
             new Tooltip(
-                Localization.lang("Regular expression") +
-                "\n" +
-                Localization.lang(
+                Localization.lang("Regular expression")
+                + "\n"
+                + Localization.lang(
                     "This only affects unfielded terms. For using RegEx in a fielded term, use =~ operator."
                 )
             )
@@ -386,9 +386,9 @@ public class GlobalSearchBar extends HBox {
         caseSensitiveButton.setSelected(searchPreferences.isCaseSensitive());
         caseSensitiveButton.setTooltip(
             new Tooltip(
-                Localization.lang("Case sensitive") +
-                "\n" +
-                Localization.lang(
+                Localization.lang("Case sensitive")
+                + "\n"
+                + Localization.lang(
                     "This only affects unfielded terms. For using case-sensitive in a fielded term, use =! operator."
                 )
             )

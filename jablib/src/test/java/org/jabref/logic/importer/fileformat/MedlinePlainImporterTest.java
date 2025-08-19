@@ -38,8 +38,8 @@ class MedlinePlainImporterTest {
 
     private static Stream<String> fileNames() throws IOException {
         Predicate<String> fileName = name ->
-            name.startsWith("MedlinePlainImporterTest") &&
-            name.endsWith(FILE_ENDING);
+            name.startsWith("MedlinePlainImporterTest")
+            && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 

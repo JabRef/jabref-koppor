@@ -25,13 +25,13 @@ public class PersonNamesChecker implements ValueChecker {
 
         String valueTrimmedAndLowerCase = value.trim().toLowerCase(Locale.ROOT);
         if (
-            valueTrimmedAndLowerCase.startsWith("and ") ||
-            valueTrimmedAndLowerCase.startsWith(",")
+            valueTrimmedAndLowerCase.startsWith("and ")
+            || valueTrimmedAndLowerCase.startsWith(",")
         ) {
             return Optional.of(Localization.lang("should start with a name"));
         } else if (
-            valueTrimmedAndLowerCase.endsWith(" and") ||
-            valueTrimmedAndLowerCase.endsWith(",")
+            valueTrimmedAndLowerCase.endsWith(" and")
+            || valueTrimmedAndLowerCase.endsWith(",")
         ) {
             return Optional.of(Localization.lang("should end with a name"));
         }
@@ -43,8 +43,8 @@ public class PersonNamesChecker implements ValueChecker {
         //  First Last and ...
         AuthorList authorList = AuthorList.parse(value);
         if (
-            !authorList.getAsLastFirstNamesWithAnd(false).equals(value) &&
-            !authorList.getAsFirstLastNamesWithAnd().equals(value)
+            !authorList.getAsLastFirstNamesWithAnd(false).equals(value)
+            && !authorList.getAsFirstLastNamesWithAnd().equals(value)
         ) {
             return Optional.of(
                 Localization.lang(

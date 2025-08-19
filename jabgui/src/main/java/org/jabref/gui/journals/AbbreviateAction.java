@@ -77,10 +77,10 @@ public class AbbreviateAction extends SimpleCommand {
     @Override
     public void execute() {
         if (
-            (action == StandardActions.ABBREVIATE_DEFAULT) ||
-            (action == StandardActions.ABBREVIATE_DOTLESS) ||
-            (action == StandardActions.ABBREVIATE_SHORTEST_UNIQUE) ||
-            (action == StandardActions.ABBREVIATE_LTWA)
+            (action == StandardActions.ABBREVIATE_DEFAULT)
+            || (action == StandardActions.ABBREVIATE_DOTLESS)
+            || (action == StandardActions.ABBREVIATE_SHORTEST_UNIQUE)
+            || (action == StandardActions.ABBREVIATE_LTWA)
         ) {
             dialogService.notify(Localization.lang("Abbreviating..."));
             stateManager

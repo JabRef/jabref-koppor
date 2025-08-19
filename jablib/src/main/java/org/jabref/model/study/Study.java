@@ -94,19 +94,19 @@ public class Study {
     @Override
     public String toString() {
         return (
-            "Study{" +
-            "authors=" +
-            authors +
-            ", studyName='" +
-            title +
-            '\'' +
-            ", researchQuestions=" +
-            researchQuestions +
-            ", queries=" +
-            queries +
-            ", libraries=" +
-            databases +
-            '}'
+            "Study{"
+            + "authors="
+            + authors
+            + ", studyName='"
+            + title
+            + '\''
+            + ", researchQuestions="
+            + researchQuestions
+            + ", queries="
+            + queries
+            + ", libraries="
+            + databases
+            + '}'
         );
     }
 
@@ -122,11 +122,11 @@ public class Study {
         Study otherStudy = (Study) other;
 
         return (
-            Objects.equals(authors, otherStudy.authors) &&
-            Objects.equals(title, otherStudy.title) &&
-            Objects.equals(researchQuestions, otherStudy.researchQuestions) &&
-            Objects.equals(queries, otherStudy.queries) &&
-            Objects.equals(databases, otherStudy.databases)
+            Objects.equals(authors, otherStudy.authors)
+            && Objects.equals(title, otherStudy.title)
+            && Objects.equals(researchQuestions, otherStudy.researchQuestions)
+            && Objects.equals(queries, otherStudy.queries)
+            && Objects.equals(databases, otherStudy.databases)
         );
     }
 

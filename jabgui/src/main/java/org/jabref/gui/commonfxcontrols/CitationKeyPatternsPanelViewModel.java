@@ -56,8 +56,8 @@ public class CitationKeyPatternsPanelViewModel {
     ) {
         String defaultPattern;
         if (
-            (initialKeyPattern.getDefaultValue() == null) ||
-            initialKeyPattern
+            (initialKeyPattern.getDefaultValue() == null)
+            || initialKeyPattern
                 .getDefaultValue()
                 .equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)
         ) {

@@ -80,11 +80,11 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
 
         List<FieldChange> changes = new ArrayList<>();
         boolean shouldRemoveFromOldGroup =
-            shouldRemovePreviousAssignments &&
-            (oldGroup instanceof GroupEntryChanger);
+            shouldRemovePreviousAssignments
+            && (oldGroup instanceof GroupEntryChanger);
         boolean shouldAddToNewGroup =
-            shouldKeepPreviousAssignments &&
-            (newGroup instanceof GroupEntryChanger);
+            shouldKeepPreviousAssignments
+            && (newGroup instanceof GroupEntryChanger);
         if (shouldAddToNewGroup || shouldRemoveFromOldGroup) {
             List<BibEntry> entriesMatchedByOldGroup = entriesInDatabase
                 .stream()
@@ -122,16 +122,16 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         );
         searchRule.addRule(getGroup());
         if (
-            (context == GroupHierarchyType.INCLUDING) &&
-            (originalContext != GroupHierarchyType.REFINING)
+            (context == GroupHierarchyType.INCLUDING)
+            && (originalContext != GroupHierarchyType.REFINING)
         ) {
             for (GroupTreeNode child : getChildren()) {
                 searchRule.addRule(child.getSearchMatcher(originalContext));
             }
         } else if (
-            (context == GroupHierarchyType.REFINING) &&
-            !isRoot() &&
-            (originalContext != GroupHierarchyType.INCLUDING)
+            (context == GroupHierarchyType.REFINING)
+            && !isRoot()
+            && (originalContext != GroupHierarchyType.INCLUDING)
         ) {
             // noinspection OptionalGetWithoutIsPresent
             searchRule.addRule(
@@ -151,8 +151,8 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         }
         GroupTreeNode that = (GroupTreeNode) o;
         return (
-            Objects.equals(getGroup(), that.getGroup()) &&
-            Objects.equals(getChildren(), that.getChildren())
+            Objects.equals(getGroup(), that.getGroup())
+            && Objects.equals(getChildren(), that.getChildren())
         );
     }
 

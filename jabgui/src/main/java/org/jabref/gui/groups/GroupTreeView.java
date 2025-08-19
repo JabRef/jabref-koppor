@@ -302,15 +302,15 @@ public class GroupTreeView extends BorderPane {
             .withContextMenu(this::createContextMenuForGroup)
             .withEventFilter(MouseEvent.MOUSE_PRESSED, (row, event) -> {
                 if (
-                    ((MouseEvent) event).getButton() == MouseButton.SECONDARY &&
-                    !stateManager.getSelectedEntries().isEmpty()
+                    ((MouseEvent) event).getButton() == MouseButton.SECONDARY
+                    && !stateManager.getSelectedEntries().isEmpty()
                 ) {
                     // Prevent right-click to select group whe we have selected entries
                     event.consume();
                 } else if (event.getTarget() instanceof StackPane pane) {
                     if (
-                        pane.getStyleClass().contains("arrow") ||
-                        pane.getStyleClass().contains("tree-disclosure-node")
+                        pane.getStyleClass().contains("arrow")
+                        || pane.getStyleClass().contains("tree-disclosure-node")
                     ) {
                         event.consume();
                     }
@@ -333,17 +333,17 @@ public class GroupTreeView extends BorderPane {
             .withPseudoClass(PSEUDOCLASS_ROOTELEMENT, row ->
                 Bindings.createBooleanBinding(
                     () ->
-                        (row != null) &&
-                        (groupTree.getRoot() != null) &&
-                        (row.getItem() == groupTree.getRoot().getValue()),
+                        (row != null)
+                        && (groupTree.getRoot() != null)
+                        && (row.getItem() == groupTree.getRoot().getValue()),
                     row.treeItemProperty()
                 )
             )
             .withPseudoClass(PSEUDOCLASS_SUBELEMENT, row ->
                 Bindings.createBooleanBinding(
                     () ->
-                        (row != null) &&
-                        (groupTree.getTreeItemLevel(row.getTreeItem()) > 1),
+                        (row != null)
+                        && (groupTree.getTreeItemLevel(row.getTreeItem()) > 1),
                     row.treeItemProperty()
                 )
             )
@@ -485,8 +485,8 @@ public class GroupTreeView extends BorderPane {
         boolean success = false;
 
         if (
-            dragboard.hasContent(DragAndDropDataFormats.GROUP) &&
-            row.getItem().canAddGroupsIn()
+            dragboard.hasContent(DragAndDropDataFormats.GROUP)
+            && row.getItem().canAddGroupsIn()
         ) {
             List<String> pathToSources = (List<String>) dragboard.getContent(
                 DragAndDropDataFormats.GROUP
@@ -562,9 +562,9 @@ public class GroupTreeView extends BorderPane {
     ) {
         Dragboard dragboard = event.getDragboard();
         if (
-            (event.getGestureSource() != row) &&
-            (row.getItem() != null) &&
-            row.getItem().acceptableDrop(dragboard)
+            (event.getGestureSource() != row)
+            && (row.getItem() != null)
+            && row.getItem().acceptableDrop(dragboard)
         ) {
             event.acceptTransferModes(TransferMode.MOVE, TransferMode.LINK);
 
@@ -675,15 +675,15 @@ public class GroupTreeView extends BorderPane {
                     scrollableAreaHeight - event.getY();
             } else {
                 distanceFromNonScrollableInsideArea =
-                    scrollableAreaHeight -
-                    (groupTree.getHeight() - event.getY());
+                    scrollableAreaHeight
+                    - (groupTree.getHeight() - event.getY());
             }
 
             // part "(1+x)" of formula "speed = 20px/s (1+x)" (proposed by https://github.com/JabRef/jabref/issues/9754#issuecomment-1766864908)
             // / 10.0 is because of the 100 milliseconds above. (it is 20px per second, 10.0 * 100.0 ms = 1 second)
             scrollVelocity =
-                (baseFactor * (1.0 + distanceFromNonScrollableInsideArea)) /
-                10.0;
+                (baseFactor * (1.0 + distanceFromNonScrollableInsideArea))
+                / 10.0;
             if (scrollingUp) {
                 scrollVelocity = -scrollVelocity;
             }
@@ -731,8 +731,8 @@ public class GroupTreeView extends BorderPane {
     private Optional<ScrollBar> getVerticalScrollbar() {
         for (Node node : groupTree.lookupAll(".scroll-bar")) {
             if (
-                node instanceof ScrollBar scrollbar &&
-                scrollbar.getOrientation() == Orientation.VERTICAL
+                node instanceof ScrollBar scrollbar
+                && scrollbar.getOrientation() == Orientation.VERTICAL
             ) {
                 return Optional.of(scrollbar);
             }
@@ -956,8 +956,8 @@ public class GroupTreeView extends BorderPane {
             }
 
             if (
-                (System.currentTimeMillis() - this.dragStarted) >
-                DRAG_TIME_BEFORE_EXPANDING_MS
+                (System.currentTimeMillis() - this.dragStarted)
+                > DRAG_TIME_BEFORE_EXPANDING_MS
             ) {
                 // expand or collapse the tree item and reset the time
                 this.dragStarted = System.currentTimeMillis();
@@ -990,20 +990,20 @@ public class GroupTreeView extends BorderPane {
                             case
                                 GROUP_REMOVE,
                                 GROUP_REMOVE_WITH_SUBGROUPS,
-                                GROUP_REMOVE_KEEP_SUBGROUPS -> group.isEditable() &&
-                            group.canRemove();
+                                GROUP_REMOVE_KEEP_SUBGROUPS -> group.isEditable()
+                            && group.canRemove();
                             case GROUP_SUGGESTED_GROUPS_ADD -> !group.hasAllSuggestedGroups();
-                            case GROUP_SUBGROUP_ADD -> (group.isEditable() &&
-                                group.canAddGroupsIn()) ||
-                            group.isRoot();
-                            case GROUP_SUBGROUP_REMOVE -> (group.isEditable() &&
-                                group.hasSubgroups() &&
-                                group.canRemove()) ||
-                            group.isRoot();
-                            case GROUP_SUBGROUP_SORT -> (group.isEditable() &&
-                                group.hasSubgroups() &&
-                                group.canAddEntriesIn()) ||
-                            group.isRoot();
+                            case GROUP_SUBGROUP_ADD -> (group.isEditable()
+                                && group.canAddGroupsIn())
+                            || group.isRoot();
+                            case GROUP_SUBGROUP_REMOVE -> (group.isEditable()
+                                && group.hasSubgroups()
+                                && group.canRemove())
+                            || group.isRoot();
+                            case GROUP_SUBGROUP_SORT -> (group.isEditable()
+                                && group.hasSubgroups()
+                                && group.canAddEntriesIn())
+                            || group.isRoot();
                             case
                                 GROUP_ENTRIES_ADD,
                                 GROUP_ENTRIES_REMOVE -> group.canAddEntriesIn();

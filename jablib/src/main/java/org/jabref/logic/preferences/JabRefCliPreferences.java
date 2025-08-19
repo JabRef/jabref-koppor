@@ -1940,8 +1940,8 @@ public class JabRefCliPreferences implements CliPreferences {
         GlobalCitationKeyPatterns pattern
     ) {
         if (
-            (pattern.getDefaultValue() == null) ||
-            pattern
+            (pattern.getDefaultValue() == null)
+            || pattern
                 .getDefaultValue()
                 .equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)
         ) {
@@ -2025,8 +2025,8 @@ public class JabRefCliPreferences implements CliPreferences {
                 );
                 putBoolean(
                     KEY_GEN_FIRST_LETTER_A,
-                    newValue ==
-                    CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A
+                    newValue
+                    == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A
                 );
             }
         );

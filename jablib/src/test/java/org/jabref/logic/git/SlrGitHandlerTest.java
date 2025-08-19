@@ -50,13 +50,13 @@ class SlrGitHandlerTest {
     @Test
     void calculateDiffOnBranch() throws IOException, GitAPIException {
         String expectedPatch =
-            "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n" +
-            "index 74809e3..2ae1945 100644\n" +
-            "--- a/TestFolder/Test1.txt\n" +
-            "+++ b/TestFolder/Test1.txt\n" +
-            "@@ -1 +1,2 @@\n" +
-            "+This is a new line of text 2\n" +
-            " This is a new line of text\n";
+            "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n"
+            + "index 74809e3..2ae1945 100644\n"
+            + "--- a/TestFolder/Test1.txt\n"
+            + "+++ b/TestFolder/Test1.txt\n"
+            + "@@ -1 +1,2 @@\n"
+            + "+This is a new line of text 2\n"
+            + " This is a new line of text\n";
 
         gitHandler.checkoutBranch("branch1");
         Files.createDirectory(Path.of(repositoryPath.toString(), "TestFolder"));
@@ -72,8 +72,8 @@ class SlrGitHandlerTest {
         Files.createFile(Path.of(repositoryPath.toString(), "Test2.txt"));
         Files.writeString(
             Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt"),
-            "This is a new line of text 2\n" +
-            Files.readString(
+            "This is a new line of text 2\n"
+            + Files.readString(
                 Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt")
             )
         );
@@ -95,13 +95,13 @@ class SlrGitHandlerTest {
         );
 
         Map<Path, String> result = gitHandler.parsePatchForAddedEntries(
-            "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n" +
-            "index 74809e3..2ae1945 100644\n" +
-            "--- a/TestFolder/Test1.txt\n" +
-            "+++ b/TestFolder/Test1.txt\n" +
-            "@@ -1 +1,2 @@\n" +
-            "+This is a new line of text 2\n" +
-            " This is a new line of text"
+            "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n"
+            + "index 74809e3..2ae1945 100644\n"
+            + "--- a/TestFolder/Test1.txt\n"
+            + "+++ b/TestFolder/Test1.txt\n"
+            + "@@ -1 +1,2 @@\n"
+            + "+This is a new line of text 2\n"
+            + " This is a new line of text"
         );
 
         assertEquals(expected, result);

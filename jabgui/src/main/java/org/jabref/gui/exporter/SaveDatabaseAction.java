@@ -253,8 +253,8 @@ public class SaveDatabaseAction {
             ) {
                 savePath = Path.of(savePath + ".bib");
                 if (
-                    !Files.notExists(savePath) &&
-                    !dialogService.showConfirmationDialogAndWait(
+                    !Files.notExists(savePath)
+                    && !dialogService.showConfirmationDialogAndWait(
                         Localization.lang("Overwrite file"),
                         Localization.lang(
                             "'%0' exists. Overwrite file?",
@@ -286,8 +286,8 @@ public class SaveDatabaseAction {
 
     private boolean save(Path targetPath, SaveDatabaseMode mode) {
         if (
-            mode == SaveDatabaseMode.NORMAL &&
-            libraryTab.getBibDatabaseContext().getEntries().size() > 2_000
+            mode == SaveDatabaseMode.NORMAL
+            && libraryTab.getBibDatabaseContext().getEntries().size() > 2_000
         ) {
             dialogService.notify(
                 "%s...".formatted(Localization.lang("Saving library"))

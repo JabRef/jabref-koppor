@@ -61,8 +61,8 @@ class URLCleanupTest {
                     ),
                 new BibEntry().withField(
                     StandardField.NOTE,
-                    "\\url{https://hdl.handle.net/10442/hedi/6089}, " +
-                    "\\url{http://142.42.1.1:8080}"
+                    "\\url{https://hdl.handle.net/10442/hedi/6089}, "
+                    + "\\url{http://142.42.1.1:8080}"
                 )
             ),
             // Input entry holds the same URL both in Note and Url field.

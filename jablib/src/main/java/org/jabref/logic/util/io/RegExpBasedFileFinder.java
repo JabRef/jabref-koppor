@@ -98,11 +98,11 @@ class RegExpBasedFileFinder implements FileFinder {
         String cleanedContent = FileNameCleaner.cleanFileName(expandedContent);
         return expandedContent.equals(cleanedContent)
             ? Pattern.quote(expandedContent)
-            : "(" +
-            Pattern.quote(expandedContent) +
-            ")|(" +
-            Pattern.quote(cleanedContent) +
-            ")";
+            : "("
+            + Pattern.quote(expandedContent)
+            + ")|("
+            + Pattern.quote(cleanedContent)
+            + ")";
     }
 
     /**

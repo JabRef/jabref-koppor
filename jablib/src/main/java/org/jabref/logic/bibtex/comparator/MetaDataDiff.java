@@ -95,8 +95,8 @@ public class MetaDataDiff {
                 ContentSelectors newContentSelectors =
                     (ContentSelectors) newObject;
                 if (
-                    isDefaultContentSelectors(originalContentSelectors) &&
-                    isDefaultContentSelectors(newContentSelectors)
+                    isDefaultContentSelectors(originalContentSelectors)
+                    && isDefaultContentSelectors(newContentSelectors)
                 ) {
                     return;
                 }
@@ -232,20 +232,20 @@ public class MetaDataDiff {
     @Override
     public String toString() {
         return (
-            "MetaDataDiff{" +
-            "groupDiff=" +
-            groupDiff +
-            ", originalMetaData=" +
-            originalMetaData +
-            ", newMetaData=" +
-            getNewMetaData() +
-            ", getDifferences()=" +
-            getDifferences(
+            "MetaDataDiff{"
+            + "groupDiff="
+            + groupDiff
+            + ", originalMetaData="
+            + originalMetaData
+            + ", newMetaData="
+            + getNewMetaData()
+            + ", getDifferences()="
+            + getDifferences(
                 new GlobalCitationKeyPatterns(
                     CitationKeyPattern.NULL_CITATION_KEY_PATTERN
                 )
-            ) +
-            '}'
+            )
+            + '}'
         );
     }
 }

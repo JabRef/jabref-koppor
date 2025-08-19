@@ -435,12 +435,12 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 Objects.equals(
                     oldWordKeywordGroup.getSearchField().getName(),
                     newWordKeywordGroup.getSearchField().getName()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldWordKeywordGroup.getSearchExpression(),
                     newWordKeywordGroup.getSearchExpression()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldWordKeywordGroup.isCaseSensitive(),
                     newWordKeywordGroup.isCaseSensitive()
                 )
@@ -455,12 +455,12 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 Objects.equals(
                     oldRegexKeywordGroup.getSearchField().getName(),
                     newRegexKeywordGroup.getSearchField().getName()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldRegexKeywordGroup.getSearchExpression(),
                     newRegexKeywordGroup.getSearchExpression()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldRegexKeywordGroup.isCaseSensitive(),
                     newRegexKeywordGroup.isCaseSensitive()
                 )
@@ -473,8 +473,8 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 Objects.equals(
                     oldSearchGroup.getSearchExpression(),
                     newSearchGroup.getSearchExpression()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldSearchGroup.getSearchFlags(),
                     newSearchGroup.getSearchFlags()
                 )
@@ -489,12 +489,12 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 Objects.equals(
                     oldAutomaticKeywordGroup.getKeywordDelimiter(),
                     newAutomaticKeywordGroup.getKeywordDelimiter()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldAutomaticKeywordGroup.getKeywordHierarchicalDelimiter(),
                     newAutomaticKeywordGroup.getKeywordHierarchicalDelimiter()
-                ) &&
-                Objects.equals(
+                )
+                && Objects.equals(
                     oldAutomaticKeywordGroup.getField().getName(),
                     newAutomaticKeywordGroup.getField().getName()
                 )
@@ -546,9 +546,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 // dialog already warns us about this if the new group is named like another existing group
                 // We need to check if only the name changed as this is relevant for the entry's group field
                 if (
-                    groupTypeEqual &&
-                    !group.getName().equals(oldGroupName) &&
-                    onlyMinorModifications
+                    groupTypeEqual
+                    && !group.getName().equals(oldGroupName)
+                    && onlyMinorModifications
                 ) {
                     int groupsWithSameName = 0;
                     Optional<GroupTreeNode> databaseRootGroup = currentDatabase
@@ -589,8 +589,11 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 }
 
                 if (
-                    groupTypeEqual &&
-                    onlyMinorChanges(oldGroup.getGroupNode().getGroup(), group)
+                    groupTypeEqual
+                    && onlyMinorChanges(
+                        oldGroup.getGroupNode().getGroup(),
+                        group
+                    )
                 ) {
                     oldGroup
                         .getGroupNode()
@@ -621,9 +624,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
 
                 if (newGroup.get().getClass() == WordKeywordGroup.class) {
                     content =
-                        content +
-                        "\n\n" +
-                        Localization.lang(
+                        content
+                        + "\n\n"
+                        + Localization.lang(
                             "(Note: If original entries lack keywords to qualify for the new group configuration, confirming here will add them)"
                         );
                 }
@@ -637,9 +640,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
                         cancel
                     );
                 boolean removePreviousAssignments =
-                    (oldGroup.getGroupNode().getGroup() instanceof
-                        ExplicitGroup) &&
-                    (group instanceof ExplicitGroup);
+                    (oldGroup.getGroupNode().getGroup()
+                        instanceof ExplicitGroup)
+                    && (group instanceof ExplicitGroup);
 
                 int groupsWithSameName = 0;
                 Optional<GroupTreeNode> databaseRootGroup = currentDatabase
@@ -660,9 +663,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
                 }
 
                 if (
-                    previousAssignments.isPresent() &&
-                    (previousAssignments.get().getButtonData() ==
-                        ButtonBar.ButtonData.YES)
+                    previousAssignments.isPresent()
+                    && (previousAssignments.get().getButtonData()
+                        == ButtonBar.ButtonData.YES)
                 ) {
                     oldGroup
                         .getGroupNode()
@@ -673,9 +676,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
                             database.getEntries()
                         );
                 } else if (
-                    previousAssignments.isPresent() &&
-                    (previousAssignments.get().getButtonData() ==
-                        ButtonBar.ButtonData.NO)
+                    previousAssignments.isPresent()
+                    && (previousAssignments.get().getButtonData()
+                        == ButtonBar.ButtonData.NO)
                 ) {
                     oldGroup
                         .getGroupNode()
@@ -686,9 +689,9 @@ public class GroupTreeViewModel extends AbstractViewModel {
                             database.getEntries()
                         );
                 } else if (
-                    previousAssignments.isPresent() &&
-                    (previousAssignments.get().getButtonData() ==
-                        ButtonBar.ButtonData.CANCEL_CLOSE)
+                    previousAssignments.isPresent()
+                    && (previousAssignments.get().getButtonData()
+                        == ButtonBar.ButtonData.CANCEL_CLOSE)
                 ) {
                     return;
                 }

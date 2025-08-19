@@ -173,8 +173,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
                 );
 
                 disableApiBaseUrl.set(
-                    newValue == AiProvider.HUGGING_FACE ||
-                    newValue == AiProvider.GEMINI
+                    newValue == AiProvider.HUGGING_FACE
+                    || newValue == AiProvider.GEMINI
                 );
 
                 // When we setAll on Hugging Face, models are empty, and currentChatModel become null.
@@ -357,8 +357,8 @@ public class AiTabViewModel implements PreferenceTabViewModel {
             new FunctionBasedValidator<>(
                 documentSplitterOverlapSize,
                 size ->
-                    size.intValue() > 0 &&
-                    size.intValue() < documentSplitterChunkSize.get(),
+                    size.intValue() > 0
+                    && size.intValue() < documentSplitterChunkSize.get(),
                 ValidationMessage.error(
                     Localization.lang(
                         "Document splitter overlap size must be greater than 0 and less than chunk size"

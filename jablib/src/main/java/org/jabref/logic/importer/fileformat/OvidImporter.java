@@ -40,8 +40,8 @@ public class OvidImporter extends Importer {
     );
 
     private static final Pattern INCOLLECTION_PATTERN = Pattern.compile(
-        "(.+)\\(([0-9][0-9][0-9][0-9])\\)\\. ([ \\w&\\-,:]+)\\.[ ]+\\(pp. ([0-9]+\\-?[0-9]+?)\\).[A-Za-z0-9, ]+pp\\. " +
-        "([\\w, ]+): ([\\w, ]+)"
+        "(.+)\\(([0-9][0-9][0-9][0-9])\\)\\. ([ \\w&\\-,:]+)\\.[ ]+\\(pp. ([0-9]+\\-?[0-9]+?)\\).[A-Za-z0-9, ]+pp\\. "
+        + "([\\w, ]+): ([\\w, ]+)"
     );
     private static final Pattern BOOK_PATTERN = Pattern.compile(
         "\\(([0-9][0-9][0-9][0-9])\\)\\. [A-Za-z, ]+([0-9]+) pp\\. ([\\w, ]+): ([\\w, ]+)"
@@ -114,9 +114,9 @@ public class OvidImporter extends Importer {
 
                 // Check if this is the author field (due to a minor special treatment for this field):
                 boolean isAuthor =
-                    (fieldName.indexOf("Author") == 0) &&
-                    !fieldName.contains("Author Keywords") &&
-                    !fieldName.contains("Author e-mail");
+                    (fieldName.indexOf("Author") == 0)
+                    && !fieldName.contains("Author Keywords")
+                    && !fieldName.contains("Author e-mail");
 
                 // Remove unnecessary dots at the end of lines, unless this is the author field,
                 // in which case a dot at the end could be significant:
@@ -244,8 +244,8 @@ public class OvidImporter extends Importer {
                 : BibEntry.DEFAULT_TYPE;
             h.remove(InternalField.TYPE_HEADER);
             if (
-                entryType.equals(StandardEntryType.Book) &&
-                h.containsKey(new UnknownField("chaptertitle"))
+                entryType.equals(StandardEntryType.Book)
+                && h.containsKey(new UnknownField("chaptertitle"))
             ) {
                 // This means we have an "incollection" entry.
                 entryType = StandardEntryType.InCollection;

@@ -117,8 +117,8 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
             return false;
         }
         return (
-            (this.location.equals(otherList.location)) &&
-            (this.description.equals(otherList.description))
+            (this.location.equals(otherList.location))
+            && (this.description.equals(otherList.description))
         );
     }
 

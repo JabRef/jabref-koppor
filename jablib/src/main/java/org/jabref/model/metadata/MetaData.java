@@ -443,26 +443,26 @@ public class MetaData {
             return false;
         }
         return (
-            (isProtected == that.isProtected) &&
-            Objects.equals(groupsRoot.getValue(), that.groupsRoot.getValue()) &&
-            Objects.equals(encoding, that.encoding) &&
-            Objects.equals(
+            (isProtected == that.isProtected)
+            && Objects.equals(groupsRoot.getValue(), that.groupsRoot.getValue())
+            && Objects.equals(encoding, that.encoding)
+            && Objects.equals(
                 encodingExplicitlySupplied,
                 that.encodingExplicitlySupplied
-            ) &&
-            Objects.equals(saveOrder, that.saveOrder) &&
-            Objects.equals(citeKeyPatterns, that.citeKeyPatterns) &&
-            Objects.equals(userFileDirectory, that.userFileDirectory) &&
-            Objects.equals(latexFileDirectory, that.latexFileDirectory) &&
-            Objects.equals(defaultCiteKeyPattern, that.defaultCiteKeyPattern) &&
-            Objects.equals(saveActions, that.saveActions) &&
-            (mode == that.mode) &&
-            Objects.equals(
+            )
+            && Objects.equals(saveOrder, that.saveOrder)
+            && Objects.equals(citeKeyPatterns, that.citeKeyPatterns)
+            && Objects.equals(userFileDirectory, that.userFileDirectory)
+            && Objects.equals(latexFileDirectory, that.latexFileDirectory)
+            && Objects.equals(defaultCiteKeyPattern, that.defaultCiteKeyPattern)
+            && Objects.equals(saveActions, that.saveActions)
+            && (mode == that.mode)
+            && Objects.equals(
                 librarySpecificFileDirectory,
                 that.librarySpecificFileDirectory
-            ) &&
-            Objects.equals(contentSelectors, that.contentSelectors) &&
-            Objects.equals(versionDBStructure, that.versionDBStructure)
+            )
+            && Objects.equals(contentSelectors, that.contentSelectors)
+            && Objects.equals(versionDBStructure, that.versionDBStructure)
         );
     }
 
@@ -489,35 +489,35 @@ public class MetaData {
     @Override
     public String toString() {
         return (
-            "MetaData [citeKeyPatterns=" +
-            citeKeyPatterns +
-            ", userFileDirectory=" +
-            userFileDirectory +
-            ", laTexFileDirectory=" +
-            latexFileDirectory +
-            ", groupsRoot=" +
-            groupsRoot +
-            ", encoding=" +
-            encoding +
-            ", saveOrderConfig=" +
-            saveOrder +
-            ", defaultCiteKeyPattern=" +
-            defaultCiteKeyPattern +
-            ", saveActions=" +
-            saveActions +
-            ", mode=" +
-            mode +
-            ", isProtected=" +
-            isProtected +
-            ", librarySpecificFileDirectory=" +
-            librarySpecificFileDirectory +
-            ", contentSelectors=" +
-            contentSelectors +
-            ", encodingExplicitlySupplied=" +
-            encodingExplicitlySupplied +
-            ", VersionDBStructure=" +
-            versionDBStructure +
-            "]"
+            "MetaData [citeKeyPatterns="
+            + citeKeyPatterns
+            + ", userFileDirectory="
+            + userFileDirectory
+            + ", laTexFileDirectory="
+            + latexFileDirectory
+            + ", groupsRoot="
+            + groupsRoot
+            + ", encoding="
+            + encoding
+            + ", saveOrderConfig="
+            + saveOrder
+            + ", defaultCiteKeyPattern="
+            + defaultCiteKeyPattern
+            + ", saveActions="
+            + saveActions
+            + ", mode="
+            + mode
+            + ", isProtected="
+            + isProtected
+            + ", librarySpecificFileDirectory="
+            + librarySpecificFileDirectory
+            + ", contentSelectors="
+            + contentSelectors
+            + ", encodingExplicitlySupplied="
+            + encodingExplicitlySupplied
+            + ", VersionDBStructure="
+            + versionDBStructure
+            + "]"
         );
     }
 

@@ -26,9 +26,9 @@ class InspecImporterTest {
 
     private static Stream<String> fileNames() throws IOException {
         Predicate<String> fileName = name ->
-            name.startsWith("InspecImportTest") &&
-            !name.contains("False") &&
-            name.endsWith(FILE_ENDING);
+            name.startsWith("InspecImportTest")
+            && !name.contains("False")
+            && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -81,10 +81,10 @@ class InspecImporterTest {
     @Test
     void importConferencePaperGivesInproceedings() throws IOException {
         String testInput =
-            "Record.*INSPEC.*\n" +
-            "\n" +
-            "RT ~ Conference-Paper\n" +
-            "AU ~ Prechelt, Lutz";
+            "Record.*INSPEC.*\n"
+            + "\n"
+            + "RT ~ Conference-Paper\n"
+            + "AU ~ Prechelt, Lutz";
         BibEntry expectedEntry = new BibEntry(StandardEntryType.InProceedings);
         expectedEntry.setField(StandardField.AUTHOR, "Prechelt, Lutz");
 
@@ -100,10 +100,10 @@ class InspecImporterTest {
     @Test
     void importMiscGivesMisc() throws IOException {
         String testInput =
-            "Record.*INSPEC.*\n" +
-            "\n" +
-            "AU ~ Prechelt, Lutz \n" +
-            "RT ~ Misc";
+            "Record.*INSPEC.*\n"
+            + "\n"
+            + "AU ~ Prechelt, Lutz \n"
+            + "RT ~ Misc";
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Misc);
         expectedEntry.setField(StandardField.AUTHOR, "Prechelt, Lutz");
 

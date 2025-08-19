@@ -125,9 +125,9 @@ public class PdfMergeDialog {
             try {
                 ParserResult parserResult = importer.importDatabase(filePath);
                 if (
-                    parserResult.isInvalid() ||
-                    parserResult.isEmpty() ||
-                    !parserResult.getDatabase().hasEntries()
+                    parserResult.isInvalid()
+                    || parserResult.isEmpty()
+                    || !parserResult.getDatabase().hasEntries()
                 ) {
                     return null;
                 }

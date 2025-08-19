@@ -349,10 +349,10 @@ public class RightClickMenu {
                     bibDatabaseContext.getLocation() == DatabaseLocation.SHARED
                 ) {
                     destinationDatabaseName =
-                        bibDatabaseContext.getDBMSSynchronizer().getDBName() +
-                        " [" +
-                        Localization.lang("shared") +
-                        "]";
+                        bibDatabaseContext.getDBMSSynchronizer().getDBName()
+                        + " ["
+                        + Localization.lang("shared")
+                        + "]";
                 } else {
                     destinationDatabaseName = destinationPath.orElse(
                         Localization.lang("untitled")
@@ -479,8 +479,8 @@ public class RightClickMenu {
         PreviewPreferences previewPreferences =
             preferences.getPreviewPreferences();
         if (
-            previewPreferences.getSelectedPreviewLayout() instanceof
-            CitationStylePreviewLayout
+            previewPreferences.getSelectedPreviewLayout()
+            instanceof CitationStylePreviewLayout
         ) {
             copySpecialMenu
                 .getItems()

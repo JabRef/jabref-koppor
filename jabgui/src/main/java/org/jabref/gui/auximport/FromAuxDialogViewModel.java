@@ -83,10 +83,10 @@ public class FromAuxDialogViewModel {
         }
         if (databaseContext.getLocation() == DatabaseLocation.SHARED) {
             return (
-                databaseContext.getDBMSSynchronizer().getDBName() +
-                " [" +
-                Localization.lang("shared") +
-                "]"
+                databaseContext.getDBMSSynchronizer().getDBName()
+                + " ["
+                + Localization.lang("shared")
+                + "]"
             );
         }
 
@@ -119,9 +119,9 @@ public class FromAuxDialogViewModel {
         String auxName = auxFileProperty.get();
 
         if (
-            (auxName != null) &&
-            (referenceDatabase != null) &&
-            !auxName.isEmpty()
+            (auxName != null)
+            && (referenceDatabase != null)
+            && !auxName.isEmpty()
         ) {
             AuxParser auxParser = new DefaultAuxParser(referenceDatabase);
             auxParserResult = auxParser.parse(Path.of(auxName));
@@ -135,9 +135,9 @@ public class FromAuxDialogViewModel {
             if (!auxParserResult.getGeneratedBibDatabase().hasEntries()) {
                 // The generated database contains no entries -> no active generate-button
                 statusTextProperty.set(
-                    statusTextProperty.get() +
-                    "\n" +
-                    Localization.lang("empty library")
+                    statusTextProperty.get()
+                    + "\n"
+                    + Localization.lang("empty library")
                 );
                 parseFailedProperty.set(true);
             }

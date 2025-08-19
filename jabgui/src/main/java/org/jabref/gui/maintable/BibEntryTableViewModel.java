@@ -187,8 +187,8 @@ public class BibEntryTableViewModel {
                 specialFieldValues.put(field, zeroValue);
                 return zeroValue;
             } else if (
-                value.getValue().isEmpty() ||
-                !value
+                value.getValue().isEmpty()
+                || !value
                     .getValue()
                     .get()
                     .getValue()

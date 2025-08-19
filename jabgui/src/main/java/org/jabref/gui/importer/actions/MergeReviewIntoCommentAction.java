@@ -31,8 +31,8 @@ public class MergeReviewIntoCommentAction implements GUIPostOpenAction {
         List<BibEntry> conflicts =
             MergeReviewIntoCommentMigration.collectConflicts(parserResult);
         if (
-            !conflicts.isEmpty() &&
-            new MergeReviewIntoCommentConfirmationDialog(
+            !conflicts.isEmpty()
+            && new MergeReviewIntoCommentConfirmationDialog(
                 dialogService
             ).askUserForMerge(conflicts)
         ) {

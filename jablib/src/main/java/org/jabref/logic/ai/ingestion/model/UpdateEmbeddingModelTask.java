@@ -59,8 +59,8 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<Void> {
         LOGGER.info("Downloading embedding model...");
 
         String modelUrl =
-            DJL_EMBEDDING_MODEL_URL_PREFIX +
-            aiPreferences.getEmbeddingModel().getName();
+            DJL_EMBEDDING_MODEL_URL_PREFIX
+            + aiPreferences.getEmbeddingModel().getName();
 
         Criteria<String, float[]> criteria = Criteria.builder()
             .setTypes(String.class, float[].class)

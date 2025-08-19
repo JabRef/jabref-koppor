@@ -96,8 +96,8 @@ public class CitationKeyPatternSuggestionCell
                         if (!filteredEntries.isEmpty()) {
                             populatePopup(filteredEntries);
                             if (
-                                !suggestionsList.isShowing() &&
-                                getScene() != null
+                                !suggestionsList.isShowing()
+                                && getScene() != null
                             ) {
                                 double screenX = localToScreen(0, 0).getX();
                                 double screenY =
@@ -159,8 +159,8 @@ public class CitationKeyPatternSuggestionCell
 
         public static double getAvailableSpaceBelow(TextField textField) {
             if (
-                textField.getScene() == null ||
-                textField.getScene().getWindow() == null
+                textField.getScene() == null
+                || textField.getScene().getWindow() == null
             ) {
                 return 0;
             }

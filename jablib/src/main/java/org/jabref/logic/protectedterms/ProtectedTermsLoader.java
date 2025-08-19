@@ -94,8 +94,10 @@ public class ProtectedTermsLoader {
         // Check if any new internal lists have emerged
         for (String filename : INTERNAL_LISTS.keySet()) {
             if (
-                !preferences.getEnabledInternalTermLists().contains(filename) &&
-                !preferences.getDisabledInternalTermLists().contains(filename)
+                !preferences.getEnabledInternalTermLists().contains(filename)
+                && !preferences
+                    .getDisabledInternalTermLists()
+                    .contains(filename)
             ) {
                 // New internal list, add it
                 mainList.add(

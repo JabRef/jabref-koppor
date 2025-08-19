@@ -43,10 +43,10 @@ public class ParserResultWarningDialog {
             dialogTitle = Localization.lang("Warnings");
         } else {
             dialogTitle =
-                Localization.lang("Warnings") +
-                " (" +
-                parserResult.getPath().get().getFileName() +
-                ")";
+                Localization.lang("Warnings")
+                + " ("
+                + parserResult.getPath().get().getFileName()
+                + ")";
         }
 
         // Show dialog

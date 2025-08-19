@@ -114,8 +114,8 @@ public class BibliographyFromPdfImporter extends Importer {
         throws IOException {
         Objects.requireNonNull(reader);
         throw new UnsupportedOperationException(
-            "BibliopgraphyFromPdfImporter does not support importDatabase(BufferedReader reader)." +
-            "Instead use importDatabase(Path filePath)."
+            "BibliopgraphyFromPdfImporter does not support importDatabase(BufferedReader reader)."
+            + "Instead use importDatabase(Path filePath)."
         );
     }
 
@@ -338,12 +338,12 @@ public class BibliographyFromPdfImporter extends Importer {
         if (matcher.find()) {
             // strip out second monthp
             reference =
-                reference.substring(0, matcher.start()) +
-                ", " +
-                matcher.group(1) +
-                " " +
-                matcher.group(2) +
-                matcher.group(3);
+                reference.substring(0, matcher.start())
+                + ", "
+                + matcher.group(1)
+                + " "
+                + matcher.group(2)
+                + matcher.group(3);
         }
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57
@@ -462,8 +462,8 @@ public class BibliographyFromPdfImporter extends Importer {
         Matcher proceedingsMatcher = PROCEEDINGS_INDICATION.matcher(reference);
         Matcher workshopMatcher = WORKSHOP.matcher(reference);
         if (
-            proceedingsMatcher.find() ||
-            (workshopMatcher.find() && (!volumeFound && !numberFound))
+            proceedingsMatcher.find()
+            || (workshopMatcher.find() && (!volumeFound && !numberFound))
         ) {
             result.setType(StandardEntryType.InProceedings);
 
@@ -494,8 +494,8 @@ public class BibliographyFromPdfImporter extends Importer {
                     .trim();
                 // We use Apache Commons here, because it is fastest - see table at https://stackoverflow.com/a/35242882/873282
                 if (
-                    !textAfterDot.contains("http") &&
-                    (StringUtils.countMatches(textAfterDot, ' ') <= 1)
+                    !textAfterDot.contains("http")
+                    && (StringUtils.countMatches(textAfterDot, ' ') <= 1)
                 ) {
                     bookTitle = bookTitle.substring(0, offset + lastDot).trim();
                     if (bookTitle.startsWith("in ")) {

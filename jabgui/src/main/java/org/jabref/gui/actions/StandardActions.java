@@ -285,8 +285,8 @@ public enum StandardActions implements Action {
     ),
     NEW_SUB_LIBRARY_FROM_AUX(
         Localization.lang("New sublibrary based on AUX file") + "...",
-        Localization.lang("New BibTeX sublibrary") +
-        Localization.lang(
+        Localization.lang("New BibTeX sublibrary")
+        + Localization.lang(
             "This feature generates a new library based on which entries are needed in an existing LaTeX document."
         ),
         IconTheme.JabRefIcons.NEW

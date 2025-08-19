@@ -33,9 +33,9 @@ public class ServerUtils {
             .getFilesToServe()
             .stream()
             .filter(p ->
-                (p.getFileName() +
-                    "-" +
-                    BackupFileUtil.getUniqueFilePrefix(p)).equals(id)
+                (p.getFileName()
+                    + "-"
+                    + BackupFileUtil.getUniqueFilePrefix(p)).equals(id)
             )
             .findAny()
             .orElseThrow(NotFoundException::new);
@@ -51,9 +51,9 @@ public class ServerUtils {
             .filter(context -> context.getDatabasePath().isPresent())
             .map(context -> context.getDatabasePath().get())
             .filter(p ->
-                (p.getFileName() +
-                    "-" +
-                    BackupFileUtil.getUniqueFilePrefix(p)).equals(id)
+                (p.getFileName()
+                    + "-"
+                    + BackupFileUtil.getUniqueFilePrefix(p)).equals(id)
             )
             .findAny()
             .orElseThrow(NotFoundException::new);
@@ -109,9 +109,9 @@ public class ServerUtils {
                 .filter(context -> {
                     Path p = context.getDatabasePath().get();
                     return (
-                        p.getFileName() +
-                        "-" +
-                        BackupFileUtil.getUniqueFilePrefix(p)
+                        p.getFileName()
+                        + "-"
+                        + BackupFileUtil.getUniqueFilePrefix(p)
                     ).equals(id);
                 })
                 .findFirst()

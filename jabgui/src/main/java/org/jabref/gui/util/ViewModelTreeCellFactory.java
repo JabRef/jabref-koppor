@@ -77,9 +77,9 @@ public class ViewModelTreeCellFactory<T>
         StringConverter<TreeItem<T>> converter = new StringConverter<>() {
             @Override
             public String toString(TreeItem<T> treeItem) {
-                return treeItem == null ||
-                    treeItem.getValue() == null ||
-                    toText == null
+                return treeItem == null
+                    || treeItem.getValue() == null
+                    || toText == null
                     ? ""
                     : toText.call(treeItem.getValue());
             }

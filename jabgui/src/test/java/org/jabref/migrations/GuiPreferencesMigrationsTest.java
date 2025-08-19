@@ -129,18 +129,18 @@ class GuiPreferencesMigrationsTest {
     @Test
     void previewStyleReviewToComment() {
         String oldPreviewStyle =
-            "<font face=\"sans-serif\">__NEWLINE__" +
-            "Customized preview style using reviews and comments:__NEWLINE__" +
-            "\\begin{review}<BR><BR><b>Review: </b> \\format[HTMLChars]{\\review} \\end{review}__NEWLINE__" +
-            "\\begin{comment} Something: \\format[HTMLChars]{\\comment} special \\end{comment}__NEWLINE__" +
-            "</font>__NEWLINE__";
+            "<font face=\"sans-serif\">__NEWLINE__"
+            + "Customized preview style using reviews and comments:__NEWLINE__"
+            + "\\begin{review}<BR><BR><b>Review: </b> \\format[HTMLChars]{\\review} \\end{review}__NEWLINE__"
+            + "\\begin{comment} Something: \\format[HTMLChars]{\\comment} special \\end{comment}__NEWLINE__"
+            + "</font>__NEWLINE__";
 
         String newPreviewStyle =
-            "<font face=\"sans-serif\">__NEWLINE__" +
-            "Customized preview style using reviews and comments:__NEWLINE__" +
-            "\\begin{comment}<BR><BR><b>Comment: </b> \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} \\end{comment}__NEWLINE__" +
-            "\\begin{comment} Something: \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} special \\end{comment}__NEWLINE__" +
-            "</font>__NEWLINE__";
+            "<font face=\"sans-serif\">__NEWLINE__"
+            + "Customized preview style using reviews and comments:__NEWLINE__"
+            + "\\begin{comment}<BR><BR><b>Comment: </b> \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} \\end{comment}__NEWLINE__"
+            + "\\begin{comment} Something: \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} special \\end{comment}__NEWLINE__"
+            + "</font>__NEWLINE__";
 
         when(preferences.get(JabRefGuiPreferences.PREVIEW_STYLE)).thenReturn(
             oldPreviewStyle

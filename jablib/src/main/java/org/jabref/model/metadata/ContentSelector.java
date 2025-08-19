@@ -31,8 +31,8 @@ public class ContentSelector {
 
         ContentSelector that = (ContentSelector) o;
         return (
-            Objects.equals(field, that.field) &&
-            Objects.equals(values, that.values)
+            Objects.equals(field, that.field)
+            && Objects.equals(values, that.values)
         );
     }
 

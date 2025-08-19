@@ -128,8 +128,8 @@ public class JabRefFrameViewModel implements UiMessageHandler {
                     stateManager
                 );
             if (
-                !(shouldClose.isPresent() &&
-                    (shouldClose.get() == ButtonType.YES))
+                !(shouldClose.isPresent()
+                    && (shouldClose.get() == ButtonType.YES))
             ) {
                 return false;
             }
@@ -389,9 +389,9 @@ public class JabRefFrameViewModel implements UiMessageHandler {
                         .getPath()
                         .map(Path::toString)
                         .orElse("(File name unknown)")
-                ) +
-                "\n" +
-                parserResult.getErrorMessage();
+                )
+                + "\n"
+                + parserResult.getErrorMessage();
             dialogService.showErrorDialogAndWait(
                 Localization.lang("Error opening file"),
                 message

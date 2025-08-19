@@ -69,8 +69,8 @@ public class EditionChecker implements ValueChecker {
             }
         }
         if (
-            !isFirstCharDigit(value) &&
-            !FIRST_LETTER_CAPITALIZED.test(value.trim())
+            !isFirstCharDigit(value)
+            && !FIRST_LETTER_CAPITALIZED.test(value.trim())
         ) {
             return Optional.of(
                 Localization.lang("should have the first letter capitalized")
@@ -81,8 +81,8 @@ public class EditionChecker implements ValueChecker {
 
     boolean isFirstCharDigit(String input) {
         return (
-            !StringUtil.isNullOrEmpty(input) &&
-            Character.isDigit(input.charAt(0))
+            !StringUtil.isNullOrEmpty(input)
+            && Character.isDigit(input.charAt(0))
         );
     }
 }

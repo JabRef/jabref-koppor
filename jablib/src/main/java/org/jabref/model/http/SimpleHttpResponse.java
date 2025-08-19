@@ -40,16 +40,16 @@ public record SimpleHttpResponse(
     @Override
     public String toString() {
         return (
-            "SimpleHttpResponse{" +
-            "statusCode=" +
-            statusCode +
-            ", responseMessage='" +
-            responseMessage +
-            '\'' +
-            ", responseBody='" +
-            responseBody +
-            '\'' +
-            '}'
+            "SimpleHttpResponse{"
+            + "statusCode="
+            + statusCode
+            + ", responseMessage='"
+            + responseMessage
+            + '\''
+            + ", responseBody='"
+            + responseBody
+            + '\''
+            + '}'
         );
     }
 
@@ -103,8 +103,8 @@ public record SimpleHttpResponse(
                     0,
                     MAX_RESPONSE_LENGTH,
                     StandardCharsets.UTF_8
-                ) +
-                "... (truncated)"
+                )
+                + "... (truncated)"
             );
         }
         // Return the original response body if it's within the 1 KB limit
@@ -134,8 +134,8 @@ public record SimpleHttpResponse(
             String inputLine;
             StringBuilder content = new StringBuilder();
             while (
-                (content.length() < MAX_RESPONSE_LENGTH) &&
-                (inputLine = in.readLine()) != null
+                (content.length() < MAX_RESPONSE_LENGTH)
+                && (inputLine = in.readLine()) != null
             ) {
                 content.append(inputLine);
             }

@@ -24,18 +24,18 @@ public class FieldMergerFactory {
                 "Field must not be null"
             );
             default -> throw new IllegalArgumentException(
-                "No implementation found for merging the given field: " +
-                field.getDisplayName()
+                "No implementation found for merging the given field: "
+                + field.getDisplayName()
             );
         };
     }
 
     public static boolean canMerge(Field field) {
         return (
-            field == StandardField.GROUPS ||
-            field == StandardField.KEYWORDS ||
-            field == StandardField.COMMENT ||
-            field == StandardField.FILE
+            field == StandardField.GROUPS
+            || field == StandardField.KEYWORDS
+            || field == StandardField.COMMENT
+            || field == StandardField.FILE
         );
     }
 }

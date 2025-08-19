@@ -53,9 +53,9 @@ class PdfXmpImporterTest {
             .withField(StandardField.KEYWORDS, "pdf, annotation")
             .withField(
                 StandardField.FILE,
-                ":" +
-                file.toString().replace("\\", "/").replace(":", "\\:") +
-                ":PDF"
+                ":"
+                + file.toString().replace("\\", "/").replace(":", "\\:")
+                + ":PDF"
             )
             .withField(StandardField.TITLE, "The best Pdf ever");
 
@@ -84,9 +84,9 @@ class PdfXmpImporterTest {
             .withField(StandardField.DOI, "10.1145/3646548.3672587")
             .withField(
                 StandardField.FILE,
-                ":" +
-                file.toString().replace("\\", "/").replace(":", "\\:") +
-                ":PDF"
+                ":"
+                + file.toString().replace("\\", "/").replace(":", "\\:")
+                + ":PDF"
             );
 
         assertEquals(List.of(expected), bibEntries);

@@ -114,8 +114,8 @@ public class JabRefGuiStateManager implements StateManager {
         EasyBind.reduce(backgroundTasksPairs, tasks ->
             tasks.anyMatch(
                 task ->
-                    !task.getKey().willBeRecoveredAutomatically() &&
-                    task.getValue().isRunning()
+                    !task.getKey().willBeRecoveredAutomatically()
+                    && task.getValue().isRunning()
             )
         );
     private final EasyBinding<Double> tasksProgress = EasyBind.reduce(

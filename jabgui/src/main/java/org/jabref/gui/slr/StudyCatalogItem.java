@@ -47,12 +47,12 @@ public class StudyCatalogItem {
     @Override
     public String toString() {
         return (
-            "StudyCatalogItem{" +
-            "name=" +
-            name.get() +
-            ", enabled=" +
-            enabled.get() +
-            '}'
+            "StudyCatalogItem{"
+            + "name="
+            + name.get()
+            + ", enabled="
+            + enabled.get()
+            + '}'
         );
     }
 
@@ -66,8 +66,8 @@ public class StudyCatalogItem {
         }
         StudyCatalogItem that = (StudyCatalogItem) o;
         return (
-            Objects.equals(getName(), that.getName()) &&
-            Objects.equals(isEnabled(), that.isEnabled())
+            Objects.equals(getName(), that.getName())
+            && Objects.equals(isEnabled(), that.isEnabled())
         );
     }
 

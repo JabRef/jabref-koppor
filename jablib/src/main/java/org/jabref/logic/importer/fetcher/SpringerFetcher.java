@@ -125,18 +125,18 @@ public class SpringerFetcher
 
         // Page numbers
         if (
-            springerJsonEntry.has("startingPage") &&
-            !springerJsonEntry.getString("startingPage").isEmpty()
+            springerJsonEntry.has("startingPage")
+            && !springerJsonEntry.getString("startingPage").isEmpty()
         ) {
             if (
-                springerJsonEntry.has("endingPage") &&
-                !springerJsonEntry.getString("endingPage").isEmpty()
+                springerJsonEntry.has("endingPage")
+                && !springerJsonEntry.getString("endingPage").isEmpty()
             ) {
                 entry.setField(
                     StandardField.PAGES,
-                    springerJsonEntry.getString("startingPage") +
-                    "--" +
-                    springerJsonEntry.getString("endingPage")
+                    springerJsonEntry.getString("startingPage")
+                    + "--"
+                    + springerJsonEntry.getString("endingPage")
                 );
             } else {
                 entry.setField(

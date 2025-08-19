@@ -267,8 +267,8 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
                     entry ->
                         ContentSelectors.DEFAULT_FIELD_NAMES.contains(
                             entry.getKey()
-                        ) &&
-                        entry.getValue().isEmpty()
+                        )
+                        && entry.getValue().isEmpty()
                 )
                 .map(Map.Entry::getKey)
                 .toList()

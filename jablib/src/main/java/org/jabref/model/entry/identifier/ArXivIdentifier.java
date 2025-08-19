@@ -42,9 +42,9 @@ public class ArXivIdentifier extends EprintIdentifier {
     public static Optional<ArXivIdentifier> parse(String value) {
         String identifier = value.replace(" ", "");
         Pattern identifierPattern = Pattern.compile(
-            "(" +
-            ARXIV_PREFIX +
-            ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?"
+            "("
+            + ARXIV_PREFIX
+            + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?"
         );
         Matcher identifierMatcher = identifierPattern.matcher(identifier);
         if (identifierMatcher.matches()) {
@@ -52,9 +52,9 @@ public class ArXivIdentifier extends EprintIdentifier {
         }
 
         Pattern oldIdentifierPattern = Pattern.compile(
-            "(" +
-            ARXIV_PREFIX +
-            ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?"
+            "("
+            + ARXIV_PREFIX
+            + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?"
         );
         Matcher oldIdentifierMatcher = oldIdentifierPattern.matcher(identifier);
         if (oldIdentifierMatcher.matches()) {
@@ -106,14 +106,14 @@ public class ArXivIdentifier extends EprintIdentifier {
     @Override
     public String toString() {
         return (
-            "ArXivIdentifier{" +
-            "identifier='" +
-            identifier +
-            '\'' +
-            ", classification='" +
-            classification +
-            '\'' +
-            '}'
+            "ArXivIdentifier{"
+            + "identifier='"
+            + identifier
+            + '\''
+            + ", classification='"
+            + classification
+            + '\''
+            + '}'
         );
     }
 
@@ -128,8 +128,8 @@ public class ArXivIdentifier extends EprintIdentifier {
 
         ArXivIdentifier that = (ArXivIdentifier) o;
         return (
-            Objects.equals(identifier, that.identifier) &&
-            Objects.equals(classification, that.classification)
+            Objects.equals(identifier, that.identifier)
+            && Objects.equals(classification, that.classification)
         );
     }
 

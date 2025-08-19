@@ -101,8 +101,8 @@ public class SemanticScholar
             }
         }
         if (
-            arXiv.isPresent() &&
-            entry.getField(StandardField.EPRINT).isPresent()
+            arXiv.isPresent()
+            && entry.getField(StandardField.EPRINT).isPresent()
         ) {
             // Check if entry is a match
             String arXivString = entry.getField(StandardField.EPRINT).get();

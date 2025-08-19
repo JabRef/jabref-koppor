@@ -395,17 +395,17 @@ public class ThemeManager {
             scene
                 .getRoot()
                 .setStyle(
-                    "-fx-font-size: " +
-                    workspacePreferences.getMainFontSize() +
-                    "pt;"
+                    "-fx-font-size: "
+                    + workspacePreferences.getMainFontSize()
+                    + "pt;"
                 );
         } else {
             scene
                 .getRoot()
                 .setStyle(
-                    "-fx-font-size: " +
-                    workspacePreferences.getDefaultFontSize() +
-                    "pt;"
+                    "-fx-font-size: "
+                    + workspacePreferences.getDefaultFontSize()
+                    + "pt;"
                 );
         }
     }

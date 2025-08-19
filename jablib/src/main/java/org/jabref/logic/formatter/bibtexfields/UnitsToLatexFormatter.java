@@ -81,8 +81,8 @@ public class UnitsToLatexFormatter extends Formatter {
 
     public UnitsToLatexFormatter() {
         prefixUnitCombinations = new ArrayList<>(
-            UnitsToLatexFormatter.UNIT_LIST.size() *
-            UnitsToLatexFormatter.UNIT_PREFIX_LIST.size()
+            UnitsToLatexFormatter.UNIT_LIST.size()
+            * UnitsToLatexFormatter.UNIT_PREFIX_LIST.size()
         );
         for (String unit : UnitsToLatexFormatter.UNIT_LIST) {
             for (String prefix : UnitsToLatexFormatter.UNIT_PREFIX_LIST) {

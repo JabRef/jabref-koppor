@@ -113,15 +113,15 @@ public class SemanticConflictDetector {
             boolean remoteDeleted = remote == null;
 
             boolean localChanged =
-                !localDeleted &&
-                !base.getFieldMap().equals(local.getFieldMap());
+                !localDeleted
+                && !base.getFieldMap().equals(local.getFieldMap());
             boolean remoteChanged =
-                !remoteDeleted &&
-                !base.getFieldMap().equals(remote.getFieldMap());
+                !remoteDeleted
+                && !base.getFieldMap().equals(remote.getFieldMap());
 
             if (
-                (localChanged && remoteDeleted) ||
-                (remoteChanged && localDeleted)
+                (localChanged && remoteDeleted)
+                || (remoteChanged && localDeleted)
             ) {
                 return Optional.of(
                     new ThreeWayEntryConflict(base, local, remote)
@@ -139,9 +139,9 @@ public class SemanticConflictDetector {
                 .equals(remote.getFieldMap());
 
             if (
-                localChanged &&
-                remoteChanged &&
-                hasConflictingFields(base, local, remote)
+                localChanged
+                && remoteChanged
+                && hasConflictingFields(base, local, remote)
             ) {
                 return Optional.of(
                     new ThreeWayEntryConflict(base, local, remote)
@@ -221,9 +221,9 @@ public class SemanticConflictDetector {
         String remoteVal
     ) {
         return (
-            notEqual(baseVal, localVal) &&
-            notEqual(baseVal, remoteVal) &&
-            notEqual(localVal, remoteVal)
+            notEqual(baseVal, localVal)
+            && notEqual(baseVal, remoteVal)
+            && notEqual(localVal, remoteVal)
         );
     }
 
@@ -237,9 +237,9 @@ public class SemanticConflictDetector {
         }
 
         return (
-            (baseVal != null) &&
-            ((localVal == null && notEqual(baseVal, remoteVal)) ||
-                (remoteVal == null && notEqual(baseVal, localVal)))
+            (baseVal != null)
+            && ((localVal == null && notEqual(baseVal, remoteVal))
+                || (remoteVal == null && notEqual(baseVal, localVal)))
         );
     }
 
@@ -249,10 +249,10 @@ public class SemanticConflictDetector {
         String remoteVal
     ) {
         return (
-            baseVal == null &&
-            localVal != null &&
-            remoteVal != null &&
-            notEqual(localVal, remoteVal)
+            baseVal == null
+            && localVal != null
+            && remoteVal != null
+            && notEqual(localVal, remoteVal)
         );
     }
 

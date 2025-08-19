@@ -144,8 +144,8 @@ public class CffExporter extends Exporter {
         int countOfSoftwareAndDataSetEntries = 0;
         for (BibEntry entry : entriesToTransform) {
             if (
-                entry.getType() == StandardEntryType.Software ||
-                entry.getType() == StandardEntryType.Dataset
+                entry.getType() == StandardEntryType.Software
+                || entry.getType() == StandardEntryType.Dataset
             ) {
                 main = entry;
                 countOfSoftwareAndDataSetEntries++;
@@ -324,9 +324,9 @@ public class CffExporter extends Exporter {
         }
         Date parsedDate = parsedDateOpt.get();
         if (
-            parsedDate.getYear().isPresent() &&
-            parsedDate.getMonth().isPresent() &&
-            parsedDate.getDay().isPresent()
+            parsedDate.getYear().isPresent()
+            && parsedDate.getMonth().isPresent()
+            && parsedDate.getDay().isPresent()
         ) {
             data.put("date-released", parsedDate.getNormalized());
             return;

@@ -103,9 +103,9 @@ public class Backend52 {
         }
 
         String msg =
-            "Backend52: found unused pageInfo data, with names listed below.\n" +
-            "In LibreOffice you may remove these in [File]/[Properties]/[Custom Properties]\n" +
-            String.join("\n", pageInfoThrash);
+            "Backend52: found unused pageInfo data, with names listed below.\n"
+            + "In LibreOffice you may remove these in [File]/[Properties]/[Custom Properties]\n"
+            + String.join("\n", pageInfoThrash);
         return Optional.of(msg);
     }
 
@@ -210,8 +210,8 @@ public class Backend52 {
                     } else {
                         if (pageInfo.isPresent()) {
                             LOGGER.warn(
-                                "dataModel JabRef52" +
-                                " only supports pageInfo for the last citation of a group"
+                                "dataModel JabRef52"
+                                + " only supports pageInfo for the last citation of a group"
                             );
                         }
                     }

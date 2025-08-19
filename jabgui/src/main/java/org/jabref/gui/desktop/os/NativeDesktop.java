@@ -97,9 +97,9 @@ public abstract class NativeDesktop {
                 if ("pdf".equalsIgnoreCase(split[split.length - 1])) {
                     field = PDF;
                 } else if (
-                    "ps".equalsIgnoreCase(split[split.length - 1]) ||
-                    ((split.length >= 3) &&
-                        "ps".equalsIgnoreCase(split[split.length - 2]))
+                    "ps".equalsIgnoreCase(split[split.length - 1])
+                    || ((split.length >= 3)
+                        && "ps".equalsIgnoreCase(split[split.length - 2]))
                 ) {
                     field = PS;
                 }
@@ -457,11 +457,11 @@ public abstract class NativeDesktop {
             dialogService.notify(couldNotOpenBrowser);
             dialogService.showErrorDialogAndWait(
                 couldNotOpenBrowser,
-                couldNotOpenBrowser +
-                "\n" +
-                openManually +
-                "\n" +
-                copiedToClipboard
+                couldNotOpenBrowser
+                + "\n"
+                + openManually
+                + "\n"
+                + copiedToClipboard
             );
         }
     }

@@ -87,19 +87,19 @@ public class OOTextIntoOO {
     private static final String ATTRIBUTE_VALUE_REGEXP = "\"([^\"]*)\"";
 
     private static final Pattern HTML_TAG = Pattern.compile(
-        "<(/" +
-        TAG_NAME_REGEXP +
-        ")>" +
-        "|" +
-        "<(" +
-        TAG_NAME_REGEXP +
-        ")" +
-        "((?:\\s+(" +
-        ATTRIBUTE_NAME_REGEXP +
-        ")=" +
-        ATTRIBUTE_VALUE_REGEXP +
-        ")*)" +
-        ">"
+        "<(/"
+        + TAG_NAME_REGEXP
+        + ")>"
+        + "|"
+        + "<("
+        + TAG_NAME_REGEXP
+        + ")"
+        + "((?:\\s+("
+        + ATTRIBUTE_NAME_REGEXP
+        + ")="
+        + ATTRIBUTE_VALUE_REGEXP
+        + ")*)"
+        + ">"
     );
 
     private static final Pattern ATTRIBUTE_PATTERN = Pattern.compile(
@@ -701,8 +701,8 @@ public class OOTextIntoOO {
         PropertyState state = xPropertyState.getPropertyState(propertyName);
         if (state == PropertyState.AMBIGUOUS_VALUE) {
             throw new java.lang.IllegalArgumentException(
-                "PropertyState.AMBIGUOUS_VALUE" +
-                " (expected properties for a homogeneous cursor)"
+                "PropertyState.AMBIGUOUS_VALUE"
+                + " (expected properties for a homogeneous cursor)"
             );
         }
         return state == PropertyState.DEFAULT_VALUE;

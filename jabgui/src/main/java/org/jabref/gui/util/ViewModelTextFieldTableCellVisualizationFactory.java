@@ -70,9 +70,10 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T>
                 } else {
                     // Could be an HBox with some graphic and a TextField if a graphic is specified for the TableCell
                     if (
-                        getGraphic() instanceof HBox hbox &&
-                        hbox.getChildren().size() > 1 &&
-                        hbox.getChildren().get(1) instanceof TextField textField
+                        getGraphic() instanceof HBox hbox
+                        && hbox.getChildren().size() > 1
+                        && hbox.getChildren().get(1)
+                        instanceof TextField textField
                     ) {
                         return Optional.of(textField);
                     }
@@ -89,9 +90,9 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T>
                 subscriptions.clear();
 
                 if (
-                    empty ||
-                    getTableRow() == null ||
-                    getTableRow().getItem() == null
+                    empty
+                    || getTableRow() == null
+                    || getTableRow().getItem() == null
                 ) {
                     setText(null);
                     setGraphic(null);

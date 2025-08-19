@@ -385,8 +385,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
 
     private Pair<Long, Path> getLinkedFileInfo(LinkedFile linkedFile) {
         if (
-            linkedFile.isOnlineLink() ||
-            !StandardFileType.PDF.getName().equals(linkedFile.getFileType())
+            linkedFile.isOnlineLink()
+            || !StandardFileType.PDF.getName().equals(linkedFile.getFileType())
         ) {
             LOGGER.debug(
                 "Linked file {} is not a local PDF file. The file will not be indexed.",

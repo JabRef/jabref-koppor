@@ -152,8 +152,8 @@ public class PdfContentImporter extends PdfImporter {
                         res = res.concat(removeNonLettersAtEnd(splitNames[i]));
 
                         if (
-                            !splitNames[i].isEmpty() &&
-                            Character.isLowerCase(splitNames[i].charAt(0))
+                            !splitNames[i].isEmpty()
+                            && Character.isLowerCase(splitNames[i].charAt(0))
                         ) {
                             // it is probably be "van", "vom", ...
                             // we just rely on the fact that these things are written in lower case letters
@@ -172,9 +172,9 @@ public class PdfContentImporter extends PdfImporter {
                             res = res.concat(" and ");
                         }
                         if (
-                            "et".equalsIgnoreCase(splitNames[i]) &&
-                            (splitNames.length > (i + 1)) &&
-                            "al.".equalsIgnoreCase(splitNames[i + 1])
+                            "et".equalsIgnoreCase(splitNames[i])
+                            && (splitNames.length > (i + 1))
+                            && "al.".equalsIgnoreCase(splitNames[i + 1])
                         ) {
                             res = res.concat("others");
                             break;
@@ -244,14 +244,14 @@ public class PdfContentImporter extends PdfImporter {
             float XspaceThreshold = previous.getFontSizeInPt() * 3.0F;
             float YspaceThreshold = previous.getFontSizeInPt() * 3.0F;
             float Xgap =
-                current.getXDirAdj() -
-                (previous.getXDirAdj() + previous.getWidthDirAdj());
+                current.getXDirAdj()
+                - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float Ygap = current.getYDirAdj() - previous.getYDirAdj();
             // For cases like paper titles spanning two or more lines, both X and Y gaps must exceed thresholds,
             // so "&&" is used instead of "||".
             return (
-                Math.abs(Xgap) > XspaceThreshold &&
-                Math.abs(Ygap) > YspaceThreshold
+                Math.abs(Xgap) > XspaceThreshold
+                && Math.abs(Ygap) > YspaceThreshold
             );
         }
 
@@ -272,16 +272,16 @@ public class PdfContentImporter extends PdfImporter {
             }
             // Titles are generally not located in the bottom 10% of a page.
             if (
-                (textPosition.getPageHeight() - textPosition.getYDirAdj()) <
-                (textPosition.getPageHeight() * 0.1)
+                (textPosition.getPageHeight() - textPosition.getYDirAdj())
+                < (textPosition.getPageHeight() * 0.1)
             ) {
                 return true;
             }
             // Characters in a title typically remain close together,
             // so a distant character is unlikely to be part of the title.
             return (
-                lastPositionMap.containsKey(fontSize) &&
-                isFarAway(lastPositionMap.get(fontSize), textPosition)
+                lastPositionMap.containsKey(fontSize)
+                && isFarAway(lastPositionMap.get(fontSize), textPosition)
             );
         }
 
@@ -310,8 +310,8 @@ public class PdfContentImporter extends PdfImporter {
                 }
                 fontSizeTextMap.putIfAbsent(fontSize, new StringBuilder());
                 if (
-                    previousTextPosition != null &&
-                    isThereSpace(previousTextPosition, textPosition)
+                    previousTextPosition != null
+                    && isThereSpace(previousTextPosition, textPosition)
                 ) {
                     fontSizeTextMap.get(fontSize).append(" ");
                 }
@@ -348,14 +348,14 @@ public class PdfContentImporter extends PdfImporter {
             float XspaceThreshold = 1F;
             float YspaceThreshold = previous.getFontSizeInPt();
             float Xgap =
-                current.getXDirAdj() -
-                (previous.getXDirAdj() + previous.getWidthDirAdj());
+                current.getXDirAdj()
+                - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float Ygap =
-                current.getYDirAdj() -
-                (previous.getYDirAdj() - previous.getHeightDir());
+                current.getYDirAdj()
+                - (previous.getYDirAdj() - previous.getHeightDir());
             return (
-                Math.abs(Xgap) > XspaceThreshold ||
-                Math.abs(Ygap) > YspaceThreshold
+                Math.abs(Xgap) > XspaceThreshold
+                || Math.abs(Ygap) > YspaceThreshold
             );
         }
     }
@@ -486,8 +486,8 @@ public class PdfContentImporter extends PdfImporter {
         while (lineIndex < lines.length) {
             curString = lines[lineIndex];
             if (
-                (curString.length() >= "Abstract".length()) &&
-                "Abstract".equalsIgnoreCase(
+                (curString.length() >= "Abstract".length())
+                && "Abstract".equalsIgnoreCase(
                     curString.substring(0, "Abstract".length())
                 )
             ) {
@@ -514,8 +514,8 @@ public class PdfContentImporter extends PdfImporter {
                 abstractT = curString.trim();
                 lineIndex++;
             } else if (
-                (curString.length() >= "Keywords".length()) &&
-                "Keywords".equalsIgnoreCase(
+                (curString.length() >= "Keywords".length())
+                && "Keywords".equalsIgnoreCase(
                     curString.substring(0, "Keywords".length())
                 )
             ) {
@@ -694,8 +694,8 @@ public class PdfContentImporter extends PdfImporter {
             .orElse(null);
 
         if (
-            arXivId == null ||
-            curString.length() < arXivId.length() + ARXIV_PREFIX_LENGTH
+            arXivId == null
+            || curString.length() < arXivId.length() + ARXIV_PREFIX_LENGTH
         ) {
             return arXivId;
         }

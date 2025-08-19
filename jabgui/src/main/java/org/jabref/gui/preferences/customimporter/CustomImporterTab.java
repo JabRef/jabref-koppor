@@ -69,9 +69,9 @@ public class CustomImporterTab
             new Tooltip(
                 Localization.lang(
                     "Add a (compiled) custom Importer class from a class path."
-                ) +
-                "\n" +
-                Localization.lang(
+                )
+                + "\n"
+                + Localization.lang(
                     "The path need not be on the classpath of JabRef."
                 )
             )

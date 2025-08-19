@@ -136,8 +136,8 @@ public class URLDownload {
                 }
                 // while loop, because there could be multiple redirects
             } while (
-                !StringUtil.isNullOrEmpty(locationHeader) &&
-                retries <= MAX_RETRIES
+                !StringUtil.isNullOrEmpty(locationHeader)
+                && retries <= MAX_RETRIES
             );
             contentType = Unirest.head(urlToCheck)
                 .asString()
@@ -347,8 +347,8 @@ public class URLDownload {
         String fileName =
             "jabref-" + FileUtil.getBaseName(fileNameWithExtension);
         String extension =
-            "." +
-            FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
+            "."
+            + FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
 
         // Create temporary file and download to it
         Path file;
@@ -406,9 +406,9 @@ public class URLDownload {
             }
 
             if (
-                (status == HttpURLConnection.HTTP_MOVED_TEMP) ||
-                (status == HttpURLConnection.HTTP_MOVED_PERM) ||
-                (status == HttpURLConnection.HTTP_SEE_OTHER)
+                (status == HttpURLConnection.HTTP_MOVED_TEMP)
+                || (status == HttpURLConnection.HTTP_MOVED_PERM)
+                || (status == HttpURLConnection.HTTP_SEE_OTHER)
             ) {
                 // get redirect url from "location" header field
                 String newUrl = connection.getHeaderField("location");
@@ -451,8 +451,8 @@ public class URLDownload {
         }
 
         if (
-            (sslContext != null) &&
-            (connection instanceof HttpsURLConnection httpsConnection)
+            (sslContext != null)
+            && (connection instanceof HttpsURLConnection httpsConnection)
         ) {
             httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
         }

@@ -384,24 +384,24 @@ public class JabRefGuiPreferences
         defaults.put(PREVIEW_IN_ENTRY_TABLE_TOOLTIP, Boolean.FALSE);
         defaults.put(
             PREVIEW_STYLE,
-            "<font face=\"sans-serif\">" +
-            "<b>\\bibtextype</b><a name=\"\\citationkey\">\\begin{citationkey} (\\citationkey)</a>\\end{citationkey}__NEWLINE__" +
-            "\\begin{author}<BR><BR>\\format[Authors(LastFirst, FullName,Sep= / ,LastSep= / ),HTMLChars]{\\author}\\end{author}__NEWLINE__" +
-            "\\begin{editor & !author}<BR><BR>\\format[Authors(LastFirst,FullName,Sep= / ,LastSep= / ),HTMLChars]{\\editor} (\\format[IfPlural(Eds.,Ed.)]{\\editor})\\end{editor & !author}__NEWLINE__" +
-            "\\begin{title}<BR><b>\\format[HTMLChars]{\\title}</b> \\end{title}__NEWLINE__" +
-            "<BR>\\begin{date}\\date\\end{date}\\begin{edition}, \\edition. edition\\end{edition}__NEWLINE__" +
-            "\\begin{editor & author}<BR><BR>\\format[Authors(LastFirst,FullName,Sep= / ,LastSep= / ),HTMLChars]{\\editor} (\\format[IfPlural(Eds.,Ed.)]{\\editor})\\end{editor & author}__NEWLINE__" +
-            "\\begin{booktitle}<BR><i>\\format[HTMLChars]{\\booktitle}</i>\\end{booktitle}__NEWLINE__" +
-            "\\begin{chapter} \\format[HTMLChars]{\\chapter}<BR>\\end{chapter}" +
-            "\\begin{editor & !author}<BR>\\end{editor & !author}\\begin{!editor}<BR>\\end{!editor}\\begin{journal}<BR><i>\\format[HTMLChars]{\\journal}</i> \\end{journal} \\begin{volume}, Vol. \\volume\\end{volume}\\begin{series}<BR>\\format[HTMLChars]{\\series}\\end{series}\\begin{number}, No. \\format[HTMLChars]{\\number}\\end{number}__NEWLINE__" +
-            "\\begin{school} \\format[HTMLChars]{\\school}, \\end{school}__NEWLINE__" +
-            "\\begin{institution} <em>\\format[HTMLChars]{\\institution}, </em>\\end{institution}__NEWLINE__" +
-            "\\begin{publisher}<BR>\\format[HTMLChars]{\\publisher}\\end{publisher}\\begin{location}: \\format[HTMLChars]{\\location} \\end{location}__NEWLINE__" +
-            "\\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__" +
-            "\\begin{abstract}<BR><BR><b>Abstract: </b>\\format[HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__" +
-            "\\begin{owncitation}<BR><BR><b>Own citation: </b>\\format[HTMLChars]{\\owncitation} \\end{owncitation}__NEWLINE__" +
-            "\\begin{comment}<BR><BR><b>Comment: </b>\\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment}\\end{comment}__NEWLINE__" +
-            "</font>__NEWLINE__"
+            "<font face=\"sans-serif\">"
+            + "<b>\\bibtextype</b><a name=\"\\citationkey\">\\begin{citationkey} (\\citationkey)</a>\\end{citationkey}__NEWLINE__"
+            + "\\begin{author}<BR><BR>\\format[Authors(LastFirst, FullName,Sep= / ,LastSep= / ),HTMLChars]{\\author}\\end{author}__NEWLINE__"
+            + "\\begin{editor & !author}<BR><BR>\\format[Authors(LastFirst,FullName,Sep= / ,LastSep= / ),HTMLChars]{\\editor} (\\format[IfPlural(Eds.,Ed.)]{\\editor})\\end{editor & !author}__NEWLINE__"
+            + "\\begin{title}<BR><b>\\format[HTMLChars]{\\title}</b> \\end{title}__NEWLINE__"
+            + "<BR>\\begin{date}\\date\\end{date}\\begin{edition}, \\edition. edition\\end{edition}__NEWLINE__"
+            + "\\begin{editor & author}<BR><BR>\\format[Authors(LastFirst,FullName,Sep= / ,LastSep= / ),HTMLChars]{\\editor} (\\format[IfPlural(Eds.,Ed.)]{\\editor})\\end{editor & author}__NEWLINE__"
+            + "\\begin{booktitle}<BR><i>\\format[HTMLChars]{\\booktitle}</i>\\end{booktitle}__NEWLINE__"
+            + "\\begin{chapter} \\format[HTMLChars]{\\chapter}<BR>\\end{chapter}"
+            + "\\begin{editor & !author}<BR>\\end{editor & !author}\\begin{!editor}<BR>\\end{!editor}\\begin{journal}<BR><i>\\format[HTMLChars]{\\journal}</i> \\end{journal} \\begin{volume}, Vol. \\volume\\end{volume}\\begin{series}<BR>\\format[HTMLChars]{\\series}\\end{series}\\begin{number}, No. \\format[HTMLChars]{\\number}\\end{number}__NEWLINE__"
+            + "\\begin{school} \\format[HTMLChars]{\\school}, \\end{school}__NEWLINE__"
+            + "\\begin{institution} <em>\\format[HTMLChars]{\\institution}, </em>\\end{institution}__NEWLINE__"
+            + "\\begin{publisher}<BR>\\format[HTMLChars]{\\publisher}\\end{publisher}\\begin{location}: \\format[HTMLChars]{\\location} \\end{location}__NEWLINE__"
+            + "\\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__"
+            + "\\begin{abstract}<BR><BR><b>Abstract: </b>\\format[HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__"
+            + "\\begin{owncitation}<BR><BR><b>Own citation: </b>\\format[HTMLChars]{\\owncitation} \\end{owncitation}__NEWLINE__"
+            + "\\begin{comment}<BR><BR><b>Comment: </b>\\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment}\\end{comment}__NEWLINE__"
+            + "</font>__NEWLINE__"
         );
         // endregion
 
@@ -668,8 +668,8 @@ public class JabRefGuiPreferences
             );
 
             if (
-                StringUtil.isNullOrEmpty(name) ||
-                StringUtil.isNullOrEmpty(fields)
+                StringUtil.isNullOrEmpty(name)
+                || StringUtil.isNullOrEmpty(fields)
             ) {
                 break;
             }
@@ -799,14 +799,14 @@ public class JabRefGuiPreferences
             autoCompletePreferences.nameFormatProperty(),
             (obs, oldValue, newValue) -> {
                 if (
-                    autoCompletePreferences.getNameFormat() ==
-                    AutoCompletePreferences.NameFormat.BOTH
+                    autoCompletePreferences.getNameFormat()
+                    == AutoCompletePreferences.NameFormat.BOTH
                 ) {
                     putBoolean(AUTOCOMPLETER_LAST_FIRST, false);
                     putBoolean(AUTOCOMPLETER_FIRST_LAST, false);
                 } else if (
-                    autoCompletePreferences.getNameFormat() ==
-                    AutoCompletePreferences.NameFormat.LAST_FIRST
+                    autoCompletePreferences.getNameFormat()
+                    == AutoCompletePreferences.NameFormat.LAST_FIRST
                 ) {
                     putBoolean(AUTOCOMPLETER_LAST_FIRST, true);
                     putBoolean(AUTOCOMPLETER_FIRST_LAST, false);
@@ -1372,8 +1372,8 @@ public class JabRefGuiPreferences
                 .stream()
                 .map(layout -> {
                     if (
-                        layout instanceof
-                        CitationStylePreviewLayout citationStyleLayout
+                        layout
+                        instanceof CitationStylePreviewLayout citationStyleLayout
                     ) {
                         return citationStyleLayout.getFilePath();
                     } else {
@@ -1421,8 +1421,8 @@ public class JabRefGuiPreferences
                 );
                 putBoolean(
                     NAMES_FIRST_LAST,
-                    newValue ==
-                    NameDisplayPreferences.DisplayStyle.FIRSTNAME_LASTNAME
+                    newValue
+                    == NameDisplayPreferences.DisplayStyle.FIRSTNAME_LASTNAME
                 );
             }
         );
@@ -1435,8 +1435,8 @@ public class JabRefGuiPreferences
                 );
                 putBoolean(
                     NAMES_LAST_ONLY,
-                    newValue ==
-                    NameDisplayPreferences.AbbreviationStyle.LASTNAME_ONLY
+                    newValue
+                    == NameDisplayPreferences.AbbreviationStyle.LASTNAME_ONLY
                 );
             }
         );
@@ -1777,8 +1777,8 @@ public class JabRefGuiPreferences
         }
 
         final int approachIndex = getInt(CREATE_ENTRY_APPROACH);
-        NewEntryDialogTab approach = NewEntryDialogTab.values().length >
-            approachIndex
+        NewEntryDialogTab approach = NewEntryDialogTab.values().length
+            > approachIndex
             ? NewEntryDialogTab.values()[approachIndex]
             : NewEntryDialogTab.values()[0];
 

@@ -229,8 +229,8 @@ public class CitationGroups {
     public void createNumberedBibliographySortedInOrderOfAppearance() {
         if (bibliography.isPresent()) {
             throw new IllegalStateException(
-                "createNumberedBibliographySortedInOrderOfAppearance:" +
-                " already have a bibliography"
+                "createNumberedBibliographySortedInOrderOfAppearance:"
+                + " already have a bibliography"
             );
         }
         CitedKeys citedKeys = getCitedKeysSortedInOrderOfAppearance();

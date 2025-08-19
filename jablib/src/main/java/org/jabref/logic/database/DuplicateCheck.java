@@ -113,9 +113,9 @@ public class DuplicateCheck {
         final Optional<String> editionOne = one.getField(StandardField.EDITION);
         final Optional<String> editionTwo = two.getField(StandardField.EDITION);
         return (
-            editionOne.isPresent() &&
-            editionTwo.isPresent() &&
-            !editionOne.get().equals(editionTwo.get())
+            editionOne.isPresent()
+            && editionTwo.isPresent()
+            && !editionOne.get().equals(editionTwo.get())
         );
     }
 
@@ -124,12 +124,12 @@ public class DuplicateCheck {
         final BibEntry two
     ) {
         return (
-            (compareSingleField(StandardField.AUTHOR, one, two) == EQUAL) &&
-            (compareSingleField(StandardField.TITLE, one, two) == EQUAL) &&
-            ((compareSingleField(StandardField.CHAPTER, one, two) ==
-                    NOT_EQUAL) ||
-                (compareSingleField(StandardField.PAGES, one, two) ==
-                    NOT_EQUAL))
+            (compareSingleField(StandardField.AUTHOR, one, two) == EQUAL)
+            && (compareSingleField(StandardField.TITLE, one, two) == EQUAL)
+            && ((compareSingleField(StandardField.CHAPTER, one, two)
+                    == NOT_EQUAL)
+                || (compareSingleField(StandardField.PAGES, one, two)
+                    == NOT_EQUAL))
         );
     }
 
@@ -156,8 +156,8 @@ public class DuplicateCheck {
             LOGGER.trace("Value {} is below zero. Should not happen", value);
         }
         return (
-            value - DuplicateCheck.DUPLICATE_THRESHOLD >
-            DuplicateCheck.DOUBT_RANGE
+            value - DuplicateCheck.DUPLICATE_THRESHOLD
+            > DuplicateCheck.DOUBT_RANGE
         );
     }
 
@@ -180,8 +180,8 @@ public class DuplicateCheck {
             two
         );
         final double numerator =
-            (DuplicateCheck.REQUIRED_WEIGHT * req[0] * req[1]) +
-            (opt[0] * opt[1]);
+            (DuplicateCheck.REQUIRED_WEIGHT * req[0] * req[1])
+            + (opt[0] * opt[1]);
         final double denominator =
             (req[1] * DuplicateCheck.REQUIRED_WEIGHT) + opt[1];
         final double totValue = numerator / denominator;
@@ -476,9 +476,9 @@ public class DuplicateCheck {
 
         // TODO: Work on haveDifferentEntryType - InCollection and InProceedings could point to the same publication
         if (
-            haveDifferentEntryType(one, two) ||
-            haveDifferentEditions(one, two) ||
-            haveDifferentChaptersOrPagesOfTheSameBook(one, two)
+            haveDifferentEntryType(one, two)
+            || haveDifferentEditions(one, two)
+            || haveDifferentChaptersOrPagesOfTheSameBook(one, two)
         ) {
             return false;
         }
@@ -488,11 +488,11 @@ public class DuplicateCheck {
         Optional<ISBN> oneISBN = one.getISBN();
         Optional<ISBN> twoISBN = two.getISBN();
         if (
-            oneISBN.isPresent() &&
-            twoISBN.isPresent() &&
-            Objects.equals(oneISBN, twoISBN) &&
-            one.getType() instanceof StandardEntryType standardEntry &&
-            !STANDARD_ENTRY_TYPES.contains(standardEntry)
+            oneISBN.isPresent()
+            && twoISBN.isPresent()
+            && Objects.equals(oneISBN, twoISBN)
+            && one.getType() instanceof StandardEntryType standardEntry
+            && !STANDARD_ENTRY_TYPES.contains(standardEntry)
         ) {
             return true;
         }
@@ -526,8 +526,8 @@ public class DuplicateCheck {
                 Sets.union(one.getFields(), two.getFields()),
                 one,
                 two
-            )[0] >=
-            DuplicateCheck.DUPLICATE_THRESHOLD
+            )[0]
+            >= DuplicateCheck.DUPLICATE_THRESHOLD
         );
     }
 

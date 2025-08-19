@@ -8,9 +8,9 @@ public final class BibTexStringRenameDetailsView
 
     public BibTexStringRenameDetailsView(BibTexStringRename stringRename) {
         Label label = new Label(
-            stringRename.getNewString().getName() +
-            " : " +
-            stringRename.getOldString().getContent()
+            stringRename.getNewString().getName()
+            + " : "
+            + stringRename.getOldString().getContent()
         );
 
         this.setAllAnchorsAndAttachChild(label);

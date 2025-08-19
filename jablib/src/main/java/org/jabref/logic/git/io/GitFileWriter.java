@@ -58,8 +58,8 @@ public class GitFileWriter {
 
                 if (fileWriter.hasEncodingProblems()) {
                     throw new IOException(
-                        "Encoding problem detected when saving .bib file: " +
-                        fileWriter.getEncodingProblems().toString()
+                        "Encoding problem detected when saving .bib file: "
+                        + fileWriter.getEncodingProblems().toString()
                     );
                 }
             }

@@ -24,9 +24,9 @@ public record CitationCommandString(
         int indexKey1 = completeCiteCommand.indexOf(CITE_KEY1);
         int indexKey2 = completeCiteCommand.indexOf(CITE_KEY2);
         if (
-            indexKey1 < 0 ||
-            indexKey2 < 0 ||
-            indexKey2 < (indexKey1 + CITE_KEY1.length())
+            indexKey1 < 0
+            || indexKey2 < 0
+            || indexKey2 < (indexKey1 + CITE_KEY1.length())
         ) {
             LOGGER.info(
                 "Wrong indexes {} {} for completeCiteCommand {}. Using default delimiter and suffix.",

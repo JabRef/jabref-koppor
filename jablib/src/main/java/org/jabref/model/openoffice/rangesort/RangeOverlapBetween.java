@@ -75,8 +75,8 @@ public class RangeOverlapBetween {
                     bRangeStart
                 );
                 if (
-                    abEndToStart < 0 ||
-                    (!includeTouching && (abEndToStart == 0))
+                    abEndToStart < 0
+                    || (!includeTouching && (abEndToStart == 0))
                 ) {
                     continue;
                 }
@@ -86,8 +86,8 @@ public class RangeOverlapBetween {
                     aRange.getStart()
                 );
                 if (
-                    baEndToStart < 0 ||
-                    (!includeTouching && (baEndToStart == 0))
+                    baEndToStart < 0
+                    || (!includeTouching && (baEndToStart == 0))
                 ) {
                     continue;
                 }
@@ -97,8 +97,8 @@ public class RangeOverlapBetween {
                         cmp,
                         aRange,
                         bRange
-                    ) ==
-                    0;
+                    )
+                    == 0;
                 boolean touching = abEndToStart == 0 || baEndToStart == 0;
 
                 // In case of two equal collapsed ranges there is an ambiguity : TOUCH or EQUAL_RANGE ?

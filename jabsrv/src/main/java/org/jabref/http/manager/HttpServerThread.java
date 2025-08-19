@@ -28,10 +28,10 @@ public class HttpServerThread extends Thread {
         this.uri = uri;
         this.server = new Server();
         this.setName(
-            "JabSrv - JabRef HTTP Server on " +
-            uri.getHost() +
-            ":" +
-            uri.getPort()
+            "JabSrv - JabRef HTTP Server on "
+            + uri.getHost()
+            + ":"
+            + uri.getPort()
         );
     }
 

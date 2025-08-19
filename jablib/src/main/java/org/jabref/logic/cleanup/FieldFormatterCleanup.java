@@ -120,8 +120,8 @@ public class FieldFormatterCleanup implements CleanupJob {
         }
         if (obj instanceof FieldFormatterCleanup that) {
             return (
-                Objects.equals(field, that.field) &&
-                Objects.equals(formatter, that.formatter)
+                Objects.equals(field, that.field)
+                && Objects.equals(formatter, that.formatter)
             );
         }
         return false;

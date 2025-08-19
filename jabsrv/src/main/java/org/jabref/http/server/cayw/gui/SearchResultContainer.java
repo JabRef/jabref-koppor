@@ -35,8 +35,8 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
                 SearchResultCell searchResultCell = new SearchResultCell();
                 searchResultCell.setOnMouseClicked(event -> {
                     if (
-                        searchResultCell.getItem() == null ||
-                        selectedEntries.contains(searchResultCell.getItem())
+                        searchResultCell.getItem() == null
+                        || selectedEntries.contains(searchResultCell.getItem())
                     ) {
                         return;
                     }
@@ -128,8 +128,8 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
                 );
             } else {
                 return (
-                    String.join(OS.NEWLINE, Arrays.copyOf(lines, MAX_LINES)) +
-                    "..."
+                    String.join(OS.NEWLINE, Arrays.copyOf(lines, MAX_LINES))
+                    + "..."
                 );
             }
         }

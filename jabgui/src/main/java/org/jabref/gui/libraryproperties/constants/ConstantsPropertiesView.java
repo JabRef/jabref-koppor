@@ -93,8 +93,8 @@ public class ConstantsPropertiesView
                     viewModel.labelAlreadyExists(cellEvent.getNewValue());
 
                 if (
-                    existingItem.isPresent() &&
-                    !existingItem.get().equals(cellItem)
+                    existingItem.isPresent()
+                    && !existingItem.get().equals(cellItem)
                 ) {
                     dialogService.showErrorDialogAndWait(
                         Localization.lang(

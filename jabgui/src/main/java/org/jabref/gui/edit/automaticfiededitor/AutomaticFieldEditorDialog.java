@@ -56,8 +56,8 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
 
         setResultConverter(buttonType -> {
             if (
-                buttonType != null &&
-                buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE
+                buttonType != null
+                && buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE
             ) {
                 saveChanges();
             } else {

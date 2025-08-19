@@ -225,8 +225,8 @@ public class AstrophysicsDataSystem
     public List<BibEntry> performSearch(BibEntry entry)
         throws FetcherException {
         if (
-            entry.getFieldOrAlias(StandardField.TITLE).isEmpty() &&
-            entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()
+            entry.getFieldOrAlias(StandardField.TITLE).isEmpty()
+            && entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()
         ) {
             return List.of();
         }

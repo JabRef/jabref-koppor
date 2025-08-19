@@ -140,12 +140,12 @@ public class ThreeWayMergeView extends VBox {
         if (toolbar.shouldShowDiffs()) {
             for (FieldRowView row : fieldRows) {
                 if (
-                    "Groups".equals(row.getFieldNameCell().getText()) &&
-                    (row
+                    "Groups".equals(row.getFieldNameCell().getText())
+                    && (row
                             .getLeftValueCell()
                             .getText()
-                            .contains(keywordSeparator) ||
-                        row
+                            .contains(keywordSeparator)
+                        || row
                             .getRightValueCell()
                             .getText()
                             .contains(keywordSeparator))

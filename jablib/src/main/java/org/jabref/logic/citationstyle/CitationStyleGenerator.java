@@ -119,11 +119,11 @@ public class CitationStyleGenerator {
             return List.of(
                 Localization.lang(
                     "Cannot generate bibliography based on selected citation style."
-                ) +
-                outputFormat.getLineSeparator() +
-                Localization.lang("Bad character inside entry") +
-                outputFormat.getLineSeparator() +
-                e.getLocalizedMessage()
+                )
+                + outputFormat.getLineSeparator()
+                + Localization.lang("Bad character inside entry")
+                + outputFormat.getLineSeparator()
+                + e.getLocalizedMessage()
             );
         }
     }

@@ -55,8 +55,8 @@ public class EntryTypeViewModel {
             return false;
         }
         return (
-            Objects.equals(entryType, other.entryType) &&
-            Objects.equals(fields, other.fields)
+            Objects.equals(entryType, other.entryType)
+            && Objects.equals(fields, other.fields)
         );
     }
 
@@ -79,11 +79,11 @@ public class EntryTypeViewModel {
     @Override
     public String toString() {
         return (
-            "CustomEntryTypeViewModel [entryType=" +
-            entryType +
-            ", fields=" +
-            fields +
-            "]"
+            "CustomEntryTypeViewModel [entryType="
+            + entryType
+            + ", fields="
+            + fields
+            + "]"
         );
     }
 }

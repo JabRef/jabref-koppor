@@ -30,8 +30,8 @@ public class YearFieldValuePlausibilityComparator
             Optional<Integer> rightYear = extractYear(rightValue);
 
             boolean leftYearInRange =
-                (leftYear.get() >= 1800) &&
-                (leftYear.get() <= Year.now().getValue() + 2);
+                (leftYear.get() >= 1800)
+                && (leftYear.get() <= Year.now().getValue() + 2);
 
             if (leftYearInRange) {
                 int diff = Math.abs(leftYear.get() - rightYear.get());

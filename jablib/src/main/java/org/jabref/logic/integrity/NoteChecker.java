@@ -35,8 +35,8 @@ public class NoteChecker implements ValueChecker {
 
         // BibTeX
         if (
-            !bibDatabaseContextEdition.isBiblatexMode() &&
-            !FIRST_LETTER_CAPITALIZED.test(value.trim())
+            !bibDatabaseContextEdition.isBiblatexMode()
+            && !FIRST_LETTER_CAPITALIZED.test(value.trim())
         ) {
             return Optional.of(
                 Localization.lang("should have the first letter capitalized")

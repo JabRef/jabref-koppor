@@ -289,8 +289,8 @@ public final class CSLFormatUtils {
                         1,
                         "",
                         " et al."
-                    ) +
-                    " "
+                    )
+                    + " "
             )
             .orElse("");
     }

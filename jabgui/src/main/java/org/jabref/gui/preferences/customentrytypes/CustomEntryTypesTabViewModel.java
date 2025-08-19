@@ -62,8 +62,8 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
     private final Set<Field> multiLineFields = new HashSet<>();
 
     Predicate<Field> isMultiline = field ->
-        this.multiLineFields.contains(field) ||
-        field.getProperties().contains(FieldProperty.MULTILINE_TEXT);
+        this.multiLineFields.contains(field)
+        || field.getProperties().contains(FieldProperty.MULTILINE_TEXT);
 
     public CustomEntryTypesTabViewModel(
         BibDatabaseMode mode,
@@ -92,8 +92,8 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
         fieldValidator = new FunctionBasedValidator<>(
             newFieldToAdd,
             input ->
-                (input != null) &&
-                StringUtil.isNotBlank(input.getDisplayName()),
+                (input != null)
+                && StringUtil.isNotBlank(input.getDisplayName()),
             ValidationMessage.error(
                 Localization.lang("Field cannot be empty. Please enter a name.")
             )

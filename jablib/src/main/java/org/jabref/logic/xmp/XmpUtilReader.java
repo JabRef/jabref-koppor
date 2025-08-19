@@ -168,9 +168,9 @@ public class XmpUtilReader {
         int endDescriptionSection = xmp.lastIndexOf(END_TAG) + END_TAG.length();
 
         if (
-            (startDescriptionSection < 0) ||
-            (startDescriptionSection > endDescriptionSection) ||
-            (endDescriptionSection == (END_TAG.length() - 1))
+            (startDescriptionSection < 0)
+            || (startDescriptionSection > endDescriptionSection)
+            || (endDescriptionSection == (END_TAG.length() - 1))
         ) {
             LOGGER.debug(
                 "Cannot find start or end tag in metadata. Returning empty list."

@@ -69,8 +69,8 @@ public class CustomImporter extends Importer {
         }
 
         return (
-            Objects.equals(className, otherImporter.className) &&
-            Objects.equals(basePath, otherImporter.basePath)
+            Objects.equals(className, otherImporter.className)
+            && Objects.equals(basePath, otherImporter.basePath)
         );
     }
 

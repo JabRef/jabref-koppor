@@ -106,8 +106,8 @@ class JStyleGetNumCitationMarker {
             final Optional<Integer> num = entry.getNumber();
             stringBuilder.append(
                 num.isEmpty()
-                    ? (JStyle.UNDEFINED_CITATION_MARKER +
-                        entry.getCitationKey())
+                    ? (JStyle.UNDEFINED_CITATION_MARKER
+                        + entry.getCitationKey())
                     : String.valueOf(num.get())
             );
             // Emit pageInfo
@@ -138,9 +138,9 @@ class JStyleGetNumCitationMarker {
 
             for (int j = 1; j < blockSize; j++) {
                 if (
-                    (block.get(j).getNumber().get() -
-                        block.get(j - 1).getNumber().get()) !=
-                    1
+                    (block.get(j).getNumber().get()
+                        - block.get(j - 1).getNumber().get())
+                    != 1
                 ) {
                     throw new IllegalArgumentException(
                         "Numbers are not consecutive"
@@ -264,10 +264,9 @@ class JStyleGetNumCitationMarker {
                 ) {
                     // Same as prev, just forget it.
                 } else if (
-                    (current.getNumber().get() ==
-                        (prev.getNumber().get() + 1)) &&
-                    (prev.getPageInfo().isEmpty()) &&
-                    (current.getPageInfo().isEmpty())
+                    (current.getNumber().get() == (prev.getNumber().get() + 1))
+                    && (prev.getPageInfo().isEmpty())
+                    && (current.getPageInfo().isEmpty())
                 ) {
                     // Just two consecutive numbers without pageInfo: join
                     currentBlock.add(current);

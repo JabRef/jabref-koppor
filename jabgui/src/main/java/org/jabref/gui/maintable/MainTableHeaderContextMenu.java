@@ -72,8 +72,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
             ?
         > column : mainTable.getColumns()) {
             if (
-                ((MainTableColumn<?>) column).getModel().getType() ==
-                MainTableColumnModel.Type.MATCH_CATEGORY
+                ((MainTableColumn<?>) column).getModel().getType()
+                == MainTableColumnModel.Type.MATCH_CATEGORY
             ) {
                 continue;
             }

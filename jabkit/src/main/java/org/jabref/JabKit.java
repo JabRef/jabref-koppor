@@ -81,9 +81,9 @@ public class JabKit {
             );
             CommandLine commandLine = new CommandLine(argumentProcessor);
             String usageHeader =
-                BuildInfo.JABREF_BANNER.formatted(buildInfo.version) +
-                "\n" +
-                JABKIT_BRAND;
+                BuildInfo.JABREF_BANNER.formatted(buildInfo.version)
+                + "\n"
+                + JABKIT_BRAND;
             commandLine.getCommandSpec().usageMessage().header(usageHeader);
             applyUsageFooters(
                 commandLine,
@@ -138,15 +138,15 @@ public class JabKit {
         Set<SearchBasedFetcher> fetchers
     ) {
         String inputFooter =
-            "\n" +
-            Localization.lang("Available import formats:") +
-            "\n" +
-            StringUtil.alignStringTable(inputFormats);
+            "\n"
+            + Localization.lang("Available import formats:")
+            + "\n"
+            + StringUtil.alignStringTable(inputFormats);
         String outputFooter =
-            "\n" +
-            Localization.lang("Available export formats:") +
-            "\n" +
-            StringUtil.alignStringTable(outputFormats);
+            "\n"
+            + Localization.lang("Available export formats:")
+            + "\n"
+            + StringUtil.alignStringTable(outputFormats);
 
         commandLine
             .getSubcommands()
@@ -179,9 +179,9 @@ public class JabKit {
             .getCommandSpec()
             .usageMessage()
             .footer(
-                Localization.lang("The following providers are available:") +
-                "\n" +
-                fetchers
+                Localization.lang("The following providers are available:")
+                + "\n"
+                + fetchers
                     .stream()
                     .map(WebFetcher::getName)
                     .filter(name -> !"Search pre-configured".equals(name))
@@ -247,8 +247,8 @@ public class JabKit {
     private static void configureProxy(ProxyPreferences proxyPreferences) {
         ProxyRegisterer.register(proxyPreferences);
         if (
-            proxyPreferences.shouldUseProxy() &&
-            proxyPreferences.shouldUseAuthentication()
+            proxyPreferences.shouldUseProxy()
+            && proxyPreferences.shouldUseAuthentication()
         ) {
             Authenticator.setDefault(new ProxyAuthenticator());
         }

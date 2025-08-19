@@ -130,10 +130,10 @@ public class ImportCommand extends SimpleCommand {
             if (!Files.exists(file)) {
                 dialogService.showErrorDialogAndWait(
                     Localization.lang("Import"),
-                    Localization.lang("File not found") +
-                    ": '" +
-                    file.getFileName() +
-                    "'."
+                    Localization.lang("File not found")
+                    + ": '"
+                    + file.getFileName()
+                    + "'."
                 );
                 return;
             }
@@ -143,8 +143,8 @@ public class ImportCommand extends SimpleCommand {
         Optional<Importer> format;
 
         boolean isGeneralFilter =
-            selectedExtensionFilter == FileFilterConverter.ANY_FILE ||
-            "Available import formats".equals(
+            selectedExtensionFilter == FileFilterConverter.ANY_FILE
+            || "Available import formats".equals(
                 selectedExtensionFilter.getDescription()
             );
 
@@ -232,8 +232,8 @@ public class ImportCommand extends SimpleCommand {
                     // Unknown format
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
                         if (
-                            FileUtil.isPDFFile(filename) &&
-                            GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(
+                            FileUtil.isPDFFile(filename)
+                            && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(
                                 dialogService,
                                 preferences.getGrobidPreferences()
                             )
@@ -257,10 +257,10 @@ public class ImportCommand extends SimpleCommand {
                 } else {
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
                         if (
-                            ((importer.get() instanceof PdfGrobidImporter) ||
-                                (importer.get() instanceof
-                                    PdfMergeMetadataImporter)) &&
-                            GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(
+                            ((importer.get() instanceof PdfGrobidImporter)
+                                || (importer.get()
+                                    instanceof PdfMergeMetadataImporter))
+                            && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(
                                 dialogService,
                                 preferences.getGrobidPreferences()
                             )
@@ -271,8 +271,8 @@ public class ImportCommand extends SimpleCommand {
                             Localization.lang(
                                 "Importing in %0 format",
                                 importer.get().getName()
-                            ) +
-                            "..."
+                            )
+                            + "..."
                         );
                     });
                     // Specific importer
@@ -290,9 +290,9 @@ public class ImportCommand extends SimpleCommand {
                         Localization.lang("Import error"),
                         Localization.lang(
                             "Please check your library file for wrong syntax."
-                        ) +
-                        "\n\n" +
-                        ex.getLocalizedMessage()
+                        )
+                        + "\n\n"
+                        + ex.getLocalizedMessage()
                     )
                 );
             }

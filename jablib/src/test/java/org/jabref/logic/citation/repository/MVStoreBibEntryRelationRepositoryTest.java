@@ -105,9 +105,9 @@ class MVStoreBibEntryRelationRepositoryTest {
                             )
                             .withField(
                                 StandardField.DOI,
-                                entry.getDOI().map(DOI::asString).orElse("") +
-                                ":" +
-                                i
+                                entry.getDOI().map(DOI::asString).orElse("")
+                                + ":"
+                                + i
                             )
                             .withField(
                                 StandardField.ABSTRACT,

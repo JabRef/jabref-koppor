@@ -48,16 +48,16 @@ public class RfcFetcher implements IdBasedParserFetcher {
         String prefixedIdentifier = identifier.toLowerCase(Locale.ENGLISH);
         // if not a "draft" version
         if (
-            (!prefixedIdentifier.startsWith(DRAFT_PREFIX)) &&
-            (!prefixedIdentifier.startsWith("rfc"))
+            (!prefixedIdentifier.startsWith(DRAFT_PREFIX))
+            && (!prefixedIdentifier.startsWith("rfc"))
         ) {
             // Add "rfc" prefix if user's search entry was numerical
             prefixedIdentifier = "rfc" + prefixedIdentifier;
         }
         URIBuilder uriBuilder = new URIBuilder(
-            "https://datatracker.ietf.org/doc/" +
-            prefixedIdentifier +
-            "/bibtex/"
+            "https://datatracker.ietf.org/doc/"
+            + prefixedIdentifier
+            + "/bibtex/"
         );
         return uriBuilder.build().toURL();
     }

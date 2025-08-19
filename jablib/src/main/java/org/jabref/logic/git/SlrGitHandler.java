@@ -175,8 +175,8 @@ public class SlrGitHandler extends GitHandler {
                         int endOfEncoding = currentContent.indexOf("\n");
                         // Include Encoding and the empty line
                         prefix =
-                            currentContent.substring(0, endOfEncoding + 1) +
-                            "\n";
+                            currentContent.substring(0, endOfEncoding + 1)
+                            + "\n";
                         currentContent = currentContent.substring(
                             endOfEncoding + 2
                         );

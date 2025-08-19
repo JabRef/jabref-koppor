@@ -241,8 +241,8 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         );
 
         if (
-            newWarnings.isEmpty() &&
-            bibLogSettingsPane.wasBlgFileManuallySelected()
+            newWarnings.isEmpty()
+            && bibLogSettingsPane.wasBlgFileManuallySelected()
         ) {
             dialogService.notify(
                 Localization.lang(

@@ -409,8 +409,8 @@ public class NamedRangeReferenceMark implements NamedRange {
         if (leftLength > 0) {
             alpha.goLeft(leftLength, true);
             if (!left.equals(alpha.getString())) {
-                String msg = ("checkFillCursor:" +
-                    " ('%s') is not prefixed with REFERENCE_MARK_LEFT_BRACKET, has '%s'").formatted(
+                String msg = ("checkFillCursor:"
+                    + " ('%s') is not prefixed with REFERENCE_MARK_LEFT_BRACKET, has '%s'").formatted(
                     cursor.getString(),
                     alpha.getString()
                 );
@@ -423,8 +423,8 @@ public class NamedRangeReferenceMark implements NamedRange {
         if (rightLength > 0) {
             omega.goRight(rightLength, true);
             if (!right.equals(omega.getString())) {
-                String msg = ("checkFillCursor:" +
-                    " ('%s') is not followed by REFERENCE_MARK_RIGHT_BRACKET, has '%s'").formatted(
+                String msg = ("checkFillCursor:"
+                    + " ('%s') is not followed by REFERENCE_MARK_RIGHT_BRACKET, has '%s'").formatted(
                     cursor.getString(),
                     omega.getString()
                 );
@@ -483,14 +483,14 @@ public class NamedRangeReferenceMark implements NamedRange {
         }
 
         boolean removeRight =
-            (contentLength >= 1) ||
-            ((contentLength == 0) && removeBracketsFromEmpty) ||
-            alwaysRemoveBrackets;
+            (contentLength >= 1)
+            || ((contentLength == 0) && removeBracketsFromEmpty)
+            || alwaysRemoveBrackets;
 
         boolean removeLeft =
-            (contentLength >= 2) ||
-            ((contentLength == 0) && removeBracketsFromEmpty) ||
-            alwaysRemoveBrackets;
+            (contentLength >= 2)
+            || ((contentLength == 0) && removeBracketsFromEmpty)
+            || alwaysRemoveBrackets;
 
         if (removeRight) {
             XTextCursor omega = full.getText().createTextCursorByRange(full);

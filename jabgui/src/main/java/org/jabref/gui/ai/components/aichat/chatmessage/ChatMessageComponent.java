@@ -133,11 +133,11 @@ public class ChatMessageComponent extends HBox {
 
     private void setColor(String fillColor, String borderColor) {
         vBox.setStyle(
-            "-fx-background-color: " +
-            fillColor +
-            "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: " +
-            borderColor +
-            "; -fx-border-width: 3;"
+            "-fx-background-color: "
+            + fillColor
+            + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-color: "
+            + borderColor
+            + "; -fx-border-width: 3;"
         );
     }
 }

@@ -109,8 +109,8 @@ public class LatexIntegrityChecker implements EntryChecker {
             )
             // Exclude TTEM03 error for citation key field
             .filter(pair ->
-                !(pair.getValue().getErrorCode().equals(CoreErrorCode.TTEM03) &&
-                    pair.getKey().equals(InternalField.KEY_FIELD))
+                !(pair.getValue().getErrorCode().equals(CoreErrorCode.TTEM03)
+                    && pair.getKey().equals(InternalField.KEY_FIELD))
             )
             .filter(pair ->
                 !EXCLUDED_ERRORS.contains(pair.getValue().getErrorCode())

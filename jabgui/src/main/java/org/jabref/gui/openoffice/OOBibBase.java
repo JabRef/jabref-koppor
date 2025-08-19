@@ -132,9 +132,9 @@ public class OOBibBase {
         if (isConnectedToDocument()) {
             initializeCitationAdapter(this.getXTextDocument().get());
             dialogService.notify(
-                Localization.lang("Connected to document") +
-                ": " +
-                this.getCurrentDocumentTitle().orElse("")
+                Localization.lang("Connected to document")
+                + ": "
+                + this.getCurrentDocumentTitle().orElse("")
             );
         }
     }
@@ -237,11 +237,11 @@ public class OOBibBase {
         } catch (com.sun.star.uno.RuntimeException ex) {
             String msg =
                 Localization.lang(
-                    "Please move the cursor" +
-                    " to the location for the new citation."
-                ) +
-                "\n" +
-                Localization.lang(
+                    "Please move the cursor"
+                    + " to the location for the new citation."
+                )
+                + "\n"
+                + Localization.lang(
                     "I cannot insert to the cursor's current location."
                 );
             return OOResult.error(new OOError(errorTitle, msg, ex));
@@ -257,14 +257,12 @@ public class OOBibBase {
         String errorTitle
     ) {
         String messageOnFailureToObtain =
-            Localization.lang(
-                "Please move the cursor into the document text."
-            ) +
-            "\n" +
-            Localization.lang(
-                "To get the visual positions of your citations" +
-                " I need to move the cursor around," +
-                " but could not get it."
+            Localization.lang("Please move the cursor into the document text.")
+            + "\n"
+            + Localization.lang(
+                "To get the visual positions of your citations"
+                + " I need to move the cursor around,"
+                + " but could not get it."
             );
         OOResult<FunctionalTextViewCursor, String> result =
             FunctionalTextViewCursor.get(doc);
@@ -359,8 +357,8 @@ public class OOBibBase {
                 String msg = "";
                 if (recordingChanges) {
                     msg += Localization.lang(
-                        "Cannot work with" +
-                        " [Edit]/[Track Changes]/[Record] turned on."
+                        "Cannot work with"
+                        + " [Edit]/[Track Changes]/[Record] turned on."
                     );
                 }
                 if (nRedlines > 0) {
@@ -368,9 +366,9 @@ public class OOBibBase {
                         msg += "\n";
                     }
                     msg += Localization.lang(
-                        "Changes by JabRef" +
-                        " could result in unexpected interactions with" +
-                        " recorded changes."
+                        "Changes by JabRef"
+                        + " could result in unexpected interactions with"
+                        + " recorded changes."
                     );
                     msg += "\n";
                     msg += Localization.lang(
@@ -381,8 +379,8 @@ public class OOBibBase {
             }
         } catch (WrappedTargetException ex) {
             String msg = Localization.lang(
-                "Error while checking if Writer" +
-                " is recording changes or has recorded changes."
+                "Error while checking if Writer"
+                + " is recording changes or has recorded changes."
             );
             return OOVoidResult.error(new OOError(errorTitle, msg, ex));
         }
@@ -460,19 +458,19 @@ public class OOBibBase {
                         styleName
                     );
                     default -> throw new IllegalArgumentException(
-                        "Expected " +
-                        UnoStyle.CHARACTER_STYLES +
-                        " or " +
-                        UnoStyle.PARAGRAPH_STYLES +
-                        " for familyName"
+                        "Expected "
+                        + UnoStyle.CHARACTER_STYLES
+                        + " or "
+                        + UnoStyle.PARAGRAPH_STYLES
+                        + " for familyName"
                     );
-                } +
-                "\n" +
-                Localization.lang(
+                }
+                + "\n"
+                + Localization.lang(
                     "Please create it in the document or change in the file:"
-                ) +
-                "\n" +
-                pathToStyleFile;
+                )
+                + "\n"
+                + pathToStyleFile;
             return OOVoidResult.error(new OOError("StyleIsNotKnown", msg));
         }
 
@@ -492,20 +490,20 @@ public class OOBibBase {
                         internalName.get()
                     );
                     default -> throw new IllegalArgumentException(
-                        "Expected " +
-                        UnoStyle.CHARACTER_STYLES +
-                        " or " +
-                        UnoStyle.PARAGRAPH_STYLES +
-                        " for familyName"
+                        "Expected "
+                        + UnoStyle.CHARACTER_STYLES
+                        + " or "
+                        + UnoStyle.PARAGRAPH_STYLES
+                        + " for familyName"
                     );
-                } +
-                "\n" +
-                Localization.lang(
-                    "Please use the latter in the style file below" +
-                    " to avoid localization problems."
-                ) +
-                "\n" +
-                pathToStyleFile;
+                }
+                + "\n"
+                + Localization.lang(
+                    "Please use the latter in the style file below"
+                    + " to avoid localization problems."
+                )
+                + "\n"
+                + pathToStyleFile;
             return OOVoidResult.error(
                 new OOError("StyleNameIsNotInternal", msg)
             );
@@ -747,8 +745,8 @@ public class OOBibBase {
         if (syncOptions.isPresent()) {
             fcursor = getFunctionalTextViewCursor(doc, errorTitle);
             if (
-                testDialog(errorTitle, fcursor.asVoidResult()) ||
-                testDialog(
+                testDialog(errorTitle, fcursor.asVoidResult())
+                || testDialog(
                     databaseIsRequired(
                         syncOptions.get().databases,
                         OOError::noDataBaseIsOpenForSyncingAfterCitation
@@ -1089,9 +1087,9 @@ public class OOBibBase {
                 dialogService.showErrorDialogAndWait(
                     Localization.lang("Unable to generate new library"),
                     Localization.lang(
-                        "Your OpenOffice/LibreOffice document references" +
-                        " no citation keys" +
-                        " which could also be found in your current library."
+                        "Your OpenOffice/LibreOffice document references"
+                        + " no citation keys"
+                        + " which could also be found in your current library."
                     )
                 );
                 return FAIL;
@@ -1102,10 +1100,10 @@ public class OOBibBase {
                 dialogService.showErrorDialogAndWait(
                     Localization.lang("Unable to generate new library"),
                     Localization.lang(
-                        "Your OpenOffice/LibreOffice document references" +
-                        " at least %0 citation keys" +
-                        " which could not be found in your current library." +
-                        " Some of these are %1.",
+                        "Your OpenOffice/LibreOffice document references"
+                        + " at least %0 citation keys"
+                        + " which could not be found in your current library."
+                        + " Some of these are %1.",
                         String.valueOf(unresolvedKeys.size()),
                         String.join(", ", unresolvedKeys)
                     )
@@ -1209,8 +1207,8 @@ public class OOBibBase {
 
                 if (!unresolvedKeys.isEmpty()) {
                     String msg = Localization.lang(
-                        "Your OpenOffice/LibreOffice document references the citation key '%0'," +
-                        " which could not be found in your current library.",
+                        "Your OpenOffice/LibreOffice document references the citation key '%0',"
+                        + " which could not be found in your current library.",
                         unresolvedKeys.getFirst()
                     );
                     dialogService.showErrorDialogAndWait(errorTitle, msg);

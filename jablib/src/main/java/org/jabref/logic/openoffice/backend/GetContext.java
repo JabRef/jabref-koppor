@@ -40,8 +40,8 @@ public class GetContext {
                 // If we are close to charBefore and see a space, then cut here. Might avoid cutting
                 // a word in half.
                 if (
-                    (i >= (charBefore - flex)) &&
-                    Character.isWhitespace(cursor.getString().charAt(0))
+                    (i >= (charBefore - flex))
+                    && Character.isWhitespace(cursor.getString().charAt(0))
                 ) {
                     break;
                 }
@@ -75,11 +75,11 @@ public class GetContext {
         String result = cursor.getString();
         if (htmlMarkup) {
             result =
-                result.substring(0, addedBefore) +
-                "<b>" +
-                citPart +
-                "</b>" +
-                result.substring(lengthWithBefore);
+                result.substring(0, addedBefore)
+                + "<b>"
+                + citPart
+                + "</b>"
+                + result.substring(lengthWithBefore);
         }
         return result.trim();
     }

@@ -18,8 +18,8 @@ public class StaxParser {
         throws XMLStreamException {
         // skip over START DOCUMENT event
         while (
-            reader.getEventType() == XMLStreamConstants.START_DOCUMENT &&
-            reader.hasNext()
+            reader.getEventType() == XMLStreamConstants.START_DOCUMENT
+            && reader.hasNext()
         ) {
             reader.next();
         }
@@ -65,8 +65,8 @@ public class StaxParser {
             } else if (event == XMLStreamConstants.PROCESSING_INSTRUCTION) {
                 content.append(getXMLProcessingInstruction(reader));
             } else if (
-                event == XMLStreamConstants.SPACE ||
-                event == XMLStreamConstants.ENTITY_REFERENCE
+                event == XMLStreamConstants.SPACE
+                || event == XMLStreamConstants.ENTITY_REFERENCE
             ) {
                 content.append(getXMLText(reader));
             }

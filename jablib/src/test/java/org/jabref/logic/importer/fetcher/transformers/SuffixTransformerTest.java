@@ -107,11 +107,11 @@ public abstract class SuffixTransformerTest<
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            "\"Igor Steinmacher\"" +
-            getAuthorSuffix() +
-            getTransformer().getLogicalAndOperator() +
-            "\"Christoph Treude\"" +
-            getAuthorSuffix()
+            "\"Igor Steinmacher\""
+            + getAuthorSuffix()
+            + getTransformer().getLogicalAndOperator()
+            + "\"Christoph Treude\""
+            + getAuthorSuffix()
         );
         assertEquals(expected, searchQuery);
     }
@@ -128,20 +128,20 @@ public abstract class SuffixTransformerTest<
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            "(" +
-            "\"Igor Steinmacher\"" +
-            getAuthorSuffix() +
-            getTransformer().getLogicalOrOperator() +
-            "(" +
-            "\"Christoph Treude\"" +
-            getAuthorSuffix() +
-            getTransformer().getLogicalAndOperator() +
-            "\"Christoph Freunde\"" +
-            getAuthorSuffix() +
-            "))" +
-            getTransformer().getLogicalAndOperator() +
-            "test" +
-            getTitleSuffix()
+            "("
+            + "\"Igor Steinmacher\""
+            + getAuthorSuffix()
+            + getTransformer().getLogicalOrOperator()
+            + "("
+            + "\"Christoph Treude\""
+            + getAuthorSuffix()
+            + getTransformer().getLogicalAndOperator()
+            + "\"Christoph Freunde\""
+            + getAuthorSuffix()
+            + "))"
+            + getTransformer().getLogicalAndOperator()
+            + "test"
+            + getTitleSuffix()
         );
         assertEquals(expected, searchQuery);
     }
@@ -158,13 +158,13 @@ public abstract class SuffixTransformerTest<
             luceneQuery
         );
         Optional<String> expected = Optional.of(
-            getTransformer().getLogicalNotOperator() +
-            "(" +
-            "\"Igor Steinmacher\"" +
-            getAuthorSuffix() +
-            getTransformer().getLogicalOrOperator() +
-            "\"Christoph Treude\")" +
-            getAuthorSuffix()
+            getTransformer().getLogicalNotOperator()
+            + "("
+            + "\"Igor Steinmacher\""
+            + getAuthorSuffix()
+            + getTransformer().getLogicalOrOperator()
+            + "\"Christoph Treude\")"
+            + getAuthorSuffix()
         );
         assertEquals(expected, searchQuery);
     }

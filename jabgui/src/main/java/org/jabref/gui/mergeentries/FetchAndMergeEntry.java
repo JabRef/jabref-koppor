@@ -223,8 +223,8 @@ public class FetchAndMergeEntry {
                     .get()
                     .getField(field);
                 if (
-                    originalString.isEmpty() ||
-                    !originalString.equals(mergedString)
+                    originalString.isEmpty()
+                    || !originalString.equals(mergedString)
                 ) {
                     originalEntry.setField(field, mergedString.get()); // mergedString always present
                     ce.addEdit(
@@ -242,8 +242,8 @@ public class FetchAndMergeEntry {
             // Remove fields which are not in the merged entry, unless they are internal fields
             for (Field field : originalFields) {
                 if (
-                    !jointFields.contains(field) &&
-                    !FieldFactory.isInternalField(field)
+                    !jointFields.contains(field)
+                    && !FieldFactory.isInternalField(field)
                 ) {
                     Optional<String> originalString = originalEntry.getField(
                         field

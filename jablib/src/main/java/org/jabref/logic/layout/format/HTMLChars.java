@@ -61,14 +61,14 @@ public class HTMLChars implements ParamLayoutFormatter {
                 incommand = true;
                 currentCommand = new StringBuilder();
             } else if (
-                !this.keepCurlyBraces &&
-                !incommand &&
-                ((c == '{') || (c == '}'))
+                !this.keepCurlyBraces
+                && !incommand
+                && ((c == '{') || (c == '}'))
             ) {
                 // Swallow the brace.
             } else if (
-                Character.isLetter(c) ||
-                StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))
+                Character.isLetter(c)
+                || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))
             ) {
                 escaped = false;
 
@@ -77,8 +77,8 @@ public class HTMLChars implements ParamLayoutFormatter {
                 } else {
                     currentCommand.append(c);
                     testCharCom: if (
-                        (currentCommand.length() == 1) &&
-                        StringUtil.SPECIAL_COMMAND_CHARS.contains(
+                        (currentCommand.length() == 1)
+                        && StringUtil.SPECIAL_COMMAND_CHARS.contains(
                             currentCommand.toString()
                         )
                     ) {

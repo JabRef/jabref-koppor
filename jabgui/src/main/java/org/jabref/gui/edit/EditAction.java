@@ -77,15 +77,15 @@ public class EditAction extends SimpleCommand {
                         case REDO -> textInput.redo();
                         default -> {
                             String message =
-                                "Only cut/copy/paste supported in TextInputControl but got " +
-                                action;
+                                "Only cut/copy/paste supported in TextInputControl but got "
+                                + action;
                             LOGGER.error(message);
                             throw new IllegalStateException(message);
                         }
                     }
                 } else if (
-                    (focusOwner instanceof CodeArea) ||
-                    (focusOwner instanceof WebView)
+                    (focusOwner instanceof CodeArea)
+                    || (focusOwner instanceof WebView)
                 ) {
                     LOGGER.debug("Ignoring request in CodeArea or WebView");
                 } else {

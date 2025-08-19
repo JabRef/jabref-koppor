@@ -61,9 +61,9 @@ public class JournalListMvGenerator {
         );
         if (!Files.exists(abbreviationsDirectory)) {
             System.out.println(
-                "Path " +
-                abbreviationsDirectory.toAbsolutePath() +
-                " does not exist"
+                "Path "
+                + abbreviationsDirectory.toAbsolutePath()
+                + " does not exist"
             );
             System.exit(0);
         }
@@ -125,8 +125,8 @@ public class JournalListMvGenerator {
                                         (abbreviation1, abbreviation2) -> {
                                             if (verbose) {
                                                 System.out.println(
-                                                    "Double entry " +
-                                                    abbreviation1.getName()
+                                                    "Double entry "
+                                                    + abbreviation1.getName()
                                                 );
                                             }
                                             return abbreviation2;

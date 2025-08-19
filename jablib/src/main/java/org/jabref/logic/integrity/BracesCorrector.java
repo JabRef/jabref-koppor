@@ -21,8 +21,8 @@ public class BracesCorrector {
                 c
                     .chars()
                     .filter(ch -> ch == '{')
-                    .count() -
-                c
+                    .count()
+                - c
                     .chars()
                     .filter(ch -> ch == '}')
                     .count();

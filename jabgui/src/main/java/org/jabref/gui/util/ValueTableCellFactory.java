@@ -134,10 +134,10 @@ public class ValueTableCellFactory<S, T>
                 super.updateItem(item, empty);
 
                 if (
-                    empty ||
-                    (item == null) ||
-                    (getTableRow() == null) ||
-                    (getTableRow().getItem() == null)
+                    empty
+                    || (item == null)
+                    || (getTableRow() == null)
+                    || (getTableRow().getItem() == null)
                 ) {
                     setText(null);
                     setGraphic(null);

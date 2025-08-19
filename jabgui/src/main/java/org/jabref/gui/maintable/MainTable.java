@@ -362,10 +362,10 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         KeyEvent keyEvent
     ) {
         if (
-            keyEvent.isAltDown() ||
-            keyEvent.isControlDown() ||
-            keyEvent.isMetaDown() ||
-            keyEvent.isShiftDown()
+            keyEvent.isAltDown()
+            || keyEvent.isControlDown()
+            || keyEvent.isMetaDown()
+            || keyEvent.isShiftDown()
         ) {
             return;
         }
@@ -485,9 +485,9 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
                     .get();
                 // found the previous category, scroll to the first entry of that category
                 while (
-                    (i >= 0) &&
-                    getItems().get(i).matchCategory().get() ==
-                    targetMatchCategory
+                    (i >= 0)
+                    && getItems().get(i).matchCategory().get()
+                    == targetMatchCategory
                 ) {
                     i--;
                 }

@@ -38,8 +38,8 @@ public class BibTeXConverter {
             String value = field.getValue();
 
             if (
-                (value != null) &&
-                (MSBibMapping.getBibTeXField(msField) != null)
+                (value != null)
+                && (MSBibMapping.getBibTeXField(msField) != null)
             ) {
                 fieldValues.put(MSBibMapping.getBibTeXField(msField), value);
             }

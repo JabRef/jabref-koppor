@@ -88,8 +88,8 @@ public class EditExternalFileTypeViewModel {
                     if (
                         extension.equalsIgnoreCase(
                             fileTypeItem.extensionProperty().get()
-                        ) &&
-                        !extension.equalsIgnoreCase(originalExtension)
+                        )
+                        && !extension.equalsIgnoreCase(originalExtension)
                     ) {
                         return false;
                     }
@@ -113,10 +113,8 @@ public class EditExternalFileTypeViewModel {
             name -> {
                 for (ExternalFileTypeItemViewModel fileTypeItem : fileTypes) {
                     if (
-                        name.equalsIgnoreCase(
-                            fileTypeItem.nameProperty().get()
-                        ) &&
-                        !name.equalsIgnoreCase(originalName)
+                        name.equalsIgnoreCase(fileTypeItem.nameProperty().get())
+                        && !name.equalsIgnoreCase(originalName)
                     ) {
                         return false;
                     }
@@ -153,8 +151,8 @@ public class EditExternalFileTypeViewModel {
                     if (
                         mimeType.equalsIgnoreCase(
                             fileTypeItem.mimetypeProperty().get()
-                        ) &&
-                        !mimeType.equalsIgnoreCase(originalMimeType)
+                        )
+                        && !mimeType.equalsIgnoreCase(originalMimeType)
                     ) {
                         return false;
                     }
@@ -249,8 +247,8 @@ public class EditExternalFileTypeViewModel {
 
         // store application as empty if the "Default" option is selected, or if the application name is empty:
         if (
-            defaultApplicationSelectedProperty.getValue() ||
-            application.isEmpty()
+            defaultApplicationSelectedProperty.getValue()
+            || application.isEmpty()
         ) {
             fileTypeViewModel.applicationProperty().setValue("");
             selectedApplicationProperty.setValue("");

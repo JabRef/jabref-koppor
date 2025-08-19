@@ -146,8 +146,8 @@ public class AiDefaultPreferences {
         return Arrays.stream(AiDefaultPreferences.PredefinedChatModel.values())
             .filter(
                 model ->
-                    model.getAiProvider() == aiProvider &&
-                    model.getName().equals(modelName)
+                    model.getAiProvider() == aiProvider
+                    && model.getName().equals(modelName)
             )
             .map(AiDefaultPreferences.PredefinedChatModel::getContextWindowSize)
             .findFirst()

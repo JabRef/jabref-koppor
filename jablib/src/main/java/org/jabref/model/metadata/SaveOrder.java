@@ -94,8 +94,8 @@ public class SaveOrder {
         }
         if (o instanceof SaveOrder that) {
             return (
-                Objects.equals(sortCriteria, that.sortCriteria) &&
-                Objects.equals(orderType, that.orderType)
+                Objects.equals(sortCriteria, that.sortCriteria)
+                && Objects.equals(orderType, that.orderType)
             );
         }
         return false;
@@ -109,12 +109,12 @@ public class SaveOrder {
     @Override
     public String toString() {
         return (
-            "SaveOrderConfig{" +
-            "orderType=" +
-            orderType.toString() +
-            ", sortCriteria=" +
-            sortCriteria +
-            '}'
+            "SaveOrderConfig{"
+            + "orderType="
+            + orderType.toString()
+            + ", sortCriteria="
+            + sortCriteria
+            + '}'
         );
     }
 
@@ -163,13 +163,13 @@ public class SaveOrder {
         @Override
         public String toString() {
             return (
-                "SortCriterion{" +
-                "field='" +
-                field +
-                '\'' +
-                ", descending=" +
-                descending +
-                '}'
+                "SortCriterion{"
+                + "field='"
+                + field
+                + '\''
+                + ", descending="
+                + descending
+                + '}'
             );
         }
 
@@ -183,8 +183,8 @@ public class SaveOrder {
             }
             SortCriterion that = (SortCriterion) o;
             return (
-                Objects.equals(descending, that.descending) &&
-                Objects.equals(field, that.field)
+                Objects.equals(descending, that.descending)
+                && Objects.equals(field, that.field)
             );
         }
 

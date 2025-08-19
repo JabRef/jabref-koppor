@@ -173,9 +173,9 @@ public class ParseLatexDialogViewModel extends AbstractViewModel {
 
     private void handleFailure(Exception exception) {
         final boolean permissionProblem =
-            (exception instanceof IOException) &&
-            (exception.getCause() instanceof FileSystemException) &&
-            exception
+            (exception instanceof IOException)
+            && (exception.getCause() instanceof FileSystemException)
+            && exception
                 .getCause()
                 .getMessage()
                 .endsWith("Operation not permitted");

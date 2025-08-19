@@ -147,8 +147,8 @@ public class MSBibConverter {
 
         // TODO: currently this can never happen
         if (
-            "InternetSite".equals(msBibType) ||
-            "DocumentFromInternetSite".equals(msBibType)
+            "InternetSite".equals(msBibType)
+            || "DocumentFromInternetSite".equals(msBibType)
         ) {
             result.internetSiteTitle = entry
                 .getFieldLatexFree(StandardField.TITLE)

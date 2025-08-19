@@ -61,8 +61,8 @@ public class AutomaticKeywordGroup extends AutomaticGroup {
         }
         AutomaticKeywordGroup that = (AutomaticKeywordGroup) o;
         return (
-            Objects.equals(keywordDelimiter, that.keywordDelimiter) &&
-            Objects.equals(field, that.field)
+            Objects.equals(keywordDelimiter, that.keywordDelimiter)
+            && Objects.equals(field, that.field)
         );
     }
 

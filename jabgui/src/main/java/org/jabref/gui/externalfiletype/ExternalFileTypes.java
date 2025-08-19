@@ -103,11 +103,11 @@ public class ExternalFileTypes {
         ExternalFileType foundType = null;
         for (ExternalFileType type : externalApplicationsPreferences.getExternalFileTypes()) {
             if (
-                !type.getExtension().isEmpty() &&
-                filename
+                !type.getExtension().isEmpty()
+                && filename
                     .toLowerCase(Locale.ROOT)
-                    .endsWith(type.getExtension().toLowerCase(Locale.ROOT)) &&
-                (type.getExtension().length() > longestFound)
+                    .endsWith(type.getExtension().toLowerCase(Locale.ROOT))
+                && (type.getExtension().length() > longestFound)
             ) {
                 longestFound = type.getExtension().length();
                 foundType = type;

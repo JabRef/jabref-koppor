@@ -112,12 +112,12 @@ public class KeyBindingViewModel {
 
         KeyCode code = evt.getCode();
         if (
-            code.isModifierKey() ||
-            (code == KeyCode.BACK_SPACE) ||
-            (code == KeyCode.SPACE) ||
-            (code == KeyCode.TAB) ||
-            (code == KeyCode.ENTER) ||
-            (code == KeyCode.UNDEFINED)
+            code.isModifierKey()
+            || (code == KeyCode.BACK_SPACE)
+            || (code == KeyCode.SPACE)
+            || (code == KeyCode.TAB)
+            || (code == KeyCode.ENTER)
+            || (code == KeyCode.UNDEFINED)
         ) {
             return false;
         }
@@ -137,9 +137,9 @@ public class KeyBindingViewModel {
         // if no modifier keys are pressed, only special keys can be shortcuts
         if (modifiers.isEmpty()) {
             if (
-                !(code.isFunctionKey() ||
-                    (code == KeyCode.ESCAPE) ||
-                    (code == KeyCode.DELETE))
+                !(code.isFunctionKey()
+                    || (code == KeyCode.ESCAPE)
+                    || (code == KeyCode.DELETE))
             ) {
                 return false;
             }

@@ -180,8 +180,8 @@ class LayoutTest {
 
         // combined (!a&&b)
         layoutText = layout(
-            "\\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{!editor&&author}" +
-            "\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author}",
+            "\\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{!editor&&author}"
+            + "\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author}",
             entry
         );
 
@@ -205,9 +205,9 @@ class LayoutTest {
         );
 
         assertEquals(
-            "1. Test file (" +
-            Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath() +
-            ")",
+            "1. Test file ("
+            + Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath()
+            + ")",
             layoutText
         );
     }

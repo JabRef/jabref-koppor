@@ -97,8 +97,8 @@ public final class MergeEntriesHelper {
             Optional<String> libraryValue = entryFromLibrary.getField(field);
 
             if (
-                fetcherValue.isPresent() &&
-                shouldUpdateField(fetcherValue.get(), libraryValue)
+                fetcherValue.isPresent()
+                && shouldUpdateField(fetcherValue.get(), libraryValue)
             ) {
                 LOGGER.debug(
                     "Updating field {}: {} -> {}",

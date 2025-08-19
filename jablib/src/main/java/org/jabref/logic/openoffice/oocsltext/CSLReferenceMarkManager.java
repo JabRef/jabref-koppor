@@ -174,9 +174,9 @@ public class CSLReferenceMarkManager {
         for (String name : marks.getElementNames()) {
             String[] parts = name.split(" ");
             if (
-                parts[0].startsWith(ReferenceMark.PREFIXES[0]) &&
-                parts[1].startsWith(ReferenceMark.PREFIXES[1]) &&
-                parts.length >= 3
+                parts[0].startsWith(ReferenceMark.PREFIXES[0])
+                && parts[1].startsWith(ReferenceMark.PREFIXES[1])
+                && parts.length >= 3
             ) {
                 XNamed named = UnoRuntime.queryInterface(
                     XNamed.class,
@@ -231,9 +231,9 @@ public class CSLReferenceMarkManager {
     ) {
         String[] parts = oldName.split(" ");
         if (
-            parts[0].startsWith(ReferenceMark.PREFIXES[0]) &&
-            parts[1].startsWith(ReferenceMark.PREFIXES[1]) &&
-            parts.length >= 3
+            parts[0].startsWith(ReferenceMark.PREFIXES[0])
+            && parts[1].startsWith(ReferenceMark.PREFIXES[1])
+            && parts.length >= 3
         ) {
             StringBuilder newName = new StringBuilder();
             for (int i = 0; i < parts.length - 1; i += 2) {

@@ -75,8 +75,8 @@ class CitationKeyBasedFileFinder implements FileFinder {
 
     private boolean matches(String filename, String citeKey) {
         boolean startsWithKey =
-            filename.startsWith(citeKey) ||
-            filename.startsWith(FileNameCleaner.cleanFileName(citeKey));
+            filename.startsWith(citeKey)
+            || filename.startsWith(FileNameCleaner.cleanFileName(citeKey));
         if (startsWithKey) {
             // The file name starts with the key, that's already a good start
             // However, we do not want to match "JabRefa" for "JabRef" since this is probably a file belonging to another entry published in the same time / same name
@@ -102,9 +102,9 @@ class CitationKeyBasedFileFinder implements FileFinder {
             path,
             attributes
         ) ->
-            !Files.isDirectory(path) &&
-            extensions.contains(FileUtil.getFileExtension(path).orElse("")) &&
-            filteringFunction.apply(path);
+            !Files.isDirectory(path)
+            && extensions.contains(FileUtil.getFileExtension(path).orElse(""))
+            && filteringFunction.apply(path);
 
         SortedSet<Path> result = new TreeSet<>();
         for (Path directory : directories) {

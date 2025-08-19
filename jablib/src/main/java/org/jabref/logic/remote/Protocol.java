@@ -81,8 +81,8 @@ public class Protocol implements AutoCloseable {
 
             if (endOfMessage != '\0') {
                 throw new IOException(
-                    "Message didn't end on correct end of message identifier. Got " +
-                    endOfMessage
+                    "Message didn't end on correct end of message identifier. Got "
+                    + endOfMessage
                 );
             }
 

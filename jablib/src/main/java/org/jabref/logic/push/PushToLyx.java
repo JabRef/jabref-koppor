@@ -40,10 +40,10 @@ public class PushToLyx extends AbstractPushToApplication {
                 Localization.lang("Error pushing entries"),
                 Localization.lang(
                     "Verify that LyX is running and that the lyxpipe is valid."
-                ) +
-                "[" +
-                commandPath +
-                "]"
+                )
+                + "["
+                + commandPath
+                + "]"
             );
         } else if (couldNotCall) {
             this.sendErrorNotification(

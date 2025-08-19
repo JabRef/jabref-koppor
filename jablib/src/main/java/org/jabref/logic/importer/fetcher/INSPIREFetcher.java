@@ -112,8 +112,8 @@ public class INSPIREFetcher
 
         String urlString;
         if (
-            archiveprefix.filter("arxiv"::equals).isPresent() &&
-            eprint.isPresent()
+            archiveprefix.filter("arxiv"::equals).isPresent()
+            && eprint.isPresent()
         ) {
             urlString = INSPIRE_ARXIV_HOST + eprint.get();
         } else if (doi.isPresent()) {

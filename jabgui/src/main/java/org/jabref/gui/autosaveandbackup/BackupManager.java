@@ -242,8 +242,8 @@ public class BackupManager {
                 if (
                     latestBackupFileLastModifiedTime.compareTo(
                         currentFileLastModifiedTime
-                    ) <=
-                    0
+                    )
+                    <= 0
                 ) {
                     // Backup is older than current file
                     // We treat the backup as non-different (even if it could differ)
@@ -423,10 +423,10 @@ public class BackupManager {
 
     private static Path determineDiscardedFile(Path file, Path backupDir) {
         return backupDir.resolve(
-            BackupFileUtil.getUniqueFilePrefix(file) +
-            "--" +
-            file.getFileName() +
-            "--discarded"
+            BackupFileUtil.getUniqueFilePrefix(file)
+            + "--"
+            + file.getFileName()
+            + "--discarded"
         );
     }
 
@@ -495,9 +495,9 @@ public class BackupManager {
             .ifPresent(databasePath -> {
                 // code similar to {@link org.jabref.logic.util.io.BackupFileUtil.getPathOfLatestExisingBackupFile}
                 final String prefix =
-                    BackupFileUtil.getUniqueFilePrefix(databasePath) +
-                    "--" +
-                    databasePath.getFileName();
+                    BackupFileUtil.getUniqueFilePrefix(databasePath)
+                    + "--"
+                    + databasePath.getFileName();
                 try {
                     List<Path> allSavFiles = Files.list(backupDir)
                         // just list the .sav belonging to the given targetFile

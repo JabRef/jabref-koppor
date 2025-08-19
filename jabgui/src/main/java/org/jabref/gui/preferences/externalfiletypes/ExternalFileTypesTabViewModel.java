@@ -150,9 +150,9 @@ public class ExternalFileTypesTabViewModel implements PreferenceTabViewModel {
 
     private boolean hasEmptyValue(ExternalFileTypeItemViewModel item) {
         return (
-            item.getName().isEmpty() ||
-            item.extensionProperty().get().isEmpty() ||
-            item.mimetypeProperty().get().isEmpty()
+            item.getName().isEmpty()
+            || item.extensionProperty().get().isEmpty()
+            || item.mimetypeProperty().get().isEmpty()
         );
     }
 

@@ -126,12 +126,12 @@ public class ContentSelectors {
     @Override
     public String toString() {
         return (
-            "ContentSelectors{" +
-            "contentSelectors=" +
-            contentSelectors +
-            ", fieldsWithSelectors=" +
-            getFieldsWithSelectors() +
-            '}'
+            "ContentSelectors{"
+            + "contentSelectors="
+            + contentSelectors
+            + ", fieldsWithSelectors="
+            + getFieldsWithSelectors()
+            + '}'
         );
     }
 
@@ -142,8 +142,8 @@ public class ContentSelectors {
         Map<Field, List<String>> fieldKeywordsMap
     ) {
         if (
-            fieldKeywordsMap.size() !=
-            ContentSelectors.DEFAULT_FIELD_NAMES.size()
+            fieldKeywordsMap.size()
+            != ContentSelectors.DEFAULT_FIELD_NAMES.size()
         ) {
             return false;
         }

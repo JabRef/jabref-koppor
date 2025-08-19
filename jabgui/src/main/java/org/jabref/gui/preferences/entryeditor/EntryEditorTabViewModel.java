@@ -102,8 +102,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
             entryEditorPreferences.shouldAllowIntegerEditionBibtex()
         );
         journalPopupProperty.setValue(
-            entryEditorPreferences.shouldEnableJournalPopup() ==
-            EntryEditorPreferences.JournalPopupEnabled.ENABLED
+            entryEditorPreferences.shouldEnableJournalPopup()
+            == EntryEditorPreferences.JournalPopupEnabled.ENABLED
         );
         autoLinkEnabledProperty.setValue(
             entryEditorPreferences.autoLinkFilesEnabled()

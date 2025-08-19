@@ -81,8 +81,8 @@ public class GroupsParser {
                 } else {
                     // insert at desired location
                     while (
-                        (level <= cursor.getLevel()) &&
-                        (cursor.getParent().isPresent())
+                        (level <= cursor.getLevel())
+                        && (cursor.getParent().isPresent())
                     ) {
                         cursor = cursor.getParent().get();
                     }

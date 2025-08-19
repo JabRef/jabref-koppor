@@ -334,8 +334,8 @@ public class JabRefFrame
     public void updateHorizontalDividerPosition() {
         if (mainStage.isShowing() && !sidePane.getChildren().isEmpty()) {
             horizontalSplit.setDividerPositions(
-                preferences.getGuiPreferences().getHorizontalDividerPosition() /
-                horizontalSplit.getWidth()
+                preferences.getGuiPreferences().getHorizontalDividerPosition()
+                / horizontalSplit.getWidth()
             );
             horizontalDividerSubscription = EasyBind.valueAt(
                 horizontalSplit.getDividers(),
@@ -352,8 +352,8 @@ public class JabRefFrame
 
     public void updateVerticalDividerPosition() {
         if (
-            mainStage.isShowing() &&
-            panelMode.get() == PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR
+            mainStage.isShowing()
+            && panelMode.get() == PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR
         ) {
             verticalSplit.setDividerPositions(
                 preferences.getGuiPreferences().getVerticalDividerPosition()
@@ -570,9 +570,9 @@ public class JabRefFrame
                         .bind(
                             Bindings.createStringBinding(
                                 () ->
-                                    libraryTab.textProperty().getValue() +
-                                    " – " +
-                                    FRAME_TITLE, // not a minus, but codepoint 2013
+                                    libraryTab.textProperty().getValue()
+                                    + " – "
+                                    + FRAME_TITLE, // not a minus, but codepoint 2013
                                 libraryTab.textProperty()
                             )
                         );
@@ -643,8 +643,8 @@ public class JabRefFrame
 
     private void updateTabBarVisible() {
         if (
-            preferences.getWorkspacePreferences().shouldHideTabBar() &&
-            stateManager.getOpenDatabases().size() <= 1
+            preferences.getWorkspacePreferences().shouldHideTabBar()
+            && stateManager.getOpenDatabases().size() <= 1
         ) {
             if (!tabbedPane.getStyleClass().contains("hide-tab-bar")) {
                 tabbedPane.getStyleClass().add("hide-tab-bar");
@@ -675,9 +675,9 @@ public class JabRefFrame
      */
     public LibraryTab getCurrentLibraryTab() {
         if (
-            tabbedPane.getSelectionModel().getSelectedItem() == null ||
-            !(tabbedPane.getSelectionModel().getSelectedItem() instanceof
-                LibraryTab)
+            tabbedPane.getSelectionModel().getSelectedItem() == null
+            || !(tabbedPane.getSelectionModel().getSelectedItem()
+                instanceof LibraryTab)
         ) {
             return null;
         }

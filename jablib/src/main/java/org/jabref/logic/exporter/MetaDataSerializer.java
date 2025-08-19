@@ -209,9 +209,9 @@ public class MetaDataSerializer {
                 );
                 // in case of save actions, add an additional newline after the enabled flag
                 lastWasSaveActionsEnablement =
-                    isSaveActions &&
-                    (FieldFormatterCleanups.ENABLED.equals(dataItem) ||
-                        FieldFormatterCleanups.DISABLED.equals(dataItem));
+                    isSaveActions
+                    && (FieldFormatterCleanups.ENABLED.equals(dataItem)
+                        || FieldFormatterCleanups.DISABLED.equals(dataItem));
                 joiner.add(string);
             }
             String serializedItem = joiner.toString();
@@ -241,8 +241,8 @@ public class MetaDataSerializer {
             }
         }
         if (
-            (citationKeyPattern.getDefaultValue() != null) &&
-            !citationKeyPattern
+            (citationKeyPattern.getDefaultValue() != null)
+            && !citationKeyPattern
                 .getDefaultValue()
                 .equals(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)
         ) {
@@ -275,19 +275,19 @@ public class MetaDataSerializer {
 
     public static String serializeCustomEntryTypes(BibEntryType entryType) {
         return (
-            MetaData.ENTRYTYPE_FLAG +
-            entryType.getType().getName() +
-            ": req[" +
-            FieldFactory.serializeOrFieldsList(entryType.getRequiredFields()) +
-            "] opt[" +
-            FieldFactory.serializeFieldsList(
+            MetaData.ENTRYTYPE_FLAG
+            + entryType.getType().getName()
+            + ": req["
+            + FieldFactory.serializeOrFieldsList(entryType.getRequiredFields())
+            + "] opt["
+            + FieldFactory.serializeFieldsList(
                 entryType
                     .getOptionalFields()
                     .stream()
                     .map(BibField::field)
                     .toList()
-            ) +
-            "]"
+            )
+            + "]"
         );
     }
 

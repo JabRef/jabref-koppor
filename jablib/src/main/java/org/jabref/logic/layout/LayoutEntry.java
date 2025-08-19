@@ -175,8 +175,8 @@ class LayoutEntry {
                 case LayoutHelper.IS_GROUP_END:
                     if (blockStart.equals(parsedEntry.s)) {
                         blockEntries.add(parsedEntry);
-                        int groupType = parsedEntry.i ==
-                            LayoutHelper.IS_GROUP_END
+                        int groupType = parsedEntry.i
+                            == LayoutHelper.IS_GROUP_END
                             ? LayoutHelper.IS_GROUP_START
                             : LayoutHelper.IS_FIELD_START;
                         LayoutEntry le = new LayoutEntry(
@@ -356,9 +356,9 @@ class LayoutEntry {
         }
 
         if (
-            (field.isPresent() == negated) ||
-            ((type == LayoutHelper.IS_GROUP_START) &&
-                field.get().equalsIgnoreCase(LayoutHelper.getCurrentGroup()))
+            (field.isPresent() == negated)
+            || ((type == LayoutHelper.IS_GROUP_START)
+                && field.get().equalsIgnoreCase(LayoutHelper.getCurrentGroup()))
         ) {
             return null;
         } else {
@@ -393,9 +393,9 @@ class LayoutEntry {
                         int eol = 0;
 
                         while (
-                            (eol < fieldText.length()) &&
-                            ((fieldText.charAt(eol) == '\n') ||
-                                (fieldText.charAt(eol) == '\r'))
+                            (eol < fieldText.length())
+                            && ((fieldText.charAt(eol) == '\n')
+                                || (fieldText.charAt(eol) == '\r'))
                         ) {
                             eol++;
                         }
@@ -620,9 +620,8 @@ class LayoutEntry {
             if (formatter != null) {
                 // If this formatter accepts an argument, check if we have one, and set it if so
                 if (
-                    (formatter instanceof
-                        ParamLayoutFormatter layoutFormatter) &&
-                    (strings.size() >= 2)
+                    (formatter instanceof ParamLayoutFormatter layoutFormatter)
+                    && (strings.size() >= 2)
                 ) {
                     layoutFormatter.setArgument(strings.get(1));
                 }
@@ -662,8 +661,8 @@ class LayoutEntry {
             if (Character.isJavaIdentifierStart(c[i])) {
                 i++;
                 while (
-                    (i < c.length) &&
-                    (Character.isJavaIdentifierPart(c[i]) || (c[i] == '.'))
+                    (i < c.length)
+                    && (Character.isJavaIdentifierPart(c[i]) || (c[i] == '.'))
                 ) {
                     i++;
                 }
@@ -685,11 +684,11 @@ class LayoutEntry {
                             i++;
                             boolean escaped = false;
                             while (
-                                ((i + 1) < c.length) &&
-                                !(!escaped &&
-                                    (c[i] == '"') &&
-                                    (c[i + 1] == ')') &&
-                                    (bracelevel == 0))
+                                ((i + 1) < c.length)
+                                && !(!escaped
+                                    && (c[i] == '"')
+                                    && (c[i + 1] == ')')
+                                    && (bracelevel == 0))
                             ) {
                                 if (c[i] == '\\') {
                                     escaped = !escaped;
@@ -712,8 +711,8 @@ class LayoutEntry {
                             int startParam = i;
 
                             while (
-                                (i < c.length) &&
-                                (!((c[i] == ')') && (bracelevel == 0)))
+                                (i < c.length)
+                                && (!((c[i] == ')') && (bracelevel == 0)))
                             ) {
                                 if (c[i] == '(') {
                                     bracelevel++;

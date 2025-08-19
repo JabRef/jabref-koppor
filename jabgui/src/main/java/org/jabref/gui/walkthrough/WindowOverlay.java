@@ -423,8 +423,8 @@ class WindowOverlay {
     ) {
         QuitButtonPosition position = component.quitButtonPosition();
         if (
-            position == QuitButtonPosition.AUTO &&
-            component instanceof PanelStep panelStep
+            position == QuitButtonPosition.AUTO
+            && component instanceof PanelStep panelStep
         ) {
             return switch (panelStep.position()) {
                 case LEFT, BOTTOM -> QuitButtonPosition.TOP_RIGHT;

@@ -120,9 +120,9 @@ public class FileNodeViewModel {
             return false;
         }
         return (
-            Objects.equals(children, other.children) &&
-            (fileCount == other.fileCount) &&
-            Objects.equals(path, other.path)
+            Objects.equals(children, other.children)
+            && (fileCount == other.fileCount)
+            && Objects.equals(path, other.path)
         );
     }
 }

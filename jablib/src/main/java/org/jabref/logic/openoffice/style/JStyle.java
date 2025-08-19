@@ -362,8 +362,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         } else {
             try {
                 return (
-                    Files.getLastModifiedTime(styleFile).toMillis() ==
-                    this.styleFileModificationTime
+                    Files.getLastModifiedTime(styleFile).toMillis()
+                    == this.styleFileModificationTime
                 );
             } catch (IOException e) {
                 return false;
@@ -474,8 +474,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
                 EntryType type = EntryTypeFactory.parse(typeName);
 
                 if (
-                    !isDefaultLayoutPresent &&
-                    JStyle.DEFAULT_MARK.equals(typeName)
+                    !isDefaultLayoutPresent
+                    && JStyle.DEFAULT_MARK.equals(typeName)
                 ) {
                     isDefaultLayoutPresent = true;
                     defaultBibLayout = layout;
@@ -499,8 +499,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
             String propertyName = line.substring(0, index).trim();
             String value = line.substring(index + 1);
             if (
-                (value.trim().length() > 1) &&
-                QUOTED.matcher(value.trim()).matches()
+                (value.trim().length() > 1)
+                && QUOTED.matcher(value.trim()).matches()
             ) {
                 value = value.trim().substring(1, value.trim().length() - 1);
             }
@@ -651,10 +651,10 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         }
         if (object instanceof JStyle otherStyle) {
             return (
-                Objects.equals(path, otherStyle.path) &&
-                Objects.equals(name, otherStyle.name) &&
-                Objects.equals(citProperties, otherStyle.citProperties) &&
-                Objects.equals(properties, otherStyle.properties)
+                Objects.equals(path, otherStyle.path)
+                && Objects.equals(name, otherStyle.name)
+                && Objects.equals(citProperties, otherStyle.citProperties)
+                && Objects.equals(properties, otherStyle.properties)
             );
         }
         return false;

@@ -23,11 +23,11 @@ public class PushToWinEdt extends AbstractPushToApplication {
     protected String[] getCommandLine(String keyString) {
         return new String[] {
             commandPath,
-            "\"[InsText('" +
-            getCitePrefix() +
-            keyString.replace("'", "''") +
-            getCiteSuffix() +
-            "');]\"",
+            "\"[InsText('"
+            + getCitePrefix()
+            + keyString.replace("'", "''")
+            + getCiteSuffix()
+            + "');]\"",
         };
     }
 

@@ -74,15 +74,15 @@ public class GroupTreeNodeViewModel {
 
     public boolean canAddEntries(List<BibEntry> entries) {
         return (
-            (getNode().getGroup() instanceof GroupEntryChanger) &&
-            !getNode().getGroup().containsAll(entries)
+            (getNode().getGroup() instanceof GroupEntryChanger)
+            && !getNode().getGroup().containsAll(entries)
         );
     }
 
     public boolean canRemoveEntries(List<BibEntry> entries) {
         return (
-            (getNode().getGroup() instanceof GroupEntryChanger) &&
-            getNode().getGroup().containsAny(entries)
+            (getNode().getGroup() instanceof GroupEntryChanger)
+            && getNode().getGroup().containsAny(entries)
         );
     }
 
@@ -125,30 +125,31 @@ public class GroupTreeNodeViewModel {
 
     public boolean canMoveUp() {
         return (
-            (getNode().getPreviousSibling().isPresent()) &&
-            !(getNode().getGroup() instanceof AllEntriesGroup)
+            (getNode().getPreviousSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
         );
     }
 
     public boolean canMoveDown() {
         return (
-            (getNode().getNextSibling().isPresent()) &&
-            !(getNode().getGroup() instanceof AllEntriesGroup)
+            (getNode().getNextSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
         );
     }
 
     public boolean canMoveLeft() {
         return (
-            !(getNode().getGroup() instanceof AllEntriesGroup) &&
+            !(getNode().getGroup() instanceof AllEntriesGroup)
             // TODO: Null!
-            !(getNode().getParent().get().getGroup() instanceof AllEntriesGroup)
+            && !(getNode().getParent().get().getGroup()
+                instanceof AllEntriesGroup)
         );
     }
 
     public boolean canMoveRight() {
         return (
-            (getNode().getPreviousSibling().isPresent()) &&
-            !(getNode().getGroup() instanceof AllEntriesGroup)
+            (getNode().getPreviousSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
         );
     }
 

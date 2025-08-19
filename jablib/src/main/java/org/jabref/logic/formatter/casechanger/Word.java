@@ -188,8 +188,9 @@ public final class Word {
     public void toUpperFirstTitle() {
         for (int i = 0; i < chars.length; i++) {
             if (!protectedChars[i]) {
-                chars[i] = i == 0 ||
-                    (DASHES.contains(chars[i - 1]) && isConjunction(chars, i))
+                chars[i] = i == 0
+                    || (DASHES.contains(chars[i - 1])
+                        && isConjunction(chars, i))
                     ? Character.toUpperCase(chars[i])
                     : Character.toLowerCase(chars[i]);
             }

@@ -19,8 +19,8 @@ public class AuxParserStatisticsProvider {
     public String getInformation(boolean includeMissingEntries) {
         String missingEntries = "";
         if (
-            includeMissingEntries &&
-            (this.auxParserResult.getUnresolvedKeysCount() > 0)
+            includeMissingEntries
+            && (this.auxParserResult.getUnresolvedKeysCount() > 0)
         ) {
             missingEntries = this.auxParserResult.getUnresolvedKeys()
                 .stream()

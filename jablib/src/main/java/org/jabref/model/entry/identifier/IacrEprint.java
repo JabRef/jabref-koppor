@@ -44,8 +44,8 @@ public class IacrEprint implements Identifier {
 
     private static boolean matchesExcepted(String identifier) {
         return identifier.matches(
-            "(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?" +
-            IACR_EPRINT_EXP
+            "(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?"
+            + IACR_EPRINT_EXP
         );
     }
 

@@ -210,8 +210,8 @@ public class MainTableColumnFactory {
                     cellData
                         .getTableView()
                         .getItems()
-                        .indexOf(cellData.getValue()) +
-                    1
+                        .indexOf(cellData.getValue())
+                    + 1
                 )
             )
         );
@@ -314,11 +314,9 @@ public class MainTableColumnFactory {
                 .map(AbstractGroup::getName)
                 .collect(Collectors.joining(", "));
             Tooltip tooltip = new Tooltip(
-                Localization.lang(
-                    "Entry is contained in the following groups:"
-                ) +
-                "\n" +
-                matchedGroupsString
+                Localization.lang("Entry is contained in the following groups:")
+                + "\n"
+                + matchedGroupsString
             );
             Tooltip.install(container, tooltip);
             return container;
@@ -360,11 +358,9 @@ public class MainTableColumnFactory {
                 .map(AbstractGroup::getName)
                 .collect(Collectors.joining(", "));
             Tooltip tooltip = new Tooltip(
-                Localization.lang(
-                    "Entry is contained in the following groups:"
-                ) +
-                "\n" +
-                matchedGroupsString
+                Localization.lang("Entry is contained in the following groups:")
+                + "\n"
+                + matchedGroupsString
             );
             Tooltip.install(container, tooltip);
             return container;

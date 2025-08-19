@@ -93,8 +93,8 @@ public class BibDatabaseWriter {
         this.keyPatternPreferences = keyPatternPreferences;
         this.fieldPreferences = fieldPreferences;
         this.entryTypesManager = entryTypesManager;
-        assert saveConfiguration.getSaveOrder().getOrderType() !=
-        SaveOrder.OrderType.TABLE;
+        assert saveConfiguration.getSaveOrder().getOrderType()
+        != SaveOrder.OrderType.TABLE;
     }
 
     public BibDatabaseWriter(
@@ -325,11 +325,11 @@ public class BibDatabaseWriter {
         //   - explicitly set in the .bib file OR not equal to UTF_8
         // Otherwise, we do not write anything and return
         if (
-            (encoding == null) ||
-            (!bibDatabaseContext
+            (encoding == null)
+            || (!bibDatabaseContext
                     .getMetaData()
-                    .getEncodingExplicitlySupplied() &&
-                (encoding.equals(StandardCharsets.UTF_8)))
+                    .getEncodingExplicitlySupplied()
+                && (encoding.equals(StandardCharsets.UTF_8)))
         ) {
             return;
         }
@@ -477,8 +477,8 @@ public class BibDatabaseWriter {
         throws IOException {
         // If the string has not been modified, write it back as it was
         if (
-            !saveConfiguration.shouldReformatFile() &&
-            !bibtexString.hasChanged()
+            !saveConfiguration.shouldReformatFile()
+            && !bibtexString.hasChanged()
         ) {
             LOGGER.debug(
                 "Writing parsed serialization {}.",
@@ -495,13 +495,13 @@ public class BibDatabaseWriter {
         }
 
         bibWriter.write(
-            STRING_PREFIX +
-            "{" +
-            bibtexString.getName() +
-            StringUtil.repeatSpaces(
+            STRING_PREFIX
+            + "{"
+            + bibtexString.getName()
+            + StringUtil.repeatSpaces(
                 maxKeyLength - bibtexString.getName().length()
-            ) +
-            " = "
+            )
+            + " = "
         );
         if (bibtexString.getContent().isEmpty()) {
             bibWriter.write("{}");

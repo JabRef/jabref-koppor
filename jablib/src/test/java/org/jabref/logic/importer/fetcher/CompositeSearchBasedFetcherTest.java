@@ -87,8 +87,8 @@ class CompositeSearchBasedFetcherTest {
     }
 
     @ParameterizedTest(
-        name = "Perform search on query \"quantum\". Using the CompositeFetcher of the following " +
-        "Fetchers: {arguments}"
+        name = "Perform search on query \"quantum\". Using the CompositeFetcher of the following "
+        + "Fetchers: {arguments}"
     )
     @MethodSource("performSearchParameters")
     void performSearchOnNonEmptyQuery(Set<SearchBasedFetcher> fetchers)

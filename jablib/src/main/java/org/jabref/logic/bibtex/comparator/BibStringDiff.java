@@ -116,8 +116,8 @@ public class BibStringDiff {
 
         BibStringDiff that = (BibStringDiff) other;
         return (
-            Objects.equals(newString, that.newString) &&
-            Objects.equals(originalString, that.originalString)
+            Objects.equals(newString, that.newString)
+            && Objects.equals(originalString, that.originalString)
         );
     }
 

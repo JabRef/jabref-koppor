@@ -182,8 +182,8 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
                                             entryEditor.setFocusToField(field);
                                         });
                                     } else if (
-                                        !message.bibEntry().hasField(field) &&
-                                        isUnsetField
+                                        !message.bibEntry().hasField(field)
+                                        && isUnsetField
                                     ) {
                                         libraryTab.showAndEdit(
                                             message.bibEntry()

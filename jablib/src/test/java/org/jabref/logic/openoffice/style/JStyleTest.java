@@ -259,16 +259,16 @@ class JStyleTest {
 
         // multiple unresolved citations are not collapsed
         assertEquals(
-            "[" +
-            JStyle.UNDEFINED_CITATION_MARKER +
-            "x1" +
-            "; " +
-            JStyle.UNDEFINED_CITATION_MARKER +
-            "x2" +
-            "; " +
-            JStyle.UNDEFINED_CITATION_MARKER +
-            "x3" +
-            "]",
+            "["
+            + JStyle.UNDEFINED_CITATION_MARKER
+            + "x1"
+            + "; "
+            + JStyle.UNDEFINED_CITATION_MARKER
+            + "x2"
+            + "; "
+            + JStyle.UNDEFINED_CITATION_MARKER
+            + "x3"
+            + "]",
             runGetNumCitationMarker2b(
                 style,
                 1,
@@ -994,11 +994,11 @@ class JStyleTest {
         BibEntry entry1 = new BibEntry()
             .withField(
                 StandardField.AUTHOR,
-                "Gustav Bostr\\\"{o}m" +
-                " and Jaana W\\\"{a}yrynen" +
-                " and Marine Bod\\'{e}n" +
-                " and Konstantin Beznosov" +
-                " and Philippe Kruchten"
+                "Gustav Bostr\\\"{o}m"
+                + " and Jaana W\\\"{a}yrynen"
+                + " and Marine Bod\\'{e}n"
+                + " and Konstantin Beznosov"
+                + " and Philippe Kruchten"
             )
             .withField(StandardField.YEAR, "2006")
             .withField(StandardField.BOOKTITLE, "A book 1")
@@ -1010,11 +1010,11 @@ class JStyleTest {
         BibEntry entry2 = new BibEntry()
             .withField(
                 StandardField.AUTHOR,
-                "Gustav Bostr\\\"{o}m" +
-                " and Jaana W\\\"{a}yrynen" +
-                " and Marine Bod\\'{e}n" +
-                " and Konstantin Beznosov" +
-                " and Philippe Kruchten"
+                "Gustav Bostr\\\"{o}m"
+                + " and Jaana W\\\"{a}yrynen"
+                + " and Marine Bod\\'{e}n"
+                + " and Konstantin Beznosov"
+                + " and Philippe Kruchten"
             )
             .withField(StandardField.YEAR, "2006")
             .withField(StandardField.BOOKTITLE, "A book 2")
@@ -1027,11 +1027,11 @@ class JStyleTest {
         BibEntry entry3 = new BibEntry()
             .withField(
                 StandardField.AUTHOR,
-                "Gustav Bostr\\\"{o}m" +
-                " and Jaana W\\\"{a}yrynen" +
-                " and Marine Bod\\'{e}n" +
-                " and Konstantin Beznosov" +
-                " and Philippe NotKruchten"
+                "Gustav Bostr\\\"{o}m"
+                + " and Jaana W\\\"{a}yrynen"
+                + " and Marine Bod\\'{e}n"
+                + " and Konstantin Beznosov"
+                + " and Philippe NotKruchten"
             )
             .withField(StandardField.YEAR, "2006")
             .withField(StandardField.BOOKTITLE, "A book 3")
@@ -1075,8 +1075,8 @@ class JStyleTest {
             citationMarkerEntries.add(cm3);
 
             assertEquals(
-                "[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b" +
-                "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten, 2006c]",
+                "[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b"
+                + "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten, 2006c]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,
@@ -1087,8 +1087,8 @@ class JStyleTest {
             );
 
             assertEquals(
-                "Boström, Wäyrynen, Bodén, Beznosov & Kruchten [2006a,b]" +
-                "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten [2006c]",
+                "Boström, Wäyrynen, Bodén, Beznosov & Kruchten [2006a,b]"
+                + "; Boström, Wäyrynen, Bodén, Beznosov & NotKruchten [2006c]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,
@@ -1130,8 +1130,8 @@ class JStyleTest {
             citationMarkerEntries.add(cm3);
 
             assertEquals(
-                "[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b" +
-                "; Boström et al., 2006c]",
+                "[Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006a,b"
+                + "; Boström et al., 2006c]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,
@@ -1173,9 +1173,9 @@ class JStyleTest {
             citationMarkerEntries.add(cm3);
 
             assertEquals(
-                "[Boström et al., 2006a" +
-                "; Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006b" +
-                "; Boström et al., 2006c]",
+                "[Boström et al., 2006a"
+                + "; Boström, Wäyrynen, Bodén, Beznosov & Kruchten, 2006b"
+                + "; Boström et al., 2006c]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,
@@ -1259,9 +1259,9 @@ class JStyleTest {
             citationMarkerEntries.add(cm3);
 
             assertEquals(
-                "[Boström et al., 2006a; p1" +
-                "; Boström et al., 2006b; p1" +
-                "; Boström et al., 2006c; p1]",
+                "[Boström et al., 2006a; p1"
+                + "; Boström et al., 2006b; p1"
+                + "; Boström et al., 2006c; p1]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,
@@ -1351,9 +1351,9 @@ class JStyleTest {
             citationMarkerEntries.add(cm4);
 
             assertEquals(
-                "[Boström et al., 2006a; p1" +
-                "; Boström et al., 2006a; p2" +
-                "; Boström et al., 2006a]",
+                "[Boström et al., 2006a; p1"
+                + "; Boström et al., 2006a; p2"
+                + "; Boström et al., 2006a]",
                 style
                     .createCitationMarker(
                         citationMarkerEntries,

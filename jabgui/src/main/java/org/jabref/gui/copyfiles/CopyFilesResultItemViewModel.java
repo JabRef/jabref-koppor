@@ -43,11 +43,11 @@ public class CopyFilesResultItemViewModel {
     @Override
     public String toString() {
         return (
-            "CopyFilesResultItemViewModel [file=" +
-            file.get() +
-            ", message=" +
-            message.get() +
-            "]"
+            "CopyFilesResultItemViewModel [file="
+            + file.get()
+            + ", message="
+            + message.get()
+            + "]"
         );
     }
 }

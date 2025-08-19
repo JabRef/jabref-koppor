@@ -211,9 +211,9 @@ public class ViewModelTableRowFactory<S>
             // Activate context menu if user presses the "context menu" key
             tableView.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
                 boolean rowFocused =
-                    !row.isEmpty() &&
-                    tableView.getFocusModel().getFocusedIndex() ==
-                    row.getIndex();
+                    !row.isEmpty()
+                    && tableView.getFocusModel().getFocusedIndex()
+                    == row.getIndex();
                 if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
                     // Get center of focused cell
                     Bounds anchorBounds = row.getBoundsInParent();

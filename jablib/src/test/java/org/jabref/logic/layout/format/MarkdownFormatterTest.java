@@ -76,9 +76,9 @@ class MarkdownFormatterTest {
                    ```
                    Some more text.
                 """,
-                "<p>Some text.</p> <pre><code class=\"language-javascript\">let test = &quot;Hello World&quot;; " +
-                "</code></pre> <pre><code class=\"language-java\">String test = &quot;Hello World&quot;; " +
-                "</code></pre> <p>Some more text.</p>"
+                "<p>Some text.</p> <pre><code class=\"language-javascript\">let test = &quot;Hello World&quot;; "
+                + "</code></pre> <pre><code class=\"language-java\">String test = &quot;Hello World&quot;; "
+                + "</code></pre> <p>Some more text.</p>"
             ),
             Arguments.of(
                 """

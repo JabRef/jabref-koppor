@@ -27,15 +27,15 @@ class OOProcessCitationKeyMarkers {
 
         for (CitationGroup group : citationGroups.getCitationGroupsInGlobalOrder()) {
             String citMarker =
-                style.getCitationGroupMarkupBefore() +
-                String.join(
+                style.getCitationGroupMarkupBefore()
+                + String.join(
                     ",",
                     OOListUtil.map(
                         group.getCitationsInLocalOrder(),
                         Citation::getCitationKey
                     )
-                ) +
-                style.getCitationGroupMarkupAfter();
+                )
+                + style.getCitationGroupMarkupAfter();
             group.setCitationMarker(Optional.of(OOText.fromString(citMarker)));
         }
     }

@@ -142,8 +142,8 @@ public class LinkedEntriesEditor extends HBox implements FieldEditorFX {
         tagLabel.setContentDisplay(ContentDisplay.RIGHT);
         tagLabel.setOnMouseClicked(event -> {
             if (
-                (event.getClickCount() == 2 || event.isControlDown()) &&
-                event.getButton() == MouseButton.PRIMARY
+                (event.getClickCount() == 2 || event.isControlDown())
+                && event.getButton() == MouseButton.PRIMARY
             ) {
                 viewModel.jumpToEntry(entryLink);
             }

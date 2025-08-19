@@ -110,12 +110,12 @@ public class AbbreviationViewModel {
         }
         AbbreviationViewModel that = (AbbreviationViewModel) o;
         return (
-            getName().equals(that.getName()) &&
-            getAbbreviation().equals(that.getAbbreviation()) &&
-            getShortestUniqueAbbreviation().equals(
+            getName().equals(that.getName())
+            && getAbbreviation().equals(that.getAbbreviation())
+            && getShortestUniqueAbbreviation().equals(
                 that.getShortestUniqueAbbreviation()
-            ) &&
-            (isPseudoAbbreviation() == that.isPseudoAbbreviation())
+            )
+            && (isPseudoAbbreviation() == that.isPseudoAbbreviation())
         );
     }
 
@@ -134,9 +134,9 @@ public class AbbreviationViewModel {
         return (
             this.abbreviation.get()
                 .toLowerCase(Locale.ROOT)
-                .contains(searchTerm) ||
-            this.name.get().toLowerCase(Locale.ROOT).contains(searchTerm) ||
-            this.shortestUniqueAbbreviation.get()
+                .contains(searchTerm)
+            || this.name.get().toLowerCase(Locale.ROOT).contains(searchTerm)
+            || this.shortestUniqueAbbreviation.get()
                 .toLowerCase(Locale.ROOT)
                 .contains(searchTerm)
         );

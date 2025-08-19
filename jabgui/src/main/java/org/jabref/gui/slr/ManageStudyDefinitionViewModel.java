@@ -185,8 +185,8 @@ public class ManageStudyDefinitionViewModel {
 
     public void addResearchQuestion(String researchQuestion) {
         if (
-            researchQuestion.isBlank() ||
-            researchQuestions.contains(researchQuestion)
+            researchQuestion.isBlank()
+            || researchQuestions.contains(researchQuestion)
         ) {
             return;
         }
@@ -250,9 +250,9 @@ public class ManageStudyDefinitionViewModel {
                 e
             );
             dialogService.notify(
-                Localization.lang("Please enter a valid file path.") +
-                ": " +
-                studyDirectoryAsString
+                Localization.lang("Please enter a valid file path.")
+                + ": "
+                + studyDirectoryAsString
             );
             // We do not assume another path - we return that there is an invalid object.
             return null;
@@ -270,9 +270,9 @@ public class ManageStudyDefinitionViewModel {
                 e
             );
             dialogService.notify(
-                Localization.lang("Please enter a valid file path.") +
-                ": " +
-                studyDirectory
+                Localization.lang("Please enter a valid file path.")
+                + ": "
+                + studyDirectory
             );
             // We continue nevertheless as the directory itself could be valid
         }

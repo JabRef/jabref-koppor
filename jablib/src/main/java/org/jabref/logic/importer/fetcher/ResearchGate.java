@@ -147,8 +147,8 @@ public class ResearchGate
                 .get();
 
             link =
-                HOST +
-                Objects.requireNonNull(html.getElementById("content"))
+                HOST
+                + Objects.requireNonNull(html.getElementById("content"))
                     .select("a[href^=publication/]")
                     .attr("href");
             if (link.contains("?")) {

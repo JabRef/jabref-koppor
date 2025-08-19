@@ -47,9 +47,9 @@ public class OOPreFormatter implements LayoutFormatter {
             } else if (!incommand && ((c == '{') || (c == '}'))) {
                 // Swallow braces, necessary for replacing encoded characters
             } else if (
-                Character.isLetter(c) ||
-                (c == '%') ||
-                StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))
+                Character.isLetter(c)
+                || (c == '%')
+                || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))
             ) {
                 escaped = false;
 
@@ -58,8 +58,8 @@ public class OOPreFormatter implements LayoutFormatter {
                 } else {
                     currentCommand.append(c);
                     testCharCom: if (
-                        (currentCommand.length() == 1) &&
-                        StringUtil.SPECIAL_COMMAND_CHARS.contains(
+                        (currentCommand.length() == 1)
+                        && StringUtil.SPECIAL_COMMAND_CHARS.contains(
                             currentCommand.toString()
                         )
                     ) {

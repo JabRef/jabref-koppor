@@ -24,9 +24,9 @@ public class OOFormat {
      */
     public static OOText setLocale(OOText ootext, String locale) {
         return OOText.fromString(
-            "<span lang=\"%s\">".formatted(locale) +
-            ootext.toString() +
-            "</span>"
+            "<span lang=\"%s\">".formatted(locale)
+            + ootext.toString()
+            + "</span>"
         );
     }
 
@@ -46,9 +46,9 @@ public class OOFormat {
      */
     public static OOText setCharStyle(OOText ootext, String charStyle) {
         return OOText.fromString(
-            "<span oo:CharStyleName=\"%s\">".formatted(charStyle) +
-            ootext.toString() +
-            "</span>"
+            "<span oo:CharStyleName=\"%s\">".formatted(charStyle)
+            + ootext.toString()
+            + "</span>"
         );
     }
 

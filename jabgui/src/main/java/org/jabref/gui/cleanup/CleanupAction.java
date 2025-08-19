@@ -86,8 +86,10 @@ public class CleanupAction extends SimpleCommand {
 
         chosenPreset.ifPresent(preset -> {
             if (
-                preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF) &&
-                preferences.getAutoLinkPreferences().shouldAskAutoNamingPdfs()
+                preset.isActive(CleanupPreferences.CleanupStep.RENAME_PDF)
+                && preferences
+                    .getAutoLinkPreferences()
+                    .shouldAskAutoNamingPdfs()
             ) {
                 boolean confirmed =
                     dialogService.showConfirmationDialogWithOptOutAndWait(

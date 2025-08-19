@@ -39,8 +39,9 @@ public interface FieldEditorFX {
         textInputControl.addEventFilter(KeyEvent.ANY, e -> {
             // Fix based on https://stackoverflow.com/a/37575818/873282
             if (
-                e.getEventType() == KeyEvent.KEY_PRESSED && // if not checked, it will be fired twice: once for key pressed and once for key released
-                e.isShortcutDown()
+                e.getEventType() == KeyEvent.KEY_PRESSED
+                // if not checked, it will be fired twice: once for key pressed and once for key released
+                && e.isShortcutDown()
             ) {
                 if (keyBindingRepository.matches(e, KeyBinding.UNDO)) {
                     undoAction.execute();
@@ -127,8 +128,8 @@ public interface FieldEditorFX {
             logger.trace("Last Delta source: {}", lastDelta.getSource());
             logger.trace("Last Delta target: {}", lastDelta.getTarget());
             int offset =
-                lastDelta.getTarget().getPosition() -
-                lastDelta.getSource().getPosition();
+                lastDelta.getTarget().getPosition()
+                - lastDelta.getSource().getPosition();
             logger.trace("Offset before patching: {}", offset);
 
             switch (lastDelta.getType()) {
@@ -140,8 +141,8 @@ public interface FieldEditorFX {
                     break;
                 case CHANGE:
                     offset +=
-                        lastDelta.getTarget().size() -
-                        lastDelta.getSource().size();
+                        lastDelta.getTarget().size()
+                        - lastDelta.getSource().size();
                     break;
                 default:
                     break;

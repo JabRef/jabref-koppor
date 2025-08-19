@@ -90,9 +90,9 @@ public enum Langid {
 
     public String getJabRefFormat() {
         return (
-            FieldWriter.BIBTEX_STRING_START_END_SYMBOL +
-            "%s" +
             FieldWriter.BIBTEX_STRING_START_END_SYMBOL
+            + "%s"
+            + FieldWriter.BIBTEX_STRING_START_END_SYMBOL
         ).formatted(langid);
     }
 }

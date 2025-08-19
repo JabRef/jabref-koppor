@@ -66,10 +66,10 @@ class AuxParserTest {
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
             assertEquals(
-                auxResult.getFoundKeysInAux() +
-                auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() +
-                auxResult.getUnresolvedKeysCount()
+                auxResult.getFoundKeysInAux()
+                + auxResult.getCrossRefEntriesCount(),
+                auxResult.getResolvedKeysCount()
+                + auxResult.getUnresolvedKeysCount()
             );
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
@@ -104,10 +104,10 @@ class AuxParserTest {
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
             assertEquals(
-                auxResult.getFoundKeysInAux() +
-                auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() +
-                auxResult.getUnresolvedKeysCount()
+                auxResult.getFoundKeysInAux()
+                + auxResult.getCrossRefEntriesCount(),
+                auxResult.getResolvedKeysCount()
+                + auxResult.getUnresolvedKeysCount()
             );
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
@@ -138,10 +138,10 @@ class AuxParserTest {
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(3, auxResult.getFoundKeysInAux());
             assertEquals(
-                auxResult.getFoundKeysInAux() +
-                auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() +
-                auxResult.getUnresolvedKeysCount()
+                auxResult.getFoundKeysInAux()
+                + auxResult.getCrossRefEntriesCount(),
+                auxResult.getResolvedKeysCount()
+                + auxResult.getUnresolvedKeysCount()
             );
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
@@ -200,10 +200,10 @@ class AuxParserTest {
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
             assertEquals(
-                auxResult.getFoundKeysInAux() +
-                auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() +
-                auxResult.getUnresolvedKeysCount()
+                auxResult.getFoundKeysInAux()
+                + auxResult.getCrossRefEntriesCount(),
+                auxResult.getResolvedKeysCount()
+                + auxResult.getUnresolvedKeysCount()
             );
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
@@ -234,10 +234,10 @@ class AuxParserTest {
             assertEquals(3, auxResult.getResolvedKeysCount());
             assertEquals(4, auxResult.getFoundKeysInAux());
             assertEquals(
-                auxResult.getFoundKeysInAux() +
-                auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() +
-                auxResult.getUnresolvedKeysCount()
+                auxResult.getFoundKeysInAux()
+                + auxResult.getCrossRefEntriesCount(),
+                auxResult.getResolvedKeysCount()
+                + auxResult.getUnresolvedKeysCount()
             );
             assertEquals(1, auxResult.getCrossRefEntriesCount());
         }
@@ -256,8 +256,8 @@ class AuxParserTest {
         assertEquals(0, auxResult.getFoundKeysInAux());
         assertEquals(
             auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-            auxResult.getResolvedKeysCount() +
-            auxResult.getUnresolvedKeysCount()
+            auxResult.getResolvedKeysCount()
+            + auxResult.getUnresolvedKeysCount()
         );
         assertEquals(0, auxResult.getCrossRefEntriesCount());
     }

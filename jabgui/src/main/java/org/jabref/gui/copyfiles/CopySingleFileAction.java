@@ -40,8 +40,8 @@ public class CopySingleFileAction extends SimpleCommand {
         this.executable.bind(
             Bindings.createBooleanBinding(
                 () ->
-                    !linkedFile.isOnlineLink() &&
-                    linkedFile
+                    !linkedFile.isOnlineLink()
+                    && linkedFile
                         .findIn(databaseContext, this.filePreferences)
                         .isPresent(),
                 linkedFile.linkProperty()
@@ -75,8 +75,8 @@ public class CopySingleFileAction extends SimpleCommand {
         if (newPath.isPresent()) {
             Path newFile = newPath.get();
             boolean success =
-                fileToExport.isPresent() &&
-                FileUtil.copyFile(fileToExport.get(), newFile, false);
+                fileToExport.isPresent()
+                && FileUtil.copyFile(fileToExport.get(), newFile, false);
             if (success) {
                 dialogService.showInformationDialogAndWait(
                     Localization.lang("Copy linked file"),

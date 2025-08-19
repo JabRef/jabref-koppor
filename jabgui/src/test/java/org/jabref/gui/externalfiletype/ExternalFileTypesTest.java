@@ -28,25 +28,25 @@ class ExternalFileTypesTest {
     );
 
     private static final String TEST_STRINGLIST =
-        "PostScript:REMOVED;" +
-        "Word:REMOVED;" +
-        "Word 2007+:REMOVED;" +
-        "OpenDocument text:REMOVED;" +
-        "Excel:REMOVED;" +
-        "Excel 2007+:REMOVED;" +
-        "OpenDocument spreadsheet:REMOVED;" +
-        "PowerPoint:REMOVED;" +
-        "PowerPoint 2007+:REMOVED;" +
-        "OpenDocument presentation:REMOVED;" +
-        "Rich Text Format:REMOVED;" +
-        "PNG image:REMOVED;" +
-        "GIF image:REMOVED;" +
-        "Djvu:REMOVED;" +
-        "LaTeX:REMOVED;" +
-        "CHM:REMOVED;" +
-        "TIFF image:REMOVED;" +
-        "MHT:REMOVED;" +
-        "ePUB:REMOVED";
+        "PostScript:REMOVED;"
+        + "Word:REMOVED;"
+        + "Word 2007+:REMOVED;"
+        + "OpenDocument text:REMOVED;"
+        + "Excel:REMOVED;"
+        + "Excel 2007+:REMOVED;"
+        + "OpenDocument spreadsheet:REMOVED;"
+        + "PowerPoint:REMOVED;"
+        + "PowerPoint 2007+:REMOVED;"
+        + "OpenDocument presentation:REMOVED;"
+        + "Rich Text Format:REMOVED;"
+        + "PNG image:REMOVED;"
+        + "GIF image:REMOVED;"
+        + "Djvu:REMOVED;"
+        + "LaTeX:REMOVED;"
+        + "CHM:REMOVED;"
+        + "TIFF image:REMOVED;"
+        + "MHT:REMOVED;"
+        + "ePUB:REMOVED";
 
     private final ExternalApplicationsPreferences externalApplicationsPreferences =
         mock(ExternalApplicationsPreferences.class);

@@ -66,8 +66,8 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
         );
         canAskUserToResolveChange = Bindings.createBooleanBinding(
             () ->
-                selectedChange.isNotNull().get() &&
-                selectedChange.get().getExternalChangeResolver().isPresent(),
+                selectedChange.isNotNull().get()
+                && selectedChange.get().getExternalChangeResolver().isPresent(),
             selectedChange
         );
     }

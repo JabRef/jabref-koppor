@@ -89,15 +89,15 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
         );
 
         if (
-            keyPatternPreferences.getKeySuffix() ==
-            CitationKeyPatternPreferences.KeySuffix.ALWAYS
+            keyPatternPreferences.getKeySuffix()
+            == CitationKeyPatternPreferences.KeySuffix.ALWAYS
         ) {
             letterAlwaysAddProperty.setValue(true);
             letterStartAProperty.setValue(false);
             letterStartBProperty.setValue(false);
         } else if (
-            keyPatternPreferences.getKeySuffix() ==
-            CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A
+            keyPatternPreferences.getKeySuffix()
+            == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A
         ) {
             letterAlwaysAddProperty.setValue(false);
             letterStartAProperty.setValue(true);

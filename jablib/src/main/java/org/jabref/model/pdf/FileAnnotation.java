@@ -150,8 +150,8 @@ public class FileAnnotation {
                 annotationName.subSequence(
                     0,
                     ABBREVIATED_ANNOTATION_NAME_LENGTH
-                ) +
-                "..."
+                )
+                + "..."
             );
         }
         return annotationName;
@@ -173,15 +173,15 @@ public class FileAnnotation {
 
         FileAnnotation that = (FileAnnotation) other;
         return (
-            Objects.equals(this.annotationType, that.annotationType) &&
-            Objects.equals(this.author, that.author) &&
-            Objects.equals(this.content, that.content) &&
-            Objects.equals(this.page, that.page) &&
-            Objects.equals(
+            Objects.equals(this.annotationType, that.annotationType)
+            && Objects.equals(this.author, that.author)
+            && Objects.equals(this.content, that.content)
+            && Objects.equals(this.page, that.page)
+            && Objects.equals(
                 this.linkedFileAnnotation,
                 that.linkedFileAnnotation
-            ) &&
-            Objects.equals(this.timeModified, that.timeModified)
+            )
+            && Objects.equals(this.timeModified, that.timeModified)
         );
     }
 

@@ -212,9 +212,9 @@ public class GroupDialogViewModel {
 
                     // Edit group, changed name to something that is already present
                     return (
-                        (editedGroup == null) ||
-                        editedGroup.getName().equals(name) ||
-                        !groupsExistWithSameName
+                        (editedGroup == null)
+                        || editedGroup.getName().equals(name)
+                        || !groupsExistWithSameName
                     );
                 }
                 return true;
@@ -296,8 +296,8 @@ public class GroupDialogViewModel {
                 } else {
                     Path inputPath = getAbsoluteTexGroupPath(input);
                     if (
-                        !inputPath.isAbsolute() ||
-                        !Files.isRegularFile(inputPath)
+                        !inputPath.isAbsolute()
+                        || !Files.isRegularFile(inputPath)
                     ) {
                         return false;
                     }

@@ -57,9 +57,9 @@ public class FilteredListProxy {
                 initReflection();
             }
             if (
-                sourceFrom < 0 ||
-                sourceTo > filteredList.getSource().size() ||
-                sourceFrom > sourceTo
+                sourceFrom < 0
+                || sourceTo > filteredList.getSource().size()
+                || sourceFrom > sourceTo
             ) {
                 throw new IndexOutOfBoundsException();
             }

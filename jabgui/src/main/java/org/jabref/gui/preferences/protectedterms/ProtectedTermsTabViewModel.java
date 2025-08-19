@@ -146,8 +146,8 @@ public class ProtectedTermsTabViewModel implements PreferenceTabViewModel {
     public void removeList(ProtectedTermsListItemModel itemModel) {
         ProtectedTermsList list = itemModel.getTermsList();
         if (
-            !list.isInternalList() &&
-            dialogService.showConfirmationDialogAndWait(
+            !list.isInternalList()
+            && dialogService.showConfirmationDialogAndWait(
                 Localization.lang("Remove protected terms file"),
                 Localization.lang(
                     "Are you sure you want to remove the protected terms file?"

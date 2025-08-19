@@ -97,8 +97,8 @@ public class MedlineImporter extends Importer implements Parser {
         int i = 0;
         while (((str = reader.readLine()) != null) && (i < 50)) {
             if (
-                str.toLowerCase(ENGLISH).contains("<pubmedarticle>") ||
-                str.toLowerCase(ENGLISH).contains("<pubmedbookarticle>")
+                str.toLowerCase(ENGLISH).contains("<pubmedarticle>")
+                || str.toLowerCase(ENGLISH).contains("<pubmedbookarticle>")
             ) {
                 return true;
             }
@@ -177,8 +177,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -251,8 +251,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -384,8 +384,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -440,8 +440,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "Section".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "Section".equals(reader.getName().getLocalPart())
             ) {
                 if (sectionLevel == 0) {
                     break;
@@ -478,8 +478,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -526,8 +526,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -585,8 +585,8 @@ public class MedlineImporter extends Importer implements Parser {
                         if (versionStr != null) {
                             int version = Integer.parseInt(versionStr);
                             if (
-                                isCharacterXMLEvent(reader) &&
-                                version > latestVersion
+                                isCharacterXMLEvent(reader)
+                                && version > latestVersion
                             ) {
                                 latestVersion = version;
                                 fields.put(
@@ -677,8 +677,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -741,8 +741,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -782,8 +782,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -823,8 +823,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -853,8 +853,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -888,8 +888,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -955,8 +955,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1013,8 +1013,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "Article".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "Article".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -1080,8 +1080,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "Journal".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "Journal".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -1138,8 +1138,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1184,8 +1184,8 @@ public class MedlineImporter extends Importer implements Parser {
             .ifPresent(id -> fields.put(StandardField.URL, id.content()));
 
         if (
-            !fields.containsKey(StandardField.URL) &&
-            fields.containsKey(StandardField.PMID)
+            !fields.containsKey(StandardField.URL)
+            && fields.containsKey(StandardField.PMID)
         ) {
             String pmid = fields.get(StandardField.PMID);
             fields.put(
@@ -1265,9 +1265,9 @@ public class MedlineImporter extends Importer implements Parser {
                 // if it exists, combine the MeshHeading with the keywords
                 String result = String.join("; ", keywordList);
                 result =
-                    fields.get(StandardField.KEYWORDS) +
-                    KEYWORD_SEPARATOR +
-                    result;
+                    fields.get(StandardField.KEYWORDS)
+                    + KEYWORD_SEPARATOR
+                    + result;
                 fields.put(StandardField.KEYWORDS, result);
             }
         }
@@ -1397,8 +1397,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1436,8 +1436,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1510,8 +1510,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1570,8 +1570,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1600,8 +1600,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                reader.getName().getLocalPart().equals(startElement)
+                isEndXMLEvent(reader)
+                && reader.getName().getLocalPart().equals(startElement)
             ) {
                 break;
             }
@@ -1633,8 +1633,8 @@ public class MedlineImporter extends Importer implements Parser {
             }
 
             if (
-                isEndXMLEvent(reader) &&
-                "Author".equals(reader.getName().getLocalPart())
+                isEndXMLEvent(reader)
+                && "Author".equals(reader.getName().getLocalPart())
             ) {
                 break;
             }
@@ -1702,8 +1702,8 @@ public class MedlineImporter extends Importer implements Parser {
         int lengthOfStartPage = startPage.length();
         if (lengthOfEndPage < lengthOfStartPage) {
             endPage =
-                startPage.substring(0, lengthOfStartPage - lengthOfEndPage) +
-                endPage;
+                startPage.substring(0, lengthOfStartPage - lengthOfEndPage)
+                + endPage;
         }
         return startPage + "--" + endPage;
     }

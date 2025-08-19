@@ -130,16 +130,16 @@ public class ProxyPreferences {
 
         ProxyPreferences other = (ProxyPreferences) o;
         return (
-            Objects.equals(useProxy.getValue(), other.useProxy.getValue()) &&
-            Objects.equals(hostname.getValue(), other.hostname.getValue()) &&
-            Objects.equals(port.getValue(), other.port.getValue()) &&
-            Objects.equals(
+            Objects.equals(useProxy.getValue(), other.useProxy.getValue())
+            && Objects.equals(hostname.getValue(), other.hostname.getValue())
+            && Objects.equals(port.getValue(), other.port.getValue())
+            && Objects.equals(
                 useAuthentication.getValue(),
                 other.useAuthentication.getValue()
-            ) &&
-            Objects.equals(username.getValue(), other.username.getValue()) &&
-            Objects.equals(password.getValue(), other.password.getValue()) &&
-            Objects.equals(
+            )
+            && Objects.equals(username.getValue(), other.username.getValue())
+            && Objects.equals(password.getValue(), other.password.getValue())
+            && Objects.equals(
                 persistPassword.getValue(),
                 other.persistPassword.getValue()
             )

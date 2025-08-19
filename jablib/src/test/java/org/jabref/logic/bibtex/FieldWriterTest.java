@@ -76,9 +76,9 @@ class FieldWriterTest {
     void noNormalizationOfNewlinesInAbstractField()
         throws InvalidFieldValueException {
         String text =
-            "lorem" +
-            OS.NEWLINE +
-            " ipsum lorem ipsum\nlorem ipsum \rlorem ipsum\r\ntest";
+            "lorem"
+            + OS.NEWLINE
+            + " ipsum lorem ipsum\nlorem ipsum \rlorem ipsum\r\ntest";
         String result = writer.write(StandardField.ABSTRACT, text);
         // The normalization is done at org.jabref.logic.exporter.BibWriter, so no need to normalize here
         String expected = "{" + text + "}";
@@ -100,10 +100,10 @@ class FieldWriterTest {
     void preserveMultipleNewlinesInAbstractField()
         throws InvalidFieldValueException {
         String text =
-            "lorem ipsum lorem ipsum" +
-            OS.NEWLINE +
-            OS.NEWLINE +
-            "lorem ipsum lorem ipsum";
+            "lorem ipsum lorem ipsum"
+            + OS.NEWLINE
+            + OS.NEWLINE
+            + "lorem ipsum lorem ipsum";
 
         String result = writer.write(StandardField.ABSTRACT, text);
         String expected = "{" + text + "}";

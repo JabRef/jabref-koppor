@@ -87,58 +87,58 @@ public class BibliographyConsistencyCheckResultTxtWriter
 
             writer.write("\n");
             writer.write(
-                ("| %-" +
-                    widthSymbol +
-                    "s | %-" +
-                    widthMeaning +
-                    "s |\n").formatted(
+                ("| %-"
+                    + widthSymbol
+                    + "s | %-"
+                    + widthMeaning
+                    + "s |\n").formatted(
                     Localization.lang("Symbol"),
                     Localization.lang("Meaning")
                 )
             );
             writer.write(
-                ("| " +
-                    "-".repeat(widthSymbol) +
-                    " | " +
-                    "-".repeat(widthMeaning) +
-                    " |\n").formatted("--", "--")
+                ("| "
+                    + "-".repeat(widthSymbol)
+                    + " | "
+                    + "-".repeat(widthMeaning)
+                    + " |\n").formatted("--", "--")
             );
             writer.write(
-                ("| %-" +
-                    widthSymbol +
-                    "s | %-" +
-                    widthMeaning +
-                    "s |\n").formatted(
+                ("| %-"
+                    + widthSymbol
+                    + "s | %-"
+                    + widthMeaning
+                    + "s |\n").formatted(
                     REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                     Localization.lang("required field is present")
                 )
             );
             writer.write(
-                ("| %-" +
-                    widthSymbol +
-                    "s | %-" +
-                    widthMeaning +
-                    "s |\n").formatted(
+                ("| %-"
+                    + widthSymbol
+                    + "s | %-"
+                    + widthMeaning
+                    + "s |\n").formatted(
                     OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                     Localization.lang("optional field is present")
                 )
             );
             writer.write(
-                ("| %-" +
-                    widthSymbol +
-                    "s | %-" +
-                    widthMeaning +
-                    "s |\n").formatted(
+                ("| %-"
+                    + widthSymbol
+                    + "s | %-"
+                    + widthMeaning
+                    + "s |\n").formatted(
                     UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                     Localization.lang("unknown field is present")
                 )
             );
             writer.write(
-                ("| %-" +
-                    widthSymbol +
-                    "s | %-" +
-                    widthMeaning +
-                    "s |\n").formatted(
+                ("| %-"
+                    + widthSymbol
+                    + "s | %-"
+                    + widthMeaning
+                    + "s |\n").formatted(
                     UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY,
                     Localization.lang("field is absent")
                 )

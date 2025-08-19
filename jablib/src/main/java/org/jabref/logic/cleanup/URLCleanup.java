@@ -23,10 +23,10 @@ public class URLCleanup implements CleanupJob {
      * features (mainly doubled backslashes).
      */
     private static final String URL_REGEX =
-        "(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.]" +
-        "[a-z]{2,4}/)(?:[^\\s()<>\\\\]+|\\(([^\\s()<>\\\\]+|(\\([^\\s()" +
-        "<>\\\\]+\\)))*\\))+(?:\\(([^\\s()<>\\\\]+|(\\([^\\s()<>\\\\]+\\" +
-        ")))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
+        "(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.]"
+        + "[a-z]{2,4}/)(?:[^\\s()<>\\\\]+|\\(([^\\s()<>\\\\]+|(\\([^\\s()"
+        + "<>\\\\]+\\)))*\\))+(?:\\(([^\\s()<>\\\\]+|(\\([^\\s()<>\\\\]+\\"
+        + ")))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
     public static final Pattern URL_PATTERN = Pattern.compile(
         URL_REGEX,
         Pattern.CASE_INSENSITIVE

@@ -170,8 +170,8 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
                         (Comparators.isInOrder(
                                 keywordTagsField.getTags(),
                                 Comparator.comparing(Keyword::get)
-                            )) ||
-                        isSortedTagsField
+                            ))
+                        || isSortedTagsField
                     ) {
                         isSortedTagsField = true;
                         keywordTagsField
@@ -265,8 +265,8 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
         });
         tagLabel.setOnDragOver(event -> {
             if (
-                event.getGestureSource() != tagLabel &&
-                event.getDragboard().hasString()
+                event.getGestureSource() != tagLabel
+                && event.getDragboard().hasString()
             ) {
                 event.acceptTransferModes(TransferMode.MOVE);
             }

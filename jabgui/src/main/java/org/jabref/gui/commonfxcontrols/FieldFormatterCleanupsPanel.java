@@ -127,8 +127,8 @@ public class FieldFormatterCleanupsPanel extends VBox {
         addableFields.setConverter(FieldsUtil.FIELD_STRING_CONVERTER);
         addableFields.setOnKeyPressed(event -> {
             if (
-                event.getCode() == KeyCode.TAB ||
-                event.getCode() == KeyCode.ENTER
+                event.getCode() == KeyCode.TAB
+                || event.getCode() == KeyCode.ENTER
             ) {
                 addableFormatters.requestFocus();
                 event.consume();

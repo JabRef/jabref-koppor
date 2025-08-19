@@ -89,9 +89,9 @@ public class EditorTextArea
         @Override
         public void handle(KeyEvent event) {
             if (
-                event.getCode() == KeyCode.TAB &&
-                !event.isShiftDown() &&
-                !event.isControlDown()
+                event.getCode() == KeyCode.TAB
+                && !event.isShiftDown()
+                && !event.isControlDown()
             ) {
                 event.consume();
 

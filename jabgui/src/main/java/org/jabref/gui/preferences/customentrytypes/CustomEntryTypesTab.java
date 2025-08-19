@@ -238,8 +238,8 @@ public class CustomEntryTypesTab
                     selectedEntryType.fields();
                 // The first predicate will check if the user input the original field name or doesn't edit anything after double click
                 boolean fieldExists =
-                    !newDisplayName.equals(currentDisplayName) &&
-                    viewModel.displayNameExists(newDisplayName);
+                    !newDisplayName.equals(currentDisplayName)
+                    && viewModel.displayNameExists(newDisplayName);
                 if (fieldExists) {
                     dialogService.notify(
                         Localization.lang(
@@ -342,8 +342,8 @@ public class CustomEntryTypesTab
         DragEvent event
     ) {
         if (
-            (event.getGestureSource() != originalItem) &&
-            event.getDragboard().hasContent(DragAndDropDataFormats.FIELD)
+            (event.getGestureSource() != originalItem)
+            && event.getDragboard().hasContent(DragAndDropDataFormats.FIELD)
         ) {
             event.acceptTransferModes(TransferMode.MOVE);
             ControlHelper.setDroppingPseudoClasses(row, event);

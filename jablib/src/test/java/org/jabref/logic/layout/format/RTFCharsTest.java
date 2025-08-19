@@ -74,12 +74,12 @@ class RTFCharsTest {
     @Test
     void complicated3() {
         assertEquals(
-            "Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r" +
-            "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr" +
-            "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.",
+            "Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r"
+            + "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr"
+            + "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.",
             formatter.format(
-                "Le cœur déçu mais l'âme plutôt " +
-                "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."
+                "Le cœur déçu mais l'âme plutôt "
+                + "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."
             )
         );
     }
@@ -87,17 +87,17 @@ class RTFCharsTest {
     @Test
     void complicated4() {
         assertEquals(
-            "l'\\u238ile exigu\\u235e\n" +
-            "  O\\u249u l'ob\\u232ese jury m\\u251ur\n" +
-            "  F\\u234ete l'ha\\u239i volap\\u252?k,\n" +
-            "  \\u194Ane ex a\\u233equo au whist,\n" +
-            "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.",
+            "l'\\u238ile exigu\\u235e\n"
+            + "  O\\u249u l'ob\\u232ese jury m\\u251ur\n"
+            + "  F\\u234ete l'ha\\u239i volap\\u252?k,\n"
+            + "  \\u194Ane ex a\\u233equo au whist,\n"
+            + "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.",
             formatter.format(
-                "l'île exiguë\n" +
-                "  Où l'obèse jury mûr\n" +
-                "  Fête l'haï volapük,\n" +
-                "  Âne ex aéquo au whist,\n" +
-                "  Ôtez ce vœu déçu."
+                "l'île exiguë\n"
+                + "  Où l'obèse jury mûr\n"
+                + "  Fête l'haï volapük,\n"
+                + "  Âne ex aéquo au whist,\n"
+                + "  Ôtez ce vœu déçu."
             )
         );
     }

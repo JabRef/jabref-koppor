@@ -170,9 +170,9 @@ public class GroupSerializer {
 
         // Append current node
         representation.add(
-            String.valueOf(node.getLevel()) +
-            ' ' +
-            serializeGroup(node.getGroup())
+            String.valueOf(node.getLevel())
+            + ' '
+            + serializeGroup(node.getGroup())
         );
 
         // Append children

@@ -75,8 +75,8 @@ public class RemoteListenerServer implements Runnable {
                     protocol.sendMessage(RemoteMessage.OK);
                 } else {
                     throw new IOException(
-                        "Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got " +
-                        argument
+                        "Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got "
+                        + argument
                     );
                 }
                 break;

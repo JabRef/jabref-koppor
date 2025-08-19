@@ -101,12 +101,12 @@ class Codec52 {
         String name = BIB_CITATION + '_' + citTypeCode + '_' + citationKeysPart;
         while (usedNames.contains(name)) {
             name =
-                BIB_CITATION +
-                index +
-                '_' +
-                citTypeCode +
-                '_' +
-                citationKeysPart;
+                BIB_CITATION
+                + index
+                + '_'
+                + citTypeCode
+                + '_'
+                + citationKeysPart;
             index++;
         }
         return name;

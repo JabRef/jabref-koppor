@@ -62,9 +62,9 @@ class JStyleGetCitationMarker {
 
     private static String markupAuthorName(JStyle style, String name) {
         return (
-            style.getAuthorNameMarkupBefore() +
-            name +
-            style.getAuthorNameMarkupAfter()
+            style.getAuthorNameMarkupBefore()
+            + name
+            + style.getAuthorNameMarkupAfter()
         );
     }
 
@@ -307,8 +307,8 @@ class JStyleGetCitationMarker {
         // the content.
         final OrFields fieldsToRebrace = style.getAuthorFieldNames();
         if (
-            fieldsToRebrace.contains(fieldAndContent.field) &&
-            StringUtil.isInCurlyBrackets(fieldAndContent.content)
+            fieldsToRebrace.contains(fieldAndContent.field)
+            && StringUtil.isInCurlyBrackets(fieldAndContent.content)
         ) {
             result = "{" + result + "}";
         }
@@ -413,8 +413,8 @@ class JStyleGetCitationMarker {
         Optional<Integer> maxAuthorsOverride
     ) {
         boolean inParenthesis =
-            purpose == AuthorYearMarkerPurpose.IN_PARENTHESIS ||
-            purpose == AuthorYearMarkerPurpose.NORMALIZED;
+            purpose == AuthorYearMarkerPurpose.IN_PARENTHESIS
+            || purpose == AuthorYearMarkerPurpose.NORMALIZED;
 
         // The String to separate authors from year, e.g. "; ".
         String yearSep = inParenthesis
@@ -736,9 +736,10 @@ class JStyleGetCitationMarker {
                     // nAuthorsToEmitRevised[i-1] may have been indirectly increased,
                     // we have to check that too.
                     if (
-                        !isFirst1 &&
-                        !isFirst2 &&
-                        (nAuthorsToEmitRevised[i - 1] == nAuthorsToEmit[i - 1])
+                        !isFirst1
+                        && !isFirst2
+                        && (nAuthorsToEmitRevised[i - 1]
+                            == nAuthorsToEmit[i - 1])
                     ) {
                         // we can rely on normalizedMarkers
                         nAuthorsShownInhibitsJoin = false;
@@ -796,18 +797,18 @@ class JStyleGetCitationMarker {
                 final boolean uniqueLettersDiffer = !ul2.equals(ul1);
 
                 final boolean uniqueLetterDoesNotMakeUnique =
-                    citationKeysDiffer &&
-                    !normalizedMarkersDiffer &&
-                    !uniqueLettersDiffer;
+                    citationKeysDiffer
+                    && !normalizedMarkersDiffer
+                    && !uniqueLettersDiffer;
 
                 if (
-                    uniqueLetterDoesNotMakeUnique &&
-                    nonUniqueCitationMarkerHandling ==
-                    NonUniqueCitationMarker.THROWS
+                    uniqueLetterDoesNotMakeUnique
+                    && nonUniqueCitationMarkerHandling
+                    == NonUniqueCitationMarker.THROWS
                 ) {
                     throw new IllegalArgumentException(
-                        "different citation keys," +
-                        " but same normalizedMarker and uniqueLetter"
+                        "different citation keys,"
+                        + " but same normalizedMarker and uniqueLetter"
                     );
                 }
 
@@ -816,11 +817,11 @@ class JStyleGetCitationMarker {
                     : (citationKeysDiffer || pageInfosDiffer);
 
                 startingNewGroup =
-                    normalizedMarkersDiffer ||
-                    nAuthorsShownInhibitsJoin ||
-                    pageInfoInhibitsJoin ||
-                    uniqueLetterPresenceChanged ||
-                    uniqueLetterDoesNotMakeUnique;
+                    normalizedMarkersDiffer
+                    || nAuthorsShownInhibitsJoin
+                    || pageInfoInhibitsJoin
+                    || uniqueLetterPresenceChanged
+                    || uniqueLetterDoesNotMakeUnique;
 
                 if (!startingNewGroup) {
                     // inherit from first of group. Used at next i.
@@ -828,10 +829,10 @@ class JStyleGetCitationMarker {
                 }
 
                 sameAsPrev =
-                    !startingNewGroup &&
-                    !uniqueLettersDiffer &&
-                    !citationKeysDiffer &&
-                    !pageInfosDiffer;
+                    !startingNewGroup
+                    && !uniqueLettersDiffer
+                    && !citationKeysDiffer
+                    && !pageInfosDiffer;
             }
 
             if (!sameAsPrev) {

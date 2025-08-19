@@ -177,8 +177,8 @@ public class ImportFormatReader {
                     fileMonitor
                 );
                 if (
-                    parserResult.getDatabase().hasEntries() ||
-                    !parserResult.getDatabase().hasNoStrings()
+                    parserResult.getDatabase().hasEntries()
+                    || !parserResult.getDatabase().hasNoStrings()
                 ) {
                     parserResult.setPath(filePath);
                     return new UnknownFormatImport(
@@ -221,8 +221,8 @@ public class ImportFormatReader {
         for (Importer imFo : formats) {
             try {
                 if (
-                    !isRecognizedFormat.apply(imFo) ||
-                    imFo.equals(new ReferImporter())
+                    !isRecognizedFormat.apply(imFo)
+                    || imFo.equals(new ReferImporter())
                 ) {
                     // Refer/BibIX should be explicitly chosen by user
                     continue;

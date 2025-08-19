@@ -90,10 +90,10 @@ public class LatexParserResult {
         LatexParserResult that = (LatexParserResult) obj;
 
         return (
-            Objects.equals(path, that.path) &&
-            Objects.equals(citations, that.citations) &&
-            Objects.equals(nestedFiles, that.nestedFiles) &&
-            Objects.equals(bibFiles, that.bibFiles)
+            Objects.equals(path, that.path)
+            && Objects.equals(citations, that.citations)
+            && Objects.equals(nestedFiles, that.nestedFiles)
+            && Objects.equals(bibFiles, that.bibFiles)
         );
     }
 

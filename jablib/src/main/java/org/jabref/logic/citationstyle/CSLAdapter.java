@@ -102,8 +102,8 @@ public class CSLAdapter {
         }
 
         if (
-            newCslInstanceNeedsToBeCreated ||
-            (!Objects.equals(newFormat, format))
+            newCslInstanceNeedsToBeCreated
+            || (!Objects.equals(newFormat, format))
         ) {
             cslInstance.setOutputFormat(newFormat.getFormat());
             format = newFormat;

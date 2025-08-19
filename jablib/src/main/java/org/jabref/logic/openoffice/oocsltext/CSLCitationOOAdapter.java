@@ -74,8 +74,8 @@ public class CSLCitationOOAdapter {
 
     public void setStyle(CitationStyle newStyle) {
         if (
-            currentStyle == null ||
-            !currentStyle.getName().equals(newStyle.getName())
+            currentStyle == null
+            || !currentStyle.getName().equals(newStyle.getName())
         ) {
             styleChanged = true;
             currentStyle = newStyle;

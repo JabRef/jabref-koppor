@@ -41,9 +41,9 @@ public class LibrariesResource {
         List<String> fileNamesWithUniqueSuffix = pathStream
             .map(
                 path ->
-                    path.getFileName() +
-                    "-" +
-                    BackupFileUtil.getUniqueFilePrefix(path)
+                    path.getFileName()
+                    + "-"
+                    + BackupFileUtil.getUniqueFilePrefix(path)
             )
             .toList();
         List<String> result = new ArrayList<>(fileNamesWithUniqueSuffix);

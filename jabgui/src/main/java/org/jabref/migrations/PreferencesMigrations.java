@@ -165,8 +165,8 @@ public class PreferencesMigrations {
      */
     private static void upgradeSortOrder(JabRefCliPreferences prefs) {
         if (
-            prefs.get(JabRefCliPreferences.EXPORT_IN_SPECIFIED_ORDER, null) ==
-            null
+            prefs.get(JabRefCliPreferences.EXPORT_IN_SPECIFIED_ORDER, null)
+            == null
         ) {
             if (prefs.getBoolean("exportInStandardOrder", false)) {
                 prefs.putBoolean(
@@ -243,8 +243,8 @@ public class PreferencesMigrations {
             if (
                 mainPrefsNode.nodeExists(
                     JabRefCliPreferences.CUSTOMIZED_BIBTEX_TYPES
-                ) ||
-                mainPrefsNode.nodeExists(
+                )
+                || mainPrefsNode.nodeExists(
                     JabRefCliPreferences.CUSTOMIZED_BIBLATEX_TYPES
                 )
             ) {
@@ -394,11 +394,8 @@ public class PreferencesMigrations {
         // Migrate Import patterns
         // Check for prefs node for Version <= 4.0
         if (
-            mainPrefsNode.get(
-                JabRefCliPreferences.IMPORT_FILENAMEPATTERN,
-                null
-            ) !=
-            null
+            mainPrefsNode.get(JabRefCliPreferences.IMPORT_FILENAMEPATTERN, null)
+            != null
         ) {
             String[] oldStylePatterns = new String[] {
                 "\\bibtexkey",
@@ -560,12 +557,12 @@ public class PreferencesMigrations {
 
         // "field:"
         String normalFieldTypeString =
-            MainTableColumnModel.Type.NORMALFIELD.getName() +
-            MainTableColumnModel.COLUMNS_QUALIFIER_DELIMITER;
+            MainTableColumnModel.Type.NORMALFIELD.getName()
+            + MainTableColumnModel.COLUMNS_QUALIFIER_DELIMITER;
 
         if (
-            !columnNames.isEmpty() &&
-            columnNames
+            !columnNames.isEmpty()
+            && columnNames
                 .stream()
                 .noneMatch(name -> name.contains(normalFieldTypeString))
         ) {
@@ -680,8 +677,8 @@ public class PreferencesMigrations {
             .stream()
             .filter(
                 columnName ->
-                    columnName.startsWith("field:") ||
-                    columnName.startsWith("special:")
+                    columnName.startsWith("field:")
+                    || columnName.startsWith("special:")
             )
             .map(columnName -> {
                 if (columnName.startsWith("field:")) {
@@ -780,11 +777,11 @@ public class PreferencesMigrations {
             ).split("\n")
         );
         if (
-            formatterCleanups.size() >= 2 &&
-            (FieldFormatterCleanups.ENABLED.equals(
+            formatterCleanups.size() >= 2
+            && (FieldFormatterCleanups.ENABLED.equals(
                     formatterCleanups.getFirst()
-                ) ||
-                FieldFormatterCleanups.DISABLED.equals(
+                )
+                || FieldFormatterCleanups.DISABLED.equals(
                     formatterCleanups.getFirst()
                 ))
         ) {

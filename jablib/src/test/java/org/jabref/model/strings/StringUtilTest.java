@@ -36,11 +36,11 @@ class StringUtilTest {
 
         assertTrue(
             lineCount <= 830,
-            "StringUtil increased in size to " +
-            lineCount +
-            ". " +
-            "We try to keep this class as small as possible. " +
-            "Thus think twice if you add something to StringUtil."
+            "StringUtil increased in size to "
+            + lineCount
+            + ". "
+            + "We try to keep this class as small as possible. "
+            + "Thus think twice if you add something to StringUtil."
         );
     }
 
@@ -215,41 +215,41 @@ class StringUtilTest {
             StringUtil.wrap("aaaaa bbbbb ccccc", 12, newline)
         );
         assertEquals(
-            "aaaaa" +
-            newline +
-            "\t" +
-            newline +
-            "\tbbbbb" +
-            newline +
-            "\t" +
-            newline +
-            "\tccccc",
+            "aaaaa"
+            + newline
+            + "\t"
+            + newline
+            + "\tbbbbb"
+            + newline
+            + "\t"
+            + newline
+            + "\tccccc",
             StringUtil.wrap("aaaaa\nbbbbb\nccccc", 12, newline)
         );
         assertEquals(
-            "aaaaa" +
-            newline +
-            "\t" +
-            newline +
-            "\t" +
-            newline +
-            "\tbbbbb" +
-            newline +
-            "\t" +
-            newline +
-            "\tccccc",
+            "aaaaa"
+            + newline
+            + "\t"
+            + newline
+            + "\t"
+            + newline
+            + "\tbbbbb"
+            + newline
+            + "\t"
+            + newline
+            + "\tccccc",
             StringUtil.wrap("aaaaa\n\nbbbbb\nccccc", 12, newline)
         );
         assertEquals(
-            "aaaaa" +
-            newline +
-            "\t" +
-            newline +
-            "\tbbbbb" +
-            newline +
-            "\t" +
-            newline +
-            "\tccccc",
+            "aaaaa"
+            + newline
+            + "\t"
+            + newline
+            + "\tbbbbb"
+            + newline
+            + "\t"
+            + newline
+            + "\tccccc",
             StringUtil.wrap("aaaaa\r\nbbbbb\r\nccccc", 12, newline)
         );
     }

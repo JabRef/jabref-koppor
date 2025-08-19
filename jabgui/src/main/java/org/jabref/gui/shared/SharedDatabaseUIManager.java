@@ -134,31 +134,31 @@ public class SharedDatabaseUIManager {
         String message =
             Localization.lang(
                 "Update could not be performed due to existing change conflicts."
-            ) +
-            "\r\n" +
-            Localization.lang(
+            )
+            + "\r\n"
+            + Localization.lang(
                 "You are not working on the newest version of the entry."
-            ) +
-            "\r\n" +
-            Localization.lang(
+            )
+            + "\r\n"
+            + Localization.lang(
                 "Shared version: %0",
                 String.valueOf(
                     sharedBibEntry.getSharedBibEntryData().getVersion()
                 )
-            ) +
-            "\r\n" +
-            Localization.lang(
+            )
+            + "\r\n"
+            + Localization.lang(
                 "Local version: %0",
                 String.valueOf(
                     localBibEntry.getSharedBibEntryData().getVersion()
                 )
-            ) +
-            "\r\n" +
-            Localization.lang(
+            )
+            + "\r\n"
+            + Localization.lang(
                 "Press \"Merge entries\" to merge the changes and resolve this problem."
-            ) +
-            "\r\n" +
-            Localization.lang(
+            )
+            + "\r\n"
+            + Localization.lang(
                 "Canceling this operation will leave your changes unsynchronized."
             );
 
@@ -221,9 +221,9 @@ public class SharedDatabaseUIManager {
                 Localization.lang("Shared entry is no longer present"),
                 Localization.lang(
                     "The entry you currently work on has been deleted on the shared side."
-                ) +
-                "\n" +
-                Localization.lang(
+                )
+                + "\n"
+                + Localization.lang(
                     "You can restore the entry using the \"Undo\" operation."
                 )
             );

@@ -160,8 +160,8 @@ public class OpenDatabaseAction extends SimpleCommand {
     @VisibleForTesting
     Path getInitialDirectory() {
         if (
-            tabContainer.getLibraryTabs().isEmpty() ||
-            tabContainer.getCurrentLibraryTab() == null
+            tabContainer.getLibraryTabs().isEmpty()
+            || tabContainer.getCurrentLibraryTab() == null
         ) {
             // currentTab might not be a LibraryTab but the WelcomeTab
             return preferences.getFilePreferences().getWorkingDirectory();
@@ -209,8 +209,8 @@ public class OpenDatabaseAction extends SimpleCommand {
                     (libraryTab
                             .getBibDatabaseContext()
                             .getDatabasePath()
-                            .isPresent()) &&
-                    libraryTab
+                            .isPresent())
+                    && libraryTab
                         .getBibDatabaseContext()
                         .getDatabasePath()
                         .get()
@@ -326,9 +326,9 @@ public class OpenDatabaseAction extends SimpleCommand {
                 String content =
                     Localization.lang(
                         "Please check your library file for wrong syntax."
-                    ) +
-                    "\n\n" +
-                    parserResult.getErrorMessage();
+                    )
+                    + "\n\n"
+                    + parserResult.getErrorMessage();
                 UiTaskExecutor.runInJavaFXThread(() ->
                     dialogService.showWarningDialogAndWait(
                         Localization.lang("Open library error"),

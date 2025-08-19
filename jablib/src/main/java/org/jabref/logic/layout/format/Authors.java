@@ -156,8 +156,8 @@ public class Authors extends AbstractParamLayoutFormatter {
                 lastFirstSeparator = ", ";
             }
         } else if (
-            Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT)) ||
-            Authors.LAST_SEPARATORS.contains(
+            Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT))
+            || Authors.LAST_SEPARATORS.contains(
                 key.trim().toLowerCase(Locale.ROOT)
             )
         ) {
@@ -244,8 +244,8 @@ public class Authors extends AbstractParamLayoutFormatter {
                 addSingleName(
                     sb,
                     a,
-                    (flMode == Authors.FIRST_FIRST) ||
-                    ((flMode == Authors.LF_FF) && (i > 0))
+                    (flMode == Authors.FIRST_FIRST)
+                    || ((flMode == Authors.LF_FF) && (i > 0))
                 );
 
                 if (i < (al.getNumberOfAuthors() - 2)) {

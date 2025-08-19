@@ -23,12 +23,12 @@ public record BibField(Field field, FieldPriority priority) implements
     @Override
     public String toString() {
         return (
-            "BibField{" +
-            "field=" +
-            field.getDisplayName() +
-            ", priority=" +
-            priority +
-            '}'
+            "BibField{"
+            + "field="
+            + field.getDisplayName()
+            + ", priority="
+            + priority
+            + '}'
         );
     }
 

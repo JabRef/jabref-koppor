@@ -73,10 +73,10 @@ public class WalkthroughScroller {
 
     private boolean isScrollable(@NonNull Node node) {
         return (
-            node instanceof ScrollPane ||
-            node instanceof ListView<?> ||
-            node instanceof TableView<?> ||
-            node instanceof TreeView<?>
+            node instanceof ScrollPane
+            || node instanceof ListView<?>
+            || node instanceof TableView<?>
+            || node instanceof TreeView<?>
         );
     }
 
@@ -95,8 +95,8 @@ public class WalkthroughScroller {
     ) {
         try {
             if (
-                targetNode.getScene() == null ||
-                scrollableParent.getScene() == null
+                targetNode.getScene() == null
+                || scrollableParent.getScene() == null
             ) {
                 return;
             }

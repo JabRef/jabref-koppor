@@ -72,8 +72,8 @@ public class PdfEmbeddedBibFileImporter extends PdfImporter {
         for (PDPage page : document.getPages()) {
             for (PDAnnotation annotation : page.getAnnotations()) {
                 if (
-                    annotation instanceof
-                    PDAnnotationFileAttachment annotationFileAttachment
+                    annotation
+                    instanceof PDAnnotationFileAttachment annotationFileAttachment
                 ) {
                     PDComplexFileSpecification fileSpec =
                         (PDComplexFileSpecification) annotationFileAttachment.getFile();

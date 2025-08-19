@@ -66,8 +66,8 @@ public class DetectOpenOfficeInstallation {
                 OpenOfficePreferences.DEFAULT_LINUX_FLATPAK_EXEC_PATH;
         }
         return (
-            !StringUtil.isNullOrEmpty(executablePath) &&
-            Files.isRegularFile(Path.of(executablePath))
+            !StringUtil.isNullOrEmpty(executablePath)
+            && Files.isRegularFile(Path.of(executablePath))
         );
     }
 
@@ -112,9 +112,9 @@ public class DetectOpenOfficeInstallation {
             Localization.lang("Choose OpenOffice/LibreOffice executable"),
             Localization.lang(
                 "Found more than one OpenOffice/LibreOffice executable."
-            ) +
-            "\n" +
-            Localization.lang("Please choose which one to connect to:"),
+            )
+            + "\n"
+            + Localization.lang("Please choose which one to connect to:"),
             Localization.lang("Use selected instance"),
             installDirs
         );

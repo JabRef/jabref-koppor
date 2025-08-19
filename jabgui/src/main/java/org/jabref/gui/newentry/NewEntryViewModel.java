@@ -323,10 +323,10 @@ public class NewEntryViewModel {
                 dialogService.showInformationDialogAndWait(
                     dialogTitle,
                     Localization.lang(
-                        "Bibliographic data could not be retrieved.\n" +
-                        "This is likely due to an issue with your input, or your network connection.\n" +
-                        "Check your provided identifier (and identifier type), and try again.\n" +
-                        "%0",
+                        "Bibliographic data could not be retrieved.\n"
+                        + "This is likely due to an issue with your input, or your network connection.\n"
+                        + "Check your provided identifier (and identifier type), and try again.\n"
+                        + "%0",
                         exceptionMessage
                     )
                 );
@@ -334,10 +334,10 @@ public class NewEntryViewModel {
                 dialogService.showInformationDialogAndWait(
                     dialogTitle,
                     Localization.lang(
-                        "Bibliographic data could not be retrieved.\n" +
-                        "This is likely due to an issue being experienced by the server.\n" +
-                        "Try again later.\n" +
-                        "%0",
+                        "Bibliographic data could not be retrieved.\n"
+                        + "This is likely due to an issue being experienced by the server.\n"
+                        + "Try again later.\n"
+                        + "%0",
                         exceptionMessage
                     )
                 );
@@ -345,9 +345,9 @@ public class NewEntryViewModel {
                 dialogService.showInformationDialogAndWait(
                     dialogTitle,
                     Localization.lang(
-                        "Bibliographic data could not be retrieved.\n" +
-                        "The following error was encountered:\n" +
-                        "%0",
+                        "Bibliographic data could not be retrieved.\n"
+                        + "The following error was encountered:\n"
+                        + "%0",
                         exceptionMessage
                     )
                 );
@@ -370,8 +370,8 @@ public class NewEntryViewModel {
                 dialogService.showWarningDialogAndWait(
                     Localization.lang("Invalid result returned"),
                     Localization.lang(
-                        "An unknown error has occurred.\n" +
-                        "This entry may need to be added manually."
+                        "An unknown error has occurred.\n"
+                        + "This entry may need to be added manually."
                     )
                 );
                 executing.set(false);
@@ -462,9 +462,9 @@ public class NewEntryViewModel {
                 dialogService.showInformationDialogAndWait(
                     dialogTitle,
                     Localization.lang(
-                        "Failed to interpret citations.\n" +
-                        "The following error was encountered:\n" +
-                        "%0",
+                        "Failed to interpret citations.\n"
+                        + "The following error was encountered:\n"
+                        + "%0",
                         exceptionMessage
                     )
                 );
@@ -494,8 +494,8 @@ public class NewEntryViewModel {
                 dialogService.showWarningDialogAndWait(
                     Localization.lang("Invalid result"),
                     Localization.lang(
-                        "An unknown error has occurred.\n" +
-                        "Entries may need to be added manually."
+                        "An unknown error has occurred.\n"
+                        + "Entries may need to be added manually."
                     )
                 );
                 LOGGER.error(
@@ -569,9 +569,9 @@ public class NewEntryViewModel {
                 dialogService.showInformationDialogAndWait(
                     dialogTitle,
                     Localization.lang(
-                        "Failed to parse entries.\n" +
-                        "The following error was encountered:\n" +
-                        "%0",
+                        "Failed to parse entries.\n"
+                        + "The following error was encountered:\n"
+                        + "%0",
                         exceptionMessage
                     )
                 );
@@ -600,8 +600,8 @@ public class NewEntryViewModel {
                 dialogService.showWarningDialogAndWait(
                     Localization.lang("Invalid result"),
                     Localization.lang(
-                        "An unknown error has occurred.\n" +
-                        "Entries may need to be added manually."
+                        "An unknown error has occurred.\n"
+                        + "Entries may need to be added manually."
                     )
                 );
                 LOGGER.error(

@@ -54,8 +54,8 @@ public interface NodeResolver {
                 .stream()
                 .filter(
                     node ->
-                        node instanceof Button button &&
-                        Optional.ofNullable(
+                        node instanceof Button button
+                        && Optional.ofNullable(
                             findNode(
                                 button.getGraphic(),
                                 JabRefIconView.class::isInstance
@@ -101,16 +101,16 @@ public interface NodeResolver {
                 .stream()
                 .filter(
                     node ->
-                        textMatcher.test(node.toString()) ||
-                        node
+                        textMatcher.test(node.toString())
+                        || node
                             .lookupAll(".text")
                             .stream()
                             .anyMatch(child -> {
                                 if (child instanceof LabeledText text) {
                                     String textContent = text.getText();
                                     return (
-                                        textContent != null &&
-                                        textMatcher.test(textContent)
+                                        textContent != null
+                                        && textMatcher.test(textContent)
                                     );
                                 }
                                 return false;
@@ -167,8 +167,8 @@ public interface NodeResolver {
                 if (button.getTooltip() != null) {
                     String tooltipText = button.getTooltip().getText();
                     if (
-                        tooltipText != null &&
-                        tooltipText.equals(action.getText())
+                        tooltipText != null
+                        && tooltipText.equals(action.getText())
                     ) {
                         return true;
                     }
@@ -177,21 +177,21 @@ public interface NodeResolver {
                 if (button.getStyleClass().contains("icon-button")) {
                     String actionText = action.getText();
                     if (
-                        button.getTooltip() != null &&
-                        button.getTooltip().getText() != null
+                        button.getTooltip() != null
+                        && button.getTooltip().getText() != null
                     ) {
                         String tooltipText = button.getTooltip().getText();
                         if (
-                            tooltipText.startsWith(actionText) ||
-                            tooltipText.contains(actionText)
+                            tooltipText.startsWith(actionText)
+                            || tooltipText.contains(actionText)
                         ) {
                             return true;
                         }
                     }
 
                     return (
-                        button.getText() != null &&
-                        button.getText().equals(actionText)
+                        button.getText() != null
+                        && button.getText().equals(actionText)
                     );
                 }
             }

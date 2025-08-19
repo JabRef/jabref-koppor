@@ -96,9 +96,9 @@ public class SciteTabViewModel extends AbstractViewModel {
 
     private void cancelSearch() {
         if (
-            searchTask == null ||
-            searchTask.isCancelled() ||
-            searchTask.isDone()
+            searchTask == null
+            || searchTask.isCancelled()
+            || searchTask.isDone()
         ) {
             return;
         }

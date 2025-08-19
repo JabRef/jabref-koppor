@@ -122,9 +122,9 @@ public class SpecialFieldAction extends SimpleCommand {
         );
 
         if (
-            field.isSingleValueField() &&
-            (params.length == 1) &&
-            (params[0] != null)
+            field.isSingleValueField()
+            && (params.length == 1)
+            && (params[0] != null)
         ) {
             // Single value fields can be toggled only
             return Localization.lang(
@@ -133,10 +133,10 @@ public class SpecialFieldAction extends SimpleCommand {
                 params[0]
             );
         } else if (
-            !field.isSingleValueField() &&
-            (params.length == 2) &&
-            (params[0] != null) &&
-            (params[1] != null)
+            !field.isSingleValueField()
+            && (params.length == 2)
+            && (params[0] != null)
+            && (params[1] != null)
         ) {
             // setting a multi value special field - the set value is displayed, too
             return Localization.lang(
@@ -146,9 +146,9 @@ public class SpecialFieldAction extends SimpleCommand {
                 params[1]
             );
         } else if (
-            !field.isSingleValueField() &&
-            (params.length == 1) &&
-            (params[0] != null)
+            !field.isSingleValueField()
+            && (params.length == 1)
+            && (params[0] != null)
         ) {
             // clearing a multi value specialfield
             return Localization.lang(

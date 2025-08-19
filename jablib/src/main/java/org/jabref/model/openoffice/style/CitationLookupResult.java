@@ -34,8 +34,8 @@ public class CitationLookupResult {
             return false;
         }
         return (
-            Objects.equals(this.entry, that.entry) &&
-            Objects.equals(this.database, that.database)
+            Objects.equals(this.entry, that.entry)
+            && Objects.equals(this.database, that.database)
         );
     }
 

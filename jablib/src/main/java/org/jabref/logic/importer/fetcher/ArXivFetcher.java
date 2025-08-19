@@ -339,8 +339,8 @@ public class ArXivFetcher
             );
         } catch (FetcherException e) {
             LOGGER.error(
-                "FetcherException should not be found here, as main Bibtex Entry already exists " +
-                "(and failing additional fetches should be skipped)",
+                "FetcherException should not be found here, as main Bibtex Entry already exists "
+                + "(and failing additional fetches should be skipped)",
                 e
             );
         }
@@ -616,8 +616,8 @@ public class ArXivFetcher
 
             // ArXiv-issued DOIs seem to be unsearchable from ArXiv API's "query string", so ignore it
             if (
-                doiString.isPresent() &&
-                ArXivFetcher.isManualDoi(doiString.get())
+                doiString.isPresent()
+                && ArXivFetcher.isManualDoi(doiString.get())
             ) {
                 query = "doi:" + doiString.get();
             } else {
@@ -852,25 +852,25 @@ public class ArXivFetcher
                 // Filter the date field for year only
                 .filter(
                     entry ->
-                        transformer.getEndYear().isEmpty() ||
-                        (Integer.parseInt(
+                        transformer.getEndYear().isEmpty()
+                        || (Integer.parseInt(
                                 entry
                                     .getField(StandardField.DATE)
                                     .get()
                                     .substring(0, 4)
-                            ) <=
-                            transformer.getEndYear().get())
+                            )
+                            <= transformer.getEndYear().get())
                 )
                 .filter(
                     entry ->
-                        transformer.getStartYear().isEmpty() ||
-                        (Integer.parseInt(
+                        transformer.getStartYear().isEmpty()
+                        || (Integer.parseInt(
                                 entry
                                     .getField(StandardField.DATE)
                                     .get()
                                     .substring(0, 4)
-                            ) >=
-                            transformer.getStartYear().get())
+                            )
+                            >= transformer.getStartYear().get())
                 )
                 .collect(Collectors.toList());
         }

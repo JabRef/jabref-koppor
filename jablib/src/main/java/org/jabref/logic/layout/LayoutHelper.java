@@ -67,11 +67,11 @@ public class LayoutHelper {
 
         for (StringInt parsedEntry : parsedEntries) {
             if (
-                (parsedEntry.i == LayoutHelper.IS_SIMPLE_COMMAND) ||
-                (parsedEntry.i == LayoutHelper.IS_FIELD_START) ||
-                (parsedEntry.i == LayoutHelper.IS_FIELD_END) ||
-                (parsedEntry.i == LayoutHelper.IS_GROUP_START) ||
-                (parsedEntry.i == LayoutHelper.IS_GROUP_END)
+                (parsedEntry.i == LayoutHelper.IS_SIMPLE_COMMAND)
+                || (parsedEntry.i == LayoutHelper.IS_FIELD_START)
+                || (parsedEntry.i == LayoutHelper.IS_FIELD_END)
+                || (parsedEntry.i == LayoutHelper.IS_GROUP_START)
+                || (parsedEntry.i == LayoutHelper.IS_GROUP_END)
             ) {
                 parsedEntry.s = parsedEntry.s.trim().toLowerCase(Locale.ROOT);
             }
@@ -162,10 +162,10 @@ public class LayoutHelper {
                 return;
             }
             if (
-                !inQuotes &&
-                ((c == ']') ||
-                    (c == '[') ||
-                    (doneWithOptions && ((c == '{') || (c == '}'))))
+                !inQuotes
+                && ((c == ']')
+                    || (c == '[')
+                    || (doneWithOptions && ((c == '{') || (c == '}'))))
             ) {
                 if ((c == ']') || (doneWithOptions && (c == '}'))) {
                     // changed section start - arudert
@@ -314,9 +314,9 @@ public class LayoutHelper {
                         }
                     }
                     throw new IOException(
-                        "Backslash parsing error near \'" +
-                        lastFive.toString().replace("\n", " ") +
-                        '\''
+                        "Backslash parsing error near \'"
+                        + lastFive.toString().replace("\n", " ")
+                        + '\''
                     );
                 }
 

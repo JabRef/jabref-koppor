@@ -37,8 +37,8 @@ public class FileAnnotationTab extends EntryEditorTab {
         }
 
         return (
-            entry.getField(StandardField.FILE).isPresent() &&
-            stateManager
+            entry.getField(StandardField.FILE).isPresent()
+            && stateManager
                 .activeTabProperty()
                 .get()
                 .map(tab ->

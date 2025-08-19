@@ -114,9 +114,9 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
             .getSelectedItem();
 
         if (
-            event.getButton() == MouseButton.PRIMARY &&
-            event.getClickCount() == 2 &&
-            selectedItem != null
+            event.getButton() == MouseButton.PRIMARY
+            && event.getClickCount() == 2
+            && selectedItem != null
         ) {
             String applicationName = preferences
                 .getPushToApplicationPreferences()

@@ -64,10 +64,10 @@ public class SummaryShowingComponent extends VBox {
             contentWebView
                 .getEngine()
                 .loadContent(
-                    "<body style='margin: 0; padding: 5px; width: 100vw'>" +
-                    "<div style='white-space: pre-wrap; word-wrap: break-word; width: 100vw'>" +
-                    content +
-                    "</div></body>"
+                    "<body style='margin: 0; padding: 5px; width: 100vw'>"
+                    + "<div style='white-space: pre-wrap; word-wrap: break-word; width: 100vw'>"
+                    + content
+                    + "</div></body>"
                 );
         }
     }

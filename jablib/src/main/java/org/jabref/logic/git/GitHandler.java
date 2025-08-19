@@ -244,8 +244,8 @@ public class GitHandler {
             boolean dirty = !status.isClean();
             RepositoryState state = git.getRepository().getRepositoryState();
             boolean inMerging =
-                (state == RepositoryState.MERGING) ||
-                (state == RepositoryState.MERGING_RESOLVED);
+                (state == RepositoryState.MERGING)
+                || (state == RepositoryState.MERGING_RESOLVED);
 
             if (dirty) {
                 commitCreated = true;
@@ -520,8 +520,8 @@ public class GitHandler {
             // Only act if a branch is actually in a merge state
             RepositoryState state = repo.getRepositoryState();
             boolean inMerging =
-                (state == RepositoryState.MERGING) ||
-                (state == RepositoryState.MERGING_RESOLVED);
+                (state == RepositoryState.MERGING)
+                || (state == RepositoryState.MERGING_RESOLVED);
             if (!inMerging) {
                 return;
             }

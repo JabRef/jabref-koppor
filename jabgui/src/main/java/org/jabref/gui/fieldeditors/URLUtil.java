@@ -32,8 +32,8 @@ public class URLUtil {
             // Try to strip the query string, if any, to get the correct suffix:
             URL url = org.jabref.logic.util.URLUtil.create(link);
             if (
-                (url.getQuery() != null) &&
-                (url.getQuery().length() < (link.length() - 1))
+                (url.getQuery() != null)
+                && (url.getQuery().length() < (link.length() - 1))
             ) {
                 strippedLink = link.substring(
                     0,
@@ -48,8 +48,8 @@ public class URLUtil {
         String suffix;
         int strippedLinkIndex = strippedLink.lastIndexOf('.');
         if (
-            (strippedLinkIndex <= 0) ||
-            (strippedLinkIndex == (strippedLink.length() - 1))
+            (strippedLinkIndex <= 0)
+            || (strippedLinkIndex == (strippedLink.length() - 1))
         ) {
             suffix = null;
         } else {
@@ -69,10 +69,8 @@ public class URLUtil {
                 // Check if there are path separators in the suffix - if so, it is definitely
                 // not a proper suffix, so we should give up:
                 if (
-                    strippedLink
-                        .substring(strippedLinkIndex + 1)
-                        .indexOf('/') >=
-                    1
+                    strippedLink.substring(strippedLinkIndex + 1).indexOf('/')
+                    >= 1
                 ) {
                     return Optional.empty();
                 } else {

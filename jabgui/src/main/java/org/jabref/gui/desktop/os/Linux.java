@@ -144,8 +144,8 @@ public class Linux extends NativeDesktop {
             if (desktopSession.contains("gnome")) {
                 cmd = new String[] { "nautilus", "--select", absoluteFilePath };
             } else if (
-                desktopSession.contains("kde") ||
-                desktopSession.contains("plasma")
+                desktopSession.contains("kde")
+                || desktopSession.contains("plasma")
             ) {
                 cmd = new String[] { "dolphin", "--select", absoluteFilePath };
             } else if (desktopSession.contains("mate")) {

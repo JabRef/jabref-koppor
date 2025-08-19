@@ -142,8 +142,8 @@ public class GenerateEmbeddingsTask extends BackgroundTask<Void> {
                 modTime = Optional.of(currentModificationTimeInSeconds);
             } else {
                 if (
-                    currentModificationTimeInSeconds >
-                    ingestedModificationTimeInSeconds.get()
+                    currentModificationTimeInSeconds
+                    > ingestedModificationTimeInSeconds.get()
                 ) {
                     modTime = Optional.of(currentModificationTimeInSeconds);
                 } else {

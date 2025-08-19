@@ -229,9 +229,9 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
         if (!restartWarnings.isEmpty()) {
             dialogService.showWarningDialogAndWait(
                 Localization.lang("Restart required"),
-                String.join(",\n", restartWarnings) +
-                "\n\n" +
-                Localization.lang(
+                String.join(",\n", restartWarnings)
+                + "\n\n"
+                + Localization.lang(
                     "You must restart JabRef for this to come into effect."
                 )
             );

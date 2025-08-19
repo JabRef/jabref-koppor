@@ -153,8 +153,8 @@ public class BstNameFormatter {
                 // Now we know what to do
 
                 if (
-                    (braceLevel == 0) &&
-                    (wholeChar.charAt(wholeChar.length() - 1) == '}')
+                    (braceLevel == 0)
+                    && (wholeChar.charAt(wholeChar.length() - 1) == '}')
                 ) {
                     wholeChar.deleteCharAt(wholeChar.length() - 1);
                 }
@@ -208,15 +208,15 @@ public class BstNameFormatter {
                                     // if (lex_class[name_sep_char[cur_token]] = sep_char) then
                                     //    append_ex_buf_char_and_check (name_sep_char[cur_token])
                                     if (
-                                        (k == (tokens.length - 2)) ||
-                                        (BstNameFormatter.numberOfChars(
+                                        (k == (tokens.length - 2))
+                                        || (BstNameFormatter.numberOfChars(
                                                 sb.substring(
                                                     groupStart,
                                                     sb.length()
                                                 ),
                                                 3
-                                            ) <
-                                            3)
+                                            )
+                                            < 3)
                                     ) {
                                         sb.append('~');
                                     } else {
@@ -242,14 +242,15 @@ public class BstNameFormatter {
                 if (!sb.isEmpty()) {
                     boolean noDisTie = false;
                     if (
-                        (sb.charAt(sb.length() - 1) == '~') &&
-                        ((BstNameFormatter.numberOfChars(
+                        (sb.charAt(sb.length() - 1) == '~')
+                        && ((BstNameFormatter.numberOfChars(
                                     sb.substring(groupStart, sb.length()),
                                     4
-                                ) >=
-                                4) ||
-                            ((sb.length() > 1) &&
-                                (noDisTie = sb.charAt(sb.length() - 2) == '~')))
+                                )
+                                >= 4)
+                            || ((sb.length() > 1)
+                                && (noDisTie =
+                                        sb.charAt(sb.length() - 2) == '~')))
                     ) {
                         sb.deleteCharAt(sb.length() - 1);
                         if (!noDisTie) {

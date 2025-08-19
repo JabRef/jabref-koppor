@@ -218,8 +218,8 @@ public class Launcher {
     private static void configureProxy(ProxyPreferences proxyPreferences) {
         ProxyRegisterer.register(proxyPreferences);
         if (
-            proxyPreferences.shouldUseProxy() &&
-            proxyPreferences.shouldUseAuthentication()
+            proxyPreferences.shouldUseProxy()
+            && proxyPreferences.shouldUseAuthentication()
         ) {
             Authenticator.setDefault(new ProxyAuthenticator());
         }

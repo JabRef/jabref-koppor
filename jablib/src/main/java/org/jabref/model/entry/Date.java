@@ -80,10 +80,12 @@ public class Date {
          * Additionally, parse method requires the reviewed String to hold only a date.
          */
         DATE_REGEX =
-            "\\d{4}-\\d{1,2}-\\d{1,2}" + // covers YYYY-MM-DD, YYYY-M-DD, YYYY-MM-D, YYYY-M-D
-            "|\\d{4}\\.\\d{1,2}\\.\\d{1,2}|" + // covers YYYY.MM.DD, YYYY.M.DD, YYYY.MM.D, YYYY.M.D
-            "(January|February|March|April|May|June|July|August|September|" +
-            "October|November|December) \\d{1,2}, \\d{4}"; // covers Month DD, YYYY & Month D, YYYY
+            "\\d{4}-\\d{1,2}-\\d{1,2}"
+            // covers YYYY-MM-DD, YYYY-M-DD, YYYY-MM-D, YYYY-M-D
+            + "|\\d{4}\\.\\d{1,2}\\.\\d{1,2}|"
+            // covers YYYY.MM.DD, YYYY.M.DD, YYYY.MM.D, YYYY.M.D
+            + "(January|February|March|April|May|June|July|August|September|"
+            + "October|November|December) \\d{1,2}, \\d{4}"; // covers Month DD, YYYY & Month D, YYYY
     }
 
     private final TemporalAccessor date;
@@ -144,16 +146,20 @@ public class Date {
         // if dateString has range format, treat as date range
         if (
             dateString.matches(
-                "\\d{4}/\\d{4}|" + // uuuu/uuuu
-                "\\d{4}-\\d{2}/\\d{4}-\\d{2}|" + // uuuu-mm/uuuu-mm
-                "\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}|" + // uuuu-mm-dd/uuuu-mm-dd
-                "(?i)(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4})/(January|February|March|April|May|June|July|August|September|October|November" +
-                "|December)( |\\-)(\\d{1,4})(?i-)|" + // January 2015/January 2015
-                "(?i)(\\d{1,2})( )(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4})/(\\d{1,2})( )" +
-                "(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4})(?i-)" // 20 January 2015/20 January 2015
+                "\\d{4}/\\d{4}|"
+                // uuuu/uuuu
+                + "\\d{4}-\\d{2}/\\d{4}-\\d{2}|"
+                // uuuu-mm/uuuu-mm
+                + "\\d{4}-\\d{2}-\\d{2}/\\d{4}-\\d{2}-\\d{2}|"
+                // uuuu-mm-dd/uuuu-mm-dd
+                + "(?i)(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4})/(January|February|March|April|May|June|July|August|September|October|November"
+                + "|December)( |\\-)(\\d{1,4})(?i-)|"
+                // January 2015/January 2015
+                + "(?i)(\\d{1,2})( )(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4})/(\\d{1,2})( )"
+                + "(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4})(?i-)" // 20 January 2015/20 January 2015
             )
         ) {
             try {
@@ -171,16 +177,20 @@ public class Date {
             }
         } else if (
             dateString.matches(
-                "\\d{4} / \\d{4}|" + // uuuu / uuuu
-                "\\d{4}-\\d{2} / \\d{4}-\\d{2}|" + // uuuu-mm / uuuu-mm
-                "\\d{4}-\\d{2}-\\d{2} / \\d{4}-\\d{2}-\\d{2}|" + // uuuu-mm-dd / uuuu-mm-dd
-                "(?i)(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4}) / (January|February|March|April|May|June|July|August|September|October|November" +
-                "|December)( |\\-)(\\d{1,4})(?i-)|" + // January 2015/January 2015
-                "(?i)(\\d{1,2})( )(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4}) / (\\d{1,2})( )" +
-                "(January|February|March|April|May|June|July|August|September|October|November|December)" +
-                "( |\\-)(\\d{1,4})(?i-)" // 20 January 2015/20 January 2015
+                "\\d{4} / \\d{4}|"
+                // uuuu / uuuu
+                + "\\d{4}-\\d{2} / \\d{4}-\\d{2}|"
+                // uuuu-mm / uuuu-mm
+                + "\\d{4}-\\d{2}-\\d{2} / \\d{4}-\\d{2}-\\d{2}|"
+                // uuuu-mm-dd / uuuu-mm-dd
+                + "(?i)(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4}) / (January|February|March|April|May|June|July|August|September|October|November"
+                + "|December)( |\\-)(\\d{1,4})(?i-)|"
+                // January 2015/January 2015
+                + "(?i)(\\d{1,2})( )(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4}) / (\\d{1,2})( )"
+                + "(January|February|March|April|May|June|July|August|September|October|November|December)"
+                + "( |\\-)(\\d{1,4})(?i-)" // 20 January 2015/20 January 2015
             )
         ) {
             try {
@@ -198,12 +208,17 @@ public class Date {
             }
         } else if (
             dateString.matches(
-                "\\d{1,4} BC/\\d{1,4} AD|" + // 30 BC/5 AD and 0030 BC/0005 AD
-                "\\d{1,4} BC/\\d{1,4} BC|" + // 30 BC/10 BC and 0030 BC/0010 BC
-                "\\d{1,4} AD/\\d{1,4} AD|" + // 5 AD/10 AD and 0005 AD/0010 AD
-                "\\d{1,4}-\\d{1,2} BC/\\d{1,4}-\\d{1,2} AD|" + // 5 AD/10 AD and 0005 AD/0010 AD
-                "\\d{1,4}-\\d{1,2} BC/\\d{1,4}-\\d{1,2} BC|" + // 5 AD/10 AD and 0005 AD/0010 AD
-                "\\d{1,4}-\\d{1,2} AD/\\d{1,4}-\\d{1,2} AD" // 5 AD/10 AD and 0005 AD/0010 AD
+                "\\d{1,4} BC/\\d{1,4} AD|"
+                // 30 BC/5 AD and 0030 BC/0005 AD
+                + "\\d{1,4} BC/\\d{1,4} BC|"
+                // 30 BC/10 BC and 0030 BC/0010 BC
+                + "\\d{1,4} AD/\\d{1,4} AD|"
+                // 5 AD/10 AD and 0005 AD/0010 AD
+                + "\\d{1,4}-\\d{1,2} BC/\\d{1,4}-\\d{1,2} AD|"
+                // 5 AD/10 AD and 0005 AD/0010 AD
+                + "\\d{1,4}-\\d{1,2} BC/\\d{1,4}-\\d{1,2} BC|"
+                // 5 AD/10 AD and 0005 AD/0010 AD
+                + "\\d{1,4}-\\d{1,2} AD/\\d{1,4}-\\d{1,2} AD" // 5 AD/10 AD and 0005 AD/0010 AD
             )
         ) {
             try {
@@ -221,12 +236,17 @@ public class Date {
             }
         } else if (
             dateString.matches(
-                "\\d{1,4} BC / \\d{1,4} AD|" + // 30 BC / 5 AD and 0030 BC / 0005 AD
-                "\\d{1,4} BC / \\d{1,4} BC|" + // 30 BC / 10 BC and 0030 BC / 0010 BC
-                "\\d{1,4} AD / \\d{1,4} AD|" + // 5 AD / 10 AD and 0005 AD / 0010 AD
-                "\\d{1,4}-\\d{1,2} BC / \\d{1,4}-\\d{1,2} AD|" + // 5 AD/10 AD and 0005 AD/0010 AD
-                "\\d{1,4}-\\d{1,2} BC / \\d{1,4}-\\d{1,2} BC|" + // 5 AD/10 AD and 0005 AD/0010 AD
-                "\\d{1,4}-\\d{1,2} AD / \\d{1,4}-\\d{1,2} AD" // 5 AD/10 AD and 0005 AD/0010 AD
+                "\\d{1,4} BC / \\d{1,4} AD|"
+                // 30 BC / 5 AD and 0030 BC / 0005 AD
+                + "\\d{1,4} BC / \\d{1,4} BC|"
+                // 30 BC / 10 BC and 0030 BC / 0010 BC
+                + "\\d{1,4} AD / \\d{1,4} AD|"
+                // 5 AD / 10 AD and 0005 AD / 0010 AD
+                + "\\d{1,4}-\\d{1,2} BC / \\d{1,4}-\\d{1,2} AD|"
+                // 5 AD/10 AD and 0005 AD/0010 AD
+                + "\\d{1,4}-\\d{1,2} BC / \\d{1,4}-\\d{1,2} BC|"
+                // 5 AD/10 AD and 0005 AD/0010 AD
+                + "\\d{1,4}-\\d{1,2} AD / \\d{1,4}-\\d{1,2} AD" // 5 AD/10 AD and 0005 AD/0010 AD
             )
         ) {
             try {
@@ -259,10 +279,13 @@ public class Date {
         // handle the new date formats with era indicators
         if (
             dateString.matches(
-                "\\d{1,4} BC|" + // covers 1 BC
-                "\\d{1,4} AD|" + // covers 1 BC
-                "\\d{1,4}-\\d{1,2} BC|" + // covers 0030-01 BC
-                "\\d{1,4}-\\d{1,2} AD" // covers 0005-01 AD
+                "\\d{1,4} BC|"
+                // covers 1 BC
+                + "\\d{1,4} AD|"
+                // covers 1 BC
+                + "\\d{1,4}-\\d{1,2} BC|"
+                // covers 0030-01 BC
+                + "\\d{1,4}-\\d{1,2} AD" // covers 0005-01 AD
             )
         ) {
             try {
@@ -443,23 +466,23 @@ public class Date {
         Date date1 = (Date) o;
 
         return (
-            Objects.equals(getYear(), date1.getYear()) &&
-            Objects.equals(getMonth(), date1.getMonth()) &&
-            Objects.equals(getSeason(), date1.getSeason()) &&
-            Objects.equals(getDay(), date1.getDay()) &&
-            Objects.equals(
+            Objects.equals(getYear(), date1.getYear())
+            && Objects.equals(getMonth(), date1.getMonth())
+            && Objects.equals(getSeason(), date1.getSeason())
+            && Objects.equals(getDay(), date1.getDay())
+            && Objects.equals(
                 get(ChronoField.HOUR_OF_DAY),
                 date1.get(ChronoField.HOUR_OF_DAY)
-            ) &&
-            Objects.equals(
+            )
+            && Objects.equals(
                 get(ChronoField.MINUTE_OF_HOUR),
                 date1.get(ChronoField.MINUTE_OF_HOUR)
-            ) &&
-            Objects.equals(
+            )
+            && Objects.equals(
                 get(ChronoField.SECOND_OF_DAY),
                 date1.get(ChronoField.SECOND_OF_DAY)
-            ) &&
-            Objects.equals(
+            )
+            && Objects.equals(
                 get(ChronoField.OFFSET_SECONDS),
                 date1.get(ChronoField.OFFSET_SECONDS)
             )
@@ -476,13 +499,13 @@ public class Date {
             // The Date standard library does not have any API for handling seasons,
             // so here is no compact form.
             return (
-                "Date{" +
-                "date=" +
-                formattedDate +
-                ", " +
-                "season=" +
-                season.getName() +
-                '}'
+                "Date{"
+                + "date="
+                + formattedDate
+                + ", "
+                + "season="
+                + season.getName()
+                + '}'
             );
         }
         if (date.isSupported(ChronoField.OFFSET_SECONDS)) {
@@ -490,8 +513,8 @@ public class Date {
         } else if (date.isSupported(ChronoField.HOUR_OF_DAY)) {
             formattedDate = DateTimeFormatter.ISO_DATE_TIME.format(date);
         } else if (
-            date.isSupported(ChronoField.MONTH_OF_YEAR) &&
-            date.isSupported(ChronoField.DAY_OF_MONTH)
+            date.isSupported(ChronoField.MONTH_OF_YEAR)
+            && date.isSupported(ChronoField.DAY_OF_MONTH)
         ) {
             formattedDate = DateTimeFormatter.ISO_DATE.format(date);
         }

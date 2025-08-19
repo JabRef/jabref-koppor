@@ -46,9 +46,9 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
         }
         Keyword other = (Keyword) o;
         return (
-            Objects.equals(this.keyword, other.keyword) &&
+            Objects.equals(this.keyword, other.keyword)
             // && Objects.equals(this.getParent(), other.getParent()) : we can't check the parents because then we would run in circles
-            Objects.equals(this.getChild(), other.getChild())
+            && Objects.equals(this.getChild(), other.getChild())
         );
     }
 
@@ -81,14 +81,14 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
      */
     private String getSubchainAsString(Character hierarchicalDelimiter) {
         return (
-            keyword +
-            getChild()
+            keyword
+            + getChild()
                 .map(
                     child ->
-                        " " +
-                        hierarchicalDelimiter +
-                        " " +
-                        child.getSubchainAsString(hierarchicalDelimiter)
+                        " "
+                        + hierarchicalDelimiter
+                        + " "
+                        + child.getSubchainAsString(hierarchicalDelimiter)
                 )
                 .orElse("")
         );
@@ -110,13 +110,13 @@ public class Keyword extends ChainNode<Keyword> implements Comparable<Keyword> {
             getParent()
                 .map(
                     parent ->
-                        parent.getPathFromRootAsString(hierarchicalDelimiter) +
-                        " " +
-                        hierarchicalDelimiter +
-                        " "
+                        parent.getPathFromRootAsString(hierarchicalDelimiter)
+                        + " "
+                        + hierarchicalDelimiter
+                        + " "
                 )
-                .orElse("") +
-            keyword
+                .orElse("")
+            + keyword
         );
     }
 

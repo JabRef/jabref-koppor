@@ -71,9 +71,9 @@ public class UndoableUnabbreviator {
         CompoundEdit ce
     ) {
         if (
-            (StandardField.JOURNAL != field &&
-                StandardField.JOURNALTITLE != field) ||
-            !entry.hasField(AMSField.FJOURNAL)
+            (StandardField.JOURNAL != field
+                && StandardField.JOURNALTITLE != field)
+            || !entry.hasField(AMSField.FJOURNAL)
         ) {
             return false;
         }

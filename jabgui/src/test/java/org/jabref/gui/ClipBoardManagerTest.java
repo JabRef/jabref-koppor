@@ -100,10 +100,10 @@ class ClipBoardManagerTest {
     void copyStringBibEntryWithStringConstants() throws IOException {
         // Arrange
         String expected =
-            "@String{grl = \"Geophys. Res. Lett.\"}@Article{,\n" +
-            " author = {Claudepierre, S. G.},\n" +
-            " journal = {grl},\n" +
-            "}";
+            "@String{grl = \"Geophys. Res. Lett.\"}@Article{,\n"
+            + " author = {Claudepierre, S. G.},\n"
+            + " journal = {grl},\n"
+            + "}";
         // create BibEntry
         BibEntry bibEntry = new BibEntry();
         // construct an entry

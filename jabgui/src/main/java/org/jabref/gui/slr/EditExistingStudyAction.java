@@ -37,8 +37,8 @@ public class EditExistingStudyAction extends SimpleCommand {
         // The action works on the current library
         // This library has to be determined
         if (
-            stateManager.getActiveDatabase().isEmpty() ||
-            !stateManager.getActiveDatabase().get().isStudy()
+            stateManager.getActiveDatabase().isEmpty()
+            || !stateManager.getActiveDatabase().get().isStudy()
         ) {
             return;
         }

@@ -38,11 +38,15 @@ public class StringUtil {
      * Pattern for normalizing whitespace and punctuation using named capture groups
      */
     private static final Pattern NORMALIZE_PATTERN = Pattern.compile(
-        "(?<whitespace>\\s+)|" + // multiple whitespace
-        "(?<hyphen>\\s*-+\\s*)|" + // hyphens with surrounding spaces
-        "(?<comma>\\s*,\\s*)|" + // commas with surrounding spaces
-        "(?<semicolon>\\s*;\\s*)|" + // semicolons with surrounding spaces
-        "(?<colon>\\s*:\\s*)" // colons with surrounding spaces
+        "(?<whitespace>\\s+)|"
+        // multiple whitespace
+        + "(?<hyphen>\\s*-+\\s*)|"
+        // hyphens with surrounding spaces
+        + "(?<comma>\\s*,\\s*)|"
+        // commas with surrounding spaces
+        + "(?<semicolon>\\s*;\\s*)|"
+        // semicolons with surrounding spaces
+        + "(?<colon>\\s*:\\s*)" // colons with surrounding spaces
     );
 
     private static final UnicodeToReadableCharMap UNICODE_CHAR_MAP =
@@ -105,8 +109,8 @@ public class StringUtil {
         // advance to first char and skip whitespace
         int index = startIndex + 1;
         while (
-            (index < text.length()) &&
-            Character.isWhitespace(text.charAt(index))
+            (index < text.length())
+            && Character.isWhitespace(text.charAt(index))
         ) {
             index++;
         }
@@ -115,9 +119,9 @@ public class StringUtil {
         while (index < text.length()) {
             c = text.charAt(index);
             if (
-                !terminateOnEndBraceOnly &&
-                (count == 0) &&
-                Character.isWhitespace(c)
+                !terminateOnEndBraceOnly
+                && (count == 0)
+                && Character.isWhitespace(c)
             ) {
                 // end argument and leave whitespace for further processing
                 break;
@@ -377,11 +381,11 @@ public class StringUtil {
 
             // See if we should start bracing:
             if (
-                (inBrace == 0) &&
-                !isBracing &&
-                !inString &&
-                Character.isLetter((char) c) &&
-                Character.isUpperCase((char) c)
+                (inBrace == 0)
+                && !isBracing
+                && !inString
+                && Character.isLetter((char) c)
+                && Character.isUpperCase((char) c)
             ) {
                 buf.append('{');
                 isBracing = true;
@@ -389,9 +393,9 @@ public class StringUtil {
 
             // See if we should close a brace set:
             if (
-                isBracing &&
-                !(Character.isLetter((char) c) &&
-                    Character.isUpperCase((char) c))
+                isBracing
+                && !(Character.isLetter((char) c)
+                    && Character.isUpperCase((char) c))
             ) {
                 buf.append('}');
                 isBracing = false;
@@ -423,8 +427,8 @@ public class StringUtil {
         String current = s;
         String previous = s;
         while (
-            (current = removeSingleBracesAroundCapitals(current)).length() <
-            previous.length()
+            (current = removeSingleBracesAroundCapitals(current)).length()
+            < previous.length()
         ) {
             previous = current;
         }
@@ -485,8 +489,8 @@ public class StringUtil {
             return false;
         } else {
             if (
-                (toCheck.charAt(0) == '{') &&
-                (toCheck.charAt(toCheck.length() - 1) == '}')
+                (toCheck.charAt(0) == '{')
+                && (toCheck.charAt(toCheck.length() - 1) == '}')
             ) {
                 for (char c : toCheck.toCharArray()) {
                     if (c == '{') {
@@ -510,8 +514,8 @@ public class StringUtil {
             return false; // In case of null or empty string
         } else {
             return (
-                (toCheck.charAt(0) == '[') &&
-                (toCheck.charAt(toCheck.length() - 1) == ']')
+                (toCheck.charAt(0) == '[')
+                && (toCheck.charAt(toCheck.length() - 1) == ']')
             );
         }
     }
@@ -521,8 +525,8 @@ public class StringUtil {
             return false; // In case of null, empty string, or a single citation mark
         } else {
             return (
-                (toCheck.charAt(0) == '"') &&
-                (toCheck.charAt(toCheck.length() - 1) == '"')
+                (toCheck.charAt(0) == '"')
+                && (toCheck.charAt(toCheck.length() - 1) == '"')
             );
         }
     }
@@ -543,13 +547,13 @@ public class StringUtil {
         char ch;
 
         if (
-            (str == null) ||
-            ((end = str.length()) == 0) ||
-            ((((ch = str.charAt(0)) < '0') || (ch > '9')) &&
-                (!(sign = ch == '-') ||
-                    (++idx == end) ||
-                    ((ch = str.charAt(idx)) < '0') ||
-                    (ch > '9')))
+            (str == null)
+            || ((end = str.length()) == 0)
+            || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                && (!(sign = ch == '-')
+                    || (++idx == end)
+                    || ((ch = str.charAt(idx)) < '0')
+                    || (ch > '9')))
         ) {
             throw new NumberFormatException(str);
         }
@@ -581,13 +585,13 @@ public class StringUtil {
         char ch;
 
         if (
-            (str == null) ||
-            ((end = str.length()) == 0) ||
-            ((((ch = str.charAt(0)) < '0') || (ch > '9')) &&
-                (!(sign = ch == '-') ||
-                    (++idx == end) ||
-                    ((ch = str.charAt(idx)) < '0') ||
-                    (ch > '9')))
+            (str == null)
+            || ((end = str.length()) == 0)
+            || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                && (!(sign = ch == '-')
+                    || (++idx == end)
+                    || ((ch = str.charAt(idx)) < '0')
+                    || (ch > '9')))
         ) {
             return Optional.empty();
         }
@@ -627,11 +631,11 @@ public class StringUtil {
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
             if (
-                (current == 0x9) ||
-                (current == 0xA) ||
-                (current == 0xD) ||
-                ((current >= 0x20) && (current <= 0xD7FF)) ||
-                ((current >= 0xE000) && (current <= 0xFFFD))
+                (current == 0x9)
+                || (current == 0xA)
+                || (current == 0xD)
+                || ((current >= 0x20) && (current <= 0xD7FF))
+                || ((current >= 0xE000) && (current <= 0xFFFD))
             ) {
                 out.append(current);
             }
@@ -806,8 +810,8 @@ public class StringUtil {
     public static String capitalizeFirst(String toCapitalize) {
         if (toCapitalize.length() > 1) {
             return (
-                toCapitalize.substring(0, 1).toUpperCase(Locale.ROOT) +
-                toCapitalize.substring(1).toLowerCase(Locale.ROOT)
+                toCapitalize.substring(0, 1).toUpperCase(Locale.ROOT)
+                + toCapitalize.substring(1).toLowerCase(Locale.ROOT)
             );
         } else {
             return toCapitalize.toUpperCase(Locale.ROOT);

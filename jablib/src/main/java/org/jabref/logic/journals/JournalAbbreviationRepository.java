@@ -99,10 +99,12 @@ public class JournalAbbreviationRepository {
 
     private static boolean isMatched(String name, Abbreviation abbreviation) {
         return (
-            name.equalsIgnoreCase(abbreviation.getName()) ||
-            name.equalsIgnoreCase(abbreviation.getAbbreviation()) ||
-            name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation()) ||
-            name.equalsIgnoreCase(abbreviation.getShortestUniqueAbbreviation())
+            name.equalsIgnoreCase(abbreviation.getName())
+            || name.equalsIgnoreCase(abbreviation.getAbbreviation())
+            || name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation())
+            || name.equalsIgnoreCase(
+                abbreviation.getShortestUniqueAbbreviation()
+            )
         );
     }
 
@@ -115,9 +117,11 @@ public class JournalAbbreviationRepository {
             return false;
         }
         return (
-            name.equalsIgnoreCase(abbreviation.getAbbreviation()) ||
-            name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation()) ||
-            name.equalsIgnoreCase(abbreviation.getShortestUniqueAbbreviation())
+            name.equalsIgnoreCase(abbreviation.getAbbreviation())
+            || name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation())
+            || name.equalsIgnoreCase(
+                abbreviation.getShortestUniqueAbbreviation()
+            )
         );
     }
 
@@ -159,10 +163,10 @@ public class JournalAbbreviationRepository {
                 .stream()
                 .anyMatch(abbreviation ->
                     isMatchedAbbreviated(journal, abbreviation)
-                ) ||
-            abbreviationToAbbreviationObject.containsKey(journal) ||
-            dotlessToAbbreviationObject.containsKey(journal) ||
-            shortestUniqueToAbbreviationObject.containsKey(journal)
+                )
+            || abbreviationToAbbreviationObject.containsKey(journal)
+            || dotlessToAbbreviationObject.containsKey(journal)
+            || shortestUniqueToAbbreviationObject.containsKey(journal)
         );
     }
 

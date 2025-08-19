@@ -312,8 +312,8 @@ public class FieldFactory {
         List<Field> nonWrappableFields
     ) {
         return (
-            field.getProperties().contains(FieldProperty.MULTILINE_TEXT) ||
-            nonWrappableFields.contains(field)
+            field.getProperties().contains(FieldProperty.MULTILINE_TEXT)
+            || nonWrappableFields.contains(field)
         );
     }
 }

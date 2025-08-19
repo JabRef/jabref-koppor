@@ -76,8 +76,8 @@ public class UnoCrossRef {
             );
         } catch (UnknownPropertyException ex) {
             throw new java.lang.IllegalStateException(
-                "The created GetReference does not have property" +
-                " 'ReferenceFieldSource'"
+                "The created GetReference does not have property"
+                + " 'ReferenceFieldSource'"
             );
         } catch (PropertyVetoException ex) {
             throw new java.lang.IllegalStateException(
@@ -93,8 +93,8 @@ public class UnoCrossRef {
             );
         } catch (UnknownPropertyException ex) {
             throw new java.lang.IllegalStateException(
-                "The created GetReference does not have property" +
-                " 'ReferenceFieldPart'"
+                "The created GetReference does not have property"
+                + " 'ReferenceFieldPart'"
             );
         } catch (PropertyVetoException ex) {
             throw new java.lang.IllegalStateException(

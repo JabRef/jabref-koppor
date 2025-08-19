@@ -69,8 +69,8 @@ public abstract class SendAsEMailAction extends SimpleCommand {
 
     private String sendEmail() throws URISyntaxException, IOException {
         if (
-            !Desktop.isDesktopSupported() ||
-            stateManager.getActiveDatabase().isEmpty()
+            !Desktop.isDesktopSupported()
+            || stateManager.getActiveDatabase().isEmpty()
         ) {
             return Localization.lang("Error creating email");
         }

@@ -81,8 +81,8 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
             ctx.searchValue()
         );
         boolean isQuoted =
-            ctx.searchValue().getStart().getType() ==
-            SearchParser.STRING_LITERAL;
+            ctx.searchValue().getStart().getType()
+            == SearchParser.STRING_LITERAL;
 
         // unfielded expression
         if (ctx.FIELD() == null) {
@@ -108,9 +108,9 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
 
     private boolean isValidField(String field) {
         return (
-            "any".equals(field) ||
-            "anyfield".equals(field) ||
-            LinkedFilesConstants.PDF_FIELDS.contains(field)
+            "any".equals(field)
+            || "anyfield".equals(field)
+            || LinkedFilesConstants.PDF_FIELDS.contains(field)
         );
     }
 

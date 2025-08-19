@@ -110,8 +110,8 @@ class ResearchGateTest {
             .withCitationKey("article")
             .withField(
                 StandardField.TITLE,
-                "Wine Microbiology and Predictive Microbiology: " +
-                "A Short Overview on Application, and Perspectives"
+                "Wine Microbiology and Predictive Microbiology: "
+                + "A Short Overview on Application, and Perspectives"
             )
             .withField(StandardField.DOI, "10.3390/microorganisms10020421")
             .withField(StandardField.JOURNAL, "Microorganisms")
@@ -121,13 +121,13 @@ class ResearchGateTest {
             .withField(StandardField.YEAR, "2022")
             .withField(
                 StandardField.AUTHOR,
-                "Petruzzi, Leonardo and Campaniello, Daniela and Corbo," +
-                " Maria and Speranza, Barbara and Altieri, Clelia and Sinigaglia, Milena and Bevilacqua, Antonio"
+                "Petruzzi, Leonardo and Campaniello, Daniela and Corbo,"
+                + " Maria and Speranza, Barbara and Altieri, Clelia and Sinigaglia, Milena and Bevilacqua, Antonio"
             );
 
         QueryNode queryNode = new StandardSyntaxParser().parse(
-            "Wine Microbiology and Predictive " +
-            "Microbiology: A Short Overview on Application, and Perspectives",
+            "Wine Microbiology and Predictive "
+            + "Microbiology: A Short Overview on Application, and Perspectives",
             NO_EXPLICIT_FIELD
         );
         assertEquals(

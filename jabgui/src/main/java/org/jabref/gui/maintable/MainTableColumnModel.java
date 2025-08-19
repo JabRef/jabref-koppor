@@ -88,14 +88,14 @@ public class MainTableColumnModel {
         @Override
         public String toString() {
             return (
-                "Type{" +
-                "name='" +
-                name +
-                '\'' +
-                ", displayName='" +
-                displayName +
-                '\'' +
-                '}'
+                "Type{"
+                + "name='"
+                + name
+                + '\''
+                + ", displayName='"
+                + displayName
+                + '\''
+                + '}'
             );
         }
     }
@@ -171,18 +171,18 @@ public class MainTableColumnModel {
             return typeProperty.getValue().getName();
         } else {
             return (
-                typeProperty.getValue().getName() +
-                COLUMNS_QUALIFIER_DELIMITER +
-                qualifierProperty.getValue()
+                typeProperty.getValue().getName()
+                + COLUMNS_QUALIFIER_DELIMITER
+                + qualifierProperty.getValue()
             );
         }
     }
 
     public String getDisplayName() {
         if (
-            (Type.ICON_COLUMNS.contains(typeProperty.getValue()) &&
-                qualifierProperty.getValue().isBlank()) ||
-            (typeProperty.getValue() == Type.INDEX)
+            (Type.ICON_COLUMNS.contains(typeProperty.getValue())
+                && qualifierProperty.getValue().isBlank())
+            || (typeProperty.getValue() == Type.INDEX)
         ) {
             return typeProperty.getValue().getDisplayName();
         } else {
@@ -266,12 +266,12 @@ public class MainTableColumnModel {
     @Override
     public String toString() {
         return (
-            "MainTableColumnModel{" +
-            "qualifierProperty=" +
-            qualifierProperty +
-            ", typeProperty=" +
-            typeProperty +
-            '}'
+            "MainTableColumnModel{"
+            + "qualifierProperty="
+            + qualifierProperty
+            + ", typeProperty="
+            + typeProperty
+            + '}'
         );
     }
 
@@ -291,9 +291,9 @@ public class MainTableColumnModel {
         String qualifier = "";
 
         if (
-            (type == Type.NORMALFIELD) ||
-            (type == Type.SPECIALFIELD) ||
-            (type == Type.EXTRAFILE)
+            (type == Type.NORMALFIELD)
+            || (type == Type.SPECIALFIELD)
+            || (type == Type.EXTRAFILE)
         ) {
             if (splittedName.length == 1) {
                 qualifier = splittedName[0]; // By default the rawColumnName is parsed as NORMALFIELD

@@ -48,15 +48,15 @@ public class SmartGroup extends WordKeywordGroup {
         }
         SmartGroup other = (SmartGroup) o;
         return (
-            Objects.equals(getName(), other.getName()) &&
-            Objects.equals(
+            Objects.equals(getName(), other.getName())
+            && Objects.equals(
                 getHierarchicalContext(),
                 other.getHierarchicalContext()
-            ) &&
-            Objects.equals(getIconName(), other.getIconName()) &&
-            Objects.equals(getDescription(), other.getDescription()) &&
-            Objects.equals(getColor(), other.getColor()) &&
-            Objects.equals(isExpanded(), other.isExpanded())
+            )
+            && Objects.equals(getIconName(), other.getIconName())
+            && Objects.equals(getDescription(), other.getDescription())
+            && Objects.equals(getColor(), other.getColor())
+            && Objects.equals(isExpanded(), other.isExpanded())
         );
     }
 

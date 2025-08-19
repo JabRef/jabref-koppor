@@ -91,8 +91,8 @@ public final class EntryChangeDetailsView extends DatabaseChangeDetailsView {
             newEntryTabPane.getSelectionModel().selectedIndexProperty(),
             selectedIndex -> {
                 if (
-                    oldEntryTabPane.getSelectionModel().getSelectedIndex() !=
-                    selectedIndex.intValue()
+                    oldEntryTabPane.getSelectionModel().getSelectedIndex()
+                    != selectedIndex.intValue()
                 ) {
                     oldEntryTabPane
                         .getSelectionModel()

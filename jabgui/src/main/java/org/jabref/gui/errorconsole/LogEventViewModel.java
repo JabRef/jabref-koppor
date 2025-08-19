@@ -44,8 +44,8 @@ public class LogEventViewModel {
 
     public String getDetailedText() {
         return (
-            getDisplayText() +
-            getStackTrace()
+            getDisplayText()
+            + getStackTrace()
                 .map(stacktrace -> OS.NEWLINE + stacktrace)
                 .orElse("")
         );

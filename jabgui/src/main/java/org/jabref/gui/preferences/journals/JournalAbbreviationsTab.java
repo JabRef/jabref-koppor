@@ -212,8 +212,8 @@ public class JournalAbbreviationsTab
             .addListener((observable, previousText, searchTerm) ->
                 filteredAbbreviations.setPredicate(
                     abbreviation ->
-                        searchTerm.isEmpty() ||
-                        abbreviation.containsCaseIndependent(searchTerm)
+                        searchTerm.isEmpty()
+                        || abbreviation.containsCaseIndependent(searchTerm)
                 )
             );
 
