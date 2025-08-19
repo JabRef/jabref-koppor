@@ -1,7 +1,7 @@
 name: Fix prettier
 
 on:
-  pull_request:
+  push:
   workflow_dispatch:
 
 concurrency:
