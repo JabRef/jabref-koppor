@@ -81,12 +81,12 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.6
+      - uses: actions/setup-node@v4
         with:
-          prettier_options: --write **/*.java
-          prettier_plugins: prettier-plugin-java
-          dry: true
+          node-version: 'latest'
+          cache: 'npm'
+
+      - run: npx prettier "**/*.java" --check
 
   openrewrite:
     name: OpenRewrite
