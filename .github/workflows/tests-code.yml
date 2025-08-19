@@ -74,6 +74,20 @@ jobs:
       - name: Run checkstyle using gradle
         run: ./gradlew checkstyleMain checkstyleTest checkstyleJmh
 
+  prettier:
+    name: prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.6
+        with:
+          prettier_options: --write **/*.{java}
+          prettier_plugins: prettier-java
+          dry: true
+
   openrewrite:
     name: OpenRewrite
     runs-on: ubuntu-latest
