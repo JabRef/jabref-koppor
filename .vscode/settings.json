@@ -4,4 +4,5 @@
     "java.checkstyle.configuration": "${workspaceFolder}/config/checkstyle/checkstyle_reviewdog.xml",
     "java.checkstyle.version": "10.21.0",
     "java.compile.nullAnalysis.mode": "automatic"
+    "java.completion.importOrder": ["#"]
 }
