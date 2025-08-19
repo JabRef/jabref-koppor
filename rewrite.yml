@@ -123,7 +123,8 @@ recipeList:
   - org.openrewrite.staticanalysis.BooleanChecksNotInverted
   - org.openrewrite.staticanalysis.CaseInsensitiveComparisonsDoNotChangeCase
   - org.openrewrite.staticanalysis.CatchClauseOnlyRethrows
-  - org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls
+  # Does reformatting - and thus conflicts with prettier-java
+  # - org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls
   # Might need manual intervention, because negations are not treated properly
   - org.openrewrite.staticanalysis.CompareEnumsWithEqualityOperator
   - org.openrewrite.staticanalysis.ControlFlowIndentation
@@ -219,6 +220,7 @@ recipeList:
   #   NOT: https://docs.openrewrite.org/recipes/java/logging/catchblockloglevel
   # Manual collection of https://docs.openrewrite.org/recipes/java/logging/slf4j/slf4jbestpractices
   - org.openrewrite.java.logging.slf4j.LoggersNamedForEnclosingClass
-  - org.openrewrite.java.logging.slf4j.ParameterizedLogging
+  # Does reformatting - and thus conflicts with prettier-java
+  # - org.openrewrite.java.logging.slf4j.ParameterizedLogging
   - org.openrewrite.java.logging.slf4j.Slf4jLogShouldBeConstant
   - org.openrewrite.java.logging.slf4j.CompleteExceptionLogging
