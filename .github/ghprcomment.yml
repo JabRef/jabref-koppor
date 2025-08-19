@@ -60,7 +60,6 @@
     Your code currently does not meet JabRef's code guidelines.
     We use [prettier-java](https://www.jhipster.tech/prettier-java/) to ensure "modern" Java coding practices.
     You can see which checks are failing by locating the box "Some checks were not successful" on the pull request page.
-    To see the test output, locate "Source Code Tests / prettier (pull_request)" and click on it.
 
 
     The issues found can be **automatically fixed**.
