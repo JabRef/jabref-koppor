@@ -20,4 +20,4 @@ jobs:
         uses: creyD/prettier_action@v4.6
         with:
           prettier_options: --write **/*.{java}
-          prettier_plugins: prettier-java
+          prettier_plugins: prettier-plugin-java
