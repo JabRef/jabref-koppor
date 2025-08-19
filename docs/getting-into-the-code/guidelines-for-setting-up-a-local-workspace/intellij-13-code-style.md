@@ -20,9 +20,10 @@ This part guides you to configure [Prettier Java](https://github.com/jhipster/pr
 1. Ensure that you have [Node.js](https://nodejs.org/en#downloadhttps://nodejs.org/en#download) installed.
 2. Install prettier: `npm install --global prettier prettier-plugin-java`
 3. **File > Settings... > Languages & Frameworks > JavaScript > Prettier**
-4. Select "Automatic Prettier Configuration"
-5. Change "Run for files" to `{**/*,*}.{java}`
-6. Select "Run on save"
+4. Ensure that "Automatic Prettier Configuration" is selected.
+5. Ensure that "Run for files" is `{**/*,*}.{java}`.
+6. Select "Run on save".
+7. Click "Apply".
 
 {: .note }
 You can read more information at <https://www.jetbrains.com/help/idea/prettier.html>.
