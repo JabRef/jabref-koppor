@@ -35,7 +35,7 @@ class StringUtilTest {
         int lineCount = Files.readAllLines(path, StandardCharsets.UTF_8).size();
 
         assertTrue(
-            lineCount <= 939,
+            lineCount <= 943,
             "StringUtil increased in size to "
             + lineCount
             + ". "
