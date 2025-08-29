@@ -1,6 +1,7 @@
 plugins {
     id("org.jabref.gradle.module")
     id("application")
+    id("org.teavm") version "0.12.3"
 }
 
 group = "org.jabref.jabkit"
@@ -8,6 +9,8 @@ version = project.findProperty("projVersion") ?: "100.0.0"
 
 
 dependencies {
+    implementation(teavm.libs.jsoApis)
+
     implementation(project(":jablib"))
 
     // FIXME: Injector needs to be removed, no JavaFX dependencies, etc.
@@ -50,6 +53,9 @@ dependencies {
     testImplementation(project(":test-support"))
     testImplementation("org.mockito:mockito-core")
     testImplementation("net.bytebuddy:byte-buddy")
+
+	// TeaVM
+	testImplementation("org.teavm:teavm-core")
 }
 
 javaModuleTesting.whitebox(testing.suites["test"]) {
@@ -93,4 +99,24 @@ javaModulePackaging {
     targetsWithOs("macos") {
         packageTypes = listOf("app-image")
     }
+}
+
+
+teavm {
+    all {
+        mainClass.set("org.jabref.JabKit")
+    }
+    js {
+        addedToWebApp = true
+
+        // this is also optional, default value is <project name>.js
+        targetFileName = "example.js"
+    }
+    wasmGC {
+        addedToWebApp = true
+    }
+}
+
+configurations.testImplementation {
+    exclude(group = "org.teavm", module = "teavm-junit")
 }
