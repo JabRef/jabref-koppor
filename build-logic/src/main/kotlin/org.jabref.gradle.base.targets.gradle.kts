@@ -42,4 +42,10 @@ javaModulePackaging {
         architecture = MachineArchitecture.X86_64
         packageTypes = listOf("app-image", "msi")
     }
+	// TeaVM Platforms: https://github.com/konsoletyper/teavm/blob/master/interop/core/src/main/java/org/teavm/interop/Platforms.java
+    target("webassembly") {
+        operatingSystem = OperatingSystemFamily.LINUX
+        architecture = MachineArchitecture.X86_64
+        packageTypes = listOf("")
+    }
 }
