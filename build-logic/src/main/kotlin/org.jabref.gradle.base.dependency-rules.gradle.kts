@@ -683,5 +683,4 @@ extraJavaModuleInfo {
     module("com.jcraft:jzlib", "jzlib")
     module("joda-time:joda-time", "org.joda.time")
 	// endregion
-
 }
