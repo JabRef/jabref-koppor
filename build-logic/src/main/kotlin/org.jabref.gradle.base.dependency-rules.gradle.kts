@@ -80,6 +80,9 @@ jvmDependencyConflicts.patch {
     }
 }
 
+// This sets the java module names for the jar files.
+// Required for a deterministic and clean module-aware build.
+// Especially needed for jpackage.
 extraJavaModuleInfo {
     failOnAutomaticModules = true
     failOnModifiedDerivedModuleNames = true
@@ -657,4 +660,28 @@ extraJavaModuleInfo {
     module("org.openjdk.jmh:jmh-generator-bytecode", "jmh.generator.bytecode")
     module("org.openjdk.jmh:jmh-generator-reflection", "jmh.generator.reflection")
     module("org.apache.commons:commons-math3", "commons.math3")
+
+	// region TeaVM
+    module("org.teavm:teavm-classlib", "teavm.classlib")
+    module("org.teavm:teavm-interop", "teavm.interop")
+    module("org.teavm:teavm-platform", "teavm.platform")
+    module("org.teavm:teavm-jso", "org.teavm.jso")
+    module("org.teavm:teavm-jso-apis", "org.teavm.jso.apis")
+
+    module("org.teavm:teavm-jso-impl", "teavm.jso.impl") {
+	    requireAllDefinedDependencies()
+	}
+	module("org.teavm:teavm-relocated-libs-rhino", "org.teavm.rhino")
+
+    module("org.teavm:teavm-metaprogramming-impl", "teavm.metaprogramming.impl") {
+	    requireAllDefinedDependencies()
+	}
+	module("org.teavm:teavm-metaprogramming-api", "teavm.metaprogramming.api")
+	module("org.teavm:teavm-relocated-libs-commons-io", "org.teavm.commons.io")
+	module("org.teavm:teavm-relocated-libs-asm", "teavm.asm")
+
+    module("com.jcraft:jzlib", "jzlib")
+    module("joda-time:joda-time", "org.joda.time")
+	// endregion
+
 }
