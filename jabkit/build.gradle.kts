@@ -53,6 +53,9 @@ dependencies {
     testImplementation(project(":test-support"))
     testImplementation("org.mockito:mockito-core")
     testImplementation("net.bytebuddy:byte-buddy")
+
+	// TeaVM
+	testImplementation("org.teavm:teavm-core")
 }
 
 javaModuleTesting.whitebox(testing.suites["test"]) {

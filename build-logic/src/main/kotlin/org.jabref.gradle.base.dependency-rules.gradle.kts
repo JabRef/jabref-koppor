@@ -656,29 +656,64 @@ extraJavaModuleInfo {
     }
 
     module("org.openjdk.jmh:jmh-core", "jmh.core")
-    module("org.openjdk.jmh:jmh-generator-asm", "jmh.generator.asm")
+	module("org.openjdk.jmh:jmh-generator-asm", "jmh.generator.asm")
     module("org.openjdk.jmh:jmh-generator-bytecode", "jmh.generator.bytecode")
     module("org.openjdk.jmh:jmh-generator-reflection", "jmh.generator.reflection")
     module("org.apache.commons:commons-math3", "commons.math3")
 
 	// region TeaVM
-    module("org.teavm:teavm-classlib", "teavm.classlib")
+	 module("org.teavm:teavm-core", "teavm.core") {
+		exports("org.teavm.vm.spi") // ensures org.teavm.vm.spi is visible
+    }
+    module("org.teavm:teavm-classlib", "teavm.classlib") {
+        requireAllDefinedDependencies()
+		requires("teavm.core")
+    }
     module("org.teavm:teavm-interop", "teavm.interop")
-    module("org.teavm:teavm-platform", "teavm.platform")
+    module("org.teavm:teavm-platform", "teavm.platform") {
+        // requireAllDefinedDependencies()
+		requires("teavm.core")
+    }
     module("org.teavm:teavm-jso", "org.teavm.jso")
     module("org.teavm:teavm-jso-apis", "org.teavm.jso.apis")
 
     module("org.teavm:teavm-jso-impl", "teavm.jso.impl") {
 	    requireAllDefinedDependencies()
+		requires("teavm.core")
 	}
-	module("org.teavm:teavm-relocated-libs-rhino", "org.teavm.rhino")
+	module("org.teavm:teavm-relocated-libs-rhino", "teavm.relocated.libs.rhino")
 
     module("org.teavm:teavm-metaprogramming-impl", "teavm.metaprogramming.impl") {
 	    requireAllDefinedDependencies()
+		requires("teavm.core")
 	}
 	module("org.teavm:teavm-metaprogramming-api", "teavm.metaprogramming.api")
-	module("org.teavm:teavm-relocated-libs-commons-io", "org.teavm.commons.io")
-	module("org.teavm:teavm-relocated-libs-asm", "teavm.asm")
+	module("org.teavm:teavm-relocated-libs-commons-io", "teavm.relocated.libs.commons.io")
+	module("org.teavm:teavm-relocated-libs-asm", "teavm.relocated.libs.asm") {
+	    // preserveExisting() // Does not work, because "Package org.objectweb.asm.signature not found in module" (the package moved org.objectweb to org.teavm)
+		patchRealModule()
+		exportAllPackages()
+    }
+	module("org.teavm:teavm-relocated-libs-asm-analysis", "teavm.relocated.libs.asm.analysis") {
+		patchRealModule()
+		exportAllPackages()
+    }
+	module("org.teavm:teavm-relocated-libs-asm-commons", "teavm.relocated.libs.asm.commons") {
+		patchRealModule()
+		exportAllPackages()
+    }
+	module("org.teavm:teavm-relocated-libs-asm-tree", "teavm.relocated.libs.asm.tree") {
+		patchRealModule()
+		exportAllPackages()
+    }
+	module("org.teavm:teavm-relocated-libs-asm-util", "teavm.relocated.libs.asm.util") {
+		patchRealModule()
+		exportAllPackages()
+    }
+	module("org.teavm:teavm-relocated-libs-hppc", "teavm.relocated.libs.asm.hppc") {
+		patchRealModule()
+		exportAllPackages()
+    }
 
     module("com.jcraft:jzlib", "jzlib")
     module("joda-time:joda-time", "org.joda.time")
