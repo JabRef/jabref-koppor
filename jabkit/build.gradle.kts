@@ -113,3 +113,7 @@ teavm {
         addedToWebApp = true
     }
 }
+
+configurations.testImplementation {
+    exclude(group = "org.teavm", module = "teavm-junit")
+}
