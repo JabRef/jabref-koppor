@@ -4,6 +4,9 @@ plugins {
     id("org.teavm") version "0.12.3"
 }
 
+import org.gradle.nativeplatform.OperatingSystemFamily
+import org.gradle.nativeplatform.MachineArchitecture
+
 group = "org.jabref.jabkit"
 version = project.findProperty("projVersion") ?: "100.0.0"
 
@@ -119,4 +122,13 @@ teavm {
 
 configurations.testImplementation {
     exclude(group = "org.teavm", module = "teavm-junit")
+}
+
+// Hint by @jjohannes
+configurations.teavmClasspath {
+    attributes {
+        // TeaVM Platforms: https://github.com/konsoletyper/teavm/blob/master/interop/core/src/main/java/org/teavm/interop/Platforms.java
+        attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named<OperatingSystemFamily>(OperatingSystemFamily.LINUX))
+        attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named<MachineArchitecture>(MachineArchitecture.X86_64))
+    }
 }
