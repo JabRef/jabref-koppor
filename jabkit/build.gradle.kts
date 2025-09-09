@@ -57,8 +57,8 @@ dependencies {
     testImplementation("org.mockito:mockito-core")
     testImplementation("net.bytebuddy:byte-buddy")
 
-	// TeaVM
-	testImplementation("org.teavm:teavm-core")
+    // TeaVM
+    testImplementation("org.teavm:teavm-core")
 }
 
 javaModuleTesting.whitebox(testing.suites["test"]) {
@@ -103,7 +103,6 @@ javaModulePackaging {
         packageTypes = listOf("app-image")
     }
 }
-
 
 teavm {
     all {
