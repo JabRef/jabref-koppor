@@ -64,7 +64,7 @@
 
 
     The issues found can be **automatically fixed**.
-    Please execute `npx prettier --write "**/*.java` on the command line check the results, commit, and push.
+    Please execute `npx prettier --write "**/*.java"` on the command line check the results, commit, and push.
     Alternativly, you can execute the workflow "Fix prettier" manually using GitHub actions.
 - jobName: OpenRewrite
   workflowName: 'Source Code Tests'
