@@ -1,8 +1,0 @@
-# takes 1 minute
-# https://github.com/jhipster/prettier-java/issues/757
-jabgui/src/main/java/org/jabref/gui/fieldeditors/FieldEditors.java
-
-# takes > 5 minutes
-# https://github.com/jhipster/prettier-java/issues/757
-jablib/src/main/java/org/jabref/logic/importer/fileformat/BiblioscapeImporter.java
-jablib/src/main/java/org/jabref/logic/importer/fileformat/RisImporter.java
