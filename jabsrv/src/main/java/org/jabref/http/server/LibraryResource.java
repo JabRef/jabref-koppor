@@ -1,27 +1,5 @@
 package org.jabref.http.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.jabref.http.JabrefMediaType;
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.dto.BibEntryDTO;
-import org.jabref.http.dto.LinkedPdfFileDTO;
-import org.jabref.http.server.services.FilesToServe;
-import org.jabref.http.server.services.ServerUtils;
-import org.jabref.logic.citationstyle.JabRefItemDataProvider;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.BibEntryTypesManager;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.entry.field.StandardField;
-
 import com.airhacks.afterburner.injection.Injector;
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
@@ -36,13 +14,36 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.jabref.http.JabrefMediaType;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.dto.BibEntryDTO;
+import org.jabref.http.dto.LinkedPdfFileDTO;
+import org.jabref.http.server.services.FilesToServe;
+import org.jabref.http.server.services.ServerUtils;
+import org.jabref.logic.citationstyle.JabRefItemDataProvider;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.BibEntryTypesManager;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.entry.field.StandardField;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("libraries/{id}")
 public class LibraryResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LibraryResource.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LibraryResource.class
+    );
 
     @Inject
     CliPreferences preferences;
@@ -67,11 +68,26 @@ public class LibraryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String getJson(@PathParam("id") String id) throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
-        BibEntryTypesManager entryTypesManager = Injector.instantiateModelOrService(BibEntryTypesManager.class);
-        List<BibEntryDTO> list = databaseContext.getDatabase().getEntries().stream()
-                                                .peek(bibEntry -> bibEntry.getSharedBibEntryData().setSharedID(Objects.hash(bibEntry)))
-                                                .map(entry -> new BibEntryDTO(entry, databaseContext.getMode(), preferences.getFieldPreferences(), entryTypesManager))
-                                                .toList();
+        BibEntryTypesManager entryTypesManager =
+            Injector.instantiateModelOrService(BibEntryTypesManager.class);
+        List<BibEntryDTO> list = databaseContext
+            .getDatabase()
+            .getEntries()
+            .stream()
+            .peek(bibEntry ->
+                bibEntry
+                    .getSharedBibEntryData()
+                    .setSharedID(Objects.hash(bibEntry))
+            )
+            .map(entry ->
+                new BibEntryDTO(
+                    entry,
+                    databaseContext.getMode(),
+                    preferences.getFieldPreferences(),
+                    entryTypesManager
+                )
+            )
+            .toList();
         return gson.toJson(list);
     }
 
@@ -98,25 +114,25 @@ public class LibraryResource {
         // if no file is found, return the default mindmap
         if (!Files.exists(jabMapPath)) {
             return """
-                    {
-                      "map": {
-                        "meta": {
-                          "name": "JabMap",
-                          "author": "JabMap",
-                          "version": "1.0"
-                        },
-                        "format": "node_tree",
-                        "data": {
-                          "id": "root",
-                          "topic": "JabMap",
-                          "expanded": true,
-                          "icons": [],
-                          "highlight": null,
-                          "type": "Text"
-                        }
-                      }
-                    }
-                    """;
+            {
+              "map": {
+                "meta": {
+                  "name": "JabMap",
+                  "author": "JabMap",
+                  "version": "1.0"
+                },
+                "format": "node_tree",
+                "data": {
+                  "id": "root",
+                  "topic": "JabMap",
+                  "expanded": true,
+                  "icons": [],
+                  "highlight": null,
+                  "type": "Text"
+                }
+              }
+            }
+            """;
         }
         return Files.readString(jabMapPath);
     }
@@ -133,7 +149,8 @@ public class LibraryResource {
     @PUT
     @Path("map")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateJabMapJson(@PathParam("id") String id, String fileContent) throws IOException {
+    public void updateJabMapJson(@PathParam("id") String id, String fileContent)
+        throws IOException {
         boolean isDemo = "demo".equals(id);
         java.nio.file.Path targetPath;
         if (isDemo) {
@@ -146,10 +163,15 @@ public class LibraryResource {
 
     @GET
     @Produces(JabrefMediaType.JSON_CSL_ITEM)
-    public String getClsItemJson(@PathParam("id") String id) throws IOException {
+    public String getClsItemJson(@PathParam("id") String id)
+        throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
-        JabRefItemDataProvider jabRefItemDataProvider = new JabRefItemDataProvider();
-        jabRefItemDataProvider.setData(databaseContext, new BibEntryTypesManager());
+        JabRefItemDataProvider jabRefItemDataProvider =
+            new JabRefItemDataProvider();
+        jabRefItemDataProvider.setData(
+            databaseContext,
+            new BibEntryTypesManager()
+        );
         return jabRefItemDataProvider.toJson();
     }
 
@@ -164,33 +186,55 @@ public class LibraryResource {
             };
 
             return Response.ok(stream)
-                           // org.glassfish.jersey.media would be required for a "nice" Java to create ContentDisposition; we avoid this
-                           .header("Content-Disposition", "attachment; filename=\"Chocolate.bib\"")
-                           .build();
+                // org.glassfish.jersey.media would be required for a "nice" Java to create ContentDisposition; we avoid this
+                .header(
+                    "Content-Disposition",
+                    "attachment; filename=\"Chocolate.bib\""
+                )
+                .build();
         }
 
-        java.nio.file.Path library = ServerUtils.getLibraryPath(id, filesToServe, srvStateManager);
+        java.nio.file.Path library = ServerUtils.getLibraryPath(
+            id,
+            filesToServe,
+            srvStateManager
+        );
         String libraryAsString;
         try {
             libraryAsString = Files.readString(library);
         } catch (IOException e) {
             LOGGER.error("Could not read library {}", library, e);
-            throw new InternalServerErrorException("Could not read library " + library, e);
+            throw new InternalServerErrorException(
+                "Could not read library " + library,
+                e
+            );
         }
         return Response.ok()
-                       .header("Content-Disposition", "attachment; filename=\"" + library.getFileName() + "\"")
-                       .entity(libraryAsString)
-                       .build();
+            .header(
+                "Content-Disposition",
+                "attachment; filename=\"" + library.getFileName() + "\""
+            )
+            .entity(libraryAsString)
+            .build();
     }
 
     private java.nio.file.Path getJabMapPath(String id) {
-        java.nio.file.Path libraryPath = ServerUtils.getLibraryPath(id, filesToServe, srvStateManager);
-        String newName = libraryPath.getFileName().toString().replaceFirst("\\.bib$", ".jmp");
+        java.nio.file.Path libraryPath = ServerUtils.getLibraryPath(
+            id,
+            filesToServe,
+            srvStateManager
+        );
+        String newName = libraryPath
+            .getFileName()
+            .toString()
+            .replaceFirst("\\.bib$", ".jmp");
         return libraryPath.getParent().resolve(newName);
     }
 
     private java.nio.file.Path getJabMapDemoPath() {
-        java.nio.file.Path result = java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).resolve("demo.jmp");
+        java.nio.file.Path result = java.nio.file.Path.of(
+            System.getProperty("java.io.tmpdir")
+        ).resolve("demo.jmp");
         LOGGER.debug("Using temporary file for demo jmp: {}", result);
         return result;
     }
@@ -198,8 +242,14 @@ public class LibraryResource {
     /**
      * @param id - also "demo" for the Chocolate.bib file
      */
-    private BibDatabaseContext getDatabaseContext(String id) throws IOException {
-        return ServerUtils.getBibDatabaseContext(id, filesToServe, srvStateManager, preferences.getImportFormatPreferences());
+    private BibDatabaseContext getDatabaseContext(String id)
+        throws IOException {
+        return ServerUtils.getBibDatabaseContext(
+            id,
+            filesToServe,
+            srvStateManager,
+            preferences.getImportFormatPreferences()
+        );
     }
 
     /**
@@ -216,14 +266,27 @@ public class LibraryResource {
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
-    public String getPlainRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
+    public String getPlainRepresentation(
+        @PathParam("id") String id,
+        @PathParam("entryId") String entryId
+    ) throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
-        List<BibEntry> entriesByCitationKey = databaseContext.getDatabase().getEntriesByCitationKey(entryId);
+        List<BibEntry> entriesByCitationKey = databaseContext
+            .getDatabase()
+            .getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
-            throw new NotFoundException("Entry with citation key '" + entryId + "' not found in library " + id);
+            throw new NotFoundException(
+                "Entry with citation key '"
+                    + entryId
+                    + "' not found in library "
+                    + id
+            );
         }
         if (entriesByCitationKey.size() > 1) {
-            LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
+            LOGGER.warn(
+                "Multiple entries found with citation key '{}'. Using the first one.",
+                entryId
+            );
         }
 
         // TODO: Currently, the preview preferences are in GUI package, which is not accessible here.
@@ -240,13 +303,20 @@ public class LibraryResource {
 
         // the only difference to the HTML version of this method is the format of the output:
         String preview =
-                "Author: " + author
-                        + "\nTitle: " + title
-                        + "\nJournal: " + journal
-                        + "\nVolume: " + volume
-                        + "\nNumber: " + number
-                        + "\nPages: " + pages
-                        + "\nReleased on: " + releaseDate;
+            "Author: "
+            + author
+            + "\nTitle: "
+            + title
+            + "\nJournal: "
+            + journal
+            + "\nVolume: "
+            + volume
+            + "\nNumber: "
+            + number
+            + "\nPages: "
+            + pages
+            + "\nReleased on: "
+            + releaseDate;
 
         return preview;
     }
@@ -264,13 +334,26 @@ public class LibraryResource {
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_HTML + ";charset=UTF-8")
-    public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
-        List<BibEntry> entriesByCitationKey = getDatabaseContext(id).getDatabase().getEntriesByCitationKey(entryId);
+    public String getHTMLRepresentation(
+        @PathParam("id") String id,
+        @PathParam("entryId") String entryId
+    ) throws IOException {
+        List<BibEntry> entriesByCitationKey = getDatabaseContext(id)
+            .getDatabase()
+            .getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
-            throw new NotFoundException("Entry with citation key '" + entryId + "' not found in library " + id);
+            throw new NotFoundException(
+                "Entry with citation key '"
+                    + entryId
+                    + "' not found in library "
+                    + id
+            );
         }
         if (entriesByCitationKey.size() > 1) {
-            LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
+            LOGGER.warn(
+                "Multiple entries found with citation key '{}'. Using the first one.",
+                entryId
+            );
         }
 
         // TODO: Currently, the preview preferences are in GUI package, which is not accessible here.
@@ -287,13 +370,26 @@ public class LibraryResource {
 
         // the only difference to the plain text version of this method is the format of the output:
         String preview =
-                "<strong>Author:</strong> " + author + "<br>" +
-                        "<strong>Title:</strong> " + title + "<br>" +
-                        "<strong>Journal:</strong> " + journal + "<br>" +
-                        "<strong>Volume:</strong> " + volume + "<br>" +
-                        "<strong>Number:</strong> " + number + "<br>" +
-                        "<strong>Pages:</strong> " + pages + "<br>" +
-                        "<strong>Released on:</strong> " + releaseDate;
+            "<strong>Author:</strong> "
+            + author
+            + "<br>"
+            + "<strong>Title:</strong> "
+            + title
+            + "<br>"
+            + "<strong>Journal:</strong> "
+            + journal
+            + "<br>"
+            + "<strong>Volume:</strong> "
+            + volume
+            + "<br>"
+            + "<strong>Number:</strong> "
+            + number
+            + "<br>"
+            + "<strong>Pages:</strong> "
+            + pages
+            + "<br>"
+            + "<strong>Released on:</strong> "
+            + releaseDate;
 
         return preview;
     }
@@ -307,7 +403,8 @@ public class LibraryResource {
     @GET
     @Path("entries/pdffiles")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    public String getPDFFilesAsList(@PathParam("id") String id) throws IOException {
+    public String getPDFFilesAsList(@PathParam("id") String id)
+        throws IOException {
         // get a list of all entries in library (specified by "id")
         BibDatabaseContext databaseContext = getDatabaseContext(id);
         List<LinkedPdfFileDTO> response = new ArrayList<>();
@@ -322,11 +419,17 @@ public class LibraryResource {
             if (!pathsToFiles.isEmpty()) {
                 for (LinkedFile file : pathsToFiles) {
                     // ignore all non pdf files and online references
-                    if (!"PDF".equals(file.getFileType()) || LinkedFile.isOnlineLink(file.getLink())) {
+                    if (
+                        !"PDF".equals(file.getFileType())
+                        || LinkedFile.isOnlineLink(file.getLink())
+                    ) {
                         continue;
                     }
                     // add file to response body
-                    LinkedPdfFileDTO localPdfFile = new LinkedPdfFileDTO(entry, file);
+                    LinkedPdfFileDTO localPdfFile = new LinkedPdfFileDTO(
+                        entry,
+                        file
+                    );
                     response.add(localPdfFile);
                 }
             }

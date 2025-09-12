@@ -4,12 +4,20 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class CopyToPreferences {
-    private final BooleanProperty shouldIncludeCrossReferences = new SimpleBooleanProperty();
-    private final BooleanProperty shouldAskForIncludingCrossReferences = new SimpleBooleanProperty();
 
-    public CopyToPreferences(boolean shouldAskForIncludingCrossReferences, boolean shouldIncludeCrossReferences) {
+    private final BooleanProperty shouldIncludeCrossReferences =
+        new SimpleBooleanProperty();
+    private final BooleanProperty shouldAskForIncludingCrossReferences =
+        new SimpleBooleanProperty();
+
+    public CopyToPreferences(
+        boolean shouldAskForIncludingCrossReferences,
+        boolean shouldIncludeCrossReferences
+    ) {
         this.shouldIncludeCrossReferences.set(shouldIncludeCrossReferences);
-        this.shouldAskForIncludingCrossReferences.set(shouldAskForIncludingCrossReferences);
+        this.shouldAskForIncludingCrossReferences.set(
+            shouldAskForIncludingCrossReferences
+        );
     }
 
     public boolean getShouldIncludeCrossReferences() {

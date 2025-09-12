@@ -2,7 +2,6 @@ package org.jabref.model.entry.identifier;
 
 import java.net.URI;
 import java.util.Optional;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
 
@@ -20,6 +19,7 @@ import org.jabref.logic.util.URLUtil;
  */
 @AllowedToUseLogic("Because URL utility is needed")
 public class ARK extends EprintIdentifier {
+
     private final String ark;
 
     private ARK(String ark) {
@@ -39,6 +39,8 @@ public class ARK extends EprintIdentifier {
 
     @Override
     public Optional<URI> getExternalURI() {
-        return Optional.of(URLUtil.createUri("https://n2t.net/ark:/" + asString()));
+        return Optional.of(
+            URLUtil.createUri("https://n2t.net/ark:/" + asString())
+        );
     }
 }

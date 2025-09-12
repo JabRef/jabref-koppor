@@ -2,7 +2,6 @@ package org.jabref.logic.integrity;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
@@ -25,8 +24,15 @@ public class CitationKeyChecker implements EntryChecker {
 
         if (StringUtil.isBlank(entry.getCitationKey())) {
             String authorTitleYear = entry.getAuthorTitleYear(100);
-            return List.of(new IntegrityMessage(
-                    Localization.lang("empty citation key") + ": " + authorTitleYear, entry, InternalField.KEY_FIELD));
+            return List.of(
+                new IntegrityMessage(
+                    Localization.lang("empty citation key")
+                        + ": "
+                        + authorTitleYear,
+                    entry,
+                    InternalField.KEY_FIELD
+                )
+            );
         }
 
         return List.of();

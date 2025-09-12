@@ -1,12 +1,15 @@
 package org.jabref.logic.shared;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
@@ -26,17 +29,11 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.testutils.category.DatabaseTest;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @DatabaseTest
 @Execution(ExecutionMode.SAME_THREAD)
@@ -44,24 +41,28 @@ class DBMSSynchronizerTest {
 
     private DBMSSynchronizer dbmsSynchronizer;
     private BibDatabase bibDatabase;
-    private final GlobalCitationKeyPatterns pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
+    private final GlobalCitationKeyPatterns pattern =
+        GlobalCitationKeyPatterns.fromPattern("[auth][year]");
     private DBMSConnection dbmsConnection;
     private DBMSProcessor dbmsProcessor;
     private DBMSType dbmsType;
 
     private BibEntry createExampleBibEntry(int index) {
         BibEntry bibEntry = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Wirthlin, Michael J" + index)
-                .withField(StandardField.TITLE, "The nano processor" + index);
+            .withField(StandardField.AUTHOR, "Wirthlin, Michael J" + index)
+            .withField(StandardField.TITLE, "The nano processor" + index);
         bibEntry.getSharedBibEntryData().setSharedID(index);
         return bibEntry;
     }
 
     @BeforeEach
-    void setup() throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
+    void setup()
+        throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
         this.dbmsType = TestManager.getDBMSTypeTestParameter();
         this.dbmsConnection = ConnectorTest.getTestDBMSConnection(dbmsType);
-        this.dbmsProcessor = DBMSProcessor.getProcessorInstance(this.dbmsConnection);
+        this.dbmsProcessor = DBMSProcessor.getProcessorInstance(
+            this.dbmsConnection
+        );
         TestManager.clearTables(this.dbmsConnection);
         this.dbmsProcessor.setupSharedDatabase();
 
@@ -69,9 +70,17 @@ class DBMSSynchronizerTest {
         BibDatabaseContext context = new BibDatabaseContext(bibDatabase);
 
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
-        when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
+        when(fieldPreferences.getNonWrappableFields()).thenReturn(
+            FXCollections.observableArrayList()
+        );
 
-        dbmsSynchronizer = new DBMSSynchronizer(context, ',', fieldPreferences, pattern, new DummyFileUpdateMonitor());
+        dbmsSynchronizer = new DBMSSynchronizer(
+            context,
+            ',',
+            fieldPreferences,
+            pattern,
+            new DummyFileUpdateMonitor()
+        );
         bibDatabase.registerListener(dbmsSynchronizer);
 
         dbmsSynchronizer.openSharedDatabase(dbmsConnection);
@@ -117,12 +126,18 @@ class DBMSSynchronizerTest {
         bibDatabase.insertEntry(exampleBibEntry);
         exampleBibEntry.setField(StandardField.AUTHOR, "Brad L and Gilson");
         // shared updates are not synchronized back to the remote database
-        exampleBibEntry.setField(StandardField.TITLE, "The micro multiplexer", EntriesEventSource.SHARED);
+        exampleBibEntry.setField(
+            StandardField.TITLE,
+            "The micro multiplexer",
+            EntriesEventSource.SHARED
+        );
 
         List<BibEntry> actualEntries = dbmsProcessor.getSharedEntries();
 
-        BibEntry expectedBibEntry = createExampleBibEntry(1)
-                .withField(StandardField.AUTHOR, "Brad L and Gilson");
+        BibEntry expectedBibEntry = createExampleBibEntry(1).withField(
+            StandardField.AUTHOR,
+            "Brad L and Gilson"
+        );
 
         assertEquals(List.of(expectedBibEntry), actualEntries);
     }
@@ -156,7 +171,8 @@ class DBMSSynchronizerTest {
         dbmsSynchronizer.setMetaData(testMetaData);
         testMetaData.setMode(BibDatabaseMode.BIBTEX);
 
-        Map<String, String> expectedMap = MetaDataSerializer.getSerializedStringMap(testMetaData, pattern);
+        Map<String, String> expectedMap =
+            MetaDataSerializer.getSerializedStringMap(testMetaData, pattern);
         Map<String, String> actualMap = dbmsProcessor.getSharedMetaData();
         actualMap.remove("VersionDBStructure");
 
@@ -164,7 +180,8 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void initializeDatabases() throws DatabaseNotSupportedException, SQLException {
+    void initializeDatabases()
+        throws DatabaseNotSupportedException, SQLException {
         dbmsSynchronizer.initializeDatabases();
         assertTrue(dbmsProcessor.checkBaseIntegrity());
         dbmsSynchronizer.initializeDatabases();
@@ -173,7 +190,10 @@ class DBMSSynchronizerTest {
 
     @Test
     void synchronizeLocalDatabaseWithEntryRemoval() {
-        List<BibEntry> expectedBibEntries = Arrays.asList(createExampleBibEntry(1), createExampleBibEntry(2));
+        List<BibEntry> expectedBibEntries = Arrays.asList(
+            createExampleBibEntry(1),
+            createExampleBibEntry(2)
+        );
 
         dbmsProcessor.insertEntry(expectedBibEntries.getFirst());
         dbmsProcessor.insertEntry(expectedBibEntries.get(1));
@@ -194,13 +214,16 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void synchronizeLocalDatabaseWithEntryUpdate() throws SQLException, OfflineLockException {
+    void synchronizeLocalDatabaseWithEntryUpdate()
+        throws SQLException, OfflineLockException {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
 
-        BibEntry modifiedBibEntry = createExampleBibEntry(1)
-                .withField(new UnknownField("custom"), "custom value");
+        BibEntry modifiedBibEntry = createExampleBibEntry(1).withField(
+            new UnknownField("custom"),
+            "custom value"
+        );
         modifiedBibEntry.clearField(StandardField.TITLE);
         modifiedBibEntry.setType(StandardEntryType.Article);
 
@@ -209,24 +232,33 @@ class DBMSSynchronizerTest {
         dbmsSynchronizer.synchronizeLocalDatabase();
 
         assertEquals(List.of(modifiedBibEntry), bibDatabase.getEntries());
-        assertEquals(List.of(modifiedBibEntry), dbmsProcessor.getSharedEntries());
+        assertEquals(
+            List.of(modifiedBibEntry),
+            dbmsProcessor.getSharedEntries()
+        );
     }
 
     @Test
-    void updateEntryDoesNotModifyLocalDatabase() throws SQLException, OfflineLockException {
+    void updateEntryDoesNotModifyLocalDatabase()
+        throws SQLException, OfflineLockException {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
 
-        BibEntry modifiedBibEntry = createExampleBibEntry(1)
-                .withField(new UnknownField("custom"), "custom value");
+        BibEntry modifiedBibEntry = createExampleBibEntry(1).withField(
+            new UnknownField("custom"),
+            "custom value"
+        );
         modifiedBibEntry.clearField(StandardField.TITLE);
         modifiedBibEntry.setType(StandardEntryType.Article);
 
         dbmsProcessor.updateEntry(modifiedBibEntry);
 
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
-        assertEquals(List.of(modifiedBibEntry), dbmsProcessor.getSharedEntries());
+        assertEquals(
+            List.of(modifiedBibEntry),
+            dbmsProcessor.getSharedEntries()
+        );
     }
 
     @Test
@@ -235,11 +267,24 @@ class DBMSSynchronizerTest {
         bibDatabase.insertEntry(bibEntry);
 
         MetaData testMetaData = new MetaData();
-        testMetaData.setSaveActions(new FieldFormatterCleanups(true, List.of(new FieldFormatterCleanup(StandardField.AUTHOR, new LowerCaseFormatter()))));
+        testMetaData.setSaveActions(
+            new FieldFormatterCleanups(
+                true,
+                List.of(
+                    new FieldFormatterCleanup(
+                        StandardField.AUTHOR,
+                        new LowerCaseFormatter()
+                    )
+                )
+            )
+        );
         dbmsSynchronizer.setMetaData(testMetaData);
 
         dbmsSynchronizer.applyMetaData();
 
-        assertEquals("wirthlin, michael j1", bibEntry.getField(StandardField.AUTHOR).get());
+        assertEquals(
+            "wirthlin, michael j1",
+            bibEntry.getField(StandardField.AUTHOR).get()
+        );
     }
 }

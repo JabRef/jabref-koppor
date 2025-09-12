@@ -3,14 +3,12 @@ package org.jabref.gui.frame;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 
 public class ExternalApplicationsPreferences {
@@ -23,24 +21,36 @@ public class ExternalApplicationsPreferences {
     private final BooleanProperty useCustomFileBrowser;
     private final StringProperty customFileBrowserCommand;
     private final StringProperty kindleEmail;
-    private final ObservableSet<ExternalFileType> externalFileTypes = FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
+    private final ObservableSet<ExternalFileType> externalFileTypes =
+        FXCollections.observableSet(
+            new TreeSet<>(Comparator.comparing(ExternalFileType::getName))
+        );
 
-    public ExternalApplicationsPreferences(String eMailSubject,
-                                           boolean shouldAutoOpenEmailAttachmentsFolder,
-                                           Set<ExternalFileType> externalFileTypes,
-                                           boolean useCustomTerminal,
-                                           String customTerminalCommand,
-                                           boolean useCustomFileBrowser,
-                                           String customFileBrowserCommand,
-                                           String kindleEmail) {
-
+    public ExternalApplicationsPreferences(
+        String eMailSubject,
+        boolean shouldAutoOpenEmailAttachmentsFolder,
+        Set<ExternalFileType> externalFileTypes,
+        boolean useCustomTerminal,
+        String customTerminalCommand,
+        boolean useCustomFileBrowser,
+        String customFileBrowserCommand,
+        String kindleEmail
+    ) {
         this.eMailSubject = new SimpleStringProperty(eMailSubject);
-        this.shouldAutoOpenEmailAttachmentsFolder = new SimpleBooleanProperty(shouldAutoOpenEmailAttachmentsFolder);
+        this.shouldAutoOpenEmailAttachmentsFolder = new SimpleBooleanProperty(
+            shouldAutoOpenEmailAttachmentsFolder
+        );
         this.externalFileTypes.addAll(externalFileTypes);
         this.useCustomTerminal = new SimpleBooleanProperty(useCustomTerminal);
-        this.customTerminalCommand = new SimpleStringProperty(customTerminalCommand);
-        this.useCustomFileBrowser = new SimpleBooleanProperty(useCustomFileBrowser);
-        this.customFileBrowserCommand = new SimpleStringProperty(customFileBrowserCommand);
+        this.customTerminalCommand = new SimpleStringProperty(
+            customTerminalCommand
+        );
+        this.useCustomFileBrowser = new SimpleBooleanProperty(
+            useCustomFileBrowser
+        );
+        this.customFileBrowserCommand = new SimpleStringProperty(
+            customFileBrowserCommand
+        );
         this.kindleEmail = new SimpleStringProperty(kindleEmail);
     }
 
@@ -64,8 +74,12 @@ public class ExternalApplicationsPreferences {
         return shouldAutoOpenEmailAttachmentsFolder;
     }
 
-    public void setAutoOpenEmailAttachmentsFolder(boolean shouldAutoOpenEmailAttachmentsFolder) {
-        this.shouldAutoOpenEmailAttachmentsFolder.set(shouldAutoOpenEmailAttachmentsFolder);
+    public void setAutoOpenEmailAttachmentsFolder(
+        boolean shouldAutoOpenEmailAttachmentsFolder
+    ) {
+        this.shouldAutoOpenEmailAttachmentsFolder.set(
+            shouldAutoOpenEmailAttachmentsFolder
+        );
     }
 
     public boolean useCustomTerminal() {

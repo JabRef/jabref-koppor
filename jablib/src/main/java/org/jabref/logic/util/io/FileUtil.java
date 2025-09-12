@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationkeypattern.BracketedPattern;
 import org.jabref.logic.layout.format.RemoveLatexCommandsFormatter;
@@ -31,7 +30,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,16 +40,23 @@ import org.slf4j.LoggerFactory;
  */
 public class FileUtil {
 
-    public static final boolean IS_POSIX_COMPLIANT = FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
+    public static final boolean IS_POSIX_COMPLIANT = FileSystems.getDefault()
+        .supportedFileAttributeViews()
+        .contains("posix");
     public static final int MAXIMUM_FILE_NAME_LENGTH = 255;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        FileUtil.class
+    );
     private static final String ELLIPSIS = "...";
     private static final int ELLIPSIS_LENGTH = ELLIPSIS.length();
-    private static final RemoveLatexCommandsFormatter REMOVE_LATEX_COMMANDS_FORMATTER = new RemoveLatexCommandsFormatter();
+    private static final RemoveLatexCommandsFormatter REMOVE_LATEX_COMMANDS_FORMATTER =
+        new RemoveLatexCommandsFormatter();
     private static final String CYGDRIVE_PREFIX = "/cygdrive/";
     private static final String MNT_PREFIX = "/mnt/";
-    private static final Pattern ROOT_DRIVE_PATTERN = Pattern.compile("^/[a-zA-Z]/.*");
+    private static final Pattern ROOT_DRIVE_PATTERN = Pattern.compile(
+        "^/[a-zA-Z]/.*"
+    );
 
     /**
      * MUST ALWAYS BE A SORTED ARRAY because it is used in a binary search
@@ -67,10 +72,10 @@ public class FileUtil {
             60, 62, 63,
             123, 124, 125
     };
+
     // @formatter:on
 
-    private FileUtil() {
-    }
+    private FileUtil() {}
 
     /**
      * Returns the extension of a file name or Optional.empty() if the file does not have one (no "." in name).
@@ -80,7 +85,12 @@ public class FileUtil {
     public static Optional<String> getFileExtension(String fileName) {
         int dotPosition = fileName.lastIndexOf('.');
         if ((dotPosition > 0) && (dotPosition < (fileName.length() - 1))) {
-            return Optional.of(fileName.substring(dotPosition + 1).trim().toLowerCase(Locale.ROOT));
+            return Optional.of(
+                fileName
+                    .substring(dotPosition + 1)
+                    .trim()
+                    .toLowerCase(Locale.ROOT)
+            );
         } else {
             return Optional.empty();
         }
@@ -99,7 +109,9 @@ public class FileUtil {
      * Returns the name part of a file name (i.e., everything in front of last ".").
      */
     public static String getBaseName(String fileNameWithExtension) {
-        return com.google.common.io.Files.getNameWithoutExtension(fileNameWithExtension);
+        return com.google.common.io.Files.getNameWithoutExtension(
+            fileNameWithExtension
+        );
     }
 
     /**
@@ -119,12 +131,23 @@ public class FileUtil {
     public static String getValidFileName(String fileName) {
         String nameWithoutExtension = getBaseName(fileName);
 
-        nameWithoutExtension = FileNameCleaner.cleanFileName(nameWithoutExtension);
+        nameWithoutExtension = FileNameCleaner.cleanFileName(
+            nameWithoutExtension
+        );
 
         if (nameWithoutExtension.length() > MAXIMUM_FILE_NAME_LENGTH) {
             Optional<String> extension = getFileExtension(fileName);
-            String shortName = nameWithoutExtension.substring(0, MAXIMUM_FILE_NAME_LENGTH - extension.map(s -> s.length() + 1).orElse(0));
-            LOGGER.info("Truncated the too long filename '{}' ({}} characters) to '{}'.", fileName, fileName.length(), shortName);
+            String shortName = nameWithoutExtension.substring(
+                0,
+                MAXIMUM_FILE_NAME_LENGTH
+                    - extension.map(s -> s.length() + 1).orElse(0)
+            );
+            LOGGER.info(
+                "Truncated the too long filename '{}' ({}} characters) to '{}'.",
+                fileName,
+                fileName.length(),
+                shortName
+            );
             return extension.map(s -> shortName + "." + s).orElse(shortName);
         }
 
@@ -150,11 +173,14 @@ public class FileUtil {
     /// @param comparePath The to be tested path
     ///
     /// @return Optional.empty() if the paths are disjoint
-    public static Optional<String> getUniquePathDirectory(List<String> paths, Path comparePath) {
+    public static Optional<String> getUniquePathDirectory(
+        List<String> paths,
+        Path comparePath
+    ) {
         // Difference to getUniquePathFragment: We want the parent directory, so we cut off the last path fragment
         return getUniquePathFragment(paths, comparePath)
-                .filter(part -> part.contains(File.separator))
-                .map(part -> part.substring(0, part.lastIndexOf(File.separator)));
+            .filter(part -> part.contains(File.separator))
+            .map(part -> part.substring(0, part.lastIndexOf(File.separator)));
     }
 
     /// Looks for the shortest unique path in the list of paths
@@ -163,10 +189,14 @@ public class FileUtil {
     /// @param comparePath The to be shortened path
     ///
     /// @return Shortest unique path fragment (if exists) - Optional.empty() if the paths are disjoint
-    public static Optional<String> getUniquePathFragment(List<String> paths, Path comparePath) {
-        return uniquePathSubstrings(paths).stream()
-                                          .filter(part -> comparePath.toString().contains(part))
-                                          .max(Comparator.comparingInt(String::length));
+    public static Optional<String> getUniquePathFragment(
+        List<String> paths,
+        Path comparePath
+    ) {
+        return uniquePathSubstrings(paths)
+            .stream()
+            .filter(part -> comparePath.toString().contains(part))
+            .max(Comparator.comparingInt(String::length));
     }
 
     /**
@@ -179,12 +209,16 @@ public class FileUtil {
         List<Deque<String>> stackList = new ArrayList<>(paths.size());
         // prepare data structures
         for (String path : paths) {
-            List<String> directories = Arrays.asList(path.split(Pattern.quote(File.separator)));
+            List<String> directories = Arrays.asList(
+                path.split(Pattern.quote(File.separator))
+            );
             Deque<String> stack = new ArrayDeque<>(directories.reversed());
             stackList.add(stack);
         }
 
-        List<String> pathSubstrings = new ArrayList<>(Collections.nCopies(paths.size(), ""));
+        List<String> pathSubstrings = new ArrayList<>(
+            Collections.nCopies(paths.size(), "")
+        );
 
         // compute the shortest folder substrings
         while (!stackList.stream().allMatch(Deque::isEmpty)) {
@@ -198,7 +232,10 @@ public class FileUtil {
                     pathSubstrings.set(i, stringFromDeque);
                 } else if (!stack.isEmpty()) {
                     String stringFromStack = stack.pop();
-                    pathSubstrings.set(i, stringFromStack + File.separator + tempPathString);
+                    pathSubstrings.set(
+                        i,
+                        stringFromStack + File.separator + tempPathString
+                    );
                 }
             }
 
@@ -220,19 +257,29 @@ public class FileUtil {
      * @param replaceExisting       boolean Determines whether the copy goes on even if the file exists.
      * @return boolean Whether the copy succeeded or was stopped due to the file already existing.
      */
-    public static boolean copyFile(Path pathToSourceFile, Path pathToDestinationFile, boolean replaceExisting) {
+    public static boolean copyFile(
+        Path pathToSourceFile,
+        Path pathToDestinationFile,
+        boolean replaceExisting
+    ) {
         // Check if the file already exists.
         if (!Files.exists(pathToSourceFile)) {
             LOGGER.error("Path to the source file doesn't exist.");
             return false;
         }
         if (Files.exists(pathToDestinationFile) && !replaceExisting) {
-            LOGGER.error("Path to the destination file exists but the file shouldn't be replaced.");
+            LOGGER.error(
+                "Path to the destination file exists but the file shouldn't be replaced."
+            );
             return false;
         }
         try {
             // This should also preserve Hard Links
-            Files.copy(pathToSourceFile, pathToDestinationFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                pathToSourceFile,
+                pathToDestinationFile,
+                StandardCopyOption.REPLACE_EXISTING
+            );
             return true;
         } catch (IOException e) {
             LOGGER.error("Copying Files failed.", e);
@@ -294,8 +341,14 @@ public class FileUtil {
      *
      * @param path the file path to be shortened
      */
-    public static Path relativize(Path path, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
-        List<Path> fileDirectories = databaseContext.getFileDirectories(filePreferences);
+    public static Path relativize(
+        Path path,
+        BibDatabaseContext databaseContext,
+        FilePreferences filePreferences
+    ) {
+        List<Path> fileDirectories = databaseContext.getFileDirectories(
+            filePreferences
+        );
         return relativize(path, fileDirectories);
     }
 
@@ -304,22 +357,37 @@ public class FileUtil {
      * <p>
      * ⚠ Modifies the entries in the list ⚠
      */
-    public static List<BibEntry> relativize(List<BibEntry> entries, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
-        List<Path> fileDirectories = databaseContext.getFileDirectories(filePreferences);
+    public static List<BibEntry> relativize(
+        List<BibEntry> entries,
+        BibDatabaseContext databaseContext,
+        FilePreferences filePreferences
+    ) {
+        List<Path> fileDirectories = databaseContext.getFileDirectories(
+            filePreferences
+        );
 
-        return entries.stream()
-                      .peek(entry -> {
-                          if (entry.hasField(StandardField.FILE)) {
-                              List<LinkedFile> updatedLinkedFiles = entry.getFiles().stream().map(linkedFile -> {
-                                  if (!linkedFile.isOnlineLink()) {
-                                      String newPath = FileUtil.relativize(Path.of(linkedFile.getLink()), fileDirectories).toString();
-                                      linkedFile.setLink(newPath);
-                                  }
-                                  return linkedFile;
-                              }).toList();
-                              entry.setFiles(updatedLinkedFiles);
-                          }
-                      }).toList();
+        return entries
+            .stream()
+            .peek(entry -> {
+                if (entry.hasField(StandardField.FILE)) {
+                    List<LinkedFile> updatedLinkedFiles = entry
+                        .getFiles()
+                        .stream()
+                        .map(linkedFile -> {
+                            if (!linkedFile.isOnlineLink()) {
+                                String newPath = FileUtil.relativize(
+                                    Path.of(linkedFile.getLink()),
+                                    fileDirectories
+                                ).toString();
+                                linkedFile.setLink(newPath);
+                            }
+                            return linkedFile;
+                        })
+                        .toList();
+                    entry.setFiles(updatedLinkedFiles);
+                }
+            })
+            .toList();
     }
 
     /**
@@ -329,14 +397,18 @@ public class FileUtil {
      * @param fileDirs list of directories to try for expansion
      * @return list of files. May be empty
      */
-    public static List<Path> getListOfLinkedFiles(List<BibEntry> bes, List<Path> fileDirs) {
+    public static List<Path> getListOfLinkedFiles(
+        List<BibEntry> bes,
+        List<Path> fileDirs
+    ) {
         Objects.requireNonNull(bes);
         Objects.requireNonNull(fileDirs);
 
-        return bes.stream()
-                  .flatMap(entry -> entry.getFiles().stream())
-                  .flatMap(file -> file.findIn(fileDirs).stream())
-                  .toList();
+        return bes
+            .stream()
+            .flatMap(entry -> entry.getFiles().stream())
+            .flatMap(file -> file.findIn(fileDirs).stream())
+            .toList();
     }
 
     /**
@@ -347,8 +419,17 @@ public class FileUtil {
      * @param fileNamePattern the filename pattern
      * @return a suggested fileName
      */
-    public static String createFileNameFromPattern(BibDatabase database, BibEntry entry, String fileNamePattern) {
-        String targetName = BracketedPattern.expandBrackets(fileNamePattern, ';', entry, database);
+    public static String createFileNameFromPattern(
+        BibDatabase database,
+        BibEntry entry,
+        String fileNamePattern
+    ) {
+        String targetName = BracketedPattern.expandBrackets(
+            fileNamePattern,
+            ';',
+            entry,
+            database
+        );
 
         if (targetName.isEmpty()) {
             targetName = entry.getCitationKey().orElse("default");
@@ -371,8 +452,17 @@ public class FileUtil {
      * @param directoryNamePattern the dirname pattern
      * @return a suggested dirName
      */
-    public static String createDirNameFromPattern(BibDatabase database, BibEntry entry, String directoryNamePattern) {
-        String targetName = BracketedPattern.expandBrackets(directoryNamePattern, ';', entry, database);
+    public static String createDirNameFromPattern(
+        BibDatabase database,
+        BibEntry entry,
+        String directoryNamePattern
+    ) {
+        String targetName = BracketedPattern.expandBrackets(
+            directoryNamePattern,
+            ';',
+            entry,
+            database
+        );
 
         if (targetName.isEmpty()) {
             return targetName;
@@ -391,21 +481,36 @@ public class FileUtil {
      * @param rootDirectory the rootDirectory that will be searched
      * @return the path to the first file that matches the defined conditions
      */
-    public static Optional<Path> findSingleFileRecursively(String filename, Path rootDirectory) {
+    public static Optional<Path> findSingleFileRecursively(
+        String filename,
+        Path rootDirectory
+    ) {
         try (Stream<Path> pathStream = Files.walk(rootDirectory)) {
             return pathStream
-                    .filter(Files::isRegularFile)
-                    .filter(f -> f.getFileName().toString().equals(filename))
-                    .findFirst();
+                .filter(Files::isRegularFile)
+                .filter(f -> f.getFileName().toString().equals(filename))
+                .findFirst();
         } catch (UncheckedIOException | IOException ex) {
-            LOGGER.error("Error trying to locate the file {} inside the directory {}", filename, rootDirectory, ex);
+            LOGGER.error(
+                "Error trying to locate the file {} inside the directory {}",
+                filename,
+                rootDirectory,
+                ex
+            );
         }
         return Optional.empty();
     }
 
-    public static Optional<Path> find(final BibDatabaseContext databaseContext, String fileName, FilePreferences filePreferences) {
+    public static Optional<Path> find(
+        final BibDatabaseContext databaseContext,
+        String fileName,
+        FilePreferences filePreferences
+    ) {
         Objects.requireNonNull(fileName, "fileName");
-        return find(fileName, databaseContext.getFileDirectories(filePreferences));
+        return find(
+            fileName,
+            databaseContext.getFileDirectories(filePreferences)
+        );
     }
 
     /**
@@ -426,9 +531,10 @@ public class FileUtil {
             }
         }
 
-        return directories.stream()
-                          .flatMap(directory -> find(fileName, directory).stream())
-                          .findFirst();
+        return directories
+            .stream()
+            .flatMap(directory -> find(fileName, directory).stream())
+            .findFirst();
     }
 
     /**
@@ -479,7 +585,10 @@ public class FileUtil {
      * @param directories the directories that will be searched
      * @return a list including all found paths to files that match the defined conditions
      */
-    public static List<Path> findListOfFiles(String filename, List<Path> directories) {
+    public static List<Path> findListOfFiles(
+        String filename,
+        List<Path> directories
+    ) {
         List<Path> files = new ArrayList<>();
         for (Path dir : directories) {
             FileUtil.find(filename, dir).ifPresent(files::add);
@@ -492,8 +601,7 @@ public class FileUtil {
      * when a path needs to be stored in the bib file or preferences.
      */
     public static String toPortableString(Path path) {
-        return path.toString()
-                   .replace('\\', '/');
+        return path.toString().replace('\\', '/');
     }
 
     /**
@@ -514,14 +622,23 @@ public class FileUtil {
      */
     public static boolean isPDFFile(Path file) {
         Optional<String> extension = FileUtil.getFileExtension(file);
-        return extension.isPresent() && StandardFileType.PDF.getExtensions().contains(extension.get());
+        return (
+            extension.isPresent()
+            && StandardFileType.PDF.getExtensions().contains(extension.get())
+        );
     }
 
     /**
      * @return Path of current panel database directory or the standard working directory in case the database was not saved yet
      */
-    public static Path getInitialDirectory(BibDatabaseContext databaseContext, Path workingDirectory) {
-        return databaseContext.getDatabasePath().map(Path::getParent).orElse(workingDirectory);
+    public static Path getInitialDirectory(
+        BibDatabaseContext databaseContext,
+        Path workingDirectory
+    ) {
+        return databaseContext
+            .getDatabasePath()
+            .map(Path::getParent)
+            .orElse(workingDirectory);
     }
 
     /**
@@ -558,7 +675,9 @@ public class FileUtil {
     /// @param maxLength the maximum number of characters in the string after shortening (including the extension)
     /// @return the original fileName if fileName.length() <= maxLength. Otherwise, a shortened fileName
     public static String shortenFileName(String fileName, Integer maxLength) {
-        if (fileName == null || maxLength == null || maxLength < ELLIPSIS_LENGTH) {
+        if (
+            fileName == null || maxLength == null || maxLength < ELLIPSIS_LENGTH
+        ) {
             return "";
         }
 
@@ -569,16 +688,23 @@ public class FileUtil {
         String name;
         String extension;
 
-        extension = FileUtil.getFileExtension(fileName).map(fileExtension -> '.' + fileExtension).orElse("");
+        extension = FileUtil.getFileExtension(fileName)
+            .map(fileExtension -> '.' + fileExtension)
+            .orElse("");
         if (extension.isEmpty()) {
             name = fileName;
         } else {
-            name = fileName.substring(0, fileName.length() - extension.length());
+            name = fileName.substring(
+                0,
+                fileName.length() - extension.length()
+            );
         }
 
         int totalNeededLength = ELLIPSIS_LENGTH + extension.length();
         if (maxLength <= totalNeededLength) {
-            return fileName.substring(0, maxLength - ELLIPSIS_LENGTH) + ELLIPSIS;
+            return (
+                fileName.substring(0, maxLength - ELLIPSIS_LENGTH) + ELLIPSIS
+            );
         }
 
         int charsForName = maxLength - totalNeededLength;
@@ -597,13 +723,21 @@ public class FileUtil {
             numCharsAfterEllipsis = charsForName / 2;
         }
 
-        numCharsBeforeEllipsis = Math.min(numCharsBeforeEllipsis, name.length());
-        numCharsAfterEllipsis = Math.min(numCharsAfterEllipsis, name.length() - numCharsBeforeEllipsis);
+        numCharsBeforeEllipsis = Math.min(
+            numCharsBeforeEllipsis,
+            name.length()
+        );
+        numCharsAfterEllipsis = Math.min(
+            numCharsAfterEllipsis,
+            name.length() - numCharsBeforeEllipsis
+        );
 
-        return name.substring(0, numCharsBeforeEllipsis) +
-                ELLIPSIS +
-                name.substring(name.length() - numCharsAfterEllipsis) +
-                extension;
+        return (
+            name.substring(0, numCharsBeforeEllipsis)
+            + ELLIPSIS
+            + name.substring(name.length() - numCharsAfterEllipsis)
+            + extension
+        );
     }
 
     public static boolean isCharLegal(char c) {
@@ -647,9 +781,16 @@ public class FileUtil {
     /// @param path the input file path
     /// @param letterIndex the index driver letter, zero-based indexing
     /// @return a windows-style path
-    private static Path buildWindowsPathWithDriveLetterIndex(String path, int letterIndex) {
-        String driveLetter = path.substring(letterIndex, letterIndex + 1).toUpperCase();
-        String windowsPath = path.substring(letterIndex + 1).replace("/", "\\\\");
+    private static Path buildWindowsPathWithDriveLetterIndex(
+        String path,
+        int letterIndex
+    ) {
+        String driveLetter = path
+            .substring(letterIndex, letterIndex + 1)
+            .toUpperCase();
+        String windowsPath = path
+            .substring(letterIndex + 1)
+            .replace("/", "\\\\");
         return Path.of(driveLetter + ":" + windowsPath);
     }
 }

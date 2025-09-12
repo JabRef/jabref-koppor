@@ -1,12 +1,10 @@
 package org.jabref.http.manager;
 
+import jakarta.ws.rs.ProcessingException;
 import java.net.URI;
-
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.Server;
-
-import jakarta.ws.rs.ProcessingException;
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +13,9 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpServerThread extends Thread {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerThread.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        HttpServerThread.class
+    );
 
     private final Server server;
     private final SrvStateManager srvStateManager;
@@ -27,7 +27,12 @@ public class HttpServerThread extends Thread {
         this.srvStateManager = srvStateManager;
         this.uri = uri;
         this.server = new Server();
-        this.setName("JabSrv - JabRef HTTP Server on " + uri.getHost() + ":" + uri.getPort());
+        this.setName(
+            "JabSrv - JabRef HTTP Server on "
+                + uri.getHost()
+                + ":"
+                + uri.getPort()
+        );
     }
 
     @Override

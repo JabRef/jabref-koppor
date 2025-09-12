@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ContextMenu;
@@ -15,15 +14,18 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Window;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
 import org.jabref.logic.l10n.Localization;
 
-public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<CitationKeyPatternsPanelItemModel, String> {
+public class CitationKeyPatternSuggestionCell
+    extends TextFieldTableCell<CitationKeyPatternsPanelItemModel, String> {
+
     private final CitationKeyPatternSuggestionTextField searchField;
 
     public CitationKeyPatternSuggestionCell(List<String> citationKeyPatterns) {
-        this.searchField = new CitationKeyPatternSuggestionTextField(citationKeyPatterns);
+        this.searchField = new CitationKeyPatternSuggestionTextField(
+            citationKeyPatterns
+        );
         searchField.setOnAction(event -> commitEdit(searchField.getText()));
     }
 
@@ -60,11 +62,14 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
     }
 
     static class CitationKeyPatternSuggestionTextField extends TextField {
+
         private final List<String> citationKeyPatterns;
         private final ContextMenu suggestionsList;
         private int heightOfMenuItem;
 
-        public CitationKeyPatternSuggestionTextField(List<String> citationKeyPatterns) {
+        public CitationKeyPatternSuggestionTextField(
+            List<String> citationKeyPatterns
+        ) {
             this.citationKeyPatterns = new ArrayList<>(citationKeyPatterns);
             this.suggestionsList = new ContextMenu();
             // Initial reasonable estimate before the menu items are populated. We overwrite this dynamically
@@ -79,15 +84,21 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
                 if (enteredText == null || enteredText.isEmpty()) {
                     suggestionsList.hide();
                 } else {
-                    List<String> filteredEntries = citationKeyPatterns.stream()
-                                                                      .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
-                                                                      .toList();
+                    List<String> filteredEntries = citationKeyPatterns
+                        .stream()
+                        .filter(e ->
+                            e.toLowerCase().contains(enteredText.toLowerCase())
+                        )
+                        .toList();
 
                     if (!filteredEntries.isEmpty()) {
                         populatePopup(filteredEntries);
-                        if (!suggestionsList.isShowing() && getScene() != null) {
+                        if (
+                            !suggestionsList.isShowing() && getScene() != null
+                        ) {
                             double screenX = localToScreen(0, 0).getX();
-                            double screenY = localToScreen(0, 0).getY() + getHeight();
+                            double screenY =
+                                localToScreen(0, 0).getY() + getHeight();
                             suggestionsList.show(this, screenX, screenY);
                         }
                     } else {
@@ -125,7 +136,13 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
             }
 
             if (!menuItems.isEmpty()) {
-                Platform.runLater(() -> heightOfMenuItem = (int) menuItems.getFirst().getContent().getBoundsInLocal().getHeight());
+                Platform.runLater(() ->
+                    heightOfMenuItem = (int) menuItems
+                        .getFirst()
+                        .getContent()
+                        .getBoundsInLocal()
+                        .getHeight()
+                );
             }
 
             suggestionsList.getItems().clear();
@@ -138,7 +155,10 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
         }
 
         public static double getAvailableSpaceBelow(TextField textField) {
-            if (textField.getScene() == null || textField.getScene().getWindow() == null) {
+            if (
+                textField.getScene() == null
+                || textField.getScene().getWindow() == null
+            ) {
                 return 0;
             }
 
@@ -147,7 +167,9 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
                 return 0;
             }
 
-            Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
+            Bounds bounds = textField.localToScreen(
+                textField.getBoundsInLocal()
+            );
             double screenHeight = window.getHeight();
             double textFieldBottom = bounds.getMinY() + textField.getHeight();
 
@@ -157,27 +179,43 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
         private Menu createPatternsSubMenu() {
             Menu patternsSubMenu = new Menu(Localization.lang("All patterns"));
 
-            Map<CitationKeyPattern.Category, List<CitationKeyPattern>> categorizedPatterns =
-                    CitationKeyPattern.getAllPatterns().stream()
-                                      .collect(Collectors.groupingBy(CitationKeyPattern::getCategory));
+            Map<
+                CitationKeyPattern.Category,
+                List<CitationKeyPattern>
+            > categorizedPatterns = CitationKeyPattern.getAllPatterns()
+                .stream()
+                .collect(
+                    Collectors.groupingBy(CitationKeyPattern::getCategory)
+                );
 
             Map<CitationKeyPattern.Category, String> categoryNames = Map.of(
-                    CitationKeyPattern.Category.AUTHOR_RELATED, Localization.lang("Author related"),
-                    CitationKeyPattern.Category.EDITOR_RELATED, Localization.lang("Editor related"),
-                    CitationKeyPattern.Category.TITLE_RELATED, Localization.lang("Title related"),
-                    CitationKeyPattern.Category.OTHER_FIELDS, Localization.lang("Other fields"),
-                    CitationKeyPattern.Category.BIBENTRY_FIELDS, Localization.lang("Entry fields")
+                CitationKeyPattern.Category.AUTHOR_RELATED,
+                Localization.lang("Author related"),
+                CitationKeyPattern.Category.EDITOR_RELATED,
+                Localization.lang("Editor related"),
+                CitationKeyPattern.Category.TITLE_RELATED,
+                Localization.lang("Title related"),
+                CitationKeyPattern.Category.OTHER_FIELDS,
+                Localization.lang("Other fields"),
+                CitationKeyPattern.Category.BIBENTRY_FIELDS,
+                Localization.lang("Entry fields")
             );
 
-            for (Map.Entry<CitationKeyPattern.Category, String> entry : categoryNames.entrySet()) {
+            for (Map.Entry<
+                CitationKeyPattern.Category,
+                String
+            > entry : categoryNames.entrySet()) {
                 CitationKeyPattern.Category category = entry.getKey();
                 String categoryName = entry.getValue();
 
                 Menu categoryMenu = new Menu(categoryName);
-                List<CitationKeyPattern> patterns = categorizedPatterns.getOrDefault(category, List.of());
+                List<CitationKeyPattern> patterns =
+                    categorizedPatterns.getOrDefault(category, List.of());
 
                 for (CitationKeyPattern pattern : patterns) {
-                    MenuItem menuItem = new MenuItem(pattern.stringRepresentation());
+                    MenuItem menuItem = new MenuItem(
+                        pattern.stringRepresentation()
+                    );
                     menuItem.setOnAction(event -> {
                         setText(pattern.stringRepresentation());
                         positionCaret(pattern.stringRepresentation().length());

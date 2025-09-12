@@ -36,5 +36,5 @@ public enum FieldProperty {
     // Field content should be treated as data
     VERBATIM,
 
-    YES_NO
+    YES_NO,
 }

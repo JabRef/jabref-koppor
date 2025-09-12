@@ -1,7 +1,6 @@
 package org.jabref.gui;
 
 import java.util.List;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -10,11 +9,11 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.theme.Theme;
 import org.jabref.logic.l10n.Language;
 
 public class WorkspacePreferences {
+
     private final ObjectProperty<Language> language;
     private final BooleanProperty shouldOverrideDefaultFontSize;
     private final IntegerProperty mainFontSize;
@@ -28,30 +27,40 @@ public class WorkspacePreferences {
     private final BooleanProperty confirmHideTabBar;
     private final ObservableList<String> selectedSlrCatalogs;
 
-    public WorkspacePreferences(Language language,
-                                boolean shouldOverrideDefaultFontSize,
-                                int mainFontSize,
-                                int defaultFontSize,
-                                Theme theme,
-                                boolean themeSyncOs,
-                                boolean shouldOpenLastEdited,
-                                boolean showAdvancedHints,
-                                boolean warnAboutDuplicatesInInspection,
-                                boolean confirmDelete,
-                                boolean confirmHideTabBar,
-                                List<String> selectedSlrCatalogs) {
+    public WorkspacePreferences(
+        Language language,
+        boolean shouldOverrideDefaultFontSize,
+        int mainFontSize,
+        int defaultFontSize,
+        Theme theme,
+        boolean themeSyncOs,
+        boolean shouldOpenLastEdited,
+        boolean showAdvancedHints,
+        boolean warnAboutDuplicatesInInspection,
+        boolean confirmDelete,
+        boolean confirmHideTabBar,
+        List<String> selectedSlrCatalogs
+    ) {
         this.language = new SimpleObjectProperty<>(language);
-        this.shouldOverrideDefaultFontSize = new SimpleBooleanProperty(shouldOverrideDefaultFontSize);
+        this.shouldOverrideDefaultFontSize = new SimpleBooleanProperty(
+            shouldOverrideDefaultFontSize
+        );
         this.mainFontSize = new SimpleIntegerProperty(mainFontSize);
         this.defaultFontSize = new SimpleIntegerProperty(defaultFontSize);
         this.theme = new SimpleObjectProperty<>(theme);
         this.themeSyncOs = new SimpleBooleanProperty(themeSyncOs);
-        this.shouldOpenLastEdited = new SimpleBooleanProperty(shouldOpenLastEdited);
+        this.shouldOpenLastEdited = new SimpleBooleanProperty(
+            shouldOpenLastEdited
+        );
         this.showAdvancedHints = new SimpleBooleanProperty(showAdvancedHints);
-        this.warnAboutDuplicatesInInspection = new SimpleBooleanProperty(warnAboutDuplicatesInInspection);
+        this.warnAboutDuplicatesInInspection = new SimpleBooleanProperty(
+            warnAboutDuplicatesInInspection
+        );
         this.confirmDelete = new SimpleBooleanProperty(confirmDelete);
         this.confirmHideTabBar = new SimpleBooleanProperty(confirmHideTabBar);
-        this.selectedSlrCatalogs = FXCollections.observableArrayList(selectedSlrCatalogs);
+        this.selectedSlrCatalogs = FXCollections.observableArrayList(
+            selectedSlrCatalogs
+        );
     }
 
     public Language getLanguage() {
@@ -150,8 +159,12 @@ public class WorkspacePreferences {
         return warnAboutDuplicatesInInspection;
     }
 
-    public void setWarnAboutDuplicatesInInspection(boolean warnAboutDuplicatesInInspection) {
-        this.warnAboutDuplicatesInInspection.set(warnAboutDuplicatesInInspection);
+    public void setWarnAboutDuplicatesInInspection(
+        boolean warnAboutDuplicatesInInspection
+    ) {
+        this.warnAboutDuplicatesInInspection.set(
+            warnAboutDuplicatesInInspection
+        );
     }
 
     public boolean shouldConfirmDelete() {

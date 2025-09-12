@@ -3,12 +3,19 @@ package org.jabref.logic.bibtex.comparator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.SequencedSet;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 public class BibEntryCompare {
-    public enum Result { SUBSET, EQUAL, SUPERSET, DISJUNCT, DISJUNCT_OR_EQUAL_FIELDS, DIFFERENT }
+
+    public enum Result {
+        SUBSET,
+        EQUAL,
+        SUPERSET,
+        DISJUNCT,
+        DISJUNCT_OR_EQUAL_FIELDS,
+        DIFFERENT,
+    }
 
     /**
      * @return first {Result} second, e.g., if first is a subset of second, then Result.SUBSET is returned.
@@ -47,16 +54,28 @@ public class BibEntryCompare {
         return Result.DIFFERENT;
     }
 
-    private static boolean isSubSet(BibEntry candidateSubSet, BibEntry candidateSuperSet) {
-        return isSubSet(candidateSubSet, candidateSuperSet, candidateSubSet.getFields());
+    private static boolean isSubSet(
+        BibEntry candidateSubSet,
+        BibEntry candidateSuperSet
+    ) {
+        return isSubSet(
+            candidateSubSet,
+            candidateSuperSet,
+            candidateSubSet.getFields()
+        );
     }
 
-    private static boolean isSubSet(BibEntry candidateSubSet, BibEntry candidateSuperSet, Collection<Field> fields) {
-        for (Field field: fields) {
+    private static boolean isSubSet(
+        BibEntry candidateSubSet,
+        BibEntry candidateSuperSet,
+        Collection<Field> fields
+    ) {
+        for (Field field : fields) {
             String subValue = candidateSubSet.getField(field).get();
-            boolean isEqualValue = candidateSuperSet.getField(field)
-                    .filter(superValue -> superValue.equals(subValue))
-                    .isPresent();
+            boolean isEqualValue = candidateSuperSet
+                .getField(field)
+                .filter(superValue -> superValue.equals(subValue))
+                .isPresent();
             if (!isEqualValue) {
                 return false;
             }

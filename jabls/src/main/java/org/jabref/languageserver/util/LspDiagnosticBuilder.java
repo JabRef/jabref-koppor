@@ -2,18 +2,19 @@ package org.jabref.languageserver.util;
 
 import java.util.Objects;
 import java.util.Optional;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.Field;
-
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.Field;
 
 public final class LspDiagnosticBuilder {
 
-    private static final Range NULL_RANGE = new Range(new Position(0, 0), new Position(0, 0));
+    private static final Range NULL_RANGE = new Range(
+        new Position(0, 0),
+        new Position(0, 0)
+    );
     private static final String DEFAULT_SOURCE = "JabRef";
 
     private String message;
@@ -25,19 +26,25 @@ public final class LspDiagnosticBuilder {
     private Field field;
     private Range explicitRange;
 
-    private LspDiagnosticBuilder() { }
+    private LspDiagnosticBuilder() {}
 
     public static LspDiagnosticBuilder create(String message) {
         return new LspDiagnosticBuilder().setMessage(message);
     }
 
     public LspDiagnosticBuilder setMessage(String message) {
-        this.message = Objects.requireNonNull(message, "message must not be null");
+        this.message = Objects.requireNonNull(
+            message,
+            "message must not be null"
+        );
         return this;
     }
 
     public LspDiagnosticBuilder setSeverity(DiagnosticSeverity severity) {
-        this.severity = Objects.requireNonNull(severity, "severity must not be null");
+        this.severity = Objects.requireNonNull(
+            severity,
+            "severity must not be null"
+        );
         return this;
     }
 
@@ -87,14 +94,16 @@ public final class LspDiagnosticBuilder {
             if (entryField.isPresent()) {
                 return findTextRange(content, entryField.get());
             }
-            return entry.getCitationKey()
-                        .map(key -> findTextRange(content, key))
-                        .orElse(NULL_RANGE);
+            return entry
+                .getCitationKey()
+                .map(key -> findTextRange(content, key))
+                .orElse(NULL_RANGE);
         }
 
-        return entry.getCitationKey()
-                    .map(key -> findTextRange(content, key))
-                    .orElse(NULL_RANGE);
+        return entry
+            .getCitationKey()
+            .map(key -> findTextRange(content, key))
+            .orElse(NULL_RANGE);
     }
 
     private static Range findTextRange(String content, String searchText) {
@@ -103,7 +112,10 @@ public final class LspDiagnosticBuilder {
             return NULL_RANGE;
         }
         int endOffset = startOffset + searchText.length();
-        return new Range(offsetToPosition(content, startOffset), offsetToPosition(content, endOffset));
+        return new Range(
+            offsetToPosition(content, startOffset),
+            offsetToPosition(content, endOffset)
+        );
     }
 
     private static Position offsetToPosition(String content, int offset) {

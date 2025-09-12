@@ -1,10 +1,11 @@
 package org.jabref.gui.walkthrough;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.sun.javafx.scene.NodeHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.event.EventTarget;
@@ -18,7 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
+import org.controlsfx.control.PopOver;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
@@ -32,10 +33,6 @@ import org.jabref.gui.walkthrough.declarative.step.TooltipPosition;
 import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
 import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.sun.javafx.scene.NodeHelper;
-import org.controlsfx.control.PopOver;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -43,7 +40,10 @@ import org.slf4j.LoggerFactory;
 
 /// Manages the overlay for displaying walkthrough steps in a single window.
 class WindowOverlay {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WindowOverlay.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WindowOverlay.class
+    );
     private static final int POPOVER_CREATION_DELAY = 200;
 
     private final Window window;
@@ -60,13 +60,21 @@ class WindowOverlay {
     private @Nullable Button quitButton;
     private @Nullable Node currentContentNode;
 
-    public WindowOverlay(Window window, WalkthroughPane pane, Walkthrough walkthrough) {
+    public WindowOverlay(
+        Window window,
+        WalkthroughPane pane,
+        Walkthrough walkthrough
+    ) {
         this.window = window;
         this.pane = pane;
         this.renderer = new WalkthroughRenderer();
         this.walkthrough = walkthrough;
-        this.keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
-        this.stateManager = Injector.instantiateModelOrService(StateManager.class);
+        this.keyBindingRepository = Injector.instantiateModelOrService(
+            KeyBindingRepository.class
+        );
+        this.stateManager = Injector.instantiateModelOrService(
+            StateManager.class
+        );
 
         Scene scene = window.getScene();
         assert scene != null;
@@ -96,7 +104,11 @@ class WindowOverlay {
     /// popover.
     /// @see WindowOverlay#showPanel(PanelStep, Runnable)
     /// @see WindowOverlay#showPanel(PanelStep, Node, Runnable)
-    public void showTooltip(TooltipStep step, @Nullable Node node, Runnable beforeNavigate) {
+    public void showTooltip(
+        TooltipStep step,
+        @Nullable Node node,
+        Runnable beforeNavigate
+    ) {
         hide();
         showing = true;
         if (node == null) {
@@ -110,12 +122,14 @@ class WindowOverlay {
         AtomicReference<PopOver> popOverRef = new AtomicReference<>();
         addQuitButton(step);
 
-        AtomicReference<ChangeListener<Boolean>> popoverShowingListenerRef = new AtomicReference<>();
+        AtomicReference<ChangeListener<Boolean>> popoverShowingListenerRef =
+            new AtomicReference<>();
 
         Runnable updatePopoverVisibility = new Runnable() {
             @Override
             public void run() {
-                boolean shouldBeShowing = showing && NodeHelper.isTreeVisible(node);
+                boolean shouldBeShowing =
+                    showing && NodeHelper.isTreeVisible(node);
                 PopOver currentPopover = popOverRef.get();
 
                 if (!shouldBeShowing) {
@@ -127,7 +141,9 @@ class WindowOverlay {
 
                 if (currentPopover == null || !currentPopover.isShowing()) {
                     if (currentPopover != null) {
-                        currentPopover.showingProperty().removeListener(popoverShowingListenerRef.get());
+                        currentPopover
+                            .showingProperty()
+                            .removeListener(popoverShowingListenerRef.get());
                     }
                     // Prevent infinite loop. Consider: window want to close -> popover created
                     // -> popover got notified to be closed -> popover hide -> popover showing again from this...
@@ -137,42 +153,67 @@ class WindowOverlay {
             }
 
             private @NonNull DelayedExecution createPopoverDelayed() {
-                DelayedExecution delayedExecution = new DelayedExecution(new Duration(POPOVER_CREATION_DELAY), () -> {
-                    PopOver newPopover = createPopover(step, beforeNavigate);
-                    popOverRef.set(newPopover);
+                DelayedExecution delayedExecution = new DelayedExecution(
+                    new Duration(POPOVER_CREATION_DELAY),
+                    () -> {
+                        PopOver newPopover = createPopover(
+                            step,
+                            beforeNavigate
+                        );
+                        popOverRef.set(newPopover);
 
-                    ChangeListener<Boolean> newListener = (_, wasShowing, isShowing) -> {
-                        if (wasShowing && !isShowing) {
-                            this.run();
-                        }
-                    };
-                    popoverShowingListenerRef.set(newListener);
-                    newPopover.showingProperty().addListener(newListener);
-                    newPopover.show(node);
-                });
+                        ChangeListener<Boolean> newListener = (
+                            _,
+                            wasShowing,
+                            isShowing
+                        ) -> {
+                            if (wasShowing && !isShowing) {
+                                this.run();
+                            }
+                        };
+                        popoverShowingListenerRef.set(newListener);
+                        newPopover.showingProperty().addListener(newListener);
+                        newPopover.show(node);
+                    }
+                );
                 delayedExecution.start();
                 return delayedExecution;
             }
         };
 
-        WalkthroughUtils.DebouncedRunnable debouncedUpdate = WalkthroughUtils.debounced(updatePopoverVisibility);
-        ChangeListener<Boolean> treeVisibleListener = (_, _, _) -> debouncedUpdate.run();
+        WalkthroughUtils.DebouncedRunnable debouncedUpdate =
+            WalkthroughUtils.debounced(updatePopoverVisibility);
+        ChangeListener<Boolean> treeVisibleListener = (_, _, _) ->
+            debouncedUpdate.run();
         NodeHelper.treeVisibleProperty(node).addListener(treeVisibleListener);
 
         updatePopoverVisibility.run();
 
         cleanupTasks.add(() -> {
-            NodeHelper.treeVisibleProperty(node).removeListener(treeVisibleListener);
+            NodeHelper.treeVisibleProperty(node).removeListener(
+                treeVisibleListener
+            );
             debouncedUpdate.cancel();
             PopOver currentPopover = popOverRef.get();
             if (currentPopover != null) {
-                currentPopover.showingProperty().removeListener(popoverShowingListenerRef.get());
+                currentPopover
+                    .showingProperty()
+                    .removeListener(popoverShowingListenerRef.get());
                 currentPopover.hide();
             }
         });
 
-        step.trigger().ifPresent(predicate ->
-                cleanupTasks.add(predicate.attach(node, beforeNavigate, walkthrough::nextStep)));
+        step
+            .trigger()
+            .ifPresent(predicate ->
+                cleanupTasks.add(
+                    predicate.attach(
+                        node,
+                        beforeNavigate,
+                        walkthrough::nextStep
+                    )
+                )
+            );
     }
 
     /// Convenience method to show a panel for the given step without a node.
@@ -197,7 +238,11 @@ class WindowOverlay {
     ///                       not yet ready to be displayed
     /// @see WindowOverlay#showPanel(PanelStep, Runnable)
     /// @see WindowOverlay#showTooltip(TooltipStep, Node, Runnable)
-    public void showPanel(PanelStep step, @Nullable Node node, Runnable beforeNavigate) {
+    public void showPanel(
+        PanelStep step,
+        @Nullable Node node,
+        Runnable beforeNavigate
+    ) {
         hide();
         showing = true;
         Node content = renderer.render(step, walkthrough, beforeNavigate);
@@ -233,15 +278,27 @@ class WindowOverlay {
                 }
             }
             default -> {
-                LOGGER.warn("Unsupported position for panel step: {}", step.position());
+                LOGGER.warn(
+                    "Unsupported position for panel step: {}",
+                    step.position()
+                );
                 StackPane.setAlignment(content, Pos.CENTER);
             }
         }
         pane.getChildren().add(content);
         addQuitButton(step);
         if (node != null) {
-            step.trigger().ifPresent(predicate ->
-                    cleanupTasks.add(predicate.attach(node, beforeNavigate, walkthrough::nextStep)));
+            step
+                .trigger()
+                .ifPresent(predicate ->
+                    cleanupTasks.add(
+                        predicate.attach(
+                            node,
+                            beforeNavigate,
+                            walkthrough::nextStep
+                        )
+                    )
+                );
         }
     }
 
@@ -261,7 +318,10 @@ class WindowOverlay {
     public void detach() {
         hide();
         pane.detach();
-        LOGGER.debug("WindowOverlay detached for window: {}", window.getClass().getSimpleName());
+        LOGGER.debug(
+            "WindowOverlay detached for window: {}",
+            window.getClass().getSimpleName()
+        );
     }
 
     private PopOver createPopover(TooltipStep step, Runnable beforeNavigate) {
@@ -275,7 +335,9 @@ class WindowOverlay {
         popover.setAutoHide(false);
         popover.setConsumeAutoHidingEvents(false);
         popover.setHideOnEscape(false);
-        mapToArrowLocation(step.position()).ifPresent(popover::setArrowLocation);
+        mapToArrowLocation(step.position()).ifPresent(
+            popover::setArrowLocation
+        );
 
         Scene scene = popover.getScene();
         if (scene == null) {
@@ -297,21 +359,35 @@ class WindowOverlay {
     /// interested in copy/paste walkthrough text, they will not be able to do so.
     private void listenKeybindings(EventTarget target, Scene scene) {
         EventHandler<KeyEvent> eventFilter = event -> {
-            SelectableTextFlowKeyBindings.call(scene, event, keyBindingRepository);
-            WalkthroughKeyBindings.call(event, stateManager, keyBindingRepository);
+            SelectableTextFlowKeyBindings.call(
+                scene,
+                event,
+                keyBindingRepository
+            );
+            WalkthroughKeyBindings.call(
+                event,
+                stateManager,
+                keyBindingRepository
+            );
         };
         target.addEventFilter(KeyEvent.KEY_PRESSED, eventFilter);
-        cleanupTasks.add(() -> scene.removeEventFilter(KeyEvent.KEY_PRESSED, eventFilter));
+        cleanupTasks.add(() ->
+            scene.removeEventFilter(KeyEvent.KEY_PRESSED, eventFilter)
+        );
     }
 
-    private Optional<PopOver.ArrowLocation> mapToArrowLocation(TooltipPosition position) {
-        return Optional.ofNullable(switch (position) {
-            case TOP -> PopOver.ArrowLocation.BOTTOM_CENTER;
-            case BOTTOM -> PopOver.ArrowLocation.TOP_CENTER;
-            case LEFT -> PopOver.ArrowLocation.RIGHT_CENTER;
-            case RIGHT -> PopOver.ArrowLocation.LEFT_CENTER;
-            case AUTO -> null;
-        });
+    private Optional<PopOver.ArrowLocation> mapToArrowLocation(
+        TooltipPosition position
+    ) {
+        return Optional.ofNullable(
+            switch (position) {
+                case TOP -> PopOver.ArrowLocation.BOTTOM_CENTER;
+                case BOTTOM -> PopOver.ArrowLocation.TOP_CENTER;
+                case LEFT -> PopOver.ArrowLocation.RIGHT_CENTER;
+                case RIGHT -> PopOver.ArrowLocation.LEFT_CENTER;
+                case AUTO -> null;
+            }
+        );
     }
 
     private void addQuitButton(VisibleComponent component) {
@@ -339,19 +415,29 @@ class WindowOverlay {
         return button;
     }
 
-    private QuitButtonPosition resolveQuitButtonPosition(VisibleComponent component) {
+    private QuitButtonPosition resolveQuitButtonPosition(
+        VisibleComponent component
+    ) {
         QuitButtonPosition position = component.quitButtonPosition();
-        if (position == QuitButtonPosition.AUTO && component instanceof PanelStep panelStep) {
+        if (
+            position == QuitButtonPosition.AUTO
+            && component instanceof PanelStep panelStep
+        ) {
             return switch (panelStep.position()) {
                 case LEFT, BOTTOM -> QuitButtonPosition.TOP_RIGHT;
                 case RIGHT -> QuitButtonPosition.TOP_LEFT;
                 case TOP -> QuitButtonPosition.BOTTOM_RIGHT;
             };
         }
-        return position == QuitButtonPosition.AUTO ? QuitButtonPosition.BOTTOM_RIGHT : position;
+        return position == QuitButtonPosition.AUTO
+            ? QuitButtonPosition.BOTTOM_RIGHT
+            : position;
     }
 
-    private void positionQuitButton(Button button, QuitButtonPosition position) {
+    private void positionQuitButton(
+        Button button,
+        QuitButtonPosition position
+    ) {
         switch (position) {
             case TOP_LEFT -> {
                 StackPane.setAlignment(button, Pos.TOP_LEFT);

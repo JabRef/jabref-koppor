@@ -12,5 +12,5 @@ public enum AbbreviationType {
     DEFAULT,
     DOTLESS,
     SHORTEST_UNIQUE,
-    LTWA
+    LTWA,
 }

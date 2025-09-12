@@ -3,12 +3,10 @@ package org.jabref.gui.preferences.entryeditor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -21,21 +19,35 @@ import org.jabref.model.entry.field.FieldFactory;
 
 public class EntryEditorTabViewModel implements PreferenceTabViewModel {
 
-    private final BooleanProperty openOnNewEntryProperty = new SimpleBooleanProperty();
-    private final BooleanProperty defaultSourceProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableRelatedArticlesTabProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableAiSummaryTabProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableAiChatTabProperty = new SimpleBooleanProperty();
-    private final BooleanProperty acceptRecommendationsProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableLatexCitationsTabProperty = new SimpleBooleanProperty();
-    private final BooleanProperty smartFileAnnotationsTabProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableValidationProperty = new SimpleBooleanProperty();
-    private final BooleanProperty allowIntegerEditionProperty = new SimpleBooleanProperty();
-    private final BooleanProperty journalPopupProperty = new SimpleBooleanProperty();
-    private final BooleanProperty autoLinkEnabledProperty = new SimpleBooleanProperty();
-    private final BooleanProperty enableSciteTabProperty = new SimpleBooleanProperty();
+    private final BooleanProperty openOnNewEntryProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty defaultSourceProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableRelatedArticlesTabProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableAiSummaryTabProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableAiChatTabProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty acceptRecommendationsProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableLatexCitationsTabProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty smartFileAnnotationsTabProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableValidationProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty allowIntegerEditionProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty journalPopupProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty autoLinkEnabledProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty enableSciteTabProperty =
+        new SimpleBooleanProperty();
 
-    private final BooleanProperty showUserCommentsProperty = new SimpleBooleanProperty();
+    private final BooleanProperty showUserCommentsProperty =
+        new SimpleBooleanProperty();
 
     private final StringProperty fieldsProperty = new SimpleStringProperty();
 
@@ -44,7 +56,10 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     private final EntryEditorPreferences entryEditorPreferences;
     private final MrDlibPreferences mrDlibPreferences;
 
-    public EntryEditorTabViewModel(DialogService dialogService, GuiPreferences preferences) {
+    public EntryEditorTabViewModel(
+        DialogService dialogService,
+        GuiPreferences preferences
+    ) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.entryEditorPreferences = preferences.getEntryEditorPreferences();
@@ -56,26 +71,57 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         // ToDo: Include CustomizeGeneralFieldsDialog in PreferencesDialog
         //       Therefore yet unused: entryEditorPreferences.getEntryEditorTabList();
 
-        openOnNewEntryProperty.setValue(entryEditorPreferences.shouldOpenOnNewEntry());
-        defaultSourceProperty.setValue(entryEditorPreferences.showSourceTabByDefault());
-        enableRelatedArticlesTabProperty.setValue(entryEditorPreferences.shouldShowRecommendationsTab());
-        enableAiSummaryTabProperty.setValue(entryEditorPreferences.shouldShowAiSummaryTab());
-        enableAiChatTabProperty.setValue(entryEditorPreferences.shouldShowAiChatTab());
-        acceptRecommendationsProperty.setValue(mrDlibPreferences.shouldAcceptRecommendations());
-        enableLatexCitationsTabProperty.setValue(entryEditorPreferences.shouldShowLatexCitationsTab());
-        smartFileAnnotationsTabProperty.setValue(entryEditorPreferences.shouldShowFileAnnotationsTab());
-        enableValidationProperty.setValue(entryEditorPreferences.shouldEnableValidation());
-        allowIntegerEditionProperty.setValue(entryEditorPreferences.shouldAllowIntegerEditionBibtex());
-        journalPopupProperty.setValue(entryEditorPreferences.shouldEnableJournalPopup() == EntryEditorPreferences.JournalPopupEnabled.ENABLED);
-        autoLinkEnabledProperty.setValue(entryEditorPreferences.autoLinkFilesEnabled());
-        enableSciteTabProperty.setValue(entryEditorPreferences.shouldShowSciteTab());
-        showUserCommentsProperty.setValue(entryEditorPreferences.shouldShowUserCommentsFields());
+        openOnNewEntryProperty.setValue(
+            entryEditorPreferences.shouldOpenOnNewEntry()
+        );
+        defaultSourceProperty.setValue(
+            entryEditorPreferences.showSourceTabByDefault()
+        );
+        enableRelatedArticlesTabProperty.setValue(
+            entryEditorPreferences.shouldShowRecommendationsTab()
+        );
+        enableAiSummaryTabProperty.setValue(
+            entryEditorPreferences.shouldShowAiSummaryTab()
+        );
+        enableAiChatTabProperty.setValue(
+            entryEditorPreferences.shouldShowAiChatTab()
+        );
+        acceptRecommendationsProperty.setValue(
+            mrDlibPreferences.shouldAcceptRecommendations()
+        );
+        enableLatexCitationsTabProperty.setValue(
+            entryEditorPreferences.shouldShowLatexCitationsTab()
+        );
+        smartFileAnnotationsTabProperty.setValue(
+            entryEditorPreferences.shouldShowFileAnnotationsTab()
+        );
+        enableValidationProperty.setValue(
+            entryEditorPreferences.shouldEnableValidation()
+        );
+        allowIntegerEditionProperty.setValue(
+            entryEditorPreferences.shouldAllowIntegerEditionBibtex()
+        );
+        journalPopupProperty.setValue(
+            entryEditorPreferences.shouldEnableJournalPopup()
+                == EntryEditorPreferences.JournalPopupEnabled.ENABLED
+        );
+        autoLinkEnabledProperty.setValue(
+            entryEditorPreferences.autoLinkFilesEnabled()
+        );
+        enableSciteTabProperty.setValue(
+            entryEditorPreferences.shouldShowSciteTab()
+        );
+        showUserCommentsProperty.setValue(
+            entryEditorPreferences.shouldShowUserCommentsFields()
+        );
 
         setFields(entryEditorPreferences.getEntryEditorTabs());
     }
 
     public void resetToDefaults() {
-        setFields(preferences.getEntryEditorPreferences().getDefaultEntryEditorTabs());
+        setFields(
+            preferences.getEntryEditorPreferences().getDefaultEntryEditorTabs()
+        );
     }
 
     private void setFields(Map<String, Set<Field>> tabNamesAndFields) {
@@ -94,23 +140,51 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     @Override
     public void storeSettings() {
         // entryEditorPreferences.setEntryEditorTabList();
-        entryEditorPreferences.setShouldOpenOnNewEntry(openOnNewEntryProperty.getValue());
-        entryEditorPreferences.setShouldShowRecommendationsTab(enableRelatedArticlesTabProperty.getValue());
-        entryEditorPreferences.setShouldShowAiSummaryTab(enableAiSummaryTabProperty.getValue());
-        entryEditorPreferences.setShouldShowAiChatTab(enableAiChatTabProperty.getValue());
-        mrDlibPreferences.setAcceptRecommendations(acceptRecommendationsProperty.getValue());
-        entryEditorPreferences.setShouldShowLatexCitationsTab(enableLatexCitationsTabProperty.getValue());
-        entryEditorPreferences.setShouldShowFileAnnotationsTab(smartFileAnnotationsTabProperty.getValue());
-        entryEditorPreferences.setShowSourceTabByDefault(defaultSourceProperty.getValue());
-        entryEditorPreferences.setEnableValidation(enableValidationProperty.getValue());
-        entryEditorPreferences.setAllowIntegerEditionBibtex(allowIntegerEditionProperty.getValue());
-        entryEditorPreferences.setEnableJournalPopup(journalPopupProperty.getValue()
+        entryEditorPreferences.setShouldOpenOnNewEntry(
+            openOnNewEntryProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowRecommendationsTab(
+            enableRelatedArticlesTabProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowAiSummaryTab(
+            enableAiSummaryTabProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowAiChatTab(
+            enableAiChatTabProperty.getValue()
+        );
+        mrDlibPreferences.setAcceptRecommendations(
+            acceptRecommendationsProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowLatexCitationsTab(
+            enableLatexCitationsTabProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowFileAnnotationsTab(
+            smartFileAnnotationsTabProperty.getValue()
+        );
+        entryEditorPreferences.setShowSourceTabByDefault(
+            defaultSourceProperty.getValue()
+        );
+        entryEditorPreferences.setEnableValidation(
+            enableValidationProperty.getValue()
+        );
+        entryEditorPreferences.setAllowIntegerEditionBibtex(
+            allowIntegerEditionProperty.getValue()
+        );
+        entryEditorPreferences.setEnableJournalPopup(
+            journalPopupProperty.getValue()
                 ? EntryEditorPreferences.JournalPopupEnabled.ENABLED
-                : EntryEditorPreferences.JournalPopupEnabled.DISABLED);
+                : EntryEditorPreferences.JournalPopupEnabled.DISABLED
+        );
         // entryEditorPreferences.setDividerPosition();
-        entryEditorPreferences.setAutoLinkFilesEnabled(autoLinkEnabledProperty.getValue());
-        entryEditorPreferences.setShouldShowSciteTab(enableSciteTabProperty.getValue());
-        entryEditorPreferences.setShowUserCommentsFields(showUserCommentsProperty.getValue());
+        entryEditorPreferences.setAutoLinkFilesEnabled(
+            autoLinkEnabledProperty.getValue()
+        );
+        entryEditorPreferences.setShouldShowSciteTab(
+            enableSciteTabProperty.getValue()
+        );
+        entryEditorPreferences.setShowUserCommentsFields(
+            showUserCommentsProperty.getValue()
+        );
 
         Map<String, Set<Field>> customTabsMap = new LinkedHashMap<>();
         String[] lines = fieldsProperty.get().split("\n");
@@ -119,8 +193,11 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
             String[] parts = line.split(":");
             if (parts.length != 2) {
                 dialogService.showInformationDialogAndWait(
-                        Localization.lang("Error"),
-                        Localization.lang("Each line must be of the following form: 'tab:field1;field2;...;fieldN'."));
+                    Localization.lang("Error"),
+                    Localization.lang(
+                        "Each line must be of the following form: 'tab:field1;field2;...;fieldN'."
+                    )
+                );
                 return;
             }
 
@@ -128,12 +205,18 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
             // from preferences because the list of allowable characters in this particular differs
             // i.e. ';' character is allowed in this window, but it's on the list of unwanted chars in preferences
             String unwantedChars = "#{}()~,^&-\"'`ʹ\\";
-            String testString = CitationKeyGenerator.cleanKey(parts[1], unwantedChars);
+            String testString = CitationKeyGenerator.cleanKey(
+                parts[1],
+                unwantedChars
+            );
             if (!testString.equals(parts[1])) {
                 dialogService.showInformationDialogAndWait(
-                        Localization.lang("Error"),
-                        Localization.lang("Field names are not allowed to contain white spaces or certain characters (%0).",
-                                "# { } ( ) ~ , ^ & - \" ' ` ʹ \\"));
+                    Localization.lang("Error"),
+                    Localization.lang(
+                        "Field names are not allowed to contain white spaces or certain characters (%0).",
+                        "# { } ( ) ~ , ^ & - \" ' ` ʹ \\"
+                    )
+                );
                 return;
             }
 

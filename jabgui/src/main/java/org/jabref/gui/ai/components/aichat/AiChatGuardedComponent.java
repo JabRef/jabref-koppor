@@ -1,9 +1,9 @@
 package org.jabref.gui.ai.components.aichat;
 
+import dev.langchain4j.data.message.ChatMessage;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.ai.components.util.EmbeddingModelGuardedComponent;
 import org.jabref.gui.entryeditor.AdaptVisibleTabs;
@@ -14,12 +14,11 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
-import dev.langchain4j.data.message.ChatMessage;
-
 /**
  * Main class for AI chatting. It checks if the AI features are enabled and if the embedding model is properly set up.
  */
 public class AiChatGuardedComponent extends EmbeddingModelGuardedComponent {
+
     /// This field is used for two purposes:
     /// 1. Logging
     /// 2. Title of group chat window
@@ -35,19 +34,25 @@ public class AiChatGuardedComponent extends EmbeddingModelGuardedComponent {
     private final AiPreferences aiPreferences;
     private final TaskExecutor taskExecutor;
 
-    public AiChatGuardedComponent(StringProperty name,
-                                  ObservableList<ChatMessage> chatHistory,
-                                  BibDatabaseContext bibDatabaseContext,
-                                  ObservableList<BibEntry> entries,
-                                  AiService aiService,
-                                  DialogService dialogService,
-                                  AiPreferences aiPreferences,
-                                  ExternalApplicationsPreferences externalApplicationsPreferences,
-                                  AdaptVisibleTabs adaptVisibleTabs,
-                                  TaskExecutor taskExecutor
+    public AiChatGuardedComponent(
+        StringProperty name,
+        ObservableList<ChatMessage> chatHistory,
+        BibDatabaseContext bibDatabaseContext,
+        ObservableList<BibEntry> entries,
+        AiService aiService,
+        DialogService dialogService,
+        AiPreferences aiPreferences,
+        ExternalApplicationsPreferences externalApplicationsPreferences,
+        AdaptVisibleTabs adaptVisibleTabs,
+        TaskExecutor taskExecutor
     ) {
-        super(aiService, aiPreferences, externalApplicationsPreferences, dialogService, adaptVisibleTabs);
-
+        super(
+            aiService,
+            aiPreferences,
+            externalApplicationsPreferences,
+            dialogService,
+            adaptVisibleTabs
+        );
         this.name = name;
         this.chatHistory = chatHistory;
         this.bibDatabaseContext = bibDatabaseContext;
@@ -63,14 +68,14 @@ public class AiChatGuardedComponent extends EmbeddingModelGuardedComponent {
     @Override
     protected Node showEmbeddingModelGuardedContent() {
         return new AiChatComponent(
-                aiService,
-                name,
-                chatHistory,
-                entries,
-                bibDatabaseContext,
-                aiPreferences,
-                dialogService,
-                taskExecutor
+            aiService,
+            name,
+            chatHistory,
+            entries,
+            bibDatabaseContext,
+            aiPreferences,
+            dialogService,
+            taskExecutor
         );
     }
 }

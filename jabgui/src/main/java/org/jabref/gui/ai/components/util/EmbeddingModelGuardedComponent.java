@@ -1,7 +1,7 @@
 package org.jabref.gui.ai.components.util;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.scene.Node;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.ai.components.privacynotice.AiPrivacyNoticeGuardedComponent;
 import org.jabref.gui.ai.components.util.errorstate.ErrorStateComponent;
@@ -13,23 +13,28 @@ import org.jabref.logic.ai.AiService;
 import org.jabref.logic.ai.ingestion.model.JabRefEmbeddingModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * Class that has similar logic to {@link AiPrivacyNoticeGuardedComponent}. It extends from it, so that means,
  * if a component needs embedding model, then it should also be guarded with accepting AI privacy policy.
  */
-public abstract class EmbeddingModelGuardedComponent extends AiPrivacyNoticeGuardedComponent {
+public abstract class EmbeddingModelGuardedComponent
+    extends AiPrivacyNoticeGuardedComponent {
+
     private final AiService aiService;
 
-    public EmbeddingModelGuardedComponent(AiService aiService,
-                                          AiPreferences aiPreferences,
-                                          ExternalApplicationsPreferences externalApplicationsPreferences,
-                                          DialogService dialogService,
-                                          AdaptVisibleTabs adaptVisibleTabs
+    public EmbeddingModelGuardedComponent(
+        AiService aiService,
+        AiPreferences aiPreferences,
+        ExternalApplicationsPreferences externalApplicationsPreferences,
+        DialogService dialogService,
+        AdaptVisibleTabs adaptVisibleTabs
     ) {
-        super(aiPreferences, externalApplicationsPreferences, dialogService, adaptVisibleTabs);
-
+        super(
+            aiPreferences,
+            externalApplicationsPreferences,
+            dialogService,
+            adaptVisibleTabs
+        );
         this.aiService = aiService;
 
         aiService.getEmbeddingModel().registerListener(this);
@@ -52,28 +57,38 @@ public abstract class EmbeddingModelGuardedComponent extends AiPrivacyNoticeGuar
 
     private Node showErrorWhileBuildingEmbeddingModel() {
         return ErrorStateComponent.withTextAreaAndButton(
-                Localization.lang("Unable to chat"),
-                Localization.lang("An error occurred while building the embedding model"),
-                aiService.getEmbeddingModel().getErrorWhileBuildingModel(),
-                Localization.lang("Rebuild"),
-                () -> aiService.getEmbeddingModel().startRebuildingTask()
+            Localization.lang("Unable to chat"),
+            Localization.lang(
+                "An error occurred while building the embedding model"
+            ),
+            aiService.getEmbeddingModel().getErrorWhileBuildingModel(),
+            Localization.lang("Rebuild"),
+            () -> aiService.getEmbeddingModel().startRebuildingTask()
         );
     }
 
     public Node showBuildingEmbeddingModel() {
         return ErrorStateComponent.withSpinner(
-                Localization.lang("Downloading..."),
-                Localization.lang("Downloading embedding model... Afterward, you will be able to chat with your files.")
+            Localization.lang("Downloading..."),
+            Localization.lang(
+                "Downloading embedding model... Afterward, you will be able to chat with your files."
+            )
         );
     }
 
     @Subscribe
     public void listen(JabRefEmbeddingModel.EmbeddingModelBuiltEvent event) {
-        UiTaskExecutor.runInJavaFXThread(EmbeddingModelGuardedComponent.this::rebuildUi);
+        UiTaskExecutor.runInJavaFXThread(
+            EmbeddingModelGuardedComponent.this::rebuildUi
+        );
     }
 
     @Subscribe
-    public void listen(JabRefEmbeddingModel.EmbeddingModelBuildingErrorEvent event) {
-        UiTaskExecutor.runInJavaFXThread(EmbeddingModelGuardedComponent.this::rebuildUi);
+    public void listen(
+        JabRefEmbeddingModel.EmbeddingModelBuildingErrorEvent event
+    ) {
+        UiTaskExecutor.runInJavaFXThread(
+            EmbeddingModelGuardedComponent.this::rebuildUi
+        );
     }
 }

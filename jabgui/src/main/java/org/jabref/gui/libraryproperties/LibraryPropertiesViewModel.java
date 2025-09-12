@@ -1,7 +1,6 @@
 package org.jabref.gui.libraryproperties;
 
 import java.util.List;
-
 import org.jabref.gui.libraryproperties.constants.ConstantsPropertiesView;
 import org.jabref.gui.libraryproperties.contentselectors.ContentSelectorView;
 import org.jabref.gui.libraryproperties.general.GeneralPropertiesView;
@@ -16,12 +15,12 @@ public class LibraryPropertiesViewModel {
 
     public LibraryPropertiesViewModel(BibDatabaseContext databaseContext) {
         propertiesTabs = List.of(
-                new GeneralPropertiesView(databaseContext),
-                new SavingPropertiesView(databaseContext),
-                new KeyPatternPropertiesView(databaseContext),
-                new ConstantsPropertiesView(databaseContext),
-                new ContentSelectorView(databaseContext),
-                new PreamblePropertiesView(databaseContext)
+            new GeneralPropertiesView(databaseContext),
+            new SavingPropertiesView(databaseContext),
+            new KeyPatternPropertiesView(databaseContext),
+            new ConstantsPropertiesView(databaseContext),
+            new ContentSelectorView(databaseContext),
+            new PreamblePropertiesView(databaseContext)
         );
     }
 
@@ -40,7 +39,7 @@ public class LibraryPropertiesViewModel {
     public boolean validateAllSettings() {
         for (PropertiesTab propertiesTab : propertiesTabs) {
             if (!propertiesTab.validateSettings()) {
-              return false;
+                return false;
             }
         }
         return true;

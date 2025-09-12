@@ -1,5 +1,8 @@
 package org.jabref.model.texparser;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,11 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 public class LatexParserResults {
+
     private final Map<Path, LatexParserResult> parsedTexFiles;
 
     public LatexParserResults() {
@@ -38,19 +38,25 @@ public class LatexParserResults {
 
     public Set<Path> getBibFiles() {
         Set<Path> bibFiles = new HashSet<>();
-        parsedTexFiles.values().forEach(result -> bibFiles.addAll(result.getBibFiles()));
+        parsedTexFiles
+            .values()
+            .forEach(result -> bibFiles.addAll(result.getBibFiles()));
         return bibFiles;
     }
 
     public Multimap<String, Citation> getCitations() {
         Multimap<String, Citation> citations = HashMultimap.create();
-        parsedTexFiles.forEach((path, result) -> citations.putAll(result.getCitations()));
+        parsedTexFiles.forEach((path, result) ->
+            citations.putAll(result.getCitations())
+        );
         return citations;
     }
 
     public Collection<Citation> getCitationsByKey(String key) {
         Collection<Citation> citations = new ArrayList<>();
-        parsedTexFiles.values().forEach(result -> citations.addAll(result.getCitationsByKey(key)));
+        parsedTexFiles
+            .values()
+            .forEach(result -> citations.addAll(result.getCitationsByKey(key)));
         return citations;
     }
 

@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
@@ -23,7 +22,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import kong.unirest.core.UnirestException;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.LibraryPreferences;
@@ -45,32 +44,52 @@ import org.jabref.logic.preferences.FetcherApiKey;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 
-import kong.unirest.core.UnirestException;
-
 public class WebSearchTabViewModel implements PreferenceTabViewModel {
-    private final BooleanProperty enableWebSearchProperty = new SimpleBooleanProperty();
-    private final BooleanProperty warnAboutDuplicatesOnImportProperty = new SimpleBooleanProperty();
-    private final BooleanProperty shouldDownloadLinkedOnlineFiles = new SimpleBooleanProperty();
-    private final BooleanProperty shouldkeepDownloadUrl = new SimpleBooleanProperty();
+
+    private final BooleanProperty enableWebSearchProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty warnAboutDuplicatesOnImportProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty shouldDownloadLinkedOnlineFiles =
+        new SimpleBooleanProperty();
+    private final BooleanProperty shouldkeepDownloadUrl =
+        new SimpleBooleanProperty();
 
     private final ListProperty<PlainCitationParserChoice> plainCitationParsers =
-            new SimpleListProperty<>(FXCollections.observableArrayList(PlainCitationParserChoice.values()));
-    private final ObjectProperty<PlainCitationParserChoice> defaultPlainCitationParser = new SimpleObjectProperty<>();
+        new SimpleListProperty<>(
+            FXCollections.observableArrayList(
+                PlainCitationParserChoice.values()
+            )
+        );
+    private final ObjectProperty<
+        PlainCitationParserChoice
+    > defaultPlainCitationParser = new SimpleObjectProperty<>();
 
-    private final IntegerProperty citationsRelationStoreTTL = new SimpleIntegerProperty();
+    private final IntegerProperty citationsRelationStoreTTL =
+        new SimpleIntegerProperty();
 
-    private final BooleanProperty addImportedEntries = new SimpleBooleanProperty();
-    private final StringProperty addImportedEntriesGroupName = new SimpleStringProperty("");
+    private final BooleanProperty addImportedEntries =
+        new SimpleBooleanProperty();
+    private final StringProperty addImportedEntriesGroupName =
+        new SimpleStringProperty("");
 
-    private final BooleanProperty useCustomDOIProperty = new SimpleBooleanProperty();
-    private final StringProperty useCustomDOINameProperty = new SimpleStringProperty("");
+    private final BooleanProperty useCustomDOIProperty =
+        new SimpleBooleanProperty();
+    private final StringProperty useCustomDOINameProperty =
+        new SimpleStringProperty("");
 
-    private final ObservableList<FetcherViewModel> fetchers = FXCollections.observableArrayList();
-    private final BooleanProperty grobidEnabledProperty = new SimpleBooleanProperty();
-    private final StringProperty grobidURLProperty = new SimpleStringProperty("");
+    private final ObservableList<FetcherViewModel> fetchers =
+        FXCollections.observableArrayList();
+    private final BooleanProperty grobidEnabledProperty =
+        new SimpleBooleanProperty();
+    private final StringProperty grobidURLProperty = new SimpleStringProperty(
+        ""
+    );
 
-    private final BooleanProperty apikeyPersistProperty = new SimpleBooleanProperty();
-    private final BooleanProperty apikeyPersistAvailableProperty = new SimpleBooleanProperty();
+    private final BooleanProperty apikeyPersistProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty apikeyPersistAvailableProperty =
+        new SimpleBooleanProperty();
 
     private final CliPreferences preferences;
     private final DOIPreferences doiPreferences;
@@ -83,7 +102,11 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
 
     private final ReadOnlyBooleanProperty refAiEnabled;
 
-    public WebSearchTabViewModel(CliPreferences preferences, ReadOnlyBooleanProperty refAiEnabled, TaskExecutor taskExecutor) {
+    public WebSearchTabViewModel(
+        CliPreferences preferences,
+        ReadOnlyBooleanProperty refAiEnabled,
+        TaskExecutor taskExecutor
+    ) {
         this.preferences = preferences;
         this.importerPreferences = preferences.getImporterPreferences();
         this.grobidPreferences = preferences.getGrobidPreferences();
@@ -107,12 +130,15 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
             if (newValue) {
                 plainCitationParsers.add(PlainCitationParserChoice.LLM);
             } else {
-                PlainCitationParserChoice oldChoice = defaultPlainCitationParser.get();
+                PlainCitationParserChoice oldChoice =
+                    defaultPlainCitationParser.get();
 
                 plainCitationParsers.remove(PlainCitationParserChoice.LLM);
 
                 if (oldChoice == PlainCitationParserChoice.LLM) {
-                    defaultPlainCitationParser.set(plainCitationParsers.getFirst());
+                    defaultPlainCitationParser.set(
+                        plainCitationParsers.getFirst()
+                    );
                 }
             }
         });
@@ -125,12 +151,15 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
             if (newValue) {
                 plainCitationParsers.add(PlainCitationParserChoice.GROBID);
             } else {
-                PlainCitationParserChoice oldChoice = defaultPlainCitationParser.get();
+                PlainCitationParserChoice oldChoice =
+                    defaultPlainCitationParser.get();
 
                 plainCitationParsers.remove(PlainCitationParserChoice.GROBID);
 
                 if (oldChoice == PlainCitationParserChoice.GROBID) {
-                    defaultPlainCitationParser.set(plainCitationParsers.getFirst());
+                    defaultPlainCitationParser.set(
+                        plainCitationParsers.getFirst()
+                    );
                 }
             }
         });
@@ -138,14 +167,28 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void setValues() {
-        enableWebSearchProperty.setValue(importerPreferences.areImporterEnabled());
-        warnAboutDuplicatesOnImportProperty.setValue(importerPreferences.shouldWarnAboutDuplicatesOnImport());
-        shouldDownloadLinkedOnlineFiles.setValue(filePreferences.shouldDownloadLinkedFiles());
+        enableWebSearchProperty.setValue(
+            importerPreferences.areImporterEnabled()
+        );
+        warnAboutDuplicatesOnImportProperty.setValue(
+            importerPreferences.shouldWarnAboutDuplicatesOnImport()
+        );
+        shouldDownloadLinkedOnlineFiles.setValue(
+            filePreferences.shouldDownloadLinkedFiles()
+        );
         shouldkeepDownloadUrl.setValue(filePreferences.shouldKeepDownloadUrl());
-        addImportedEntries.setValue(libraryPreferences.isAddImportedEntriesEnabled());
-        addImportedEntriesGroupName.setValue(libraryPreferences.getAddImportedEntriesGroupName());
-        defaultPlainCitationParser.setValue(importerPreferences.getDefaultPlainCitationParser());
-        citationsRelationStoreTTL.setValue(importerPreferences.getCitationsRelationsStoreTTL());
+        addImportedEntries.setValue(
+            libraryPreferences.isAddImportedEntriesEnabled()
+        );
+        addImportedEntriesGroupName.setValue(
+            libraryPreferences.getAddImportedEntriesGroupName()
+        );
+        defaultPlainCitationParser.setValue(
+            importerPreferences.getDefaultPlainCitationParser()
+        );
+        citationsRelationStoreTTL.setValue(
+            importerPreferences.getCitationsRelationsStoreTTL()
+        );
 
         useCustomDOIProperty.setValue(doiPreferences.isUseCustom());
         useCustomDOINameProperty.setValue(doiPreferences.getDefaultBaseURI());
@@ -153,75 +196,142 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         grobidEnabledProperty.setValue(grobidPreferences.isGrobidEnabled());
         grobidURLProperty.setValue(grobidPreferences.getGrobidURL());
 
-        Set<FetcherApiKey> savedApiKeys = preferences.getImporterPreferences().getApiKeys();
-        Set<String> enabledCatalogs = new HashSet<>(importerPreferences.getCatalogs());
+        Set<FetcherApiKey> savedApiKeys = preferences
+            .getImporterPreferences()
+            .getApiKeys();
+        Set<String> enabledCatalogs = new HashSet<>(
+            importerPreferences.getCatalogs()
+        );
 
-        List<SearchBasedFetcher> allFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                                          .stream().sorted(Comparator.comparing(WebFetcher::getName)).toList();
+        List<SearchBasedFetcher> allFetchers =
+            WebFetchers.getSearchBasedFetchers(
+                importFormatPreferences,
+                importerPreferences
+            )
+                .stream()
+                .sorted(Comparator.comparing(WebFetcher::getName))
+                .toList();
 
-        Set<CustomizableKeyFetcher> customizableKeyFetchers = WebFetchers.getCustomizableKeyFetchers(importFormatPreferences, importerPreferences);
-        Set<String> customizableFetcherNames = customizableKeyFetchers.stream().map(WebFetcher::getName).collect(Collectors.toSet());
+        Set<CustomizableKeyFetcher> customizableKeyFetchers =
+            WebFetchers.getCustomizableKeyFetchers(
+                importFormatPreferences,
+                importerPreferences
+            );
+        Set<String> customizableFetcherNames = customizableKeyFetchers
+            .stream()
+            .map(WebFetcher::getName)
+            .collect(Collectors.toSet());
 
         fetchers.clear();
         for (SearchBasedFetcher fetcher : allFetchers) {
-            if (CompositeSearchBasedFetcher.FETCHER_NAME.equals(fetcher.getName())) {
+            if (
+                CompositeSearchBasedFetcher.FETCHER_NAME.equals(
+                    fetcher.getName()
+                )
+            ) {
                 continue;
             }
             boolean isEnabled = enabledCatalogs.contains(fetcher.getName());
-            boolean isCustomizable = customizableFetcherNames.contains(fetcher.getName());
-            FetcherViewModel fetcherViewModel = new FetcherViewModel(fetcher, isEnabled, isCustomizable);
+            boolean isCustomizable = customizableFetcherNames.contains(
+                fetcher.getName()
+            );
+            FetcherViewModel fetcherViewModel = new FetcherViewModel(
+                fetcher,
+                isEnabled,
+                isCustomizable
+            );
             if (isCustomizable) {
-                savedApiKeys.stream()
-                            .filter(apiKey -> apiKey.getName().equals(fetcher.getName()))
-                            .findFirst()
-                            .ifPresent(apiKey -> {
-                                fetcherViewModel.apiKeyProperty().set(apiKey.getKey());
-                                fetcherViewModel.useCustomApiKeyProperty().set(apiKey.shouldUse());
-                            });
+                savedApiKeys
+                    .stream()
+                    .filter(apiKey ->
+                        apiKey.getName().equals(fetcher.getName())
+                    )
+                    .findFirst()
+                    .ifPresent(apiKey -> {
+                        fetcherViewModel.apiKeyProperty().set(apiKey.getKey());
+                        fetcherViewModel
+                            .useCustomApiKeyProperty()
+                            .set(apiKey.shouldUse());
+                    });
             }
             fetchers.add(fetcherViewModel);
         }
 
         apikeyPersistAvailableProperty.setValue(OS.isKeyringAvailable());
-        apikeyPersistProperty.setValue(preferences.getImporterPreferences().shouldPersistCustomKeys());
+        apikeyPersistProperty.setValue(
+            preferences.getImporterPreferences().shouldPersistCustomKeys()
+        );
     }
 
     @Override
     public void storeSettings() {
-        importerPreferences.setImporterEnabled(enableWebSearchProperty.getValue());
-        importerPreferences.setWarnAboutDuplicatesOnImport(warnAboutDuplicatesOnImportProperty.getValue());
-        filePreferences.setDownloadLinkedFiles(shouldDownloadLinkedOnlineFiles.getValue());
+        importerPreferences.setImporterEnabled(
+            enableWebSearchProperty.getValue()
+        );
+        importerPreferences.setWarnAboutDuplicatesOnImport(
+            warnAboutDuplicatesOnImportProperty.getValue()
+        );
+        filePreferences.setDownloadLinkedFiles(
+            shouldDownloadLinkedOnlineFiles.getValue()
+        );
         filePreferences.setKeepDownloadUrl(shouldkeepDownloadUrl.getValue());
         libraryPreferences.setAddImportedEntries(addImportedEntries.getValue());
-        if (addImportedEntriesGroupName.getValue().isEmpty() || addImportedEntriesGroupName.getValue().startsWith(" ")) {
-            libraryPreferences.setAddImportedEntriesGroupName(Localization.lang("Imported entries"));
+        if (
+            addImportedEntriesGroupName.getValue().isEmpty()
+            || addImportedEntriesGroupName.getValue().startsWith(" ")
+        ) {
+            libraryPreferences.setAddImportedEntriesGroupName(
+                Localization.lang("Imported entries")
+            );
         } else {
-            libraryPreferences.setAddImportedEntriesGroupName(addImportedEntriesGroupName.getValue());
+            libraryPreferences.setAddImportedEntriesGroupName(
+                addImportedEntriesGroupName.getValue()
+            );
         }
-        importerPreferences.setDefaultPlainCitationParser(defaultPlainCitationParser.getValue());
-        importerPreferences.setCitationsRelationsStoreTTL(citationsRelationStoreTTL.getValue());
+        importerPreferences.setDefaultPlainCitationParser(
+            defaultPlainCitationParser.getValue()
+        );
+        importerPreferences.setCitationsRelationsStoreTTL(
+            citationsRelationStoreTTL.getValue()
+        );
 
         grobidPreferences.setGrobidEnabled(grobidEnabledProperty.getValue());
-        grobidPreferences.setGrobidUseAsked(grobidPreferences.isGrobidUseAsked());
+        grobidPreferences.setGrobidUseAsked(
+            grobidPreferences.isGrobidUseAsked()
+        );
         grobidPreferences.setGrobidURL(grobidURLProperty.getValue());
         doiPreferences.setUseCustom(useCustomDOIProperty.get());
-        doiPreferences.setDefaultBaseURI(useCustomDOINameProperty.getValue().trim());
+        doiPreferences.setDefaultBaseURI(
+            useCustomDOINameProperty.getValue().trim()
+        );
 
         importerPreferences.setCatalogs(
-                fetchers.stream()
-                        .filter(FetcherViewModel::isEnabled)
-                        .map(FetcherViewModel::getName)
-                        .toList());
+            fetchers
+                .stream()
+                .filter(FetcherViewModel::isEnabled)
+                .map(FetcherViewModel::getName)
+                .toList()
+        );
 
-        List<FetcherApiKey> apiKeysToStore = fetchers.stream()
-                                                     .filter(FetcherViewModel::isCustomizable)
-                                                     .map(fetcherViewModel -> new FetcherApiKey(fetcherViewModel.getName(), fetcherViewModel.shouldUseCustomApiKey(), fetcherViewModel.getApiKey()))
-                                                     .toList();
+        List<FetcherApiKey> apiKeysToStore = fetchers
+            .stream()
+            .filter(FetcherViewModel::isCustomizable)
+            .map(fetcherViewModel ->
+                new FetcherApiKey(
+                    fetcherViewModel.getName(),
+                    fetcherViewModel.shouldUseCustomApiKey(),
+                    fetcherViewModel.getApiKey()
+                )
+            )
+            .toList();
 
         importerPreferences.setPersistCustomKeys(apikeyPersistProperty.get());
         preferences.getImporterPreferences().getApiKeys().clear();
         if (apikeyPersistAvailableProperty.get()) {
-            preferences.getImporterPreferences().getApiKeys().addAll(apiKeysToStore);
+            preferences
+                .getImporterPreferences()
+                .getApiKeys()
+                .addAll(apiKeysToStore);
         }
     }
 
@@ -233,7 +343,9 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         return plainCitationParsers;
     }
 
-    public ObjectProperty<PlainCitationParserChoice> defaultPlainCitationParserProperty() {
+    public ObjectProperty<
+        PlainCitationParserChoice
+    > defaultPlainCitationParserProperty() {
         return defaultPlainCitationParser;
     }
 
@@ -289,7 +401,11 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         return citationsRelationStoreTTL;
     }
 
-    public void checkApiKey(FetcherViewModel fetcherViewModel, String apiKey, Consumer<Boolean> onFinished) {
+    public void checkApiKey(
+        FetcherViewModel fetcherViewModel,
+        String apiKey,
+        Consumer<Boolean> onFinished
+    ) {
         Callable<Boolean> tester = () -> {
             WebFetcher webFetcher = fetcherViewModel.getFetcher();
 
@@ -307,18 +423,22 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
             }
 
             try {
-                URLDownload urlDownload = new URLDownload(testUrlWithoutApiKey + apiKey);
+                URLDownload urlDownload = new URLDownload(
+                    testUrlWithoutApiKey + apiKey
+                );
                 // The HEAD request cannot be used because its response is not 200 (maybe 404 or 596...).
-                int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection()).getResponseCode();
+                int statusCode = ((HttpURLConnection) urlDownload
+                        .getSource()
+                        .openConnection()).getResponseCode();
                 return (statusCode >= 200) && (statusCode < 300);
             } catch (IOException | UnirestException e) {
                 return false;
             }
         };
         BackgroundTask.wrap(tester)
-                      .onSuccess(onFinished)
-                      .onFailure(_ -> onFinished.accept(false))
-                      .executeWith(taskExecutor);
+            .onSuccess(onFinished)
+            .onFailure(_ -> onFinished.accept(false))
+            .executeWith(taskExecutor);
     }
 
     @Override
@@ -327,14 +447,21 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
     }
 
     public static class FetcherViewModel {
+
         private final StringProperty name = new SimpleStringProperty();
         private final BooleanProperty enabled = new SimpleBooleanProperty();
-        private final BooleanProperty customizable = new SimpleBooleanProperty();
+        private final BooleanProperty customizable =
+            new SimpleBooleanProperty();
         private final StringProperty apiKey = new SimpleStringProperty("");
-        private final BooleanProperty useCustomApiKey = new SimpleBooleanProperty(false);
+        private final BooleanProperty useCustomApiKey =
+            new SimpleBooleanProperty(false);
         private final WebFetcher fetcher;
 
-        public FetcherViewModel(WebFetcher fetcher, boolean enabled, boolean customizable) {
+        public FetcherViewModel(
+            WebFetcher fetcher,
+            boolean enabled,
+            boolean customizable
+        ) {
             this.name.set(fetcher.getName());
             this.fetcher = fetcher;
             this.enabled.set(enabled);

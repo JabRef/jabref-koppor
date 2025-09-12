@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.strings.StringUtil;
@@ -31,35 +30,52 @@ public class FieldFactory {
     private static final String FIELD_OR_SEPARATOR = "/";
     private static final String DELIMITER = ";";
 
-    private static final Pattern UNKNOWNFIELD_PATTERN = Pattern.compile("UnknownField\\{name='(?<fieldName>[^']+)'");
+    private static final Pattern UNKNOWNFIELD_PATTERN = Pattern.compile(
+        "UnknownField\\{name='(?<fieldName>[^']+)'"
+    );
 
     public static String serializeOrFields(Field... fields) {
         return serializeOrFields(new OrFields(fields));
     }
 
     public static String serializeOrFields(OrFields fields) {
-        return fields.getFields().stream()
-                     .map(field -> {
-                         if (field instanceof UnknownField unknownField) {
-                             // In case a user has put a user-defined field, the casing of that field is kept
-                             return unknownField.getDisplayName();
-                         } else {
-                             // In all fields known to JabRef, the name is used - JabRef knows better than the user how to case the field
-                             return field.getName();
-                         }
-                     })
-                     .collect(Collectors.joining(FIELD_OR_SEPARATOR));
+        return fields
+            .getFields()
+            .stream()
+            .map(field -> {
+                if (field instanceof UnknownField unknownField) {
+                    // In case a user has put a user-defined field, the casing of that field is kept
+                    return unknownField.getDisplayName();
+                } else {
+                    // In all fields known to JabRef, the name is used - JabRef knows better than the user how to case the field
+                    return field.getName();
+                }
+            })
+            .collect(Collectors.joining(FIELD_OR_SEPARATOR));
     }
 
     public static String serializeOrFieldsList(Set<OrFields> fields) {
-        return fields.stream().map(FieldFactory::serializeOrFields).collect(Collectors.joining(DELIMITER));
+        return fields
+            .stream()
+            .map(FieldFactory::serializeOrFields)
+            .collect(Collectors.joining(DELIMITER));
     }
 
     /**
      * Checks whether the given field contains LaTeX code or something else
      */
     public static boolean isLatexField(Field field) {
-        return Collections.disjoint(field.getProperties(), Set.of(FieldProperty.VERBATIM, FieldProperty.MARKDOWN, FieldProperty.NUMERIC, FieldProperty.DATE, FieldProperty.SINGLE_ENTRY_LINK, FieldProperty.MULTIPLE_ENTRY_LINK));
+        return Collections.disjoint(
+            field.getProperties(),
+            Set.of(
+                FieldProperty.VERBATIM,
+                FieldProperty.MARKDOWN,
+                FieldProperty.NUMERIC,
+                FieldProperty.DATE,
+                FieldProperty.SINGLE_ENTRY_LINK,
+                FieldProperty.MULTIPLE_ENTRY_LINK
+            )
+        );
     }
 
     /**
@@ -67,8 +83,18 @@ public class FieldFactory {
      */
     public static Collection<Field> getNotTextFields() {
         Set<Field> result = Arrays.stream(StandardField.values())
-              .filter(field -> !Collections.disjoint(field.getProperties(), Set.of(FieldProperty.VERBATIM, FieldProperty.NUMERIC, FieldProperty.DATE, FieldProperty.MULTIPLE_ENTRY_LINK)))
-                .collect(Collectors.toSet());
+            .filter(field ->
+                !Collections.disjoint(
+                    field.getProperties(),
+                    Set.of(
+                        FieldProperty.VERBATIM,
+                        FieldProperty.NUMERIC,
+                        FieldProperty.DATE,
+                        FieldProperty.MULTIPLE_ENTRY_LINK
+                    )
+                )
+            )
+            .collect(Collectors.toSet());
 
         // These fields are not marked as verbatim, because they could include LaTeX code
         result.add(StandardField.MONTH);
@@ -78,39 +104,42 @@ public class FieldFactory {
     }
 
     public static OrFields parseOrFields(String fieldNames) {
-        Set<Field> fields = Arrays.stream(fieldNames.split(FieldFactory.FIELD_OR_SEPARATOR))
-                                  .filter(StringUtil::isNotBlank)
-                                  .map(FieldFactory::parseField)
-                                  .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Field> fields = Arrays.stream(
+            fieldNames.split(FieldFactory.FIELD_OR_SEPARATOR)
+        )
+            .filter(StringUtil::isNotBlank)
+            .map(FieldFactory::parseField)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         return new OrFields(fields);
     }
 
     public static SequencedSet<OrFields> parseOrFieldsList(String fieldNames) {
         return Arrays.stream(fieldNames.split(FieldFactory.DELIMITER))
-                     .filter(StringUtil::isNotBlank)
-                     .map(FieldFactory::parseOrFields)
-                     .collect(Collectors.toCollection(LinkedHashSet::new));
+            .filter(StringUtil::isNotBlank)
+            .map(FieldFactory::parseOrFields)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static SequencedSet<Field> parseFieldList(String fieldNames) {
         return Arrays.stream(fieldNames.split(FieldFactory.DELIMITER))
-                     .filter(StringUtil::isNotBlank)
-                     .map(FieldFactory::parseField)
-                     .collect(Collectors.toCollection(LinkedHashSet::new));
+            .filter(StringUtil::isNotBlank)
+            .map(FieldFactory::parseField)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static String serializeFieldsList(Collection<Field> fields) {
-        return fields.stream()
-                     .map(field -> {
-                         if (field instanceof UnknownField unknownField) {
-                             // In case a user has put a user-defined field, the casing of that field is kept
-                             return unknownField.getDisplayName();
-                         } else {
-                             // In all fields known to JabRef, the name is used - JabRef knows better than the user how to case the field
-                             return field.getName();
-                         }
-                     })
-                     .collect(Collectors.joining(DELIMITER));
+        return fields
+            .stream()
+            .map(field -> {
+                if (field instanceof UnknownField unknownField) {
+                    // In case a user has put a user-defined field, the casing of that field is kept
+                    return unknownField.getDisplayName();
+                } else {
+                    // In all fields known to JabRef, the name is used - JabRef knows better than the user how to case the field
+                    return field.getName();
+                }
+            })
+            .collect(Collectors.joining(DELIMITER));
     }
 
     /**
@@ -119,7 +148,10 @@ public class FieldFactory {
      *
      * Supports also parsing of "UnknownField{name='rights'}" as field name (written by JabRef 5.x)
      */
-    public static <T extends EntryType> Field parseField(T type, String fieldName) {
+    public static <T extends EntryType> Field parseField(
+        T type,
+        String fieldName
+    ) {
         // Check if the field name starts with "comment-" which indicates it's a UserSpecificCommentField
         if (fieldName.startsWith("comment-")) {
             String username = fieldName.substring("comment-".length());
@@ -133,19 +165,24 @@ public class FieldFactory {
         }
 
         return OptionalUtil.<Field>orElse(
-              OptionalUtil.<Field>orElse(
-               OptionalUtil.<Field>orElse(
+            OptionalUtil.<Field>orElse(
                 OptionalUtil.<Field>orElse(
-                 OptionalUtil.<Field>orElse(
-                   OptionalUtil.<Field>orElse(
-              InternalField.fromName(fieldName),
-              StandardField.fromName(fieldName)),
-              SpecialField.fromName(fieldName)),
-              IEEEField.fromName(fieldName)),
-              BiblatexSoftwareField.fromName(type, fieldName)),
-              BiblatexApaField.fromName(type, fieldName)),
-              AMSField.fromName(type, fieldName))
-              .orElse(UnknownField.fromDisplayName(fieldName));
+                    OptionalUtil.<Field>orElse(
+                        OptionalUtil.<Field>orElse(
+                            OptionalUtil.<Field>orElse(
+                                InternalField.fromName(fieldName),
+                                StandardField.fromName(fieldName)
+                            ),
+                            SpecialField.fromName(fieldName)
+                        ),
+                        IEEEField.fromName(fieldName)
+                    ),
+                    BiblatexSoftwareField.fromName(type, fieldName)
+                ),
+                BiblatexApaField.fromName(type, fieldName)
+            ),
+            AMSField.fromName(type, fieldName)
+        ).orElse(UnknownField.fromDisplayName(fieldName));
     }
 
     public static Field parseField(String fieldName) {
@@ -157,7 +194,9 @@ public class FieldFactory {
     }
 
     public static Set<Field> getJournalNameFields() {
-        return getFieldsFiltered(field -> field.getProperties().contains(FieldProperty.JOURNAL_NAME));
+        return getFieldsFiltered(field ->
+            field.getProperties().contains(FieldProperty.JOURNAL_NAME)
+        );
     }
 
     /**
@@ -166,9 +205,13 @@ public class FieldFactory {
     public static Set<Field> getCommonFields() {
         EnumSet<StandardField> allFields = EnumSet.allOf(StandardField.class);
 
-        LinkedHashSet<Field> publicAndInternalFields = new LinkedHashSet<>(allFields.size() + 3);
+        LinkedHashSet<Field> publicAndInternalFields = new LinkedHashSet<>(
+            allFields.size() + 3
+        );
         publicAndInternalFields.add(InternalField.INTERNAL_ALL_FIELD);
-        publicAndInternalFields.add(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD);
+        publicAndInternalFields.add(
+            InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD
+        );
         publicAndInternalFields.add(InternalField.KEY_FIELD);
         publicAndInternalFields.addAll(allFields);
 
@@ -179,7 +222,9 @@ public class FieldFactory {
      * Returns a sorted Set of Fields (by {@link Field#getDisplayName} with all fields without internal ones
      */
     public static Set<Field> getAllFieldsWithOutInternal() {
-        Set<Field> fields = new TreeSet<>(Comparator.comparing(Field::getDisplayName));
+        Set<Field> fields = new TreeSet<>(
+            Comparator.comparing(Field::getDisplayName)
+        );
         fields.addAll(getAllFields());
         fields.removeAll(EnumSet.allOf(InternalField.class));
 
@@ -192,7 +237,9 @@ public class FieldFactory {
     public static SequencedSet<Field> getStandardFieldsWithCitationKey() {
         EnumSet<StandardField> allFields = EnumSet.allOf(StandardField.class);
 
-        LinkedHashSet<Field> standardFieldsWithBibtexKey = new LinkedHashSet<>(allFields.size() + 1);
+        LinkedHashSet<Field> standardFieldsWithBibtexKey = new LinkedHashSet<>(
+            allFields.size() + 1
+        );
         standardFieldsWithBibtexKey.add(InternalField.KEY_FIELD);
         standardFieldsWithBibtexKey.addAll(allFields);
 
@@ -200,17 +247,22 @@ public class FieldFactory {
     }
 
     public static Set<Field> getBookNameFields() {
-        return getFieldsFiltered(field -> field.getProperties().contains(FieldProperty.BOOK_NAME));
+        return getFieldsFiltered(field ->
+            field.getProperties().contains(FieldProperty.BOOK_NAME)
+        );
     }
 
     public static Set<Field> getPersonNameFields() {
-        return getFieldsFiltered(field -> field.getProperties().contains(FieldProperty.PERSON_NAMES));
+        return getFieldsFiltered(field ->
+            field.getProperties().contains(FieldProperty.PERSON_NAMES)
+        );
     }
 
     private static Set<Field> getFieldsFiltered(Predicate<Field> selector) {
-        return getAllFields().stream()
-                             .filter(selector)
-                             .collect(Collectors.toSet());
+        return getAllFields()
+            .stream()
+            .filter(selector)
+            .collect(Collectors.toSet());
     }
 
     private static Set<Field> getAllFields() {
@@ -231,7 +283,21 @@ public class FieldFactory {
      * a separate preferences object
      */
     public static List<Field> getDefaultGeneralFields() {
-        List<Field> defaultGeneralFields = new ArrayList<>(List.of(StandardField.DOI, StandardField.ICORERANKING, StandardField.CITATIONCOUNT, StandardField.CROSSREF, StandardField.KEYWORDS, StandardField.EPRINT, StandardField.URL, StandardField.FILE, StandardField.GROUPS, StandardField.OWNER, StandardField.TIMESTAMP));
+        List<Field> defaultGeneralFields = new ArrayList<>(
+            List.of(
+                StandardField.DOI,
+                StandardField.ICORERANKING,
+                StandardField.CITATIONCOUNT,
+                StandardField.CROSSREF,
+                StandardField.KEYWORDS,
+                StandardField.EPRINT,
+                StandardField.URL,
+                StandardField.FILE,
+                StandardField.GROUPS,
+                StandardField.OWNER,
+                StandardField.TIMESTAMP
+            )
+        );
         defaultGeneralFields.addAll(EnumSet.allOf(SpecialField.class));
         return defaultGeneralFields;
     }
@@ -242,7 +308,13 @@ public class FieldFactory {
      * @param nonWrappableFields This comes from the preferences - and introduces user configuration.
      */
     // TODO: Move somewhere more appropriate in the future
-    public static boolean isMultiLineField(final Field field, List<Field> nonWrappableFields) {
-        return field.getProperties().contains(FieldProperty.MULTILINE_TEXT) || nonWrappableFields.contains(field);
+    public static boolean isMultiLineField(
+        final Field field,
+        List<Field> nonWrappableFields
+    ) {
+        return (
+            field.getProperties().contains(FieldProperty.MULTILINE_TEXT)
+            || nonWrappableFields.contains(field)
+        );
     }
 }

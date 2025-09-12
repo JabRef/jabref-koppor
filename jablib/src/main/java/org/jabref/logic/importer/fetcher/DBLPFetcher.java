@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanups;
@@ -23,17 +23,17 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.BaseQueryNode;
 
-import org.apache.hc.core5.net.URIBuilder;
-
 /**
  * Fetches BibTeX data from DBLP (dblp.org)
  *
  * @see <a href="https://dblp.dagstuhl.de/faq/13501473">Basic API documentation</a>
  */
 public class DBLPFetcher implements SearchBasedParserFetcher {
+
     public static final String FETCHER_NAME = "DBLP";
 
-    private static final String BASIC_SEARCH_URL = "https://dblp.org/search/publ/api";
+    private static final String BASIC_SEARCH_URL =
+        "https://dblp.org/search/publ/api";
 
     private final ImportFormatPreferences importFormatPreferences;
 
@@ -43,9 +43,15 @@ public class DBLPFetcher implements SearchBasedParserFetcher {
     }
 
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
+    public URL getURLForQuery(BaseQueryNode queryNode)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(BASIC_SEARCH_URL);
-        uriBuilder.addParameter("q", new DBLPQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter(
+            "q",
+            new DBLPQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("")
+        );
         uriBuilder.addParameter("h", String.valueOf(100)); // number of hits
         uriBuilder.addParameter("c", String.valueOf(0)); // no need for auto-completion
         uriBuilder.addParameter("f", String.valueOf(0)); // "from", index of first hit to download
@@ -64,12 +70,22 @@ public class DBLPFetcher implements SearchBasedParserFetcher {
         DoiCleanup doiCleaner = new DoiCleanup();
         doiCleaner.cleanup(entry);
 
-        FieldFormatterCleanups cleanups = new FieldFormatterCleanups(true,
-                List.of(
-                        new FieldFormatterCleanup(StandardField.TIMESTAMP, new ClearFormatter()),
-                        // unescape the contents of the URL field, e.g., some\_url\_part becomes some_url_part
-                        new FieldFormatterCleanup(StandardField.URL, new LayoutFormatterBasedFormatter(new RemoveLatexCommandsFormatter()))
-                ));
+        FieldFormatterCleanups cleanups = new FieldFormatterCleanups(
+            true,
+            List.of(
+                new FieldFormatterCleanup(
+                    StandardField.TIMESTAMP,
+                    new ClearFormatter()
+                ),
+                // unescape the contents of the URL field, e.g., some\_url\_part becomes some_url_part
+                new FieldFormatterCleanup(
+                    StandardField.URL,
+                    new LayoutFormatterBasedFormatter(
+                        new RemoveLatexCommandsFormatter()
+                    )
+                )
+            )
+        );
         cleanups.applySaveActions(entry);
     }
 

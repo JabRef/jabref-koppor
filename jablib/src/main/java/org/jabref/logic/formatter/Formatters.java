@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.formatter.bibtexfields.CleanupUrlFormatter;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -48,67 +47,71 @@ import org.jabref.logic.layout.format.LatexToUnicodeFormatter;
 import org.jabref.logic.layout.format.ReplaceUnicodeLigaturesFormatter;
 
 public class Formatters {
-    private static final Pattern TRUNCATE_PATTERN = Pattern.compile("\\Atruncate\\d+\\z");
+
+    private static final Pattern TRUNCATE_PATTERN = Pattern.compile(
+        "\\Atruncate\\d+\\z"
+    );
 
     private static Map<String, Formatter> keyToFormatterMap;
 
     static {
-        keyToFormatterMap = getAll().stream().collect(Collectors.toMap(Formatter::getKey, f -> f));
+        keyToFormatterMap = getAll()
+            .stream()
+            .collect(Collectors.toMap(Formatter::getKey, f -> f));
     }
 
-    private Formatters() {
-    }
+    private Formatters() {}
 
     public static List<Formatter> getConverters() {
         return Arrays.asList(
-                new HtmlToLatexFormatter(),
-                new HtmlToUnicodeFormatter(),
-                new LatexToUnicodeFormatter(),
-                new UnicodeToLatexFormatter(),
-                new ConvertMSCCodesFormatter()
+            new HtmlToLatexFormatter(),
+            new HtmlToUnicodeFormatter(),
+            new LatexToUnicodeFormatter(),
+            new UnicodeToLatexFormatter(),
+            new ConvertMSCCodesFormatter()
         );
     }
 
     public static List<Formatter> getCaseChangers() {
         return Arrays.asList(
-                new CapitalizeFormatter(),
-                new LowerCaseFormatter(),
-                new SentenceCaseFormatter(),
-                new TitleCaseFormatter(),
-                new UpperCaseFormatter()
+            new CapitalizeFormatter(),
+            new LowerCaseFormatter(),
+            new SentenceCaseFormatter(),
+            new TitleCaseFormatter(),
+            new UpperCaseFormatter()
         );
     }
 
     public static List<Formatter> getOthers() {
         return Arrays.asList(
-                new ClearFormatter(),
-                new CleanupUrlFormatter(),
-                new LatexCleanupFormatter(),
-                new MinifyNameListFormatter(),
-                new NormalizeDateFormatter(),
-                new NormalizeIssn(),
-                new NormalizeMonthFormatter(),
-                new NormalizeNamesFormatter(),
-                new NormalizePagesFormatter(),
-                new NormalizeUnicodeFormatter(),
-                new OrdinalsToSuperscriptFormatter(),
-                new RemoveEnclosingBracesFormatter(),
-                new RemoveWordEnclosingAndOuterEnclosingBracesFormatter(),
-                new UnitsToLatexFormatter(),
-                new EscapeUnderscoresFormatter(),
-                new EscapeAmpersandsFormatter(),
-                new EscapeDollarSignFormatter(),
-                new ShortenDOIFormatter(),
-                new ReplaceUnicodeLigaturesFormatter(),
-                new UnprotectTermsFormatter()
+            new ClearFormatter(),
+            new CleanupUrlFormatter(),
+            new LatexCleanupFormatter(),
+            new MinifyNameListFormatter(),
+            new NormalizeDateFormatter(),
+            new NormalizeIssn(),
+            new NormalizeMonthFormatter(),
+            new NormalizeNamesFormatter(),
+            new NormalizePagesFormatter(),
+            new NormalizeUnicodeFormatter(),
+            new OrdinalsToSuperscriptFormatter(),
+            new RemoveEnclosingBracesFormatter(),
+            new RemoveWordEnclosingAndOuterEnclosingBracesFormatter(),
+            new UnitsToLatexFormatter(),
+            new EscapeUnderscoresFormatter(),
+            new EscapeAmpersandsFormatter(),
+            new EscapeDollarSignFormatter(),
+            new ShortenDOIFormatter(),
+            new ReplaceUnicodeLigaturesFormatter(),
+            new UnprotectTermsFormatter()
         );
     }
 
     public static List<Formatter> getTitleChangers() {
         return Arrays.asList(
-                new VeryShortTitleFormatter(),
-                new ShortTitleFormatter(),
-                new CamelFormatter()
+            new VeryShortTitleFormatter(),
+            new ShortTitleFormatter(),
+            new CamelFormatter()
         );
     }
 
@@ -123,7 +126,9 @@ public class Formatters {
 
     public static Optional<Formatter> getFormatterForKey(String name) {
         Objects.requireNonNull(name);
-        return keyToFormatterMap.containsKey(name) ? Optional.of(keyToFormatterMap.get(name)) : Optional.empty();
+        return keyToFormatterMap.containsKey(name)
+            ? Optional.of(keyToFormatterMap.get(name))
+            : Optional.empty();
     }
 
     public static Optional<Formatter> getFormatterForModifier(String modifier) {

@@ -1,9 +1,11 @@
 package org.jabref.gui.integrity;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.airhacks.afterburner.views.ViewLoaderResult;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
@@ -16,7 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
-
+import org.controlsfx.control.table.TableFilter;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -27,28 +29,45 @@ import org.jabref.gui.util.ViewModelTableRowFactory;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.airhacks.afterburner.views.ViewLoaderResult;
-import jakarta.inject.Inject;
-import org.controlsfx.control.table.TableFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IntegrityCheckDialog extends BaseDialog<Void> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IntegrityCheckDialog.class);
 
-    @FXML private TableView<IntegrityMessage> messagesTable;
-    @FXML private TableColumn<IntegrityMessage, String> keyColumn;
-    @FXML private TableColumn<IntegrityMessage, String> fieldColumn;
-    @FXML private TableColumn<IntegrityMessage, String> messageColumn;
-    @FXML private MenuButton keyFilterButton;
-    @FXML private MenuButton fieldFilterButton;
-    @FXML private MenuButton messageFilterButton;
-    @FXML private VBox dialogVBox;
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        IntegrityCheckDialog.class
+    );
 
-    @Inject private EntryEditor entryEditor;
-    @Inject private StateManager stateManager;
+    @FXML
+    private TableView<IntegrityMessage> messagesTable;
+
+    @FXML
+    private TableColumn<IntegrityMessage, String> keyColumn;
+
+    @FXML
+    private TableColumn<IntegrityMessage, String> fieldColumn;
+
+    @FXML
+    private TableColumn<IntegrityMessage, String> messageColumn;
+
+    @FXML
+    private MenuButton keyFilterButton;
+
+    @FXML
+    private MenuButton fieldFilterButton;
+
+    @FXML
+    private MenuButton messageFilterButton;
+
+    @FXML
+    private VBox dialogVBox;
+
+    @Inject
+    private EntryEditor entryEditor;
+
+    @Inject
+    private StateManager stateManager;
+
     private final List<IntegrityMessage> messages;
     private final LibraryTab libraryTab;
     private final DialogService dialogService;
@@ -57,7 +76,11 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
     private BibLogSettingsPane bibLogSettingsPane;
     private final List<IntegrityMessage> blgWarnings = new ArrayList<>();
 
-    public IntegrityCheckDialog(List<IntegrityMessage> messages, LibraryTab libraryTab, DialogService dialogService) {
+    public IntegrityCheckDialog(
+        List<IntegrityMessage> messages,
+        LibraryTab libraryTab,
+        DialogService dialogService
+    ) {
         this.messages = messages;
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
@@ -65,9 +88,7 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         this.setTitle(Localization.lang("Check integrity"));
         this.initModality(Modality.NONE);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
     }
 
     private void handleRowClick(IntegrityMessage message, MouseEvent event) {
@@ -77,7 +98,9 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
             stateManager.getEditorShowing().setValue(true);
 
             // Focus field async to give entry editor time to load
-            Platform.runLater(() -> entryEditor.setFocusToField(message.field()));
+            Platform.runLater(() ->
+                entryEditor.setFocusToField(message.field())
+            );
             if (event.getClickCount() == 2) {
                 this.close();
             }
@@ -93,20 +116,27 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         viewModel = new IntegrityCheckDialogViewModel(messages);
 
         new ViewModelTableRowFactory<IntegrityMessage>()
-                .withOnMouseClickedEvent(this::handleRowClick)
-                .install(messagesTable);
+            .withOnMouseClickedEvent(this::handleRowClick)
+            .install(messagesTable);
         messagesTable.setItems(viewModel.getMessages());
-        keyColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().entry().getCitationKey().orElse("")));
-        fieldColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().field().getDisplayName()));
-        messageColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().message()));
+        keyColumn.setCellValueFactory(row ->
+            new ReadOnlyStringWrapper(
+                row.getValue().entry().getCitationKey().orElse("")
+            )
+        );
+        fieldColumn.setCellValueFactory(row ->
+            new ReadOnlyStringWrapper(row.getValue().field().getDisplayName())
+        );
+        messageColumn.setCellValueFactory(row ->
+            new ReadOnlyStringWrapper(row.getValue().message())
+        );
 
         new ValueTableCellFactory<IntegrityMessage, String>()
-                .withText(Function.identity())
-                .withTooltip(Function.identity())
-                .install(messageColumn);
+            .withText(Function.identity())
+            .withTooltip(Function.identity())
+            .install(messageColumn);
 
-        tableFilter = TableFilter.forTableView(messagesTable)
-                                 .apply();
+        tableFilter = TableFilter.forTableView(messagesTable).apply();
 
         addMessageColumnFilter(keyColumn, keyFilterButton);
         addMessageColumnFilter(fieldColumn, fieldFilterButton);
@@ -115,32 +145,43 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         loadBibLogSettingsPane();
     }
 
-    private void addMessageColumnFilter(TableColumn<IntegrityMessage, String> messageColumn, MenuButton messageFilterButton) {
-        tableFilter.getColumnFilter(messageColumn).ifPresent(columnFilter -> {
-            ContextMenu messageContextMenu = messageColumn.getContextMenu();
-            if (messageContextMenu != null) {
-                messageFilterButton.setContextMenu(messageContextMenu);
-                messageFilterButton.setOnMouseClicked(event -> {
-                    if (event.getButton() == MouseButton.PRIMARY) {
-                        if (messageContextMenu.isShowing()) {
-                            messageContextMenu.setX(event.getScreenX());
-                            messageContextMenu.setY(event.getScreenY());
-                        } else {
-                            messageContextMenu.show(messageFilterButton, event.getScreenX(), event.getScreenY());
+    private void addMessageColumnFilter(
+        TableColumn<IntegrityMessage, String> messageColumn,
+        MenuButton messageFilterButton
+    ) {
+        tableFilter
+            .getColumnFilter(messageColumn)
+            .ifPresent(columnFilter -> {
+                ContextMenu messageContextMenu = messageColumn.getContextMenu();
+                if (messageContextMenu != null) {
+                    messageFilterButton.setContextMenu(messageContextMenu);
+                    messageFilterButton.setOnMouseClicked(event -> {
+                        if (event.getButton() == MouseButton.PRIMARY) {
+                            if (messageContextMenu.isShowing()) {
+                                messageContextMenu.setX(event.getScreenX());
+                                messageContextMenu.setY(event.getScreenY());
+                            } else {
+                                messageContextMenu.show(
+                                    messageFilterButton,
+                                    event.getScreenX(),
+                                    event.getScreenY()
+                                );
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
     }
 
     public void clearFilters() {
         if (tableFilter != null) {
             tableFilter.resetFilter();
-            messagesTable.getColumns().forEach(column -> {
-                tableFilter.selectAllValues(column);
-                column.setGraphic(null);
-            });
+            messagesTable
+                .getColumns()
+                .forEach(column -> {
+                    tableFilter.selectAllValues(column);
+                    column.setGraphic(null);
+                });
         }
     }
 
@@ -150,7 +191,9 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
      */
     private void loadBibLogSettingsPane() {
         try {
-            ViewLoaderResult result = ViewLoader.view(BibLogSettingsPane.class).load();
+            ViewLoaderResult result = ViewLoader.view(
+                BibLogSettingsPane.class
+            ).load();
 
             Node settingsNode = result.getView();
             bibLogSettingsPane = (BibLogSettingsPane) result.getController();
@@ -160,8 +203,8 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
                 return;
             }
             bibLogSettingsPane.initializeViewModel(
-                    libraryTab.getBibDatabaseContext(),
-                    this::reloadBlgWarnings
+                libraryTab.getBibDatabaseContext(),
+                this::reloadBlgWarnings
             );
             dialogVBox.getChildren().add(1, settingsNode);
             reloadBlgWarnings();
@@ -180,15 +223,26 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
      */
     private void reloadBlgWarnings() {
         try {
-            bibLogSettingsPane.refreshWarnings(libraryTab.getBibDatabaseContext());
+            bibLogSettingsPane.refreshWarnings(
+                libraryTab.getBibDatabaseContext()
+            );
         } catch (JabRefException e) {
             dialogService.notify(e.getLocalizedMessage());
             LOGGER.warn("Failed to load .blg warnings", e);
         }
-        List<IntegrityMessage> newWarnings = new ArrayList<>(bibLogSettingsPane.getBlgWarnings());
+        List<IntegrityMessage> newWarnings = new ArrayList<>(
+            bibLogSettingsPane.getBlgWarnings()
+        );
 
-        if (newWarnings.isEmpty() && bibLogSettingsPane.wasBlgFileManuallySelected()) {
-            dialogService.notify(Localization.lang("No warnings found. Please check if the .blg file matches the current library."));
+        if (
+            newWarnings.isEmpty()
+            && bibLogSettingsPane.wasBlgFileManuallySelected()
+        ) {
+            dialogService.notify(
+                Localization.lang(
+                    "No warnings found. Please check if the .blg file matches the current library."
+                )
+            );
         }
 
         messages.removeAll(blgWarnings);

@@ -3,7 +3,6 @@ package org.jabref.gui.walkthrough.declarative.step;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-
 import org.jabref.gui.walkthrough.declarative.NodeResolver;
 import org.jabref.gui.walkthrough.declarative.Trigger;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
@@ -11,7 +10,9 @@ import org.jabref.gui.walkthrough.declarative.effect.WalkthroughEffect;
 import org.jabref.gui.walkthrough.declarative.richtext.WalkthroughRichTextBlock;
 
 /// Walkthrough steps that display visible UI elements.
-public sealed interface VisibleComponent extends WalkthroughStep permits PanelStep, TooltipStep {
+public sealed interface VisibleComponent
+    extends WalkthroughStep
+    permits PanelStep, TooltipStep {
     /// Content blocks to display
     List<WalkthroughRichTextBlock> content();
 

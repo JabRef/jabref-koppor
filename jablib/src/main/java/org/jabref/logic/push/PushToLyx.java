@@ -6,12 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +17,14 @@ public class PushToLyx extends AbstractPushToApplication {
 
     public static final PushApplications APPLICATION = PushApplications.LYX;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PushToLyx.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        PushToLyx.class
+    );
 
-    public PushToLyx(NotificationService dialogService, PushToApplicationPreferences preferences) {
+    public PushToLyx(
+        NotificationService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
     }
 
@@ -33,11 +36,19 @@ public class PushToLyx extends AbstractPushToApplication {
     @Override
     public void onOperationCompleted() {
         if (couldNotPush) {
-            this.sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Verify that LyX is running and that the lyxpipe is valid.")
-                            + "[" + commandPath + "]");
+            this.sendErrorNotification(
+                Localization.lang("Error pushing entries"),
+                Localization.lang(
+                        "Verify that LyX is running and that the lyxpipe is valid."
+                    )
+                    + "["
+                    + commandPath
+                    + "]"
+            );
         } else if (couldNotCall) {
-            this.sendErrorNotification(Localization.lang("Unable to write to %0.", commandPath + ".in"));
+            this.sendErrorNotification(
+                Localization.lang("Unable to write to %0.", commandPath + ".in")
+            );
         } else {
             super.onOperationCompleted();
         }
@@ -70,8 +81,14 @@ public class PushToLyx extends AbstractPushToApplication {
 
         HeadlessExecutorService.INSTANCE.executeAndWait(() -> {
             String keyString = this.getKeyString(entries, getDelimiter());
-            try (BufferedWriter lyxOut = Files.newBufferedWriter(lyxPipe, StandardCharsets.UTF_8)) {
-                String citeStr = "LYXCMD:sampleclient:citation-insert:" + keyString;
+            try (
+                BufferedWriter lyxOut = Files.newBufferedWriter(
+                    lyxPipe,
+                    StandardCharsets.UTF_8
+                )
+            ) {
+                String citeStr =
+                    "LYXCMD:sampleclient:citation-insert:" + keyString;
                 lyxOut.write(citeStr + "\n");
             } catch (IOException excep) {
                 couldNotCall = true;

@@ -2,19 +2,22 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import java.util.Map;
 import java.util.Objects;
-
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.logic.util.strings.HTMLUnicodeConversionMaps;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatter {
+public class UnicodeToLatexFormatter
+    extends Formatter
+    implements LayoutFormatter {
 
-    public static final NormalizeUnicodeFormatter UNICODE_NORMALIZER = new NormalizeUnicodeFormatter();
-    private static final Logger LOGGER = LoggerFactory.getLogger(UnicodeToLatexFormatter.class);
+    public static final NormalizeUnicodeFormatter UNICODE_NORMALIZER =
+        new NormalizeUnicodeFormatter();
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        UnicodeToLatexFormatter.class
+    );
 
     @Override
     public String format(String text) {
@@ -27,9 +30,14 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
         result = UNICODE_NORMALIZER.format(result);
 
         // Standard symbols
-        for (Map.Entry<String, String> unicodeLatexPair : HTMLUnicodeConversionMaps.UNICODE_LATEX_CONVERSION_MAP
-                .entrySet()) {
-            result = result.replace(unicodeLatexPair.getKey(), unicodeLatexPair.getValue());
+        for (Map.Entry<
+            String,
+            String
+        > unicodeLatexPair : HTMLUnicodeConversionMaps.UNICODE_LATEX_CONVERSION_MAP.entrySet()) {
+            result = result.replace(
+                unicodeLatexPair.getKey(),
+                unicodeLatexPair.getValue()
+            );
         }
 
         // Combining accents
@@ -39,7 +47,9 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
             if (!consumed && (i < (result.length() - 1))) {
                 int cpCurrent = result.codePointAt(i);
                 Integer cpNext = result.codePointAt(i + 1);
-                String code = HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(cpNext);
+                String code = HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(
+                    cpNext
+                );
                 if (code == null) {
                     // skip next index to avoid reading surrogate as a separate char
                     if (!Character.isBmpCodePoint(cpCurrent)) {
@@ -47,7 +57,12 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
                     }
                     sb.appendCodePoint(cpCurrent);
                 } else {
-                    sb.append("{\\").append(code).append('{').append((char) cpCurrent).append("}}");
+                    sb
+                        .append("{\\")
+                        .append(code)
+                        .append('{')
+                        .append((char) cpCurrent)
+                        .append("}}");
                     consumed = true;
                 }
             } else {
@@ -71,7 +86,9 @@ public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatte
 
     @Override
     public String getDescription() {
-        return Localization.lang("Converts Unicode characters to LaTeX encoding.");
+        return Localization.lang(
+            "Converts Unicode characters to LaTeX encoding."
+        );
     }
 
     @Override

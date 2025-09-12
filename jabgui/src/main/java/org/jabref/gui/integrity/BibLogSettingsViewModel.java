@@ -5,12 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.biblog.BibLogPathResolver;
@@ -26,7 +24,9 @@ import org.jabref.model.metadata.MetaData;
 /// 2. Wraps .blg warnings as IntegrityMessages.
 /// 3. Supports file browsing and reset actions.
 public class BibLogSettingsViewModel extends AbstractViewModel {
-    private final ObservableList<IntegrityMessage> blgWarnings = FXCollections.observableArrayList();
+
+    private final ObservableList<IntegrityMessage> blgWarnings =
+        FXCollections.observableArrayList();
     private final StringProperty path = new SimpleStringProperty("");
     private final MetaData metaData;
     private final Optional<Path> bibPath;
@@ -39,14 +39,15 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         this.bibPath = bibPath;
         this.user = System.getProperty("user.name");
 
-        BibLogPathResolver.resolve(metaData, bibPath, user)
-                          .ifPresent(resolvedPath -> {
-                              this.path.set(resolvedPath.toString());
-                              if (metaData.getBlgFilePath(user).isEmpty()) {
-                                  metaData.setBlgFilePath(user, resolvedPath);
-                                  this.lastResolvedBlgPath = Optional.of(resolvedPath);
-                              }
-                          });
+        BibLogPathResolver.resolve(metaData, bibPath, user).ifPresent(
+            resolvedPath -> {
+                this.path.set(resolvedPath.toString());
+                if (metaData.getBlgFilePath(user).isEmpty()) {
+                    metaData.setBlgFilePath(user, resolvedPath);
+                    this.lastResolvedBlgPath = Optional.of(resolvedPath);
+                }
+            }
+        );
     }
 
     /**
@@ -57,7 +58,9 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
      *         or an empty Optional if the file does not exist.
      * @throws JabRefException if the .blg file cannot be parsed or read
      */
-    public Optional<List<IntegrityMessage>> getBlgWarnings(BibDatabaseContext databaseContext) throws JabRefException {
+    public Optional<List<IntegrityMessage>> getBlgWarnings(
+        BibDatabaseContext databaseContext
+    ) throws JabRefException {
         Optional<Path> resolved = getResolvedBlgPath();
         if (resolved.isEmpty()) {
             blgWarnings.clear();
@@ -70,15 +73,21 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         try {
             BibtexLogParser parser = new BibtexLogParser();
             List<BibWarning> warnings = parser.parseBiblog(path);
-            List<IntegrityMessage> newWarnings = BibWarningToIntegrityMessageConverter.convert(warnings, databaseContext);
+            List<IntegrityMessage> newWarnings =
+                BibWarningToIntegrityMessageConverter.convert(
+                    warnings,
+                    databaseContext
+                );
             blgWarnings.setAll(newWarnings);
             return Optional.of(newWarnings);
         } catch (IOException e) {
             blgWarnings.clear();
             throw new JabRefException(
-                    "Failed to parse .blg file",
-                    Localization.lang("Could not read BibTeX log file. Please check the file path and try again."),
-                    e
+                "Failed to parse .blg file",
+                Localization.lang(
+                    "Could not read BibTeX log file. Please check the file path and try again."
+                ),
+                e
             );
         }
     }
@@ -101,7 +110,11 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
     public void resetBlgFilePath() {
         metaData.clearBlgFilePath(user);
         userManuallySelectedBlgFile = false;
-        Optional<Path> resolved = BibLogPathResolver.resolve(metaData, bibPath, user);
+        Optional<Path> resolved = BibLogPathResolver.resolve(
+            metaData,
+            bibPath,
+            user
+        );
         if (resolved.isEmpty()) {
             path.set("");
             lastResolvedBlgPath = Optional.empty();
@@ -114,13 +127,15 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getResolvedBlgPath() {
-        return BibLogPathResolver.resolve(metaData, bibPath, user)
-                                 .filter(Files::exists);
+        return BibLogPathResolver.resolve(metaData, bibPath, user).filter(
+            Files::exists
+        );
     }
 
     public Path getInitialDirectory() {
-        return bibPath.flatMap(path -> Optional.ofNullable(path.getParent()))
-                      .orElse(Path.of(System.getProperty("user.home")));
+        return bibPath
+            .flatMap(path -> Optional.ofNullable(path.getParent()))
+            .orElse(Path.of(System.getProperty("user.home")));
     }
 
     public boolean wasBlgFileManuallySelected() {

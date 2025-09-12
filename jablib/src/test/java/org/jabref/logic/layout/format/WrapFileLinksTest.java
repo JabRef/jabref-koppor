@@ -1,14 +1,13 @@
 package org.jabref.logic.layout.format;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WrapFileLinksTest {
 
@@ -31,7 +30,9 @@ class WrapFileLinksTest {
 
     @Test
     void noFormatSetNonEmptyString() {
-        assertThrows(NullPointerException.class, () -> formatter.format("test.pdf"));
+        assertThrows(NullPointerException.class, () ->
+            formatter.format("test.pdf")
+        );
     }
 
     @Test
@@ -85,7 +86,10 @@ class WrapFileLinksTest {
     @Test
     void iteratorTwoItems() {
         formatter.setArgument("\\i\n");
-        assertEquals("1\n2\n", formatter.format("Test file:test.pdf:PDF;test2.pdf"));
+        assertEquals(
+            "1\n2\n",
+            formatter.format("Test file:test.pdf:PDF;test2.pdf")
+        );
     }
 
     @Test
@@ -96,23 +100,37 @@ class WrapFileLinksTest {
 
     @Test
     void path() throws IOException {
-        formatter = new WrapFileLinks(List.of(Path.of("src/test/resources/pdfs/")), "");
+        formatter = new WrapFileLinks(
+            List.of(Path.of("src/test/resources/pdfs/")),
+            ""
+        );
         formatter.setArgument("\\p");
-        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
-                formatter.format("Preferences:encrypted.pdf:PDF"));
+        assertEquals(
+            Path.of("src/test/resources/pdfs/encrypted.pdf")
+                .toRealPath()
+                .toString(),
+            formatter.format("Preferences:encrypted.pdf:PDF")
+        );
     }
 
     @Test
     void pathFallBackToGeneratedDir() throws IOException {
         formatter = new WrapFileLinks(List.of(), "src/test/resources/pdfs/");
         formatter.setArgument("\\p");
-        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
-                formatter.format("Preferences:encrypted.pdf:PDF"));
+        assertEquals(
+            Path.of("src/test/resources/pdfs/encrypted.pdf")
+                .toRealPath()
+                .toString(),
+            formatter.format("Preferences:encrypted.pdf:PDF")
+        );
     }
 
     @Test
     void pathReturnsRelativePathIfNotFound() {
-        formatter = new WrapFileLinks(List.of(Path.of("src/test/resources/pdfs/")), "");
+        formatter = new WrapFileLinks(
+            List.of(Path.of("src/test/resources/pdfs/")),
+            ""
+        );
         formatter.setArgument("\\p");
         assertEquals("test.pdf", formatter.format("Preferences:test.pdf:PDF"));
     }

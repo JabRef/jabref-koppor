@@ -1,21 +1,22 @@
 package org.jabref.logic.util.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class FileNameUniquenessTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileNameUniquenessTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        FileNameUniquenessTest.class
+    );
 
     @TempDir
     protected Path tempDir;
@@ -24,29 +25,40 @@ class FileNameUniquenessTest {
     void getNonOverWritingFileNameReturnsSameName() throws IOException {
         assertFalse(Files.exists(tempDir.resolve("sameFile.txt")));
 
-        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(tempDir, "sameFile.txt");
+        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(
+            tempDir,
+            "sameFile.txt"
+        );
         assertEquals("sameFile.txt", outputFileName);
     }
 
     @Test
-    void getNonOverWritingFileNameReturnsUniqueNameOver1Conflict() throws IOException {
+    void getNonOverWritingFileNameReturnsUniqueNameOver1Conflict()
+        throws IOException {
         Path dummyFilePath1 = tempDir.resolve("differentFile.txt");
 
         Files.createFile(dummyFilePath1);
 
-        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(tempDir, "differentFile.txt");
+        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(
+            tempDir,
+            "differentFile.txt"
+        );
         assertEquals("differentFile (1).txt", outputFileName);
     }
 
     @Test
-    void getNonOverWritingFileNameReturnsUniqueNameOverNConflicts() throws IOException {
+    void getNonOverWritingFileNameReturnsUniqueNameOverNConflicts()
+        throws IOException {
         Path dummyFilePath1 = tempDir.resolve("manyfiles.txt");
         Path dummyFilePath2 = tempDir.resolve("manyfiles (1).txt");
 
         Files.createFile(dummyFilePath1);
         Files.createFile(dummyFilePath2);
 
-        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(tempDir, "manyfiles.txt");
+        String outputFileName = FileNameUniqueness.getNonOverWritingFileName(
+            tempDir,
+            "manyfiles.txt"
+        );
         assertEquals("manyfiles (2).txt", outputFileName);
     }
 
@@ -56,7 +68,11 @@ class FileNameUniquenessTest {
         Path filePath1 = tempDir.resolve(filename1);
         Files.createFile(filePath1);
 
-        boolean isDuplicate = FileNameUniqueness.isDuplicatedFile(tempDir, filePath1, LOGGER::info);
+        boolean isDuplicate = FileNameUniqueness.isDuplicatedFile(
+            tempDir,
+            filePath1,
+            LOGGER::info
+        );
         assertFalse(isDuplicate);
     }
 
@@ -69,7 +85,11 @@ class FileNameUniquenessTest {
         Files.createFile(filePath1);
         Files.createFile(filePath2);
 
-        boolean isDuplicate = FileNameUniqueness.isDuplicatedFile(tempDir, filePath2, LOGGER::info);
+        boolean isDuplicate = FileNameUniqueness.isDuplicatedFile(
+            tempDir,
+            filePath2,
+            LOGGER::info
+        );
         assertTrue(isDuplicate);
     }
 

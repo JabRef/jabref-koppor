@@ -6,7 +6,8 @@ import org.jabref.model.entry.BibEntry;
 
 public class ImportCleanupBiblatex extends ImportCleanup {
 
-    private final ConvertToBiblatexCleanup convertToBiblatexCleanup = new ConvertToBiblatexCleanup();
+    private final ConvertToBiblatexCleanup convertToBiblatexCleanup =
+        new ConvertToBiblatexCleanup();
 
     public ImportCleanupBiblatex(FieldPreferences fieldPreferences) {
         super(fieldPreferences);
@@ -21,7 +22,7 @@ public class ImportCleanupBiblatex extends ImportCleanup {
     @Override
     public BibEntry doPostCleanup(BibEntry entry) {
         entry = super.doPostCleanup(entry);
-         convertToBiblatexCleanup.cleanup(entry);
-         return entry;
+        convertToBiblatexCleanup.cleanup(entry);
+        return entry;
     }
 }

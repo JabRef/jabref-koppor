@@ -1,7 +1,6 @@
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -24,12 +23,15 @@ import org.kohsuke.github.PagedIterator;
 //DEPS org.eclipse.jgit:org.eclipse.jgit.pgm:7.3.0.202506031305-r
 
 public class CheckoutPR {
+
     public static void main(String[] args) throws Exception {
         GitHub github = new GitHubBuilder().build();
         GHRepository repo = github.getRepository("JabRef/jabref");
 
         if (args.length != 1) {
-            System.err.println("Usage: jbang CheckoutPR.java <pull-request-number>|<contributor:branch-name>");
+            System.err.println(
+                "Usage: jbang CheckoutPR.java <pull-request-number>|<contributor:branch-name>"
+            );
             System.exit(1);
         }
 
@@ -43,7 +45,9 @@ public class CheckoutPR {
 
         GHPullRequest pr;
         if (prNumber == -1) {
-            System.out.println("Trying to find pull request with branch " + arg);
+            System.out.println(
+                "Trying to find pull request with branch " + arg
+            );
             String[] parts = arg.split(":");
             String contributor;
             String branchName;
@@ -56,20 +60,34 @@ public class CheckoutPR {
             }
 
             // We need to query all pull requests to be able to handle closed and merged ones
-            PagedIterator<GHPullRequest> prIterator = repo.queryPullRequests().direction(GHDirection.DESC).state(GHIssueState.ALL).list().iterator();
+            PagedIterator<GHPullRequest> prIterator = repo
+                .queryPullRequests()
+                .direction(GHDirection.DESC)
+                .state(GHIssueState.ALL)
+                .list()
+                .iterator();
             boolean found = false;
             pr = null;
             while (prIterator.hasNext()) {
                 pr = prIterator.next();
-                if ((contributor.isEmpty() || pr.getHead().getUser().getLogin().equals(contributor)) &&
-                    pr.getHead().getRef().equals(branchName)) {
+                if (
+                    (contributor.isEmpty()
+                        || pr
+                            .getHead()
+                            .getUser()
+                            .getLogin()
+                            .equals(contributor))
+                    && pr.getHead().getRef().equals(branchName)
+                ) {
                     found = true;
                     System.out.println("Found pull request #" + pr.getNumber());
                     break;
                 }
             }
             if (!found) {
-                throw new IllegalArgumentException("Pull request not found for branch: " + branchName);
+                throw new IllegalArgumentException(
+                    "Pull request not found for branch: " + branchName
+                );
             }
         } else {
             pr = repo.getPullRequest(prNumber);
@@ -78,28 +96,41 @@ public class CheckoutPR {
         System.out.println("Determined PR URL is " + pr.getUrl());
 
         if (pr.isMerged()) {
-            System.out.println("Pull request is already merged - checking out main branch...");
+            System.out.println(
+                "Pull request is already merged - checking out main branch..."
+            );
             checkoutUpstreamMain();
             return;
         }
 
         if (pr.getState().equals(GHIssueState.CLOSED)) {
-            System.out.println("Warning: Pull request is closed. Trying to continue nevertheless.");
+            System.out.println(
+                "Warning: Pull request is closed. Trying to continue nevertheless."
+            );
         }
 
         String headRef = pr.getHead().getRef();
-        String headRepoCloneUrl = pr.getHead().getRepository().getHttpTransportUrl();
+        String headRepoCloneUrl = pr
+            .getHead()
+            .getRepository()
+            .getHttpTransportUrl();
 
         final String remoteName = "tmp-remote";
-        final String localBranchName = "pr--" + pr.getNumber() + "--" + pr.getUser().getLogin() + "--" + headRef;
+        final String localBranchName =
+            "pr--"
+            + pr.getNumber()
+            + "--"
+            + pr.getUser().getLogin()
+            + "--"
+            + headRef;
 
         // Open the repository in the current directory (".")
         File repoDir = new File(".");
         Repository repository = new FileRepositoryBuilder()
-                .setGitDir(new File(repoDir, ".git"))
-                .readEnvironment()
-                .findGitDir()
-                .build();
+            .setGitDir(new File(repoDir, ".git"))
+            .readEnvironment()
+            .findGitDir()
+            .build();
 
         try (Git git = new Git(repository)) {
             // If current branch is "tmp-branch", checkout "main"
@@ -111,52 +142,70 @@ public class CheckoutPR {
 
             // Check if branch "tmp-branch" exists and remove it if present
             List<org.eclipse.jgit.lib.Ref> branches = git.branchList().call();
-            boolean branchExists = branches.stream().anyMatch(branch -> branch.getName().endsWith(localBranchName));
+            boolean branchExists = branches
+                .stream()
+                .anyMatch(branch -> branch.getName().endsWith(localBranchName));
             if (branchExists) {
                 System.out.println("Deleting branch 'tmp-branch'");
-                git.branchDelete().setBranchNames(localBranchName).setForce(true).call();
+                git
+                    .branchDelete()
+                    .setBranchNames(localBranchName)
+                    .setForce(true)
+                    .call();
             }
 
             // Check if the remote "tmp-remote" exists and remove it if present
             List<RemoteConfig> remotes = git.remoteList().call();
-            boolean remoteExists = remotes.stream().anyMatch(remote -> remote.getName().equals(remoteName));
+            boolean remoteExists = remotes
+                .stream()
+                .anyMatch(remote -> remote.getName().equals(remoteName));
             if (remoteExists) {
                 System.out.println("Removing remote 'tmp-remote'");
                 git.remoteRemove().setRemoteName(remoteName).call();
             }
 
             System.out.println("Adding remote 'tmp-remote'");
-            git.remoteAdd()
-               .setName(remoteName)
-               .setUri(new URIish(headRepoCloneUrl))
-               .call();
+            git
+                .remoteAdd()
+                .setName(remoteName)
+                .setUri(new URIish(headRepoCloneUrl))
+                .call();
         }
 
         // Has nice output, therefore we use pgm
         System.out.println("Fetching...");
-        String[] jGitArgsFetch = {"fetch", remoteName};
+        String[] jGitArgsFetch = { "fetch", remoteName };
         org.eclipse.jgit.pgm.Main.main(jGitArgsFetch);
 
         try (Git git = new Git(repository)) {
             System.out.println("Checking out...");
-            git.checkout()
-               .setCreateBranch(true)
-               .setName(localBranchName)
-               .setStartPoint(remoteName + "/" + headRef)
-               .call();
+            git
+                .checkout()
+                .setCreateBranch(true)
+                .setName(localBranchName)
+                .setStartPoint(remoteName + "/" + headRef)
+                .call();
         }
 
-        System.out.println("Checked out PR #" + pr.getNumber() + " (" + pr.getTitle() + ") to branch " + localBranchName + ".");
+        System.out.println(
+            "Checked out PR #"
+                + pr.getNumber()
+                + " ("
+                + pr.getTitle()
+                + ") to branch "
+                + localBranchName
+                + "."
+        );
         System.out.println("Checked out commit " + pr.getHead().getSha() + ".");
     }
 
     private static void checkoutUpstreamMain() throws Exception {
         File repoDir = new File(".");
         Repository repository = new FileRepositoryBuilder()
-                .setGitDir(new File(repoDir, ".git"))
-                .readEnvironment()
-                .findGitDir()
-                .build();
+            .setGitDir(new File(repoDir, ".git"))
+            .readEnvironment()
+            .findGitDir()
+            .build();
 
         try (Git git = new Git(repository)) {
             final String upstreamName = "upstream";
@@ -164,9 +213,17 @@ public class CheckoutPR {
 
             // Check if a remote pointing to JabRef/jabref already exists
             List<RemoteConfig> remotes = git.remoteList().call();
-            Optional<RemoteConfig> jabrefRemote = remotes.stream()
+            Optional<RemoteConfig> jabrefRemote = remotes
+                .stream()
                 // We use "contains", because there could be SSH remote URLs
-                .filter(r -> r.getURIs().stream().anyMatch(uri -> uri.toString().contains("JabRef/jabref")))
+                .filter(r ->
+                    r
+                        .getURIs()
+                        .stream()
+                        .anyMatch(uri ->
+                            uri.toString().contains("JabRef/jabref")
+                        )
+                )
                 .findFirst();
 
             String remoteToUse;
@@ -174,8 +231,11 @@ public class CheckoutPR {
                 remoteToUse = jabrefRemote.get().getName();
                 System.out.println("Using existing remote: " + remoteToUse);
             } else {
-                System.out.println("Adding remote 'upstream' pointing to " + jabrefRepoUrl);
-                git.remoteAdd()
+                System.out.println(
+                    "Adding remote 'upstream' pointing to " + jabrefRepoUrl
+                );
+                git
+                    .remoteAdd()
                     .setName(upstreamName)
                     .setUri(new URIish(jabrefRepoUrl))
                     .call();
@@ -191,12 +251,12 @@ public class CheckoutPR {
 
             // Fetch from the selected remote
             System.out.println("Fetching from " + remoteToUse);
-            String[] jGitArgsFetch = {"fetch", remoteToUse};
+            String[] jGitArgsFetch = { "fetch", remoteToUse };
             org.eclipse.jgit.pgm.Main.main(jGitArgsFetch);
 
             // Merge upstream/main
             System.out.println("Merging " + remoteToUse + "/main into main");
-            String[] jGitArgsMerge = {"merge", remoteToUse + "/main"};
+            String[] jGitArgsMerge = { "merge", remoteToUse + "/main" };
             org.eclipse.jgit.pgm.Main.main(jGitArgsMerge);
         }
     }

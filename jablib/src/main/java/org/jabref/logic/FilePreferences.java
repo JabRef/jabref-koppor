@@ -2,14 +2,12 @@ package org.jabref.logic;
 
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.model.strings.StringUtil;
 
 /**
@@ -17,43 +15,61 @@ import org.jabref.model.strings.StringUtil;
  */
 public class FilePreferences {
 
-    public static final String[] DEFAULT_FILENAME_PATTERNS = new String[] {"[bibtexkey]", "[bibtexkey] - [title]"};
+    public static final String[] DEFAULT_FILENAME_PATTERNS = new String[] {
+        "[bibtexkey]",
+        "[bibtexkey] - [title]",
+    };
 
     private final StringProperty userAndHost = new SimpleStringProperty();
-    private final SimpleStringProperty mainFileDirectory = new SimpleStringProperty();
-    private final BooleanProperty storeFilesRelativeToBibFile = new SimpleBooleanProperty();
-    private final BooleanProperty autoRenameFilesOnChange = new SimpleBooleanProperty();
+    private final SimpleStringProperty mainFileDirectory =
+        new SimpleStringProperty();
+    private final BooleanProperty storeFilesRelativeToBibFile =
+        new SimpleBooleanProperty();
+    private final BooleanProperty autoRenameFilesOnChange =
+        new SimpleBooleanProperty();
     private final StringProperty fileNamePattern = new SimpleStringProperty();
-    private final StringProperty fileDirectoryPattern = new SimpleStringProperty();
-    private final BooleanProperty downloadLinkedFiles = new SimpleBooleanProperty();
-    private final BooleanProperty fulltextIndexLinkedFiles = new SimpleBooleanProperty();
-    private final ObjectProperty<Path> workingDirectory = new SimpleObjectProperty<>();
+    private final StringProperty fileDirectoryPattern =
+        new SimpleStringProperty();
+    private final BooleanProperty downloadLinkedFiles =
+        new SimpleBooleanProperty();
+    private final BooleanProperty fulltextIndexLinkedFiles =
+        new SimpleBooleanProperty();
+    private final ObjectProperty<Path> workingDirectory =
+        new SimpleObjectProperty<>();
     private final BooleanProperty createBackup = new SimpleBooleanProperty();
-    private final ObjectProperty<Path> backupDirectory = new SimpleObjectProperty<>();
-    private final BooleanProperty confirmDeleteLinkedFile = new SimpleBooleanProperty();
+    private final ObjectProperty<Path> backupDirectory =
+        new SimpleObjectProperty<>();
+    private final BooleanProperty confirmDeleteLinkedFile =
+        new SimpleBooleanProperty();
     private final BooleanProperty moveToTrash = new SimpleBooleanProperty();
-    private final BooleanProperty shouldKeepDownloadUrl = new SimpleBooleanProperty();
-    private final ObjectProperty<Path> lastUsedDirectory = new SimpleObjectProperty<>();
-    private final BooleanProperty openFileExplorerInFileDirectory = new SimpleBooleanProperty();
-    private final BooleanProperty openFileExplorerInLastUsedDirectory = new SimpleBooleanProperty();
+    private final BooleanProperty shouldKeepDownloadUrl =
+        new SimpleBooleanProperty();
+    private final ObjectProperty<Path> lastUsedDirectory =
+        new SimpleObjectProperty<>();
+    private final BooleanProperty openFileExplorerInFileDirectory =
+        new SimpleBooleanProperty();
+    private final BooleanProperty openFileExplorerInLastUsedDirectory =
+        new SimpleBooleanProperty();
 
-    public FilePreferences(String userAndHost,
-                           String mainFileDirectory,
-                           boolean storeFilesRelativeToBibFile,
-                           boolean autoRenameFilesOnChange,
-                           String fileNamePattern,
-                           String fileDirectoryPattern,
-                           boolean downloadLinkedFiles,
-                           boolean fulltextIndexLinkedFiles,
-                           Path workingDirectory,
-                           boolean createBackup,
-                           Path backupDirectory,
-                           boolean confirmDeleteLinkedFile,
-                           boolean moveToTrash,
-                           boolean shouldKeepDownloadUrl,
-                           Path lastUsedDirectory,
-                           boolean openFileExplorerInFileDirectory,
-                           boolean openFileExplorerInLastUsedDirectory) {
+    public FilePreferences(
+        String userAndHost,
+        String mainFileDirectory,
+        boolean storeFilesRelativeToBibFile,
+        boolean autoRenameFilesOnChange,
+        String fileNamePattern,
+        String fileDirectoryPattern,
+        boolean downloadLinkedFiles,
+        boolean fulltextIndexLinkedFiles,
+        Path workingDirectory,
+        boolean createBackup,
+        Path backupDirectory,
+        boolean confirmDeleteLinkedFile,
+        boolean moveToTrash,
+        boolean shouldKeepDownloadUrl,
+        Path lastUsedDirectory,
+        boolean openFileExplorerInFileDirectory,
+        boolean openFileExplorerInLastUsedDirectory
+    ) {
         this.userAndHost.setValue(userAndHost);
         this.mainFileDirectory.setValue(mainFileDirectory);
         this.storeFilesRelativeToBibFile.setValue(storeFilesRelativeToBibFile);
@@ -69,8 +85,12 @@ public class FilePreferences {
         this.moveToTrash.setValue(moveToTrash);
         this.shouldKeepDownloadUrl.setValue(shouldKeepDownloadUrl);
         this.lastUsedDirectory.setValue(lastUsedDirectory);
-        this.openFileExplorerInFileDirectory.set(openFileExplorerInFileDirectory);
-        this.openFileExplorerInLastUsedDirectory.set(openFileExplorerInLastUsedDirectory);
+        this.openFileExplorerInFileDirectory.set(
+            openFileExplorerInFileDirectory
+        );
+        this.openFileExplorerInLastUsedDirectory.set(
+            openFileExplorerInLastUsedDirectory
+        );
     }
 
     public String getUserAndHost() {
@@ -105,7 +125,9 @@ public class FilePreferences {
         return storeFilesRelativeToBibFile;
     }
 
-    public void setStoreFilesRelativeToBibFile(boolean shouldStoreFilesRelativeToBibFile) {
+    public void setStoreFilesRelativeToBibFile(
+        boolean shouldStoreFilesRelativeToBibFile
+    ) {
         this.storeFilesRelativeToBibFile.set(shouldStoreFilesRelativeToBibFile);
     }
 
@@ -165,7 +187,9 @@ public class FilePreferences {
         return fulltextIndexLinkedFiles;
     }
 
-    public void setFulltextIndexLinkedFiles(boolean shouldFulltextIndexLinkedFiles) {
+    public void setFulltextIndexLinkedFiles(
+        boolean shouldFulltextIndexLinkedFiles
+    ) {
         this.fulltextIndexLinkedFiles.set(shouldFulltextIndexLinkedFiles);
     }
 

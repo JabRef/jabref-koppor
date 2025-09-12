@@ -1,7 +1,7 @@
 package org.jabref.gui.groups;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.EnumSet;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -9,10 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.model.groups.GroupHierarchyType;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class GroupsPreferences {
 
@@ -21,17 +18,26 @@ public class GroupsPreferences {
     private final BooleanProperty shouldDisplayGroupCount;
     private final ObjectProperty<GroupHierarchyType> defaultHierarchicalContext;
 
-    public GroupsPreferences(boolean viewModeIntersection,
-                             boolean viewModeFilter,
-                             boolean viewModeInvert,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             GroupHierarchyType defaultHierarchicalContext) {
-
-        this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet());
-        this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
-        this.shouldDisplayGroupCount = new SimpleBooleanProperty(shouldDisplayGroupCount);
-        this.defaultHierarchicalContext = new SimpleObjectProperty<>(defaultHierarchicalContext);
+    public GroupsPreferences(
+        boolean viewModeIntersection,
+        boolean viewModeFilter,
+        boolean viewModeInvert,
+        boolean shouldAutoAssignGroup,
+        boolean shouldDisplayGroupCount,
+        GroupHierarchyType defaultHierarchicalContext
+    ) {
+        this.groupViewMode = new SimpleSetProperty<>(
+            FXCollections.observableSet()
+        );
+        this.shouldAutoAssignGroup = new SimpleBooleanProperty(
+            shouldAutoAssignGroup
+        );
+        this.shouldDisplayGroupCount = new SimpleBooleanProperty(
+            shouldDisplayGroupCount
+        );
+        this.defaultHierarchicalContext = new SimpleObjectProperty<>(
+            defaultHierarchicalContext
+        );
 
         if (viewModeIntersection) {
             this.groupViewMode.add(GroupViewMode.INTERSECTION);
@@ -45,14 +51,24 @@ public class GroupsPreferences {
     }
 
     @VisibleForTesting
-    public GroupsPreferences(EnumSet<GroupViewMode> groupViewMode,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             GroupHierarchyType defaultHierarchicalContext) {
-        this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet(groupViewMode));
-        this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
-        this.shouldDisplayGroupCount = new SimpleBooleanProperty(shouldDisplayGroupCount);
-        this.defaultHierarchicalContext = new SimpleObjectProperty<>(defaultHierarchicalContext);
+    public GroupsPreferences(
+        EnumSet<GroupViewMode> groupViewMode,
+        boolean shouldAutoAssignGroup,
+        boolean shouldDisplayGroupCount,
+        GroupHierarchyType defaultHierarchicalContext
+    ) {
+        this.groupViewMode = new SimpleSetProperty<>(
+            FXCollections.observableSet(groupViewMode)
+        );
+        this.shouldAutoAssignGroup = new SimpleBooleanProperty(
+            shouldAutoAssignGroup
+        );
+        this.shouldDisplayGroupCount = new SimpleBooleanProperty(
+            shouldDisplayGroupCount
+        );
+        this.defaultHierarchicalContext = new SimpleObjectProperty<>(
+            defaultHierarchicalContext
+        );
     }
 
     public EnumSet<GroupViewMode> getGroupViewMode() {
@@ -102,11 +118,15 @@ public class GroupsPreferences {
         return defaultHierarchicalContext.get();
     }
 
-    public ObjectProperty<GroupHierarchyType> defaultHierarchicalContextProperty() {
+    public ObjectProperty<
+        GroupHierarchyType
+    > defaultHierarchicalContextProperty() {
         return defaultHierarchicalContext;
     }
 
-    public void setDefaultHierarchicalContext(GroupHierarchyType defaultHierarchicalContext) {
+    public void setDefaultHierarchicalContext(
+        GroupHierarchyType defaultHierarchicalContext
+    ) {
         this.defaultHierarchicalContext.set(defaultHierarchicalContext);
     }
 }

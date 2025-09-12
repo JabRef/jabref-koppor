@@ -1,13 +1,15 @@
 package org.jabref.logic.util.strings;
 
-import java.util.Locale;
-
 import info.debatty.java.stringsimilarity.Levenshtein;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StringSimilarity {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StringSimilarity.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        StringSimilarity.class
+    );
 
     private final Levenshtein METRIC_DISTANCE = new Levenshtein();
     // edit distance threshold for entry title comparison
@@ -26,7 +28,10 @@ public class StringSimilarity {
 
     public double editDistanceIgnoreCase(String a, String b) {
         // TODO: Locale is dependent on the language of the strings. English is a good denominator.
-        return METRIC_DISTANCE.distance(a.toLowerCase(Locale.ENGLISH), b.toLowerCase(Locale.ENGLISH));
+        return METRIC_DISTANCE.distance(
+            a.toLowerCase(Locale.ENGLISH),
+            b.toLowerCase(Locale.ENGLISH)
+        );
     }
 
     /**
@@ -50,9 +55,18 @@ public class StringSimilarity {
         if (longerLength == 0) {
             return 1.0;
         }
-        final double distanceIgnoredCase = editDistanceIgnoreCase(longer, shorter);
-        final double similarity = (longerLength - distanceIgnoredCase) / longerLength;
-        LOGGER.trace("Longer string: {} Shorter string: {} Similarity: {}", longer, shorter, similarity);
+        final double distanceIgnoredCase = editDistanceIgnoreCase(
+            longer,
+            shorter
+        );
+        final double similarity =
+            (longerLength - distanceIgnoredCase) / longerLength;
+        LOGGER.trace(
+            "Longer string: {} Shorter string: {} Similarity: {}",
+            longer,
+            shorter,
+            similarity
+        );
         return similarity;
     }
 
@@ -86,7 +100,10 @@ public class StringSimilarity {
             for (int j = 1; j <= secondLength; j++) {
                 if (first.charAt(i - 1) == second.charAt(j - 1)) {
                     currentMatches[j] = previousMatches[j - 1] + 1;
-                    longestSubstringLength = Math.max(longestSubstringLength, currentMatches[j]);
+                    longestSubstringLength = Math.max(
+                        longestSubstringLength,
+                        currentMatches[j]
+                    );
                 } else {
                     currentMatches[j] = 0;
                 }
@@ -95,6 +112,9 @@ public class StringSimilarity {
             // Move the current row's data to the previous row
             previousMatches = currentMatches;
         }
-        return (double) longestSubstringLength / Math.min(firstLength, secondLength);
+        return (
+            (double) longestSubstringLength
+            / Math.min(firstLength, secondLength)
+        );
     }
 }

@@ -1,8 +1,8 @@
 package org.jabref.gui.auximport;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -30,16 +29,20 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.tobiasdiez.easybind.EasyBind;
-
 public class FromAuxDialogViewModel {
 
-    private final BooleanProperty parseFailedProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty parseFailedProperty =
+        new SimpleBooleanProperty(false);
     private final StringProperty auxFileProperty = new SimpleStringProperty();
-    private final StringProperty statusTextProperty = new SimpleStringProperty();
-    private final ListProperty<String> notFoundList = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<BibDatabaseContext> librariesProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObjectProperty<BibDatabaseContext> selectedLibraryProperty = new SimpleObjectProperty<>();
+    private final StringProperty statusTextProperty =
+        new SimpleStringProperty();
+    private final ListProperty<String> notFoundList = new SimpleListProperty<>(
+        FXCollections.observableArrayList()
+    );
+    private final ListProperty<BibDatabaseContext> librariesProperty =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ObjectProperty<BibDatabaseContext> selectedLibraryProperty =
+        new SimpleObjectProperty<>();
 
     private final LibraryTabContainer tabContainer;
     private final DialogService dialogService;
@@ -48,17 +51,21 @@ public class FromAuxDialogViewModel {
 
     private AuxParserResult auxParserResult;
 
-    public FromAuxDialogViewModel(LibraryTabContainer tabContainer,
-                                  DialogService dialogService,
-                                  CliPreferences preferences,
-                                  StateManager stateManager) {
+    public FromAuxDialogViewModel(
+        LibraryTabContainer tabContainer,
+        DialogService dialogService,
+        CliPreferences preferences,
+        StateManager stateManager
+    ) {
         this.tabContainer = tabContainer;
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
 
         librariesProperty.setAll(stateManager.getOpenDatabases());
-        selectedLibraryProperty.set(tabContainer.getCurrentLibraryTab().getBibDatabaseContext());
+        selectedLibraryProperty.set(
+            tabContainer.getCurrentLibraryTab().getBibDatabaseContext()
+        );
         EasyBind.listen(selectedLibraryProperty, (obs, oldValue, newValue) -> {
             if (auxParserResult != null) {
                 parse();
@@ -69,39 +76,69 @@ public class FromAuxDialogViewModel {
     public String getDatabaseName(BibDatabaseContext databaseContext) {
         Optional<String> dbOpt = Optional.empty();
         if (databaseContext.getDatabasePath().isPresent()) {
-            dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(), databaseContext.getDatabasePath().get());
+            dbOpt = FileUtil.getUniquePathFragment(
+                stateManager.getAllDatabasePaths(),
+                databaseContext.getDatabasePath().get()
+            );
         }
         if (databaseContext.getLocation() == DatabaseLocation.SHARED) {
-            return databaseContext.getDBMSSynchronizer().getDBName() + " [" + Localization.lang("shared") + "]";
+            return (
+                databaseContext.getDBMSSynchronizer().getDBName()
+                + " ["
+                + Localization.lang("shared")
+                + "]"
+            );
         }
 
         return dbOpt.orElse(Localization.lang("untitled"));
     }
 
     public void browse() {
-        FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
+        FileDialogConfiguration fileDialogConfiguration =
+            new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.AUX)
                 .withDefaultExtension(StandardFileType.AUX)
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory()).build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file -> auxFileProperty.setValue(file.toAbsolutePath().toString()));
+                .withInitialDirectory(
+                    preferences.getFilePreferences().getWorkingDirectory()
+                )
+                .build();
+        dialogService
+            .showFileOpenDialog(fileDialogConfiguration)
+            .ifPresent(file ->
+                auxFileProperty.setValue(file.toAbsolutePath().toString())
+            );
     }
 
     public void parse() {
         parseFailedProperty.set(false);
         notFoundList.clear();
         statusTextProperty.setValue("");
-        BibDatabase referenceDatabase = selectedLibraryProperty.get().getDatabase();
+        BibDatabase referenceDatabase = selectedLibraryProperty
+            .get()
+            .getDatabase();
         String auxName = auxFileProperty.get();
 
-        if ((auxName != null) && (referenceDatabase != null) && !auxName.isEmpty()) {
+        if (
+            (auxName != null)
+            && (referenceDatabase != null)
+            && !auxName.isEmpty()
+        ) {
             AuxParser auxParser = new DefaultAuxParser(referenceDatabase);
             auxParserResult = auxParser.parse(Path.of(auxName));
             notFoundList.setAll(auxParserResult.getUnresolvedKeys());
-            statusTextProperty.set(new AuxParserStatisticsProvider(auxParserResult).getInformation(false));
+            statusTextProperty.set(
+                new AuxParserStatisticsProvider(auxParserResult).getInformation(
+                    false
+                )
+            );
 
             if (!auxParserResult.getGeneratedBibDatabase().hasEntries()) {
                 // The generated database contains no entries -> no active generate-button
-                statusTextProperty.set(statusTextProperty.get() + "\n" + Localization.lang("empty library"));
+                statusTextProperty.set(
+                    statusTextProperty.get()
+                        + "\n"
+                        + Localization.lang("empty library")
+                );
                 parseFailedProperty.set(true);
             }
         } else {
@@ -110,7 +147,9 @@ public class FromAuxDialogViewModel {
     }
 
     public void addResultToTabContainer() {
-        BibDatabaseContext context = new BibDatabaseContext(auxParserResult.getGeneratedBibDatabase());
+        BibDatabaseContext context = new BibDatabaseContext(
+            auxParserResult.getGeneratedBibDatabase()
+        );
         tabContainer.addTab(context, true);
     }
 

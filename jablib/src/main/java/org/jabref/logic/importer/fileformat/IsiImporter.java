@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.casechanger.TitleCaseFormatter;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
@@ -25,7 +24,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +35,19 @@ import org.slf4j.LoggerFactory;
 ///
 /// - Deal with capitalization correctly
 public class IsiImporter extends Importer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IsiImporter.class);
-    private static final Pattern SUB_SUP_PATTERN = Pattern.compile("/(sub|sup)\\s+(.*?)\\s*/");
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        IsiImporter.class
+    );
+    private static final Pattern SUB_SUP_PATTERN = Pattern.compile(
+        "/(sub|sup)\\s+(.*?)\\s*/"
+    );
 
     // 2006.09.05: Modified pattern to avoid false positives for other files due to an
     // extra | at the end:
-    private static final Pattern ISI_PATTERN = Pattern.compile("FN ISI Export Format|VR 1.|PY \\d{4}");
+    private static final Pattern ISI_PATTERN = Pattern.compile(
+        "FN ISI Export Format|VR 1.|PY \\d{4}"
+    );
 
     private static final String EOL = "EOLEOL";
     private static final Pattern EOL_PATTERN = Pattern.compile(EOL);
@@ -64,11 +69,14 @@ public class IsiImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Importer for the ISI Web of Science, INSPEC and Medline format.");
+        return Localization.lang(
+            "Importer for the ISI Web of Science, INSPEC and Medline format."
+        );
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
+    public boolean isRecognizedFormat(BufferedReader reader)
+        throws IOException {
         String str;
         int i = 0;
         while (((str = reader.readLine()) != null) && (i < 50)) {
@@ -89,11 +97,18 @@ public class IsiImporter extends Importer {
     }
 
     public static void processSubSup(Map<Field, String> map) {
-        Field[] subsup = {StandardField.TITLE, StandardField.ABSTRACT, StandardField.COMMENT, new UnknownField("notes")};
+        Field[] subsup = {
+            StandardField.TITLE,
+            StandardField.ABSTRACT,
+            StandardField.COMMENT,
+            new UnknownField("notes"),
+        };
 
         for (Field aSubsup : subsup) {
             if (map.containsKey(aSubsup)) {
-                Matcher m = IsiImporter.SUB_SUP_PATTERN.matcher(map.get(aSubsup));
+                Matcher m = IsiImporter.SUB_SUP_PATTERN.matcher(
+                    map.get(aSubsup)
+                );
                 StringBuilder sb = new StringBuilder();
 
                 while (m.find()) {
@@ -117,7 +132,11 @@ public class IsiImporter extends Importer {
     }
 
     private static void processCapitalization(Map<Field, String> map) {
-        Field[] subsup = {StandardField.TITLE, StandardField.JOURNAL, StandardField.PUBLISHER};
+        Field[] subsup = {
+            StandardField.TITLE,
+            StandardField.JOURNAL,
+            StandardField.PUBLISHER,
+        };
 
         for (Field aSubsup : subsup) {
             if (map.containsKey(aSubsup)) {
@@ -131,7 +150,8 @@ public class IsiImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
+    public ParserResult importDatabase(BufferedReader reader)
+        throws IOException {
         Objects.requireNonNull(reader);
 
         List<BibEntry> bibEntries = new ArrayList<>();
@@ -211,56 +231,69 @@ public class IsiImporter extends Importer {
                             type = StandardEntryType.InProceedings;
                         }
                     }
-                    case "JO" ->
-                            hm.put(StandardField.BOOKTITLE, value);
+                    case "JO" -> hm.put(StandardField.BOOKTITLE, value);
                     case "AU" -> {
-                        String author = IsiImporter.isiAuthorsConvert(EOL_PATTERN.matcher(value).replaceAll(" and "));
+                        String author = IsiImporter.isiAuthorsConvert(
+                            EOL_PATTERN.matcher(value).replaceAll(" and ")
+                        );
 
                         // if there is already someone there then append with "and"
                         if (hm.get(StandardField.AUTHOR) != null) {
-                            author = hm.get(StandardField.AUTHOR) + " and " + author;
+                            author =
+                                hm.get(StandardField.AUTHOR) + " and " + author;
                         }
                         hm.put(StandardField.AUTHOR, author);
                     }
-                    case "TI" ->
-                            hm.put(StandardField.TITLE, EOL_PATTERN.matcher(value).replaceAll(" "));
-                    case "SO", "JA" ->
-                            hm.put(StandardField.JOURNAL, EOL_PATTERN.matcher(value).replaceAll(" "));
+                    case "TI" -> hm.put(
+                        StandardField.TITLE,
+                        EOL_PATTERN.matcher(value).replaceAll(" ")
+                    );
+                    case "SO", "JA" -> hm.put(
+                        StandardField.JOURNAL,
+                        EOL_PATTERN.matcher(value).replaceAll(" ")
+                    );
                     case "ID", "KW" -> {
                         value = EOL_PATTERN.matcher(value).replaceAll(" ");
-                        String existingKeywords = hm.get(StandardField.KEYWORDS);
-                        if ((existingKeywords == null) || existingKeywords.contains(value)) {
+                        String existingKeywords = hm.get(
+                            StandardField.KEYWORDS
+                        );
+                        if (
+                            (existingKeywords == null)
+                            || existingKeywords.contains(value)
+                        ) {
                             existingKeywords = value;
                         } else {
                             existingKeywords += ", " + value;
                         }
                         hm.put(StandardField.KEYWORDS, existingKeywords);
                     }
-                    case "AB" ->
-                            hm.put(StandardField.ABSTRACT, EOL_PATTERN.matcher(value).replaceAll(" "));
-                    case "BP", "BR", "SP", "AR" ->
-                            pages = new StringBuilder(value);
+                    case "AB" -> hm.put(
+                        StandardField.ABSTRACT,
+                        EOL_PATTERN.matcher(value).replaceAll(" ")
+                    );
+                    case "BP", "BR", "SP", "AR" -> pages = new StringBuilder(
+                        value
+                    );
                     case "EP" -> {
                         int detpos = value.indexOf(' ');
 
                         // tweak for IEEE Explore
-                        if ((detpos != -1) && !value.substring(0, detpos).trim().isEmpty()) {
+                        if (
+                            (detpos != -1)
+                            && !value.substring(0, detpos).trim().isEmpty()
+                        ) {
                             value = value.substring(0, detpos);
                         }
                         pages.append("--").append(value);
                     }
-                    case "PS" ->
-                            pages = new StringBuilder(IsiImporter.parsePages(value));
-                    case "IS" ->
-                            hm.put(StandardField.NUMBER, value);
-                    case "PY" ->
-                            hm.put(StandardField.YEAR, value);
-                    case "VL" ->
-                            hm.put(StandardField.VOLUME, value);
-                    case "PU" ->
-                            hm.put(StandardField.PUBLISHER, value);
-                    case "DI" ->
-                            hm.put(StandardField.DOI, value);
+                    case "PS" -> pages = new StringBuilder(
+                        IsiImporter.parsePages(value)
+                    );
+                    case "IS" -> hm.put(StandardField.NUMBER, value);
+                    case "PY" -> hm.put(StandardField.YEAR, value);
+                    case "VL" -> hm.put(StandardField.VOLUME, value);
+                    case "PU" -> hm.put(StandardField.PUBLISHER, value);
+                    case "DI" -> hm.put(StandardField.DOI, value);
                     case "PD" -> {
                         String month = IsiImporter.parseMonth(value);
                         if (month != null) {
@@ -270,17 +303,28 @@ public class IsiImporter extends Importer {
                     case "DT" -> {
                         if ("Review".equals(value)) {
                             type = StandardEntryType.Article; // set "Review" in Note/Comment?
-                        } else if (value.startsWith("Article") || value.startsWith("Journal") || "article".equals(PT)) {
+                        } else if (
+                            value.startsWith("Article")
+                            || value.startsWith("Journal")
+                            || "article".equals(PT)
+                        ) {
                             type = StandardEntryType.Article;
                         } else {
                             type = BibEntry.DEFAULT_TYPE;
                         }
                     }
-                    case "CR" ->
-                            hm.put(new UnknownField("CitedReferences"), EOL_PATTERN.matcher(value).replaceAll(" ; ").trim());
+                    case "CR" -> hm.put(
+                        new UnknownField("CitedReferences"),
+                        EOL_PATTERN.matcher(value).replaceAll(" ; ").trim()
+                    );
                     default -> {
                         // Preserve all other entries except
-                        if ("ER".equals(beg) || "EF".equals(beg) || "VR".equals(beg) || "FN".equals(beg)) {
+                        if (
+                            "ER".equals(beg)
+                            || "EF".equals(beg)
+                            || "VR".equals(beg)
+                            || "FN".equals(beg)
+                        ) {
                             continue;
                         }
                         hm.put(FieldFactory.parseField(type, beg), value);
@@ -333,7 +377,9 @@ public class IsiImporter extends Importer {
     static String parseMonth(String value) {
         String[] parts = value.split("\\s|\\-");
         for (String part1 : parts) {
-            Optional<Month> month = Month.getMonthByShortName(part1.toLowerCase(Locale.ROOT));
+            Optional<Month> month = Month.getMonthByShortName(
+                part1.toLowerCase(Locale.ROOT)
+            );
             if (month.isPresent()) {
                 return month.get().getJabRefFormat();
             }
@@ -348,8 +394,11 @@ public class IsiImporter extends Importer {
                     return month.get().getJabRefFormat();
                 }
             } catch (NumberFormatException e) {
-                LOGGER.info("The import file in ISI format cannot parse part of the content in PD into integers " +
-                        "(If there is no month or PD displayed in the imported entity, this may be the reason)", e);
+                LOGGER.info(
+                    "The import file in ISI format cannot parse part of the content in PD into integers "
+                        + "(If there is no month or PD displayed in the imported entity, this may be the reason)",
+                    e
+                );
             }
         }
         return null;

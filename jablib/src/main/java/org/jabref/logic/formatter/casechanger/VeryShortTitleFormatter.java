@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.casechanger;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 
@@ -22,10 +21,11 @@ public class VeryShortTitleFormatter extends Formatter {
     public String format(String input) {
         Title title = new Title(input);
 
-        Optional<Word> resultTitle = title.getWords().stream()
-                                          .filter(Predicate.not(
-                                                  Word::isSmallerWord))
-                                          .findFirst();
+        Optional<Word> resultTitle = title
+            .getWords()
+            .stream()
+            .filter(Predicate.not(Word::isSmallerWord))
+            .findFirst();
 
         return resultTitle.map(Word::toString).orElse("");
     }
@@ -33,7 +33,8 @@ public class VeryShortTitleFormatter extends Formatter {
     @Override
     public String getDescription() {
         return Localization.lang(
-                "Returns first word of the title ignoring any function words.");
+            "Returns first word of the title ignoring any function words."
+        );
     }
 
     @Override

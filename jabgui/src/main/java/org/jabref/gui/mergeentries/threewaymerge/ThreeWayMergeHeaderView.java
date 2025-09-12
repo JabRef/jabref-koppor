@@ -3,7 +3,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
 import javafx.scene.layout.GridPane;
-
 import org.jabref.gui.mergeentries.threewaymerge.cell.HeaderCell;
 import org.jabref.logic.l10n.Localization;
 
@@ -12,6 +11,7 @@ import org.jabref.logic.l10n.Localization;
  * with longer text, but I wanted all cells to have the same width
  */
 public class ThreeWayMergeHeaderView extends GridPane {
+
     public static final String DEFAULT_STYLE_CLASS = "merge-header";
     private final HeaderCell leftHeaderCell;
     private final HeaderCell rightHeaderCell;
@@ -23,13 +23,16 @@ public class ThreeWayMergeHeaderView extends GridPane {
 
         this.leftHeaderCell = new HeaderCell(leftHeader);
         this.rightHeaderCell = new HeaderCell(rightHeader);
-        this.mergedHeaderCell = new HeaderCell(Localization.lang("Merged entry"));
+        this.mergedHeaderCell = new HeaderCell(
+            Localization.lang("Merged entry")
+        );
 
-        addRow(0,
-               new HeaderCell(""),
-               leftHeaderCell,
-               rightHeaderCell,
-               mergedHeaderCell
+        addRow(
+            0,
+            new HeaderCell(""),
+            leftHeaderCell,
+            rightHeaderCell,
+            mergedHeaderCell
         );
 
         setPrefHeight(Control.USE_COMPUTED_SIZE);

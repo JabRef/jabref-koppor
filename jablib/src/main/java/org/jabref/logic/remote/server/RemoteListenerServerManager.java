@@ -2,7 +2,6 @@ package org.jabref.logic.remote.server;
 
 import java.io.IOException;
 import java.net.BindException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,9 @@ import org.slf4j.LoggerFactory;
 /// Observer: isOpen, isNotStartedBefore
 public class RemoteListenerServerManager implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteListenerServerManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        RemoteListenerServerManager.class
+    );
 
     private RemoteListenerServerThread remoteServerThread;
 
@@ -25,7 +26,9 @@ public class RemoteListenerServerManager implements AutoCloseable {
             remoteServerThread = null;
             LOGGER.debug("RemoteListenerServerManager stopped successfully.");
         } else {
-            LOGGER.debug("RemoteListenerServerManager was not open, nothing to stop.");
+            LOGGER.debug(
+                "RemoteListenerServerManager was not open, nothing to stop."
+            );
         }
     }
 
@@ -38,10 +41,16 @@ public class RemoteListenerServerManager implements AutoCloseable {
         }
 
         try {
-            remoteServerThread = new RemoteListenerServerThread(messageHandler, port);
+            remoteServerThread = new RemoteListenerServerThread(
+                messageHandler,
+                port
+            );
         } catch (BindException e) {
-            LOGGER.error("There was an error opening the configured network port {}. Please ensure there isn't another" +
-                    " application already using that port.", port);
+            LOGGER.error(
+                "There was an error opening the configured network port {}. Please ensure there isn't another"
+                    + " application already using that port.",
+                port
+            );
             remoteServerThread = null;
         } catch (IOException e) {
             LOGGER.error("Unknown error while opening the network port.", e);
@@ -62,7 +71,10 @@ public class RemoteListenerServerManager implements AutoCloseable {
 
     public boolean isNotStartedBefore() {
         // threads can only be started when in state NEW
-        return (remoteServerThread == null) || (remoteServerThread.getState() == Thread.State.NEW);
+        return (
+            (remoteServerThread == null)
+            || (remoteServerThread.getState() == Thread.State.NEW)
+        );
     }
 
     public void openAndStart(RemoteMessageHandler messageHandler, int port) {

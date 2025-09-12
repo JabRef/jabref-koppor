@@ -1,5 +1,6 @@
 package org.jabref;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.net.Authenticator;
@@ -10,9 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.util.Pair;
-
 import org.jabref.cli.ArgumentProcessor;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetcher;
@@ -34,8 +33,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.strings.StringUtil;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -53,32 +50,50 @@ import picocli.CommandLine;
 ///
 /// Does not do any preference migrations.
 public class JabKit {
+
     // J.U.L. bridge to SLF4J must be initialized before any logger is created, see initLogging()
     private static Logger LOGGER;
 
-    private static final String JABKIT_BRAND = "JabKit - command line toolkit for JabRef";
+    private static final String JABKIT_BRAND =
+        "JabKit - command line toolkit for JabRef";
 
     public static void main(String[] args) {
         initLogging(args);
 
         try {
-            final JabRefCliPreferences preferences = JabRefCliPreferences.getInstance();
+            final JabRefCliPreferences preferences =
+                JabRefCliPreferences.getInstance();
             Injector.setModelOrService(CliPreferences.class, preferences);
 
             BuildInfo buildInfo = new BuildInfo();
             Injector.setModelOrService(BuildInfo.class, buildInfo);
 
-            BibEntryTypesManager entryTypesManager = preferences.getCustomEntryTypesRepository();
-            Injector.setModelOrService(BibEntryTypesManager.class, entryTypesManager);
+            BibEntryTypesManager entryTypesManager =
+                preferences.getCustomEntryTypesRepository();
+            Injector.setModelOrService(
+                BibEntryTypesManager.class,
+                entryTypesManager
+            );
 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(preferences, entryTypesManager);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor(
+                preferences,
+                entryTypesManager
+            );
             CommandLine commandLine = new CommandLine(argumentProcessor);
-            String usageHeader = BuildInfo.JABREF_BANNER.formatted(buildInfo.version) + "\n" + JABKIT_BRAND;
+            String usageHeader =
+                BuildInfo.JABREF_BANNER.formatted(buildInfo.version)
+                + "\n"
+                + JABKIT_BRAND;
             commandLine.getCommandSpec().usageMessage().header(usageHeader);
-            applyUsageFooters(commandLine,
-                    ArgumentProcessor.getAvailableImportFormats(preferences),
-                    ArgumentProcessor.getAvailableExportFormats(preferences),
-                    WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
+            applyUsageFooters(
+                commandLine,
+                ArgumentProcessor.getAvailableImportFormats(preferences),
+                ArgumentProcessor.getAvailableExportFormats(preferences),
+                WebFetchers.getSearchBasedFetchers(
+                    preferences.getImportFormatPreferences(),
+                    preferences.getImporterPreferences()
+                )
+            );
 
             // Show help when no arguments are given. Placed after header and footer setup
             // to ensure output matches --help command
@@ -88,13 +103,26 @@ public class JabKit {
             }
 
             // Heavy initialization only needed when actually executing a command
-            Injector.setModelOrService(JournalAbbreviationRepository.class, JournalAbbreviationLoader.loadRepository(preferences.getJournalAbbreviationPreferences()));
-            Injector.setModelOrService(ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
+            Injector.setModelOrService(
+                JournalAbbreviationRepository.class,
+                JournalAbbreviationLoader.loadRepository(
+                    preferences.getJournalAbbreviationPreferences()
+                )
+            );
+            Injector.setModelOrService(
+                ProtectedTermsLoader.class,
+                new ProtectedTermsLoader(
+                    preferences.getProtectedTermsPreferences()
+                )
+            );
 
             configureProxy(preferences.getProxyPreferences());
             configureSSL(preferences.getSSLPreferences());
 
-            Injector.setModelOrService(FileUpdateMonitor.class, new DummyFileUpdateMonitor());
+            Injector.setModelOrService(
+                FileUpdateMonitor.class,
+                new DummyFileUpdateMonitor()
+            );
 
             int result = commandLine.execute(args);
             System.exit(result);
@@ -103,35 +131,62 @@ public class JabKit {
         }
     }
 
-    private static void applyUsageFooters(CommandLine commandLine,
-                                          List<Pair<String, String>> inputFormats,
-                                          List<Pair<String, String>> outputFormats,
-                                          Set<SearchBasedFetcher> fetchers) {
-        String inputFooter = "\n"
-                + Localization.lang("Available import formats:") + "\n"
-                + StringUtil.alignStringTable(inputFormats);
-        String outputFooter = "\n"
-                + Localization.lang("Available export formats:") + "\n"
-                + StringUtil.alignStringTable(outputFormats);
+    private static void applyUsageFooters(
+        CommandLine commandLine,
+        List<Pair<String, String>> inputFormats,
+        List<Pair<String, String>> outputFormats,
+        Set<SearchBasedFetcher> fetchers
+    ) {
+        String inputFooter =
+            "\n"
+            + Localization.lang("Available import formats:")
+            + "\n"
+            + StringUtil.alignStringTable(inputFormats);
+        String outputFooter =
+            "\n"
+            + Localization.lang("Available export formats:")
+            + "\n"
+            + StringUtil.alignStringTable(outputFormats);
 
-        commandLine.getSubcommands().values().forEach(subCommand -> {
-            boolean hasInputOption = subCommand.getCommandSpec().options().stream()
-                                               .anyMatch(opt -> Arrays.asList(opt.names()).contains("--input-format"));
-            boolean hasOutputOption = subCommand.getCommandSpec().options().stream()
-                                                .anyMatch(opt -> Arrays.asList(opt.names()).contains("--output-format"));
+        commandLine
+            .getSubcommands()
+            .values()
+            .forEach(subCommand -> {
+                boolean hasInputOption = subCommand
+                    .getCommandSpec()
+                    .options()
+                    .stream()
+                    .anyMatch(opt ->
+                        Arrays.asList(opt.names()).contains("--input-format")
+                    );
+                boolean hasOutputOption = subCommand
+                    .getCommandSpec()
+                    .options()
+                    .stream()
+                    .anyMatch(opt ->
+                        Arrays.asList(opt.names()).contains("--output-format")
+                    );
 
-            String footerText = "";
-            footerText += hasInputOption ? inputFooter : "";
-            footerText += hasOutputOption ? outputFooter : "";
-            subCommand.getCommandSpec().usageMessage().footer(footerText);
-        });
+                String footerText = "";
+                footerText += hasInputOption ? inputFooter : "";
+                footerText += hasOutputOption ? outputFooter : "";
+                subCommand.getCommandSpec().usageMessage().footer(footerText);
+            });
 
-        commandLine.getSubcommands().get("fetch")
-                   .getCommandSpec().usageMessage().footer(Localization.lang("The following providers are available:") + "\n"
-                           + fetchers.stream()
-                                     .map(WebFetcher::getName)
-                                     .filter(name -> !"Search pre-configured".equals(name))
-                                     .collect(Collectors.joining(", ")));
+        commandLine
+            .getSubcommands()
+            .get("fetch")
+            .getCommandSpec()
+            .usageMessage()
+            .footer(
+                Localization.lang("The following providers are available:")
+                    + "\n"
+                    + fetchers
+                        .stream()
+                        .map(WebFetcher::getName)
+                        .filter(name -> !"Search pre-configured".equals(name))
+                        .collect(Collectors.joining(", "))
+            );
     }
 
     /// This needs to be called as early as possible. After the first log writing, it
@@ -146,7 +201,9 @@ public class JabKit {
         Level logLevel;
         if (Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase)) {
             logLevel = Level.DEBUG;
-        } else if (Arrays.stream(args).anyMatch("--porcelain"::equalsIgnoreCase)) {
+        } else if (
+            Arrays.stream(args).anyMatch("--porcelain"::equalsIgnoreCase)
+        ) {
             logLevel = Level.ERROR;
         } else {
             logLevel = Level.INFO;
@@ -166,14 +223,22 @@ public class JabKit {
         // The "Shared File Writer" is explained at
         // https://tinylog.org/v2/configuration/#shared-file-writer
         Map<String, String> configuration = Map.of(
-                "level", logLevel.name().toLowerCase(),
-                "writerFile", "rolling file",
-                "writerFile.logLevel", logLevel == Level.DEBUG ? "debug" : "info",
-                // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
-                "writerFile.file", directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt",
-                "writerFile.charset", "UTF-8",
-                "writerFile.policies", "startup",
-                "writerFile.backups", "30");
+            "level",
+            logLevel.name().toLowerCase(),
+            "writerFile",
+            "rolling file",
+            "writerFile.logLevel",
+            logLevel == Level.DEBUG ? "debug" : "info",
+            // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
+            "writerFile.file",
+            directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt",
+            "writerFile.charset",
+            "UTF-8",
+            "writerFile.policies",
+            "startup",
+            "writerFile.backups",
+            "30"
+        );
         configuration.forEach(Configuration::set);
 
         LOGGER = LoggerFactory.getLogger(JabKit.class);
@@ -181,12 +246,17 @@ public class JabKit {
 
     private static void configureProxy(ProxyPreferences proxyPreferences) {
         ProxyRegisterer.register(proxyPreferences);
-        if (proxyPreferences.shouldUseProxy() && proxyPreferences.shouldUseAuthentication()) {
+        if (
+            proxyPreferences.shouldUseProxy()
+            && proxyPreferences.shouldUseAuthentication()
+        ) {
             Authenticator.setDefault(new ProxyAuthenticator());
         }
     }
 
     private static void configureSSL(SSLPreferences sslPreferences) {
-        TrustStoreManager.createTruststoreFileIfNotExist(Path.of(sslPreferences.getTruststorePath()));
+        TrustStoreManager.createTruststoreFileIfNotExist(
+            Path.of(sslPreferences.getTruststorePath())
+        );
     }
 }

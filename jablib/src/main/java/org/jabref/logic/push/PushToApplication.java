@@ -2,14 +2,12 @@ package org.jabref.logic.push;
 
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /**
  * Class that defines interaction with an external application in the form of "pushing" selected entries to it.
  */
 public interface PushToApplication {
-
     /**
      * Gets the display name for the push operation. This name is used
      * in the GUI to represent the push action to the user.

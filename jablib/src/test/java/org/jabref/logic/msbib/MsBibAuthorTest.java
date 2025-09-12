@@ -1,24 +1,35 @@
 package org.jabref.logic.msbib;
 
-import org.jabref.model.entry.Author;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.jabref.model.entry.Author;
+import org.junit.jupiter.api.Test;
 
 class MsBibAuthorTest {
 
     @Test
     void getGivenNameName() {
-        Author author = new Author("Gustav Peter Johann", null, null, "Bach", null);
+        Author author = new Author(
+            "Gustav Peter Johann",
+            null,
+            null,
+            "Bach",
+            null
+        );
         MsBibAuthor msBibAuthor = new MsBibAuthor(author);
         assertEquals("Gustav", msBibAuthor.getFirstName());
     }
 
     @Test
     void getMiddleName() {
-        Author author = new Author("Gustav Peter Johann", null, null, "Bach", null);
+        Author author = new Author(
+            "Gustav Peter Johann",
+            null,
+            null,
+            "Bach",
+            null
+        );
         MsBibAuthor msBibAuthor = new MsBibAuthor(author);
         assertEquals("Peter Johann", msBibAuthor.getMiddleName());
     }
@@ -39,7 +50,13 @@ class MsBibAuthorTest {
 
     @Test
     void getFamilyNameName() {
-        Author author = new Author("Gustav Peter Johann", null, null, "Bach", null);
+        Author author = new Author(
+            "Gustav Peter Johann",
+            null,
+            null,
+            "Bach",
+            null
+        );
         MsBibAuthor msBibAuthor = new MsBibAuthor(author);
         assertEquals("Bach", msBibAuthor.getLastName());
     }

@@ -3,13 +3,11 @@ package org.jabref.logic.importer.fetcher.transformers;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.NotNode;
 import org.jabref.model.search.query.OperatorNode;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +16,11 @@ import org.slf4j.LoggerFactory;
  * Otherwise, a single instance QueryTransformer can be used.
  */
 public abstract class AbstractQueryTransformer {
+
     public static final String NO_EXPLICIT_FIELD = "default";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractQueryTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        AbstractQueryTransformer.class
+    );
 
     // These can be used for filtering in post processing
     protected int startYear = Integer.MAX_VALUE;
@@ -38,10 +39,12 @@ public abstract class AbstractQueryTransformer {
             delimiter = getLogicalAndOperator();
         }
 
-        String result = query.children().stream()
-                             .map(this::transform)
-                             .flatMap(Optional::stream)
-                             .collect(Collectors.joining(delimiter, "(", ")"));
+        String result = query
+            .children()
+            .stream()
+            .map(this::transform)
+            .flatMap(Optional::stream)
+            .collect(Collectors.joining(delimiter, "(", ")"));
         if ("()".equals(result)) {
             return Optional.empty();
         }
@@ -117,7 +120,9 @@ public abstract class AbstractQueryTransformer {
      * Handles the not modifier, all other cases are silently ignored
      */
     private Optional<String> transform(NotNode query) {
-        return transform(query.negatedNode()).map(s -> getLogicalNotOperator() + s);
+        return transform(query.negatedNode()).map(
+            s -> getLogicalNotOperator() + s
+        );
     }
 
     /**
@@ -187,15 +192,26 @@ public abstract class AbstractQueryTransformer {
         return createKeyValuePair(fieldAsString, term, ":");
     }
 
-    protected String createKeyValuePair(String fieldAsString, String term, String separator) {
-        return "%s%s%s".formatted(fieldAsString, separator, StringUtil.quoteStringIfSpaceIsContained(term));
+    protected String createKeyValuePair(
+        String fieldAsString,
+        String term,
+        String separator
+    ) {
+        return "%s%s%s".formatted(
+            fieldAsString,
+            separator,
+            StringUtil.quoteStringIfSpaceIsContained(term)
+        );
     }
 
     /**
      * Return a string representation of the provided field
      * If it is not supported return an empty optional.
      */
-    protected Optional<String> handleOtherField(String fieldAsString, String term) {
+    protected Optional<String> handleOtherField(
+        String fieldAsString,
+        String term
+    ) {
         return Optional.of(createKeyValuePair(fieldAsString, term));
     }
 
@@ -211,7 +227,10 @@ public abstract class AbstractQueryTransformer {
                 return transform(notQueryNode);
             }
             case null, default -> {
-                LOGGER.error("Unsupported case when transforming the query:\n {}", query);
+                LOGGER.error(
+                    "Unsupported case when transforming the query:\n {}",
+                    query
+                );
                 return Optional.empty();
             }
         }

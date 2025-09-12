@@ -1,7 +1,6 @@
 package org.jabref.gui.util.comparator;
 
 import java.util.Comparator;
-
 import org.jabref.model.strings.StringUtil;
 
 /**

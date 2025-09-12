@@ -1,7 +1,6 @@
 package org.jabref.model.search;
 
 import java.util.List;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 
@@ -21,7 +20,10 @@ public enum LinkedFilesConstants {
     MODIFIED("modified");
 
     public static final Analyzer LINKED_FILES_ANALYZER = new EnglishAnalyzer();
-    public static final List<String> PDF_FIELDS = List.of(CONTENT.toString(), ANNOTATIONS.toString());
+    public static final List<String> PDF_FIELDS = List.of(
+        CONTENT.toString(),
+        ANNOTATIONS.toString()
+    );
     private final String field;
 
     LinkedFilesConstants(String field) {

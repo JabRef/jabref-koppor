@@ -1,7 +1,6 @@
 package org.jabref.gui.push;
 
 import java.util.Optional;
-
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.keyboard.KeyBinding;
@@ -12,14 +11,20 @@ public class GuiPushToApplicationAction implements Action {
     private final String displayName;
     private final JabRefIcon applicationIcon;
 
-    public GuiPushToApplicationAction(String displayName, JabRefIcon applicationIcon) {
+    public GuiPushToApplicationAction(
+        String displayName,
+        JabRefIcon applicationIcon
+    ) {
         this.displayName = displayName;
         this.applicationIcon = applicationIcon;
     }
 
     @Override
     public String getText() {
-        return Localization.lang("Push entries to external application (%0)", displayName);
+        return Localization.lang(
+            "Push entries to external application (%0)",
+            displayName
+        );
     }
 
     @Override

@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.entry;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -11,7 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.preferences.CliPreferences;
@@ -23,18 +21,27 @@ import org.jabref.model.entry.field.FieldFactory;
 
 public class EntryTabViewModel implements PreferenceTabViewModel {
 
-    private final StringProperty keywordSeparatorProperty = new SimpleStringProperty("");
+    private final StringProperty keywordSeparatorProperty =
+        new SimpleStringProperty("");
 
-    private final BooleanProperty resolveStringsProperty = new SimpleBooleanProperty();
+    private final BooleanProperty resolveStringsProperty =
+        new SimpleBooleanProperty();
 
-    private final ListProperty<Field> resolvableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<Field> nonWrappableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> resolvableTagsFieldProperty =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> nonWrappableTagsFieldProperty =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    private final BooleanProperty markOwnerProperty = new SimpleBooleanProperty();
-    private final StringProperty markOwnerNameProperty = new SimpleStringProperty("");
-    private final BooleanProperty markOwnerOverwriteProperty = new SimpleBooleanProperty();
-    private final BooleanProperty addCreationDateProperty = new SimpleBooleanProperty();
-    private final BooleanProperty addModificationDateProperty = new SimpleBooleanProperty();
+    private final BooleanProperty markOwnerProperty =
+        new SimpleBooleanProperty();
+    private final StringProperty markOwnerNameProperty =
+        new SimpleStringProperty("");
+    private final BooleanProperty markOwnerOverwriteProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty addCreationDateProperty =
+        new SimpleBooleanProperty();
+    private final BooleanProperty addModificationDateProperty =
+        new SimpleBooleanProperty();
 
     private final FieldPreferences fieldPreferences;
     private final BibEntryPreferences bibEntryPreferences;
@@ -50,34 +57,64 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void setValues() {
-        keywordSeparatorProperty.setValue(bibEntryPreferences.getKeywordSeparator().toString());
+        keywordSeparatorProperty.setValue(
+            bibEntryPreferences.getKeywordSeparator().toString()
+        );
 
-        resolveStringsProperty.setValue(fieldPreferences.shouldResolveStrings());
-        resolvableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getResolvableFields()));
-        nonWrappableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getNonWrappableFields()));
+        resolveStringsProperty.setValue(
+            fieldPreferences.shouldResolveStrings()
+        );
+        resolvableTagsFieldProperty.setValue(
+            FXCollections.observableArrayList(
+                fieldPreferences.getResolvableFields()
+            )
+        );
+        nonWrappableTagsFieldProperty.setValue(
+            FXCollections.observableArrayList(
+                fieldPreferences.getNonWrappableFields()
+            )
+        );
 
         markOwnerProperty.setValue(ownerPreferences.isUseOwner());
         markOwnerNameProperty.setValue(ownerPreferences.getDefaultOwner());
-        markOwnerOverwriteProperty.setValue(ownerPreferences.isOverwriteOwner());
+        markOwnerOverwriteProperty.setValue(
+            ownerPreferences.isOverwriteOwner()
+        );
 
-        addCreationDateProperty.setValue(timestampPreferences.shouldAddCreationDate());
-        addModificationDateProperty.setValue(timestampPreferences.shouldAddModificationDate());
+        addCreationDateProperty.setValue(
+            timestampPreferences.shouldAddCreationDate()
+        );
+        addModificationDateProperty.setValue(
+            timestampPreferences.shouldAddModificationDate()
+        );
     }
 
     @Override
     public void storeSettings() {
-        bibEntryPreferences.keywordSeparatorProperty().setValue(keywordSeparatorProperty.getValue().charAt(0));
+        bibEntryPreferences
+            .keywordSeparatorProperty()
+            .setValue(keywordSeparatorProperty.getValue().charAt(0));
 
         fieldPreferences.setResolveStrings(resolveStringsProperty.getValue());
-        fieldPreferences.setResolvableFields(resolvableTagsFieldProperty.getValue());
-        fieldPreferences.setNonWrappableFields(resolvableTagsFieldProperty.getValue());
+        fieldPreferences.setResolvableFields(
+            resolvableTagsFieldProperty.getValue()
+        );
+        fieldPreferences.setNonWrappableFields(
+            resolvableTagsFieldProperty.getValue()
+        );
 
         ownerPreferences.setUseOwner(markOwnerProperty.getValue());
         ownerPreferences.setDefaultOwner(markOwnerNameProperty.getValue());
-        ownerPreferences.setOverwriteOwner(markOwnerOverwriteProperty.getValue());
+        ownerPreferences.setOverwriteOwner(
+            markOwnerOverwriteProperty.getValue()
+        );
 
-        timestampPreferences.setAddCreationDate(addCreationDateProperty.getValue());
-        timestampPreferences.setAddModificationDate(addModificationDateProperty.getValue());
+        timestampPreferences.setAddCreationDate(
+            addCreationDateProperty.getValue()
+        );
+        timestampPreferences.setAddModificationDate(
+            addModificationDateProperty.getValue()
+        );
     }
 
     public StringProperty keywordSeparatorProperty() {
@@ -134,9 +171,15 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
     }
 
     public List<Field> getSuggestions(String request) {
-        List<Field> suggestions = FieldFactory.getAllFieldsWithOutInternal().stream()
-                                              .filter(field -> field.getDisplayName().toLowerCase().contains(request.toLowerCase()))
-                                              .collect(Collectors.toList());
+        List<Field> suggestions = FieldFactory.getAllFieldsWithOutInternal()
+            .stream()
+            .filter(field ->
+                field
+                    .getDisplayName()
+                    .toLowerCase()
+                    .contains(request.toLowerCase())
+            )
+            .collect(Collectors.toList());
 
         Field requestedField = FieldFactory.parseField(request.trim());
         if (!suggestions.contains(requestedField)) {

@@ -6,12 +6,16 @@ public class DatabaseCitationKeyPatterns extends AbstractCitationKeyPatterns {
 
     private final GlobalCitationKeyPatterns globalCitationKeyPattern;
 
-    public DatabaseCitationKeyPatterns(GlobalCitationKeyPatterns globalCitationKeyPattern) {
+    public DatabaseCitationKeyPatterns(
+        GlobalCitationKeyPatterns globalCitationKeyPattern
+    ) {
         this.globalCitationKeyPattern = globalCitationKeyPattern;
     }
 
     @Override
-    public CitationKeyPattern getLastLevelCitationKeyPattern(EntryType entryType) {
+    public CitationKeyPattern getLastLevelCitationKeyPattern(
+        EntryType entryType
+    ) {
         return globalCitationKeyPattern.getValue(entryType);
     }
 }

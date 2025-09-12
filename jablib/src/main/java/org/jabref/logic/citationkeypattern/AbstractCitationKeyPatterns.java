@@ -5,14 +5,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.types.EntryType;
 
 /// A small table, where an entry type is associated with a citation key pattern.
 /// A parent CitationKeyPattern can be set.
 public abstract class AbstractCitationKeyPatterns {
 
-    protected CitationKeyPattern defaultPattern = CitationKeyPattern.NULL_CITATION_KEY_PATTERN;
+    protected CitationKeyPattern defaultPattern =
+        CitationKeyPattern.NULL_CITATION_KEY_PATTERN;
 
     protected Map<EntryType, CitationKeyPattern> data = new HashMap<>();
 
@@ -22,10 +22,16 @@ public abstract class AbstractCitationKeyPatterns {
 
     @Override
     public String toString() {
-        return "AbstractCitationKeyPattern{" +
-                "defaultPattern='" + defaultPattern + '\'' +
-                ", data='" + data + '\'' +
-                "}";
+        return (
+            "AbstractCitationKeyPattern{"
+            + "defaultPattern='"
+            + defaultPattern
+            + '\''
+            + ", data='"
+            + data
+            + '\''
+            + "}"
+        );
     }
 
     @Override
@@ -37,7 +43,10 @@ public abstract class AbstractCitationKeyPatterns {
             return false;
         }
         AbstractCitationKeyPatterns that = (AbstractCitationKeyPatterns) o;
-        return Objects.equals(defaultPattern, that.defaultPattern) && Objects.equals(data, that.data);
+        return (
+            Objects.equals(defaultPattern, that.defaultPattern)
+            && Objects.equals(data, that.data)
+        );
     }
 
     @Override
@@ -60,7 +69,10 @@ public abstract class AbstractCitationKeyPatterns {
         if (result == null) {
             // check default value
             result = getDefaultValue();
-            if (result == null || CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(result)) {
+            if (
+                result == null
+                || CitationKeyPattern.NULL_CITATION_KEY_PATTERN.equals(result)
+            ) {
                 // we are the "last" to ask
                 // we don't have anything left
                 return getLastLevelCitationKeyPattern(entryType);
@@ -100,8 +112,13 @@ public abstract class AbstractCitationKeyPatterns {
     }
 
     public Map<EntryType, CitationKeyPattern> getPatterns() {
-        return data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return data
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public abstract CitationKeyPattern getLastLevelCitationKeyPattern(EntryType key);
+    public abstract CitationKeyPattern getLastLevelCitationKeyPattern(
+        EntryType key
+    );
 }

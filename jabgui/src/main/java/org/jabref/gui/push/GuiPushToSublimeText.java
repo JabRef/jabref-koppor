@@ -6,11 +6,16 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToSublimeText;
 
-public class GuiPushToSublimeText extends PushToSublimeText implements GuiPushToApplication {
+public class GuiPushToSublimeText
+    extends PushToSublimeText
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToSublimeText(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToSublimeText(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }

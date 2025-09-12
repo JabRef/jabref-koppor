@@ -15,5 +15,5 @@ public enum QuitButtonPosition {
     TOP_LEFT,
 
     /// Automatically position based on panel position to avoid overlap
-    AUTO
+    AUTO,
 }

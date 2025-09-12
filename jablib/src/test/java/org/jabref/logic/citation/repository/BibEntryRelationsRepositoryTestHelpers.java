@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import org.jabref.model.entry.BibEntry;
 
 /**
@@ -19,6 +18,7 @@ public class BibEntryRelationsRepositoryTestHelpers {
      * when it is called from {@link org.jabref.logic.citation.SearchCitationsRelationsService}.
      */
     public static class Mocks {
+
         public static BibEntryCitationsAndReferencesRepository from(
             Function<BibEntry, List<BibEntry>> retrieveCitations,
             BiConsumer<BibEntry, List<BibEntry>> insertCitations,
@@ -29,7 +29,10 @@ public class BibEntryRelationsRepositoryTestHelpers {
         ) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
-                public void insertCitations(BibEntry entry, List<BibEntry> citations) {
+                public void insertCitations(
+                    BibEntry entry,
+                    List<BibEntry> citations
+                ) {
                     insertCitations.accept(entry, citations);
                 }
 
@@ -49,7 +52,10 @@ public class BibEntryRelationsRepositoryTestHelpers {
                 }
 
                 @Override
-                public void insertReferences(BibEntry entry, List<BibEntry> citations) {
+                public void insertReferences(
+                    BibEntry entry,
+                    List<BibEntry> citations
+                ) {
                     insertReferences.accept(entry, citations);
                 }
 
@@ -76,11 +82,16 @@ public class BibEntryRelationsRepositoryTestHelpers {
         }
 
         public static BibEntryCitationsAndReferencesRepository from(
-            Map<BibEntry, List<BibEntry>> citationsDB, Map<BibEntry, List<BibEntry>> referencesDB, boolean isCitationsUpdatable
+            Map<BibEntry, List<BibEntry>> citationsDB,
+            Map<BibEntry, List<BibEntry>> referencesDB,
+            boolean isCitationsUpdatable
         ) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
-                public void insertCitations(BibEntry entry, List<BibEntry> citations) {
+                public void insertCitations(
+                    BibEntry entry,
+                    List<BibEntry> citations
+                ) {
                     citationsDB.put(entry, citations);
                 }
 
@@ -100,7 +111,10 @@ public class BibEntryRelationsRepositoryTestHelpers {
                 }
 
                 @Override
-                public void insertReferences(BibEntry entry, List<BibEntry> citations) {
+                public void insertReferences(
+                    BibEntry entry,
+                    List<BibEntry> citations
+                ) {
                     referencesDB.put(entry, citations);
                 }
 

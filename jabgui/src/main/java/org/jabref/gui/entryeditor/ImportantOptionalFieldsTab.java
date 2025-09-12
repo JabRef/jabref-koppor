@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.PreviewPanel;
@@ -15,25 +14,27 @@ public class ImportantOptionalFieldsTab extends OptionalFieldsTabBase {
 
     public static final String NAME = "Optional fields";
 
-    public ImportantOptionalFieldsTab(UndoManager undoManager,
-                                      UndoAction undoAction,
-                                      RedoAction redoAction,
-                                      GuiPreferences preferences,
-                                      BibEntryTypesManager entryTypesManager,
-                                      JournalAbbreviationRepository journalAbbreviationRepository,
-                                      StateManager stateManager,
-                                      PreviewPanel previewPanel) {
+    public ImportantOptionalFieldsTab(
+        UndoManager undoManager,
+        UndoAction undoAction,
+        RedoAction redoAction,
+        GuiPreferences preferences,
+        BibEntryTypesManager entryTypesManager,
+        JournalAbbreviationRepository journalAbbreviationRepository,
+        StateManager stateManager,
+        PreviewPanel previewPanel
+    ) {
         super(
-                Localization.lang("Optional fields"),
-                true,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                entryTypesManager,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
+            Localization.lang("Optional fields"),
+            true,
+            undoManager,
+            undoAction,
+            redoAction,
+            preferences,
+            entryTypesManager,
+            journalAbbreviationRepository,
+            stateManager,
+            previewPanel
         );
     }
 }

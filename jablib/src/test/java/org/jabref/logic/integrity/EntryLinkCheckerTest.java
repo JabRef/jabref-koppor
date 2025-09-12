@@ -1,17 +1,15 @@
 package org.jabref.logic.integrity;
 
-import java.util.List;
-
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.List;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class EntryLinkCheckerTest {
 
@@ -29,7 +27,9 @@ class EntryLinkCheckerTest {
 
     @Test
     void entryLinkChecker() {
-        assertThrows(NullPointerException.class, () -> new EntryLinkChecker(null));
+        assertThrows(NullPointerException.class, () ->
+            new EntryLinkChecker(null)
+        );
     }
 
     @Test

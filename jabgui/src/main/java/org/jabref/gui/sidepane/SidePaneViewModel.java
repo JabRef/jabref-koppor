@@ -7,12 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
@@ -27,14 +24,17 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SidePaneViewModel extends AbstractViewModel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SidePaneViewModel.class);
 
-    private final Map<SidePaneType, SidePaneComponent> sidePaneComponentLookup = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        SidePaneViewModel.class
+    );
+
+    private final Map<SidePaneType, SidePaneComponent> sidePaneComponentLookup =
+        new HashMap<>();
 
     private final GuiPreferences preferences;
     private final StateManager stateManager;
@@ -42,46 +42,57 @@ public class SidePaneViewModel extends AbstractViewModel {
     private final AdaptVisibleTabs adaptVisibleTabs;
     private final DialogService dialogService;
 
-    public SidePaneViewModel(LibraryTabContainer tabContainer,
-                             GuiPreferences preferences,
-                             JournalAbbreviationRepository abbreviationRepository,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor,
-                             AdaptVisibleTabs adaptVisibleTabs,
-                             DialogService dialogService,
-                             AiService aiService,
-                             FileUpdateMonitor fileUpdateMonitor,
-                             BibEntryTypesManager entryTypesManager,
-                             ClipBoardManager clipBoardManager,
-                             UndoManager undoManager) {
+    public SidePaneViewModel(
+        LibraryTabContainer tabContainer,
+        GuiPreferences preferences,
+        JournalAbbreviationRepository abbreviationRepository,
+        StateManager stateManager,
+        TaskExecutor taskExecutor,
+        AdaptVisibleTabs adaptVisibleTabs,
+        DialogService dialogService,
+        AiService aiService,
+        FileUpdateMonitor fileUpdateMonitor,
+        BibEntryTypesManager entryTypesManager,
+        ClipBoardManager clipBoardManager,
+        UndoManager undoManager
+    ) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.adaptVisibleTabs = adaptVisibleTabs;
         this.dialogService = dialogService;
         this.sidePaneContentFactory = new SidePaneContentFactory(
-                tabContainer,
-                preferences,
-                abbreviationRepository,
-                taskExecutor,
-                dialogService,
-                aiService,
-                stateManager,
-                adaptVisibleTabs,
-                fileUpdateMonitor,
-                entryTypesManager,
-                clipBoardManager,
-                undoManager);
+            tabContainer,
+            preferences,
+            abbreviationRepository,
+            taskExecutor,
+            dialogService,
+            aiService,
+            stateManager,
+            adaptVisibleTabs,
+            fileUpdateMonitor,
+            entryTypesManager,
+            clipBoardManager,
+            undoManager
+        );
 
         preferences.getSidePanePreferences().visiblePanes().forEach(this::show);
-        getPanes().addListener((ListChangeListener<? super SidePaneType>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    preferences.getSidePanePreferences().visiblePanes().add(change.getAddedSubList().getFirst());
-                } else if (change.wasRemoved()) {
-                    preferences.getSidePanePreferences().visiblePanes().remove(change.getRemoved().getFirst());
+        getPanes().addListener(
+            (ListChangeListener<? super SidePaneType>) change -> {
+                while (change.next()) {
+                    if (change.wasAdded()) {
+                        preferences
+                            .getSidePanePreferences()
+                            .visiblePanes()
+                            .add(change.getAddedSubList().getFirst());
+                    } else if (change.wasRemoved()) {
+                        preferences
+                            .getSidePanePreferences()
+                            .visiblePanes()
+                            .remove(change.getRemoved().getFirst());
+                    }
                 }
             }
-        });
+        );
     }
 
     protected SidePaneComponent getSidePaneComponent(SidePaneType pane) {
@@ -89,17 +100,20 @@ public class SidePaneViewModel extends AbstractViewModel {
         if (sidePaneComponent == null) {
             sidePaneComponent = switch (pane) {
                 case GROUPS -> new GroupsSidePaneComponent(
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory,
-                        preferences.getGroupsPreferences(),
-                        dialogService);
-                case WEB_SEARCH, OPEN_OFFICE -> new SidePaneComponent(pane,
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory);
+                    new ClosePaneAction(pane),
+                    new MoveUpAction(pane),
+                    new MoveDownAction(pane),
+                    sidePaneContentFactory,
+                    preferences.getGroupsPreferences(),
+                    dialogService
+                );
+                case WEB_SEARCH, OPEN_OFFICE -> new SidePaneComponent(
+                    pane,
+                    new ClosePaneAction(pane),
+                    new MoveUpAction(pane),
+                    new MoveDownAction(pane),
+                    sidePaneContentFactory
+                );
             };
             sidePaneComponentLookup.put(pane, sidePaneComponent);
         }
@@ -111,10 +125,15 @@ public class SidePaneViewModel extends AbstractViewModel {
      * position next time.
      */
     private void updatePreferredPositions() {
-        Map<SidePaneType, Integer> preferredPositions = new HashMap<>(preferences.getSidePanePreferences()
-                                                                                 .getPreferredPositions());
-        IntStream.range(0, getPanes().size()).forEach(i -> preferredPositions.put(getPanes().get(i), i));
-        preferences.getSidePanePreferences().setPreferredPositions(preferredPositions);
+        Map<SidePaneType, Integer> preferredPositions = new HashMap<>(
+            preferences.getSidePanePreferences().getPreferredPositions()
+        );
+        IntStream.range(0, getPanes().size()).forEach(i ->
+            preferredPositions.put(getPanes().get(i), i)
+        );
+        preferences
+            .getSidePanePreferences()
+            .setPreferredPositions(preferredPositions);
     }
 
     public void moveUp(SidePaneType pane) {
@@ -140,7 +159,10 @@ public class SidePaneViewModel extends AbstractViewModel {
                 swap(getPanes(), currentPosition, newPosition);
                 updatePreferredPositions();
             } else {
-                LOGGER.debug("SidePaneComponent {} is already at the top", pane.getTitle());
+                LOGGER.debug(
+                    "SidePaneComponent {} is already at the top",
+                    pane.getTitle()
+                );
             }
         } else {
             LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
@@ -150,7 +172,9 @@ public class SidePaneViewModel extends AbstractViewModel {
     private void show(SidePaneType pane) {
         if (!getPanes().contains(pane)) {
             getPanes().add(pane);
-            getPanes().sort(new PreferredIndexSort(preferences.getSidePanePreferences()));
+            getPanes().sort(
+                new PreferredIndexSort(preferences.getSidePanePreferences())
+            );
         } else {
             LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
         }
@@ -169,12 +193,14 @@ public class SidePaneViewModel extends AbstractViewModel {
     /**
      * Helper class for sorting visible side panes based on their preferred position.
      */
-    protected static class PreferredIndexSort implements Comparator<SidePaneType> {
+    protected static class PreferredIndexSort
+        implements Comparator<SidePaneType> {
 
         private final Map<SidePaneType, Integer> preferredPositions;
 
         public PreferredIndexSort(SidePanePreferences sidePanePreferences) {
-            this.preferredPositions = sidePanePreferences.getPreferredPositions();
+            this.preferredPositions =
+                sidePanePreferences.getPreferredPositions();
         }
 
         @Override
@@ -186,6 +212,7 @@ public class SidePaneViewModel extends AbstractViewModel {
     }
 
     private class MoveUpAction extends SimpleCommand {
+
         private final SidePaneType toMoveUpPane;
 
         public MoveUpAction(SidePaneType toMoveUpPane) {
@@ -199,6 +226,7 @@ public class SidePaneViewModel extends AbstractViewModel {
     }
 
     private class MoveDownAction extends SimpleCommand {
+
         private final SidePaneType toMoveDownPane;
 
         public MoveDownAction(SidePaneType toMoveDownPane) {
@@ -212,6 +240,7 @@ public class SidePaneViewModel extends AbstractViewModel {
     }
 
     public class ClosePaneAction extends SimpleCommand {
+
         private final SidePaneType toClosePane;
 
         public ClosePaneAction(SidePaneType toClosePane) {

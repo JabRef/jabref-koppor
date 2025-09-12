@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.model.database.BibDatabaseMode;
 
 public class LibraryPreferences {
@@ -17,16 +16,24 @@ public class LibraryPreferences {
     private final BooleanProperty addImportedEntries;
     private final StringProperty addImportedEntriesGroupName;
 
-    public LibraryPreferences(BibDatabaseMode defaultBibDatabaseMode,
-                              boolean alwaysReformatOnSave,
-                              boolean autoSave,
-                              boolean addImportedEntries,
-                              String addImportedEntriesGroupName) {
-        this.defaultBibDatabaseMode = new SimpleObjectProperty<>(defaultBibDatabaseMode);
-        this.alwaysReformatOnSave = new SimpleBooleanProperty(alwaysReformatOnSave);
+    public LibraryPreferences(
+        BibDatabaseMode defaultBibDatabaseMode,
+        boolean alwaysReformatOnSave,
+        boolean autoSave,
+        boolean addImportedEntries,
+        String addImportedEntriesGroupName
+    ) {
+        this.defaultBibDatabaseMode = new SimpleObjectProperty<>(
+            defaultBibDatabaseMode
+        );
+        this.alwaysReformatOnSave = new SimpleBooleanProperty(
+            alwaysReformatOnSave
+        );
         this.autoSave = new SimpleBooleanProperty(autoSave);
         this.addImportedEntries = new SimpleBooleanProperty(addImportedEntries);
-        this.addImportedEntriesGroupName = new SimpleStringProperty(addImportedEntriesGroupName);
+        this.addImportedEntriesGroupName = new SimpleStringProperty(
+            addImportedEntriesGroupName
+        );
     }
 
     public BibDatabaseMode getDefaultBibDatabaseMode() {
@@ -37,7 +44,9 @@ public class LibraryPreferences {
         return defaultBibDatabaseMode;
     }
 
-    public void setDefaultBibDatabaseMode(BibDatabaseMode defaultBibDatabaseMode) {
+    public void setDefaultBibDatabaseMode(
+        BibDatabaseMode defaultBibDatabaseMode
+    ) {
         this.defaultBibDatabaseMode.set(defaultBibDatabaseMode);
     }
 
@@ -85,7 +94,9 @@ public class LibraryPreferences {
         return addImportedEntriesGroupName;
     }
 
-    public void setAddImportedEntriesGroupName(String addImportedEntriesGroupName) {
+    public void setAddImportedEntriesGroupName(
+        String addImportedEntriesGroupName
+    ) {
         this.addImportedEntriesGroupName.set(addImportedEntriesGroupName);
     }
 }

@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -25,9 +24,14 @@ import org.slf4j.LoggerFactory;
  * Provides methods for retrieving and applying abbreviations based on LTWA rules.
  */
 public class LtwaRepository {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LtwaRepository.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LtwaRepository.class
+    );
     private static final Pattern INFLECTION = Pattern.compile("[ieasn'’]{1,3}");
-    private static final Pattern BOUNDARY = Pattern.compile("[\\s\\u2013\\u2014_.,:;!|=+*\\\\/\"()&#%@$?]");
+    private static final Pattern BOUNDARY = Pattern.compile(
+        "[\\s\\u2013\\u2014_.,:;!|=+*\\\\/\"()&#%@$?]"
+    );
     private static final String PREFIX_MAP_NAME = "Prefixes";
     private static final String SUFFIX_MAP_NAME = "Suffixes";
 
@@ -49,10 +53,18 @@ public class LtwaRepository {
      */
     public LtwaRepository(Path ltwaListFile) {
         this();
-
-        try (MVStore store = new MVStore.Builder().readOnly().fileName(ltwaListFile.toAbsolutePath().toString()).open()) {
-            MVMap<String, List<LtwaEntry>> prefixMap = store.openMap(PREFIX_MAP_NAME);
-            MVMap<String, List<LtwaEntry>> suffixMap = store.openMap(SUFFIX_MAP_NAME);
+        try (
+            MVStore store = new MVStore.Builder()
+                .readOnly()
+                .fileName(ltwaListFile.toAbsolutePath().toString())
+                .open()
+        ) {
+            MVMap<String, List<LtwaEntry>> prefixMap = store.openMap(
+                PREFIX_MAP_NAME
+            );
+            MVMap<String, List<LtwaEntry>> suffixMap = store.openMap(
+                SUFFIX_MAP_NAME
+            );
 
             for (String key : prefixMap.keySet()) {
                 List<LtwaEntry> value = prefixMap.get(key);
@@ -68,7 +80,11 @@ public class LtwaRepository {
                 }
             }
 
-            LOGGER.debug("Loaded LTWA repository with {} prefixes and {} suffixes", prefixMap.size(), suffixMap.size());
+            LOGGER.debug(
+                "Loaded LTWA repository with {} prefixes and {} suffixes",
+                prefixMap.size(),
+                suffixMap.size()
+            );
         }
     }
 
@@ -84,24 +100,29 @@ public class LtwaRepository {
         }
 
         return Optional.of(title)
-                       .flatMap(NormalizeUtils::toNFKC)
-                       .flatMap(normalizedTitle -> {
-                           CharStream charStream = CharStreams.fromString(normalizedTitle);
-                           LtwaLexer lexer = new LtwaLexer(charStream);
-                           CommonTokenStream tokens = new CommonTokenStream(lexer);
-                           LtwaParser parser = new LtwaParser(tokens);
-                           LtwaParser.TitleContext titleContext = parser.title();
-                           AbbreviationListener listener = new AbbreviationListener(normalizedTitle, prefix, suffix);
-                           ParseTreeWalker walker = new ParseTreeWalker();
-                           walker.walk(listener, titleContext);
-                           return listener.getResult();
-                       });
+            .flatMap(NormalizeUtils::toNFKC)
+            .flatMap(normalizedTitle -> {
+                CharStream charStream = CharStreams.fromString(normalizedTitle);
+                LtwaLexer lexer = new LtwaLexer(charStream);
+                CommonTokenStream tokens = new CommonTokenStream(lexer);
+                LtwaParser parser = new LtwaParser(tokens);
+                LtwaParser.TitleContext titleContext = parser.title();
+                AbbreviationListener listener = new AbbreviationListener(
+                    normalizedTitle,
+                    prefix,
+                    suffix
+                );
+                ParseTreeWalker walker = new ParseTreeWalker();
+                walker.walk(listener, titleContext);
+                return listener.getResult();
+            });
     }
 
     /**
      * Listener to apply abbreviation rules to the parsed title
      */
     private static class AbbreviationListener extends LtwaBaseListener {
+
         private final StringBuilder result = new StringBuilder();
         private final String originalTitle;
         private final PrefixTree<LtwaEntry> prefix;
@@ -112,7 +133,11 @@ public class LtwaRepository {
         private int abbreviatedTitlePosition = 0;
         private boolean error = false;
 
-        public AbbreviationListener(String originalTitle, PrefixTree<LtwaEntry> prefix, PrefixTree<LtwaEntry> suffix) {
+        public AbbreviationListener(
+            String originalTitle,
+            PrefixTree<LtwaEntry> prefix,
+            PrefixTree<LtwaEntry> suffix
+        ) {
             this.originalTitle = originalTitle;
             this.prefix = prefix;
             this.suffix = suffix;
@@ -133,7 +158,11 @@ public class LtwaRepository {
 
         @Override
         public void exitSymbolsElement(LtwaParser.SymbolsElementContext ctx) {
-            String val = ctx.getText().replace("...", "").replace(",", "").replace(".", ",");
+            String val = ctx
+                .getText()
+                .replace("...", "")
+                .replace(",", "")
+                .replace(".", ",");
             if ("&".equals(val) || "+".equals(val)) {
                 return;
             }
@@ -162,7 +191,9 @@ public class LtwaRepository {
         }
 
         @Override
-        public void exitAbbreviationElement(LtwaParser.AbbreviationElementContext ctx) {
+        public void exitAbbreviationElement(
+            LtwaParser.AbbreviationElementContext ctx
+        ) {
             appendWithSpace(ctx.getText());
         }
 
@@ -177,8 +208,9 @@ public class LtwaRepository {
             }
 
             String remainingTitle = originalTitle.substring(position);
-            Optional<String> normalizedOpt = NormalizeUtils.normalize(remainingTitle)
-                                                           .map(String::toLowerCase);
+            Optional<String> normalizedOpt = NormalizeUtils.normalize(
+                remainingTitle
+            ).map(String::toLowerCase);
 
             if (normalizedOpt.isEmpty()) {
                 error = true;
@@ -188,7 +220,9 @@ public class LtwaRepository {
 
             String normalizedRemaining = normalizedOpt.get();
 
-            List<LtwaEntry> matchingEntries = findMatchingEntries(normalizedRemaining);
+            List<LtwaEntry> matchingEntries = findMatchingEntries(
+                normalizedRemaining
+            );
 
             if (matchingEntries.isEmpty()) {
                 appendWithSpace(initialText);
@@ -203,7 +237,10 @@ public class LtwaRepository {
             }
 
             abbreviatedTitlePosition += bestEntry.word().length();
-            Optional<String> matchedOpt = restoreCapitalizationAndDiacritics(bestEntry.abbreviation(), remainingTitle);
+            Optional<String> matchedOpt = restoreCapitalizationAndDiacritics(
+                bestEntry.abbreviation(),
+                remainingTitle
+            );
             if (matchedOpt.isPresent()) {
                 appendWithSpace(matchedOpt.get());
             } else {
@@ -216,32 +253,43 @@ public class LtwaRepository {
          */
         private List<LtwaEntry> findMatchingEntries(String normalizedText) {
             return Stream.concat(
-                                 prefix.search(normalizedText).stream(),
-                                 suffix.search(reverse(normalizedText)).stream())
-                         .filter(e -> matches(normalizedText, e))
-                         .toList();
+                prefix.search(normalizedText).stream(),
+                suffix.search(reverse(normalizedText)).stream()
+            )
+                .filter(e -> matches(normalizedText, e))
+                .toList();
         }
 
         /**
          * Find the best entry based on prioritization criteria
          */
         private Optional<LtwaEntry> findBestEntry(List<LtwaEntry> entries) {
-            return entries.stream()
-                          .max(Comparator
-                                  .<LtwaEntry>comparingInt(e -> e.word().endsWith("-") ? 1 : 0)
-                                  .thenComparingInt(e -> e.word().length())
-                                  .thenComparingInt(e -> e.abbreviation() != null ? 1 : 0)
-                                  .thenComparingInt(e -> e.languages().contains("eng") ? 1 : 0));
+            return entries
+                .stream()
+                .max(
+                    Comparator.<LtwaEntry>comparingInt(e ->
+                        e.word().endsWith("-") ? 1 : 0
+                    )
+                        .thenComparingInt(e -> e.word().length())
+                        .thenComparingInt(e -> e.abbreviation() != null ? 1 : 0)
+                        .thenComparingInt(e ->
+                            e.languages().contains("eng") ? 1 : 0
+                        )
+                );
         }
 
         @Override
-        public void exitSingleWordTitleFull(LtwaParser.SingleWordTitleFullContext ctx) {
+        public void exitSingleWordTitleFull(
+            LtwaParser.SingleWordTitleFullContext ctx
+        ) {
             result.append(ctx.singleWordTitle().getText());
             addSpace = false;
         }
 
         @Override
-        public void exitStopwordPlusTitleFull(LtwaParser.StopwordPlusTitleFullContext ctx) {
+        public void exitStopwordPlusTitleFull(
+            LtwaParser.StopwordPlusTitleFullContext ctx
+        ) {
             String stopword = ctx.stopwordPlusAny().STOPWORD().getText();
             String second = ctx.stopwordPlusAny().getChild(1).getText();
             result.append(stopword).append(" ").append(second);
@@ -249,7 +297,9 @@ public class LtwaRepository {
         }
 
         @Override
-        public void exitAnyPlusSymbolsFull(LtwaParser.AnyPlusSymbolsFullContext ctx) {
+        public void exitAnyPlusSymbolsFull(
+            LtwaParser.AnyPlusSymbolsFullContext ctx
+        ) {
             String first = ctx.anyPlusSymbols().getChild(0).getText();
             String symbol = ctx.anyPlusSymbols().SYMBOLS().getText();
             result.append(first).append(symbol);
@@ -258,17 +308,28 @@ public class LtwaRepository {
 
         @Override
         public void exitEveryRule(ParserRuleContext ctx) {
-            isFirstElement = ctx.getParent() instanceof LtwaParser.TitleElementContext && isFirstElement;
-            if (!(ctx instanceof LtwaParser.PartContext ||
-                    ctx instanceof LtwaParser.PartElementContext ||
-                    ctx instanceof LtwaParser.OrdinalContext)) {
+            isFirstElement =
+                ctx.getParent() instanceof LtwaParser.TitleElementContext
+                && isFirstElement;
+            if (
+                !(ctx instanceof LtwaParser.PartContext
+                    || ctx instanceof LtwaParser.PartElementContext
+                    || ctx instanceof LtwaParser.OrdinalContext)
+            ) {
                 lastPartPosition = -1;
             }
-            abbreviatedTitlePosition = Math.max(abbreviatedTitlePosition, ctx.getStart().getStartIndex());
+            abbreviatedTitlePosition = Math.max(
+                abbreviatedTitlePosition,
+                ctx.getStart().getStartIndex()
+            );
         }
 
         private void appendWithSpace(String text) {
-            if (addSpace && !result.isEmpty() && result.charAt(result.length() - 1) != ' ') {
+            if (
+                addSpace
+                && !result.isEmpty()
+                && result.charAt(result.length() - 1) != ' '
+            ) {
                 result.append(" ");
             }
             result.append(text);
@@ -283,48 +344,68 @@ public class LtwaRepository {
     /**
      * Restore capitalization and diacritics from the original text to the abbreviation
      */
-    private static Optional<String> restoreCapitalizationAndDiacritics(String abbreviation, String original) {
+    private static Optional<String> restoreCapitalizationAndDiacritics(
+        String abbreviation,
+        String original
+    ) {
         if (abbreviation == null || original == null) {
             return Optional.empty();
         }
 
-        int abbrCodePointCount = abbreviation.codePointCount(0, abbreviation.length());
+        int abbrCodePointCount = abbreviation.codePointCount(
+            0,
+            abbreviation.length()
+        );
         int origCodePointCount = original.codePointCount(0, original.length());
 
         if (abbrCodePointCount > origCodePointCount) {
-            abbreviation = abbreviation.substring(0, abbreviation.offsetByCodePoints(0, origCodePointCount));
+            abbreviation = abbreviation.substring(
+                0,
+                abbreviation.offsetByCodePoints(0, origCodePointCount)
+            );
         }
 
-        return NormalizeUtils.toNFKC(abbreviation)
-                             .map(normalized -> {
-                                 int[] normalizedAbbrCodePoints = normalized.codePoints().toArray();
-                                 int[] origCodePoints = original.codePoints().toArray();
-                                 int[] resultCodePoints = Arrays.copyOf(normalizedAbbrCodePoints,
-                                         Math.min(normalizedAbbrCodePoints.length, origCodePoints.length));
-                                 IntStream.range(0, resultCodePoints.length)
-                                          .forEach(i -> preserveOriginalCharacterProperties(
-                                                  normalizedAbbrCodePoints[i],
-                                                  origCodePoints[i],
-                                                  resultCodePoints,
-                                                  i));
+        return NormalizeUtils.toNFKC(abbreviation).map(normalized -> {
+            int[] normalizedAbbrCodePoints = normalized.codePoints().toArray();
+            int[] origCodePoints = original.codePoints().toArray();
+            int[] resultCodePoints = Arrays.copyOf(
+                normalizedAbbrCodePoints,
+                Math.min(normalizedAbbrCodePoints.length, origCodePoints.length)
+            );
+            IntStream.range(0, resultCodePoints.length).forEach(i ->
+                preserveOriginalCharacterProperties(
+                    normalizedAbbrCodePoints[i],
+                    origCodePoints[i],
+                    resultCodePoints,
+                    i
+                )
+            );
 
-                                 return new String(resultCodePoints, 0, resultCodePoints.length);
-                             });
+            return new String(resultCodePoints, 0, resultCodePoints.length);
+        });
     }
 
     /**
      * Helper method to preserve original character properties (case, diacritics)
      */
     private static void preserveOriginalCharacterProperties(
-            int normalizedChar, int originalChar, int[] resultCodePoints, int index) {
-
-        String normalizedCharStr = new String(Character.toChars(normalizedChar));
+        int normalizedChar,
+        int originalChar,
+        int[] resultCodePoints,
+        int index
+    ) {
+        String normalizedCharStr = new String(
+            Character.toChars(normalizedChar)
+        );
         String origCharStr = new String(Character.toChars(originalChar));
 
         NormalizeUtils.toNFKC(origCharStr)
-                      .filter(normalizedOrigChar -> !normalizedOrigChar.isEmpty() &&
-                              normalizedCharStr.equalsIgnoreCase(normalizedOrigChar))
-                      .ifPresent(_ -> resultCodePoints[index] = originalChar);
+            .filter(
+                normalizedOrigChar ->
+                    !normalizedOrigChar.isEmpty()
+                    && normalizedCharStr.equalsIgnoreCase(normalizedOrigChar)
+            )
+            .ifPresent(_ -> resultCodePoints[index] = originalChar);
     }
 
     /**
@@ -332,7 +413,8 @@ public class LtwaRepository {
      */
     private static boolean matches(String title, LtwaEntry entry) {
         String word = entry.word();
-        int margin = (word.startsWith("-") ? 1 : 0) + (word.endsWith("-") ? 1 : 0);
+        int margin =
+            (word.startsWith("-") ? 1 : 0) + (word.endsWith("-") ? 1 : 0);
         if (title.length() < word.length() - margin) {
             return false;
         }
@@ -360,8 +442,12 @@ public class LtwaRepository {
                 return true;
             }
 
-            if (Character.toLowerCase(wordCp) != Character.toLowerCase(titleCp)) {
-                Matcher match = INFLECTION.matcher(title.substring(titlePosition));
+            if (
+                Character.toLowerCase(wordCp) != Character.toLowerCase(titleCp)
+            ) {
+                Matcher match = INFLECTION.matcher(
+                    title.substring(titlePosition)
+                );
                 if (!match.lookingAt()) {
                     return false;
                 }
@@ -389,7 +475,10 @@ public class LtwaRepository {
     /**
      * Handle remaining text after initial match
      */
-    private static boolean handleRemainingText(String title, int titlePosition) {
+    private static boolean handleRemainingText(
+        String title,
+        int titlePosition
+    ) {
         Matcher match = INFLECTION.matcher(title.substring(titlePosition));
         if (match.lookingAt()) {
             titlePosition += match.end();

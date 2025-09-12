@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
@@ -36,7 +35,12 @@ public class NormalizeWhitespaceFormatter {
      * @return the formatted field content.
      */
     public String format(String fieldContent, Field field) {
-        if (FieldFactory.isMultiLineField(field, preferences.getNonWrappableFields())) {
+        if (
+            FieldFactory.isMultiLineField(
+                field,
+                preferences.getNonWrappableFields()
+            )
+        ) {
             // In general, keep the field as is.
             // Newlines are normalized at org.jabref.logic.exporter.BibWriter
             // Alternative: StringUtil.unifyLineBreaks(fieldContent, OS.NEWLINE)

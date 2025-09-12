@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * This interface provides general test methods for paged fetchers
  */
 public interface PagedSearchFetcherTest {
-
     default String queryForUniqueResultsPerPage() {
         return "Software";
     }
@@ -23,17 +21,27 @@ public interface PagedSearchFetcherTest {
      * Ensure that different page return different entries
      */
     @Test
-    default void pageSearchReturnsUniqueResultsPerPage() throws FetcherException {
+    default void pageSearchReturnsUniqueResultsPerPage()
+        throws FetcherException {
         String query = queryForUniqueResultsPerPage();
-        Page<BibEntry> firstPage = getPagedFetcher().performSearchPaged(query, 0);
-        Page<BibEntry> secondPage = getPagedFetcher().performSearchPaged(query, 1);
+        Page<BibEntry> firstPage = getPagedFetcher().performSearchPaged(
+            query,
+            0
+        );
+        Page<BibEntry> secondPage = getPagedFetcher().performSearchPaged(
+            query,
+            1
+        );
 
         // Both pages need to be filled with contents to be valid for checking containment
         assertEquals(20, firstPage.getSize());
         assertEquals(20, secondPage.getSize());
 
         for (BibEntry entry : firstPage.getContent()) {
-            assertFalse(secondPage.getContent().contains(entry), "%s contained in %s".formatted(entry, secondPage.getContent()));
+            assertFalse(
+                secondPage.getContent().contains(entry),
+                "%s contained in %s".formatted(entry, secondPage.getContent())
+            );
         }
     }
 

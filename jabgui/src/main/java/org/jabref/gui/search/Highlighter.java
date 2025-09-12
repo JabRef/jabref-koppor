@@ -1,5 +1,6 @@
 package org.jabref.gui.search;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.search.PostgreServer;
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.model.entry.field.Field;
@@ -17,8 +17,6 @@ import org.jabref.model.search.PostgreConstants;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.util.Range;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,20 +26,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Highlighter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Highlighter.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        Highlighter.class
+    );
 
     /**
      * Functions defined in {@link PostgreConstants#POSTGRES_FUNCTIONS}
      */
     private static final String REGEXP_MARK = "SELECT regexp_mark(?, ?)";
-    private static final String REGEXP_POSITIONS = "SELECT * FROM regexp_positions(?, ?)";
+    private static final String REGEXP_POSITIONS =
+        "SELECT * FROM regexp_positions(?, ?)";
     private static Connection connection;
 
     private Highlighter() {
         // prevent instantiation
     }
 
-    public static String highlightHtml(String htmlText, SearchQuery searchQuery) {
+    public static String highlightHtml(
+        String htmlText,
+        SearchQuery searchQuery
+    ) {
         Optional<String> searchTermsPattern = buildSearchPattern(searchQuery);
         if (searchTermsPattern.isEmpty()) {
             return htmlText;
@@ -52,10 +57,16 @@ public class Highlighter {
         return document.outerHtml();
     }
 
-    private static void highlightTextNodes(Element element, String searchPattern) {
+    private static void highlightTextNodes(
+        Element element,
+        String searchPattern
+    ) {
         for (Node node : element.childNodes()) {
             if (node instanceof TextNode textNode) {
-                String highlightedText = highlightNode(textNode.text(), searchPattern);
+                String highlightedText = highlightNode(
+                    textNode.text(),
+                    searchPattern
+                );
                 textNode.text("");
                 textNode.after(highlightedText);
             } else if (node instanceof Element element1) {
@@ -66,10 +77,16 @@ public class Highlighter {
 
     private static String highlightNode(String text, String searchPattern) {
         if (connection == null) {
-            connection = Injector.instantiateModelOrService(PostgreServer.class).getConnection();
+            connection = Injector.instantiateModelOrService(
+                PostgreServer.class
+            ).getConnection();
         }
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(REGEXP_MARK)) {
+        try (
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                REGEXP_MARK
+            )
+        ) {
             preparedStatement.setString(1, text);
             preparedStatement.setString(2, searchPattern);
 
@@ -86,17 +103,25 @@ public class Highlighter {
 
     public static List<Range> findMatchPositions(String text, String pattern) {
         if (connection == null) {
-            connection = Injector.instantiateModelOrService(PostgreServer.class).getConnection();
+            connection = Injector.instantiateModelOrService(
+                PostgreServer.class
+            ).getConnection();
         }
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(REGEXP_POSITIONS)) {
+        try (
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                REGEXP_POSITIONS
+            )
+        ) {
             preparedStatement.setString(1, text);
             preparedStatement.setString(2, pattern);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 List<Range> positions = new ArrayList<>();
                 while (resultSet.next()) {
-                    positions.add(new Range(resultSet.getInt(1), resultSet.getInt(2)));
+                    positions.add(
+                        new Range(resultSet.getInt(1), resultSet.getInt(2))
+                    );
                 }
                 return positions;
             }
@@ -106,7 +131,9 @@ public class Highlighter {
         return List.of();
     }
 
-    public static Map<Optional<Field>, List<String>> groupTermsByField(SearchQuery searchQuery) {
+    public static Map<Optional<Field>, List<String>> groupTermsByField(
+        SearchQuery searchQuery
+    ) {
         if (!searchQuery.isValid()) {
             return Map.of();
         }
@@ -114,27 +141,38 @@ public class Highlighter {
         List<SearchQueryNode> queryNodes = getSearchQueryNodes(searchQuery);
         Map<Optional<Field>, List<String>> searchTermsMap = new HashMap<>();
         for (SearchQueryNode searchTerm : queryNodes) {
-            searchTermsMap.computeIfAbsent(searchTerm.field(), k -> new ArrayList<>()).add(searchTerm.term());
+            searchTermsMap
+                .computeIfAbsent(searchTerm.field(), k -> new ArrayList<>())
+                .add(searchTerm.term());
         }
         return searchTermsMap;
     }
 
-    private static Optional<String> buildSearchPattern(SearchQuery searchQuery) {
+    private static Optional<String> buildSearchPattern(
+        SearchQuery searchQuery
+    ) {
         if (!searchQuery.isValid()) {
             return Optional.empty();
         }
 
-        List<String> terms = getSearchQueryNodes(searchQuery).stream()
-                                                             .map(SearchQueryNode::term)
-                                                             .toList();
+        List<String> terms = getSearchQueryNodes(searchQuery)
+            .stream()
+            .map(SearchQueryNode::term)
+            .toList();
         return buildSearchPattern(terms);
     }
 
-    private static List<SearchQueryNode> getSearchQueryNodes(SearchQuery searchQuery) {
-        return searchQuery.isValid() ? SearchQueryConversion.extractSearchTerms(searchQuery) : List.of();
+    private static List<SearchQueryNode> getSearchQueryNodes(
+        SearchQuery searchQuery
+    ) {
+        return searchQuery.isValid()
+            ? SearchQueryConversion.extractSearchTerms(searchQuery)
+            : List.of();
     }
 
     public static Optional<String> buildSearchPattern(List<String> terms) {
-        return terms.isEmpty() ? Optional.empty() : Optional.of(String.join("|", terms));
+        return terms.isEmpty()
+            ? Optional.empty()
+            : Optional.of(String.join("|", terms));
     }
 }

@@ -10,6 +10,7 @@ import dev.langchain4j.data.message.ChatMessageType;
  * The primary use of this class is to be stored in a chat history and displayed in the UI.
  */
 public class ErrorMessage implements ChatMessage {
+
     String text;
 
     public ErrorMessage(String text) {

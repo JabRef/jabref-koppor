@@ -17,8 +17,11 @@ import java.util.regex.Pattern;
  * Converts CSV data into a list of LtwaEntry objects.
  */
 public class LtwaTsvParser {
+
     private static final Pattern ANNOTATION = Pattern.compile("\\s*\\(.*?\\)");
-    private static final Pattern LINE_FORMAT = Pattern.compile("\"\\s*(.*?)\\s*\";\"\\s*(.*?)\\s*\";\"\\s*(.*?)\\s*\"");
+    private static final Pattern LINE_FORMAT = Pattern.compile(
+        "\"\\s*(.*?)\\s*\";\"\\s*(.*?)\\s*\";\"\\s*(.*?)\\s*\""
+    );
     private static final String NO_ABBREVIATION = "n.a.";
 
     private final Path file;
@@ -36,7 +39,12 @@ public class LtwaTsvParser {
     public List<LtwaEntry> parse() throws IOException {
         List<LtwaEntry> entries = new ArrayList<>();
 
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+        try (
+            BufferedReader reader = Files.newBufferedReader(
+                file,
+                StandardCharsets.UTF_8
+            )
+        ) {
             boolean isFirstRow = true;
             String line;
             while ((line = reader.readLine()) != null) {
@@ -54,14 +62,22 @@ public class LtwaTsvParser {
                 String abbreviationStr = matcher.group(2);
                 String languageStr = matcher.group(3);
 
-                Optional<String> normalizeResult = NormalizeUtils.normalize(ANNOTATION.matcher(word).replaceAll("").strip());
+                Optional<String> normalizeResult = NormalizeUtils.normalize(
+                    ANNOTATION.matcher(word).replaceAll("").strip()
+                );
                 if (normalizeResult.isEmpty()) {
                     continue;
                 }
                 word = normalizeResult.get();
-                String abbreviation = NO_ABBREVIATION.equals(abbreviationStr) ? null : abbreviationStr;
-                List<String> languages = Arrays.stream(languageStr.split("\\s*,\\s*")).map(String::trim)
-                        .filter(s -> !s.isEmpty()).toList();
+                String abbreviation = NO_ABBREVIATION.equals(abbreviationStr)
+                    ? null
+                    : abbreviationStr;
+                List<String> languages = Arrays.stream(
+                    languageStr.split("\\s*,\\s*")
+                )
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
 
                 entries.add(new LtwaEntry(word, abbreviation, languages));
             }

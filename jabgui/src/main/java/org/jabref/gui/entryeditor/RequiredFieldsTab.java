@@ -3,11 +3,8 @@ package org.jabref.gui.entryeditor;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.SequencedSet;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.scene.control.Tooltip;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -30,23 +27,25 @@ public class RequiredFieldsTab extends FieldsEditorTab {
     public static final String NAME = "Required fields";
     private final BibEntryTypesManager entryTypesManager;
 
-    public RequiredFieldsTab(UndoManager undoManager,
-                             UndoAction undoAction,
-                             RedoAction redoAction,
-                             GuiPreferences preferences,
-                             BibEntryTypesManager entryTypesManager,
-                             JournalAbbreviationRepository journalAbbreviationRepository,
-                             StateManager stateManager,
-                             PreviewPanel previewPanel) {
+    public RequiredFieldsTab(
+        UndoManager undoManager,
+        UndoAction undoAction,
+        RedoAction redoAction,
+        GuiPreferences preferences,
+        BibEntryTypesManager entryTypesManager,
+        JournalAbbreviationRepository journalAbbreviationRepository,
+        StateManager stateManager,
+        PreviewPanel previewPanel
+    ) {
         super(
-                false,
-                undoManager,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel
+            false,
+            undoManager,
+            undoAction,
+            redoAction,
+            preferences,
+            journalAbbreviationRepository,
+            stateManager,
+            previewPanel
         );
         this.entryTypesManager = entryTypesManager;
         setText(Localization.lang("Required fields"));
@@ -56,9 +55,14 @@ public class RequiredFieldsTab extends FieldsEditorTab {
 
     @Override
     protected SequencedSet<Field> determineFieldsToShow(BibEntry entry) {
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
-        Optional<BibEntryType> entryType = entryTypesManager.enrich(entry.getType(), mode);
+        BibDatabaseMode mode = stateManager
+            .getActiveDatabase()
+            .map(BibDatabaseContext::getMode)
+            .orElse(BibDatabaseMode.BIBLATEX);
+        Optional<BibEntryType> entryType = entryTypesManager.enrich(
+            entry.getType(),
+            mode
+        );
         SequencedSet<Field> fields = new LinkedHashSet<>();
         if (entryType.isPresent()) {
             for (OrFields orFields : entryType.get().getRequiredFields()) {

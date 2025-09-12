@@ -2,14 +2,12 @@ package org.jabref.logic.exporter;
 
 import java.nio.file.Path;
 import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.model.metadata.SaveOrder;
 
 public class ExportPreferences {
@@ -19,12 +17,18 @@ public class ExportPreferences {
     private final ObjectProperty<SaveOrder> exportSaveOrder;
     private final ObservableList<TemplateExporter> customExporters;
 
-    public ExportPreferences(String lastExportExtension,
-                             Path exportWorkingDirectory,
-                             SaveOrder exportSaveOrder,
-                             List<TemplateExporter> customExporters) {
-        this.lastExportExtension = new SimpleStringProperty(lastExportExtension);
-        this.exportWorkingDirectory = new SimpleObjectProperty<>(exportWorkingDirectory);
+    public ExportPreferences(
+        String lastExportExtension,
+        Path exportWorkingDirectory,
+        SaveOrder exportSaveOrder,
+        List<TemplateExporter> customExporters
+    ) {
+        this.lastExportExtension = new SimpleStringProperty(
+            lastExportExtension
+        );
+        this.exportWorkingDirectory = new SimpleObjectProperty<>(
+            exportWorkingDirectory
+        );
         this.exportSaveOrder = new SimpleObjectProperty<>(exportSaveOrder);
         this.customExporters = FXCollections.observableList(customExporters);
     }

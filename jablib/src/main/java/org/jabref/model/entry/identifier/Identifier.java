@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.StringUtil;
 
@@ -17,7 +16,6 @@ import org.jabref.model.strings.StringUtil;
  * </ul>
  */
 public interface Identifier {
-
     /**
      * Returns the identifier as String
      */
@@ -33,16 +31,16 @@ public interface Identifier {
         }
 
         return Stream.<Supplier<Optional<? extends Identifier>>>of(
-                             () -> DOI.findInText(identifier),
-                             () -> ArXivIdentifier.parse(identifier),
-                             () -> ISBN.parse(identifier),
-                             () -> SSRN.parse(identifier),
-                             () -> RFC.parse(identifier)
-                     )
-                     .map(Supplier::get)
-                     .filter(Optional::isPresent)
-                     .map(Optional::get)
-                     .map(id -> (Identifier) id)
-                     .findFirst();
+            () -> DOI.findInText(identifier),
+            () -> ArXivIdentifier.parse(identifier),
+            () -> ISBN.parse(identifier),
+            () -> SSRN.parse(identifier),
+            () -> RFC.parse(identifier)
+        )
+            .map(Supplier::get)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(id -> (Identifier) id)
+            .findFirst();
     }
 }

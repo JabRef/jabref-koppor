@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.casechanger;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
@@ -25,7 +24,10 @@ public class ProtectTermsFormatter extends Formatter {
         // For each word in the list
         for (String listOfWord : listOfWords) {
             // Add {} if the character before is a space, -, /, (, [, ", or } or if it is at the start of the string but not if it is followed by a }
-            result = result.replaceAll("(^|[- /\\[(}\"])" + listOfWord + "($|[^a-zA-Z}])", "$1\\{" + listOfWord + "\\}$2");
+            result = result.replaceAll(
+                "(^|[- /\\[(}\"])" + listOfWord + "($|[^a-zA-Z}])",
+                "$1\\{" + listOfWord + "\\}$2"
+            );
         }
         // Remove the empty brackets
         result = result.replace("{}", "");
@@ -44,7 +46,8 @@ public class ProtectTermsFormatter extends Formatter {
     @Override
     public String getDescription() {
         return Localization.lang(
-                "Adds {} brackets around acronyms, month names and countries to preserve their case.");
+            "Adds {} brackets around acronyms, month names and countries to preserve their case."
+        );
     }
 
     @Override

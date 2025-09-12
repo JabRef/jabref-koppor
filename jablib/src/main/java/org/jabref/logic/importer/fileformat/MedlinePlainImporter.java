@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
@@ -32,11 +31,17 @@ public class MedlinePlainImporter extends Importer {
     private static final Pattern PMID_PATTERN = Pattern.compile("PMID.*-.*");
     private static final Pattern PMC_PATTERN = Pattern.compile("PMC.*-.*");
     private static final Pattern PMCR_PATTERN = Pattern.compile("PMCR.*-.*");
-    private static final Pattern CREATE_DATE_PATTERN = Pattern.compile("\\d{4}/[0123]?\\d/\\s?[012]\\d:[0-5]\\d");
-    private static final Pattern COMPLETE_DATE_PATTERN = Pattern.compile("\\d{8}");
+    private static final Pattern CREATE_DATE_PATTERN = Pattern.compile(
+        "\\d{4}/[0123]?\\d/\\s?[012]\\d:[0-5]\\d"
+    );
+    private static final Pattern COMPLETE_DATE_PATTERN = Pattern.compile(
+        "\\d{8}"
+    );
     private final ImportFormatPreferences importFormatPreferences;
 
-    public MedlinePlainImporter(ImportFormatPreferences importFormatPreferences) {
+    public MedlinePlainImporter(
+        ImportFormatPreferences importFormatPreferences
+    ) {
         this.importFormatPreferences = importFormatPreferences;
     }
 
@@ -61,14 +66,17 @@ public class MedlinePlainImporter extends Importer {
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
-
+    public boolean isRecognizedFormat(BufferedReader reader)
+        throws IOException {
         // Our strategy is to look for the "PMID  - *", "PMC.*-.*", or "PMCR.*-.*" line
         // (i.e., PubMed Unique Identifier, PubMed Central Identifier, PubMed Central Release)
         String str;
         while ((str = reader.readLine()) != null) {
-            if (PMID_PATTERN.matcher(str).find() || PMC_PATTERN.matcher(str).find()
-                    || PMCR_PATTERN.matcher(str).find()) {
+            if (
+                PMID_PATTERN.matcher(str).find()
+                || PMC_PATTERN.matcher(str).find()
+                || PMCR_PATTERN.matcher(str).find()
+            ) {
                 return true;
             }
         }
@@ -76,14 +84,21 @@ public class MedlinePlainImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
+    public ParserResult importDatabase(BufferedReader reader)
+        throws IOException {
         List<BibEntry> bibitems = new ArrayList<>();
 
         // use optional here, so that no exception will be thrown if the file is empty
-        String linesAsString = reader.lines().reduce((line, nextline) -> line + "\n" + nextline).orElse("");
+        String linesAsString = reader
+            .lines()
+            .reduce((line, nextline) -> line + "\n" + nextline)
+            .orElse("");
 
-        String[] entries = linesAsString.replace("\u2013", "-").replace("\u2014", "--").replace("\u2015", "--")
-                                        .split("\\n\\n");
+        String[] entries = linesAsString
+            .replace("\u2013", "-")
+            .replace("\u2014", "--")
+            .replace("\u2015", "--")
+            .split("\\n\\n");
 
         for (String entry1 : entries) {
             if (entry1.trim().isEmpty() || !entry1.contains("-")) {
@@ -108,7 +123,12 @@ public class MedlinePlainImporter extends Importer {
                         continue;
                     }
                     if (lines[j + 1].charAt(4) != '-') {
-                        if ((!current.isEmpty()) && !Character.isWhitespace(current.charAt(current.length() - 1))) {
+                        if (
+                            (!current.isEmpty())
+                            && !Character.isWhitespace(
+                                current.charAt(current.length() - 1)
+                            )
+                        ) {
                             current.append(' ');
                         }
                         current.append(lines[j + 1].trim());
@@ -185,33 +205,51 @@ public class MedlinePlainImporter extends Importer {
                 }
 
                 switch (label) {
-                    case "IRAD",
-                         "IR",
-                         "FIR" -> fieldConversionMap.merge(new UnknownField("investigator"), value, (a, b) -> a + ", " + b);
-                    case "MH",
-                         "OT" -> {
-                        if (!fieldConversionMap.containsKey(StandardField.KEYWORDS)) {
-                            fieldConversionMap.put(StandardField.KEYWORDS, value);
+                    case "IRAD", "IR", "FIR" -> fieldConversionMap.merge(
+                        new UnknownField("investigator"),
+                        value,
+                        (a, b) -> a + ", " + b
+                    );
+                    case "MH", "OT" -> {
+                        if (
+                            !fieldConversionMap.containsKey(
+                                StandardField.KEYWORDS
+                            )
+                        ) {
+                            fieldConversionMap.put(
+                                StandardField.KEYWORDS,
+                                value
+                            );
                         } else {
-                            fieldConversionMap.compute(StandardField.KEYWORDS, (k, kw) -> kw + importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " " + value);
+                            fieldConversionMap.compute(
+                                StandardField.KEYWORDS,
+                                (k, kw) ->
+                                    kw
+                                    + importFormatPreferences
+                                        .bibEntryPreferences()
+                                        .getKeywordSeparator()
+                                    + " "
+                                    + value
+                            );
                         }
                     }
-                    case "CON",
-                         "CIN",
-                         "EIN",
-                         "EFR",
-                         "CRI",
-                         "CRF",
-                         "PRIN",
-                         "PROF",
-                         "RPI",
-                         "RPF",
-                         "RIN",
-                         "ROF",
-                         "UIN",
-                         "UOF",
-                         "SPIN",
-                         "ORI" -> {
+                    case
+                        "CON",
+                        "CIN",
+                        "EIN",
+                        "EFR",
+                        "CRI",
+                        "CRF",
+                        "PRIN",
+                        "PROF",
+                        "RPI",
+                        "RPF",
+                        "RIN",
+                        "ROF",
+                        "UIN",
+                        "UOF",
+                        "SPIN",
+                        "ORI" -> {
                         if (!comment.isEmpty()) {
                             comment.append("\n");
                         }
@@ -219,10 +257,21 @@ public class MedlinePlainImporter extends Importer {
                     }
                 }
             }
-            fixAuthors(fieldConversionMap, author.toString(), StandardField.AUTHOR);
-            fixAuthors(fieldConversionMap, editor.toString(), StandardField.EDITOR);
+            fixAuthors(
+                fieldConversionMap,
+                author.toString(),
+                StandardField.AUTHOR
+            );
+            fixAuthors(
+                fieldConversionMap,
+                editor.toString(),
+                StandardField.EDITOR
+            );
             if (!comment.isEmpty()) {
-                fieldConversionMap.put(StandardField.COMMENT, comment.toString());
+                fieldConversionMap.put(
+                    StandardField.COMMENT,
+                    comment.toString()
+                );
             }
 
             BibEntry b = new BibEntry(type);
@@ -242,31 +291,30 @@ public class MedlinePlainImporter extends Importer {
     private EntryType addSourceType(String value, EntryType type) {
         String val = value.toLowerCase(Locale.ENGLISH);
         return switch (val) {
-            case "book" ->
-                    StandardEntryType.Book;
-            case "journal article",
-                 "classical article",
-                 "corrected and republished article",
-                 "historical article",
-                 "introductory journal article",
-                 "newspaper article" ->
-                    StandardEntryType.Article;
-            case "clinical conference",
-                 "consensus development conference",
-                 "consensus development conference, nih" ->
-                    StandardEntryType.Conference;
-            case "technical report" ->
-                    StandardEntryType.TechReport;
-            case "editorial" ->
-                    StandardEntryType.InProceedings;
-            case "overall" ->
-                    StandardEntryType.Proceedings;
-            default ->
-                    type;
+            case "book" -> StandardEntryType.Book;
+            case
+                "journal article",
+                "classical article",
+                "corrected and republished article",
+                "historical article",
+                "introductory journal article",
+                "newspaper article" -> StandardEntryType.Article;
+            case
+                "clinical conference",
+                "consensus development conference",
+                "consensus development conference, nih" -> StandardEntryType.Conference;
+            case "technical report" -> StandardEntryType.TechReport;
+            case "editorial" -> StandardEntryType.InProceedings;
+            case "overall" -> StandardEntryType.Proceedings;
+            default -> type;
         };
     }
 
-    private void addStandardNumber(Map<Field, String> hm, String lab, String value) {
+    private void addStandardNumber(
+        Map<Field, String> hm,
+        String lab,
+        String value
+    ) {
         if ("IS".equals(lab)) {
             Field key = StandardField.ISSN;
             // it is possible to have two issn, one for electronic and for print
@@ -275,7 +323,9 @@ public class MedlinePlainImporter extends Importer {
             if (value.indexOf('(') > 0) {
                 int keyStart = value.indexOf('(');
                 int keyEnd = value.indexOf(')');
-                key = new UnknownField(value.substring(keyStart + 1, keyEnd) + "-" + key);
+                key = new UnknownField(
+                    value.substring(keyStart + 1, keyEnd) + "-" + key
+                );
                 String numberValue = value.substring(0, keyStart - 1);
                 hm.put(key, numberValue);
             } else {
@@ -303,7 +353,13 @@ public class MedlinePlainImporter extends Importer {
             } else if (value.indexOf('[') > 0) {
                 int startOfIdentifier = value.indexOf('[');
                 int endOfIdentifier = value.indexOf(']');
-                key = new UnknownField("article-" + value.substring(startOfIdentifier + 1, endOfIdentifier));
+                key = new UnknownField(
+                    "article-"
+                        + value.substring(
+                            startOfIdentifier + 1,
+                            endOfIdentifier
+                        )
+                );
                 idValue = value.substring(0, startOfIdentifier - 1);
             }
             hm.put(key, idValue);
@@ -320,13 +376,22 @@ public class MedlinePlainImporter extends Importer {
         }
     }
 
-    private void addTitles(Map<Field, String> hm, String lab, String val, EntryType type) {
+    private void addTitles(
+        Map<Field, String> hm,
+        String lab,
+        String val,
+        EntryType type
+    ) {
         if ("TI".equals(lab)) {
             String oldVal = hm.get(StandardField.TITLE);
             if (oldVal == null) {
                 hm.put(StandardField.TITLE, val);
             } else {
-                if (oldVal.endsWith(":") || oldVal.endsWith(".") || oldVal.endsWith("?")) {
+                if (
+                    oldVal.endsWith(":")
+                    || oldVal.endsWith(".")
+                    || oldVal.endsWith("?")
+                ) {
                     hm.put(StandardField.TITLE, oldVal + " " + val);
                 } else {
                     hm.put(StandardField.TITLE, oldVal + ": " + val);
@@ -358,13 +423,19 @@ public class MedlinePlainImporter extends Importer {
             if (value.contains("Copyright")) {
                 int copyrightIndex = value.lastIndexOf("Copyright");
                 // remove the copyright from the field since the name of the field is copyright
-                String copyrightInfo = value.substring(copyrightIndex).replace("Copyright ", "");
+                String copyrightInfo = value
+                    .substring(copyrightIndex)
+                    .replace("Copyright ", "");
                 hm.put(new UnknownField("copyright"), copyrightInfo);
                 abstractValue = value.substring(0, copyrightIndex).trim();
             } else {
                 abstractValue = value;
             }
-            hm.merge(StandardField.ABSTRACT, abstractValue, (a, b) -> a + '\n' + b);
+            hm.merge(
+                StandardField.ABSTRACT,
+                abstractValue,
+                (a, b) -> a + '\n' + b
+            );
         } else if ("OAB".equals(lab) || "OABL".equals(lab)) {
             hm.put(new UnknownField("other-abstract"), value);
         }

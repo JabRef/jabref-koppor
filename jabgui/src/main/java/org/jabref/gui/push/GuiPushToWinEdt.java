@@ -6,11 +6,16 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToWinEdt;
 
-public class GuiPushToWinEdt extends PushToWinEdt implements GuiPushToApplication {
+public class GuiPushToWinEdt
+    extends PushToWinEdt
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToWinEdt(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToWinEdt(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }

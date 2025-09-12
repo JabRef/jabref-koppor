@@ -1,8 +1,8 @@
 package org.jabref.logic.layout.format;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 class AuthorLF_FFTest {
 
@@ -11,8 +11,11 @@ class AuthorLF_FFTest {
      */
     @Test
     void format() {
-        assertEquals("von Neumann, John and John Smith and Peter Black Brown, Jr",
-                new AuthorLF_FF()
-                        .format("von Neumann,,John and John Smith and Black Brown, Jr, Peter"));
+        assertEquals(
+            "von Neumann, John and John Smith and Peter Black Brown, Jr",
+            new AuthorLF_FF().format(
+                "von Neumann,,John and John Smith and Black Brown, Jr, Peter"
+            )
+        );
     }
 }

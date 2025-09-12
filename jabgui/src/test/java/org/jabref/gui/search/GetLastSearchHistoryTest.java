@@ -1,22 +1,20 @@
 package org.jabref.gui.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
-
 import javafx.stage.Stage;
-
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @ExtendWith(ApplicationExtension.class)
 class GetLastSearchHistoryTest {
+
     private final StateManager stateManager = new JabRefGuiStateManager();
     private final BibDatabaseContext dbContext1 = new BibDatabaseContext();
     private final BibDatabaseContext dbContext2 = new BibDatabaseContext();

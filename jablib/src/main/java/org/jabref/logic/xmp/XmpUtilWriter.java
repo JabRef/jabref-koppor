@@ -11,18 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.xml.transform.TransformerException;
-
-import org.jabref.logic.exporter.EmbeddedBibFilePdfExporter;
-import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
-import org.jabref.logic.util.io.FileUtil;
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.Field;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.schema.DublinCoreSchemaCustom;
-
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
@@ -31,6 +20,14 @@ import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.DublinCoreSchema;
 import org.apache.xmpbox.xml.XmpSerializer;
+import org.jabref.logic.exporter.EmbeddedBibFilePdfExporter;
+import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
+import org.jabref.logic.util.io.FileUtil;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.Field;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.schema.DublinCoreSchemaCustom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +41,14 @@ public class XmpUtilWriter {
 
     private static final String XMP_BEGIN_END_TAG = "?xpacket";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmpUtilWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        XmpUtilWriter.class
+    );
 
     private static final XmpUtilShared XMP_UTIL_SHARED = new XmpUtilShared();
 
-    private final UnprotectTermsFormatter unprotectTermsFormatter = new UnprotectTermsFormatter();
+    private final UnprotectTermsFormatter unprotectTermsFormatter =
+        new UnprotectTermsFormatter();
     private final XmpPreferences xmpPreferences;
 
     public XmpUtilWriter(XmpPreferences xmpPreferences) {
@@ -74,10 +74,8 @@ public class XmpUtilWriter {
      * @throws TransformerException If the entry was malformed or unsupported.
      * @throws IOException          If the file could not be written to or could not be found.
      */
-    public void writeXmp(Path file,
-                         BibEntry entry,
-                         BibDatabase database)
-            throws IOException, TransformerException {
+    public void writeXmp(Path file, BibEntry entry, BibDatabase database)
+        throws IOException, TransformerException {
         writeXmp(file, List.of(entry), database);
     }
 
@@ -87,9 +85,12 @@ public class XmpUtilWriter {
      * @param dcSchema Dublin core schema, which is filled with the bib entry.
      * @param entry    The entry, which is added to the dublin core metadata.
      */
-    private void writeToDCSchema(DublinCoreSchema dcSchema,
-                                 BibEntry entry) {
-        DublinCoreExtractor dcExtractor = new DublinCoreExtractor(dcSchema, xmpPreferences, entry);
+    private void writeToDCSchema(DublinCoreSchema dcSchema, BibEntry entry) {
+        DublinCoreExtractor dcExtractor = new DublinCoreExtractor(
+            dcSchema,
+            xmpPreferences,
+            entry
+        );
         dcExtractor.fillDublinCoreSchema();
     }
 
@@ -103,11 +104,11 @@ public class XmpUtilWriter {
      * @param database An optional database which the given BibTeX entries belong to, which will be used to
      *                 resolve strings. If the database is null the strings will not be resolved.
      */
-    private void writeDublinCore(PDDocument document,
-                                 List<BibEntry> entries,
-                                 BibDatabase database)
-            throws IOException, TransformerException {
-
+    private void writeDublinCore(
+        PDDocument document,
+        List<BibEntry> entries,
+        BibDatabase database
+    ) throws IOException, TransformerException {
         List<BibEntry> resolvedEntries;
         if (database == null) {
             resolvedEntries = entries;
@@ -123,7 +124,9 @@ public class XmpUtilWriter {
             meta = XMPMetadata.createXMPMetadata();
         } else {
             try {
-                meta = XMP_UTIL_SHARED.parseXmpMetadata(metaRaw.createInputStream());
+                meta = XMP_UTIL_SHARED.parseXmpMetadata(
+                    metaRaw.createInputStream()
+                );
                 // In case, that the pdf file has no namespace definition for xmp,
                 // but metadata in a different format, the parser throws an exception
                 // Creating an empty xmp metadata element solves this problem
@@ -136,7 +139,10 @@ public class XmpUtilWriter {
         meta.removeSchema(meta.getDublinCoreSchema());
 
         for (BibEntry entry : resolvedEntries) {
-            DublinCoreSchema dcSchema = DublinCoreSchemaCustom.copyDublinCoreSchema(meta.createAndAddDublinCoreSchema());
+            DublinCoreSchema dcSchema =
+                DublinCoreSchemaCustom.copyDublinCoreSchema(
+                    meta.createAndAddDublinCoreSchema()
+                );
             writeToDCSchema(dcSchema, entry);
         }
 
@@ -167,10 +173,17 @@ public class XmpUtilWriter {
             serializer.serialize(meta, os, true);
             return os.toString(StandardCharsets.UTF_8);
         } catch (TransformerException e) {
-            LOGGER.warn("Transformation into XMP not possible: {}", e.getMessage(), e);
+            LOGGER.warn(
+                "Transformation into XMP not possible: {}",
+                e.getMessage(),
+                e
+            );
             return "";
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warn("Unsupported encoding to UTF-8 of bib entries in XMP metadata.", e);
+            LOGGER.warn(
+                "Unsupported encoding to UTF-8 of bib entries in XMP metadata.",
+                e
+            );
             return "";
         } catch (IOException e) {
             LOGGER.warn("IO Exception thrown by closing the output stream.", e);
@@ -187,14 +200,16 @@ public class XmpUtilWriter {
      * @return If something goes wrong (e.g. an exception is thrown), the method returns an empty string,
      * otherwise it returns the xmp metadata without metadata description as a string in dublin core format.
      */
-    public String generateXmpStringWithoutXmpDeclaration(List<BibEntry> entries) {
+    public String generateXmpStringWithoutXmpDeclaration(
+        List<BibEntry> entries
+    ) {
         String xmpContent = generateXmpStringWithXmpDeclaration(entries);
         // remove the <?xpacket *> tags to enable the usage of the CTAN package xmpincl
         Predicate<String> isBeginOrEndTag = s -> s.contains(XMP_BEGIN_END_TAG);
 
         return Arrays.stream(xmpContent.split(System.lineSeparator()))
-                     .filter(isBeginOrEndTag.negate())
-                     .collect(Collectors.joining(System.lineSeparator()));
+            .filter(isBeginOrEndTag.negate())
+            .collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
@@ -211,56 +226,69 @@ public class XmpUtilWriter {
      * @param database An optional database which the given bibtex entries belong to, which will be used to
      *                 resolve strings. If the database is null the strings will not be resolved.
      */
-    private void writeDocumentInformation(PDDocument document,
-                                          BibEntry entry,
-                                          BibDatabase database) {
+    private void writeDocumentInformation(
+        PDDocument document,
+        BibEntry entry,
+        BibDatabase database
+    ) {
         PDDocumentInformation di = document.getDocumentInformation();
         BibEntry resolvedEntry = getDefaultOrDatabaseEntry(entry, database);
 
-        boolean useXmpPrivacyFilter = xmpPreferences.shouldUseXmpPrivacyFilter();
+        boolean useXmpPrivacyFilter =
+            xmpPreferences.shouldUseXmpPrivacyFilter();
         for (Field field : resolvedEntry.getFields()) {
-            if (useXmpPrivacyFilter && xmpPreferences.getXmpPrivacyFilter().contains(field)) {
+            if (
+                useXmpPrivacyFilter
+                && xmpPreferences.getXmpPrivacyFilter().contains(field)
+            ) {
                 // erase field instead of adding it
                 switch (field) {
-                    case StandardField.AUTHOR ->
-                            di.setAuthor(null);
-                    case StandardField.TITLE ->
-                            di.setTitle(null);
-                    case StandardField.KEYWORDS ->
-                            di.setKeywords(null);
-                    case StandardField.ABSTRACT ->
-                            di.setSubject(null);
+                    case StandardField.AUTHOR -> di.setAuthor(null);
+                    case StandardField.TITLE -> di.setTitle(null);
+                    case StandardField.KEYWORDS -> di.setKeywords(null);
+                    case StandardField.ABSTRACT -> di.setSubject(null);
                     // do not write file field
-                    case StandardField.FILE -> {
-                    }
-                    case null, default ->
-                            di.setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), null);
+                    case StandardField.FILE -> {}
+                    case null, default -> di.setCustomMetadataValue(
+                        XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX
+                            + field.getName(),
+                        null
+                    );
                 }
                 continue;
             }
 
             // LaTeX content is removed from the string for "standard" fields in the PDF
-            String value = unprotectTermsFormatter.format(resolvedEntry.getField(field).orElse(""));
+            String value = unprotectTermsFormatter.format(
+                resolvedEntry.getField(field).orElse("")
+            );
 
             switch (field) {
-                case StandardField.AUTHOR ->
-                        di.setAuthor(value);
-                case StandardField.TITLE ->
-                        di.setTitle(value);
-                case StandardField.KEYWORDS ->
-                        di.setKeywords(value);
-                case StandardField.ABSTRACT ->
-                        di.setSubject(value);
+                case StandardField.AUTHOR -> di.setAuthor(value);
+                case StandardField.TITLE -> di.setTitle(value);
+                case StandardField.KEYWORDS -> di.setKeywords(value);
+                case StandardField.ABSTRACT -> di.setSubject(value);
                 case StandardField.FILE -> {
                     // do not write file field
                 }
-                case null,
-                     default ->
-                        // We hit the case of an PDF-unsupported field --> write it directly
-                        resolvedEntry.getField(field).ifPresent(val -> di.setCustomMetadataValue(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX + field.getName(), val));
+                case
+                    null,
+                    default -> // We hit the case of an PDF-unsupported field --> write it directly
+                resolvedEntry
+                    .getField(field)
+                    .ifPresent(val ->
+                        di.setCustomMetadataValue(
+                            XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX
+                                + field.getName(),
+                            val
+                        )
+                    );
             }
         }
-        di.setCustomMetadataValue("bibtex/entrytype", resolvedEntry.getType().getDisplayName());
+        di.setCustomMetadataValue(
+            "bibtex/entrytype",
+            resolvedEntry.getType().getDisplayName()
+        );
     }
 
     /**
@@ -282,10 +310,11 @@ public class XmpUtilWriter {
      * @throws TransformerException If the entry was malformed or unsupported.
      * @throws IOException          If the file could not be written to or could not be found.
      */
-    public void writeXmp(Path path,
-                         List<BibEntry> bibtexEntries,
-                         BibDatabase database)
-            throws IOException, TransformerException {
+    public void writeXmp(
+        Path path,
+        List<BibEntry> bibtexEntries,
+        BibDatabase database
+    ) throws IOException, TransformerException {
         List<BibEntry> resolvedEntries;
         if (database == null) {
             resolvedEntries = bibtexEntries;
@@ -304,7 +333,11 @@ public class XmpUtilWriter {
 
             // Write schemas (PDDocumentInformation and DublinCoreSchema) to the document metadata
             if (!resolvedEntries.isEmpty()) {
-                writeDocumentInformation(document, resolvedEntries.getFirst(), null);
+                writeDocumentInformation(
+                    document,
+                    resolvedEntries.getFirst(),
+                    null
+                );
                 writeDublinCore(document, resolvedEntries, null);
             }
 
@@ -314,13 +347,19 @@ public class XmpUtilWriter {
                 FileUtil.copyFile(newFile, path, true);
             } catch (IOException e) {
                 LOGGER.debug("Could not write XMP metadata", e);
-                throw new TransformerException("Could not write XMP metadata: " + e.getLocalizedMessage(), e);
+                throw new TransformerException(
+                    "Could not write XMP metadata: " + e.getLocalizedMessage(),
+                    e
+                );
             }
         }
         Files.delete(newFile);
     }
 
-    private BibEntry getDefaultOrDatabaseEntry(BibEntry defaultEntry, BibDatabase database) {
+    private BibEntry getDefaultOrDatabaseEntry(
+        BibEntry defaultEntry,
+        BibDatabase database
+    ) {
         if (database == null) {
             return defaultEntry;
         } else {

@@ -1,7 +1,6 @@
 package org.jabref.logic.push;
 
 import java.nio.file.Path;
-
 import org.jabref.logic.util.NotificationService;
 
 /**
@@ -9,9 +8,13 @@ import org.jabref.logic.util.NotificationService;
  */
 public class PushToTexmaker extends AbstractPushToApplication {
 
-    public static final PushApplications APPLICATION = PushApplications.TEXMAKER;
+    public static final PushApplications APPLICATION =
+        PushApplications.TEXMAKER;
 
-    public PushToTexmaker(NotificationService dialogService, PushToApplicationPreferences preferences) {
+    public PushToTexmaker(
+        NotificationService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
     }
 
@@ -22,11 +25,24 @@ public class PushToTexmaker extends AbstractPushToApplication {
 
     @Override
     protected String[] getCommandLine(String keyString) {
-        return new String[] {commandPath, "-insert", getCitePrefix() + keyString + getCiteSuffix()};
+        return new String[] {
+            commandPath,
+            "-insert",
+            getCitePrefix() + keyString + getCiteSuffix(),
+        };
     }
 
     @Override
-    protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "-line", Integer.toString(line), fileName.toString()};
+    protected String[] jumpToLineCommandlineArguments(
+        Path fileName,
+        int line,
+        int column
+    ) {
+        return new String[] {
+            commandPath,
+            "-line",
+            Integer.toString(line),
+            fileName.toString(),
+        };
     }
 }

@@ -1,5 +1,6 @@
 package org.jabref.gui.util;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -11,16 +12,19 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.ClipBoardManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
 
 public class SelectableTextFlow extends TextFlow {
-    @Nullable private HitInfo startHit;
-    @Nullable private HitInfo endHit;
-    @Nullable private Path selectionPath;
+
+    @Nullable
+    private HitInfo startHit;
+
+    @Nullable
+    private HitInfo endHit;
+
+    @Nullable
+    private Path selectionPath;
 
     private final Pane parentPane;
     private boolean isDragging = false;
@@ -29,7 +33,9 @@ public class SelectableTextFlow extends TextFlow {
 
     public SelectableTextFlow(Pane parent) {
         this.parentPane = parent;
-        clipBoardManager = Injector.instantiateModelOrService(ClipBoardManager.class);
+        clipBoardManager = Injector.instantiateModelOrService(
+            ClipBoardManager.class
+        );
         setCursor(Cursor.TEXT);
         setFocusTraversable(true);
 
@@ -54,7 +60,11 @@ public class SelectableTextFlow extends TextFlow {
         int endIndex = getSelectionEndIndex();
 
         String fullText = getTextFlowContent();
-        if (startIndex < 0 || endIndex > fullText.length() || startIndex >= endIndex) {
+        if (
+            startIndex < 0
+            || endIndex > fullText.length()
+            || startIndex >= endIndex
+        ) {
             return;
         }
 
@@ -67,7 +77,12 @@ public class SelectableTextFlow extends TextFlow {
             return;
         }
         startHit = hitTest(new Point2D(0, 0));
-        endHit = hitTest(new Point2D(getLayoutBounds().getWidth(), getLayoutBounds().getHeight()));
+        endHit = hitTest(
+            new Point2D(
+                getLayoutBounds().getWidth(),
+                getLayoutBounds().getHeight()
+            )
+        );
         updateSelectionHighlight();
     }
 
@@ -78,7 +93,11 @@ public class SelectableTextFlow extends TextFlow {
     }
 
     public boolean isSelectionActive() {
-        return startHit != null && endHit != null && startHit.getCharIndex() != endHit.getCharIndex();
+        return (
+            startHit != null
+            && endHit != null
+            && startHit.getCharIndex() != endHit.getCharIndex()
+        );
     }
 
     /// Returns the start index of the selection. Assumes that the selection is active.
@@ -110,7 +129,10 @@ public class SelectableTextFlow extends TextFlow {
             return;
         }
 
-        PathElement[] elements = rangeShape(getSelectionStartIndex(), getSelectionEndIndex());
+        PathElement[] elements = rangeShape(
+            getSelectionStartIndex(),
+            getSelectionEndIndex()
+        );
 
         Path path = new Path();
         path.getElements().addAll(elements);

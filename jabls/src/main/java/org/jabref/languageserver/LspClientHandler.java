@@ -1,11 +1,6 @@
 package org.jabref.languageserver;
 
 import java.util.concurrent.CompletableFuture;
-
-import org.jabref.languageserver.util.LspDiagnosticHandler;
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.preferences.CliPreferences;
-
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.MessageParams;
@@ -19,12 +14,17 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.jabref.languageserver.util.LspDiagnosticHandler;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.jabref.logic.preferences.CliPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LspClientHandler implements LanguageServer, LanguageClientAware {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LspClientHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LspClientHandler.class
+    );
 
     private final LspDiagnosticHandler diagnosticHandler;
     private final BibtexWorkspaceService workspaceService;
@@ -33,15 +33,29 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
 
     private LanguageClient client;
 
-    public LspClientHandler(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository) {
+    public LspClientHandler(
+        CliPreferences cliPreferences,
+        JournalAbbreviationRepository abbreviationRepository
+    ) {
         this.settings = ExtensionSettings.getDefaultSettings();
-        this.diagnosticHandler = new LspDiagnosticHandler(this, cliPreferences, abbreviationRepository);
-        this.workspaceService = new BibtexWorkspaceService(this, diagnosticHandler);
-        this.textDocumentService = new BibtexTextDocumentService(diagnosticHandler);
+        this.diagnosticHandler = new LspDiagnosticHandler(
+            this,
+            cliPreferences,
+            abbreviationRepository
+        );
+        this.workspaceService = new BibtexWorkspaceService(
+            this,
+            diagnosticHandler
+        );
+        this.textDocumentService = new BibtexTextDocumentService(
+            diagnosticHandler
+        );
     }
 
     @Override
-    public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+    public CompletableFuture<InitializeResult> initialize(
+        InitializeParams params
+    ) {
         ServerCapabilities capabilities = new ServerCapabilities();
 
         TextDocumentSyncOptions syncOptions = new TextDocumentSyncOptions();
@@ -52,7 +66,9 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
         capabilities.setTextDocumentSync(syncOptions);
         capabilities.setWorkspace(new WorkspaceServerCapabilities());
 
-        return CompletableFuture.completedFuture(new InitializeResult(capabilities));
+        return CompletableFuture.completedFuture(
+            new InitializeResult(capabilities)
+        );
     }
 
     @Override
@@ -64,8 +80,7 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
     /// https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
     /// we have to decide how to implement this so jabls gets stopped only when started before by a lsp client
     @Override
-    public void exit() {
-    }
+    public void exit() {}
 
     @Override
     public TextDocumentService getTextDocumentService() {
@@ -86,6 +101,8 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
         this.client = client;
         workspaceService.setClient(client);
         textDocumentService.setClient(client);
-        client.logMessage(new MessageParams(MessageType.Warning, "BibtexLSPServer connected."));
+        client.logMessage(
+            new MessageParams(MessageType.Warning, "BibtexLSPServer connected.")
+        );
     }
 }

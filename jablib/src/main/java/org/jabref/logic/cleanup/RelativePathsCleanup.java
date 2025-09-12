@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.FieldChange;
@@ -18,7 +17,10 @@ public class RelativePathsCleanup implements CleanupJob {
     private final BibDatabaseContext databaseContext;
     private final FilePreferences filePreferences;
 
-    public RelativePathsCleanup(BibDatabaseContext databaseContext, FilePreferences filePreferences) {
+    public RelativePathsCleanup(
+        BibDatabaseContext databaseContext,
+        FilePreferences filePreferences
+    ) {
         this.databaseContext = Objects.requireNonNull(databaseContext);
         this.filePreferences = Objects.requireNonNull(filePreferences);
     }
@@ -37,13 +39,19 @@ public class RelativePathsCleanup implements CleanupJob {
                 newFileName = oldFileName;
             } else {
                 // only try to transform local file path to relative one
-                newFileName = FileUtil
-                        .relativize(Path.of(oldFileName), databaseContext, filePreferences)
-                        .toString();
+                newFileName = FileUtil.relativize(
+                    Path.of(oldFileName),
+                    databaseContext,
+                    filePreferences
+                ).toString();
             }
             LinkedFile newFileEntry = fileEntry;
             if (!oldFileName.equals(newFileName)) {
-                newFileEntry = new LinkedFile(fileEntry.getDescription(), Path.of(newFileName), fileEntry.getFileType());
+                newFileEntry = new LinkedFile(
+                    fileEntry.getDescription(),
+                    Path.of(newFileName),
+                    fileEntry.getFileType()
+                );
                 changed = true;
             }
             newFileList.add(newFileEntry);

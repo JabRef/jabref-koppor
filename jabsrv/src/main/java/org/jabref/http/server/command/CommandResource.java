@@ -18,12 +18,15 @@ public class CommandResource {
     private ServiceLocator serviceLocator;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     public Response dispatchCommand(String jsonCommand) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            Command command = objectMapper.readValue(jsonCommand, Command.class);
+            Command command = objectMapper.readValue(
+                jsonCommand,
+                Command.class
+            );
             command.setServiceLocator(serviceLocator);
 
             return command.execute();

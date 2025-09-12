@@ -13,7 +13,10 @@ public class GitCommitAction extends SimpleCommand {
     private final DialogService dialogService;
     private final StateManager stateManager;
 
-    public GitCommitAction(DialogService dialogService, StateManager stateManager) {
+    public GitCommitAction(
+        DialogService dialogService,
+        StateManager stateManager
+    ) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
 
@@ -27,17 +30,16 @@ public class GitCommitAction extends SimpleCommand {
             return;
         }
 
-        dialogService.showCustomDialogAndWait(
-                new GitCommitDialogView()
-        );
+        dialogService.showCustomDialogAndWait(new GitCommitDialogView());
     }
 
     private boolean hasNothingToCommit() {
-        return stateManager.getActiveDatabase()
-                           .flatMap(context -> context.getDatabasePath())
-                           .flatMap(GitHandler::fromAnyPath)
-                           .map(GitStatusChecker::checkStatus)
-                           .map(status -> !status.uncommittedChanges())
-                           .orElse(true);
+        return stateManager
+            .getActiveDatabase()
+            .flatMap(context -> context.getDatabasePath())
+            .flatMap(GitHandler::fromAnyPath)
+            .map(GitStatusChecker::checkStatus)
+            .map(status -> !status.uncommittedChanges())
+            .orElse(true);
     }
 }

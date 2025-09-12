@@ -1,5 +1,8 @@
 package org.jabref.gui.theme;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.pixelduke.window.ThemeWindowManager;
+import com.pixelduke.window.ThemeWindowManagerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -10,7 +13,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
-
 import javafx.application.ColorScheme;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -19,7 +21,6 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BindingsHelper;
@@ -27,10 +28,6 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.pixelduke.window.ThemeWindowManager;
-import com.pixelduke.window.ThemeWindowManagerFactory;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +50,15 @@ import org.slf4j.LoggerFactory;
  * the Jabref documentation.
  */
 public class ThemeManager {
+
     public static Map<String, Node> getDownloadIconTitleMap = Map.of(
-            Localization.lang("Downloading"), IconTheme.JabRefIcons.DOWNLOAD.getGraphicNode()
+        Localization.lang("Downloading"),
+        IconTheme.JabRefIcons.DOWNLOAD.getGraphicNode()
     );
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThemeManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ThemeManager.class
+    );
 
     private final WorkspacePreferences workspacePreferences;
     private final FileUpdateMonitor fileUpdateMonitor;
@@ -65,11 +66,17 @@ public class ThemeManager {
     private final StyleSheet baseStyleSheet;
     private Theme theme;
     private boolean isDarkMode;
-    private final Set<WebEngine> webEngines = Collections.newSetFromMap(new WeakHashMap<>());
+    private final Set<WebEngine> webEngines = Collections.newSetFromMap(
+        new WeakHashMap<>()
+    );
 
-    public ThemeManager(WorkspacePreferences workspacePreferences,
-                        FileUpdateMonitor fileUpdateMonitor) {
-        this.workspacePreferences = Objects.requireNonNull(workspacePreferences);
+    public ThemeManager(
+        WorkspacePreferences workspacePreferences,
+        FileUpdateMonitor fileUpdateMonitor
+    ) {
+        this.workspacePreferences = Objects.requireNonNull(
+            workspacePreferences
+        );
         this.fileUpdateMonitor = Objects.requireNonNull(fileUpdateMonitor);
         // Always returns something even if the native library is not available - see https://github.com/dukke/FXThemes/issues/15
         this.themeWindowManager = ThemeWindowManagerFactory.create();
@@ -85,11 +92,26 @@ public class ThemeManager {
         addStylesheetToWatchlist(this.baseStyleSheet, this::baseCssLiveUpdate);
         baseCssLiveUpdate();
 
-        BindingsHelper.subscribeFuture(workspacePreferences.themeProperty(), _ -> updateThemeSettings());
-        BindingsHelper.subscribeFuture(workspacePreferences.themeSyncOsProperty(), _ -> updateThemeSettings());
-        BindingsHelper.subscribeFuture(workspacePreferences.shouldOverrideDefaultFontSizeProperty(), _ -> updateFontSettings());
-        BindingsHelper.subscribeFuture(workspacePreferences.mainFontSizeProperty(), _ -> updateFontSettings());
-        BindingsHelper.subscribeFuture(Platform.getPreferences().colorSchemeProperty(), _ -> updateThemeSettings());
+        BindingsHelper.subscribeFuture(
+            workspacePreferences.themeProperty(),
+            _ -> updateThemeSettings()
+        );
+        BindingsHelper.subscribeFuture(
+            workspacePreferences.themeSyncOsProperty(),
+            _ -> updateThemeSettings()
+        );
+        BindingsHelper.subscribeFuture(
+            workspacePreferences.shouldOverrideDefaultFontSizeProperty(),
+            _ -> updateFontSettings()
+        );
+        BindingsHelper.subscribeFuture(
+            workspacePreferences.mainFontSizeProperty(),
+            _ -> updateFontSettings()
+        );
+        BindingsHelper.subscribeFuture(
+            Platform.getPreferences().colorSchemeProperty(),
+            _ -> updateThemeSettings()
+        );
         updateThemeSettings();
     }
 
@@ -98,12 +120,16 @@ public class ThemeManager {
         // Because of race condition in JavaFX, IndexOutOfBounds will be thrown, despite
         // all the invocation to this method come directly from the UI thread
         UiTaskExecutor.runInJavaFXThread(() -> {
-            List<String> stylesheets = Stream
-                    .of(baseStyleSheet.getSceneStylesheet(),
-                            theme.getAdditionalStylesheet().map(StyleSheet::getSceneStylesheet).orElse(null)
-                    ).filter(Objects::nonNull)
-                    .map(URL::toExternalForm)
-                    .toList();
+            List<String> stylesheets = Stream.of(
+                baseStyleSheet.getSceneStylesheet(),
+                theme
+                    .getAdditionalStylesheet()
+                    .map(StyleSheet::getSceneStylesheet)
+                    .orElse(null)
+            )
+                .filter(Objects::nonNull)
+                .map(URL::toExternalForm)
+                .toList();
             scene.getStylesheets().setAll(stylesheets);
         });
     }
@@ -114,8 +140,13 @@ public class ThemeManager {
     /// @param webEngine the web engine to install the css into
     public void installCss(WebEngine webEngine) {
         if (this.webEngines.add(webEngine)) {
-            webEngine.setUserStyleSheetLocation(this.theme.getAdditionalStylesheet().isPresent() ?
-                    this.theme.getAdditionalStylesheet().get().getWebEngineStylesheet() : "");
+            webEngine.setUserStyleSheetLocation(
+                this.theme.getAdditionalStylesheet().isPresent()
+                    ? this.theme.getAdditionalStylesheet()
+                        .get()
+                        .getWebEngineStylesheet()
+                    : ""
+            );
         }
     }
 
@@ -126,9 +157,21 @@ public class ThemeManager {
     /// @param scene is the scene, the font size should be applied to
     private void updateFontStyle(@NonNull Scene scene) {
         if (workspacePreferences.shouldOverrideDefaultFontSize()) {
-            scene.getRoot().setStyle("-fx-font-size: " + workspacePreferences.getMainFontSize() + "pt;");
+            scene
+                .getRoot()
+                .setStyle(
+                    "-fx-font-size: "
+                        + workspacePreferences.getMainFontSize()
+                        + "pt;"
+                );
         } else {
-            scene.getRoot().setStyle("-fx-font-size: " + workspacePreferences.getDefaultFontSize() + "pt;");
+            scene
+                .getRoot()
+                .setStyle(
+                    "-fx-font-size: "
+                        + workspacePreferences.getDefaultFontSize()
+                        + "pt;"
+                );
         }
     }
 
@@ -139,19 +182,23 @@ public class ThemeManager {
                     continue;
                 }
                 for (Window window : change.getAddedSubList()) {
-                    window.sceneProperty().addListener((_, _, newScene) -> {
-                        if (newScene != null) {
-                            installCss(newScene);
-                            updateFontStyle(newScene);
-                        }
-                    });
+                    window
+                        .sceneProperty()
+                        .addListener((_, _, newScene) -> {
+                            if (newScene != null) {
+                                installCss(newScene);
+                                updateFontStyle(newScene);
+                            }
+                        });
                     Scene scene = window.getScene();
                     if (scene != null) {
                         installCss(scene);
                         updateFontStyle(scene);
                     }
                     if (window instanceof Stage stage) {
-                        stage.showingProperty().addListener(_ -> applyDarkModeToWindow(stage));
+                        stage
+                            .showingProperty()
+                            .addListener(_ -> applyDarkModeToWindow(stage));
                     }
                 }
             }
@@ -170,27 +217,37 @@ public class ThemeManager {
         }
         try {
             themeWindowManager.setDarkModeForWindowFrame(stage, isDarkMode);
-            LOGGER.debug("Applied {} mode to window: {}", isDarkMode ? "dark" : "light", stage);
+            LOGGER.debug(
+                "Applied {} mode to window: {}",
+                isDarkMode ? "dark" : "light",
+                stage
+            );
         } catch (NoClassDefFoundError | UnsatisfiedLinkError e) {
             // We need to handle these exceptions because the native library may not be available on all platforms (e.g., x86).
             // See https://github.com/dukke/FXThemes/issues/13 for details.
-            LOGGER.debug("Failed to set dark mode for window frame (likely due to native library compatibility issues on intel)", e);
+            LOGGER.debug(
+                "Failed to set dark mode for window frame (likely due to native library compatibility issues on intel)",
+                e
+            );
         }
     }
 
     private void applyDarkModeToAllWindows() {
-        Window.getWindows().stream()
-              .filter(Window::isShowing)
-              .filter(window -> window instanceof Stage)
-              .map(window -> (Stage) window)
-              .forEach(this::applyDarkModeToWindow);
+        Window.getWindows()
+            .stream()
+            .filter(Window::isShowing)
+            .filter(window -> window instanceof Stage)
+            .map(window -> (Stage) window)
+            .forEach(this::applyDarkModeToWindow);
     }
 
     private void updateThemeSettings() {
         Theme theme = Objects.requireNonNull(workspacePreferences.getTheme());
 
         if (workspacePreferences.themeSyncOsProperty().getValue()) {
-            if (Platform.getPreferences().getColorScheme() == ColorScheme.DARK) {
+            if (
+                Platform.getPreferences().getColorScheme() == ColorScheme.DARK
+            ) {
                 theme = Theme.dark();
             } else {
                 theme = Theme.light();
@@ -200,7 +257,9 @@ public class ThemeManager {
         if (theme.equals(this.theme)) {
             LOGGER.info("Not updating theme because it hasn't changed");
         } else {
-            this.theme.getAdditionalStylesheet().ifPresent(this::removeStylesheetFromWatchList);
+            this.theme.getAdditionalStylesheet().ifPresent(
+                this::removeStylesheetFromWatchList
+            );
         }
 
         this.theme = theme;
@@ -212,8 +271,9 @@ public class ThemeManager {
             applyDarkModeToAllWindows();
         }
 
-        this.theme.getAdditionalStylesheet().ifPresent(
-                styleSheet -> addStylesheetToWatchlist(styleSheet, this::additionalCssLiveUpdate));
+        this.theme.getAdditionalStylesheet().ifPresent(styleSheet ->
+            addStylesheetToWatchlist(styleSheet, this::additionalCssLiveUpdate)
+        );
 
         additionalCssLiveUpdate();
         updateFontSettings();
@@ -226,19 +286,29 @@ public class ThemeManager {
     private void removeStylesheetFromWatchList(StyleSheet styleSheet) {
         Path oldPath = styleSheet.getWatchPath();
         if (oldPath != null) {
-            fileUpdateMonitor.removeListener(oldPath, this::additionalCssLiveUpdate);
+            fileUpdateMonitor.removeListener(
+                oldPath,
+                this::additionalCssLiveUpdate
+            );
             LOGGER.info("No longer watch css {} for live updates", oldPath);
         }
     }
 
-    private void addStylesheetToWatchlist(StyleSheet styleSheet, FileUpdateListener updateMethod) {
+    private void addStylesheetToWatchlist(
+        StyleSheet styleSheet,
+        FileUpdateListener updateMethod
+    ) {
         Path watchPath = styleSheet.getWatchPath();
         if (watchPath != null) {
             try {
                 fileUpdateMonitor.addListenerForFile(watchPath, updateMethod);
                 LOGGER.info("Watching css {} for live updates", watchPath);
             } catch (IOException e) {
-                LOGGER.warn("Cannot watch css path {} for live updates", watchPath, e);
+                LOGGER.warn(
+                    "Cannot watch css path {} for live updates",
+                    watchPath,
+                    e
+                );
             }
         }
     }
@@ -254,18 +324,28 @@ public class ThemeManager {
     }
 
     private void additionalCssLiveUpdate() {
-        final String newStyleSheetLocation = this.theme.getAdditionalStylesheet().map(styleSheet -> {
-            styleSheet.reload();
-            return styleSheet.getWebEngineStylesheet();
-        }).orElse("");
+        final String newStyleSheetLocation =
+            this.theme.getAdditionalStylesheet()
+                .map(styleSheet -> {
+                    styleSheet.reload();
+                    return styleSheet.getWebEngineStylesheet();
+                })
+                .orElse("");
 
-        LOGGER.debug("Updating additional CSS for all scenes and {} web engines", webEngines.size());
+        LOGGER.debug(
+            "Updating additional CSS for all scenes and {} web engines",
+            webEngines.size()
+        );
 
         UiTaskExecutor.runInJavaFXThread(() -> {
             applyCssAndFontToAllWindows();
             webEngines.forEach(webEngine -> {
                 // force refresh by unloading style sheet, if the location hasn't changed
-                if (newStyleSheetLocation.equals(webEngine.getUserStyleSheetLocation())) {
+                if (
+                    newStyleSheetLocation.equals(
+                        webEngine.getUserStyleSheetLocation()
+                    )
+                ) {
                     webEngine.setUserStyleSheetLocation(null);
                 }
                 webEngine.setUserStyleSheetLocation(newStyleSheetLocation);
@@ -274,14 +354,15 @@ public class ThemeManager {
     }
 
     private void applyCssAndFontToAllWindows() {
-        Window.getWindows().stream()
-              .filter(Window::isShowing)
-              .map(Window::getScene)
-              .filter(Objects::nonNull)
-              .forEach(scene -> {
-                  installCss(scene);
-                  updateFontStyle(scene);
-              });
+        Window.getWindows()
+            .stream()
+            .filter(Window::isShowing)
+            .map(Window::getScene)
+            .filter(Objects::nonNull)
+            .forEach(scene -> {
+                installCss(scene);
+                updateFontStyle(scene);
+            });
     }
 
     /**

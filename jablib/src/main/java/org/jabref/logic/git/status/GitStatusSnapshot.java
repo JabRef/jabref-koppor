@@ -7,7 +7,8 @@ public record GitStatusSnapshot(
     SyncStatus syncStatus,
     boolean conflict,
     boolean uncommittedChanges,
-    Optional<String> lastPulledCommit) {
+    Optional<String> lastPulledCommit
+) {
     public static final boolean TRACKING = true;
     public static final boolean CONFLICT = true;
     public static final boolean UNCOMMITTED = true;

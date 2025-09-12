@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
 import java.util.Optional;
-
 import org.jabref.logic.formatter.casechanger.Word;
 import org.jabref.model.strings.StringUtil;
 
@@ -11,6 +10,7 @@ import org.jabref.model.strings.StringUtil;
  * Stop words are ignored. See ADR-0022.
  */
 public class IEEEQueryTransformer extends YearRangeByFilteringQueryTransformer {
+
     // These have to be integrated into the IEEE query URL as these are just supported as query parameters
     // Journal is wrapped in quotes by the transformer
     private String journal;
@@ -55,7 +55,10 @@ public class IEEEQueryTransformer extends YearRangeByFilteringQueryTransformer {
     }
 
     @Override
-    protected Optional<String> handleOtherField(String fieldAsString, String term) {
+    protected Optional<String> handleOtherField(
+        String fieldAsString,
+        String term
+    ) {
         return switch (fieldAsString) {
             case "article_number" -> handleArticleNumber(term);
             default -> super.handleOtherField(fieldAsString, term);
@@ -80,6 +83,8 @@ public class IEEEQueryTransformer extends YearRangeByFilteringQueryTransformer {
     }
 
     public Optional<String> getArticleNumber() {
-        return articleNumber == null ? Optional.empty() : Optional.of(articleNumber);
+        return articleNumber == null
+            ? Optional.empty()
+            : Optional.of(articleNumber);
     }
 }

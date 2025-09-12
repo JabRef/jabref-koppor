@@ -1,14 +1,12 @@
 package org.jabref.http.server.cayw.format;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
 import org.jabref.model.entry.BibEntry;
-
-import jakarta.ws.rs.core.MediaType;
 
 public class MMDFormatter implements CAYWFormatter {
 
@@ -18,14 +16,19 @@ public class MMDFormatter implements CAYWFormatter {
     }
 
     @Override
-    public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
-        List<BibEntry> bibEntries = caywEntries.stream()
-                                               .map(CAYWEntry::bibEntry)
-                                               .toList();
+    public String format(
+        CAYWQueryParams queryParams,
+        List<CAYWEntry> caywEntries
+    ) {
+        List<BibEntry> bibEntries = caywEntries
+            .stream()
+            .map(CAYWEntry::bibEntry)
+            .toList();
 
-        return bibEntries.stream()
-                         .map(entry -> entry.getCitationKey().map("[#%s][]"::formatted))
-                         .flatMap(Optional::stream)
-                         .collect(Collectors.joining(""));
+        return bibEntries
+            .stream()
+            .map(entry -> entry.getCitationKey().map("[#%s][]"::formatted))
+            .flatMap(Optional::stream)
+            .collect(Collectors.joining(""));
     }
 }

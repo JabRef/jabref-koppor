@@ -1,10 +1,14 @@
 package org.jabref.gui.newentry;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -24,7 +28,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -67,13 +70,8 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.StringUtil;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import jakarta.inject.Inject;
-
 public class NewEntryView extends BaseDialog<BibEntry> {
+
     private static final String BIBTEX_REGEX = "^@([A-Za-z]+)\\{,";
     private static final String LINE_BREAK = "\n";
 
@@ -86,46 +84,100 @@ public class NewEntryView extends BaseDialog<BibEntry> {
     private final NewEntryPreferences preferences;
     private final LibraryTab libraryTab;
     private final DialogService dialogService;
-    @Inject private StateManager stateManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private AiService aiService;
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
 
     private final ControlsFxVisualizer visualizer;
 
-    @FXML private ButtonType generateButtonType;
+    @FXML
+    private ButtonType generateButtonType;
+
     private Button generateButton;
 
-    @FXML private TabPane tabs;
-    @FXML private Tab tabAddEntry;
-    @FXML private Tab tabLookupIdentifier;
-    @FXML private Tab tabInterpretCitations;
-    @FXML private Tab tabSpecifyBibtex;
+    @FXML
+    private TabPane tabs;
 
-    @FXML private TitledPane entryRecommendedTitle;
-    @FXML private TilePane entryRecommended;
-    @FXML private TitledPane entryOtherTitle;
-    @FXML private TilePane entryOther;
-    @FXML private TitledPane entryCustomTitle;
-    @FXML private TilePane entryCustom;
+    @FXML
+    private Tab tabAddEntry;
 
-    @FXML private TextField idText;
-    @FXML private Tooltip idTextTooltip;
-    @FXML private Hyperlink idJumpLink;
-    @FXML private RadioButton idLookupGuess;
-    @FXML private RadioButton idLookupSpecify;
-    @FXML private ComboBox<IdBasedFetcher> idFetcher;
-    @FXML private Label idErrorInvalidText;
-    @FXML private Label idErrorInvalidFetcher;
+    @FXML
+    private Tab tabLookupIdentifier;
 
-    @FXML private TextArea interpretText;
-    @FXML private ComboBox<PlainCitationParserChoice> interpretParser;
+    @FXML
+    private Tab tabInterpretCitations;
 
-    @FXML private TextArea bibtexText;
+    @FXML
+    private Tab tabSpecifyBibtex;
+
+    @FXML
+    private TitledPane entryRecommendedTitle;
+
+    @FXML
+    private TilePane entryRecommended;
+
+    @FXML
+    private TitledPane entryOtherTitle;
+
+    @FXML
+    private TilePane entryOther;
+
+    @FXML
+    private TitledPane entryCustomTitle;
+
+    @FXML
+    private TilePane entryCustom;
+
+    @FXML
+    private TextField idText;
+
+    @FXML
+    private Tooltip idTextTooltip;
+
+    @FXML
+    private Hyperlink idJumpLink;
+
+    @FXML
+    private RadioButton idLookupGuess;
+
+    @FXML
+    private RadioButton idLookupSpecify;
+
+    @FXML
+    private ComboBox<IdBasedFetcher> idFetcher;
+
+    @FXML
+    private Label idErrorInvalidText;
+
+    @FXML
+    private Label idErrorInvalidFetcher;
+
+    @FXML
+    private TextArea interpretText;
+
+    @FXML
+    private ComboBox<PlainCitationParserChoice> interpretParser;
+
+    @FXML
+    private TextArea bibtexText;
 
     private BibEntry result;
 
-    public NewEntryView(NewEntryDialogTab initialApproach, GuiPreferences preferences, LibraryTab libraryTab, DialogService dialogService) {
+    public NewEntryView(
+        NewEntryDialogTab initialApproach,
+        GuiPreferences preferences,
+        LibraryTab libraryTab,
+        DialogService dialogService
+    ) {
         this.initialApproach = initialApproach;
         this.currentApproach = initialApproach;
 
@@ -138,7 +190,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         this.setTitle(Localization.lang("New Entry"));
         ViewLoader.view(this).load().setAsDialogPane(this);
 
-        generateButton = (Button) this.getDialogPane().lookupButton(generateButtonType);
+        generateButton = (Button) this.getDialogPane().lookupButton(
+            generateButtonType
+        );
         generateButton.getStyleClass().add("customGenerateButton");
 
         final Stage stage = (Stage) getDialogPane().getScene().getWindow();
@@ -147,7 +201,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         stage.setMinHeight(300);
         stage.setMinWidth(400);
 
-        ControlHelper.setAction(generateButtonType, getDialogPane(), _ -> execute());
+        ControlHelper.setAction(generateButtonType, getDialogPane(), _ ->
+            execute()
+        );
         setOnCloseRequest(_ -> cancel());
         setResultConverter(_ -> result);
 
@@ -162,12 +218,16 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         if (approach == null) {
             final String clipboardText = ClipBoardManager.getContents().trim();
             if (!StringUtil.isBlank(clipboardText)) {
-                Optional<Identifier> identifier = Identifier.from(clipboardText);
+                Optional<Identifier> identifier = Identifier.from(
+                    clipboardText
+                );
                 if (identifier.isPresent()) {
                     approach = NewEntryDialogTab.ENTER_IDENTIFIER;
                     interpretText.setText(clipboardText);
                     interpretText.selectAll();
-                } else if (clipboardText.split(LINE_BREAK)[0].matches(BIBTEX_REGEX)) {
+                } else if (
+                    clipboardText.split(LINE_BREAK)[0].matches(BIBTEX_REGEX)
+                ) {
                     approach = NewEntryDialogTab.SPECIFY_BIBTEX;
                 } else {
                     approach = preferences.getLatestApproach();
@@ -197,14 +257,26 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         }
 
         tabAddEntry.setOnSelectionChanged(_ -> switchAddEntry());
-        tabLookupIdentifier.setOnSelectionChanged(_ -> switchLookupIdentifier());
-        tabInterpretCitations.setOnSelectionChanged(_ -> switchInterpretCitations());
+        tabLookupIdentifier.setOnSelectionChanged(_ ->
+            switchLookupIdentifier()
+        );
+        tabInterpretCitations.setOnSelectionChanged(_ ->
+            switchInterpretCitations()
+        );
         tabSpecifyBibtex.setOnSelectionChanged(_ -> switchSpecifyBibtex());
     }
 
     @FXML
     public void initialize() {
-        viewModel = new NewEntryViewModel(guiPreferences, libraryTab, dialogService, stateManager, (UiTaskExecutor) taskExecutor, aiService, fileUpdateMonitor);
+        viewModel = new NewEntryViewModel(
+            guiPreferences,
+            libraryTab,
+            dialogService,
+            stateManager,
+            (UiTaskExecutor) taskExecutor,
+            aiService,
+            fileUpdateMonitor
+        );
 
         visualizer.setDecoration(new IconValidationDecorator());
 
@@ -214,7 +286,8 @@ public class NewEntryView extends BaseDialog<BibEntry> {
                 if (succeeded) {
                     onSuccessfulExecution();
                 }
-            });
+            }
+        );
 
         initializeAddEntry();
         initializeLookupIdentifier();
@@ -223,19 +296,35 @@ public class NewEntryView extends BaseDialog<BibEntry> {
     }
 
     private void initializeAddEntry() {
-        entryRecommendedTitle.managedProperty().bind(entryRecommendedTitle.visibleProperty());
-        entryRecommendedTitle.expandedProperty().bindBidirectional(preferences.typesRecommendedExpandedProperty());
-        entryRecommended.managedProperty().bind(entryRecommended.visibleProperty());
+        entryRecommendedTitle
+            .managedProperty()
+            .bind(entryRecommendedTitle.visibleProperty());
+        entryRecommendedTitle
+            .expandedProperty()
+            .bindBidirectional(preferences.typesRecommendedExpandedProperty());
+        entryRecommended
+            .managedProperty()
+            .bind(entryRecommended.visibleProperty());
 
-        entryOtherTitle.managedProperty().bind(entryOtherTitle.visibleProperty());
-        entryOtherTitle.expandedProperty().bindBidirectional(preferences.typesOtherExpandedProperty());
+        entryOtherTitle
+            .managedProperty()
+            .bind(entryOtherTitle.visibleProperty());
+        entryOtherTitle
+            .expandedProperty()
+            .bindBidirectional(preferences.typesOtherExpandedProperty());
         entryOther.managedProperty().bind(entryOther.visibleProperty());
 
-        entryCustomTitle.managedProperty().bind(entryCustomTitle.visibleProperty());
-        entryCustomTitle.expandedProperty().bindBidirectional(preferences.typesCustomExpandedProperty());
+        entryCustomTitle
+            .managedProperty()
+            .bind(entryCustomTitle.visibleProperty());
+        entryCustomTitle
+            .expandedProperty()
+            .bindBidirectional(preferences.typesCustomExpandedProperty());
         entryCustom.managedProperty().bind(entryCustom.visibleProperty());
 
-        final boolean isBiblatexMode = libraryTab.getBibDatabaseContext().isBiblatexMode();
+        final boolean isBiblatexMode = libraryTab
+            .getBibDatabaseContext()
+            .isBiblatexMode();
 
         List<BibEntryType> recommendedEntries;
         List<BibEntryType> otherEntries;
@@ -254,9 +343,13 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         addEntriesToPane(entryRecommended, recommendedEntries);
         addEntriesToPane(entryOther, otherEntries);
 
-        final BibEntryTypesManager entryTypesManager = Injector.instantiateModelOrService(BibEntryTypesManager.class);
-        final BibDatabaseMode customTypesDatabaseMode = isBiblatexMode ? BibDatabaseMode.BIBLATEX : BibDatabaseMode.BIBTEX;
-        final List<BibEntryType> customEntries = entryTypesManager.getAllCustomTypes(customTypesDatabaseMode);
+        final BibEntryTypesManager entryTypesManager =
+            Injector.instantiateModelOrService(BibEntryTypesManager.class);
+        final BibDatabaseMode customTypesDatabaseMode = isBiblatexMode
+            ? BibDatabaseMode.BIBLATEX
+            : BibDatabaseMode.BIBTEX;
+        final List<BibEntryType> customEntries =
+            entryTypesManager.getAllCustomTypes(customTypesDatabaseMode);
         if (customEntries.isEmpty()) {
             entryCustomTitle.setVisible(false);
         } else {
@@ -268,7 +361,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         // TODO: It would be nice if this was a `TextArea`, so that users could enter multiple IDs at once. The view
         //       model would then iterate through all non-blank lines, passing each of them through the specified lookup
         //       method (each automatically independently, or all through the same fetcher).
-        idText.setPromptText(Localization.lang("Enter the reference identifier to search for."));
+        idText.setPromptText(
+            Localization.lang("Enter the reference identifier to search for.")
+        );
         idText.textProperty().bindBidirectional(viewModel.idTextProperty());
 
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -284,15 +379,19 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         viewModel.populateDOICache();
 
         // [impl->req~newentry.clipboard.autofocus~1]
-        Optional<Identifier> validClipboardId = extractValidIdentifierFromClipboard();
+        Optional<Identifier> validClipboardId =
+            extractValidIdentifierFromClipboard();
         if (validClipboardId.isPresent()) {
-            viewModel.duplicateDoiValidatorStatus().validProperty().addListener((_, _, isValid) -> {
-                if (isValid) {
-                    Tooltip.install(idText, idTextTooltip);
-                } else {
-                    Tooltip.uninstall(idText, idTextTooltip);
-                }
-            });
+            viewModel
+                .duplicateDoiValidatorStatus()
+                .validProperty()
+                .addListener((_, _, isValid) -> {
+                    if (isValid) {
+                        Tooltip.install(idText, idTextTooltip);
+                    } else {
+                        Tooltip.uninstall(idText, idTextTooltip);
+                    }
+                });
 
             idText.setText(ClipBoardManager.getContents().trim());
             idText.selectAll();
@@ -306,54 +405,114 @@ public class NewEntryView extends BaseDialog<BibEntry> {
             Platform.runLater(() -> idLookupGuess.setSelected(true));
         }
 
-        idLookupGuess.selectedProperty().addListener((_, _, newValue) -> preferences.setIdLookupGuessing(newValue));
+        idLookupGuess
+            .selectedProperty()
+            .addListener((_, _, newValue) ->
+                preferences.setIdLookupGuessing(newValue)
+            );
 
         idFetcher.itemsProperty().bind(viewModel.idFetchersProperty());
-        new ViewModelListCellFactory<IdBasedFetcher>().withText(WebFetcher::getName).install(idFetcher);
-        idFetcher.disableProperty().bind(idLookupSpecify.selectedProperty().not());
-        idFetcher.valueProperty().bindBidirectional(viewModel.idFetcherProperty());
-        IdBasedFetcher initialFetcher = fetcherFromName(preferences.getLatestIdFetcher(), idFetcher.getItems());
+        new ViewModelListCellFactory<IdBasedFetcher>()
+            .withText(WebFetcher::getName)
+            .install(idFetcher);
+        idFetcher
+            .disableProperty()
+            .bind(idLookupSpecify.selectedProperty().not());
+        idFetcher
+            .valueProperty()
+            .bindBidirectional(viewModel.idFetcherProperty());
+        IdBasedFetcher initialFetcher = fetcherFromName(
+            preferences.getLatestIdFetcher(),
+            idFetcher.getItems()
+        );
         if (initialFetcher == null) {
-            final IdBasedFetcher defaultFetcher = new DoiFetcher(guiPreferences.getImportFormatPreferences());
-            initialFetcher = fetcherFromName(defaultFetcher.getName(), idFetcher.getItems());
+            final IdBasedFetcher defaultFetcher = new DoiFetcher(
+                guiPreferences.getImportFormatPreferences()
+            );
+            initialFetcher = fetcherFromName(
+                defaultFetcher.getName(),
+                idFetcher.getItems()
+            );
         }
         idFetcher.setValue(initialFetcher);
-        idFetcher.setOnAction(_ -> preferences.setLatestIdFetcher(idFetcher.getValue().getName()));
+        idFetcher.setOnAction(_ ->
+            preferences.setLatestIdFetcher(idFetcher.getValue().getName())
+        );
 
-        idJumpLink.visibleProperty().bind(viewModel.duplicateDoiValidatorStatus().validProperty().not());
-        idErrorInvalidText.visibleProperty().bind(viewModel.idTextValidatorProperty().not());
-        idErrorInvalidText.managedProperty().bind(viewModel.idTextValidatorProperty().not());
-        idErrorInvalidFetcher.visibleProperty().bind(idLookupSpecify.selectedProperty().and(viewModel.idFetcherValidatorProperty().not()));
+        idJumpLink
+            .visibleProperty()
+            .bind(
+                viewModel.duplicateDoiValidatorStatus().validProperty().not()
+            );
+        idErrorInvalidText
+            .visibleProperty()
+            .bind(viewModel.idTextValidatorProperty().not());
+        idErrorInvalidText
+            .managedProperty()
+            .bind(viewModel.idTextValidatorProperty().not());
+        idErrorInvalidFetcher
+            .visibleProperty()
+            .bind(
+                idLookupSpecify
+                    .selectedProperty()
+                    .and(viewModel.idFetcherValidatorProperty().not())
+            );
 
-        idJumpLink.setOnAction(_ -> libraryTab.showAndEdit(viewModel.getDuplicateEntry()));
+        idJumpLink.setOnAction(_ ->
+            libraryTab.showAndEdit(viewModel.getDuplicateEntry())
+        );
 
         TextInputControl textInput = idText;
         EditorValidator validator = new EditorValidator(this.guiPreferences);
-        validator.configureValidation(viewModel.duplicateDoiValidatorStatus(), textInput);
+        validator.configureValidation(
+            viewModel.duplicateDoiValidatorStatus(),
+            textInput
+        );
     }
 
     private void initializeInterpretCitations() {
-        interpretText.textProperty().bindBidirectional(viewModel.interpretTextProperty());
+        interpretText
+            .textProperty()
+            .bindBidirectional(viewModel.interpretTextProperty());
         final String clipboardText = ClipBoardManager.getContents().trim();
         if (!StringUtil.isBlank(clipboardText)) {
             interpretText.setText(clipboardText);
             interpretText.selectAll();
         }
 
-        interpretParser.itemsProperty().bind(viewModel.interpretParsersProperty());
-        new ViewModelListCellFactory<PlainCitationParserChoice>().withText(PlainCitationParserChoice::getLocalizedName).install(interpretParser);
-        interpretParser.valueProperty().bindBidirectional(viewModel.interpretParserProperty());
-        PlainCitationParserChoice initialParser = parserFromName(preferences.getLatestInterpretParser(), interpretParser.getItems());
+        interpretParser
+            .itemsProperty()
+            .bind(viewModel.interpretParsersProperty());
+        new ViewModelListCellFactory<PlainCitationParserChoice>()
+            .withText(PlainCitationParserChoice::getLocalizedName)
+            .install(interpretParser);
+        interpretParser
+            .valueProperty()
+            .bindBidirectional(viewModel.interpretParserProperty());
+        PlainCitationParserChoice initialParser = parserFromName(
+            preferences.getLatestInterpretParser(),
+            interpretParser.getItems()
+        );
         if (initialParser == null) {
-            final PlainCitationParserChoice defaultParser = PlainCitationParserChoice.RULE_BASED;
-            initialParser = parserFromName(defaultParser.getLocalizedName(), interpretParser.getItems());
+            final PlainCitationParserChoice defaultParser =
+                PlainCitationParserChoice.RULE_BASED;
+            initialParser = parserFromName(
+                defaultParser.getLocalizedName(),
+                interpretParser.getItems()
+            );
         }
         interpretParser.setValue(initialParser);
-        interpretParser.setOnAction(_ -> preferences.setLatestInterpretParser(interpretParser.getValue().getLocalizedName()));
+        interpretParser.setOnAction(_ ->
+            preferences.setLatestInterpretParser(
+                interpretParser.getValue().getLocalizedName()
+            )
+        );
     }
 
     private void initializeSpecifyBibTeX() {
-        bibtexText.textProperty().bindBidirectional(viewModel.bibtexTextProperty());
+        bibtexText
+            .textProperty()
+            .bindBidirectional(viewModel.bibtexTextProperty());
         final String clipboardText = ClipBoardManager.getContents().trim();
         if (!StringUtil.isBlank(clipboardText)) {
             // :TODO: Better validation would be nice here, so clipboard text is only copied over if it matches a
@@ -393,7 +552,13 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         }
 
         if (generateButton != null) {
-            generateButton.disableProperty().bind(idErrorInvalidText.visibleProperty().or(idErrorInvalidFetcher.visibleProperty()));
+            generateButton
+                .disableProperty()
+                .bind(
+                    idErrorInvalidText
+                        .visibleProperty()
+                        .or(idErrorInvalidFetcher.visibleProperty())
+                );
             generateButton.setText("Search");
         }
     }
@@ -412,7 +577,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         }
 
         if (generateButton != null) {
-            generateButton.disableProperty().bind(viewModel.interpretTextValidatorProperty().not());
+            generateButton
+                .disableProperty()
+                .bind(viewModel.interpretTextValidatorProperty().not());
             generateButton.setText("Parse");
         }
     }
@@ -431,7 +598,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         }
 
         if (generateButton != null) {
-            generateButton.disableProperty().bind(viewModel.bibtexTextValidatorProperty().not());
+            generateButton
+                .disableProperty()
+                .bind(viewModel.bibtexTextValidatorProperty().not());
             generateButton.setText("Create");
         }
     }
@@ -444,7 +613,9 @@ public class NewEntryView extends BaseDialog<BibEntry> {
 
     private void onSuccessfulExecution() {
         viewModel.cancel();
-        stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).set(Optional.empty());
+        stateManager
+            .activeSearchQuery(SearchType.NORMAL_SEARCH)
+            .set(Optional.empty());
         this.close();
     }
 
@@ -478,8 +649,12 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         viewModel.cancel();
     }
 
-    private void addEntriesToPane(TilePane pane, Collection<? extends BibEntryType> entries) {
-        final double maxTooltipWidth = (2.0 / 3.0) * Screen.getPrimary().getBounds().getWidth();
+    private void addEntriesToPane(
+        TilePane pane,
+        Collection<? extends BibEntryType> entries
+    ) {
+        final double maxTooltipWidth =
+            (2.0 / 3.0) * Screen.getPrimary().getBounds().getWidth();
 
         for (BibEntryType entry : entries) {
             final EntryType type = entry.getType();
@@ -509,47 +684,114 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         return null;
     }
 
-    private static String descriptionOfStandardEntryType(StandardEntryType type) {
+    private static String descriptionOfStandardEntryType(
+        StandardEntryType type
+    ) {
         // These descriptions are taken from subsection 2.1 of the biblatex package documentation.
         // Biblatex is a superset of bibtex, with more elaborate descriptions, so its documentation is preferred.
         // See [https://mirrors.ibiblio.org/pub/mirrors/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf].
         return switch (type) {
-            case Article -> Localization.lang("An article in a journal, magazine, newspaper, or other periodical which forms a self-contained unit with its own title.");
-            case Book -> Localization.lang("A single-volume book with one or more authors where the authors share credit for the work as a whole.");
-            case Booklet -> Localization.lang("A book-like work without a formal publisher or sponsoring institution.");
-            case Collection -> Localization.lang("A single-volume collection with multiple, self-contained contributions by distinct authors which have their own title. The work as a whole has no overall author but it will usually have an editor.");
-            case Conference -> Localization.lang("A legacy alias for \"InProceedings\".");
-            case InBook -> Localization.lang("A part of a book which forms a self-contained unit with its own title.");
-            case InCollection -> Localization.lang("A contribution to a collection which forms a self-contained unit with a distinct author and title.");
-            case InProceedings -> Localization.lang("An article in a conference proceedings.");
-            case Manual -> Localization.lang("Technical or other documentation, not necessarily in printed form.");
-            case MastersThesis -> Localization.lang("Similar to \"Thesis\" except that the type field is optional and defaults to the localised term  Master's thesis.");
-            case Misc -> Localization.lang("A fallback type for entries which do not fit into any other category.");
-            case PhdThesis -> Localization.lang("Similar to \"Thesis\" except that the type field is optional and defaults to the localised term PhD thesis.");
-            case Proceedings -> Localization.lang("A single-volume conference proceedings. This type is very similar to \"Collection\".");
-            case TechReport -> Localization.lang("Similar to \"Report\" except that the type field is optional and defaults to the localised term technical report.");
-            case Unpublished -> Localization.lang("A work with an author and a title which has not been formally published, such as a manuscript or the script of a talk.");
-            case BookInBook -> Localization.lang("This type is similar to \"InBook\" but intended for works originally published as a stand-alone book.");
-            case InReference -> Localization.lang("An article in a work of reference. This is a more specific variant of the generic \"InCollection\" entry type.");
+            case Article -> Localization.lang(
+                "An article in a journal, magazine, newspaper, or other periodical which forms a self-contained unit with its own title."
+            );
+            case Book -> Localization.lang(
+                "A single-volume book with one or more authors where the authors share credit for the work as a whole."
+            );
+            case Booklet -> Localization.lang(
+                "A book-like work without a formal publisher or sponsoring institution."
+            );
+            case Collection -> Localization.lang(
+                "A single-volume collection with multiple, self-contained contributions by distinct authors which have their own title. The work as a whole has no overall author but it will usually have an editor."
+            );
+            case Conference -> Localization.lang(
+                "A legacy alias for \"InProceedings\"."
+            );
+            case InBook -> Localization.lang(
+                "A part of a book which forms a self-contained unit with its own title."
+            );
+            case InCollection -> Localization.lang(
+                "A contribution to a collection which forms a self-contained unit with a distinct author and title."
+            );
+            case InProceedings -> Localization.lang(
+                "An article in a conference proceedings."
+            );
+            case Manual -> Localization.lang(
+                "Technical or other documentation, not necessarily in printed form."
+            );
+            case MastersThesis -> Localization.lang(
+                "Similar to \"Thesis\" except that the type field is optional and defaults to the localised term  Master's thesis."
+            );
+            case Misc -> Localization.lang(
+                "A fallback type for entries which do not fit into any other category."
+            );
+            case PhdThesis -> Localization.lang(
+                "Similar to \"Thesis\" except that the type field is optional and defaults to the localised term PhD thesis."
+            );
+            case Proceedings -> Localization.lang(
+                "A single-volume conference proceedings. This type is very similar to \"Collection\"."
+            );
+            case TechReport -> Localization.lang(
+                "Similar to \"Report\" except that the type field is optional and defaults to the localised term technical report."
+            );
+            case Unpublished -> Localization.lang(
+                "A work with an author and a title which has not been formally published, such as a manuscript or the script of a talk."
+            );
+            case BookInBook -> Localization.lang(
+                "This type is similar to \"InBook\" but intended for works originally published as a stand-alone book."
+            );
+            case InReference -> Localization.lang(
+                "An article in a work of reference. This is a more specific variant of the generic \"InCollection\" entry type."
+            );
             case MvBook -> Localization.lang("A multi-volume \"Book\".");
-            case MvCollection -> Localization.lang("A multi-volume \"Collection\".");
-            case MvProceedings -> Localization.lang("A multi-volume \"Proceedings\" entry.");
-            case MvReference -> Localization.lang("A multi-volume \"Reference\" entry. The standard styles will treat this entry type as an alias for \"MvCollection\".");
-            case Online -> Localization.lang("This entry type is intended for sources such as web sites which are intrinsically online resources.");
-            case Reference -> Localization.lang("A single-volume work of reference such as an encyclopedia or a dictionary.");
-            case Report -> Localization.lang("A technical report, research report, or white paper published by a university or some other institution.");
-            case Set -> Localization.lang("An entry set is a group of entries which are cited as a single reference and listed as a single item in the bibliography.");
-            case SuppBook -> Localization.lang("Supplemental material in a \"Book\". This type is provided for elements such as prefaces, introductions, forewords, afterwords, etc. which often have a generic title only.");
-            case SuppCollection -> Localization.lang("Supplemental material in a \"Collection\".");
-            case SuppPeriodical -> Localization.lang("Supplemental material in a \"Periodical\". This type may be useful when referring to items such as regular columns, obituaries, letters to the editor, etc. which only have a generic title.");
-            case Thesis -> Localization.lang("A thesis written for an educational institution to satisfy the requirements for a degree.");
-            case WWW -> Localization.lang("An alias for \"Online\", provided for jurabib compatibility.");
-            case Software -> Localization.lang("Computer software. The standard styles will treat this entry type as an alias for \"Misc\".");
-            case Dataset -> Localization.lang("A data set or a similar collection of (mostly) raw data.");
+            case MvCollection -> Localization.lang(
+                "A multi-volume \"Collection\"."
+            );
+            case MvProceedings -> Localization.lang(
+                "A multi-volume \"Proceedings\" entry."
+            );
+            case MvReference -> Localization.lang(
+                "A multi-volume \"Reference\" entry. The standard styles will treat this entry type as an alias for \"MvCollection\"."
+            );
+            case Online -> Localization.lang(
+                "This entry type is intended for sources such as web sites which are intrinsically online resources."
+            );
+            case Reference -> Localization.lang(
+                "A single-volume work of reference such as an encyclopedia or a dictionary."
+            );
+            case Report -> Localization.lang(
+                "A technical report, research report, or white paper published by a university or some other institution."
+            );
+            case Set -> Localization.lang(
+                "An entry set is a group of entries which are cited as a single reference and listed as a single item in the bibliography."
+            );
+            case SuppBook -> Localization.lang(
+                "Supplemental material in a \"Book\". This type is provided for elements such as prefaces, introductions, forewords, afterwords, etc. which often have a generic title only."
+            );
+            case SuppCollection -> Localization.lang(
+                "Supplemental material in a \"Collection\"."
+            );
+            case SuppPeriodical -> Localization.lang(
+                "Supplemental material in a \"Periodical\". This type may be useful when referring to items such as regular columns, obituaries, letters to the editor, etc. which only have a generic title."
+            );
+            case Thesis -> Localization.lang(
+                "A thesis written for an educational institution to satisfy the requirements for a degree."
+            );
+            case WWW -> Localization.lang(
+                "An alias for \"Online\", provided for jurabib compatibility."
+            );
+            case Software -> Localization.lang(
+                "Computer software. The standard styles will treat this entry type as an alias for \"Misc\"."
+            );
+            case Dataset -> Localization.lang(
+                "A data set or a similar collection of (mostly) raw data."
+            );
         };
     }
 
-    private static IdBasedFetcher fetcherFromName(String fetcherName, List<IdBasedFetcher> fetchers) {
+    private static IdBasedFetcher fetcherFromName(
+        String fetcherName,
+        List<IdBasedFetcher> fetchers
+    ) {
         for (IdBasedFetcher fetcher : fetchers) {
             if (fetcher.getName().equals(fetcherName)) {
                 return fetcher;
@@ -558,7 +800,10 @@ public class NewEntryView extends BaseDialog<BibEntry> {
         return null;
     }
 
-    private static PlainCitationParserChoice parserFromName(String parserName, List<PlainCitationParserChoice> parsers) {
+    private static PlainCitationParserChoice parserFromName(
+        String parserName,
+        List<PlainCitationParserChoice> parsers
+    ) {
         for (PlainCitationParserChoice parser : parsers) {
             if (parser.getLocalizedName().equals(parserName)) {
                 return parser;
@@ -570,17 +815,16 @@ public class NewEntryView extends BaseDialog<BibEntry> {
     private Optional<Identifier> extractValidIdentifierFromClipboard() {
         String clipboardText = ClipBoardManager.getContents().trim();
 
-        if (!StringUtil.isBlank(clipboardText) && !clipboardText.contains("\n")) {
+        if (
+            !StringUtil.isBlank(clipboardText) && !clipboardText.contains("\n")
+        ) {
             Optional<Identifier> identifier = Identifier.from(clipboardText);
             if (identifier.isPresent()) {
                 Identifier id = identifier.get();
                 boolean isValid = switch (id) {
-                    case DOI doi ->
-                            DOI.isValid(doi.asString());
-                    case ISBN isbn ->
-                            isbn.isValid();
-                    default ->
-                            true;
+                    case DOI doi -> DOI.isValid(doi.asString());
+                    case ISBN isbn -> isbn.isValid();
+                    default -> true;
                 };
                 if (isValid) {
                     return Optional.of(id);
@@ -593,11 +837,14 @@ public class NewEntryView extends BaseDialog<BibEntry> {
 
     private Optional<IdBasedFetcher> fetcherForIdentifier(Identifier id) {
         for (IdBasedFetcher fetcher : idFetcher.getItems()) {
-            if ((id instanceof DOI && fetcher instanceof DoiFetcher) ||
-                    (id instanceof ISBN && (fetcher instanceof IsbnFetcher) ||
-                    (id instanceof ArXivIdentifier && fetcher instanceof ArXivFetcher) ||
-                    (id instanceof RFC && fetcher instanceof RfcFetcher) ||
-                    (id instanceof SSRN && fetcher instanceof DoiFetcher))) {
+            if (
+                (id instanceof DOI && fetcher instanceof DoiFetcher)
+                || ((id instanceof ISBN && (fetcher instanceof IsbnFetcher))
+                    || (id instanceof ArXivIdentifier
+                        && fetcher instanceof ArXivFetcher)
+                    || (id instanceof RFC && fetcher instanceof RfcFetcher)
+                    || (id instanceof SSRN && fetcher instanceof DoiFetcher))
+            ) {
                 return Optional.of(fetcher);
             }
         }

@@ -1,14 +1,12 @@
 package org.jabref.logic.formatter.casechanger;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
 import org.jabref.logic.protectedterms.ProtectedTermsPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests in addition to the general tests from {@link org.jabref.logic.formatter.FormatterTest}
@@ -20,8 +18,15 @@ class ProtectTermsFormatterTest {
     @BeforeEach
     void setUp() {
         formatter = new ProtectTermsFormatter(
-                new ProtectedTermsLoader(new ProtectedTermsPreferences(ProtectedTermsLoader.getInternalLists(),
-                        List.of(), List.of(), List.of())));
+            new ProtectedTermsLoader(
+                new ProtectedTermsPreferences(
+                    ProtectedTermsLoader.getInternalLists(),
+                    List.of(),
+                    List.of(),
+                    List.of()
+                )
+            )
+        );
     }
 
     @Test
@@ -41,7 +46,10 @@ class ProtectTermsFormatterTest {
 
     @Test
     void formatExample() {
-        assertEquals("In {CDMA}", formatter.format(formatter.getExampleInput()));
+        assertEquals(
+            "In {CDMA}",
+            formatter.format(formatter.getExampleInput())
+        );
     }
 
     @Test
@@ -53,7 +61,9 @@ class ProtectTermsFormatterTest {
     void test() {
         assertEquals("{VLSI} {VLSI}", formatter.format("VLSI {VLSI}"));
         assertEquals("{BPEL}", formatter.format("{BPEL}"));
-        assertEquals("{Testing {BPEL} Engine Performance: A Survey}",
-                formatter.format("{Testing BPEL Engine Performance: A Survey}"));
+        assertEquals(
+            "{Testing {BPEL} Engine Performance: A Survey}",
+            formatter.format("{Testing BPEL Engine Performance: A Survey}")
+        );
     }
 }

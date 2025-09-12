@@ -8,7 +8,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 
 public class OpenSingleExternalFileAction extends SimpleCommand {
@@ -20,12 +19,14 @@ public class OpenSingleExternalFileAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final StateManager stateManager;
 
-    public OpenSingleExternalFileAction(@NonNull DialogService dialogService,
-                                        @NonNull GuiPreferences preferences,
-                                        @NonNull BibEntry entry,
-                                        @NonNull LinkedFile linkedFile,
-                                        @NonNull TaskExecutor taskExecutor,
-                                        @NonNull StateManager stateManager) {
+    public OpenSingleExternalFileAction(
+        @NonNull DialogService dialogService,
+        @NonNull GuiPreferences preferences,
+        @NonNull BibEntry entry,
+        @NonNull LinkedFile linkedFile,
+        @NonNull TaskExecutor taskExecutor,
+        @NonNull StateManager stateManager
+    ) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.entry = entry;
@@ -38,9 +39,17 @@ public class OpenSingleExternalFileAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        stateManager.getActiveDatabase()
-                    .ifPresent(databaseContext -> new LinkedFileViewModel(
-                            linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences)
-                            .open());
+        stateManager
+            .getActiveDatabase()
+            .ifPresent(databaseContext ->
+                new LinkedFileViewModel(
+                    linkedFile,
+                    entry,
+                    databaseContext,
+                    taskExecutor,
+                    dialogService,
+                    preferences
+                ).open()
+            );
     }
 }

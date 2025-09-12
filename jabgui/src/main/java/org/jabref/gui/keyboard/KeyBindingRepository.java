@@ -9,14 +9,12 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.logic.os.OS;
 
 /**
@@ -35,13 +33,23 @@ public class KeyBindingRepository {
     }
 
     public KeyBindingRepository(SortedMap<KeyBinding, String> bindings) {
-        this.bindings = new SimpleMapProperty<>(FXCollections.observableMap(bindings));
+        this.bindings = new SimpleMapProperty<>(
+            FXCollections.observableMap(bindings)
+        );
     }
 
     public KeyBindingRepository(List<String> bindNames, List<String> bindings) {
-        this.bindings = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>(Comparator.comparing(KeyBinding::getLocalization))));
+        this.bindings = new SimpleMapProperty<>(
+            FXCollections.observableMap(
+                new TreeMap<>(Comparator.comparing(KeyBinding::getLocalization))
+            )
+        );
 
-        if ((bindNames.isEmpty()) || (bindings.isEmpty()) || (bindNames.size() != bindings.size())) {
+        if (
+            (bindNames.isEmpty())
+            || (bindings.isEmpty())
+            || (bindNames.size() != bindings.size())
+        ) {
             // Use default key bindings
             for (KeyBinding keyBinding : KeyBinding.values()) {
                 put(keyBinding, keyBinding.getDefaultKeyBinding());
@@ -60,7 +68,10 @@ public class KeyBindingRepository {
      * @param keyEvent    as KeEvent
      * @return true if matching, else false
      */
-    public static boolean checkKeyCombinationEquality(KeyCombination combination, KeyEvent keyEvent) {
+    public static boolean checkKeyCombinationEquality(
+        KeyCombination combination,
+        KeyEvent keyEvent
+    ) {
         KeyCode code = keyEvent.getCode();
         if (code == KeyCode.UNDEFINED) {
             return false;
@@ -75,7 +86,9 @@ public class KeyBindingRepository {
 
     public String get(String key) {
         Optional<KeyBinding> keyBinding = getKeyBinding(key);
-        Optional<String> result = keyBinding.flatMap(k -> Optional.ofNullable(bindings.get(k)));
+        Optional<String> result = keyBinding.flatMap(k ->
+            Optional.ofNullable(bindings.get(k))
+        );
 
         if (result.isPresent()) {
             return result.get();
@@ -102,11 +115,15 @@ public class KeyBindingRepository {
     }
 
     private Optional<KeyBinding> getKeyBinding(String key) {
-        return Arrays.stream(KeyBinding.values()).filter(b -> b.getConstant().equals(key)).findFirst();
+        return Arrays.stream(KeyBinding.values())
+            .filter(b -> b.getConstant().equals(key))
+            .findFirst();
     }
 
     public void resetToDefault(String key) {
-        getKeyBinding(key).ifPresent(b -> bindings.put(b, b.getDefaultKeyBinding()));
+        getKeyBinding(key).ifPresent(b ->
+            bindings.put(b, b.getDefaultKeyBinding())
+        );
     }
 
     public void resetToDefault() {
@@ -136,8 +153,8 @@ public class KeyBindingRepository {
      */
     private Set<KeyBinding> mapToKeyBindings(KeyEvent keyEvent) {
         return Arrays.stream(KeyBinding.values())
-                     .filter(binding -> checkKeyCombinationEquality(binding, keyEvent))
-                     .collect(Collectors.toSet());
+            .filter(binding -> checkKeyCombinationEquality(binding, keyEvent))
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -147,8 +164,8 @@ public class KeyBindingRepository {
      */
     public boolean matches(KeyEvent event, KeyBinding keyBinding) {
         return mapToKeyBindings(event)
-                .stream()
-                .anyMatch(binding -> binding == keyBinding);
+            .stream()
+            .anyMatch(binding -> binding == keyBinding);
     }
 
     public Optional<KeyCombination> getKeyCombination(KeyBinding bindName) {
@@ -169,13 +186,23 @@ public class KeyBindingRepository {
      * @param keyEvent as KeEvent
      * @return true if matching, else false
      */
-    public boolean checkKeyCombinationEquality(KeyBinding binding, KeyEvent keyEvent) {
-        return getKeyCombination(binding).filter(combination -> checkKeyCombinationEquality(combination, keyEvent))
-                                         .isPresent();
+    public boolean checkKeyCombinationEquality(
+        KeyBinding binding,
+        KeyEvent keyEvent
+    ) {
+        return getKeyCombination(binding)
+            .filter(combination ->
+                checkKeyCombinationEquality(combination, keyEvent)
+            )
+            .isPresent();
     }
 
     public List<String> getBindNames() {
-        return bindings.keySet().stream().map(KeyBinding::getConstant).collect(Collectors.toList());
+        return bindings
+            .keySet()
+            .stream()
+            .map(KeyBinding::getConstant)
+            .collect(Collectors.toList());
     }
 
     public List<String> getBindings() {

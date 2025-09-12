@@ -2,7 +2,6 @@ package org.jabref.gui.collab;
 
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-
 import org.jabref.gui.collab.entrychange.EntryChangeDetailsView;
 import org.jabref.gui.collab.entrychange.EntryWithPreviewAndSourceDetailsView;
 import org.jabref.gui.collab.groupchange.GroupChangeDetailsView;
@@ -13,7 +12,9 @@ import org.jabref.gui.collab.stringchange.BibTexStringChangeDetailsView;
 import org.jabref.gui.collab.stringdelete.BibTexStringDeleteDetailsView;
 import org.jabref.gui.collab.stringrename.BibTexStringRenameDetailsView;
 
-public sealed abstract class DatabaseChangeDetailsView extends AnchorPane permits
+public abstract sealed class DatabaseChangeDetailsView
+    extends AnchorPane
+    permits
         EntryWithPreviewAndSourceDetailsView,
         GroupChangeDetailsView,
         MetadataChangeDetailsView,

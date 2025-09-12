@@ -1,12 +1,12 @@
 package org.jabref.http.server.services;
 
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.util.List;
 
-import jakarta.inject.Singleton;
-
 @Singleton
 public class FilesToServe {
+
     private List<Path> filesToServe;
 
     public void setFilesToServe(List<Path> filesToServe) {

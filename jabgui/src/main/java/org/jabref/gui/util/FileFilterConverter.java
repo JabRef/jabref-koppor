@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
-
 import javafx.stage.FileChooser;
-
 import org.jabref.logic.exporter.Exporter;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.l10n.Localization;
@@ -22,19 +20,37 @@ import org.jabref.model.strings.StringUtil;
 
 public class FileFilterConverter {
 
-    public static FileChooser.ExtensionFilter ANY_FILE = new FileChooser.ExtensionFilter(Localization.lang("Any file"), "*.*");
+    public static FileChooser.ExtensionFilter ANY_FILE =
+        new FileChooser.ExtensionFilter(Localization.lang("Any file"), "*.*");
 
-    private FileFilterConverter() {
+    private FileFilterConverter() {}
+
+    public static FileChooser.ExtensionFilter toExtensionFilter(
+        FileType fileType
+    ) {
+        String fileList = String.join(
+            ", ",
+            fileType.getExtensionsWithAsteriskAndDot()
+        );
+        String description = Localization.lang(
+            "%0 file (%1)",
+            fileType.getName(),
+            fileList
+        );
+        return new FileChooser.ExtensionFilter(
+            description,
+            fileType.getExtensionsWithAsteriskAndDot()
+        );
     }
 
-    public static FileChooser.ExtensionFilter toExtensionFilter(FileType fileType) {
-        String fileList = String.join(", ", fileType.getExtensionsWithAsteriskAndDot());
-        String description = Localization.lang("%0 file (%1)", fileType.getName(), fileList);
-        return new FileChooser.ExtensionFilter(description, fileType.getExtensionsWithAsteriskAndDot());
-    }
-
-    public static FileChooser.ExtensionFilter toExtensionFilter(String description, FileType fileType) {
-        return new FileChooser.ExtensionFilter(description, fileType.getExtensionsWithAsteriskAndDot());
+    public static FileChooser.ExtensionFilter toExtensionFilter(
+        String description,
+        FileType fileType
+    ) {
+        return new FileChooser.ExtensionFilter(
+            description,
+            fileType.getExtensionsWithAsteriskAndDot()
+        );
     }
 
     /**
@@ -45,43 +61,82 @@ public class FileFilterConverter {
      * @param file The file to check.
      * @return The corresponding Extension Filter for the file type.
      */
-    public static FileChooser.ExtensionFilter determineExtensionFilter(Path file) {
+    public static FileChooser.ExtensionFilter determineExtensionFilter(
+        Path file
+    ) {
         if (FileUtil.isBibFile(file)) {
             return toExtensionFilter("BibTeX", StandardFileType.BIBTEX_DB);
         }
         return FileFilterConverter.ANY_FILE;
     }
 
-    public static Optional<Importer> getImporter(FileChooser.ExtensionFilter extensionFilter, Collection<Importer> importers) {
-        return importers.stream().filter(importer -> importer.getName().equals(extensionFilter.getDescription())).findFirst();
+    public static Optional<Importer> getImporter(
+        FileChooser.ExtensionFilter extensionFilter,
+        Collection<Importer> importers
+    ) {
+        return importers
+            .stream()
+            .filter(importer ->
+                importer.getName().equals(extensionFilter.getDescription())
+            )
+            .findFirst();
     }
 
-    public static Optional<Exporter> getExporter(FileChooser.ExtensionFilter extensionFilter, Collection<Exporter> exporters) {
-        return exporters.stream().filter(exporter -> exporter.getName().equals(extensionFilter.getDescription())).findFirst();
+    public static Optional<Exporter> getExporter(
+        FileChooser.ExtensionFilter extensionFilter,
+        Collection<Exporter> exporters
+    ) {
+        return exporters
+            .stream()
+            .filter(exporter ->
+                exporter.getName().equals(extensionFilter.getDescription())
+            )
+            .findFirst();
     }
 
-    public static FileChooser.ExtensionFilter forAllImporters(SortedSet<Importer> importers) {
-        List<FileType> fileTypes = importers.stream().map(Importer::getFileType).toList();
-        List<String> flatExtensions = fileTypes.stream()
-                                               .flatMap(type -> type.getExtensionsWithAsteriskAndDot().stream())
-                                               .collect(Collectors.toList());
+    public static FileChooser.ExtensionFilter forAllImporters(
+        SortedSet<Importer> importers
+    ) {
+        List<FileType> fileTypes = importers
+            .stream()
+            .map(Importer::getFileType)
+            .toList();
+        List<String> flatExtensions = fileTypes
+            .stream()
+            .flatMap(type -> type.getExtensionsWithAsteriskAndDot().stream())
+            .collect(Collectors.toList());
 
-        return new FileChooser.ExtensionFilter(Localization.lang("Available import formats"), flatExtensions);
+        return new FileChooser.ExtensionFilter(
+            Localization.lang("Available import formats"),
+            flatExtensions
+        );
     }
 
-    public static List<FileChooser.ExtensionFilter> importerToExtensionFilter(Collection<Importer> importers) {
-        return importers.stream()
-                        .map(importer -> toExtensionFilter(importer.getName(), importer.getFileType()))
-                        .collect(Collectors.toList());
+    public static List<FileChooser.ExtensionFilter> importerToExtensionFilter(
+        Collection<Importer> importers
+    ) {
+        return importers
+            .stream()
+            .map(importer ->
+                toExtensionFilter(importer.getName(), importer.getFileType())
+            )
+            .collect(Collectors.toList());
     }
 
-    public static List<FileChooser.ExtensionFilter> exporterToExtensionFilter(Collection<Exporter> exporters) {
-        return exporters.stream()
-                        .map(exporter -> toExtensionFilter(exporter.getName(), exporter.getFileType()))
-                        .collect(Collectors.toList());
+    public static List<FileChooser.ExtensionFilter> exporterToExtensionFilter(
+        Collection<Exporter> exporters
+    ) {
+        return exporters
+            .stream()
+            .map(exporter ->
+                toExtensionFilter(exporter.getName(), exporter.getFileType())
+            )
+            .collect(Collectors.toList());
     }
 
-    public static FileFilter toFileFilter(FileChooser.ExtensionFilter extensionFilter) {
+    public static FileFilter toFileFilter(
+        FileChooser.ExtensionFilter extensionFilter
+    ) {
         return toFileFilter(extensionFilter.getExtensions());
     }
 
@@ -97,17 +152,19 @@ public class FileFilterConverter {
     }
 
     public static Filter<Path> toDirFilter(List<String> extensions) {
-        List<String> extensionsCleaned = extensions.stream()
-                                                   .map(extension -> extension.replace(".", "").replace("*", ""))
-                                                   .filter(StringUtil::isNotBlank)
-                                                   .toList();
+        List<String> extensionsCleaned = extensions
+            .stream()
+            .map(extension -> extension.replace(".", "").replace("*", ""))
+            .filter(StringUtil::isNotBlank)
+            .toList();
         if (extensionsCleaned.isEmpty()) {
             // Except every file
             return _ -> true;
         } else {
-            return path -> FileUtil.getFileExtension(path)
-                                       .map(extensionsCleaned::contains)
-                                       .orElse(false);
+            return path ->
+                FileUtil.getFileExtension(path)
+                    .map(extensionsCleaned::contains)
+                    .orElse(false);
         }
     }
 }

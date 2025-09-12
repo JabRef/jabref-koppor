@@ -2,7 +2,6 @@ package org.jabref.model.entry;
 
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabase;
 
 public class ParsedEntryLink {
@@ -48,7 +47,10 @@ public class ParsedEntryLink {
         if (!(obj instanceof ParsedEntryLink other)) {
             return false;
         }
-        return Objects.equals(key, other.key) && Objects.equals(linkedEntry, other.linkedEntry);
+        return (
+            Objects.equals(key, other.key)
+            && Objects.equals(linkedEntry, other.linkedEntry)
+        );
     }
 
     public BibDatabase getDatabase() {

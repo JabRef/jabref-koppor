@@ -3,15 +3,13 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.PdfUtils;
 import org.jabref.model.entry.BibEntry;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 /**
  * This importer imports a verbatim BibTeX entry from the first page of the PDF.
@@ -20,11 +18,14 @@ public class PdfVerbatimBibtexImporter extends PdfImporter {
 
     private final ImportFormatPreferences importFormatPreferences;
 
-    public PdfVerbatimBibtexImporter(ImportFormatPreferences importFormatPreferences) {
+    public PdfVerbatimBibtexImporter(
+        ImportFormatPreferences importFormatPreferences
+    ) {
         this.importFormatPreferences = importFormatPreferences;
     }
 
-    public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException, ParseException {
+    public List<BibEntry> importDatabase(Path filePath, PDDocument document)
+        throws IOException, ParseException {
         List<BibEntry> result;
         String firstPageContents = PdfUtils.getFirstPageContents(document);
         BibtexParser parser = new BibtexParser(importFormatPreferences);
@@ -49,6 +50,8 @@ public class PdfVerbatimBibtexImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Scrapes the first page of a PDF for BibTeX information.");
+        return Localization.lang(
+            "Scrapes the first page of a PDF for BibTeX information."
+        );
     }
 }

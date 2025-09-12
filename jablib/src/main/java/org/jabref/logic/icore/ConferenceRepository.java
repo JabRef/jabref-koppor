@@ -8,13 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.util.strings.StringSimilarity;
 import org.jabref.model.icore.ConferenceEntry;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,42 +28,57 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class ConferenceRepository {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConferenceRepository.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ConferenceRepository.class
+    );
     private static final String ICORE_RANK_DATA_FILE = "/icore/ICORE2023.csv";
     private static final double LEVENSHTEIN_THRESHOLD = 0.9;
     private static final double COMBINED_LCS_LEV_THRESHOLD = 0.75;
     private static final double EPSILON = 1e-6;
-    private static final StringSimilarity LEVENSHTEIN_MATCHER = new StringSimilarity();
+    private static final StringSimilarity LEVENSHTEIN_MATCHER =
+        new StringSimilarity();
 
-    private final Map<String, ConferenceEntry> acronymToConference = new HashMap<>();
-    private final Map<String, ConferenceEntry> titleToConference = new HashMap<>();
-    private final Map<String, ConferenceEntry> normalizedTitleToConference = new HashMap<>();
+    private final Map<String, ConferenceEntry> acronymToConference =
+        new HashMap<>();
+    private final Map<String, ConferenceEntry> titleToConference =
+        new HashMap<>();
+    private final Map<String, ConferenceEntry> normalizedTitleToConference =
+        new HashMap<>();
     private int maxAcronymLength = 0;
 
     public ConferenceRepository() throws JabRefException {
-        InputStream inputStream = getClass().getResourceAsStream(ICORE_RANK_DATA_FILE);
+        InputStream inputStream = getClass().getResourceAsStream(
+            ICORE_RANK_DATA_FILE
+        );
 
         if (inputStream == null) {
-            throw new JabRefException("ICORE rank data file not found in resources");
+            throw new JabRefException(
+                "ICORE rank data file not found in resources"
+            );
         }
 
         loadConferenceDataFromInputStream(inputStream);
     }
 
     /// Constructor to allow loading in test data
-    public ConferenceRepository(InputStream testFileInputStream) throws JabRefException {
+    public ConferenceRepository(InputStream testFileInputStream)
+        throws JabRefException {
         loadConferenceDataFromInputStream(testFileInputStream);
     }
 
-    private void loadConferenceDataFromInputStream(InputStream inputStream) throws JabRefException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    private void loadConferenceDataFromInputStream(InputStream inputStream)
+        throws JabRefException {
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(inputStream)
+        );
 
         try (inputStream; reader) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
-                    .setHeader()
-                    .setSkipHeaderRecord(true)
-                    .get()
-                    .parse(reader);
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .get()
+                .parse(reader);
 
             for (CSVRecord record : records) {
                 String id = record.get("Id").strip();
@@ -73,25 +86,46 @@ public class ConferenceRepository {
                 String acronym = record.get("Acronym").strip().toLowerCase();
                 String rank = record.get("Rank").strip();
 
-                if (id.isEmpty() || title.isEmpty() || acronym.isEmpty() || rank.isEmpty()) {
-                    LOGGER.warn("Missing fields in row in ICORE rank data: {}", record);
+                if (
+                    id.isEmpty()
+                    || title.isEmpty()
+                    || acronym.isEmpty()
+                    || rank.isEmpty()
+                ) {
+                    LOGGER.warn(
+                        "Missing fields in row in ICORE rank data: {}",
+                        record
+                    );
                     continue;
                 }
 
                 if (title.indexOf('(') >= 0) {
                     // remove any extra alias strings in parentheses
-                    title = ConferenceUtils.removeAllParenthesesWithContent(title);
+                    title = ConferenceUtils.removeAllParenthesesWithContent(
+                        title
+                    );
                 }
-                ConferenceEntry conferenceEntry = new ConferenceEntry(id, title, acronym, rank);
+                ConferenceEntry conferenceEntry = new ConferenceEntry(
+                    id,
+                    title,
+                    acronym,
+                    rank
+                );
                 acronymToConference.put(acronym, conferenceEntry);
                 titleToConference.put(title, conferenceEntry);
-                normalizedTitleToConference.put(ConferenceUtils.normalize(title), conferenceEntry);
+                normalizedTitleToConference.put(
+                    ConferenceUtils.normalize(title),
+                    conferenceEntry
+                );
                 if (acronym.length() >= maxAcronymLength) {
                     maxAcronymLength = acronym.length();
                 }
             }
         } catch (IOException e) {
-            throw new JabRefException("I/O Error while reading ICORE data from resource", e);
+            throw new JabRefException(
+                "I/O Error while reading ICORE data from resource",
+                e
+            );
         }
         LOGGER.debug("Max acronym length seen in data: {}", maxAcronymLength);
     }
@@ -109,7 +143,9 @@ public class ConferenceRepository {
      * @return an {@code Optional} conference entry, if found
      *         or {@code Optional.empty()} if no conference entry is found
      */
-    public Optional<ConferenceEntry> getConferenceFromBookTitle(@NonNull String bookTitle) {
+    public Optional<ConferenceEntry> getConferenceFromBookTitle(
+        @NonNull String bookTitle
+    ) {
         String query = bookTitle.strip().toLowerCase();
         ConferenceEntry conference;
 
@@ -123,7 +159,9 @@ public class ConferenceRepository {
             return Optional.of(conference);
         }
 
-        Optional<ConferenceEntry> acronymConference = getConferenceFromAcronym(query);
+        Optional<ConferenceEntry> acronymConference = getConferenceFromAcronym(
+            query
+        );
         if (acronymConference.isPresent()) {
             return acronymConference;
         }
@@ -132,12 +170,22 @@ public class ConferenceRepository {
     }
 
     private Optional<ConferenceEntry> getConferenceFromAcronym(String query) {
-        Optional<String> acronym = ConferenceUtils.extractStringFromParentheses(query);
+        Optional<String> acronym = ConferenceUtils.extractStringFromParentheses(
+            query
+        );
 
         if (acronym.isPresent()) {
             ConferenceEntry conference;
-            Set<String> acronymCandidates = ConferenceUtils.generateAcronymCandidates(acronym.get(), maxAcronymLength);
-            LOGGER.debug("Extracted acronym string: {}, Acronym candidates: {}", acronym.get(), acronymCandidates);
+            Set<String> acronymCandidates =
+                ConferenceUtils.generateAcronymCandidates(
+                    acronym.get(),
+                    maxAcronymLength
+                );
+            LOGGER.debug(
+                "Extracted acronym string: {}, Acronym candidates: {}",
+                acronym.get(),
+                acronymCandidates
+            );
             for (String candidate : acronymCandidates) {
                 conference = acronymToConference.get(candidate);
                 if (conference != null) {
@@ -172,7 +220,9 @@ public class ConferenceRepository {
      * @return an {@code Optional} conference entry, if found
      *         or {@code Optional.empty()} if no conference entry is found
      */
-    private Optional<ConferenceEntry> fuzzySearchConferenceTitles(String query) {
+    private Optional<ConferenceEntry> fuzzySearchConferenceTitles(
+        String query
+    ) {
         String bestMatch = "";
         double bestScore = 0.0;
         String normalizedQuery = ConferenceUtils.normalize(query);
@@ -181,7 +231,9 @@ public class ConferenceRepository {
             return Optional.empty();
         }
 
-        ConferenceEntry acronymConference = acronymToConference.get(normalizedQuery);
+        ConferenceEntry acronymConference = acronymToConference.get(
+            normalizedQuery
+        );
         if (acronymConference != null) {
             return Optional.of(acronymConference);
         }
@@ -195,24 +247,45 @@ public class ConferenceRepository {
             // only match for queries longer than the current conference title
             // this will safeguard against overfitting common prefixes
             if (normalizedQuery.length() >= conferenceTitle.length()) {
-                double levSimilarity = LEVENSHTEIN_MATCHER.similarity(normalizedQuery, conferenceTitle);
-                double LCSSimilarity = StringSimilarity.LCSSimilarity(normalizedQuery, conferenceTitle);
-                double combinedScore = levSimilarity * 0.6 + LCSSimilarity * 0.4;
-                boolean exactSubstringMatch = Math.abs(LCSSimilarity - 1.0) <= EPSILON;
+                double levSimilarity = LEVENSHTEIN_MATCHER.similarity(
+                    normalizedQuery,
+                    conferenceTitle
+                );
+                double LCSSimilarity = StringSimilarity.LCSSimilarity(
+                    normalizedQuery,
+                    conferenceTitle
+                );
+                double combinedScore =
+                    levSimilarity * 0.6 + LCSSimilarity * 0.4;
+                boolean exactSubstringMatch =
+                    Math.abs(LCSSimilarity - 1.0) <= EPSILON;
 
                 if (exactSubstringMatch) {
-                    return Optional.of(normalizedTitleToConference.get(conferenceTitle));
+                    return Optional.of(
+                        normalizedTitleToConference.get(conferenceTitle)
+                    );
                 }
 
                 if (levSimilarity >= LEVENSHTEIN_THRESHOLD) {
-                    return Optional.of(normalizedTitleToConference.get(conferenceTitle));
+                    return Optional.of(
+                        normalizedTitleToConference.get(conferenceTitle)
+                    );
                 }
 
-                if (combinedScore >= COMBINED_LCS_LEV_THRESHOLD && combinedScore >= bestScore) {
+                if (
+                    combinedScore >= COMBINED_LCS_LEV_THRESHOLD
+                    && combinedScore >= bestScore
+                ) {
                     bestMatch = conferenceTitle;
                     bestScore = combinedScore;
-                    LOGGER.debug("Matched query: {} with title: {} with combinedScore: {} and LEV: {} and LCS: {}",
-                            normalizedQuery, conferenceTitle, combinedScore, levSimilarity, LCSSimilarity);
+                    LOGGER.debug(
+                        "Matched query: {} with title: {} with combinedScore: {} and LEV: {} and LCS: {}",
+                        normalizedQuery,
+                        conferenceTitle,
+                        combinedScore,
+                        levSimilarity,
+                        LCSSimilarity
+                    );
                 }
             }
         }

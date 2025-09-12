@@ -7,6 +7,4 @@ import org.jabref.model.database.BibDatabaseContext;
  *
  * @param bibDatabaseContext Affected {@link BibDatabaseContext}
  */
-public record ConnectionLostEvent(
-        BibDatabaseContext bibDatabaseContext) {
-}
+public record ConnectionLostEvent(BibDatabaseContext bibDatabaseContext) {}

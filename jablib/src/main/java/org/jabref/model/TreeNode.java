@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -58,7 +57,9 @@ public abstract class TreeNode<T extends TreeNode<T>> {
         children = FXCollections.observableArrayList();
 
         if (!derivingClass.isInstance(this)) {
-            throw new UnsupportedOperationException("The class extending TreeNode<T> has to derive from T");
+            throw new UnsupportedOperationException(
+                "The class extending TreeNode<T> has to derive from T"
+            );
         }
     }
 
@@ -113,8 +114,14 @@ public abstract class TreeNode<T extends TreeNode<T>> {
      * @return the child index of this node in its parent
      */
     public int getPositionInParent() {
-        return getParent().orElseThrow(() -> new UnsupportedOperationException("Roots have no position in parent"))
-                          .getIndexOfChild((T) this).get();
+        return getParent()
+            .orElseThrow(() ->
+                new UnsupportedOperationException(
+                    "Roots have no position in parent"
+                )
+            )
+            .getIndexOfChild((T) this)
+            .get();
     }
 
     /**
@@ -273,7 +280,9 @@ public abstract class TreeNode<T extends TreeNode<T>> {
      * or an empty Optional if the index does not point to a child
      */
     public Optional<T> getChildAt(int index) {
-        return childIndexExists(index) ? Optional.of(children.get(index)) : Optional.empty();
+        return childIndexExists(index)
+            ? Optional.of(children.get(index))
+            : Optional.empty();
     }
 
     /**
@@ -467,7 +476,9 @@ public abstract class TreeNode<T extends TreeNode<T>> {
     public T addChild(T child, int index) {
         Objects.requireNonNull(child);
         if (child.getParent().isPresent()) {
-            throw new UnsupportedOperationException("Cannot add a node which already has a parent, use moveTo instead");
+            throw new UnsupportedOperationException(
+                "Cannot add a node which already has a parent, use moveTo instead"
+            );
         }
 
         child.setParent((T) this);
@@ -505,7 +516,10 @@ public abstract class TreeNode<T extends TreeNode<T>> {
      * @param recursive  if true the whole subtree is sorted
      * @throws NullPointerException if the comparator is null
      */
-    public void sortChildren(Comparator<? super T> comparator, boolean recursive) {
+    public void sortChildren(
+        Comparator<? super T> comparator,
+        boolean recursive
+    ) {
         Objects.requireNonNull(comparator);
 
         if (this.isLeaf()) {
@@ -549,7 +563,9 @@ public abstract class TreeNode<T extends TreeNode<T>> {
 
         // Check that the target node is not an ancestor of this node, because this would create loops in the tree
         if (this.isAncestorOf(target)) {
-            throw new UnsupportedOperationException("the target cannot be a descendant of this node");
+            throw new UnsupportedOperationException(
+                "the target cannot be a descendant of this node"
+            );
         }
 
         // Remove from previous parent
@@ -627,6 +643,9 @@ public abstract class TreeNode<T extends TreeNode<T>> {
     }
 
     public Stream<T> iterateOverTree() {
-        return Stream.concat(Stream.of((T) this), getChildren().stream().flatMap(TreeNode::iterateOverTree));
+        return Stream.concat(
+            Stream.of((T) this),
+            getChildren().stream().flatMap(TreeNode::iterateOverTree)
+        );
     }
 }

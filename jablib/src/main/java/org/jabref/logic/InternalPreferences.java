@@ -1,14 +1,12 @@
 package org.jabref.logic;
 
 import java.nio.file.Path;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.util.Version;
 import org.jabref.model.metadata.UserHostInfo;
 
@@ -20,11 +18,13 @@ public class InternalPreferences {
     private final StringProperty userAndHost;
     private final BooleanProperty memoryStickMode;
 
-    public InternalPreferences(Version ignoredVersion,
-                               boolean versionCheck,
-                               Path exportPath,
-                               String userAndHost,
-                               boolean memoryStickMode) {
+    public InternalPreferences(
+        Version ignoredVersion,
+        boolean versionCheck,
+        Path exportPath,
+        String userAndHost,
+        boolean memoryStickMode
+    ) {
         this.ignoredVersion = new SimpleObjectProperty<>(ignoredVersion);
         this.versionCheckEnabled = new SimpleBooleanProperty(versionCheck);
         this.lastPreferencesExportPath = new SimpleObjectProperty<>(exportPath);
@@ -75,7 +75,7 @@ public class InternalPreferences {
     public StringProperty getUserAndHostProperty() {
         return userAndHost;
     }
-    
+
     /**
      * Returns the user and host information as a UserHostInfo object.
      *
@@ -84,7 +84,7 @@ public class InternalPreferences {
     public UserHostInfo getUserHostInfo() {
         return UserHostInfo.parse(getUserAndHost());
     }
-    
+
     /**
      * Sets the user and host information from a UserHostInfo object.
      *

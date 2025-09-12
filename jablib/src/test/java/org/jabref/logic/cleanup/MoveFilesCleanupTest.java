@@ -1,12 +1,17 @@
 package org.jabref.logic.cleanup;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.model.FieldChange;
@@ -16,16 +21,9 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class MoveFilesCleanupTest {
 
@@ -49,7 +47,9 @@ class MoveFilesCleanupTest {
         Files.createFile(fileBefore);
 
         MetaData metaData = new MetaData();
-        metaData.setLibrarySpecificFileDirectory(defaultFileFolder.toAbsolutePath().toString());
+        metaData.setLibrarySpecificFileDirectory(
+            defaultFileFolder.toAbsolutePath().toString()
+        );
         databaseContext = new BibDatabaseContext(new BibDatabase(), metaData);
         Files.createFile(bibFolder.resolve("test.bib"));
         databaseContext.setDatabasePath(bibFolder.resolve("test.bib"));
@@ -58,11 +58,20 @@ class MoveFilesCleanupTest {
         entry.setCitationKey("Toot");
         entry.setField(StandardField.TITLE, "test title");
         entry.setField(StandardField.YEAR, "1989");
-        LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
-        entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(fileField));
+        LinkedFile fileField = new LinkedFile(
+            "",
+            fileBefore.toAbsolutePath(),
+            ""
+        );
+        entry.setField(
+            StandardField.FILE,
+            FileFieldWriter.getStringRepresentation(fileField)
+        );
 
         filePreferences = mock(FilePreferences.class);
-        when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(false); // Biblocation as Primary overwrites all other dirs, therefore we set it to false here
+        when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(
+            false
+        ); // Biblocation as Primary overwrites all other dirs, therefore we set it to false here
         cleanup = new MoveFilesCleanup(() -> databaseContext, filePreferences);
     }
 
@@ -73,44 +82,71 @@ class MoveFilesCleanupTest {
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
-                entry.getField(StandardField.FILE));
+            Optional.of(
+                FileFieldWriter.getStringRepresentation(
+                    new LinkedFile("", Path.of("test.pdf"), "")
+                )
+            ),
+            entry.getField(StandardField.FILE)
+        );
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
     }
 
     @Test
     void movesFileWithMulitpleLinked() {
-        LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
-        entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(Arrays.asList(
-                new LinkedFile("", Path.of(""), ""),
-                fileField,
-                new LinkedFile("", Path.of(""), ""))));
+        LinkedFile fileField = new LinkedFile(
+            "",
+            fileBefore.toAbsolutePath(),
+            ""
+        );
+        entry.setField(
+            StandardField.FILE,
+            FileFieldWriter.getStringRepresentation(
+                Arrays.asList(
+                    new LinkedFile("", Path.of(""), ""),
+                    fileField,
+                    new LinkedFile("", Path.of(""), "")
+                )
+            )
+        );
 
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(
-                        Arrays.asList(
-                                new LinkedFile("", Path.of(""), ""),
-                                new LinkedFile("", Path.of("test.pdf"), ""),
-                                new LinkedFile("", Path.of(""), "")))),
-                entry.getField(StandardField.FILE));
+            Optional.of(
+                FileFieldWriter.getStringRepresentation(
+                    Arrays.asList(
+                        new LinkedFile("", Path.of(""), ""),
+                        new LinkedFile("", Path.of("test.pdf"), ""),
+                        new LinkedFile("", Path.of(""), "")
+                    )
+                )
+            ),
+            entry.getField(StandardField.FILE)
+        );
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
     }
 
     @Test
     void movesFileWithFileDirPattern() {
-        when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]");
+        when(filePreferences.getFileDirectoryPattern()).thenReturn(
+            "[entrytype]"
+        );
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("Misc").resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/test.pdf"), ""))),
-                entry.getField(StandardField.FILE));
+            Optional.of(
+                FileFieldWriter.getStringRepresentation(
+                    new LinkedFile("", Path.of("Misc/test.pdf"), "")
+                )
+            ),
+            entry.getField(StandardField.FILE)
+        );
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
     }
@@ -122,21 +158,36 @@ class MoveFilesCleanupTest {
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
-                entry.getField(StandardField.FILE));
+            Optional.of(
+                FileFieldWriter.getStringRepresentation(
+                    new LinkedFile("", Path.of("test.pdf"), "")
+                )
+            ),
+            entry.getField(StandardField.FILE)
+        );
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
     }
 
     @Test
     void movesFileWithSubdirectoryPattern() {
-        when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]/[year]/[auth]");
+        when(filePreferences.getFileDirectoryPattern()).thenReturn(
+            "[entrytype]/[year]/[auth]"
+        );
         cleanup.cleanup(entry);
 
-        Path fileAfter = defaultFileFolder.resolve("Misc").resolve("1989").resolve("test.pdf");
+        Path fileAfter = defaultFileFolder
+            .resolve("Misc")
+            .resolve("1989")
+            .resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/1989/test.pdf"), ""))),
-                entry.getField(StandardField.FILE));
+            Optional.of(
+                FileFieldWriter.getStringRepresentation(
+                    new LinkedFile("", Path.of("Misc/1989/test.pdf"), "")
+                )
+            ),
+            entry.getField(StandardField.FILE)
+        );
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
     }

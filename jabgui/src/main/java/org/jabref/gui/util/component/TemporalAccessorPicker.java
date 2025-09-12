@@ -12,13 +12,11 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
 import java.util.Objects;
 import java.util.function.Supplier;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.model.entry.Date;
@@ -41,22 +39,33 @@ import org.jabref.model.strings.StringUtil;
  * Inspiration taken from <a href="https://github.com/edvin/tornadofx-controls/blob/master/src/main/java/tornadofx/control/DateTimePicker.java">Controlsfx DateTimePicker</a>
  */
 public class TemporalAccessorPicker extends DatePicker {
-    private final ObjectProperty<TemporalAccessor> temporalAccessorValue = new SimpleObjectProperty<>(null);
 
-    private final DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final ObjectProperty<StringConverter<TemporalAccessor>> converter = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<TemporalAccessor> temporalAccessorValue =
+        new SimpleObjectProperty<>(null);
+
+    private final DateTimeFormatter defaultFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final ObjectProperty<StringConverter<TemporalAccessor>> converter =
+        new SimpleObjectProperty<>(null);
 
     public TemporalAccessorPicker() {
         setConverter(new InternalConverter());
 
         // Synchronize changes of the underlying date value with the temporalAccessorValue
-        BindingsHelper.bindBidirectional(valueProperty(), temporalAccessorValue,
-                TemporalAccessorPicker::addCurrentTime,
-                TemporalAccessorPicker::getDate);
+        BindingsHelper.bindBidirectional(
+            valueProperty(),
+            temporalAccessorValue,
+            TemporalAccessorPicker::addCurrentTime,
+            TemporalAccessorPicker::getDate
+        );
 
         getEditor().setOnContextMenuRequested(event -> {
             ContextMenu contextMenu = new ContextMenu();
-            contextMenu.getItems().setAll(EditorContextAction.getDefaultContextMenuItems(getEditor()));
+            contextMenu
+                .getItems()
+                .setAll(
+                    EditorContextAction.getDefaultContextMenuItems(getEditor())
+                );
             contextMenu.show(this, event.getScreenX(), event.getScreenY());
         });
     }
@@ -95,34 +104,44 @@ public class TemporalAccessorPicker extends DatePicker {
         }
     }
 
-    public final ObjectProperty<StringConverter<TemporalAccessor>> stringConverterProperty() {
+    public final ObjectProperty<
+        StringConverter<TemporalAccessor>
+    > stringConverterProperty() {
         return converter;
     }
 
     public final StringConverter<TemporalAccessor> getStringConverter() {
-        Supplier<StringConverter<TemporalAccessor>> converterSupplier = () -> new StringConverter<>() {
-            @Override
-            public String toString(TemporalAccessor value) {
-                return defaultFormatter.format(value);
-            }
-
-            @Override
-            public TemporalAccessor fromString(String value) {
-                if (StringUtil.isNotBlank(value)) {
-                    try {
-                        return defaultFormatter.parse(value);
-                    } catch (DateTimeParseException _) {
-                        return Date.parse(value).map(Date::toTemporalAccessor).orElse(null);
-                    }
-                } else {
-                    return null;
+        Supplier<StringConverter<TemporalAccessor>> converterSupplier = () ->
+            new StringConverter<>() {
+                @Override
+                public String toString(TemporalAccessor value) {
+                    return defaultFormatter.format(value);
                 }
-            }
-        };
-        return Objects.requireNonNullElseGet(stringConverterProperty().get(), converterSupplier);
+
+                @Override
+                public TemporalAccessor fromString(String value) {
+                    if (StringUtil.isNotBlank(value)) {
+                        try {
+                            return defaultFormatter.parse(value);
+                        } catch (DateTimeParseException _) {
+                            return Date.parse(value)
+                                .map(Date::toTemporalAccessor)
+                                .orElse(null);
+                        }
+                    } else {
+                        return null;
+                    }
+                }
+            };
+        return Objects.requireNonNullElseGet(
+            stringConverterProperty().get(),
+            converterSupplier
+        );
     }
 
-    public final void setStringConverter(StringConverter<TemporalAccessor> value) {
+    public final void setStringConverter(
+        StringConverter<TemporalAccessor> value
+    ) {
         stringConverterProperty().set(value);
     }
 
@@ -130,7 +149,9 @@ public class TemporalAccessorPicker extends DatePicker {
         return temporalAccessorValue.get();
     }
 
-    public void setTemporalAccessorValue(TemporalAccessor temporalAccessorValue) {
+    public void setTemporalAccessorValue(
+        TemporalAccessor temporalAccessorValue
+    ) {
         this.temporalAccessorValue.set(temporalAccessorValue);
     }
 
@@ -139,12 +160,15 @@ public class TemporalAccessorPicker extends DatePicker {
     }
 
     private class InternalConverter extends StringConverter<LocalDate> {
+
         @Override
         public String toString(LocalDate object) {
             TemporalAccessor value = getTemporalAccessorValue();
 
             // Keeps the original text when it is an invalid date
-            return value != null ? getStringConverter().toString(value) : getEditor().getText();
+            return value != null
+                ? getStringConverter().toString(value)
+                : getEditor().getText();
         }
 
         @Override

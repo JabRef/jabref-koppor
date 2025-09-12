@@ -1,10 +1,13 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.search.query.SearchQueryVisitor;
@@ -14,14 +17,9 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.testutils.category.FetcherTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 @FetcherTest
 class GvkFetcherTest {
@@ -32,32 +30,43 @@ class GvkFetcherTest {
 
     @BeforeEach
     void setUp() {
-        fetcher = new GvkFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        fetcher = new GvkFetcher(
+            mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS)
+        );
 
         bibEntryPPN591166003 = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java")
-                .withField(StandardField.PUBLISHER, "Addison-Wesley")
-                .withField(StandardField.YEAR, "2008")
-                .withField(StandardField.AUTHOR, "Bloch, Joshua")
-                .withField(StandardField.SERIES, "The Java series ... from the source")
-                .withField(StandardField.ADDRESS, "Upper Saddle River, NJ")
-                .withField(StandardField.EDITION, "2. ed., 5. print.")
-                .withField(StandardField.NOTE, "Includes bibliographical references and index. - Previous ed.: 2001. - Hier auch später erschienene, unveränderte Nachdrucke")
-                .withField(StandardField.ISBN, "9780321356680")
-                .withField(StandardField.PAGETOTAL, "346")
-                .withField(new UnknownField("ppn_gvk"), "591166003")
-                .withField(StandardField.SUBTITLE, "[revised and updated for JAVA SE 6]");
+            .withField(StandardField.TITLE, "Effective Java")
+            .withField(StandardField.PUBLISHER, "Addison-Wesley")
+            .withField(StandardField.YEAR, "2008")
+            .withField(StandardField.AUTHOR, "Bloch, Joshua")
+            .withField(
+                StandardField.SERIES,
+                "The Java series ... from the source"
+            )
+            .withField(StandardField.ADDRESS, "Upper Saddle River, NJ")
+            .withField(StandardField.EDITION, "2. ed., 5. print.")
+            .withField(
+                StandardField.NOTE,
+                "Includes bibliographical references and index. - Previous ed.: 2001. - Hier auch später erschienene, unveränderte Nachdrucke"
+            )
+            .withField(StandardField.ISBN, "9780321356680")
+            .withField(StandardField.PAGETOTAL, "346")
+            .withField(new UnknownField("ppn_gvk"), "591166003")
+            .withField(
+                StandardField.SUBTITLE,
+                "[revised and updated for JAVA SE 6]"
+            );
 
         bibEntryPPN66391437X = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective unit testing")
-                .withField(StandardField.PUBLISHER, "Manning")
-                .withField(StandardField.YEAR, "2013")
-                .withField(StandardField.AUTHOR, "Koskela, Lasse")
-                .withField(StandardField.ADDRESS, "Shelter Island, NY")
-                .withField(StandardField.ISBN, "9781935182573")
-                .withField(StandardField.PAGETOTAL, "223")
-                .withField(new UnknownField("ppn_gvk"), "66391437X")
-                .withField(StandardField.SUBTITLE, "A guide for Java developers");
+            .withField(StandardField.TITLE, "Effective unit testing")
+            .withField(StandardField.PUBLISHER, "Manning")
+            .withField(StandardField.YEAR, "2013")
+            .withField(StandardField.AUTHOR, "Koskela, Lasse")
+            .withField(StandardField.ADDRESS, "Shelter Island, NY")
+            .withField(StandardField.ISBN, "9781935182573")
+            .withField(StandardField.PAGETOTAL, "223")
+            .withField(new UnknownField("ppn_gvk"), "66391437X")
+            .withField(StandardField.SUBTITLE, "A guide for Java developers");
     }
 
     @Test
@@ -66,26 +75,44 @@ class GvkFetcherTest {
     }
 
     @Test
-    void simpleSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void simpleSearchQueryURLCorrect()
+        throws MalformedURLException, URISyntaxException {
         String query = "java jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
-        SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
-        URL url = fetcher.getURLForQuery(visitor.visitStart(searchQueryObject.getContext()));
-        assertEquals("https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.all%3Djava%20and%20pica.all%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1", url.toString());
+        SearchQueryVisitor visitor = new SearchQueryVisitor(
+            searchQueryObject.getSearchFlags()
+        );
+        URL url = fetcher.getURLForQuery(
+            visitor.visitStart(searchQueryObject.getContext())
+        );
+        assertEquals(
+            "https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.all%3Djava%20and%20pica.all%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1",
+            url.toString()
+        );
     }
 
     @Test
-    void complexSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void complexSearchQueryURLCorrect()
+        throws MalformedURLException, URISyntaxException {
         String query = "kon=java tit=jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
-        SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
-        URL url = fetcher.getURLForQuery(visitor.visitStart(searchQueryObject.getContext()));
-        assertEquals("https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.kon%3Djava%20and%20pica.tit%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1", url.toString());
+        SearchQueryVisitor visitor = new SearchQueryVisitor(
+            searchQueryObject.getSearchFlags()
+        );
+        URL url = fetcher.getURLForQuery(
+            visitor.visitStart(searchQueryObject.getContext())
+        );
+        assertEquals(
+            "https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.kon%3Djava%20and%20pica.tit%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1",
+            url.toString()
+        );
     }
 
     @Test
     void performSearchMatchingMultipleEntries() throws FetcherException {
-        List<BibEntry> searchResult = fetcher.performSearch("title=\"effective java\"");
+        List<BibEntry> searchResult = fetcher.performSearch(
+            "title=\"effective java\""
+        );
         assertTrue(searchResult.contains(bibEntryPPN591166003));
         assertTrue(searchResult.contains(bibEntryPPN66391437X));
     }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -14,7 +13,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.Version;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +26,9 @@ import org.slf4j.LoggerFactory;
  */
 public class VersionWorker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VersionWorker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        VersionWorker.class
+    );
 
     /**
      * The current version of the installed JabRef
@@ -40,15 +40,18 @@ public class VersionWorker {
     private final InternalPreferences internalPreferences;
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    public VersionWorker(Version installedVersion,
-                         DialogService dialogService,
-                         TaskExecutor taskExecutor,
-                         GuiPreferences preferences) {
+    public VersionWorker(
+        Version installedVersion,
+        DialogService dialogService,
+        TaskExecutor taskExecutor,
+        GuiPreferences preferences
+    ) {
         this.installedVersion = Objects.requireNonNull(installedVersion);
         this.dialogService = Objects.requireNonNull(dialogService);
         this.taskExecutor = Objects.requireNonNull(taskExecutor);
         this.internalPreferences = preferences.getInternalPreferences();
-        this.externalApplicationsPreferences = preferences.getExternalApplicationsPreferences();
+        this.externalApplicationsPreferences =
+            preferences.getExternalApplicationsPreferences();
     }
 
     /**
@@ -62,26 +65,37 @@ public class VersionWorker {
 
     public void checkForNewVersionAsync() {
         BackgroundTask.wrap(this::getNewVersion)
-                      .onSuccess(version -> showUpdateInfo(version, true))
-                      .onFailure(exception -> showConnectionError(exception, true))
-                      .executeWith(taskExecutor);
+            .onSuccess(version -> showUpdateInfo(version, true))
+            .onFailure(exception -> showConnectionError(exception, true))
+            .executeWith(taskExecutor);
     }
 
     public void checkForNewVersionDelayed() {
         BackgroundTask.wrap(this::getNewVersion)
-                      .onSuccess(version -> showUpdateInfo(version, false))
-                      .onFailure(exception -> showConnectionError(exception, false))
-                      .scheduleWith(taskExecutor, 30, TimeUnit.SECONDS);
+            .onSuccess(version -> showUpdateInfo(version, false))
+            .onFailure(exception -> showConnectionError(exception, false))
+            .scheduleWith(taskExecutor, 30, TimeUnit.SECONDS);
     }
 
     /**
      * Prints the connection problem to the status bar and shows a dialog if it was executed manually
      */
-    private void showConnectionError(Exception exception, boolean manualExecution) {
+    private void showConnectionError(
+        Exception exception,
+        boolean manualExecution
+    ) {
         if (manualExecution) {
-            String couldNotConnect = Localization.lang("Could not connect to the update server.");
-            String tryLater = Localization.lang("Please try again later and/or check your network connection.");
-            dialogService.showErrorDialogAndWait(Localization.lang("Error"), couldNotConnect + "\n" + tryLater, exception);
+            String couldNotConnect = Localization.lang(
+                "Could not connect to the update server."
+            );
+            String tryLater = Localization.lang(
+                "Please try again later and/or check your network connection."
+            );
+            dialogService.showErrorDialogAndWait(
+                Localization.lang("Error"),
+                couldNotConnect + "\n" + tryLater,
+                exception
+            );
         }
         LOGGER.debug("Could not connect to the update server.", exception);
     }
@@ -90,17 +104,37 @@ public class VersionWorker {
      * Prints up-to-date to the status bar (and shows a dialog it was executed manually) if there is now new version.
      * Shows a "New Version" Dialog to the user if there is.
      */
-    private void showUpdateInfo(Optional<Version> newerVersion, boolean manualExecution) {
+    private void showUpdateInfo(
+        Optional<Version> newerVersion,
+        boolean manualExecution
+    ) {
         // no new version could be found, only respect the ignored version on automated version checks
-        if (newerVersion.isEmpty() || (newerVersion.get().equals(internalPreferences.getIgnoredVersion()) && !manualExecution)) {
+        if (
+            newerVersion.isEmpty()
+            || (newerVersion
+                    .get()
+                    .equals(internalPreferences.getIgnoredVersion())
+                && !manualExecution)
+        ) {
             if (manualExecution) {
-                dialogService.notify(Localization.lang("JabRef is up-to-date."));
+                dialogService.notify(
+                    Localization.lang("JabRef is up-to-date.")
+                );
             }
         } else {
             // notify the user about a newer version
-            if (dialogService.showCustomDialogAndWait(
-                    new NewVersionDialog(installedVersion, newerVersion.get(), dialogService, externalApplicationsPreferences))
-                             .orElse(true)) {
+            if (
+                dialogService
+                    .showCustomDialogAndWait(
+                        new NewVersionDialog(
+                            installedVersion,
+                            newerVersion.get(),
+                            dialogService,
+                            externalApplicationsPreferences
+                        )
+                    )
+                    .orElse(true)
+            ) {
                 internalPreferences.setIgnoredVersion(newerVersion.get());
             }
         }

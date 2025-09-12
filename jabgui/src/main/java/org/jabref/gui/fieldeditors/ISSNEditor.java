@@ -1,14 +1,13 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.Optional;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -22,49 +21,77 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 // TODO: Document why this is not an IdentifierEditor like ISBN and EPrint
 //       If there is no reason, then integrate it in IdentifierEditor
 public class ISSNEditor extends HBox implements FieldEditorFX {
-    @FXML private ISSNEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
-    @FXML private Button fetchInformationByIdentifierButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private UndoManager undoManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private StateManager stateManager;
+    @FXML
+    private ISSNEditorViewModel viewModel;
+
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button journalInfoButton;
+
+    @FXML
+    private Button fetchInformationByIdentifierButton;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private StateManager stateManager;
 
     private Optional<BibEntry> entry = Optional.empty();
 
-    public ISSNEditor(Field field,
-                      SuggestionProvider<?> suggestionProvider,
-                      FieldCheckers fieldCheckers,
-                      UndoAction undoAction,
-                      RedoAction redoAction) {
-
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    public ISSNEditor(
+        Field field,
+        SuggestionProvider<?> suggestionProvider,
+        FieldCheckers fieldCheckers,
+        UndoAction undoAction,
+        RedoAction redoAction
+    ) {
+        ViewLoader.view(this).root(this).load();
 
         this.viewModel = new ISSNEditorViewModel(
-                field,
-                suggestionProvider,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager,
-                stateManager,
-                preferences);
+            field,
+            suggestionProvider,
+            fieldCheckers,
+            taskExecutor,
+            dialogService,
+            undoManager,
+            stateManager,
+            preferences
+        );
 
-        establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
-        textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        establishBinding(
+            textField,
+            viewModel.textProperty(),
+            keyBindingRepository,
+            undoAction,
+            redoAction
+        );
+        textField.initContextMenu(
+            new DefaultMenu(textField),
+            keyBindingRepository
+        );
+        new EditorValidator(preferences).configureValidation(
+            viewModel.getFieldValidator().getValidationStatus(),
+            textField
+        );
     }
 
     public ISSNEditorViewModel getViewModel() {
@@ -94,7 +121,12 @@ public class ISSNEditor extends HBox implements FieldEditorFX {
 
     @FXML
     private void showJournalInfo() {
-        if (JournalInfoOptInDialogHelper.isJournalInfoEnabled(dialogService, preferences.getEntryEditorPreferences())) {
+        if (
+            JournalInfoOptInDialogHelper.isJournalInfoEnabled(
+                dialogService,
+                preferences.getEntryEditorPreferences()
+            )
+        ) {
             viewModel.showJournalInfo(journalInfoButton);
         }
     }

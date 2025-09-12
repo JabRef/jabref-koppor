@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.IdBasedParserFetcher;
@@ -26,8 +26,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,7 +33,8 @@ import org.jsoup.nodes.Element;
 /**
  * Fetcher for jstor.org
  **/
-public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, IdBasedParserFetcher {
+public class JstorFetcher
+    implements SearchBasedParserFetcher, FulltextFetcher, IdBasedParserFetcher {
 
     private static final String HOST = "https://www.jstor.org";
     private static final String SEARCH_HOST = HOST + "/open/search";
@@ -49,14 +48,21 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     }
 
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
+    public URL getURLForQuery(BaseQueryNode queryNode)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SEARCH_HOST);
-        uriBuilder.addParameter("Query", new JstorQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter(
+            "Query",
+            new JstorQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("")
+        );
         return uriBuilder.build().toURL();
     }
 
     @Override
-    public URL getUrlForIdentifier(String identifier) throws MalformedURLException {
+    public URL getUrlForIdentifier(String identifier)
+        throws MalformedURLException {
         String start = "https://www.jstor.org/citation/text/";
         if (identifier.startsWith("http")) {
             identifier = identifier.replace("https://www.jstor.org/stable", "");
@@ -77,7 +83,10 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
         return inputStream -> {
             BibtexParser parser = new BibtexParser(importFormatPreferences);
             String text = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines().collect(Collectors.joining());
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8)
+            )
+                .lines()
+                .collect(Collectors.joining());
 
             // does the input stream contain bibtex ?
             if (text.startsWith("@")) {
@@ -90,16 +99,25 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
                 Document doc = Jsoup.parse(inputStream, null, HOST);
 
                 StringBuilder stringBuilder = new StringBuilder();
-                List<Element> elements = doc.body().getElementsByClass("cite-this-item");
+                List<Element> elements = doc
+                    .body()
+                    .getElementsByClass("cite-this-item");
                 for (Element element : elements) {
-                    String id = element.attr("href").replace("citation/info/", "");
+                    String id = element
+                        .attr("href")
+                        .replace("citation/info/", "");
 
                     String data = new URLDownload(CITE_HOST + id).asString();
                     stringBuilder.append(data);
                 }
-                entries = new ArrayList<>(parser.parseEntries(stringBuilder.toString()));
+                entries = new ArrayList<>(
+                    parser.parseEntries(stringBuilder.toString())
+                );
             } catch (IOException | FetcherException e) {
-                throw new ParseException("Could not download data from jstor.org", e);
+                throw new ParseException(
+                    "Could not download data from jstor.org",
+                    e
+                );
             }
             return entries;
         };
@@ -111,12 +129,15 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     }
 
     @Override
-    public Optional<URL> findFullText(BibEntry entry) throws FetcherException, IOException {
+    public Optional<URL> findFullText(BibEntry entry)
+        throws FetcherException, IOException {
         if (entry.getField(StandardField.URL).isEmpty()) {
             return Optional.empty();
         }
 
-        String page = new URLDownload(entry.getField(StandardField.URL).get()).asString();
+        String page = new URLDownload(
+            entry.getField(StandardField.URL).get()
+        ).asString();
 
         Document doc = Jsoup.parse(page);
 

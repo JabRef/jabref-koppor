@@ -14,7 +14,6 @@ import org.jabref.logic.preferences.CliPreferences;
  * flexible manner.
  */
 public interface GUIPostOpenAction {
-
     /**
      * This method is queried in order to find out whether the action needs to be
      * performed or not.
@@ -22,7 +21,11 @@ public interface GUIPostOpenAction {
      * @param pr The result of the BIB parse operation.
      * @return true if the action should be called, false otherwise.
      */
-    boolean isActionNecessary(ParserResult pr, DialogService dialogService, CliPreferences preferences);
+    boolean isActionNecessary(
+        ParserResult pr,
+        DialogService dialogService,
+        CliPreferences preferences
+    );
 
     /**
      * This method is called after the new database has been added to the GUI, if
@@ -34,5 +37,9 @@ public interface GUIPostOpenAction {
      *
      * @param pr    The result of the BIB parse operation.
      */
-    void performAction(ParserResult pr, DialogService dialogService, CliPreferences preferences);
+    void performAction(
+        ParserResult pr,
+        DialogService dialogService,
+        CliPreferences preferences
+    );
 }

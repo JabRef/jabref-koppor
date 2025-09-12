@@ -2,7 +2,6 @@ package org.jabref.logic.externalfiles;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.OpenDatabase;
@@ -15,19 +14,34 @@ public class ExternalFilesContentImporter {
 
     private final ImportFormatPreferences importFormatPreferences;
 
-    public ExternalFilesContentImporter(ImportFormatPreferences importFormatPreferences) {
+    public ExternalFilesContentImporter(
+        ImportFormatPreferences importFormatPreferences
+    ) {
         this.importFormatPreferences = importFormatPreferences;
     }
 
-    public ParserResult importPDFContent(Path file, BibDatabaseContext context, FilePreferences filePreferences) {
+    public ParserResult importPDFContent(
+        Path file,
+        BibDatabaseContext context,
+        FilePreferences filePreferences
+    ) {
         try {
-            return new PdfMergeMetadataImporter(importFormatPreferences).importDatabase(file, context, filePreferences);
+            return new PdfMergeMetadataImporter(
+                importFormatPreferences
+            ).importDatabase(file, context, filePreferences);
         } catch (IOException e) {
-           return ParserResult.fromError(e);
+            return ParserResult.fromError(e);
         }
     }
 
-    public ParserResult importFromBibFile(Path bibFile, FileUpdateMonitor fileUpdateMonitor) throws IOException {
-        return OpenDatabase.loadDatabase(bibFile, importFormatPreferences, fileUpdateMonitor);
+    public ParserResult importFromBibFile(
+        Path bibFile,
+        FileUpdateMonitor fileUpdateMonitor
+    ) throws IOException {
+        return OpenDatabase.loadDatabase(
+            bibFile,
+            importFormatPreferences,
+            fileUpdateMonitor
+        );
     }
 }

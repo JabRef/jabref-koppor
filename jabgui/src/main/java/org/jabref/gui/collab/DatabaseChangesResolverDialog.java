@@ -1,11 +1,11 @@
 package org.jabref.gui.collab;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,7 +13,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.PreviewViewer;
@@ -22,28 +22,33 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
-    private final static Logger LOGGER = LoggerFactory.getLogger(DatabaseChangesResolverDialog.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        DatabaseChangesResolverDialog.class
+    );
     /**
      * Reconstructing the details view to preview an {@link DatabaseChange} every time it's selected is a heavy operation.
      * It is also useless because changes are static and if the change data is static then the view doesn't have to change
      * either. This cache is used to ensure that we only create the detail view instance once for each {@link DatabaseChange}.
      */
-    private final Map<DatabaseChange, DatabaseChangeDetailsView> DETAILS_VIEW_CACHE = new HashMap<>();
+    private final Map<
+        DatabaseChange,
+        DatabaseChangeDetailsView
+    > DETAILS_VIEW_CACHE = new HashMap<>();
 
     @FXML
     private TableView<DatabaseChange> changesTableView;
+
     @FXML
     private TableColumn<DatabaseChange, String> changeName;
+
     @FXML
     private Button askUserToResolveChangeButton;
+
     @FXML
     private BorderPane changeInfoPane;
 
@@ -55,12 +60,23 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
     private boolean areAllChangesAccepted;
     private boolean areAllChangesDenied;
 
-    @Inject private UndoManager undoManager;
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private ThemeManager themeManager;
-    @Inject private BibEntryTypesManager entryTypesManager;
-    @Inject private TaskExecutor taskExecutor;
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private ThemeManager themeManager;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
 
     /**
      * A dialog going through given <code>changes</code>, which are diffs to the provided <code>database</code>.
@@ -69,14 +85,16 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
      * @param changes The list of changes
      * @param database The database to apply the changes to
      */
-    public DatabaseChangesResolverDialog(List<DatabaseChange> changes, BibDatabaseContext database, String dialogTitle) {
+    public DatabaseChangesResolverDialog(
+        List<DatabaseChange> changes,
+        BibDatabaseContext database,
+        String dialogTitle
+    ) {
         this.changes = changes;
         this.database = database;
 
         this.setTitle(dialogTitle);
-        ViewLoader.view(this)
-                .load()
-                .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         this.setResultConverter(button -> {
             if (viewModel.areAllChangesResolved()) {
@@ -99,35 +117,67 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
 
     @FXML
     private void initialize() {
-        PreviewViewer previewViewer = new PreviewViewer(dialogService, preferences, themeManager, taskExecutor);
+        PreviewViewer previewViewer = new PreviewViewer(
+            dialogService,
+            preferences,
+            themeManager,
+            taskExecutor
+        );
         previewViewer.setDatabaseContext(database);
-        DatabaseChangeDetailsViewFactory databaseChangeDetailsViewFactory = new DatabaseChangeDetailsViewFactory(database, dialogService, themeManager, preferences, entryTypesManager, previewViewer, taskExecutor);
+        DatabaseChangeDetailsViewFactory databaseChangeDetailsViewFactory =
+            new DatabaseChangeDetailsViewFactory(
+                database,
+                dialogService,
+                themeManager,
+                preferences,
+                entryTypesManager,
+                previewViewer,
+                taskExecutor
+            );
 
         viewModel = new ExternalChangesResolverViewModel(changes, undoManager);
 
-        changeName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getName()));
-        askUserToResolveChangeButton.disableProperty().bind(viewModel.canAskUserToResolveChangeProperty().not());
+        changeName.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getName())
+        );
+        askUserToResolveChangeButton
+            .disableProperty()
+            .bind(viewModel.canAskUserToResolveChangeProperty().not());
 
         changesTableView.setItems(viewModel.getVisibleChanges());
         // Think twice before setting this to MULTIPLE...
-        changesTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        changesTableView
+            .getSelectionModel()
+            .setSelectionMode(SelectionMode.SINGLE);
         changesTableView.getSelectionModel().selectFirst();
 
-        viewModel.selectedChangeProperty().bind(changesTableView.getSelectionModel().selectedItemProperty());
-        EasyBind.subscribe(viewModel.selectedChangeProperty(), selectedChange -> {
-            if (selectedChange != null) {
-                DatabaseChangeDetailsView detailsView = DETAILS_VIEW_CACHE.computeIfAbsent(selectedChange, databaseChangeDetailsViewFactory::create);
-                changeInfoPane.setCenter(detailsView);
+        viewModel
+            .selectedChangeProperty()
+            .bind(changesTableView.getSelectionModel().selectedItemProperty());
+        EasyBind.subscribe(
+            viewModel.selectedChangeProperty(),
+            selectedChange -> {
+                if (selectedChange != null) {
+                    DatabaseChangeDetailsView detailsView =
+                        DETAILS_VIEW_CACHE.computeIfAbsent(
+                            selectedChange,
+                            databaseChangeDetailsViewFactory::create
+                        );
+                    changeInfoPane.setCenter(detailsView);
+                }
             }
-        });
+        );
 
-        EasyBind.subscribe(viewModel.areAllChangesResolvedProperty(), isResolved -> {
-            if (isResolved) {
-                areAllChangesAccepted = viewModel.areAllChangesAccepted();
-                areAllChangesDenied = viewModel.areAllChangesDenied();
-                close();
+        EasyBind.subscribe(
+            viewModel.areAllChangesResolvedProperty(),
+            isResolved -> {
+                if (isResolved) {
+                    areAllChangesAccepted = viewModel.areAllChangesAccepted();
+                    areAllChangesDenied = viewModel.areAllChangesDenied();
+                    close();
+                }
             }
-        });
+        );
     }
 
     @FXML
@@ -142,7 +192,10 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
 
     @FXML
     public void askUserToResolveChange() {
-        viewModel.getSelectedChange().flatMap(DatabaseChange::getExternalChangeResolver)
-                 .flatMap(DatabaseChangeResolver::askUserToResolveChange).ifPresent(viewModel::acceptMergedChange);
+        viewModel
+            .getSelectedChange()
+            .flatMap(DatabaseChange::getExternalChangeResolver)
+            .flatMap(DatabaseChangeResolver::askUserToResolveChange)
+            .ifPresent(viewModel::acceptMergedChange);
     }
 }

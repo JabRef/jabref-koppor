@@ -1,5 +1,6 @@
 package org.jabref.gui.util;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
@@ -12,17 +13,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-
 import org.jabref.gui.StateManager;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.DelayTaskThrottler;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.TaskExecutor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +31,15 @@ import org.slf4j.LoggerFactory;
  */
 public class UiTaskExecutor implements TaskExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UiTaskExecutor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        UiTaskExecutor.class
+    );
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
-    private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(2);
-    private final WeakHashMap<DelayTaskThrottler, Void> throttlers = new WeakHashMap<>();
+    private final ScheduledExecutorService scheduledExecutor =
+        Executors.newScheduledThreadPool(2);
+    private final WeakHashMap<DelayTaskThrottler, Void> throttlers =
+        new WeakHashMap<>();
 
     public static <V> V runInJavaFXThread(Callable<V> callable) {
         if (Platform.isFxApplicationThread()) {
@@ -111,16 +112,22 @@ public class UiTaskExecutor implements TaskExecutor {
     public <V> Future<V> execute(BackgroundTask<V> task) {
         Task<V> javafxTask = getJavaFXTask(task);
 
-        StateManager stateManager = Injector.instantiateModelOrService(StateManager.class);
-        task.showToUserProperty().subscribe(showToUser -> {
-            if (showToUser) {
-                if (stateManager != null) {
-                    runInJavaFXThread(() -> stateManager.addBackgroundTask(task, javafxTask));
-                } else {
-                    LOGGER.info("Background task visible without GUI");
+        StateManager stateManager = Injector.instantiateModelOrService(
+            StateManager.class
+        );
+        task
+            .showToUserProperty()
+            .subscribe(showToUser -> {
+                if (showToUser) {
+                    if (stateManager != null) {
+                        runInJavaFXThread(() ->
+                            stateManager.addBackgroundTask(task, javafxTask)
+                        );
+                    } else {
+                        LOGGER.info("Background task visible without GUI");
+                    }
                 }
-            }
-        });
+            });
         return execute(javafxTask);
     }
 
@@ -137,7 +144,11 @@ public class UiTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public <V> Future<?> schedule(BackgroundTask<V> task, long delay, TimeUnit unit) {
+    public <V> Future<?> schedule(
+        BackgroundTask<V> task,
+        long delay,
+        TimeUnit unit
+    ) {
         return scheduledExecutor.schedule(getJavaFXTask(task), delay, unit);
     }
 
@@ -146,9 +157,15 @@ public class UiTaskExecutor implements TaskExecutor {
      */
     @Override
     public void shutdown() {
-        StateManager stateManager = Injector.instantiateModelOrService(StateManager.class);
+        StateManager stateManager = Injector.instantiateModelOrService(
+            StateManager.class
+        );
         if (stateManager != null) {
-            stateManager.getBackgroundTasks().stream().filter(task -> !task.isDone()).forEach(Task::cancel);
+            stateManager
+                .getBackgroundTasks()
+                .stream()
+                .filter(task -> !task.isDone())
+                .forEach(Task::cancel);
         }
         executor.shutdownNow();
         scheduledExecutor.shutdownNow();
@@ -174,14 +191,27 @@ public class UiTaskExecutor implements TaskExecutor {
             {
                 this.updateMessage(task.messageProperty().get());
                 this.updateTitle(task.titleProperty().get());
-                BindingsHelper.subscribeFuture(task.progressProperty(), progress -> updateProgress(progress.workDone(), progress.max()));
-                BindingsHelper.subscribeFuture(task.messageProperty(), this::updateMessage);
-                BindingsHelper.subscribeFuture(task.titleProperty(), this::updateTitle);
-                BindingsHelper.subscribeFuture(task.isCancelledProperty(), cancelled -> {
-                    if (cancelled) {
-                        cancel();
+                BindingsHelper.subscribeFuture(
+                    task.progressProperty(),
+                    progress ->
+                        updateProgress(progress.workDone(), progress.max())
+                );
+                BindingsHelper.subscribeFuture(
+                    task.messageProperty(),
+                    this::updateMessage
+                );
+                BindingsHelper.subscribeFuture(
+                    task.titleProperty(),
+                    this::updateTitle
+                );
+                BindingsHelper.subscribeFuture(
+                    task.isCancelledProperty(),
+                    cancelled -> {
+                        if (cancelled) {
+                            cancel();
+                        }
                     }
-                });
+                );
                 setOnCancelled(_ -> task.cancel());
             }
 
@@ -206,7 +236,9 @@ public class UiTaskExecutor implements TaskExecutor {
         });
         Consumer<Exception> onException = task.getOnException();
         if (onException != null) {
-            javaTask.setOnFailed(_ -> onException.accept(convertToException(javaTask.getException())));
+            javaTask.setOnFailed(_ ->
+                onException.accept(convertToException(javaTask.getException()))
+            );
         }
         return javaTask;
     }

@@ -3,11 +3,9 @@ package org.jabref.model.entry.field;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
-
 import org.jabref.model.entry.types.BiblatexSoftwareEntryType;
 
 public enum BiblatexSoftwareField implements Field {
-
     HALID("hal_id"),
     HALVERSION("hal_version"),
     INTRODUCEDIN("introducedin"),
@@ -33,25 +31,37 @@ public enum BiblatexSoftwareField implements Field {
         this.properties = EnumSet.noneOf(FieldProperty.class);
     }
 
-    BiblatexSoftwareField(String name, String displayName, FieldProperty first, FieldProperty... rest) {
+    BiblatexSoftwareField(
+        String name,
+        String displayName,
+        FieldProperty first,
+        FieldProperty... rest
+    ) {
         this.name = name;
         this.displayName = displayName;
         this.properties = EnumSet.of(first, rest);
     }
 
-    BiblatexSoftwareField(String name, FieldProperty first, FieldProperty... rest) {
+    BiblatexSoftwareField(
+        String name,
+        FieldProperty first,
+        FieldProperty... rest
+    ) {
         this.name = name;
         this.displayName = null;
         this.properties = EnumSet.of(first, rest);
     }
 
-    public static <T> Optional<BiblatexSoftwareField> fromName(T type, String name) {
+    public static <T> Optional<BiblatexSoftwareField> fromName(
+        T type,
+        String name
+    ) {
         if (!(type instanceof BiblatexSoftwareEntryType)) {
             return Optional.empty();
         }
         return Arrays.stream(BiblatexSoftwareField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+            .filter(field -> field.getName().equalsIgnoreCase(name))
+            .findAny();
     }
 
     @Override

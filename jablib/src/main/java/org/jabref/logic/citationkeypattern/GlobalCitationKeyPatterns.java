@@ -13,7 +13,9 @@ public class GlobalCitationKeyPatterns extends AbstractCitationKeyPatterns {
     }
 
     @Override
-    public CitationKeyPattern getLastLevelCitationKeyPattern(EntryType entryType) {
+    public CitationKeyPattern getLastLevelCitationKeyPattern(
+        EntryType entryType
+    ) {
         return defaultPattern;
     }
 }

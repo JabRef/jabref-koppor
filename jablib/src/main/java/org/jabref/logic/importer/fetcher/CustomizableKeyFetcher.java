@@ -4,7 +4,6 @@ import org.jabref.logic.importer.WebFetcher;
 
 /// Fetchers implementing this interface support customizable keys
 public interface CustomizableKeyFetcher extends WebFetcher {
-
     /// Returns an URL for testing a key
     ///
     /// The key is appended at the URL

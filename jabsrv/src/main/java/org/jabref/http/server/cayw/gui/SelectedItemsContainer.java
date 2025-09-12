@@ -25,16 +25,18 @@ public class SelectedItemsContainer extends FlowPane {
 
         items.forEach(this::addChip);
 
-        items.addListener((ListChangeListener<CAYWEntry>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(this::addChip);
-                }
-                if (change.wasRemoved()) {
-                    change.getRemoved().forEach(this::removeChip);
+        items.addListener(
+            (ListChangeListener<CAYWEntry>) change -> {
+                while (change.next()) {
+                    if (change.wasAdded()) {
+                        change.getAddedSubList().forEach(this::addChip);
+                    }
+                    if (change.wasRemoved()) {
+                        change.getRemoved().forEach(this::removeChip);
+                    }
                 }
             }
-        });
+        );
     }
 
     private void addChip(CAYWEntry entry) {
@@ -52,6 +54,7 @@ public class SelectedItemsContainer extends FlowPane {
     }
 
     private static class Chip extends HBox {
+
         private final CAYWEntry entry;
 
         public Chip(CAYWEntry entry, ObservableList<CAYWEntry> parentList) {

@@ -1,9 +1,9 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -18,8 +18,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,8 +25,12 @@ import org.slf4j.LoggerFactory;
 
 /// Side effect that opens a specified library in a new tab.
 public class OpenLibrarySideEffect implements WalkthroughSideEffect {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenLibrarySideEffect.class);
-    private static final String WALKTHROUGH_LIBRARY_TEMPLATE = "Example Library (%s)";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        OpenLibrarySideEffect.class
+    );
+    private static final String WALKTHROUGH_LIBRARY_TEMPLATE =
+        "Example Library (%s)";
 
     private final String libraryName;
     private final LibraryTabContainer tabContainer;
@@ -39,9 +41,14 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
         this(frame, "Chocolate.bib");
     }
 
-    public OpenLibrarySideEffect(LibraryTabContainer frame, String libraryName) {
+    public OpenLibrarySideEffect(
+        LibraryTabContainer frame,
+        String libraryName
+    ) {
         this.tabContainer = frame;
-        this.stateManager = Injector.instantiateModelOrService(StateManager.class);
+        this.stateManager = Injector.instantiateModelOrService(
+            StateManager.class
+        );
         this.libraryName = libraryName;
     }
 
@@ -57,7 +64,9 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
         // Check if example library is already open
         Optional<LibraryTab> existingTabOpt = findLibraryTab();
         if (existingTabOpt.isPresent()) {
-            LOGGER.debug("Example library already open, selecting existing tab");
+            LOGGER.debug(
+                "Example library already open, selecting existing tab"
+            );
             tabContainer.showLibraryTab(existingTabOpt.get());
             createdTab = existingTabOpt.get();
             return true;
@@ -71,20 +80,22 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
             }
 
             LibraryTab libraryTab = LibraryTab.createLibraryTab(
-                    databaseContext.get(),
-                    tabContainer,
-                    Injector.instantiateModelOrService(DialogService.class),
-                    Injector.instantiateModelOrService(AiService.class),
-                    Injector.instantiateModelOrService(GuiPreferences.class),
-                    stateManager,
-                    Injector.instantiateModelOrService(FileUpdateMonitor.class),
-                    Injector.instantiateModelOrService(BibEntryTypesManager.class),
-                    Injector.instantiateModelOrService(CountingUndoManager.class),
-                    Injector.instantiateModelOrService(ClipBoardManager.class),
-                    Injector.instantiateModelOrService(TaskExecutor.class)
+                databaseContext.get(),
+                tabContainer,
+                Injector.instantiateModelOrService(DialogService.class),
+                Injector.instantiateModelOrService(AiService.class),
+                Injector.instantiateModelOrService(GuiPreferences.class),
+                stateManager,
+                Injector.instantiateModelOrService(FileUpdateMonitor.class),
+                Injector.instantiateModelOrService(BibEntryTypesManager.class),
+                Injector.instantiateModelOrService(CountingUndoManager.class),
+                Injector.instantiateModelOrService(ClipBoardManager.class),
+                Injector.instantiateModelOrService(TaskExecutor.class)
             );
 
-            libraryTab.setText(WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName));
+            libraryTab.setText(
+                WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName)
+            );
 
             tabContainer.addTab(libraryTab, true);
             createdTab = libraryTab;
@@ -134,26 +145,50 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
     }
 
     private Optional<LibraryTab> findLibraryTab() {
-        return tabContainer.getLibraryTabs().stream()
-                           .filter(tab -> WALKTHROUGH_LIBRARY_TEMPLATE
-                                   .formatted(libraryName).equals(tab.getText()) ||
-                                   (tab.getBibDatabaseContext().getDatabasePath().isEmpty() &&
-                                           tab.getBibDatabaseContext().getDatabase().getEntryCount() > 0))
-                           .findFirst();
+        return tabContainer
+            .getLibraryTabs()
+            .stream()
+            .filter(
+                tab ->
+                    WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName).equals(
+                        tab.getText()
+                    )
+                    || (tab.getBibDatabaseContext().getDatabasePath().isEmpty()
+                        && tab
+                            .getBibDatabaseContext()
+                            .getDatabase()
+                            .getEntryCount()
+                        > 0)
+            )
+            .findFirst();
     }
 
     private Optional<BibDatabaseContext> loadExampleLibrary() {
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(libraryName)) {
+        try (
+            InputStream in = getClass()
+                .getClassLoader()
+                .getResourceAsStream(libraryName)
+        ) {
             if (in == null) {
                 LOGGER.warn("\"{}\" Library file not found", libraryName);
                 return Optional.empty();
             }
 
-            return Optional.of(OpenDatabase.loadDatabase(in,
-                    Injector.instantiateModelOrService(GuiPreferences.class).getImportFormatPreferences(),
-                    Injector.instantiateModelOrService(FileUpdateMonitor.class)).getDatabaseContext());
+            return Optional.of(
+                OpenDatabase.loadDatabase(
+                    in,
+                    Injector.instantiateModelOrService(
+                        GuiPreferences.class
+                    ).getImportFormatPreferences(),
+                    Injector.instantiateModelOrService(FileUpdateMonitor.class)
+                ).getDatabaseContext()
+            );
         } catch (IOException e) {
-            LOGGER.error("Failed to load \"{}\" library from resource", libraryName, e);
+            LOGGER.error(
+                "Failed to load \"{}\" library from resource",
+                libraryName,
+                e
+            );
             return Optional.empty();
         }
     }

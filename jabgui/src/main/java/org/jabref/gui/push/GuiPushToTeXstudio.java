@@ -6,11 +6,16 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToTeXstudio;
 
-public class GuiPushToTeXstudio extends PushToTeXstudio implements GuiPushToApplication {
+public class GuiPushToTeXstudio
+    extends PushToTeXstudio
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToTeXstudio(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToTeXstudio(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }

@@ -6,22 +6,26 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.StateManager;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
-public abstract class AbstractAutomaticFieldEditorTabViewModel extends AbstractViewModel {
+public abstract class AbstractAutomaticFieldEditorTabViewModel
+    extends AbstractViewModel {
+
     protected final StateManager stateManager;
 
-    private final ObservableList<Field> allFields = FXCollections.observableArrayList();
+    private final ObservableList<Field> allFields =
+        FXCollections.observableArrayList();
 
-    public AbstractAutomaticFieldEditorTabViewModel(BibDatabase bibDatabase, StateManager stateManager) {
+    public AbstractAutomaticFieldEditorTabViewModel(
+        BibDatabase bibDatabase,
+        StateManager stateManager
+    ) {
         Objects.requireNonNull(bibDatabase);
         Objects.requireNonNull(stateManager);
         this.stateManager = stateManager;

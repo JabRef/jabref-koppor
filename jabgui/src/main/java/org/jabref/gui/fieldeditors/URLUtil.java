@@ -3,7 +3,6 @@ package org.jabref.gui.fieldeditors;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 
@@ -14,8 +13,7 @@ import org.jabref.gui.frame.ExternalApplicationsPreferences;
  */
 public class URLUtil {
 
-    private URLUtil() {
-    }
+    private URLUtil() {}
 
     /**
      * Look for the last '.' in the link, and return the following characters.
@@ -25,13 +23,22 @@ public class URLUtil {
      * @param link The link
      * @return The suffix, excluding the dot (e.g. "pdf")
      */
-    public static Optional<String> getSuffix(final String link, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public static Optional<String> getSuffix(
+        final String link,
+        ExternalApplicationsPreferences externalApplicationsPreferences
+    ) {
         String strippedLink = link;
         try {
             // Try to strip the query string, if any, to get the correct suffix:
             URL url = org.jabref.logic.util.URLUtil.create(link);
-            if ((url.getQuery() != null) && (url.getQuery().length() < (link.length() - 1))) {
-                strippedLink = link.substring(0, link.length() - url.getQuery().length() - 1);
+            if (
+                (url.getQuery() != null)
+                && (url.getQuery().length() < (link.length() - 1))
+            ) {
+                strippedLink = link.substring(
+                    0,
+                    link.length() - url.getQuery().length() - 1
+                );
             }
         } catch (MalformedURLException e) {
             // Don't report this error, since this getting the suffix is a non-critical
@@ -40,12 +47,20 @@ public class URLUtil {
         // First see if the stripped link gives a reasonable suffix:
         String suffix;
         int strippedLinkIndex = strippedLink.lastIndexOf('.');
-        if ((strippedLinkIndex <= 0) || (strippedLinkIndex == (strippedLink.length() - 1))) {
+        if (
+            (strippedLinkIndex <= 0)
+            || (strippedLinkIndex == (strippedLink.length() - 1))
+        ) {
             suffix = null;
         } else {
             suffix = strippedLink.substring(strippedLinkIndex + 1);
         }
-        if (!ExternalFileTypes.isExternalFileTypeByExt(suffix, externalApplicationsPreferences)) {
+        if (
+            !ExternalFileTypes.isExternalFileTypeByExt(
+                suffix,
+                externalApplicationsPreferences
+            )
+        ) {
             // If the suffix doesn't seem to give any reasonable file type, try
             // with the non-stripped link:
             int index = link.lastIndexOf('.');
@@ -53,7 +68,10 @@ public class URLUtil {
                 // No occurrence, or at the end
                 // Check if there are path separators in the suffix - if so, it is definitely
                 // not a proper suffix, so we should give up:
-                if (strippedLink.substring(strippedLinkIndex + 1).indexOf('/') >= 1) {
+                if (
+                    strippedLink.substring(strippedLinkIndex + 1).indexOf('/')
+                    >= 1
+                ) {
                     return Optional.empty();
                 } else {
                     return Optional.of(suffix); // return the first one we found, anyway.

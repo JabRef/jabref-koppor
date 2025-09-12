@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter;
 import org.jabref.logic.formatter.bibtexfields.NormalizePagesFormatter;
@@ -20,17 +20,30 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.BaseQueryNode;
 
-import org.apache.hc.core5.net.URIBuilder;
+public class GvkFetcher
+    extends AbstractIsbnFetcher
+    implements SearchBasedParserFetcher {
 
-public class GvkFetcher extends AbstractIsbnFetcher implements SearchBasedParserFetcher {
-
-    private static final String URL_PATTERN = "https://sru.k10plus.de/opac-de-627?";
+    private static final String URL_PATTERN =
+        "https://sru.k10plus.de/opac-de-627?";
 
     /**
      * Searchkeys are used to specify a search request. For example "tit" stands for "title".
      * If no searchkey is used, the default searchkey "all" is used.
      */
-    private final Collection<String> searchKeys = Arrays.asList("all", "tit", "per", "thm", "slw", "txt", "num", "kon", "ppn", "bkl", "erj");
+    private final Collection<String> searchKeys = Arrays.asList(
+        "all",
+        "tit",
+        "per",
+        "thm",
+        "slw",
+        "txt",
+        "num",
+        "kon",
+        "ppn",
+        "bkl",
+        "erj"
+    );
 
     public GvkFetcher(ImportFormatPreferences importFormatPreferences) {
         super(importFormatPreferences);
@@ -47,11 +60,15 @@ public class GvkFetcher extends AbstractIsbnFetcher implements SearchBasedParser
     }
 
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
+    public URL getURLForQuery(BaseQueryNode queryNode)
+        throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(URL_PATTERN);
         uriBuilder.addParameter("version", "1.1");
         uriBuilder.addParameter("operation", "searchRetrieve");
-        uriBuilder.addParameter("query", new GVKQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter(
+            "query",
+            new GVKQueryTransformer().transformSearchQuery(queryNode).orElse("")
+        );
         uriBuilder.addParameter("maximumRecords", "50");
         uriBuilder.addParameter("recordSchema", "picaxml");
         uriBuilder.addParameter("sortKeys", "Year,,1");
@@ -61,7 +78,8 @@ public class GvkFetcher extends AbstractIsbnFetcher implements SearchBasedParser
     }
 
     @Override
-    public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
+    public URL getUrlForIdentifier(String identifier)
+        throws URISyntaxException, MalformedURLException {
         this.ensureThatIsbnIsValid(identifier);
         URIBuilder uriBuilder = new URIBuilder(URL_PATTERN);
         uriBuilder.addParameter("version", "1.1");
@@ -85,9 +103,21 @@ public class GvkFetcher extends AbstractIsbnFetcher implements SearchBasedParser
         super.doPostCleanup(entry);
 
         // Fetcher returns page numbers as "30 Seiten" -> remove every non-digit character in the PAGETOTAL field
-        entry.getField(StandardField.PAGETOTAL).ifPresent(pages ->
-                entry.setField(StandardField.PAGETOTAL, pages.replaceAll("[\\D]", "")));
-        new FieldFormatterCleanup(StandardField.PAGETOTAL, new NormalizePagesFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter()).cleanup(entry);
+        entry
+            .getField(StandardField.PAGETOTAL)
+            .ifPresent(pages ->
+                entry.setField(
+                    StandardField.PAGETOTAL,
+                    pages.replaceAll("[\\D]", "")
+                )
+            );
+        new FieldFormatterCleanup(
+            StandardField.PAGETOTAL,
+            new NormalizePagesFormatter()
+        ).cleanup(entry);
+        new FieldFormatterCleanup(
+            StandardField.AUTHOR,
+            new NormalizeNamesFormatter()
+        ).cleanup(entry);
     }
 }

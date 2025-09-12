@@ -1,13 +1,12 @@
 package org.jabref.gui.walkthrough;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
 import org.jabref.gui.walkthrough.declarative.sideeffect.SideEffectExecutor;
@@ -22,15 +21,16 @@ import org.jabref.gui.walkthrough.utils.WalkthroughResolver.WalkthroughResult;
 import org.jabref.gui.walkthrough.utils.WalkthroughReverter;
 import org.jabref.gui.walkthrough.utils.WalkthroughScroller;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughOverlay {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughOverlay.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WalkthroughOverlay.class
+    );
 
     private final Map<Window, WindowOverlay> overlays = new HashMap<>();
     private final Stage stage;
@@ -49,9 +49,15 @@ public class WalkthroughOverlay {
         this.stage = stage;
         this.walkthrough = walkthrough;
         this.highlighter = new WalkthroughHighlighter();
-        this.highlighter.setOnBackgroundClick(this::showQuitConfirmationAndQuit);
+        this.highlighter.setOnBackgroundClick(
+            this::showQuitConfirmationAndQuit
+        );
         this.sideEffectExecutor = new SideEffectExecutor();
-        this.reverter = new WalkthroughReverter(walkthrough, stage, sideEffectExecutor);
+        this.reverter = new WalkthroughReverter(
+            walkthrough,
+            stage,
+            sideEffectExecutor
+        );
     }
 
     public void show(@NonNull WalkthroughStep step) {
@@ -62,20 +68,28 @@ public class WalkthroughOverlay {
             case SideEffect(String title, WalkthroughSideEffect sideEffect) -> {
                 LOGGER.debug("Executing side effect for step: {}", title);
 
-                if (sideEffectExecutor.executeForward(sideEffect, walkthrough)) {
+                if (
+                    sideEffectExecutor.executeForward(sideEffect, walkthrough)
+                ) {
                     walkthrough.nextStep();
                 } else {
-                    LOGGER.error("Failed to execute side effect: {}", sideEffect.description());
+                    LOGGER.error(
+                        "Failed to execute side effect: {}",
+                        sideEffect.description()
+                    );
                     LOGGER.warn("Side effect failed for step: {}", title);
                     reverter.findAndUndo();
                 }
             }
             case VisibleComponent component -> {
-                WindowResolver windowResolver = component.windowResolver().orElse(() -> Optional.of(stage));
+                WindowResolver windowResolver = component
+                    .windowResolver()
+                    .orElse(() -> Optional.of(stage));
                 resolver = new WalkthroughResolver(
-                        windowResolver,
-                        component.nodeResolver().orElse(null),
-                        this::handleResolutionResult);
+                    windowResolver,
+                    component.nodeResolver().orElse(null),
+                    this::handleResolutionResult
+                );
                 resolver.startResolution();
             }
         }
@@ -91,12 +105,15 @@ public class WalkthroughOverlay {
 
     public void showQuitConfirmationAndQuit() {
         hide();
-        DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
+        DialogService dialogService = Injector.instantiateModelOrService(
+            DialogService.class
+        );
         boolean shouldQuit = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Quit walkthrough"),
-                Localization.lang("Are you sure you want to quit the walkthrough?"),
-                Localization.lang("Quit walkthrough"),
-                Localization.lang("Continue walkthrough"));
+            Localization.lang("Quit walkthrough"),
+            Localization.lang("Are you sure you want to quit the walkthrough?"),
+            Localization.lang("Quit walkthrough"),
+            Localization.lang("Continue walkthrough")
+        );
 
         if (shouldQuit) {
             walkthrough.quit();
@@ -113,7 +130,10 @@ public class WalkthroughOverlay {
         if (result.wasSuccessful()) {
             displayWalkthroughStep(result);
         } else {
-            LOGGER.error("Failed to resolve node for step '{}'. Reverting.", walkthrough.getCurrentStep().title());
+            LOGGER.error(
+                "Failed to resolve node for step '{}'. Reverting.",
+                walkthrough.getCurrentStep().title()
+            );
             reverter.findAndUndo();
         }
         resolver = null;
@@ -122,28 +142,44 @@ public class WalkthroughOverlay {
     private void displayWalkthroughStep(WalkthroughResult result) {
         Optional<Window> window = result.window();
         if (window.isEmpty()) {
-            throw new IllegalStateException("Resolution should not be successful without Window being resolved.");
+            throw new IllegalStateException(
+                "Resolution should not be successful without Window being resolved."
+            );
         }
         this.resolvedWindow = window.get();
         this.resolvedNode = result.node().orElse(null);
-        VisibleComponent component = (VisibleComponent) walkthrough.getCurrentStep();
+        VisibleComponent component =
+            (VisibleComponent) walkthrough.getCurrentStep();
 
-        LOGGER.debug("Displaying overlay for component '{}'", component.title());
+        LOGGER.debug(
+            "Displaying overlay for component '{}'",
+            component.title()
+        );
 
         if (resolvedNode != null) {
             this.scroller = new WalkthroughScroller(resolvedNode);
         }
 
         highlighter.applyHighlight(
-                component.highlight().orElse(null),
-                resolvedWindow.getScene(),
-                resolvedNode);
-        WindowOverlay overlay = overlays.computeIfAbsent(resolvedWindow,
-                w -> new WindowOverlay(w, WalkthroughPane.getInstance(w), walkthrough));
+            component.highlight().orElse(null),
+            resolvedWindow.getScene(),
+            resolvedNode
+        );
+        WindowOverlay overlay = overlays.computeIfAbsent(resolvedWindow, w ->
+            new WindowOverlay(w, WalkthroughPane.getInstance(w), walkthrough)
+        );
 
         switch (component) {
-            case TooltipStep tooltip -> overlay.showTooltip(tooltip, resolvedNode, this::prepareForNavigation);
-            case PanelStep panel -> overlay.showPanel(panel, resolvedNode, this::prepareForNavigation);
+            case TooltipStep tooltip -> overlay.showTooltip(
+                tooltip,
+                resolvedNode,
+                this::prepareForNavigation
+            );
+            case PanelStep panel -> overlay.showPanel(
+                panel,
+                resolvedNode,
+                this::prepareForNavigation
+            );
         }
 
         reverter.attach(resolvedWindow, resolvedNode);

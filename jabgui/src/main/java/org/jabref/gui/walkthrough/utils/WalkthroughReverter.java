@@ -1,12 +1,11 @@
 package org.jabref.gui.walkthrough.utils;
 
+import com.sun.javafx.scene.NodeHelper;
 import java.util.Optional;
-
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.walkthrough.Walkthrough;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
@@ -15,15 +14,16 @@ import org.jabref.gui.walkthrough.declarative.sideeffect.WalkthroughSideEffect;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
-import com.sun.javafx.scene.NodeHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WalkthroughReverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughReverter.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WalkthroughReverter.class
+    );
     /// The use of delay is related to the following error that can be reproduced as of
     /// [00fc407](https://github.com/JabRef/jabref/tree/00fc407620b3132c0cdea8c65750d0e5616bb597):
     ///
@@ -54,15 +54,20 @@ public class WalkthroughReverter {
     private @Nullable Node resolvedNode;
     private @Nullable DelayedExecution reversion;
 
-    public WalkthroughReverter(@NonNull Walkthrough walkthrough,
-                               @NonNull Window fallbackWindow,
-                               @NonNull SideEffectExecutor sideEffectExecutor) {
+    public WalkthroughReverter(
+        @NonNull Walkthrough walkthrough,
+        @NonNull Window fallbackWindow,
+        @NonNull SideEffectExecutor sideEffectExecutor
+    ) {
         this.walkthrough = walkthrough;
         this.fallbackWindow = fallbackWindow;
         this.sideEffectExecutor = sideEffectExecutor;
     }
 
-    public void attach(@NonNull Window resolvedWindow, @Nullable Node resolvedNode) {
+    public void attach(
+        @NonNull Window resolvedWindow,
+        @Nullable Node resolvedNode
+    ) {
         detach();
 
         this.resolvedWindow = resolvedWindow;
@@ -70,28 +75,44 @@ public class WalkthroughReverter {
 
         windowShowingListener = (_, wasShowing, isShowing) -> {
             if (wasShowing && !isShowing) {
-                LOGGER.debug("Window for step '{}' closed. Reverting.", walkthrough.getCurrentStep().title());
+                LOGGER.debug(
+                    "Window for step '{}' closed. Reverting.",
+                    walkthrough.getCurrentStep().title()
+                );
                 if (reversion != null) {
                     reversion.cancel();
                 }
-                reversion = new DelayedExecution(REVERSION_DELAY, this::findAndUndo);
+                reversion = new DelayedExecution(
+                    REVERSION_DELAY,
+                    this::findAndUndo
+                );
                 reversion.start();
             }
         };
-        this.resolvedWindow.showingProperty().addListener(windowShowingListener);
+        this.resolvedWindow.showingProperty().addListener(
+            windowShowingListener
+        );
 
         if (this.resolvedNode != null) {
             nodeVisibleListener = (_, wasVisible, isVisible) -> {
                 if (wasVisible && !isVisible) {
-                    LOGGER.debug("Node for step '{}' is no longer visible. Reverting.", walkthrough.getCurrentStep().title());
+                    LOGGER.debug(
+                        "Node for step '{}' is no longer visible. Reverting.",
+                        walkthrough.getCurrentStep().title()
+                    );
                     if (reversion != null) {
                         reversion.cancel();
                     }
-                    reversion = new DelayedExecution(REVERSION_DELAY, this::findAndUndo);
+                    reversion = new DelayedExecution(
+                        REVERSION_DELAY,
+                        this::findAndUndo
+                    );
                     reversion.start();
                 }
             };
-            NodeHelper.treeVisibleProperty(this.resolvedNode).addListener(nodeVisibleListener);
+            NodeHelper.treeVisibleProperty(this.resolvedNode).addListener(
+                nodeVisibleListener
+            );
         }
     }
 
@@ -102,12 +123,16 @@ public class WalkthroughReverter {
         reversion = null;
 
         if (resolvedWindow != null && windowShowingListener != null) {
-            resolvedWindow.showingProperty().removeListener(windowShowingListener);
+            resolvedWindow
+                .showingProperty()
+                .removeListener(windowShowingListener);
         }
         windowShowingListener = null;
 
         if (resolvedNode != null && nodeVisibleListener != null) {
-            NodeHelper.treeVisibleProperty(resolvedNode).removeListener(nodeVisibleListener);
+            NodeHelper.treeVisibleProperty(resolvedNode).removeListener(
+                nodeVisibleListener
+            );
         }
         nodeVisibleListener = null;
 
@@ -128,14 +153,30 @@ public class WalkthroughReverter {
         for (int i = from - 1; i >= 0; i--) {
             switch (walkthrough.getStepAtIndex(i)) {
                 case VisibleComponent component -> {
-                    Optional<Window> window = component.windowResolver().flatMap(WindowResolver::resolve);
-                    if (window.isEmpty() && component.windowResolver().isPresent()) {
+                    Optional<Window> window = component
+                        .windowResolver()
+                        .flatMap(WindowResolver::resolve);
+                    if (
+                        window.isEmpty()
+                        && component.windowResolver().isPresent()
+                    ) {
                         continue;
                     }
                     Window activeWindow = window.orElse(fallbackWindow);
-                    if (activeWindow.getScene() != null &&
-                            (component.nodeResolver().isEmpty() || component.nodeResolver().get().resolve(activeWindow.getScene()).isPresent())) {
-                        LOGGER.info("Reverting to step {} from step {}", i, from);
+                    if (
+                        activeWindow.getScene() != null
+                        && (component.nodeResolver().isEmpty()
+                            || component
+                                .nodeResolver()
+                                .get()
+                                .resolve(activeWindow.getScene())
+                                .isPresent())
+                    ) {
+                        LOGGER.info(
+                            "Reverting to step {} from step {}",
+                            i,
+                            from
+                        );
                         walkthrough.goToStep(i);
                         return;
                     }
@@ -150,11 +191,19 @@ public class WalkthroughReverter {
 
     private void undo(int stepIndex) {
         WalkthroughStep step = walkthrough.getStepAtIndex(stepIndex);
-        if (step instanceof SideEffect(
-                String title, WalkthroughSideEffect sideEffect
-        )) {
+        if (
+            step
+                instanceof SideEffect(
+                    String title,
+                    WalkthroughSideEffect sideEffect
+                )
+        ) {
             if (!sideEffectExecutor.executeBackward(sideEffect, walkthrough)) {
-                LOGGER.warn("Failed to revert side effect {}: {}", title, sideEffect.description());
+                LOGGER.warn(
+                    "Failed to revert side effect {}: {}",
+                    title,
+                    sideEffect.description()
+                );
             }
         }
     }

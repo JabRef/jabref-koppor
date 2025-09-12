@@ -1,14 +1,13 @@
 package org.jabref.logic.ai.summarization;
 
+import dev.langchain4j.model.chat.ChatModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.util.Pair;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.AiPreferences;
 import org.jabref.logic.ai.processingstatus.ProcessingInfo;
@@ -20,8 +19,6 @@ import org.jabref.logic.util.ProgressCounter;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import dev.langchain4j.model.chat.ChatModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +28,10 @@ import org.slf4j.LoggerFactory;
  * And it also will store the summaries.
  */
 public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateSummaryForSeveralTask.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GenerateSummaryForSeveralTask.class
+    );
 
     private final StringProperty groupName;
     private final List<ProcessingInfo<BibEntry, Summary>> entries;
@@ -49,16 +49,16 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
     private String currentFile = "";
 
     public GenerateSummaryForSeveralTask(
-            StringProperty groupName,
-            List<ProcessingInfo<BibEntry, Summary>> entries,
-            BibDatabaseContext bibDatabaseContext,
-            SummariesStorage summariesStorage,
-            ChatModel chatLanguageModel,
-            AiTemplatesService aiTemplatesService,
-            ReadOnlyBooleanProperty shutdownSignal,
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            TaskExecutor taskExecutor
+        StringProperty groupName,
+        List<ProcessingInfo<BibEntry, Summary>> entries,
+        BibDatabaseContext bibDatabaseContext,
+        SummariesStorage summariesStorage,
+        ChatModel chatLanguageModel,
+        AiTemplatesService aiTemplatesService,
+        ReadOnlyBooleanProperty shutdownSignal,
+        AiPreferences aiPreferences,
+        FilePreferences filePreferences,
+        TaskExecutor taskExecutor
     ) {
         this.groupName = groupName;
         this.entries = entries;
@@ -76,8 +76,14 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
 
     private void configure() {
         showToUser(true);
-        titleProperty().set(Localization.lang("Generating summaries for %0", groupName.get()));
-        groupName.addListener((_, _, newValue) -> titleProperty().set(Localization.lang("Generating summaries for %0", newValue)));
+        titleProperty().set(
+            Localization.lang("Generating summaries for %0", groupName.get())
+        );
+        groupName.addListener((_, _, newValue) ->
+            titleProperty().set(
+                Localization.lang("Generating summaries for %0", newValue)
+            )
+        );
 
         progressCounter.increaseWorkMax(entries.size());
         progressCounter.listenToAllProperties(this::updateProgress);
@@ -86,46 +92,61 @@ public class GenerateSummaryForSeveralTask extends BackgroundTask<Void> {
 
     @Override
     public Void call() throws ExecutionException, InterruptedException {
-        LOGGER.debug("Starting summaries generation of several files for {}", groupName.get());
+        LOGGER.debug(
+            "Starting summaries generation of several files for {}",
+            groupName.get()
+        );
 
         List<Pair<? extends Future<?>, BibEntry>> futures = new ArrayList<>();
 
         entries
-                .stream()
-                .map(processingInfo -> {
-                    processingInfo.setState(ProcessingState.PROCESSING);
-                    return new Pair<>(
-                            new GenerateSummaryTask(
-                                    processingInfo.getObject(),
-                                    bibDatabaseContext,
-                                    summariesStorage,
-                                    chatLanguageModel,
-                                    aiTemplatesService,
-                                    shutdownSignal,
-                                    aiPreferences,
-                                    filePreferences
-                            )
-                                    .showToUser(false)
-                                    .onSuccess(processingInfo::setSuccess)
-                                    .onFailure(processingInfo::setException)
-                                    .onFinished(() -> progressCounter.increaseWorkDone(1))
-                                    .executeWith(taskExecutor),
-                            processingInfo.getObject());
-                })
-                .forEach(futures::add);
+            .stream()
+            .map(processingInfo -> {
+                processingInfo.setState(ProcessingState.PROCESSING);
+                return new Pair<>(
+                    new GenerateSummaryTask(
+                        processingInfo.getObject(),
+                        bibDatabaseContext,
+                        summariesStorage,
+                        chatLanguageModel,
+                        aiTemplatesService,
+                        shutdownSignal,
+                        aiPreferences,
+                        filePreferences
+                    )
+                        .showToUser(false)
+                        .onSuccess(processingInfo::setSuccess)
+                        .onFailure(processingInfo::setException)
+                        .onFinished(() -> progressCounter.increaseWorkDone(1))
+                        .executeWith(taskExecutor),
+                    processingInfo.getObject()
+                );
+            })
+            .forEach(futures::add);
 
         for (Pair<? extends Future<?>, BibEntry> pair : futures) {
-            currentFile = pair.getValue().getCitationKey().orElse("<no citation key>");
+            currentFile = pair
+                .getValue()
+                .getCitationKey()
+                .orElse("<no citation key>");
             pair.getKey().get();
         }
 
-        LOGGER.debug("Finished embeddings generation task of several files for {}", groupName.get());
+        LOGGER.debug(
+            "Finished embeddings generation task of several files for {}",
+            groupName.get()
+        );
         progressCounter.stop();
         return null;
     }
 
     private void updateProgress() {
-        updateProgress(progressCounter.getWorkDone(), progressCounter.getWorkMax());
-        updateMessage(progressCounter.getMessage() + " - " + currentFile + ", ...");
+        updateProgress(
+            progressCounter.getWorkDone(),
+            progressCounter.getWorkMax()
+        );
+        updateMessage(
+            progressCounter.getMessage() + " - " + currentFile + ", ..."
+        );
     }
 }

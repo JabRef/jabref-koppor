@@ -5,7 +5,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -19,6 +18,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
 public class QuickSettings extends VBox {
+
     private final GuiPreferences preferences;
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
@@ -26,7 +26,11 @@ public class QuickSettings extends VBox {
     private final Label header;
     private boolean isScrollEnabled = true;
 
-    public QuickSettings(GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor) {
+    public QuickSettings(
+        GuiPreferences preferences,
+        DialogService dialogService,
+        TaskExecutor taskExecutor
+    ) {
         this.preferences = preferences;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -58,41 +62,49 @@ public class QuickSettings extends VBox {
 
     private VBox createContent() {
         Button mainFileDirButton = createButton(
-                Localization.lang("Set main file directory"),
-                IconTheme.JabRefIcons.FOLDER,
-                this::showMainFileDirectoryDialog);
+            Localization.lang("Set main file directory"),
+            IconTheme.JabRefIcons.FOLDER,
+            this::showMainFileDirectoryDialog
+        );
 
         Button themeButton = createButton(
-                Localization.lang("Change visual theme"),
-                IconTheme.JabRefIcons.PREFERENCES,
-                this::showThemeDialog);
+            Localization.lang("Change visual theme"),
+            IconTheme.JabRefIcons.PREFERENCES,
+            this::showThemeDialog
+        );
 
         Button largeLibraryButton = createButton(
-                Localization.lang("Optimize for large libraries"),
-                IconTheme.JabRefIcons.SELECTORS,
-                this::showLargeLibraryOptimizationDialog);
+            Localization.lang("Optimize for large libraries"),
+            IconTheme.JabRefIcons.SELECTORS,
+            this::showLargeLibraryOptimizationDialog
+        );
 
         Button pushApplicationButton = createButton(
-                Localization.lang("Configure push to applications"),
-                IconTheme.JabRefIcons.APPLICATION_GENERIC,
-                this::showPushApplicationConfigurationDialog);
+            Localization.lang("Configure push to applications"),
+            IconTheme.JabRefIcons.APPLICATION_GENERIC,
+            this::showPushApplicationConfigurationDialog
+        );
 
         Button onlineServicesButton = createButton(
-                Localization.lang("Configure web search services"),
-                IconTheme.JabRefIcons.WWW,
-                this::showOnlineServicesConfigurationDialog);
+            Localization.lang("Configure web search services"),
+            IconTheme.JabRefIcons.WWW,
+            this::showOnlineServicesConfigurationDialog
+        );
 
         Button entryTableButton = createButton(
-                Localization.lang("Customize entry table"),
-                IconTheme.JabRefIcons.TOGGLE_GROUPS,
-                this::showEntryTableConfigurationDialog);
+            Localization.lang("Customize entry table"),
+            IconTheme.JabRefIcons.TOGGLE_GROUPS,
+            this::showEntryTableConfigurationDialog
+        );
 
-        VBox newContent = new VBox(mainFileDirButton,
-                                 themeButton,
-                                 largeLibraryButton,
-                                 entryTableButton,
-                                 pushApplicationButton,
-                                 onlineServicesButton);
+        VBox newContent = new VBox(
+            mainFileDirButton,
+            themeButton,
+            largeLibraryButton,
+            entryTableButton,
+            pushApplicationButton,
+            onlineServicesButton
+        );
         newContent.getStyleClass().add("quick-settings-container");
         return newContent;
     }
@@ -108,7 +120,11 @@ public class QuickSettings extends VBox {
         return scrollPane;
     }
 
-    private Button createButton(String text, IconTheme.JabRefIcons icon, Runnable action) {
+    private Button createButton(
+        String text,
+        IconTheme.JabRefIcons icon,
+        Runnable action
+    ) {
         Button button = new Button(text);
         button.setGraphic(icon.getGraphicNode());
         button.getStyleClass().add("quick-settings-button");
@@ -118,26 +134,38 @@ public class QuickSettings extends VBox {
     }
 
     private void showMainFileDirectoryDialog() {
-        dialogService.showCustomDialogAndWait(new MainFileDirectoryDialog(preferences, dialogService));
+        dialogService.showCustomDialogAndWait(
+            new MainFileDirectoryDialog(preferences, dialogService)
+        );
     }
 
     private void showThemeDialog() {
-        dialogService.showCustomDialogAndWait(new ThemeDialog(preferences, dialogService));
+        dialogService.showCustomDialogAndWait(
+            new ThemeDialog(preferences, dialogService)
+        );
     }
 
     private void showLargeLibraryOptimizationDialog() {
-        dialogService.showCustomDialogAndWait(new LargeLibraryOptimizationDialog(preferences));
+        dialogService.showCustomDialogAndWait(
+            new LargeLibraryOptimizationDialog(preferences)
+        );
     }
 
     private void showPushApplicationConfigurationDialog() {
-        dialogService.showCustomDialogAndWait(new PushApplicationDialog(preferences, dialogService, taskExecutor));
+        dialogService.showCustomDialogAndWait(
+            new PushApplicationDialog(preferences, dialogService, taskExecutor)
+        );
     }
 
     private void showOnlineServicesConfigurationDialog() {
-        dialogService.showCustomDialogAndWait(new OnlineServicesDialog(preferences));
+        dialogService.showCustomDialogAndWait(
+            new OnlineServicesDialog(preferences)
+        );
     }
 
     private void showEntryTableConfigurationDialog() {
-        dialogService.showCustomDialogAndWait(new EntryTableConfigurationDialog(preferences));
+        dialogService.showCustomDialogAndWait(
+            new EntryTableConfigurationDialog(preferences)
+        );
     }
 }

@@ -1,16 +1,14 @@
 package org.jabref.gui.util;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-
-import com.airhacks.afterburner.injection.Injector;
 
 /**
  * A base class for non-modal windows of JabRef.
@@ -22,6 +20,7 @@ import com.airhacks.afterburner.injection.Injector;
  * See {@link org.jabref.gui.ai.components.aichat.AiChatWindow} for example.
  */
 public class BaseWindow extends Stage {
+
     public BaseWindow() {
         this.initModality(Modality.NONE);
         this.getIcons().add(IconTheme.getJabRefImage());
@@ -30,8 +29,16 @@ public class BaseWindow extends Stage {
 
         sceneProperty().addListener((obs, oldValue, newValue) -> {
             newValue.setOnKeyPressed(event -> {
-                KeyBindingRepository keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
-                if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.CLOSE, event)) {
+                KeyBindingRepository keyBindingRepository =
+                    Injector.instantiateModelOrService(
+                        KeyBindingRepository.class
+                    );
+                if (
+                    keyBindingRepository.checkKeyCombinationEquality(
+                        KeyBinding.CLOSE,
+                        event
+                    )
+                ) {
                     close();
                     onCloseRequestProperty().get().handle(null);
                 }

@@ -1,21 +1,19 @@
 package org.jabref.http.server.command;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import org.glassfish.hk2.api.ServiceLocator;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.logic.command.CommandSelectionTab;
 import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import jakarta.ws.rs.core.Response;
-import org.glassfish.hk2.api.ServiceLocator;
 
 @JsonTypeName("selectentries")
 public class SelectEntriesCommand implements Command {
@@ -25,50 +23,76 @@ public class SelectEntriesCommand implements Command {
 
     @JsonProperty
     private String libraryId = "";
+
     @JsonProperty
     private List<String> citationKeys = new ArrayList<>();
+
     @JsonProperty
     private List<String> entryIds = new ArrayList<>();
 
-    public SelectEntriesCommand() {
-    }
+    public SelectEntriesCommand() {}
 
     @Override
     public Response execute() {
         if (getSrvStateManager() instanceof JabRefSrvStateManager) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("This command is not supported in CLI mode.")
-                           .build();
+                .entity("This command is not supported in CLI mode.")
+                .build();
         }
 
-        Optional<CommandSelectionTab> activeTab = getSrvStateManager().getActiveSelectionTabProperty().getValue();
+        Optional<CommandSelectionTab> activeTab = getSrvStateManager()
+            .getActiveSelectionTabProperty()
+            .getValue();
         if (activeTab.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("This command cannot be executed because no library is opened.")
-                           .build();
+                .entity(
+                    "This command cannot be executed because no library is opened."
+                )
+                .build();
         }
 
         CommandSelectionTab commandSelectionTab = activeTab.get();
 
-        if (!getLibraryIdFromContext(commandSelectionTab.getBibDatabaseContext()).equals(libraryId)) {
+        if (
+            !getLibraryIdFromContext(
+                commandSelectionTab.getBibDatabaseContext()
+            ).equals(libraryId)
+        ) {
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("This command cannot be executed because the libraryId does not match the active selection tab.")
-                           .build();
+                .entity(
+                    "This command cannot be executed because the libraryId does not match the active selection tab."
+                )
+                .build();
         }
 
-        List<BibEntry> entries = commandSelectionTab.getBibDatabaseContext().getEntries().stream()
-                                                    .filter(entry -> citationKeys.contains(entry.getCitationKey().orElse(null)) || entryIds.contains(entry.getId()))
-                                                    .collect(Collectors.toList());
+        List<BibEntry> entries = commandSelectionTab
+            .getBibDatabaseContext()
+            .getEntries()
+            .stream()
+            .filter(
+                entry ->
+                    citationKeys.contains(entry.getCitationKey().orElse(null))
+                    || entryIds.contains(entry.getId())
+            )
+            .collect(Collectors.toList());
 
         commandSelectionTab.clearAndSelect(entries);
 
         return Response.ok().build();
     }
 
-    private String getLibraryIdFromContext(BibDatabaseContext bibDatabaseContext) {
-        return bibDatabaseContext.getDatabasePath()
-                                 .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
-                                 .orElse("");
+    private String getLibraryIdFromContext(
+        BibDatabaseContext bibDatabaseContext
+    ) {
+        return bibDatabaseContext
+            .getDatabasePath()
+            .map(
+                path ->
+                    path.getFileName()
+                    + "-"
+                    + BackupFileUtil.getUniqueFilePrefix(path)
+            )
+            .orElse("");
     }
 
     @Override

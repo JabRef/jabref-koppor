@@ -8,7 +8,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.util.io.FileUtil;
 
 /// URL utilities for URLs in the JabRef logic.
@@ -21,11 +20,15 @@ public class URLUtil {
     /**
      * Pattern matches a string containing a URL with a protocol
      */
-    public static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE);
+    public static final Pattern URL_PATTERN = Pattern.compile(
+        URL_REGEX,
+        Pattern.CASE_INSENSITIVE
+    );
 
     private static final String URL_EXP = "^(https?|ftp)://.+";
     // Detect Google search URL
-    private static final String GOOGLE_SEARCH_EXP = "^https?://(?:www\\.)?google\\.[\\.a-z]+?/url.*";
+    private static final String GOOGLE_SEARCH_EXP =
+        "^https?://(?:www\\.)?google\\.[\\.a-z]+?/url.*";
 
     /**
      * Cleans URLs returned by Google search.
@@ -61,7 +64,10 @@ public class URLUtil {
                 if (pair.startsWith("url=")) {
                     String value = pair.substring(pair.indexOf('=') + 1);
 
-                    String decode = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                    String decode = URLDecoder.decode(
+                        value,
+                        StandardCharsets.UTF_8
+                    );
                     // url?
                     if (decode.matches(URL_EXP)) {
                         return decode;
@@ -84,12 +90,12 @@ public class URLUtil {
         if (url == null || url.trim().isEmpty()) {
             return false;
         }
-        
+
         // Check if the URL has a protocol (http://, https://, ftp://)
         if (!URL_PATTERN.matcher(url).matches()) {
             return false;
         }
-        
+
         try {
             create(url);
             return true;
@@ -107,7 +113,9 @@ public class URLUtil {
      */
     public static URL create(String url) throws MalformedURLException {
         if (url == null || url.trim().isEmpty()) {
-            throw new IllegalArgumentException("URL must not be null or empty.");
+            throw new IllegalArgumentException(
+                "URL must not be null or empty."
+            );
         }
 
         String trimmedUrl = url.trim();
@@ -123,11 +131,15 @@ public class URLUtil {
                 throw new MalformedURLException("URI is not absolute: " + url);
             }
             if (parsedUri.getScheme() == null || parsedUri.getHost() == null) {
-                throw new MalformedURLException("URI must include both scheme and host: " + url);
+                throw new MalformedURLException(
+                    "URI must include both scheme and host: " + url
+                );
             }
             return parsedUri.toURL();
         } catch (URISyntaxException | IllegalArgumentException e) {
-            throw new MalformedURLException("Invalid URI: " + url + " | " + e.getMessage());
+            throw new MalformedURLException(
+                "Invalid URI: " + url + " | " + e.getMessage()
+            );
         }
     }
 

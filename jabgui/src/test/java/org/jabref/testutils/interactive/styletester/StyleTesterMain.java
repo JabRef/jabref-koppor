@@ -3,7 +3,6 @@ package org.jabref.testutils.interactive.styletester;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import org.jabref.gui.preferences.JabRefGuiPreferences;
 import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.util.DefaultFileUpdateMonitor;
@@ -22,11 +21,15 @@ public class StyleTesterMain extends Application {
     @Override
     public void start(Stage stage) throws JabRefException {
         StyleTesterView view = new StyleTesterView();
-        DefaultFileUpdateMonitor fileUpdateMonitor = new DefaultFileUpdateMonitor();
-        HeadlessExecutorService.INSTANCE.executeInterruptableTask(fileUpdateMonitor, "FileUpdateMonitor");
+        DefaultFileUpdateMonitor fileUpdateMonitor =
+            new DefaultFileUpdateMonitor();
+        HeadlessExecutorService.INSTANCE.executeInterruptableTask(
+            fileUpdateMonitor,
+            "FileUpdateMonitor"
+        );
         ThemeManager themeManager = new ThemeManager(
-                JabRefGuiPreferences.getInstance().getWorkspacePreferences(),
-                fileUpdateMonitor
+            JabRefGuiPreferences.getInstance().getWorkspacePreferences(),
+            fileUpdateMonitor
         );
 
         Scene scene = new Scene(view.getContent());

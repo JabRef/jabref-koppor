@@ -18,7 +18,10 @@ public class GrobidUseDialogHelper {
      * @param dialogService the DialogService to use
      * @return if the user enabled Grobid, either in the past or after being asked by the dialog.
      */
-    public static boolean showAndWaitIfUserIsUndecided(DialogService dialogService, GrobidPreferences preferences) {
+    public static boolean showAndWaitIfUserIsUndecided(
+        DialogService dialogService,
+        GrobidPreferences preferences
+    ) {
         if (preferences.isGrobidUseAsked()) {
             return preferences.isGrobidEnabled();
         }
@@ -27,10 +30,13 @@ public class GrobidUseDialogHelper {
             return true;
         }
         boolean grobidEnabled = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Remote services"),
-                Localization.lang("Allow sending PDF files and raw citation strings to a JabRef online service (Grobid) to determine Metadata. This produces better results."),
-                Localization.lang("Send to Grobid"),
-                Localization.lang("Do not send"));
+            Localization.lang("Remote services"),
+            Localization.lang(
+                "Allow sending PDF files and raw citation strings to a JabRef online service (Grobid) to determine Metadata. This produces better results."
+            ),
+            Localization.lang("Send to Grobid"),
+            Localization.lang("Do not send")
+        );
         preferences.setGrobidUseAsked(true);
         preferences.setGrobidEnabled(grobidEnabled);
         return grobidEnabled;

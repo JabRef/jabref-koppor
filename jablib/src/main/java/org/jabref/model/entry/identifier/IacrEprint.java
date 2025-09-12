@@ -6,19 +6,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @AllowedToUseLogic("Because URL utility is needed")
 public class IacrEprint implements Identifier {
+
     public static final URI RESOLVER = URLUtil.createUri("https://ia.cr");
-    private static final Logger LOGGER = LoggerFactory.getLogger(IacrEprint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        IacrEprint.class
+    );
 
     private static final String IACR_EPRINT_EXP = "\\d{4}\\/\\d{3,5}";
     private final String iacrEprint;
@@ -29,17 +30,22 @@ public class IacrEprint implements Identifier {
         String trimmedId = iacrEprint.trim();
 
         if (matchesExcepted(trimmedId)) {
-            Matcher matcher = Pattern.compile(IACR_EPRINT_EXP).matcher(trimmedId);
+            Matcher matcher = Pattern.compile(IACR_EPRINT_EXP).matcher(
+                trimmedId
+            );
             matcher.find();
             this.iacrEprint = matcher.group(0);
         } else {
-            throw new IllegalArgumentException(trimmedId + " is not a valid IacrEprint identifier.");
+            throw new IllegalArgumentException(
+                trimmedId + " is not a valid IacrEprint identifier."
+            );
         }
     }
 
     private static boolean matchesExcepted(String identifier) {
         return identifier.matches(
-                "(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?" + IACR_EPRINT_EXP
+            "(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?"
+                + IACR_EPRINT_EXP
         );
     }
 
@@ -65,7 +71,12 @@ public class IacrEprint implements Identifier {
     @Override
     public Optional<URI> getExternalURI() {
         try {
-            URI uri = new URI(RESOLVER.getScheme(), RESOLVER.getHost(), "/" + iacrEprint, null);
+            URI uri = new URI(
+                RESOLVER.getScheme(),
+                RESOLVER.getHost(),
+                "/" + iacrEprint,
+                null
+            );
             return Optional.of(uri);
         } catch (URISyntaxException e) {
             // should never happen

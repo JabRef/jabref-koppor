@@ -8,9 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.LoggerFactory;
 
 /**
@@ -19,14 +17,15 @@ import org.slf4j.LoggerFactory;
  * 2. Parse the response to get a list of {@link BibEntry}
  * 3. Post-process fetched entries
  */
-public interface EntryBasedParserFetcher extends EntryBasedFetcher, ParserFetcher {
-
+public interface EntryBasedParserFetcher
+    extends EntryBasedFetcher, ParserFetcher {
     /**
      * Constructs a URL based on the {@link BibEntry}.
      *
      * @param entry the entry to look information for
      */
-    URL getURLForEntry(BibEntry entry) throws URISyntaxException, MalformedURLException, FetcherException;
+    URL getURLForEntry(BibEntry entry)
+        throws URISyntaxException, MalformedURLException, FetcherException;
 
     /**
      * Returns the parser used to convert the response to a list of {@link BibEntry}.
@@ -34,7 +33,8 @@ public interface EntryBasedParserFetcher extends EntryBasedFetcher, ParserFetche
     Parser getParser();
 
     @Override
-    default List<BibEntry> performSearch(BibEntry entry) throws FetcherException {
+    default List<BibEntry> performSearch(BibEntry entry)
+        throws FetcherException {
         Objects.requireNonNull(entry);
 
         URL urlForEntry;
@@ -46,7 +46,11 @@ public interface EntryBasedParserFetcher extends EntryBasedFetcher, ParserFetche
             throw new FetcherException("Search URI is malformed", e);
         }
 
-        try (InputStream stream = new BufferedInputStream(urlForEntry.openStream())) {
+        try (
+            InputStream stream = new BufferedInputStream(
+                urlForEntry.openStream()
+            )
+        ) {
             List<BibEntry> fetchedEntries = getParser().parseEntries(stream);
 
             // Post-cleanup
@@ -56,10 +60,22 @@ public interface EntryBasedParserFetcher extends EntryBasedFetcher, ParserFetche
         } catch (IOException e) {
             // TODO: Catch HTTP Response 401 errors and report that user has no rights to access resource
             //       Same TODO as in org.jabref.logic.net.URLDownload.openConnection. Code should be reused.
-            LoggerFactory.getLogger(EntryBasedParserFetcher.class).error("Could not fetch from URL {}", urlForEntry, e);
-            throw new FetcherException(urlForEntry, "A network error occurred", e);
+            LoggerFactory.getLogger(EntryBasedParserFetcher.class).error(
+                "Could not fetch from URL {}",
+                urlForEntry,
+                e
+            );
+            throw new FetcherException(
+                urlForEntry,
+                "A network error occurred",
+                e
+            );
         } catch (ParseException e) {
-            throw new FetcherException(urlForEntry, "An internal parser error occurred", e);
+            throw new FetcherException(
+                urlForEntry,
+                "An internal parser error occurred",
+                e
+            );
         }
     }
 }

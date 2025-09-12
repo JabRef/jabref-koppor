@@ -7,13 +7,15 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jspecify.annotations.NonNull;
 
 public class ConferenceUtils {
+
     // Regex that'll extract the string within the first deepest set of parentheses
     // A slight modification of: https://stackoverflow.com/a/17759264
-    private static final Pattern PARENTHESES_PATTERN = Pattern.compile("\\(([^()]*)\\)");
+    private static final Pattern PARENTHESES_PATTERN = Pattern.compile(
+        "\\(([^()]*)\\)"
+    );
     // Regex that will match all years of type 19XX or 20XX;
     private static final String YEAR_REGEX = "(19|20)\\d{2}";
     /*
@@ -22,12 +24,29 @@ public class ConferenceUtils {
         - ordinals in LaTeX syntax of [number]\textsuperscript{[st|nd|rd|th]} as in 3\textsuperscript{rd},
           17\textsuperscript{th}, etc. These are just the same ordinals as above but with the added LaTeX text syntax.
      */
-    private static final String ORDINAL_REGEX = "\\d+(\\\\textsuperscript\\{)?(st|nd|rd|th)}?";
-    private static final Pattern YEAR_OR_ORDINAL_PATTERN = Pattern.compile(YEAR_REGEX + "|" + ORDINAL_REGEX);
+    private static final String ORDINAL_REGEX =
+        "\\d+(\\\\textsuperscript\\{)?(st|nd|rd|th)}?";
+    private static final Pattern YEAR_OR_ORDINAL_PATTERN = Pattern.compile(
+        YEAR_REGEX + "|" + ORDINAL_REGEX
+    );
     // Stopwords must not be contained in the ICORE data
     private static final Set<String> TITLE_STOPWORDS = Set.of(
-            "proceedings", "volume", "part", "papers",
-            "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"
+        "proceedings",
+        "volume",
+        "part",
+        "papers",
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december"
     );
     private static final int MAX_CANDIDATES_THRESHOLD = 50;
     private static final int DELIMITER_START = -1;
@@ -58,7 +77,9 @@ public class ConferenceUtils {
      * @return an {@code Optional} containing the extracted and trimmed string from the first set of parentheses,
      *         or {@code Optional.empty()} if no string is found
      */
-    public static Optional<String> extractStringFromParentheses(@NonNull String input) {
+    public static Optional<String> extractStringFromParentheses(
+        @NonNull String input
+    ) {
         if (input.indexOf('(') < 0) {
             return Optional.empty();
         }
@@ -97,7 +118,10 @@ public class ConferenceUtils {
      * @return a set of acronym candidates ordered by descending length and then lexicographically,
      *         or an empty set if no valid candidates are found
      */
-    public static Set<String> generateAcronymCandidates(@NonNull String input, int cutoff) {
+    public static Set<String> generateAcronymCandidates(
+        @NonNull String input,
+        int cutoff
+    ) {
         if (input.isEmpty() || cutoff <= 0) {
             return Set.of();
         }
@@ -127,7 +151,9 @@ public class ConferenceUtils {
                 int end = bounds.get(j);
                 int len = end - start;
                 if (len > 0 && len <= cutoff) {
-                    String candidate = trimDelimiters(input.substring(start, end));
+                    String candidate = trimDelimiters(
+                        input.substring(start, end)
+                    );
                     if (!candidate.isEmpty()) {
                         candidates.add(candidate);
                     }
@@ -156,9 +182,15 @@ public class ConferenceUtils {
     }
 
     private static boolean isAcronymDelimiter(char c) {
-        return Character.isWhitespace(c) ||
-                c == '\'' || c == ',' || c == '_' ||
-                c == ':' || c == '.' || c == '-';
+        return (
+            Character.isWhitespace(c)
+            || c == '\''
+            || c == ','
+            || c == '_'
+            || c == ':'
+            || c == '.'
+            || c == '-'
+        );
     }
 
     /**
@@ -208,11 +240,13 @@ public class ConferenceUtils {
 
         normalizeTokenAndFlush(currentToken, normalized);
 
-        return normalized.toString()
-                .replaceFirst("^(ofthe|of|the)+", "");   // remove any false starts
+        return normalized.toString().replaceFirst("^(ofthe|of|the)+", ""); // remove any false starts
     }
 
-    private static void normalizeTokenAndFlush(StringBuilder currentToken, StringBuilder output) {
+    private static void normalizeTokenAndFlush(
+        StringBuilder currentToken,
+        StringBuilder output
+    ) {
         if (currentToken.isEmpty()) {
             return;
         }

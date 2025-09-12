@@ -7,9 +7,7 @@ import org.jspecify.annotations.NullMarked;
  * This is used to identify the user when retrieving file directories.
  */
 @NullMarked
-public record UserHostInfo(
-        String user,
-        String host) {
+public record UserHostInfo(String user, String host) {
     /**
      * Creates a new UserHostInfo from a user-host string.
      * The user-host string is expected to be in the format "user-host".
@@ -51,7 +49,9 @@ public record UserHostInfo(
      * @return true if the hosts are the same and not empty, false otherwise
      */
     public boolean hasSameHost(UserHostInfo other) {
-        return !host.isEmpty() && !other.host.isEmpty() && host.equals(other.host);
+        return (
+            !host.isEmpty() && !other.host.isEmpty() && host.equals(other.host)
+        );
     }
 
     @Override

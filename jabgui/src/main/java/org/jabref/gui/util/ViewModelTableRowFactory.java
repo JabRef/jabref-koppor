@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
@@ -20,9 +19,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
 import org.jabref.model.strings.StringUtil;
-
 import org.reactfx.util.TriConsumer;
 
 /**
@@ -30,7 +27,8 @@ import org.reactfx.util.TriConsumer;
  *
  * @param <S> view model
  */
-public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, TableRow<S>> {
+public class ViewModelTableRowFactory<S>
+    implements Callback<TableView<S>, TableRow<S>> {
 
     private BiConsumer<S, ? super MouseEvent> onMouseClickedEvent;
     private Function<S, ContextMenu> contextMenuFactory;
@@ -39,77 +37,124 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
     private BiConsumer<S, ? super DragEvent> toOnDragEntered;
     private TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragExited;
     private TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragOver;
-    private TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnMouseDragEntered;
+    private TriConsumer<
+        TableRow<S>,
+        S,
+        ? super MouseDragEvent
+    > toOnMouseDragEntered;
     private Callback<S, String> toTooltip;
-    private final Map<PseudoClass, Callback<S, ObservableValue<Boolean>>> pseudoClasses = new HashMap<>();
+    private final Map<
+        PseudoClass,
+        Callback<S, ObservableValue<Boolean>>
+    > pseudoClasses = new HashMap<>();
 
-    public ViewModelTableRowFactory<S> withOnMouseClickedEvent(BiConsumer<S, ? super MouseEvent> onMouseClickedEvent) {
+    public ViewModelTableRowFactory<S> withOnMouseClickedEvent(
+        BiConsumer<S, ? super MouseEvent> onMouseClickedEvent
+    ) {
         this.onMouseClickedEvent = onMouseClickedEvent;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> withContextMenu(Function<S, ContextMenu> contextMenuFactory) {
+    public ViewModelTableRowFactory<S> withContextMenu(
+        Function<S, ContextMenu> contextMenuFactory
+    ) {
         this.contextMenuFactory = contextMenuFactory;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDetected(TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
+    public ViewModelTableRowFactory<S> setOnDragDetected(
+        TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected
+    ) {
         this.toOnDragDetected = toOnDragDetected;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDetected(BiConsumer<S, ? super MouseEvent> toOnDragDetected) {
-        this.toOnDragDetected = (row, viewModel, event) -> toOnDragDetected.accept(viewModel, event);
+    public ViewModelTableRowFactory<S> setOnDragDetected(
+        BiConsumer<S, ? super MouseEvent> toOnDragDetected
+    ) {
+        this.toOnDragDetected = (row, viewModel, event) ->
+            toOnDragDetected.accept(viewModel, event);
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDropped(TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped) {
+    public ViewModelTableRowFactory<S> setOnDragDropped(
+        TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped
+    ) {
         this.toOnDragDropped = toOnDragDropped;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDropped(BiConsumer<S, ? super DragEvent> toOnDragDropped) {
-        return setOnDragDropped((row, viewModel, event) -> toOnDragDropped.accept(viewModel, event));
+    public ViewModelTableRowFactory<S> setOnDragDropped(
+        BiConsumer<S, ? super DragEvent> toOnDragDropped
+    ) {
+        return setOnDragDropped((row, viewModel, event) ->
+            toOnDragDropped.accept(viewModel, event)
+        );
     }
 
-    public ViewModelTableRowFactory<S> setOnDragEntered(BiConsumer<S, ? super DragEvent> toOnDragEntered) {
+    public ViewModelTableRowFactory<S> setOnDragEntered(
+        BiConsumer<S, ? super DragEvent> toOnDragEntered
+    ) {
         this.toOnDragEntered = toOnDragEntered;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnMouseDragEntered(TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
+    public ViewModelTableRowFactory<S> setOnMouseDragEntered(
+        TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered
+    ) {
         this.toOnMouseDragEntered = toOnDragEntered;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnMouseDragEntered(BiConsumer<S, ? super MouseDragEvent> toOnDragEntered) {
-        return setOnMouseDragEntered((row, viewModel, event) -> toOnDragEntered.accept(viewModel, event));
+    public ViewModelTableRowFactory<S> setOnMouseDragEntered(
+        BiConsumer<S, ? super MouseDragEvent> toOnDragEntered
+    ) {
+        return setOnMouseDragEntered((row, viewModel, event) ->
+            toOnDragEntered.accept(viewModel, event)
+        );
     }
 
-    public ViewModelTableRowFactory<S> setOnDragExited(TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragExited) {
+    public ViewModelTableRowFactory<S> setOnDragExited(
+        TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragExited
+    ) {
         this.toOnDragExited = toOnDragExited;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragExited(BiConsumer<S, ? super DragEvent> toOnDragExited) {
-        return setOnDragExited((row, viewModel, event) -> toOnDragExited.accept(viewModel, event));
+    public ViewModelTableRowFactory<S> setOnDragExited(
+        BiConsumer<S, ? super DragEvent> toOnDragExited
+    ) {
+        return setOnDragExited((row, viewModel, event) ->
+            toOnDragExited.accept(viewModel, event)
+        );
     }
 
-    public ViewModelTableRowFactory<S> setOnDragOver(TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragOver) {
+    public ViewModelTableRowFactory<S> setOnDragOver(
+        TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragOver
+    ) {
         this.toOnDragOver = toOnDragOver;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragOver(BiConsumer<S, ? super DragEvent> toOnDragOver) {
-        return setOnDragOver((row, viewModel, event) -> toOnDragOver.accept(viewModel, event));
+    public ViewModelTableRowFactory<S> setOnDragOver(
+        BiConsumer<S, ? super DragEvent> toOnDragOver
+    ) {
+        return setOnDragOver((row, viewModel, event) ->
+            toOnDragOver.accept(viewModel, event)
+        );
     }
 
-    public ViewModelTableRowFactory<S> withTooltip(Callback<S, String> toTooltip) {
+    public ViewModelTableRowFactory<S> withTooltip(
+        Callback<S, String> toTooltip
+    ) {
         this.toTooltip = toTooltip;
         return this;
     }
 
-    public ViewModelTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass, Callback<S, ObservableValue<Boolean>> toCondition) {
+    public ViewModelTableRowFactory<S> withPseudoClass(
+        PseudoClass pseudoClass,
+        Callback<S, ObservableValue<Boolean>> toCondition
+    ) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
@@ -122,10 +167,16 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
                 super.updateItem(item, empty);
 
                 if (empty || getItem() == null) {
-                    pseudoClasses.forEach((pseudoClass, toCondition) -> pseudoClassStateChanged(pseudoClass, false));
+                    pseudoClasses.forEach((pseudoClass, toCondition) ->
+                        pseudoClassStateChanged(pseudoClass, false)
+                    );
                 } else {
                     pseudoClasses.forEach((pseudoClass, toCondition) ->
-                            pseudoClassStateChanged(pseudoClass, toCondition.call(getItem()).getValue()));
+                        pseudoClassStateChanged(
+                            pseudoClass,
+                            toCondition.call(getItem()).getValue()
+                        )
+                    );
                 }
             }
         };
@@ -150,25 +201,42 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
             row.setOnContextMenuRequested(event -> {
                 if (!row.isEmpty()) {
                     row.setContextMenu(contextMenuFactory.apply(row.getItem()));
-                    row.getContextMenu().show(row, event.getScreenX(), event.getScreenY());
+                    row
+                        .getContextMenu()
+                        .show(row, event.getScreenX(), event.getScreenY());
                 }
                 event.consume();
             });
 
             // Activate context menu if user presses the "context menu" key
             tableView.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-                boolean rowFocused = !row.isEmpty() && tableView.getFocusModel().getFocusedIndex() == row.getIndex();
+                boolean rowFocused =
+                    !row.isEmpty()
+                    && tableView.getFocusModel().getFocusedIndex()
+                    == row.getIndex();
                 if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
                     // Get center of focused cell
                     Bounds anchorBounds = row.getBoundsInParent();
-                    double x = anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
-                    double y = anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
-                    Point2D screenPosition = row.getParent().localToScreen(x, y);
+                    double x =
+                        anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
+                    double y =
+                        anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
+                    Point2D screenPosition = row
+                        .getParent()
+                        .localToScreen(x, y);
 
                     if (row.getContextMenu() == null) {
-                        row.setContextMenu(contextMenuFactory.apply(row.getItem()));
+                        row.setContextMenu(
+                            contextMenuFactory.apply(row.getItem())
+                        );
                     }
-                    row.getContextMenu().show(row, screenPosition.getX(), screenPosition.getY());
+                    row
+                        .getContextMenu()
+                        .show(
+                            row,
+                            screenPosition.getX(),
+                            screenPosition.getY()
+                        );
                 }
             });
         }

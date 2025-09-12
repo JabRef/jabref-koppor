@@ -3,7 +3,6 @@ package org.jabref.logic.formatter.bibtexfields;
 import org.jabref.logic.cleanup.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.identifier.ISSN;
-
 import org.jspecify.annotations.NonNull;
 
 public class NormalizeIssn extends Formatter {

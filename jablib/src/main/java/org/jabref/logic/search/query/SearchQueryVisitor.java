@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
@@ -31,10 +30,14 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
     }
 
     @Override
-    public BaseQueryNode visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<BaseQueryNode> children = ctx.expression().stream()
-                                      .map(this::visit)
-                                      .collect(Collectors.toList());
+    public BaseQueryNode visitImplicitAndExpression(
+        SearchParser.ImplicitAndExpressionContext ctx
+    ) {
+        List<BaseQueryNode> children = ctx
+            .expression()
+            .stream()
+            .map(this::visit)
+            .collect(Collectors.toList());
         if (children.size() == 1) {
             return children.getFirst();
         }
@@ -42,37 +45,54 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
     }
 
     @Override
-    public BaseQueryNode visitNegatedExpression(SearchParser.NegatedExpressionContext ctx) {
+    public BaseQueryNode visitNegatedExpression(
+        SearchParser.NegatedExpressionContext ctx
+    ) {
         BaseQueryNode negated = visit(ctx.expression());
         return new NotNode(negated);
     }
 
     @Override
-    public BaseQueryNode visitBinaryExpression(SearchParser.BinaryExpressionContext ctx) {
+    public BaseQueryNode visitBinaryExpression(
+        SearchParser.BinaryExpressionContext ctx
+    ) {
         BaseQueryNode left = visit(ctx.left);
         BaseQueryNode right = visit(ctx.right);
 
         // Check the actual operator token
         if (ctx.bin_op.getType() == SearchParser.AND) {
-            return new OperatorNode(OperatorNode.Operator.AND, List.of(left, right));
-        } else { // Assuming the only other binary op is OR
-            return new OperatorNode(OperatorNode.Operator.OR, List.of(left, right));
+            return new OperatorNode(
+                OperatorNode.Operator.AND,
+                List.of(left, right)
+            );
+        } else {
+            // Assuming the only other binary op is OR
+            return new OperatorNode(
+                OperatorNode.Operator.OR,
+                List.of(left, right)
+            );
         }
     }
 
     @Override
-    public BaseQueryNode visitParenExpression(SearchParser.ParenExpressionContext ctx) {
+    public BaseQueryNode visitParenExpression(
+        SearchParser.ParenExpressionContext ctx
+    ) {
         return visit(ctx.andExpression());
     }
 
     @Override
-    public BaseQueryNode visitComparisonExpression(SearchParser.ComparisonExpressionContext ctx) {
+    public BaseQueryNode visitComparisonExpression(
+        SearchParser.ComparisonExpressionContext ctx
+    ) {
         return visit(ctx.comparison());
     }
 
     @Override
     public BaseQueryNode visitComparison(SearchParser.ComparisonContext ctx) {
-        String term = SearchQueryConversion.unescapeSearchValue(ctx.searchValue());
+        String term = SearchQueryConversion.unescapeSearchValue(
+            ctx.searchValue()
+        );
 
         // unfielded terms, check the search bar flags
         if (ctx.FIELD() == null) {
@@ -94,7 +114,10 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
 
         if (ctx.operator() != null) {
             int operator = ctx.operator().getStart().getType();
-            if (operator != SearchParser.REQUAL && operator != SearchParser.CREEQUAL) {
+            if (
+                operator != SearchParser.REQUAL
+                && operator != SearchParser.CREEQUAL
+            ) {
                 term = term.replace("\\", "\\\\");
             }
         }
@@ -105,18 +128,25 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
 
         if (ctx.operator() != null) {
             int operator = ctx.operator().getStart().getType();
-            if (operator == SearchParser.NEQUAL
-                    || operator == SearchParser.NCEQUAL
-                    || operator == SearchParser.NEEQUAL
-                    || operator == SearchParser.NCEEQUAL
-                    || operator == SearchParser.NREQUAL
-                    || operator == SearchParser.NCREEQUAL) {
+            if (
+                operator == SearchParser.NEQUAL
+                || operator == SearchParser.NCEQUAL
+                || operator == SearchParser.NEEQUAL
+                || operator == SearchParser.NCEEQUAL
+                || operator == SearchParser.NREQUAL
+                || operator == SearchParser.NCREEQUAL
+            ) {
                 // All of these will be treated as !=
-                SearchQueryNode negatedNode = new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term);
+                SearchQueryNode negatedNode = new SearchQueryNode(
+                    Optional.of(FieldFactory.parseField(field)),
+                    term
+                );
                 return new NotNode(negatedNode);
             }
         }
-        return new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term);
+        return new SearchQueryNode(
+            Optional.of(FieldFactory.parseField(field)),
+            term
+        );
     }
 }
-

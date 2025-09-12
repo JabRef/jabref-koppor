@@ -22,19 +22,32 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
         this(name, abbreviation, "");
     }
 
-    public Abbreviation(String name, String abbreviation, String shortestUniqueAbbreviation) {
-        this(name,
-                abbreviation,
-                // "L. N." becomes "L  N ", we need to remove the double spaces inbetween
-                abbreviation.replace(".", " ").replace("  ", " ").trim(),
-                shortestUniqueAbbreviation.trim());
+    public Abbreviation(
+        String name,
+        String abbreviation,
+        String shortestUniqueAbbreviation
+    ) {
+        this(
+            name,
+            abbreviation,
+            // "L. N." becomes "L  N ", we need to remove the double spaces inbetween
+            abbreviation.replace(".", " ").replace("  ", " ").trim(),
+            shortestUniqueAbbreviation.trim()
+        );
     }
 
-    private Abbreviation(String name, String abbreviation, String dotlessAbbreviation, String shortestUniqueAbbreviation) {
+    private Abbreviation(
+        String name,
+        String abbreviation,
+        String dotlessAbbreviation,
+        String shortestUniqueAbbreviation
+    ) {
         this.name = name.intern();
         this.abbreviation = abbreviation.intern();
         this.dotlessAbbreviation = dotlessAbbreviation.intern();
-        this.shortestUniqueAbbreviation = shortestUniqueAbbreviation.trim().intern();
+        this.shortestUniqueAbbreviation = shortestUniqueAbbreviation
+            .trim()
+            .intern();
     }
 
     public String getName() {
@@ -53,7 +66,10 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
     }
 
     public boolean isDefaultShortestUniqueAbbreviation() {
-        return (shortestUniqueAbbreviation.isEmpty()) || this.shortestUniqueAbbreviation.equals(this.abbreviation);
+        return (
+            (shortestUniqueAbbreviation.isEmpty())
+            || this.shortestUniqueAbbreviation.equals(this.abbreviation)
+        );
     }
 
     public String getDotlessAbbreviation() {
@@ -67,20 +83,29 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
             return nameComparison;
         }
 
-        int abbreviationComparison = getAbbreviation().compareTo(toCompare.getAbbreviation());
+        int abbreviationComparison = getAbbreviation().compareTo(
+            toCompare.getAbbreviation()
+        );
         if (abbreviationComparison != 0) {
             return abbreviationComparison;
         }
 
-        return getShortestUniqueAbbreviation().compareTo(toCompare.getShortestUniqueAbbreviation());
+        return getShortestUniqueAbbreviation().compareTo(
+            toCompare.getShortestUniqueAbbreviation()
+        );
     }
 
     public String getNext(String current) {
         String currentTrimmed = current.trim();
 
         if (getDotlessAbbreviation().equals(currentTrimmed)) {
-            return getShortestUniqueAbbreviation().equals(getAbbreviation()) ? getName() : getShortestUniqueAbbreviation();
-        } else if (getShortestUniqueAbbreviation().equals(currentTrimmed) && !getShortestUniqueAbbreviation().equals(getAbbreviation())) {
+            return getShortestUniqueAbbreviation().equals(getAbbreviation())
+                ? getName()
+                : getShortestUniqueAbbreviation();
+        } else if (
+            getShortestUniqueAbbreviation().equals(currentTrimmed)
+            && !getShortestUniqueAbbreviation().equals(getAbbreviation())
+        ) {
             return getName();
         } else if (getName().equals(currentTrimmed)) {
             return getAbbreviation();
@@ -92,10 +117,11 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
     @Override
     public String toString() {
         return "Abbreviation{name=%s, abbreviation=%s, dotlessAbbreviation=%s, shortestUniqueAbbreviation=%s}".formatted(
-                this.name,
-                this.abbreviation,
-                this.dotlessAbbreviation,
-                this.shortestUniqueAbbreviation);
+            this.name,
+            this.abbreviation,
+            this.dotlessAbbreviation,
+            this.shortestUniqueAbbreviation
+        );
     }
 
     @Override
@@ -107,11 +133,21 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
             return false;
         }
         Abbreviation that = (Abbreviation) o;
-        return getName().equals(that.getName()) && getAbbreviation().equals(that.getAbbreviation()) && getShortestUniqueAbbreviation().equals(that.getShortestUniqueAbbreviation());
+        return (
+            getName().equals(that.getName())
+            && getAbbreviation().equals(that.getAbbreviation())
+            && getShortestUniqueAbbreviation().equals(
+                that.getShortestUniqueAbbreviation()
+            )
+        );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getAbbreviation(), getShortestUniqueAbbreviation());
+        return Objects.hash(
+            getName(),
+            getAbbreviation(),
+            getShortestUniqueAbbreviation()
+        );
     }
 }

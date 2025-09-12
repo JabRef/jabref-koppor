@@ -60,7 +60,11 @@ public class BibtexString implements Cloneable {
             // Second character is not upper case
             // aStallman -> AUTHOR
             // asdf -> OTHER
-            if (!String.valueOf(key.charAt(1)).toUpperCase(Locale.ROOT).equals(String.valueOf(key.charAt(1)))) {
+            if (
+                !String.valueOf(key.charAt(1))
+                    .toUpperCase(Locale.ROOT)
+                    .equals(String.valueOf(key.charAt(1)))
+            ) {
                 return OTHER;
             }
             for (Type t : Type.values()) {
@@ -98,7 +102,11 @@ public class BibtexString implements Cloneable {
      *
      * @param parsedSerialization The serialization read during parsing
      */
-    public BibtexString(String name, String content, String parsedSerialization) {
+    public BibtexString(
+        String name,
+        String content,
+        String parsedSerialization
+    ) {
         this(name, content);
         this.parsedSerialization = parsedSerialization;
         hasChanged = false;
@@ -157,7 +165,10 @@ public class BibtexString implements Cloneable {
         if (parsedSerialization != null) {
             try {
                 // get the text before the string
-                String prolog = parsedSerialization.substring(0, parsedSerialization.indexOf('@'));
+                String prolog = parsedSerialization.substring(
+                    0,
+                    parsedSerialization.indexOf('@')
+                );
                 return prolog;
             } catch (StringIndexOutOfBoundsException ignore) {
                 // if this occurs a broken parsed serialization has been set, so just do nothing
@@ -170,7 +181,7 @@ public class BibtexString implements Cloneable {
     public Object clone() {
         BibtexString clone;
         if (parsedSerialization == null) {
-             clone = new BibtexString(name, content);
+            clone = new BibtexString(name, content);
         } else {
             clone = new BibtexString(name, content, parsedSerialization);
         }
@@ -192,15 +203,23 @@ public class BibtexString implements Cloneable {
             return false;
         }
         BibtexString that = (BibtexString) o;
-        return Objects.equals(hasChanged, that.hasChanged) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(content, that.content) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(parsedSerialization, that.parsedSerialization);
+        return (
+            Objects.equals(hasChanged, that.hasChanged)
+            && Objects.equals(name, that.name)
+            && Objects.equals(content, that.content)
+            && Objects.equals(type, that.type)
+            && Objects.equals(parsedSerialization, that.parsedSerialization)
+        );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hasChanged, name, content, type, parsedSerialization);
+        return Objects.hash(
+            hasChanged,
+            name,
+            content,
+            type,
+            parsedSerialization
+        );
     }
 }

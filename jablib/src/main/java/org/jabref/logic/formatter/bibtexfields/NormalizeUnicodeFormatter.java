@@ -1,7 +1,6 @@
 package org.jabref.logic.formatter.bibtexfields;
 
 import java.text.Normalizer;
-
 import org.jabref.logic.cleanup.Formatter;
 
 /**
@@ -33,7 +32,10 @@ public class NormalizeUnicodeFormatter extends Formatter {
 
     @Override
     public String format(String value) {
-        String normalizedValue = Normalizer.normalize(value, Normalizer.Form.NFC);
+        String normalizedValue = Normalizer.normalize(
+            value,
+            Normalizer.Form.NFC
+        );
         return normalizedValue;
     }
 }

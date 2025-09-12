@@ -1,8 +1,8 @@
 package org.jabref.gui.entryeditor.fileannotationtab;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
 import org.jabref.gui.entryeditor.EntryEditorTab;
@@ -12,8 +12,6 @@ import org.jabref.logic.pdf.FileAnnotationCache;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class FileAnnotationTab extends EntryEditorTab {
 
     public static final String NAME = "File annotations";
@@ -21,8 +19,10 @@ public class FileAnnotationTab extends EntryEditorTab {
     private final StateManager stateManager;
     private final EntryEditorPreferences entryEditorPreferences;
 
-    public FileAnnotationTab(StateManager stateManager,
-                             GuiPreferences preferences) {
+    public FileAnnotationTab(
+        StateManager stateManager,
+        GuiPreferences preferences
+    ) {
         this.stateManager = stateManager;
         this.entryEditorPreferences = preferences.getEntryEditorPreferences();
 
@@ -36,23 +36,36 @@ public class FileAnnotationTab extends EntryEditorTab {
             return entry.getField(StandardField.FILE).isPresent();
         }
 
-        return entry.getField(StandardField.FILE).isPresent()
-                && stateManager.activeTabProperty().get()
-                .map(tab -> tab.getAnnotationCache()
+        return (
+            entry.getField(StandardField.FILE).isPresent()
+            && stateManager
+                .activeTabProperty()
+                .get()
+                .map(tab ->
+                    tab
+                        .getAnnotationCache()
                         .getFromCache(entry)
                         .values()
                         .stream()
-                        .anyMatch(list -> !list.isEmpty()))
-                .orElse(false);
+                        .anyMatch(list -> !list.isEmpty())
+                )
+                .orElse(false)
+        );
     }
 
     @Override
     protected void bindToEntry(BibEntry entry) {
         if (stateManager.activeTabProperty().get().isPresent()) {
-            FileAnnotationCache cache = stateManager.activeTabProperty().get().get().getAnnotationCache();
-            Parent content = ViewLoader.view(new FileAnnotationTabView(entry, cache))
-                                       .load()
-                                       .getView();
+            FileAnnotationCache cache = stateManager
+                .activeTabProperty()
+                .get()
+                .get()
+                .getAnnotationCache();
+            Parent content = ViewLoader.view(
+                new FileAnnotationTabView(entry, cache)
+            )
+                .load()
+                .getView();
             setContent(content);
         } else {
             setContent(null);

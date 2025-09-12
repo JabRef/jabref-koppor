@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SqlQueryNode {
+
     private final String cte;
     private final List<String> params;
 

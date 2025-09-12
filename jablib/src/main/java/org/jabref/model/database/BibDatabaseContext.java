@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
@@ -30,7 +29,6 @@ import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.study.Study;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +46,9 @@ import org.slf4j.LoggerFactory;
 @AllowedToUseLogic("because it needs access to shared database features")
 public class BibDatabaseContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BibDatabaseContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BibDatabaseContext.class
+    );
 
     private final BibDatabase database;
     private MetaData metaData;
@@ -82,11 +82,20 @@ public class BibDatabaseContext {
         this.location = DatabaseLocation.LOCAL;
     }
 
-    public BibDatabaseContext(BibDatabase database, MetaData metaData, Path path) {
+    public BibDatabaseContext(
+        BibDatabase database,
+        MetaData metaData,
+        Path path
+    ) {
         this(database, metaData, path, DatabaseLocation.LOCAL);
     }
 
-    public BibDatabaseContext(BibDatabase database, MetaData metaData, Path path, DatabaseLocation location) {
+    public BibDatabaseContext(
+        BibDatabase database,
+        MetaData metaData,
+        Path path,
+        DatabaseLocation location
+    ) {
         this(database, metaData);
         Objects.requireNonNull(location);
         this.path = path;
@@ -142,9 +151,18 @@ public class BibDatabaseContext {
      */
     public boolean isStudy() {
         return this.getDatabasePath()
-                   .map(path -> Crawler.FILENAME_STUDY_RESULT_BIB.equals(path.getFileName().toString()) &&
-                           Files.exists(path.resolveSibling(StudyRepository.STUDY_DEFINITION_FILE_NAME)))
-                   .orElse(false);
+            .map(
+                path ->
+                    Crawler.FILENAME_STUDY_RESULT_BIB.equals(
+                        path.getFileName().toString()
+                    )
+                    && Files.exists(
+                        path.resolveSibling(
+                            StudyRepository.STUDY_DEFINITION_FILE_NAME
+                        )
+                    )
+            )
+            .orElse(false);
     }
 
     /**
@@ -173,10 +191,14 @@ public class BibDatabaseContext {
         // Paths are a) ordered and b) should be contained only once in the result
         LinkedHashSet<Path> fileDirs = new LinkedHashSet<>(3);
 
-        Optional<Path> userFileDirectory = metaData.getUserFileDirectory(preferences.getUserAndHost()).map(this::getFileDirectoryPath);
+        Optional<Path> userFileDirectory = metaData
+            .getUserFileDirectory(preferences.getUserAndHost())
+            .map(this::getFileDirectoryPath);
         userFileDirectory.ifPresent(fileDirs::add);
 
-        Optional<Path> librarySpecificFileDirectory = metaData.getLibrarySpecificFileDirectory().map(this::getFileDirectoryPath);
+        Optional<Path> librarySpecificFileDirectory = metaData
+            .getLibrarySpecificFileDirectory()
+            .map(this::getFileDirectoryPath);
         librarySpecificFileDirectory.ifPresent(fileDirs::add);
 
         // fileDirs.isEmpty() is true after these two if there are no directories set in the BIB file itself:
@@ -189,15 +211,23 @@ public class BibDatabaseContext {
                 Path parentPath = dbPath.getParent();
                 if (parentPath == null) {
                     parentPath = Path.of(System.getProperty("user.dir"));
-                    LOGGER.warn("Parent path of database file {} is null. Falling back to {}.", dbPath, parentPath);
+                    LOGGER.warn(
+                        "Parent path of database file {} is null. Falling back to {}.",
+                        dbPath,
+                        parentPath
+                    );
                 }
-                Objects.requireNonNull(parentPath, "BibTeX database parent path is null");
+                Objects.requireNonNull(
+                    parentPath,
+                    "BibTeX database parent path is null"
+                );
                 fileDirs.add(parentPath.toAbsolutePath());
             });
         } else {
-            preferences.getMainFileDirectory()
-                       .filter(path -> !fileDirs.contains(path))
-                       .ifPresent(fileDirs::add);
+            preferences
+                .getMainFileDirectory()
+                .filter(path -> !fileDirs.contains(path))
+                .ifPresent(fileDirs::add);
         }
 
         return new ArrayList<>(fileDirs);
@@ -209,9 +239,10 @@ public class BibDatabaseContext {
      * @return the path - or an empty optional, if none of the directories exists
      */
     public Optional<Path> getFirstExistingFileDir(FilePreferences preferences) {
-        return getFileDirectories(preferences).stream()
-                                              .filter(Files::exists)
-                                              .findFirst();
+        return getFileDirectories(preferences)
+            .stream()
+            .filter(Files::exists)
+            .findFirst();
     }
 
     /**
@@ -225,8 +256,14 @@ public class BibDatabaseContext {
 
         // If this path is relative, we try to interpret it as relative to the file path of this BIB file:
         return getDatabasePath()
-                .map(databaseFile -> databaseFile.getParent().resolve(path).normalize().toAbsolutePath())
-                .orElse(path);
+            .map(databaseFile ->
+                databaseFile
+                    .getParent()
+                    .resolve(path)
+                    .normalize()
+                    .toAbsolutePath()
+            )
+            .orElse(path);
     }
 
     public DatabaseSynchronizer getDBMSSynchronizer() {
@@ -274,9 +311,16 @@ public class BibDatabaseContext {
         if (getDatabasePath().isPresent()) {
             Path databasePath = getDatabasePath().get();
             // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as separator between "groups"
-            String fileName = BackupFileUtil.getUniqueFilePrefix(databasePath) + "--" + databasePath.getFileName();
+            String fileName =
+                BackupFileUtil.getUniqueFilePrefix(databasePath)
+                + "--"
+                + databasePath.getFileName();
             indexPath = appData.resolve(fileName);
-            LOGGER.debug("Index path for {} is {}", getDatabasePath().get(), indexPath);
+            LOGGER.debug(
+                "Index path for {} is {}",
+                getDatabasePath().get(),
+                indexPath
+            );
             return indexPath;
         }
 
@@ -285,7 +329,10 @@ public class BibDatabaseContext {
         return indexPath;
     }
 
-    public static BibDatabaseContext of(Reader bibContentReader, ImportFormatPreferences importFormatPreferences) throws JabRefException {
+    public static BibDatabaseContext of(
+        Reader bibContentReader,
+        ImportFormatPreferences importFormatPreferences
+    ) throws JabRefException {
         BibtexParser parser = new BibtexParser(importFormatPreferences);
         try {
             ParserResult result = parser.parse(bibContentReader);
@@ -295,12 +342,22 @@ public class BibDatabaseContext {
         }
     }
 
-    public static BibDatabaseContext of(String bibContent, ImportFormatPreferences importFormatPreferences) throws JabRefException {
+    public static BibDatabaseContext of(
+        String bibContent,
+        ImportFormatPreferences importFormatPreferences
+    ) throws JabRefException {
         return of(Reader.of(bibContent), importFormatPreferences);
     }
 
-    public static BibDatabaseContext of(InputStream bibContentStream, ImportFormatPreferences importFormatPreferences) throws JabRefException {
-        try (Reader reader = new BufferedReader(new InputStreamReader(bibContentStream))) {
+    public static BibDatabaseContext of(
+        InputStream bibContentStream,
+        ImportFormatPreferences importFormatPreferences
+    ) throws JabRefException {
+        try (
+            Reader reader = new BufferedReader(
+                new InputStreamReader(bibContentStream)
+            )
+        ) {
             return of(reader, importFormatPreferences);
         } catch (IOException e) {
             throw new JabRefException("Failed to close stream", e);
@@ -313,14 +370,22 @@ public class BibDatabaseContext {
 
     @Override
     public String toString() {
-        return "BibDatabaseContext{" +
-                "metaData=" + metaData +
-                ", mode=" + getMode() +
-                ", databasePath=" + getDatabasePath() +
-                ", biblatexMode=" + isBiblatexMode() +
-                ", uid= " + getUid() +
-                ", fulltextIndexPath=" + getFulltextIndexPath() +
-                '}';
+        return (
+            "BibDatabaseContext{"
+            + "metaData="
+            + metaData
+            + ", mode="
+            + getMode()
+            + ", databasePath="
+            + getDatabasePath()
+            + ", biblatexMode="
+            + isBiblatexMode()
+            + ", uid= "
+            + getUid()
+            + ", fulltextIndexPath="
+            + getFulltextIndexPath()
+            + '}'
+        );
     }
 
     @Override
@@ -331,7 +396,12 @@ public class BibDatabaseContext {
         if (!(o instanceof BibDatabaseContext that)) {
             return false;
         }
-        return Objects.equals(database, that.database) && Objects.equals(metaData, that.metaData) && Objects.equals(path, that.path) && location == that.location;
+        return (
+            Objects.equals(database, that.database)
+            && Objects.equals(metaData, that.metaData)
+            && Objects.equals(path, that.path)
+            && location == that.location
+        );
     }
 
     /**

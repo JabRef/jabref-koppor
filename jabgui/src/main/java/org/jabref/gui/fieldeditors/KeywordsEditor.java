@@ -1,11 +1,14 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.airhacks.afterburner.views.ViewLoader;
+import com.dlsc.gemsfx.TagsField;
+import com.google.common.collect.Comparators;
+import com.google.common.collect.HashBiMap;
+import jakarta.inject.Inject;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.Optional;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.beans.binding.Bindings;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
@@ -20,7 +23,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefDialogService;
@@ -41,23 +44,23 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
-import com.dlsc.gemsfx.TagsField;
-import com.google.common.collect.Comparators;
-import com.google.common.collect.HashBiMap;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KeywordsEditor extends HBox implements FieldEditorFX {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeywordsEditor.class);
-    private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass("focused");
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        KeywordsEditor.class
+    );
+    private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass(
+        "focused"
+    );
     private static HashBiMap<String, String> mscmap;
 
     static {
-        URL resourceUrl = KeywordsEditor.class.getClassLoader().getResource("msc_codes.json");
+        URL resourceUrl = KeywordsEditor.class.getClassLoader().getResource(
+            "msc_codes.json"
+        );
 
         if (resourceUrl == null) {
             LOGGER.error("Resource not found: msc_codes.json");
@@ -65,7 +68,8 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
         }
 
         try {
-            Optional<HashBiMap<String, String>> optionalMscCodes = MscCodeUtils.loadMscCodesFromJson(resourceUrl);
+            Optional<HashBiMap<String, String>> optionalMscCodes =
+                MscCodeUtils.loadMscCodesFromJson(resourceUrl);
 
             if (optionalMscCodes.isPresent()) {
                 mscmap = optionalMscCodes.get();
@@ -79,105 +83,191 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
         }
     }
 
-    @FXML private KeywordsEditorViewModel viewModel;
-    @FXML private TagsField<Keyword> keywordTagsField;
+    @FXML
+    private KeywordsEditorViewModel viewModel;
 
-    @Inject private CliPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private UndoManager undoManager;
-    @Inject private ClipBoardManager clipBoardManager;
+    @FXML
+    private TagsField<Keyword> keywordTagsField;
+
+    @Inject
+    private CliPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private UndoManager undoManager;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
 
     private boolean isSortedTagsField = false;
     private Optional<Keyword> draggedKeyword = Optional.empty();
 
-    public KeywordsEditor(Field field,
-                          SuggestionProvider<?> suggestionProvider,
-                          FieldCheckers fieldCheckers) {
-
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+    public KeywordsEditor(
+        Field field,
+        SuggestionProvider<?> suggestionProvider,
+        FieldCheckers fieldCheckers
+    ) {
+        ViewLoader.view(this).root(this).load();
 
         this.viewModel = new KeywordsEditorViewModel(
-                field,
-                suggestionProvider,
-                fieldCheckers,
-                preferences,
-                undoManager);
+            field,
+            suggestionProvider,
+            fieldCheckers,
+            preferences,
+            undoManager
+        );
 
-        keywordTagsField.setCellFactory(new ViewModelListCellFactory<Keyword>().withText(Keyword::get));
+        keywordTagsField.setCellFactory(
+            new ViewModelListCellFactory<Keyword>().withText(Keyword::get)
+        );
         keywordTagsField.setTagViewFactory(this::createTag);
 
-        keywordTagsField.setSuggestionProvider(request -> viewModel.getSuggestions(request.getUserText()));
+        keywordTagsField.setSuggestionProvider(request ->
+            viewModel.getSuggestions(request.getUserText())
+        );
         keywordTagsField.setConverter(viewModel.getStringConverter());
-        keywordTagsField.setMatcher((keyword, searchText) -> keyword.get().toLowerCase().startsWith(searchText.toLowerCase()));
+        keywordTagsField.setMatcher((keyword, searchText) ->
+            keyword.get().toLowerCase().startsWith(searchText.toLowerCase())
+        );
         keywordTagsField.setComparator(Comparator.comparing(Keyword::get));
 
-        keywordTagsField.setNewItemProducer(searchText -> viewModel.getStringConverter().fromString(searchText));
+        keywordTagsField.setNewItemProducer(searchText ->
+            viewModel.getStringConverter().fromString(searchText)
+        );
 
         keywordTagsField.setShowSearchIcon(false);
-        keywordTagsField.setOnMouseClicked(event -> keywordTagsField.getEditor().requestFocus());
+        keywordTagsField.setOnMouseClicked(event ->
+            keywordTagsField.getEditor().requestFocus()
+        );
         keywordTagsField.getEditor().getStyleClass().clear();
         keywordTagsField.getEditor().getStyleClass().add("tags-field-editor");
-        keywordTagsField.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> keywordTagsField.pseudoClassStateChanged(FOCUSED, newValue));
+        keywordTagsField
+            .getEditor()
+            .focusedProperty()
+            .addListener((observable, oldValue, newValue) ->
+                keywordTagsField.pseudoClassStateChanged(FOCUSED, newValue)
+            );
 
-        String keywordSeparator = String.valueOf(viewModel.getKeywordSeparator());
-        keywordTagsField.getEditor().setOnKeyReleased(event -> {
-            if (event.getText().equals(keywordSeparator)) {
-                keywordTagsField.commit();
-                event.consume();
-            }
-        });
-
-        this.viewModel.keywordListProperty().addListener((observable, oldValue, newValue) -> {
-            if (keywordTagsField.getTags().size() < 2) {
-                isSortedTagsField = false;
-            } else if ((Comparators.isInOrder(keywordTagsField.getTags(), Comparator.comparing(Keyword::get))) || isSortedTagsField) {
-                isSortedTagsField = true;
-                keywordTagsField.getTags().sort(Comparator.comparing(Keyword::get));
-            }
-        });
-
-        keywordTagsField.getEditor().setOnKeyPressed(event -> {
-            KeyBindingRepository keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
-
-            if (keyBindingRepository.checkKeyCombinationEquality(KeyBinding.PASTE, event)) {
-                String clipboardText = ClipBoardManager.getContents();
-                if (!clipboardText.isEmpty()) {
-                    KeywordList keywordsList = KeywordList.parse(clipboardText, viewModel.getKeywordSeparator());
-                    keywordsList.stream().forEach(keyword -> keywordTagsField.addTags(keyword));
-                    keywordTagsField.getEditor().clear();
+        String keywordSeparator = String.valueOf(
+            viewModel.getKeywordSeparator()
+        );
+        keywordTagsField
+            .getEditor()
+            .setOnKeyReleased(event -> {
+                if (event.getText().equals(keywordSeparator)) {
+                    keywordTagsField.commit();
                     event.consume();
                 }
-            }
-        });
+            });
 
-        Bindings.bindContentBidirectional(keywordTagsField.getTags(), viewModel.keywordListProperty());
+        this.viewModel.keywordListProperty().addListener(
+            (observable, oldValue, newValue) -> {
+                if (keywordTagsField.getTags().size() < 2) {
+                    isSortedTagsField = false;
+                } else if (
+                    (Comparators.isInOrder(
+                            keywordTagsField.getTags(),
+                            Comparator.comparing(Keyword::get)
+                        ))
+                    || isSortedTagsField
+                ) {
+                    isSortedTagsField = true;
+                    keywordTagsField
+                        .getTags()
+                        .sort(Comparator.comparing(Keyword::get));
+                }
+            }
+        );
+
+        keywordTagsField
+            .getEditor()
+            .setOnKeyPressed(event -> {
+                KeyBindingRepository keyBindingRepository =
+                    Injector.instantiateModelOrService(
+                        KeyBindingRepository.class
+                    );
+
+                if (
+                    keyBindingRepository.checkKeyCombinationEquality(
+                        KeyBinding.PASTE,
+                        event
+                    )
+                ) {
+                    String clipboardText = ClipBoardManager.getContents();
+                    if (!clipboardText.isEmpty()) {
+                        KeywordList keywordsList = KeywordList.parse(
+                            clipboardText,
+                            viewModel.getKeywordSeparator()
+                        );
+                        keywordsList
+                            .stream()
+                            .forEach(keyword ->
+                                keywordTagsField.addTags(keyword)
+                            );
+                        keywordTagsField.getEditor().clear();
+                        event.consume();
+                    }
+                }
+            });
+
+        Bindings.bindContentBidirectional(
+            keywordTagsField.getTags(),
+            viewModel.keywordListProperty()
+        );
     }
 
     private Node createTag(Keyword keyword) {
         Label tagLabel = new Label();
         tagLabel.setText(keywordTagsField.getConverter().toString(keyword));
         tagLabel.setGraphic(IconTheme.JabRefIcons.REMOVE_TAGS.getGraphicNode());
-        tagLabel.getGraphic().setOnMouseClicked(event -> keywordTagsField.removeTags(keyword));
+        tagLabel
+            .getGraphic()
+            .setOnMouseClicked(event -> keywordTagsField.removeTags(keyword));
         tagLabel.setContentDisplay(ContentDisplay.RIGHT);
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.COPY, new KeywordsEditor.TagContextAction(StandardActions.COPY, keyword)),
-                factory.createMenuItem(StandardActions.CUT, new KeywordsEditor.TagContextAction(StandardActions.CUT, keyword)),
-                factory.createMenuItem(StandardActions.DELETE, new KeywordsEditor.TagContextAction(StandardActions.DELETE, keyword))
-        );
+        contextMenu
+            .getItems()
+            .addAll(
+                factory.createMenuItem(
+                    StandardActions.COPY,
+                    new KeywordsEditor.TagContextAction(
+                        StandardActions.COPY,
+                        keyword
+                    )
+                ),
+                factory.createMenuItem(
+                    StandardActions.CUT,
+                    new KeywordsEditor.TagContextAction(
+                        StandardActions.CUT,
+                        keyword
+                    )
+                ),
+                factory.createMenuItem(
+                    StandardActions.DELETE,
+                    new KeywordsEditor.TagContextAction(
+                        StandardActions.DELETE,
+                        keyword
+                    )
+                )
+            );
         tagLabel.setContextMenu(contextMenu);
         tagLabel.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 keywordTagsField.removeTags(keyword);
                 keywordTagsField.getEditor().setText(keyword.get());
-                keywordTagsField.getEditor().positionCaret(keyword.get().length());
+                keywordTagsField
+                    .getEditor()
+                    .positionCaret(keyword.get().length());
             }
         });
         tagLabel.setOnDragOver(event -> {
-            if (event.getGestureSource() != tagLabel && event.getDragboard().hasString()) {
+            if (
+                event.getGestureSource() != tagLabel
+                && event.getDragboard().hasString()
+            ) {
                 event.acceptTransferModes(TransferMode.MOVE);
             }
             event.consume();
@@ -198,16 +288,22 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
             draggedKeyword = Optional.of(keyword);
             event.consume();
         });
-        tagLabel.setOnDragEntered(event -> tagLabel.setStyle("-fx-background-color: lightgrey;"));
+        tagLabel.setOnDragEntered(event ->
+            tagLabel.setStyle("-fx-background-color: lightgrey;")
+        );
         tagLabel.setOnDragExited(event -> tagLabel.setStyle(""));
         tagLabel.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (db.hasString() && draggedKeyword.isPresent()) {
-                int oldIndex = keywordTagsField.getTags().indexOf(draggedKeyword.get());
+                int oldIndex = keywordTagsField
+                    .getTags()
+                    .indexOf(draggedKeyword.get());
                 int dropIndex = keywordTagsField.getTags().indexOf(keyword);
                 if (oldIndex != dropIndex) {
                     keywordTagsField.removeTags(draggedKeyword.get());
-                    keywordTagsField.getTags().add(dropIndex, draggedKeyword.get());
+                    keywordTagsField
+                        .getTags()
+                        .add(dropIndex, draggedKeyword.get());
                 }
                 event.setDropCompleted(true);
             } else {
@@ -240,6 +336,7 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
     }
 
     private class TagContextAction extends SimpleCommand {
+
         private final StandardActions command;
         private final Keyword keyword;
 
@@ -253,19 +350,32 @@ public class KeywordsEditor extends HBox implements FieldEditorFX {
             switch (command) {
                 case COPY -> {
                     clipBoardManager.setContent(keyword.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                                                           JabRefDialogService.shortenDialogMessage(keyword.get())));
+                    dialogService.notify(
+                        Localization.lang(
+                            "Copied '%0' to clipboard.",
+                            JabRefDialogService.shortenDialogMessage(
+                                keyword.get()
+                            )
+                        )
+                    );
                 }
                 case CUT -> {
                     clipBoardManager.setContent(keyword.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                                                           JabRefDialogService.shortenDialogMessage(keyword.get())));
+                    dialogService.notify(
+                        Localization.lang(
+                            "Copied '%0' to clipboard.",
+                            JabRefDialogService.shortenDialogMessage(
+                                keyword.get()
+                            )
+                        )
+                    );
                     keywordTagsField.removeTags(keyword);
                 }
-                case DELETE ->
-                    keywordTagsField.removeTags(keyword);
-                default ->
-                    LOGGER.info("Action {} not defined", command.getText());
+                case DELETE -> keywordTagsField.removeTags(keyword);
+                default -> LOGGER.info(
+                    "Action {} not defined",
+                    command.getText()
+                );
             }
         }
     }

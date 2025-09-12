@@ -1,7 +1,7 @@
 package org.jabref.logic.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.EnumSet;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -10,11 +10,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class SearchPreferences {
 
@@ -26,16 +23,26 @@ public class SearchPreferences {
     private final BooleanProperty keepSearchString;
     private final ObjectProperty<SearchDisplayMode> searchDisplayMode;
 
-    public SearchPreferences(SearchDisplayMode searchDisplayMode,
-                             boolean isRegularExpression,
-                             boolean isCaseSensitive,
-                             boolean isFulltext,
-                             boolean keepSearchString,
-                             boolean keepWindowOnTop,
-                             double searchWindowHeight,
-                             double searchWindowWidth,
-                             double searchWindowDividerPosition) {
-        this(searchDisplayMode, EnumSet.noneOf(SearchFlags.class), keepSearchString, keepWindowOnTop, searchWindowHeight, searchWindowWidth, searchWindowDividerPosition);
+    public SearchPreferences(
+        SearchDisplayMode searchDisplayMode,
+        boolean isRegularExpression,
+        boolean isCaseSensitive,
+        boolean isFulltext,
+        boolean keepSearchString,
+        boolean keepWindowOnTop,
+        double searchWindowHeight,
+        double searchWindowWidth,
+        double searchWindowDividerPosition
+    ) {
+        this(
+            searchDisplayMode,
+            EnumSet.noneOf(SearchFlags.class),
+            keepSearchString,
+            keepWindowOnTop,
+            searchWindowHeight,
+            searchWindowWidth,
+            searchWindowDividerPosition
+        );
         if (isRegularExpression) {
             searchFlags.add(SearchFlags.REGULAR_EXPRESSION);
         }
@@ -48,14 +55,24 @@ public class SearchPreferences {
     }
 
     @VisibleForTesting
-    public SearchPreferences(SearchDisplayMode searchDisplayMode, EnumSet<SearchFlags> searchFlags, boolean keepSearchString, boolean keepWindowOnTop, double searchWindowHeight, double searchWindowWidth, double searchWindowDividerPosition) {
+    public SearchPreferences(
+        SearchDisplayMode searchDisplayMode,
+        EnumSet<SearchFlags> searchFlags,
+        boolean keepSearchString,
+        boolean keepWindowOnTop,
+        double searchWindowHeight,
+        double searchWindowWidth,
+        double searchWindowDividerPosition
+    ) {
         this.searchDisplayMode = new SimpleObjectProperty<>(searchDisplayMode);
         this.searchFlags = FXCollections.observableSet(searchFlags);
 
         this.keepWindowOnTop = new SimpleBooleanProperty(keepWindowOnTop);
         this.searchWindowHeight = new SimpleDoubleProperty(searchWindowHeight);
         this.searchWindowWidth = new SimpleDoubleProperty(searchWindowWidth);
-        this.searchWindowDividerPosition = new SimpleDoubleProperty(searchWindowDividerPosition);
+        this.searchWindowDividerPosition = new SimpleDoubleProperty(
+            searchWindowDividerPosition
+        );
         this.keepSearchString = new SimpleBooleanProperty(keepSearchString);
     }
 

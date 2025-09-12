@@ -5,10 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.util.FileType;
@@ -61,9 +59,21 @@ public abstract class Exporter {
      * @param file            the file to write to
      * @param entries         a list containing all entries that should be exported
      */
-    public abstract void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws IOException, TransformerException, ParserConfigurationException, SaveException;
+    public abstract void export(
+        BibDatabaseContext databaseContext,
+        Path file,
+        List<BibEntry> entries
+    )
+        throws IOException, TransformerException, ParserConfigurationException, SaveException;
 
-    public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries, List<Path> fileDirForDatabase, JournalAbbreviationRepository abbreviationRepository) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    public void export(
+        BibDatabaseContext databaseContext,
+        Path file,
+        List<BibEntry> entries,
+        List<Path> fileDirForDatabase,
+        JournalAbbreviationRepository abbreviationRepository
+    )
+        throws IOException, SaveException, ParserConfigurationException, TransformerException {
         export(databaseContext, file, entries);
     }
 
@@ -78,19 +88,30 @@ public abstract class Exporter {
      * @return whether any file was written on
      * @throws IOException if the writing fails
      */
-    public boolean exportToAllFilesOfEntry(BibDatabaseContext databaseContext,
-                                           FilePreferences filePreferences,
-                                           BibEntry entryToWriteOn,
-                                           List<BibEntry> entriesToWrite,
-                                           JournalAbbreviationRepository abbreviationRepository)
-            throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    public boolean exportToAllFilesOfEntry(
+        BibDatabaseContext databaseContext,
+        FilePreferences filePreferences,
+        BibEntry entryToWriteOn,
+        List<BibEntry> entriesToWrite,
+        JournalAbbreviationRepository abbreviationRepository
+    )
+        throws IOException, SaveException, ParserConfigurationException, TransformerException {
         boolean writtenToAFile = false;
 
         for (LinkedFile file : entryToWriteOn.getFiles()) {
             if (file.getFileType().equals(fileType.getName())) {
-                Optional<Path> filePath = file.findIn(databaseContext, filePreferences);
+                Optional<Path> filePath = file.findIn(
+                    databaseContext,
+                    filePreferences
+                );
                 if (filePath.isPresent()) {
-                    export(databaseContext, filePath.get(), entriesToWrite, List.of(), abbreviationRepository);
+                    export(
+                        databaseContext,
+                        filePath.get(),
+                        entriesToWrite,
+                        List.of(),
+                        abbreviationRepository
+                    );
                     writtenToAFile = true;
                 }
             }
@@ -112,11 +133,13 @@ public abstract class Exporter {
      * @return whether the file was written on at least once
      * @throws IOException if the writing fails
      */
-    public boolean exportToFileByPath(BibDatabaseContext databaseContext,
-                                      FilePreferences filePreferences,
-                                      Path filePath,
-                                      JournalAbbreviationRepository abbreviationRepository)
-            throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    public boolean exportToFileByPath(
+        BibDatabaseContext databaseContext,
+        FilePreferences filePreferences,
+        Path filePath,
+        JournalAbbreviationRepository abbreviationRepository
+    )
+        throws IOException, SaveException, ParserConfigurationException, TransformerException {
         if (!Files.exists(filePath)) {
             return false;
         }
@@ -124,9 +147,21 @@ public abstract class Exporter {
         for (BibEntry entry : databaseContext.getEntries()) {
             for (LinkedFile linkedFile : entry.getFiles()) {
                 if (linkedFile.getFileType().equals(fileType.getName())) {
-                    Optional<Path> linkedFilePath = linkedFile.findIn(databaseContext.getFileDirectories(filePreferences));
-                    if (linkedFilePath.isPresent() && Files.exists(linkedFilePath.get()) && Files.isSameFile(linkedFilePath.get(), filePath)) {
-                        export(databaseContext, filePath, List.of(entry), List.of(), abbreviationRepository);
+                    Optional<Path> linkedFilePath = linkedFile.findIn(
+                        databaseContext.getFileDirectories(filePreferences)
+                    );
+                    if (
+                        linkedFilePath.isPresent()
+                        && Files.exists(linkedFilePath.get())
+                        && Files.isSameFile(linkedFilePath.get(), filePath)
+                    ) {
+                        export(
+                            databaseContext,
+                            filePath,
+                            List.of(entry),
+                            List.of(),
+                            abbreviationRepository
+                        );
                         writtenABibEntry = true;
                     }
                 }

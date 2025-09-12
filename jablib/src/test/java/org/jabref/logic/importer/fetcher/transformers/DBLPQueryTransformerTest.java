@@ -1,17 +1,16 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer> {
+class DBLPQueryTransformerTest
+    extends InfixTransformerTest<DBLPQueryTransformer> {
 
     @Override
     public DBLPQueryTransformer getTransformer() {
@@ -44,8 +43,12 @@ class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer
         String queryString = "year=2015";
         DBLPQueryTransformer transformer = getTransformer();
         SearchQuery searchQuery = new SearchQuery(queryString);
-        BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
-        Optional<String> query = transformer.transformSearchQuery(searchQueryList);
+        BaseQueryNode searchQueryList = new SearchQueryVisitor(
+            searchQuery.getSearchFlags()
+        ).visitStart(searchQuery.getContext());
+        Optional<String> query = transformer.transformSearchQuery(
+            searchQueryList
+        );
         assertEquals(Optional.empty(), query);
         assertEquals(Optional.of(2015), transformer.getStartYear());
         assertEquals(Optional.of(2015), transformer.getEndYear());
@@ -57,8 +60,12 @@ class DBLPQueryTransformerTest extends InfixTransformerTest<DBLPQueryTransformer
         String queryString = "year-range=2012-2015";
         DBLPQueryTransformer transformer = getTransformer();
         SearchQuery searchQuery = new SearchQuery(queryString);
-        BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
-        Optional<String> query = transformer.transformSearchQuery(searchQueryList);
+        BaseQueryNode searchQueryList = new SearchQueryVisitor(
+            searchQuery.getSearchFlags()
+        ).visitStart(searchQuery.getContext());
+        Optional<String> query = transformer.transformSearchQuery(
+            searchQueryList
+        );
         assertEquals(Optional.empty(), query);
         assertEquals(Optional.of(2012), transformer.getStartYear());
         assertEquals(Optional.of(2015), transformer.getEndYear());

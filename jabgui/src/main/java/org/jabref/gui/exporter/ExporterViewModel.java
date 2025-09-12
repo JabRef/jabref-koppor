@@ -2,7 +2,6 @@ package org.jabref.gui.exporter;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.exporter.TemplateExporter;
 
 /**
@@ -21,7 +20,10 @@ public class ExporterViewModel {
         this.name.setValue(exporter.getName());
         this.layoutFileName.setValue(exporter.getLayoutFileNameWithExtension());
         // Only the first of the extensions gotten from FileType is saved into the class using get(0)
-        String extensionString = exporter.getFileType().getExtensions().getFirst();
+        String extensionString = exporter
+            .getFileType()
+            .getExtensions()
+            .getFirst();
         this.extension.setValue(extensionString);
     }
 

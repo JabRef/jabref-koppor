@@ -1,11 +1,11 @@
 package org.jabref.logic.remote;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class RemotePreferencesTest {
 
@@ -13,7 +13,14 @@ class RemotePreferencesTest {
 
     @BeforeEach
     void setUp() {
-        preferences = new RemotePreferences(1000, true, 3000, false, false, 2087);
+        preferences = new RemotePreferences(
+            1000,
+            true,
+            3000,
+            false,
+            false,
+            2087
+        );
     }
 
     @Test

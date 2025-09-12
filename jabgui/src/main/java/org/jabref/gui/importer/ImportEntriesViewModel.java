@@ -5,9 +5,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.swing.undo.UndoManager;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -19,7 +16,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
-
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -41,13 +38,14 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ImportEntriesViewModel extends AbstractViewModel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImportEntriesViewModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ImportEntriesViewModel.class
+    );
     private static final int PAGE_SIZE = 20;
 
     private final StringProperty message;
@@ -63,13 +61,19 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     private final BibEntryTypesManager entryTypesManager;
     private final ObjectProperty<BibDatabaseContext> selectedDb;
 
-    private final IntegerProperty currentPageProperty = new SimpleIntegerProperty(0);
-    private final IntegerProperty totalPagesProperty = new SimpleIntegerProperty(0);
+    private final IntegerProperty currentPageProperty =
+        new SimpleIntegerProperty(0);
+    private final IntegerProperty totalPagesProperty =
+        new SimpleIntegerProperty(0);
     private final BooleanProperty loading = new SimpleBooleanProperty(false);
-    private final BooleanProperty initialLoadComplete = new SimpleBooleanProperty(false);
-    private final ObservableList<BibEntry> pagedEntries = FXCollections.observableArrayList();
-    private final ObservableSet<BibEntry> checkedEntries = FXCollections.observableSet();
-    private final ObservableList<BibEntry> allEntries = FXCollections.observableArrayList();
+    private final BooleanProperty initialLoadComplete =
+        new SimpleBooleanProperty(false);
+    private final ObservableList<BibEntry> pagedEntries =
+        FXCollections.observableArrayList();
+    private final ObservableSet<BibEntry> checkedEntries =
+        FXCollections.observableSet();
+    private final ObservableList<BibEntry> allEntries =
+        FXCollections.observableArrayList();
     private final Optional<SearchBasedFetcher> fetcher;
     private final Optional<String> query;
 
@@ -77,17 +81,19 @@ public class ImportEntriesViewModel extends AbstractViewModel {
      * @param databaseContext the database to import into
      * @param task            the task executed for parsing the selected files(s).
      */
-    public ImportEntriesViewModel(BackgroundTask<ParserResult> task,
-                                  TaskExecutor taskExecutor,
-                                  BibDatabaseContext databaseContext,
-                                  DialogService dialogService,
-                                  UndoManager undoManager,
-                                  GuiPreferences preferences,
-                                  StateManager stateManager,
-                                  BibEntryTypesManager entryTypesManager,
-                                  FileUpdateMonitor fileUpdateMonitor,
-                                  Optional<SearchBasedFetcher> fetcher,
-                                  Optional<String> query) {
+    public ImportEntriesViewModel(
+        BackgroundTask<ParserResult> task,
+        TaskExecutor taskExecutor,
+        BibDatabaseContext databaseContext,
+        DialogService dialogService,
+        UndoManager undoManager,
+        GuiPreferences preferences,
+        StateManager stateManager,
+        BibEntryTypesManager entryTypesManager,
+        FileUpdateMonitor fileUpdateMonitor,
+        Optional<SearchBasedFetcher> fetcher,
+        Optional<String> query
+    ) {
         this.taskExecutor = taskExecutor;
         this.databaseContext = databaseContext;
         this.dialogService = dialogService;
@@ -103,23 +109,30 @@ public class ImportEntriesViewModel extends AbstractViewModel {
         this.fetcher = fetcher;
         this.query = query;
 
-        task.onSuccess(parserResult -> {
-            // store the complete parser result (to import groups, ... later on)
-            this.parserResult = parserResult;
-            // fill in the list for the user, where one can select the entries to import
-            entries.addAll(parserResult.getDatabase().getEntries());
-            loadEntries(entries);
-            updatePagedEntries();
-            updateTotalPages();
-            initialLoadComplete.set(true);
-            if (entries.isEmpty()) {
-                task.updateMessage(Localization.lang("No entries corresponding to given query"));
-            }
-        }).onFailure(ex -> {
-            LOGGER.error("Error importing", ex);
-            initialLoadComplete.set(true);
-            dialogService.showErrorDialogAndWait(ex);
-        }).executeWith(taskExecutor);
+        task
+            .onSuccess(parserResult -> {
+                // store the complete parser result (to import groups, ... later on)
+                this.parserResult = parserResult;
+                // fill in the list for the user, where one can select the entries to import
+                entries.addAll(parserResult.getDatabase().getEntries());
+                loadEntries(entries);
+                updatePagedEntries();
+                updateTotalPages();
+                initialLoadComplete.set(true);
+                if (entries.isEmpty()) {
+                    task.updateMessage(
+                        Localization.lang(
+                            "No entries corresponding to given query"
+                        )
+                    );
+                }
+            })
+            .onFailure(ex -> {
+                LOGGER.error("Error importing", ex);
+                initialLoadComplete.set(true);
+                dialogService.showErrorDialogAndWait(ex);
+            })
+            .executeWith(taskExecutor);
     }
 
     public BooleanProperty initialLoadCompleteProperty() {
@@ -163,18 +176,32 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     }
 
     public boolean hasDuplicate(BibEntry entry) {
-        return findInternalDuplicate(entry).isPresent() ||
-                new DuplicateCheck(entryTypesManager)
-                .containsDuplicate(selectedDb.getValue().getDatabase(), entry, selectedDb.getValue().getMode()).isPresent();
+        return (
+            findInternalDuplicate(entry).isPresent()
+            || new DuplicateCheck(entryTypesManager)
+                .containsDuplicate(
+                    selectedDb.getValue().getDatabase(),
+                    entry,
+                    selectedDb.getValue().getMode()
+                )
+                .isPresent()
+        );
     }
 
     public String getSourceString(BibEntry entry) {
         StringWriter writer = new StringWriter();
         BibWriter bibWriter = new BibWriter(writer, OS.NEWLINE);
-        FieldWriter fieldWriter = FieldWriter.buildIgnoreHashes(preferences.getFieldPreferences());
+        FieldWriter fieldWriter = FieldWriter.buildIgnoreHashes(
+            preferences.getFieldPreferences()
+        );
         try {
             // Force reformatting so the displayed BibTeX is consistently formatted
-            new BibEntryWriter(fieldWriter, entryTypesManager).write(entry, bibWriter, selectedDb.getValue().getMode(), true);
+            new BibEntryWriter(fieldWriter, entryTypesManager).write(
+                entry,
+                bibWriter,
+                selectedDb.getValue().getMode(),
+                true
+            );
         } catch (IOException ioException) {
             // In case of error, fall back to the original parsed serialization if available
             return entry.getParsedSerialization();
@@ -187,27 +214,45 @@ public class ImportEntriesViewModel extends AbstractViewModel {
      *
      * @param entriesToImport subset of the entries contained in parserResult
      */
-    public void importEntries(List<BibEntry> entriesToImport, boolean shouldDownloadFiles) {
+    public void importEntries(
+        List<BibEntry> entriesToImport,
+        boolean shouldDownloadFiles
+    ) {
         // Remember the selection in the dialog
-        preferences.getFilePreferences().setDownloadLinkedFiles(shouldDownloadFiles);
+        preferences
+            .getFilePreferences()
+            .setDownloadLinkedFiles(shouldDownloadFiles);
 
-        new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator()).mergeStrings(
-                databaseContext.getDatabase(),
-                parserResult.getDatabase());
-        new DatabaseMerger(preferences.getBibEntryPreferences().getKeywordSeparator()).mergeMetaData(
-                databaseContext.getMetaData(),
-                parserResult.getMetaData(),
-                parserResult.getPath().map(path -> path.getFileName().toString()).orElse("unknown"),
-                parserResult.getDatabase().getEntries());
+        new DatabaseMerger(
+            preferences.getBibEntryPreferences().getKeywordSeparator()
+        ).mergeStrings(
+            databaseContext.getDatabase(),
+            parserResult.getDatabase()
+        );
+        new DatabaseMerger(
+            preferences.getBibEntryPreferences().getKeywordSeparator()
+        ).mergeMetaData(
+            databaseContext.getMetaData(),
+            parserResult.getMetaData(),
+            parserResult
+                .getPath()
+                .map(path -> path.getFileName().toString())
+                .orElse("unknown"),
+            parserResult.getDatabase().getEntries()
+        );
         ImportHandler importHandler = new ImportHandler(
-                selectedDb.getValue(),
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
-                taskExecutor);
-        importHandler.importEntriesWithDuplicateCheck(selectedDb.getValue(), entriesToImport);
+            selectedDb.getValue(),
+            preferences,
+            fileUpdateMonitor,
+            undoManager,
+            stateManager,
+            dialogService,
+            taskExecutor
+        );
+        importHandler.importEntriesWithDuplicateCheck(
+            selectedDb.getValue(),
+            entriesToImport
+        );
     }
 
     /**
@@ -221,7 +266,13 @@ public class ImportEntriesViewModel extends AbstractViewModel {
             if (othEntry.equals(entry)) {
                 continue; // Don't compare the entry to itself
             }
-            if (new DuplicateCheck(entryTypesManager).isDuplicate(entry, othEntry, databaseContext.getMode())) {
+            if (
+                new DuplicateCheck(entryTypesManager).isDuplicate(
+                    entry,
+                    othEntry,
+                    databaseContext.getMode()
+                )
+            ) {
                 return Optional.of(othEntry);
             }
         }
@@ -280,33 +331,60 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     }
 
     public void fetchMoreEntries() {
-        if (fetcher.isPresent() &&
-            fetcher.get() instanceof PagedSearchBasedFetcher pagedFetcher &&
-            query.isPresent() && !loading.get()) {
+        if (
+            fetcher.isPresent()
+            && fetcher.get() instanceof PagedSearchBasedFetcher pagedFetcher
+            && query.isPresent()
+            && !loading.get()
+        ) {
             loading.set(true);
-            BackgroundTask<ArrayList<BibEntry>> fetchTask = BackgroundTask
-                    .wrap(() -> {
-                        LOGGER.info("Fetching entries from {} for page {}", fetcher.get().getName(), currentPageProperty.get() + 2);
-                        return new ArrayList<>(pagedFetcher.performSearchPaged(query.get(), currentPageProperty.get() + 1).getContent());
-                    })
-                    .onSuccess(newEntries -> {
-                        if (newEntries != null && !newEntries.isEmpty()) {
-                            allEntries.addAll(newEntries);
-                            updateTotalPages();
-                        } else {
-                            LOGGER.warn("No new entries fetched from {} for page {}", fetcher.get().getName(), currentPageProperty.get() + 2);
-                            dialogService.notify(Localization.lang("No new entries found from %0", fetcher.get().getName()));
-                        }
-                        loading.set(false);
-                    })
-                    .onFailure(exception -> {
-                        loading.set(false);
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("Error fetching entries"),
-                                Localization.lang("An error occurred while fetching entries from %0: %1",
-                                        fetcher.get().getName(), exception.getMessage())
+            BackgroundTask<ArrayList<BibEntry>> fetchTask = BackgroundTask.wrap(
+                () -> {
+                    LOGGER.info(
+                        "Fetching entries from {} for page {}",
+                        fetcher.get().getName(),
+                        currentPageProperty.get() + 2
+                    );
+                    return new ArrayList<>(
+                        pagedFetcher
+                            .performSearchPaged(
+                                query.get(),
+                                currentPageProperty.get() + 1
+                            )
+                            .getContent()
+                    );
+                }
+            )
+                .onSuccess(newEntries -> {
+                    if (newEntries != null && !newEntries.isEmpty()) {
+                        allEntries.addAll(newEntries);
+                        updateTotalPages();
+                    } else {
+                        LOGGER.warn(
+                            "No new entries fetched from {} for page {}",
+                            fetcher.get().getName(),
+                            currentPageProperty.get() + 2
                         );
-                    });
+                        dialogService.notify(
+                            Localization.lang(
+                                "No new entries found from %0",
+                                fetcher.get().getName()
+                            )
+                        );
+                    }
+                    loading.set(false);
+                })
+                .onFailure(exception -> {
+                    loading.set(false);
+                    dialogService.showErrorDialogAndWait(
+                        Localization.lang("Error fetching entries"),
+                        Localization.lang(
+                            "An error occurred while fetching entries from %0: %1",
+                            fetcher.get().getName(),
+                            exception.getMessage()
+                        )
+                    );
+                });
 
             fetchTask.executeWith(taskExecutor);
         }

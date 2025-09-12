@@ -3,7 +3,6 @@ package org.jabref.logic.crawler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -11,7 +10,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.study.FetchResult;
 import org.jabref.model.study.QueryResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +18,19 @@ import org.slf4j.LoggerFactory;
  * and aggregates the results returned by the fetchers by query and E-Library.
  */
 class StudyFetcher {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StudyFetcher.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        StudyFetcher.class
+    );
     private static final int MAX_AMOUNT_OF_RESULTS_PER_FETCHER = 100;
 
     private final List<SearchBasedFetcher> activeFetchers;
     private final List<String> searchQueries;
 
-    StudyFetcher(List<SearchBasedFetcher> activeFetchers, List<String> searchQueries) throws IllegalArgumentException {
+    StudyFetcher(
+        List<SearchBasedFetcher> activeFetchers,
+        List<String> searchQueries
+    ) throws IllegalArgumentException {
         this.searchQueries = searchQueries;
         this.activeFetchers = activeFetchers;
     }
@@ -37,9 +41,10 @@ class StudyFetcher {
      * If any library API is not available, its corresponding entry is missing from the internal map.
      */
     public List<QueryResult> crawl() {
-        return searchQueries.parallelStream()
-                            .map(this::getQueryResult)
-                            .toList();
+        return searchQueries
+            .parallelStream()
+            .map(this::getQueryResult)
+            .toList();
     }
 
     private QueryResult getQueryResult(String searchQuery) {
@@ -53,24 +58,40 @@ class StudyFetcher {
      * @return Mapping of each fetcher by name and all their retrieved publications as a BibDatabase
      */
     private List<FetchResult> performSearchOnQuery(String searchQuery) {
-        return activeFetchers.parallelStream()
-                             .map(fetcher -> performSearchOnQueryForFetcher(searchQuery, fetcher))
-                             .filter(Objects::nonNull)
-                             .toList();
+        return activeFetchers
+            .parallelStream()
+            .map(fetcher ->
+                performSearchOnQueryForFetcher(searchQuery, fetcher)
+            )
+            .filter(Objects::nonNull)
+            .toList();
     }
 
-    private FetchResult performSearchOnQueryForFetcher(String searchQuery, SearchBasedFetcher fetcher) {
+    private FetchResult performSearchOnQueryForFetcher(
+        String searchQuery,
+        SearchBasedFetcher fetcher
+    ) {
         try {
             List<BibEntry> fetchResult = new ArrayList<>();
             if (fetcher instanceof PagedSearchBasedFetcher basedFetcher) {
-                int pages = (int) Math.ceil(((double) MAX_AMOUNT_OF_RESULTS_PER_FETCHER) / basedFetcher.getPageSize());
+                int pages = (int) Math.ceil(
+                    ((double) MAX_AMOUNT_OF_RESULTS_PER_FETCHER)
+                        / basedFetcher.getPageSize()
+                );
                 for (int page = 0; page < pages; page++) {
-                    fetchResult.addAll(basedFetcher.performSearchPaged(searchQuery, page).getContent());
+                    fetchResult.addAll(
+                        basedFetcher
+                            .performSearchPaged(searchQuery, page)
+                            .getContent()
+                    );
                 }
             } else {
                 fetchResult = fetcher.performSearch(searchQuery);
             }
-            return new FetchResult(fetcher.getName(), new BibDatabase(fetchResult));
+            return new FetchResult(
+                fetcher.getName(),
+                new BibDatabase(fetchResult)
+            );
         } catch (FetcherException e) {
             LOGGER.warn("{} API request failed", fetcher.getName(), e);
             return null;

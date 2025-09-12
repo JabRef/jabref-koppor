@@ -1,16 +1,17 @@
 package org.jabref.logic.search.query;
 
-import org.jabref.model.search.query.SearchQuery;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.jabref.model.search.query.SearchQuery;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
 public class SearchQueryTest {
+
     @ParameterizedTest
-    @CsvSource({
+    @CsvSource(
+        {
             "term",
             "term1 term2",
             "term1 term2 term3",
@@ -46,19 +47,22 @@ public class SearchQueryTest {
             "t\\~erm",
             "t\\(1\\)erm",
             "t\\\"erm",
-    })
+        }
+    )
     public void validSearchQuery(String searchExpression) {
         assertTrue(new SearchQuery(searchExpression).isValid());
     }
 
     @ParameterizedTest
-    @CsvSource({
+    @CsvSource(
+        {
             "!term", // =!~() should be escaped with a backslash
             "t~erm",
             "t(erm",
             "term AND",
             "field CONTAINS NOT value",
-    })
+        }
+    )
     public void invalidSearchQuery(String searchExpression) {
         assertFalse(new SearchQuery(searchExpression).isValid());
     }

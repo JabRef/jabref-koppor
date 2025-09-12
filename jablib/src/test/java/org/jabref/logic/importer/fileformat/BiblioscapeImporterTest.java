@@ -1,14 +1,12 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.util.StandardFileType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BiblioscapeImporterTest {
 
@@ -31,8 +29,11 @@ class BiblioscapeImporterTest {
 
     @Test
     void getDescription() {
-        assertEquals("Imports a Biblioscape Tag File.\n" +
-                "Several Biblioscape field types are ignored. Others are only included in the BibTeX field \"comment\".", importer.getDescription());
+        assertEquals(
+            "Imports a Biblioscape Tag File.\n"
+                + "Several Biblioscape field types are ignored. Others are only included in the BibTeX field \"comment\".",
+            importer.getDescription()
+        );
     }
 
     @Test
@@ -42,8 +43,14 @@ class BiblioscapeImporterTest {
 
     @Test
     void importEntriesAbortion() throws Throwable {
-        Path file = Path.of(BiblioscapeImporter.class.getResource("BiblioscapeImporterTestCorrupt.txt").toURI());
-        assertEquals(List.of(),
-                importer.importDatabase(file).getDatabase().getEntries());
+        Path file = Path.of(
+            BiblioscapeImporter.class.getResource(
+                "BiblioscapeImporterTestCorrupt.txt"
+            ).toURI()
+        );
+        assertEquals(
+            List.of(),
+            importer.importDatabase(file).getDatabase().getEntries()
+        );
     }
 }

@@ -6,8 +6,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class DonationPreferences {
+
     private final BooleanProperty neverShowAgain = new SimpleBooleanProperty();
-    private final IntegerProperty lastShownEpochDay = new SimpleIntegerProperty();
+    private final IntegerProperty lastShownEpochDay =
+        new SimpleIntegerProperty();
 
     public DonationPreferences(boolean neverShowAgain, int lastShownEpochDay) {
         this.neverShowAgain.set(neverShowAgain);

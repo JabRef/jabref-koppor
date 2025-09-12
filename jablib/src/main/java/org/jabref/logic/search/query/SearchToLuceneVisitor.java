@@ -3,16 +3,15 @@ package org.jabref.logic.search.query;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.jabref.model.search.LinkedFilesConstants;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchParser;
 
-import org.apache.lucene.queryparser.classic.QueryParser;
-
 /// Tests are located in `org.jabref.logic.search.query.SearchQueryLuceneConversionTest`.
 public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
+
     private final EnumSet<SearchFlags> searchFlags;
 
     public SearchToLuceneVisitor(EnumSet<SearchFlags> searchFlags) {
@@ -25,24 +24,38 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
     }
 
     @Override
-    public String visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<String> children = ctx.expression().stream().map(this::visit).toList();
-        return children.size() == 1 ? children.getFirst() : String.join(" ", children);
+    public String visitImplicitAndExpression(
+        SearchParser.ImplicitAndExpressionContext ctx
+    ) {
+        List<String> children = ctx
+            .expression()
+            .stream()
+            .map(this::visit)
+            .toList();
+        return children.size() == 1
+            ? children.getFirst()
+            : String.join(" ", children);
     }
 
     @Override
-    public String visitParenExpression(SearchParser.ParenExpressionContext ctx) {
+    public String visitParenExpression(
+        SearchParser.ParenExpressionContext ctx
+    ) {
         String expr = visit(ctx.andExpression());
         return expr.isEmpty() ? "" : "(" + expr + ")";
     }
 
     @Override
-    public String visitNegatedExpression(SearchParser.NegatedExpressionContext ctx) {
+    public String visitNegatedExpression(
+        SearchParser.NegatedExpressionContext ctx
+    ) {
         return "NOT (" + visit(ctx.expression()) + ")";
     }
 
     @Override
-    public String visitBinaryExpression(SearchParser.BinaryExpressionContext ctx) {
+    public String visitBinaryExpression(
+        SearchParser.BinaryExpressionContext ctx
+    ) {
         String left = visit(ctx.left);
         String right = visit(ctx.right);
 
@@ -56,21 +69,29 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
             return left;
         }
 
-        String operator = ctx.bin_op.getType() == SearchParser.AND ? " AND " : " OR ";
+        String operator = ctx.bin_op.getType() == SearchParser.AND
+            ? " AND "
+            : " OR ";
         return left + operator + right;
     }
 
     @Override
     public String visitComparison(SearchParser.ComparisonContext ctx) {
-        String term = SearchQueryConversion.unescapeSearchValue(ctx.searchValue());
-        boolean isQuoted = ctx.searchValue().getStart().getType() == SearchParser.STRING_LITERAL;
+        String term = SearchQueryConversion.unescapeSearchValue(
+            ctx.searchValue()
+        );
+        boolean isQuoted =
+            ctx.searchValue().getStart().getType()
+            == SearchParser.STRING_LITERAL;
 
         // unfielded expression
         if (ctx.FIELD() == null) {
             if (searchFlags.contains(SearchFlags.REGULAR_EXPRESSION)) {
                 return "/" + term + "/";
             }
-            return isQuoted ? "\"" + escapeQuotes(term) + "\"" : QueryParser.escape(term);
+            return isQuoted
+                ? "\"" + escapeQuotes(term) + "\""
+                : QueryParser.escape(term);
         }
 
         String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
@@ -78,16 +99,27 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
             return "";
         }
 
-        field = "any".equals(field) || "anyfield".equals(field) ? "" : field + ":";
+        field = "any".equals(field) || "anyfield".equals(field)
+            ? ""
+            : field + ":";
         int operator = ctx.operator().getStart().getType();
         return buildFieldExpression(field, term, operator, isQuoted);
     }
 
     private boolean isValidField(String field) {
-        return "any".equals(field) || "anyfield".equals(field) || LinkedFilesConstants.PDF_FIELDS.contains(field);
+        return (
+            "any".equals(field)
+            || "anyfield".equals(field)
+            || LinkedFilesConstants.PDF_FIELDS.contains(field)
+        );
     }
 
-    private String buildFieldExpression(String field, String term, int operator, boolean isQuoted) {
+    private String buildFieldExpression(
+        String field,
+        String term,
+        int operator,
+        boolean isQuoted
+    ) {
         boolean isRegexOp = isRegexOperator(operator);
         boolean isNegationOp = isNegationOperator(operator);
 
@@ -95,7 +127,9 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
             String expression = field + "/" + term + "/";
             return isNegationOp ? "NOT " + expression : expression;
         } else {
-            term = isQuoted ? "\"" + escapeQuotes(term) + "\"" : QueryParser.escape(term);
+            term = isQuoted
+                ? "\"" + escapeQuotes(term) + "\""
+                : QueryParser.escape(term);
             String expression = field + term;
             return isNegationOp ? "NOT " + expression : expression;
         }
@@ -107,22 +141,24 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
 
     private static boolean isNegationOperator(int operator) {
         return switch (operator) {
-            case SearchParser.NEQUAL,
-                 SearchParser.NCEQUAL,
-                 SearchParser.NEEQUAL,
-                 SearchParser.NCEEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL -> true;
+            case
+                SearchParser.NEQUAL,
+                SearchParser.NCEQUAL,
+                SearchParser.NEEQUAL,
+                SearchParser.NCEEQUAL,
+                SearchParser.NREQUAL,
+                SearchParser.NCREEQUAL -> true;
             default -> false;
         };
     }
 
     private static boolean isRegexOperator(int operator) {
         return switch (operator) {
-            case SearchParser.REQUAL,
-                 SearchParser.CREEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL -> true;
+            case
+                SearchParser.REQUAL,
+                SearchParser.CREEQUAL,
+                SearchParser.NREQUAL,
+                SearchParser.NCREEQUAL -> true;
             default -> false;
         };
     }

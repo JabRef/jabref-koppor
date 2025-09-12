@@ -7,10 +7,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
  * 3. Post-process fetched entries
  */
 public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
-
     Logger LOGGER = LoggerFactory.getLogger(IdBasedParserFetcher.class);
 
     /**
@@ -29,7 +26,8 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
      *
      * @param identifier the ID
      */
-    URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException;
+    URL getUrlForIdentifier(String identifier)
+        throws URISyntaxException, MalformedURLException;
 
     /**
      * Returns the parser used to convert the response to a list of {@link BibEntry}.
@@ -37,7 +35,8 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
     Parser getParser();
 
     @Override
-    default Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
+    default Optional<BibEntry> performSearchById(String identifier)
+        throws FetcherException {
         if (StringUtil.isBlank(identifier)) {
             return Optional.empty();
         }
@@ -47,13 +46,21 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
         } catch (URISyntaxException | MalformedURLException e) {
             throw new FetcherException("Search URI is malformed", e);
         }
-        try (InputStream stream = getUrlDownload(urlForIdentifier).asInputStream()) {
+        try (
+            InputStream stream = getUrlDownload(
+                urlForIdentifier
+            ).asInputStream()
+        ) {
             List<BibEntry> fetchedEntries = getParser().parseEntries(stream);
             if (fetchedEntries.isEmpty()) {
                 return Optional.empty();
             }
             if (fetchedEntries.size() > 1) {
-                LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+                LOGGER.info(
+                    "Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                    getName(),
+                    identifier
+                );
             }
             BibEntry entry = fetchedEntries.getFirst();
             doPostCleanup(entry);
@@ -63,9 +70,17 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
             if (e.getCause() instanceof FetcherException fe) {
                 throw fe;
             }
-            throw new FetcherException(urlForIdentifier, "A network error occurred", e);
+            throw new FetcherException(
+                urlForIdentifier,
+                "A network error occurred",
+                e
+            );
         } catch (ParseException e) {
-            throw new FetcherException(urlForIdentifier, "An internal parser error occurred", e);
+            throw new FetcherException(
+                urlForIdentifier,
+                "An internal parser error occurred",
+                e
+            );
         }
     }
 }

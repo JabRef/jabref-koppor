@@ -1,7 +1,6 @@
 package org.jabref.gui.welcome.components;
 
 import java.time.LocalDate;
-
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,7 +13,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.edit.OpenBrowserAction;
 import org.jabref.gui.icon.IconTheme;
@@ -24,6 +22,7 @@ import org.jabref.gui.util.URLs;
 import org.jabref.logic.l10n.Localization;
 
 public class DonationProvider {
+
     private static final int DONATION_INTERVAL_DAYS = 365;
     private static final double DONATION_POPUP_ANIM_MS = 200;
     private static final double DONATION_POPUP_TIMEOUT_SECONDS = 15;
@@ -36,7 +35,11 @@ public class DonationProvider {
     private DelayedExecution scheduledShow;
     private DelayedExecution autoHide;
 
-    public DonationProvider(StackPane rootPane, GuiPreferences preferences, DialogService dialogService) {
+    public DonationProvider(
+        StackPane rootPane,
+        GuiPreferences preferences,
+        DialogService dialogService
+    ) {
         this.rootPane = rootPane;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -46,7 +49,9 @@ public class DonationProvider {
         if (preferences.getDonationPreferences().isNeverShowAgain()) {
             return;
         }
-        int lastShown = preferences.getDonationPreferences().getLastShownEpochDay();
+        int lastShown = preferences
+            .getDonationPreferences()
+            .getLastShownEpochDay();
         scheduleAfterDays(calculateDaysUntilNextPopup(lastShown));
     }
 
@@ -55,19 +60,29 @@ public class DonationProvider {
         if (lastShownEpochDay < 0) {
             return 7; // 7 days after first-launch, show the donation popup
         }
-        return Math.max(0, DONATION_INTERVAL_DAYS - (today - lastShownEpochDay));
+        return Math.max(
+            0,
+            DONATION_INTERVAL_DAYS - (today - lastShownEpochDay)
+        );
     }
 
     public void showToast() {
-        if (donationToast != null && rootPane.getChildren().contains(donationToast)) {
+        if (
+            donationToast != null
+            && rootPane.getChildren().contains(donationToast)
+        ) {
             return;
         }
 
-        preferences.getDonationPreferences().setLastShownEpochDay((int) LocalDate.now().toEpochDay());
+        preferences
+            .getDonationPreferences()
+            .setLastShownEpochDay((int) LocalDate.now().toEpochDay());
 
         Label title = new Label(Localization.lang("Support JabRef"));
         title.getStyleClass().add("donation-toast-title");
-        Label subtitle = new Label(Localization.lang("Help us improve JabRef by donating."));
+        Label subtitle = new Label(
+            Localization.lang("Help us improve JabRef by donating.")
+        );
         subtitle.getStyleClass().add("donation-toast-desc");
         VBox textBox = new VBox(title, subtitle);
         textBox.getStyleClass().add("donation-toast-text");
@@ -91,11 +106,20 @@ public class DonationProvider {
         donateButton.getStyleClass().add("donation-btn-primary");
         donateButton.setDefaultButton(true);
         donateButton.setOnAction(_ -> {
-            new OpenBrowserAction(DONATION_URL, dialogService, preferences.getExternalApplicationsPreferences()).execute();
+            new OpenBrowserAction(
+                DONATION_URL,
+                dialogService,
+                preferences.getExternalApplicationsPreferences()
+            ).execute();
             hideToast();
         });
 
-        HBox rightButtons = new HBox(8, neverButton, cancelButton, donateButton);
+        HBox rightButtons = new HBox(
+            8,
+            neverButton,
+            cancelButton,
+            donateButton
+        );
         rightButtons.setAlignment(Pos.CENTER_RIGHT);
 
         Region textSpacer = new Region();
@@ -111,7 +135,10 @@ public class DonationProvider {
         StackPane.setMargin(donationToast, new Insets(16));
         rootPane.getChildren().add(donationToast);
 
-        TranslateTransition slideDown = new TranslateTransition(Duration.millis(DONATION_POPUP_ANIM_MS), donationToast);
+        TranslateTransition slideDown = new TranslateTransition(
+            Duration.millis(DONATION_POPUP_ANIM_MS),
+            donationToast
+        );
         slideDown.setFromY(-40);
         slideDown.setToY(0);
         slideDown.play();
@@ -119,7 +146,10 @@ public class DonationProvider {
         if (autoHide != null) {
             autoHide.cancel();
         }
-        autoHide = new DelayedExecution(Duration.seconds(DONATION_POPUP_TIMEOUT_SECONDS), this::hideToast);
+        autoHide = new DelayedExecution(
+            Duration.seconds(DONATION_POPUP_TIMEOUT_SECONDS),
+            this::hideToast
+        );
         autoHide.start();
     }
 
@@ -127,7 +157,10 @@ public class DonationProvider {
         if (donationToast == null) {
             return;
         }
-        TranslateTransition slideUp = new TranslateTransition(Duration.millis(DONATION_POPUP_ANIM_MS), donationToast);
+        TranslateTransition slideUp = new TranslateTransition(
+            Duration.millis(DONATION_POPUP_ANIM_MS),
+            donationToast
+        );
         slideUp.setFromY(donationToast.getTranslateY());
         slideUp.setToY(-40);
         slideUp.setOnFinished(_ -> {
@@ -148,9 +181,15 @@ public class DonationProvider {
         cancelScheduled();
         if (days <= 0) {
             showToast();
-            scheduledShow = new DelayedExecution(Duration.millis(DONATION_INTERVAL_DAYS), this::showIfNeeded);
+            scheduledShow = new DelayedExecution(
+                Duration.millis(DONATION_INTERVAL_DAYS),
+                this::showIfNeeded
+            );
         } else {
-            scheduledShow = new DelayedExecution(Duration.hours(days * 24), this::showIfNeeded);
+            scheduledShow = new DelayedExecution(
+                Duration.hours(days * 24),
+                this::showIfNeeded
+            );
         }
         scheduledShow.start();
     }

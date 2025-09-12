@@ -7,16 +7,14 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MrDLibImporter extends Importer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MrDLibImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        MrDLibImporter.class
+    );
     public ParserResult parserResult;
     private String recommendationsHeading;
     private String recommendationsDescription;
@@ -46,7 +46,8 @@ public class MrDLibImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader input) throws IOException {
+    public ParserResult importDatabase(BufferedReader input)
+        throws IOException {
         parse(input);
         return parserResult;
     }
@@ -93,8 +94,7 @@ public class MrDLibImporter extends Importer {
     /**
      * Small pair-class to ensure the right order of the recommendations.
      */
-    private record RankedBibEntry(BibEntry entry, Integer rank) {
-    }
+    private record RankedBibEntry(BibEntry entry, Integer rank) {}
 
     /**
      * Parses the input from the server to a ParserResult
@@ -111,7 +111,9 @@ public class MrDLibImporter extends Importer {
         List<RankedBibEntry> rankedBibEntries = new ArrayList<>();
 
         // Get recommendations from response and populate bib entries
-        JSONObject recommendationsJson = recommendationSetJson.getJSONObject("recommendations");
+        JSONObject recommendationsJson = recommendationSetJson.getJSONObject(
+            "recommendations"
+        );
         Iterator<String> keys = recommendationsJson.keys();
         while (keys.hasNext()) {
             String key = keys.next();
@@ -120,8 +122,15 @@ public class MrDLibImporter extends Importer {
         }
 
         // Sort bib entries according to rank
-        rankedBibEntries.sort(Comparator.comparing((RankedBibEntry rankedBibEntry) -> rankedBibEntry.rank));
-        List<BibEntry> bibEntries = rankedBibEntries.stream().map(e -> e.entry).collect(Collectors.toList());
+        rankedBibEntries.sort(
+            Comparator.comparing((RankedBibEntry rankedBibEntry) ->
+                rankedBibEntry.rank
+            )
+        );
+        List<BibEntry> bibEntries = rankedBibEntries
+            .stream()
+            .map(e -> e.entry)
+            .collect(Collectors.toList());
 
         bibDatabase.insertEntries(bibEntries);
         parserResult = new ParserResult(bibDatabase);
@@ -129,7 +138,9 @@ public class MrDLibImporter extends Importer {
         JSONObject label = recommendationSetJson.getJSONObject("label");
         recommendationsHeading = label.getString("label-text");
         recommendationsDescription = label.getString("label-description");
-        recommendationSetId = recommendationSetJson.getBigInteger("recommendation_set_id").toString();
+        recommendationSetId = recommendationSetJson
+            .getBigInteger("recommendation_set_id")
+            .toString();
     }
 
     /**
@@ -142,12 +153,33 @@ public class MrDLibImporter extends Importer {
         BibEntry current = new BibEntry();
 
         // parse each of the relevant fields into variables
-        String authors = isRecommendationFieldPresent(recommendation, "authors") ? recommendation.getString("authors") : "";
-        String title = isRecommendationFieldPresent(recommendation, "title") ? recommendation.getString("title") : "";
-        String year = isRecommendationFieldPresent(recommendation, "published_year") ? Integer.toString(recommendation.getInt("published_year")) : "";
-        String journal = isRecommendationFieldPresent(recommendation, "published_in") ? recommendation.getString("published_in") : "";
-        String url = isRecommendationFieldPresent(recommendation, "url") ? recommendation.getString("url") : "";
-        Integer rank = isRecommendationFieldPresent(recommendation, "recommendation_id") ? recommendation.getInt("recommendation_id") : 100;
+        String authors = isRecommendationFieldPresent(recommendation, "authors")
+            ? recommendation.getString("authors")
+            : "";
+        String title = isRecommendationFieldPresent(recommendation, "title")
+            ? recommendation.getString("title")
+            : "";
+        String year = isRecommendationFieldPresent(
+                recommendation,
+                "published_year"
+            )
+            ? Integer.toString(recommendation.getInt("published_year"))
+            : "";
+        String journal = isRecommendationFieldPresent(
+                recommendation,
+                "published_in"
+            )
+            ? recommendation.getString("published_in")
+            : "";
+        String url = isRecommendationFieldPresent(recommendation, "url")
+            ? recommendation.getString("url")
+            : "";
+        Integer rank = isRecommendationFieldPresent(
+                recommendation,
+                "recommendation_id"
+            )
+            ? recommendation.getInt("recommendation_id")
+            : 100;
 
         // Populate bib entry with relevant data
         current.setField(StandardField.AUTHOR, authors);
@@ -159,7 +191,10 @@ public class MrDLibImporter extends Importer {
         return new RankedBibEntry(current, rank);
     }
 
-    private Boolean isRecommendationFieldPresent(JSONObject recommendation, String field) {
+    private Boolean isRecommendationFieldPresent(
+        JSONObject recommendation,
+        String field
+    ) {
         return recommendation.has(field) && !recommendation.isNull(field);
     }
 

@@ -1,9 +1,9 @@
 package org.jabref.gui.ai.components.aichat;
 
+import dev.langchain4j.data.message.ChatMessage;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.entryeditor.AdaptVisibleTabs;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -15,9 +15,8 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
-import dev.langchain4j.data.message.ChatMessage;
-
 public class AiChatWindow extends BaseWindow {
+
     private final AiService aiService;
     private final DialogService dialogService;
     private final AiPreferences aiPreferences;
@@ -28,12 +27,13 @@ public class AiChatWindow extends BaseWindow {
     // This field is used for finding an existing AI chat window when user wants to chat with the same group again.
     private String chatName;
 
-    public AiChatWindow(AiService aiService,
-                        DialogService dialogService,
-                        AiPreferences aiPreferences,
-                        ExternalApplicationsPreferences externalApplicationsPreferences,
-                        AdaptVisibleTabs adaptVisibleTabs,
-                        TaskExecutor taskExecutor
+    public AiChatWindow(
+        AiService aiService,
+        DialogService dialogService,
+        AiPreferences aiPreferences,
+        ExternalApplicationsPreferences externalApplicationsPreferences,
+        AdaptVisibleTabs adaptVisibleTabs,
+        TaskExecutor taskExecutor
     ) {
         this.aiService = aiService;
         this.dialogService = dialogService;
@@ -43,26 +43,31 @@ public class AiChatWindow extends BaseWindow {
         this.taskExecutor = taskExecutor;
     }
 
-    public void setChat(StringProperty name, ObservableList<ChatMessage> chatHistory, BibDatabaseContext bibDatabaseContext, ObservableList<BibEntry> entries) {
+    public void setChat(
+        StringProperty name,
+        ObservableList<ChatMessage> chatHistory,
+        BibDatabaseContext bibDatabaseContext,
+        ObservableList<BibEntry> entries
+    ) {
         setTitle(Localization.lang("AI chat with %0", name.getValue()));
         chatName = name.getValue();
         setScene(
-                new Scene(
-                        new AiChatGuardedComponent(
-                                name,
-                                chatHistory,
-                                bibDatabaseContext,
-                                entries,
-                                aiService,
-                                dialogService,
-                                aiPreferences,
-                                externalApplicationsPreferences,
-                                adaptVisibleTabs,
-                                taskExecutor
-                        ),
-                        800,
-                        600
-                )
+            new Scene(
+                new AiChatGuardedComponent(
+                    name,
+                    chatHistory,
+                    bibDatabaseContext,
+                    entries,
+                    aiService,
+                    dialogService,
+                    aiPreferences,
+                    externalApplicationsPreferences,
+                    adaptVisibleTabs,
+                    taskExecutor
+                ),
+                800,
+                600
+            )
         );
     }
 

@@ -1,16 +1,18 @@
 package org.jabref.logic.util;
 
 import java.util.function.BiConsumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Catch and log any unhandled exceptions.
  */
-public class FallbackExceptionHandler implements Thread.UncaughtExceptionHandler {
+public class FallbackExceptionHandler
+    implements Thread.UncaughtExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FallbackExceptionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        FallbackExceptionHandler.class
+    );
 
     private final BiConsumer<Throwable, Thread> onException;
 
@@ -22,8 +24,12 @@ public class FallbackExceptionHandler implements Thread.UncaughtExceptionHandler
         this(null);
     }
 
-    public static void installExceptionHandler(BiConsumer<Throwable, Thread> onException) {
-        Thread.setDefaultUncaughtExceptionHandler(new FallbackExceptionHandler(onException));
+    public static void installExceptionHandler(
+        BiConsumer<Throwable, Thread> onException
+    ) {
+        Thread.setDefaultUncaughtExceptionHandler(
+            new FallbackExceptionHandler(onException)
+        );
     }
 
     @Override

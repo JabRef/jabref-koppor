@@ -1,14 +1,12 @@
 package org.jabref.gui.entryeditor.citationrelationtab;
 
 import java.util.EnumSet;
-
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.TextFlowLimited;
 import org.jabref.model.entry.BibEntry;
@@ -21,8 +19,11 @@ import org.jabref.model.entry.types.StandardEntryType;
  */
 public class BibEntryView {
 
-    public static final EnumSet<StandardEntryType> CROSS_REF_TYPES = EnumSet.of(StandardEntryType.InBook,
-            StandardEntryType.InProceedings, StandardEntryType.InCollection);
+    public static final EnumSet<StandardEntryType> CROSS_REF_TYPES = EnumSet.of(
+        StandardEntryType.InBook,
+        StandardEntryType.InProceedings,
+        StandardEntryType.InCollection
+    );
 
     /**
      * Creates a layout for a given {@link BibEntry} to be displayed in a List
@@ -33,29 +34,39 @@ public class BibEntryView {
     public static Node getEntryNode(BibEntry entry) {
         Node entryType = getIcon(entry.getType()).getGraphicNode();
         entryType.getStyleClass().add("type");
-        String authorsText = entry.getFieldOrAliasLatexFree(StandardField.AUTHOR).orElse("");
+        String authorsText = entry
+            .getFieldOrAliasLatexFree(StandardField.AUTHOR)
+            .orElse("");
         Node authors = createLabel(authorsText);
         authors.getStyleClass().add("authors");
-        String titleText = entry.getFieldOrAliasLatexFree(StandardField.TITLE).orElse("");
+        String titleText = entry
+            .getFieldOrAliasLatexFree(StandardField.TITLE)
+            .orElse("");
         Node title = createLabel(titleText);
         title.getStyleClass().add("title");
-        Label year = new Label(entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse(""));
+        Label year = new Label(
+            entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse("")
+        );
         year.getStyleClass().add("year");
-        String journalText = entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse("");
+        String journalText = entry
+            .getFieldOrAliasLatexFree(StandardField.JOURNAL)
+            .orElse("");
         Node journal = createLabel(journalText);
         journal.getStyleClass().add("journal");
 
         VBox entryContainer = new VBox(
-                new HBox(10, entryType, title),
-                new HBox(5, year, journal),
-                authors
+            new HBox(10, entryType, title),
+            new HBox(5, year, journal),
+            authors
         );
 
-        entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).ifPresent(summaryText -> {
-            Node summary = createSummary(summaryText);
-            summary.getStyleClass().add("summary");
-            entryContainer.getChildren().add(summary);
-        });
+        entry
+            .getFieldOrAliasLatexFree(StandardField.ABSTRACT)
+            .ifPresent(summaryText -> {
+                Node summary = createSummary(summaryText);
+                summary.getStyleClass().add("summary");
+                entryContainer.getChildren().add(summary);
+            });
 
         entryContainer.getStyleClass().add("bibEntry");
         return entryContainer;
@@ -86,8 +97,12 @@ public class BibEntryView {
      */
     private static boolean isRTL(String text) {
         for (char c : text.toCharArray()) {
-            if (Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
-                    Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
+            if (
+                Character.getDirectionality(c)
+                    == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+                || Character.getDirectionality(c)
+                == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
+            ) {
                 return true;
             }
         }
@@ -116,7 +131,7 @@ public class BibEntryView {
     }
 
     /**
-     * Creates a label with horizontal scrolling for RTL text, 
+     * Creates a label with horizontal scrolling for RTL text,
      * avoiding JavaFX bug related to RTL text wrapping
      *
      * @param text The label text content

@@ -1,11 +1,10 @@
 package org.jabref.gui.integrity;
 
+import jakarta.inject.Inject;
 import java.nio.file.Path;
-
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.JabRefException;
@@ -13,8 +12,6 @@ import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
-
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +22,30 @@ import org.slf4j.LoggerFactory;
  * and handles browse/reset button actions.
  */
 public class BibLogSettingsPane {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BibLogSettingsPane.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BibLogSettingsPane.class
+    );
+
     @FXML
     private TextField pathField;
+
     private BibLogSettingsViewModel viewModel;
-    @Inject private DialogService dialogService;
+
+    @Inject
+    private DialogService dialogService;
+
     private Runnable onBlgPathChanged;
 
-    public void initializeViewModel(BibDatabaseContext context, Runnable onBlgPathChanged) throws JabRefException {
+    public void initializeViewModel(
+        BibDatabaseContext context,
+        Runnable onBlgPathChanged
+    ) throws JabRefException {
         this.onBlgPathChanged = onBlgPathChanged;
-        this.viewModel = new BibLogSettingsViewModel(context.getMetaData(), context.getDatabasePath());
+        this.viewModel = new BibLogSettingsViewModel(
+            context.getMetaData(),
+            context.getDatabasePath()
+        );
         pathField.textProperty().bindBidirectional(viewModel.pathProperty());
         viewModel.getBlgWarnings(context);
     }
@@ -43,17 +54,21 @@ public class BibLogSettingsPane {
         return viewModel.getBlgWarningsObservable();
     }
 
-    public void refreshWarnings(BibDatabaseContext context) throws JabRefException {
+    public void refreshWarnings(BibDatabaseContext context)
+        throws JabRefException {
         viewModel.getBlgWarnings(context);
     }
 
     @FXML
     private void onBrowse() {
-        FileDialogConfiguration fileDialogConfiguration = createBlgFileDialogConfig();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(path -> {
-            viewModel.setBlgFilePath(path);
-            notifyPathChanged();
-        });
+        FileDialogConfiguration fileDialogConfiguration =
+            createBlgFileDialogConfig();
+        dialogService
+            .showFileOpenDialog(fileDialogConfiguration)
+            .ifPresent(path -> {
+                viewModel.setBlgFilePath(path);
+                notifyPathChanged();
+            });
     }
 
     @FXML
@@ -75,10 +90,16 @@ public class BibLogSettingsPane {
     private FileDialogConfiguration createBlgFileDialogConfig() {
         Path initialDir = viewModel.getInitialDirectory();
         FileDialogConfiguration config = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(Localization.lang("BibTeX log files"), StandardFileType.BLG)
-                .withDefaultExtension(Localization.lang("BibTeX log files"), StandardFileType.BLG)
-                .withInitialDirectory(viewModel.getInitialDirectory())
-                .build();
+            .addExtensionFilter(
+                Localization.lang("BibTeX log files"),
+                StandardFileType.BLG
+            )
+            .withDefaultExtension(
+                Localization.lang("BibTeX log files"),
+                StandardFileType.BLG
+            )
+            .withInitialDirectory(viewModel.getInitialDirectory())
+            .build();
         return config;
     }
 

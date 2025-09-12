@@ -1,5 +1,8 @@
 package org.jabref.logic.os;
 
+import com.github.javakeyring.BackendNotSupportedException;
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -9,14 +12,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
-import org.jabref.model.strings.StringUtil;
-
-import com.github.javakeyring.BackendNotSupportedException;
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import mslinks.ShellLink;
 import mslinks.ShellLinkException;
+import org.jabref.model.strings.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,7 @@ import org.slf4j.LoggerFactory;
  * For GUI-specific things, see `jabref.gui.desktop.os.NativeDesktop`
  */
 public class OS {
+
     // No LOGGER may be initialized directly
     // Otherwise, org.jabref.Launcher.addLogToDisk will fail, because tinylog's properties are frozen
 
@@ -31,10 +30,17 @@ public class OS {
     public static final String APP_DIR_APP_AUTHOR = "org.jabref";
 
     public static final String NEWLINE = System.lineSeparator();
-    public static final List<Charset> ENCODINGS = Charset.availableCharsets().values().stream().distinct().toList();
+    public static final List<Charset> ENCODINGS = Charset.availableCharsets()
+        .values()
+        .stream()
+        .distinct()
+        .toList();
 
     // https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/SystemUtils.html
-    private static final String OS_NAME = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
+    private static final String OS_NAME = System.getProperty(
+        "os.name",
+        "unknown"
+    ).toLowerCase(Locale.ROOT);
     public static final boolean LINUX = OS_NAME.startsWith("linux");
     public static final boolean WINDOWS = OS_NAME.startsWith("win");
     public static final boolean OS_X = OS_NAME.startsWith("mac");
@@ -53,7 +59,10 @@ public class OS {
             try {
                 hostName = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
-                LoggerFactory.getLogger(OS.class).info("Hostname not found. Using \"localhost\" as fallback.", e);
+                LoggerFactory.getLogger(OS.class).info(
+                    "Hostname not found. Using \"localhost\" as fallback.",
+                    e
+                );
                 hostName = "localhost";
             }
         }
@@ -63,38 +72,56 @@ public class OS {
     public static boolean isKeyringAvailable() {
         try (Keyring keyring = Keyring.create()) {
             keyring.setPassword("JabRef", "keyringTest", "keyringTest");
-            if (!"keyringTest".equals(keyring.getPassword("JabRef", "keyringTest"))) {
+            if (
+                !"keyringTest".equals(
+                    keyring.getPassword("JabRef", "keyringTest")
+                )
+            ) {
                 return false;
             }
             keyring.deletePassword("JabRef", "keyringTest");
         } catch (BackendNotSupportedException ex) {
-            LoggerFactory.getLogger(OS.class).warn("Credential store not supported.");
+            LoggerFactory.getLogger(OS.class).warn(
+                "Credential store not supported."
+            );
             return false;
         } catch (PasswordAccessException ex) {
-            LoggerFactory.getLogger(OS.class).warn("Password storage in credential store failed.");
+            LoggerFactory.getLogger(OS.class).warn(
+                "Password storage in credential store failed."
+            );
             return false;
         } catch (Exception ex) {
-            LoggerFactory.getLogger(OS.class).warn("Connection to credential store failed");
+            LoggerFactory.getLogger(OS.class).warn(
+                "Connection to credential store failed"
+            );
             return false;
         }
         return true;
     }
 
-    public static String detectProgramPath(String programName, String directoryName) {
+    public static String detectProgramPath(
+        String programName,
+        String directoryName
+    ) {
         if (!OS.WINDOWS) {
             return programName;
         }
         if (Objects.equals(programName, "texworks")) {
-            Path texworksLinkPath = Path.of(System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk");
+            Path texworksLinkPath = Path.of(
+                System.getenv("APPDATA")
+                    + "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk"
+            );
             if (Files.exists(texworksLinkPath)) {
                 try {
                     ShellLink link = new ShellLink(texworksLinkPath);
                     return link.resolveTarget();
-                } catch (IOException |
-                        ShellLinkException e) {
+                } catch (IOException | ShellLinkException e) {
                     // Static logger instance cannot be used. See the class comment.
                     Logger logger = LoggerFactory.getLogger(OS.class);
-                    logger.warn("Error while reading .lnk file for TeXworks", e);
+                    logger.warn(
+                        "Error while reading .lnk file for TeXworks",
+                        e
+                    );
                 }
             }
         }
@@ -117,12 +144,23 @@ public class OS {
         return "";
     }
 
-    private static String getProgramPath(String programName, String directoryName, String progFiles) {
+    private static String getProgramPath(
+        String programName,
+        String directoryName,
+        String progFiles
+    ) {
         Path programPath;
         if ((directoryName != null) && !directoryName.isEmpty()) {
-            programPath = Path.of(progFiles, directoryName, programName + DEFAULT_EXECUTABLE_EXTENSION);
+            programPath = Path.of(
+                progFiles,
+                directoryName,
+                programName + DEFAULT_EXECUTABLE_EXTENSION
+            );
         } else {
-            programPath = Path.of(progFiles, programName + DEFAULT_EXECUTABLE_EXTENSION);
+            programPath = Path.of(
+                progFiles,
+                programName + DEFAULT_EXECUTABLE_EXTENSION
+            );
         }
         if (Files.exists(programPath)) {
             return programPath.toString();

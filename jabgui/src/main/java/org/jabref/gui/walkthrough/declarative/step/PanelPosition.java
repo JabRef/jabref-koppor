@@ -4,5 +4,5 @@ public enum PanelPosition {
     TOP,
     BOTTOM,
     LEFT,
-    RIGHT
+    RIGHT,
 }

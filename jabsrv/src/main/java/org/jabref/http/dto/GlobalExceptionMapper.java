@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 @Provider
 public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionMapper.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GlobalExceptionMapper.class.getName()
+    );
 
     @Override
     public Response toResponse(Throwable exception) {

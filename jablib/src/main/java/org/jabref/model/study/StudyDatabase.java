@@ -2,6 +2,7 @@ package org.jabref.model.study;
 
 /// data model for the view `org.jabref.gui.slr.StudyCatalogItem`
 public class StudyDatabase {
+
     private String name;
     private boolean enabled;
 
@@ -48,7 +49,9 @@ public class StudyDatabase {
         if (isEnabled() != that.isEnabled()) {
             return false;
         }
-        return getName() != null ? getName().equals(that.getName()) : that.getName() == null;
+        return getName() != null
+            ? getName().equals(that.getName())
+            : that.getName() == null;
     }
 
     @Override
@@ -60,9 +63,14 @@ public class StudyDatabase {
 
     @Override
     public String toString() {
-        return "LibraryEntry{" +
-                "name='" + name + '\'' +
-                ", enabled=" + enabled +
-                '}';
+        return (
+            "LibraryEntry{"
+            + "name='"
+            + name
+            + '\''
+            + ", enabled="
+            + enabled
+            + '}'
+        );
     }
 }

@@ -1,19 +1,17 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class RepecNepImporterTest {
 
@@ -23,15 +21,20 @@ class RepecNepImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences = mock(
+            ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
+        when(
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+        ).thenReturn(',');
 
         testImporter = new RepecNepImporter(importFormatPreferences);
     }
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("RepecNepImporter")
-                && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name ->
+            name.startsWith("RepecNepImporter") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -55,6 +58,10 @@ class RepecNepImporterTest {
     @ParameterizedTest
     @MethodSource("fileNames")
     void importEntries(String fileName) throws ImportException, IOException {
-        ImporterTestEngine.testImportEntries(testImporter, fileName, FILE_ENDING);
+        ImporterTestEngine.testImportEntries(
+            testImporter,
+            fileName,
+            FILE_ENDING
+        );
     }
 }

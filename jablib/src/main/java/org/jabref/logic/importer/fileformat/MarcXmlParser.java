@@ -9,11 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.jabref.logic.importer.AuthorListParser;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
@@ -27,7 +25,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -50,16 +47,26 @@ import org.xml.sax.SAXException;
 ///   - about multiple books in a series https://www.dnb.de/SharedDocs/Downloads/DE/Professionell/Standardisierung/marc21FormatumstiegAbbildungBegrenzterWerke2008.pdf?__blob=publicationFile&v=2>
 ///
 public class MarcXmlParser implements Parser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MarcXmlParser.class);
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        MarcXmlParser.class
+    );
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY =
+        DocumentBuilderFactory.newInstance();
 
     @Override
-    public List<BibEntry> parseEntries(InputStream inputStream) throws ParseException {
+    public List<BibEntry> parseEntries(InputStream inputStream)
+        throws ParseException {
         try {
-            DocumentBuilder documentBuilder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            DocumentBuilder documentBuilder =
+                DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             Document content = documentBuilder.parse(inputStream);
             return this.parseEntries(content);
-        } catch (ParserConfigurationException | SAXException | IOException exception) {
+        } catch (
+            ParserConfigurationException
+            | SAXException
+            | IOException exception
+        ) {
             throw new ParseException(exception);
         }
     }
@@ -67,7 +74,9 @@ public class MarcXmlParser implements Parser {
     private List<BibEntry> parseEntries(Document content) {
         List<BibEntry> result = new LinkedList<>();
 
-        Element root = (Element) content.getElementsByTagName("zs:searchRetrieveResponse").item(0);
+        Element root = (Element) content
+            .getElementsByTagName("zs:searchRetrieveResponse")
+            .item(0);
         Element srwrecords = getChild("zs:records", root);
         if (srwrecords == null) {
             // no records found, so return the empty list
@@ -96,7 +105,9 @@ public class MarcXmlParser implements Parser {
 
             if ("020".equals(tag)) {
                 putIsbn(bibEntry, datafield);
-            } else if ("100".equals(tag) || "700".equals(tag) || "710".equals(tag)) {
+            } else if (
+                "100".equals(tag) || "700".equals(tag) || "710".equals(tag)
+            ) {
                 putPersonalName(bibEntry, datafield); // Author, Editor, Publisher
             } else if ("111".equals(tag)) {
                 // FixMe: Conference Information also in Subtitle (245) & Author (710)
@@ -123,7 +134,9 @@ public class MarcXmlParser implements Parser {
                 putElectronicLocation(bibEntry, datafield);
             } else if ("966".equals(tag)) {
                 putDoi(bibEntry, datafield);
-            } else if (Integer.parseInt(tag) >= 546 && Integer.parseInt(tag) <= 599) {
+            } else if (
+                Integer.parseInt(tag) >= 546 && Integer.parseInt(tag) <= 599
+            ) {
                 // Notes
                 // FixMe: Some notes seem to have tags lower than 546
                 putNotes(bibEntry, datafield);
@@ -166,21 +179,22 @@ public class MarcXmlParser implements Parser {
         if (StringUtil.isNotBlank(author) && StringUtil.isNotBlank(relation)) {
             name = new AuthorListParser().parse(author);
             Optional<StandardField> field = Optional.ofNullable(
-                    switch (relation) {
-                        case "aut" ->
-                                StandardField.AUTHOR;
-                        case "edt" ->
-                                StandardField.EDITOR;
-                        case "pbl" ->
-                                StandardField.PUBLISHER;
-                        default ->
-                                null;
-                    });
+                switch (relation) {
+                    case "aut" -> StandardField.AUTHOR;
+                    case "edt" -> StandardField.EDITOR;
+                    case "pbl" -> StandardField.PUBLISHER;
+                    default -> null;
+                }
+            );
 
             if (field.isPresent()) {
                 String ind1 = datafield.getAttribute("ind1");
                 String brackedName;
-                if (field.get() == StandardField.PUBLISHER && StringUtil.isNotBlank(ind1) && "2".equals(ind1)) {
+                if (
+                    field.get() == StandardField.PUBLISHER
+                    && StringUtil.isNotBlank(ind1)
+                    && "2".equals(ind1)
+                ) {
                     // ind == 2 -> Corporate publisher
                     brackedName = "{" + name.getAsFirstLastNamesWithAnd() + "}";
                 } else {
@@ -188,7 +202,13 @@ public class MarcXmlParser implements Parser {
                 }
 
                 if (bibEntry.getField(field.get()).isPresent()) {
-                    bibEntry.setField(field.get(), bibEntry.getField(field.get()).get().concat(" and " + brackedName));
+                    bibEntry.setField(
+                        field.get(),
+                        bibEntry
+                            .getField(field.get())
+                            .get()
+                            .concat(" and " + brackedName)
+                    );
                 } else {
                     bibEntry.setField(field.get(), brackedName);
                 }
@@ -250,7 +270,8 @@ public class MarcXmlParser implements Parser {
 
     private void putPublication(BibEntry bibEntry, Element datafield) {
         String ind2 = datafield.getAttribute("ind2");
-        if (StringUtil.isNotBlank(ind2) && "1".equals(ind2)) { // Publisher
+        if (StringUtil.isNotBlank(ind2) && "1".equals(ind2)) {
+            // Publisher
             String place = getSubfield("a", datafield);
             String name = getSubfield("b", datafield);
             String date = getSubfield("c", datafield);
@@ -270,7 +291,10 @@ public class MarcXmlParser implements Parser {
                 } catch (DateTimeException exception) {
                     // cannot read date value, just copy it in plain text
                     LOGGER.info("Cannot parse date '{}'", strippedDate);
-                    bibEntry.setField(StandardField.DATE, StringUtil.stripBrackets(strippedDate));
+                    bibEntry.setField(
+                        StandardField.DATE,
+                        StringUtil.stripBrackets(strippedDate)
+                    );
                 }
             }
         }
@@ -279,8 +303,17 @@ public class MarcXmlParser implements Parser {
     private void putPhysicalDescription(BibEntry bibEntry, Element datafield) {
         String pagetotal = getSubfield("a", datafield);
 
-        if (StringUtil.isNotBlank(pagetotal) && (pagetotal.contains("pages") || pagetotal.contains("p.") || pagetotal.contains("S") || pagetotal.contains("Seiten"))) {
-            pagetotal = pagetotal.replaceAll(".*?(\\d+)(?:\\s*Seiten|\\s*S|\\s*pages|\\s*p).*", "$1");
+        if (
+            StringUtil.isNotBlank(pagetotal)
+            && (pagetotal.contains("pages")
+                || pagetotal.contains("p.")
+                || pagetotal.contains("S")
+                || pagetotal.contains("Seiten"))
+        ) {
+            pagetotal = pagetotal.replaceAll(
+                ".*?(\\d+)(?:\\s*Seiten|\\s*S|\\s*pages|\\s*p).*",
+                "$1"
+            );
             bibEntry.setField(StandardField.PAGETOTAL, pagetotal);
         }
     }
@@ -324,9 +357,20 @@ public class MarcXmlParser implements Parser {
         String summary = getSubfield("a", datafield);
 
         String ind1 = datafield.getAttribute("ind1");
-        if (StringUtil.isNotBlank(summary) && StringUtil.isNotBlank(ind1) && "3".equals(ind1)) { // Abstract
+        if (
+            StringUtil.isNotBlank(summary)
+            && StringUtil.isNotBlank(ind1)
+            && "3".equals(ind1)
+        ) {
+            // Abstract
             if (bibEntry.getField(StandardField.ABSTRACT).isPresent()) {
-                bibEntry.setField(StandardField.ABSTRACT, bibEntry.getField(StandardField.ABSTRACT).get().concat(summary));
+                bibEntry.setField(
+                    StandardField.ABSTRACT,
+                    bibEntry
+                        .getField(StandardField.ABSTRACT)
+                        .get()
+                        .concat(summary)
+                );
             } else {
                 bibEntry.setField(StandardField.ABSTRACT, summary);
             }
@@ -337,9 +381,14 @@ public class MarcXmlParser implements Parser {
         String keyword = getSubfield("a", datafield);
 
         if (StringUtil.isNotBlank(keyword)) {
-            Optional<String> keywords = bibEntry.getField(StandardField.KEYWORDS);
+            Optional<String> keywords = bibEntry.getField(
+                StandardField.KEYWORDS
+            );
             if (keywords.isPresent()) {
-                bibEntry.setField(StandardField.KEYWORDS, keywords.get() + ", " + keyword);
+                bibEntry.setField(
+                    StandardField.KEYWORDS,
+                    keywords.get() + ", " + keyword
+                );
             } else {
                 bibEntry.setField(StandardField.KEYWORDS, keyword);
             }
@@ -359,12 +408,30 @@ public class MarcXmlParser implements Parser {
 
                 if (StringUtil.isNotBlank(value)) {
                     switch (key) {
-                        case "number" -> bibEntry.setField(StandardField.NUMBER, value);
-                        case "year" -> bibEntry.setField(StandardField.YEAR, value);
-                        case "pages" -> bibEntry.setField(StandardField.PAGES, value);
-                        case "volume" -> bibEntry.setField(StandardField.VOLUME, value);
-                        case "day" -> bibEntry.setField(StandardField.DAY, value);
-                        case "month" -> bibEntry.setField(StandardField.MONTH, value);
+                        case "number" -> bibEntry.setField(
+                            StandardField.NUMBER,
+                            value
+                        );
+                        case "year" -> bibEntry.setField(
+                            StandardField.YEAR,
+                            value
+                        );
+                        case "pages" -> bibEntry.setField(
+                            StandardField.PAGES,
+                            value
+                        );
+                        case "volume" -> bibEntry.setField(
+                            StandardField.VOLUME,
+                            value
+                        );
+                        case "day" -> bibEntry.setField(
+                            StandardField.DAY,
+                            value
+                        );
+                        case "month" -> bibEntry.setField(
+                            StandardField.MONTH,
+                            value
+                        );
                     }
                 }
             }
@@ -375,7 +442,12 @@ public class MarcXmlParser implements Parser {
         String ind1 = datafield.getAttribute("ind1");
         String resource = getSubfield("u", datafield);
 
-        if ("e".equals(ind1) && StringUtil.isNotBlank("u") && StringUtil.isNotBlank(resource)) { // DOI
+        if (
+            "e".equals(ind1)
+            && StringUtil.isNotBlank("u")
+            && StringUtil.isNotBlank(resource)
+        ) {
+            // DOI
             String fulltext = getSubfield("3", datafield);
             handleVolltext(bibEntry, fulltext, resource, StandardField.DOI);
         }
@@ -393,10 +465,19 @@ public class MarcXmlParser implements Parser {
         }
     }
 
-    private static void handleVolltext(BibEntry bibEntry, String fieldName, String resource, Field fallBackField) {
+    private static void handleVolltext(
+        BibEntry bibEntry,
+        String fieldName,
+        String resource,
+        Field fallBackField
+    ) {
         if ("Volltext".equals(fieldName) && StringUtil.isNotBlank(resource)) {
             try {
-                LinkedFile linkedFile = new LinkedFile("", URLUtil.create(resource), StandardFileType.PDF.getName());
+                LinkedFile linkedFile = new LinkedFile(
+                    "",
+                    URLUtil.create(resource),
+                    StandardFileType.PDF.getName()
+                );
                 bibEntry.setFiles(List.of(linkedFile));
             } catch (MalformedURLException | IllegalArgumentException e) {
                 LOGGER.info("Malformed URL: {}", resource);
@@ -408,26 +489,29 @@ public class MarcXmlParser implements Parser {
 
     private void putNotes(BibEntry bibEntry, Element datafield) {
         String[] notes = new String[] {
-                getSubfield("a", datafield),
-                getSubfield("0", datafield),
-                getSubfield("h", datafield),
-                getSubfield("S", datafield),
-                getSubfield("c", datafield),
-                getSubfield("f", datafield),
-                getSubfield("i", datafield),
-                getSubfield("k", datafield),
-                getSubfield("l", datafield),
-                getSubfield("z", datafield),
-                getSubfield("3", datafield),
-                getSubfield("5", datafield)
+            getSubfield("a", datafield),
+            getSubfield("0", datafield),
+            getSubfield("h", datafield),
+            getSubfield("S", datafield),
+            getSubfield("c", datafield),
+            getSubfield("f", datafield),
+            getSubfield("i", datafield),
+            getSubfield("k", datafield),
+            getSubfield("l", datafield),
+            getSubfield("z", datafield),
+            getSubfield("3", datafield),
+            getSubfield("5", datafield),
         };
 
         String notesJoined = Arrays.stream(notes)
-                                   .filter(StringUtil::isNotBlank)
-                                   .collect(Collectors.joining("\n\n"));
+            .filter(StringUtil::isNotBlank)
+            .collect(Collectors.joining("\n\n"));
 
         if (bibEntry.getField(StandardField.NOTE).isPresent()) {
-            bibEntry.setField(StandardField.NOTE, bibEntry.getField(StandardField.NOTE).get().concat(notesJoined));
+            bibEntry.setField(
+                StandardField.NOTE,
+                bibEntry.getField(StandardField.NOTE).get().concat(notesJoined)
+            );
         } else {
             bibEntry.setField(StandardField.NOTE, notesJoined);
         }
@@ -448,7 +532,11 @@ public class MarcXmlParser implements Parser {
     private List<String> getSubfields(String a, Element datafield) {
         List<Element> subfields = getChildren("subfield", datafield);
 
-        return subfields.stream().filter(field -> field.getAttribute("code").equals(a)).map(Node::getTextContent).toList();
+        return subfields
+            .stream()
+            .filter(field -> field.getAttribute("code").equals(a))
+            .map(Node::getTextContent)
+            .toList();
     }
 
     private Element getChild(String name, Element e) {

@@ -1,5 +1,9 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import static org.jabref.model.strings.StringUtil.isNullOrEmpty;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -12,7 +16,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter;
 import org.jabref.logic.importer.fileformat.PdfMergeMetadataImporter;
 import org.jabref.logic.l10n.Localization;
@@ -25,15 +31,7 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.StringUtil;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.TextPosition;
 import org.jspecify.annotations.Nullable;
-
-import static org.jabref.model.strings.StringUtil.isNullOrEmpty;
 
 /**
  * Parses data of the first page of the PDF and creates a BibTeX entry.
@@ -47,7 +45,9 @@ import static org.jabref.model.strings.StringUtil.isNullOrEmpty;
  */
 public class PdfContentImporter extends PdfImporter {
 
-    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile("\\d{4}");
+    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile(
+        "\\d{4}"
+    );
 
     private static final int ARXIV_PREFIX_LENGTH = "arxiv:".length();
 
@@ -107,7 +107,9 @@ public class PdfContentImporter extends PdfImporter {
                     if (posAnd >= 0) {
                         String nameBefore = curName.substring(0, posAnd);
                         // cannot be first name as "," is contained in the string
-                        res = res.concat(" and ").concat(removeNonLettersAtEnd(nameBefore));
+                        res = res
+                            .concat(" and ")
+                            .concat(removeNonLettersAtEnd(nameBefore));
                         curName = curName.substring(posAnd + 5);
                     }
                 }
@@ -149,7 +151,10 @@ public class PdfContentImporter extends PdfImporter {
                         // last name found
                         res = res.concat(removeNonLettersAtEnd(splitNames[i]));
 
-                        if (!splitNames[i].isEmpty() && Character.isLowerCase(splitNames[i].charAt(0))) {
+                        if (
+                            !splitNames[i].isEmpty()
+                            && Character.isLowerCase(splitNames[i].charAt(0))
+                        ) {
                             // it is probably be "van", "vom", ...
                             // we just rely on the fact that these things are written in lower case letters
                             // do NOT finish name
@@ -166,15 +171,18 @@ public class PdfContentImporter extends PdfImporter {
                         } else {
                             res = res.concat(" and ");
                         }
-                        if ("et".equalsIgnoreCase(splitNames[i]) && (splitNames.length > (i + 1))
-                                && "al.".equalsIgnoreCase(splitNames[i + 1])) {
+                        if (
+                            "et".equalsIgnoreCase(splitNames[i])
+                            && (splitNames.length > (i + 1))
+                            && "al.".equalsIgnoreCase(splitNames[i + 1])
+                        ) {
                             res = res.concat("others");
                             break;
                         } else {
                             res = res.concat(splitNames[i]).concat(" ");
                             workedOnFirstOrMiddle = true;
                         }
-                    }  // do nothing, just increment i at the end of this iteration
+                    } // do nothing, just increment i at the end of this iteration
                 }
                 i++;
             } while (i < splitNames.length);
@@ -186,16 +194,23 @@ public class PdfContentImporter extends PdfImporter {
         return removeNonLettersAtEnd(title);
     }
 
-    public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException {
+    public List<BibEntry> importDatabase(Path filePath, PDDocument document)
+        throws IOException {
         List<BibEntry> result = new ArrayList<>(1);
         String firstPageContents = PdfUtils.getFirstPageContents(document);
         Optional<String> titleByFontSize = extractTitleFromDocument(document);
-        Optional<BibEntry> entry = getEntryFromPDFContent(firstPageContents, OS.NEWLINE, titleByFontSize);
+        Optional<BibEntry> entry = getEntryFromPDFContent(
+            firstPageContents,
+            OS.NEWLINE,
+            titleByFontSize
+        );
         entry.ifPresent(result::add);
         return result;
     }
 
-    private static Optional<String> extractTitleFromDocument(PDDocument document) throws IOException {
+    private static Optional<String> extractTitleFromDocument(
+        PDDocument document
+    ) throws IOException {
         TitleExtractorByFontSize stripper = new TitleExtractorByFontSize();
         return stripper.getTitle(document);
     }
@@ -209,7 +224,8 @@ public class PdfContentImporter extends PdfImporter {
             this.textPositionsList = new ArrayList<>();
         }
 
-        public Optional<String> getTitle(PDDocument document) throws IOException {
+        public Optional<String> getTitle(PDDocument document)
+            throws IOException {
             this.setStartPage(1);
             this.setEndPage(2);
             this.writeText(document, new StringWriter());
@@ -217,22 +233,34 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         @Override
-        protected void writeString(String text, List<TextPosition> textPositions) {
+        protected void writeString(
+            String text,
+            List<TextPosition> textPositions
+        ) {
             textPositionsList.addAll(textPositions);
         }
 
         private boolean isFarAway(TextPosition previous, TextPosition current) {
             float XspaceThreshold = previous.getFontSizeInPt() * 3.0F;
             float YspaceThreshold = previous.getFontSizeInPt() * 3.0F;
-            float Xgap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
+            float Xgap =
+                current.getXDirAdj()
+                - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float Ygap = current.getYDirAdj() - previous.getYDirAdj();
             // For cases like paper titles spanning two or more lines, both X and Y gaps must exceed thresholds,
             // so "&&" is used instead of "||".
-            return Math.abs(Xgap) > XspaceThreshold && Math.abs(Ygap) > YspaceThreshold;
+            return (
+                Math.abs(Xgap) > XspaceThreshold
+                && Math.abs(Ygap) > YspaceThreshold
+            );
         }
 
-        private boolean isUnwantedText(TextPosition previousTextPosition, TextPosition textPosition,
-                                       Map<Float, TextPosition> lastPositionMap, float fontSize) {
+        private boolean isUnwantedText(
+            TextPosition previousTextPosition,
+            TextPosition textPosition,
+            Map<Float, TextPosition> lastPositionMap,
+            float fontSize
+        ) {
             // This indicates that the text is at the start of the line, so it is needed.
             if (textPosition == null || previousTextPosition == null) {
                 return false;
@@ -243,39 +271,69 @@ public class PdfContentImporter extends PdfImporter {
                 return true;
             }
             // Titles are generally not located in the bottom 10% of a page.
-            if ((textPosition.getPageHeight() - textPosition.getYDirAdj()) < (textPosition.getPageHeight() * 0.1)) {
+            if (
+                (textPosition.getPageHeight() - textPosition.getYDirAdj())
+                < (textPosition.getPageHeight() * 0.1)
+            ) {
                 return true;
             }
             // Characters in a title typically remain close together,
             // so a distant character is unlikely to be part of the title.
-            return lastPositionMap.containsKey(fontSize) && isFarAway(lastPositionMap.get(fontSize), textPosition);
+            return (
+                lastPositionMap.containsKey(fontSize)
+                && isFarAway(lastPositionMap.get(fontSize), textPosition)
+            );
         }
 
-        private Optional<String> findLargestFontText(List<TextPosition> textPositions) {
-            Map<Float, StringBuilder> fontSizeTextMap = new TreeMap<>(Collections.reverseOrder());
-            Map<Float, TextPosition> lastPositionMap = new TreeMap<>(Collections.reverseOrder());
+        private Optional<String> findLargestFontText(
+            List<TextPosition> textPositions
+        ) {
+            Map<Float, StringBuilder> fontSizeTextMap = new TreeMap<>(
+                Collections.reverseOrder()
+            );
+            Map<Float, TextPosition> lastPositionMap = new TreeMap<>(
+                Collections.reverseOrder()
+            );
             TextPosition previousTextPosition = null;
             for (TextPosition textPosition : textPositions) {
                 float fontSize = textPosition.getFontSizeInPt();
                 // Exclude unwanted text based on heuristics
-                if (isUnwantedText(previousTextPosition, textPosition, lastPositionMap, fontSize)) {
+                if (
+                    isUnwantedText(
+                        previousTextPosition,
+                        textPosition,
+                        lastPositionMap,
+                        fontSize
+                    )
+                ) {
                     continue;
                 }
                 fontSizeTextMap.putIfAbsent(fontSize, new StringBuilder());
-                if (previousTextPosition != null && isThereSpace(previousTextPosition, textPosition)) {
+                if (
+                    previousTextPosition != null
+                    && isThereSpace(previousTextPosition, textPosition)
+                ) {
                     fontSizeTextMap.get(fontSize).append(" ");
                 }
                 fontSizeTextMap.get(fontSize).append(textPosition.getUnicode());
                 lastPositionMap.put(fontSize, textPosition);
                 previousTextPosition = textPosition;
             }
-            for (Map.Entry<Float, StringBuilder> entry : fontSizeTextMap.entrySet()) {
+            for (Map.Entry<
+                Float,
+                StringBuilder
+            > entry : fontSizeTextMap.entrySet()) {
                 String candidateText = entry.getValue().toString().trim();
                 if (isLegalTitle(candidateText)) {
                     return Optional.of(candidateText);
                 }
             }
-            return fontSizeTextMap.values().stream().findFirst().map(StringBuilder::toString).map(String::trim);
+            return fontSizeTextMap
+                .values()
+                .stream()
+                .findFirst()
+                .map(StringBuilder::toString)
+                .map(String::trim);
         }
 
         private boolean isLegalTitle(String candidateText) {
@@ -283,12 +341,22 @@ public class PdfContentImporter extends PdfImporter {
             return candidateText.length() >= 4;
         }
 
-        private boolean isThereSpace(TextPosition previous, TextPosition current) {
+        private boolean isThereSpace(
+            TextPosition previous,
+            TextPosition current
+        ) {
             float XspaceThreshold = 1F;
             float YspaceThreshold = previous.getFontSizeInPt();
-            float Xgap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
-            float Ygap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
-            return Math.abs(Xgap) > XspaceThreshold || Math.abs(Ygap) > YspaceThreshold;
+            float Xgap =
+                current.getXDirAdj()
+                - (previous.getXDirAdj() + previous.getWidthDirAdj());
+            float Ygap =
+                current.getYDirAdj()
+                - (previous.getYDirAdj() - previous.getHeightDir());
+            return (
+                Math.abs(Xgap) > XspaceThreshold
+                || Math.abs(Ygap) > YspaceThreshold
+            );
         }
     }
 
@@ -321,8 +389,15 @@ public class PdfContentImporter extends PdfImporter {
      *         is successful. Otherwise, an empty {@link Optional}.
      */
     @VisibleForTesting
-    Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
-        String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(firstpageContents, lineSeparator);
+    Optional<BibEntry> getEntryFromPDFContent(
+        String firstpageContents,
+        String lineSeparator,
+        Optional<String> titleByFontSize
+    ) {
+        String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(
+            firstpageContents,
+            lineSeparator
+        );
 
         lines = firstpageContentsUnifiedLineBreaks.split(lineSeparator);
 
@@ -383,7 +458,9 @@ public class PdfContentImporter extends PdfImporter {
         title = streamlineTitle(curString);
         // i points to the next non-empty line
         curString = "";
-        if (titleByFontSize.isPresent() && !isNullOrEmpty(titleByFontSize.get())) {
+        if (
+            titleByFontSize.isPresent() && !isNullOrEmpty(titleByFontSize.get())
+        ) {
             title = titleByFontSize.get();
         }
 
@@ -398,7 +475,7 @@ public class PdfContentImporter extends PdfImporter {
             } else {
                 if (!"".equals(curString)) {
                     author = author.concat(" and ").concat(curString);
-                }  // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
+                } // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
             }
             lineIndex++;
         }
@@ -408,28 +485,47 @@ public class PdfContentImporter extends PdfImporter {
         // then, abstract and keywords follow
         while (lineIndex < lines.length) {
             curString = lines[lineIndex];
-            if ((curString.length() >= "Abstract".length()) && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
+            if (
+                (curString.length() >= "Abstract".length())
+                && "Abstract".equalsIgnoreCase(
+                    curString.substring(0, "Abstract".length())
+                )
+            ) {
                 if (curString.length() == "Abstract".length()) {
                     // only word "abstract" found -- skip line
                     curString = "";
                 } else {
-                    curString = curString.substring("Abstract".length() + 1).trim().concat(System.lineSeparator());
+                    curString = curString
+                        .substring("Abstract".length() + 1)
+                        .trim()
+                        .concat(System.lineSeparator());
                 }
                 lineIndex++;
                 // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as line separator
                 // whereas we need linebreak as separator
-                while ((lineIndex < lines.length) && !"".equals(lines[lineIndex])) {
-                    curString = curString.concat(lines[lineIndex]).concat(System.lineSeparator());
+                while (
+                    (lineIndex < lines.length) && !"".equals(lines[lineIndex])
+                ) {
+                    curString = curString
+                        .concat(lines[lineIndex])
+                        .concat(System.lineSeparator());
                     lineIndex++;
                 }
                 abstractT = curString.trim();
                 lineIndex++;
-            } else if ((curString.length() >= "Keywords".length()) && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
+            } else if (
+                (curString.length() >= "Keywords".length())
+                && "Keywords".equalsIgnoreCase(
+                    curString.substring(0, "Keywords".length())
+                )
+            ) {
                 if (curString.length() == "Keywords".length()) {
                     // only word "Keywords" found -- skip line
                     curString = "";
                 } else {
-                    curString = curString.substring("Keywords".length() + 1).trim();
+                    curString = curString
+                        .substring("Keywords".length() + 1)
+                        .trim();
                 }
                 lineIndex++;
                 fillCurStringWithNonEmptyLines();
@@ -510,7 +606,9 @@ public class PdfContentImporter extends PdfImporter {
                             // before the price, the ISSN is stated
                             // skip that
                             pos -= 2;
-                            while ((pos >= 0) && (curString.charAt(pos) != ' ')) {
+                            while (
+                                (pos >= 0) && (curString.charAt(pos) != ' ')
+                            ) {
                                 pos--;
                             }
                             if (pos > 0) {
@@ -591,9 +689,14 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         String arXiv = curString.split(" ")[0];
-        arXivId = ArXivIdentifier.parse(arXiv).map(ArXivIdentifier::asString).orElse(null);
+        arXivId = ArXivIdentifier.parse(arXiv)
+            .map(ArXivIdentifier::asString)
+            .orElse(null);
 
-        if (arXivId == null || curString.length() < arXivId.length() + ARXIV_PREFIX_LENGTH) {
+        if (
+            arXivId == null
+            || curString.length() < arXivId.length() + ARXIV_PREFIX_LENGTH
+        ) {
             return arXivId;
         }
 
@@ -622,7 +725,9 @@ public class PdfContentImporter extends PdfImporter {
      * proceed to next non-empty line
      */
     private void proceedToNextNonEmptyLine() {
-        while ((lineIndex < lines.length) && lines[lineIndex].trim().isEmpty()) {
+        while (
+            (lineIndex < lines.length) && lines[lineIndex].trim().isEmpty()
+        ) {
             lineIndex++;
         }
     }
@@ -698,6 +803,8 @@ public class PdfContentImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently, Springer and IEEE formats are supported.");
+        return Localization.lang(
+            "This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently, Springer and IEEE formats are supported."
+        );
     }
 }

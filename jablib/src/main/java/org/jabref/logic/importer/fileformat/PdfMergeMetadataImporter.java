@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.RelativePathsCleanup;
 import org.jabref.logic.importer.EntryBasedFetcher;
@@ -34,8 +34,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,9 @@ import org.slf4j.LoggerFactory;
  */
 public class PdfMergeMetadataImporter extends PdfImporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PdfMergeMetadataImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        PdfMergeMetadataImporter.class
+    );
 
     private final List<PdfImporter> metadataImporters;
 
@@ -55,17 +55,24 @@ public class PdfMergeMetadataImporter extends PdfImporter {
     private final ArXivFetcher arXivFetcher;
     private final IsbnFetcher isbnFetcher;
 
-    public PdfMergeMetadataImporter(ImportFormatPreferences importFormatPreferences) {
+    public PdfMergeMetadataImporter(
+        ImportFormatPreferences importFormatPreferences
+    ) {
         // TODO: Evaluate priorities of these {@link PdfBibExtractor}s.
-        this.metadataImporters = new ArrayList<>(List.of(
+        this.metadataImporters = new ArrayList<>(
+            List.of(
                 new PdfVerbatimBibtexImporter(importFormatPreferences),
                 new PdfEmbeddedBibFileImporter(importFormatPreferences),
                 new PdfXmpImporter(importFormatPreferences.xmpPreferences()),
                 new PdfContentImporter()
-        ));
+            )
+        );
 
         if (importFormatPreferences.grobidPreferences().isGrobidEnabled()) {
-            this.metadataImporters.add(2, new PdfGrobidImporter(importFormatPreferences));
+            this.metadataImporters.add(
+                2,
+                new PdfGrobidImporter(importFormatPreferences)
+            );
         }
         doiFetcher = new DoiFetcher(importFormatPreferences);
         arXivFetcher = new ArXivFetcher(importFormatPreferences);
@@ -84,30 +91,49 @@ public class PdfMergeMetadataImporter extends PdfImporter {
      * 2. Run {@link PdfImporter}s, and store extracted candidates in the list.
      */
     @Override
-    public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException, ParseException {
-        List<BibEntry> extractedCandidates = extractCandidatesFromPdf(filePath, document);
+    public List<BibEntry> importDatabase(Path filePath, PDDocument document)
+        throws IOException, ParseException {
+        List<BibEntry> extractedCandidates = extractCandidatesFromPdf(
+            filePath,
+            document
+        );
         if (extractedCandidates.isEmpty()) {
             return List.of();
         }
 
-        List<BibEntry> fetchedCandidates = fetchIdsOfCandidates(extractedCandidates);
+        List<BibEntry> fetchedCandidates = fetchIdsOfCandidates(
+            extractedCandidates
+        );
 
-        Stream<BibEntry> allCandidates = Stream.concat(fetchedCandidates.stream(), extractedCandidates.stream());
+        Stream<BibEntry> allCandidates = Stream.concat(
+            fetchedCandidates.stream(),
+            extractedCandidates.stream()
+        );
         BibEntry entry = mergeCandidates(allCandidates);
 
         // We use the absolute path here as we do not know the context where this import will be used.
         // The caller is responsible for making the path relative if necessary.
-        entry.addFile(new LinkedFile("", filePath, StandardFileType.PDF.getName()));
+        entry.addFile(
+            new LinkedFile("", filePath, StandardFileType.PDF.getName())
+        );
         return List.of(entry);
     }
 
-    private List<BibEntry> extractCandidatesFromPdf(Path filePath, PDDocument document) {
+    private List<BibEntry> extractCandidatesFromPdf(
+        Path filePath,
+        PDDocument document
+    ) {
         List<BibEntry> candidates = new ArrayList<>();
 
         for (PdfImporter metadataImporter : metadataImporters) {
             try {
-                List<BibEntry> extractedEntries = metadataImporter.importDatabase(filePath, document);
-                LOGGER.debug("Importer {} extracted {}", metadataImporter.getName(), extractedEntries);
+                List<BibEntry> extractedEntries =
+                    metadataImporter.importDatabase(filePath, document);
+                LOGGER.debug(
+                    "Importer {} extracted {}",
+                    metadataImporter.getName(),
+                    extractedEntries
+                );
                 candidates.addAll(extractedEntries);
             } catch (ParseException | IOException e) {
                 LOGGER.error("Got an exception while importing PDF file", e);
@@ -124,13 +150,31 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         final Set<String> fetchedIds = new HashSet<>();
 
         for (BibEntry candidate : candidates) {
-            fetchData(candidate, StandardField.DOI, doiFetcher, fetchedIds, fetchedCandidates);
+            fetchData(
+                candidate,
+                StandardField.DOI,
+                doiFetcher,
+                fetchedIds,
+                fetchedCandidates
+            );
 
             // This code assumes that `eprint` field refers to an arXiv preprint, which is not correct.
             // One should also check if `archivePrefix` is equal to `arXiv`, and handle other cases too.
-            fetchData(candidate, StandardField.EPRINT, arXivFetcher, fetchedIds, fetchedCandidates);
+            fetchData(
+                candidate,
+                StandardField.EPRINT,
+                arXivFetcher,
+                fetchedIds,
+                fetchedCandidates
+            );
 
-            fetchData(candidate, StandardField.ISBN, isbnFetcher, fetchedIds, fetchedCandidates);
+            fetchData(
+                candidate,
+                StandardField.ISBN,
+                isbnFetcher,
+                fetchedIds,
+                fetchedCandidates
+            );
 
             // TODO: Handle URLs too.
             // However, it may have problems if URL refers to the same identifier in DOI, ISBN, or arXiv.
@@ -146,18 +190,26 @@ public class PdfMergeMetadataImporter extends PdfImporter {
      * @param fetchedIds        The already fetched ids (will be updated)
      * @param fetchedCandidates New candidate (will be updated)
      */
-    private void fetchData(BibEntry candidate, StandardField field, IdBasedFetcher fetcher, Set<String> fetchedIds, List<BibEntry> fetchedCandidates) {
-        candidate.getField(field)
-                 .filter(id -> !fetchedIds.contains(id))
-                 .ifPresent(id -> {
-                     fetchedIds.add(id);
-                     try {
-                         fetcher.performSearchById(id)
-                                .ifPresent(fetchedCandidates::add);
-                     } catch (FetcherException e) {
-                         LOGGER.error("Fetching failed for id \"{}\".", id, e);
-                     }
-                 });
+    private void fetchData(
+        BibEntry candidate,
+        StandardField field,
+        IdBasedFetcher fetcher,
+        Set<String> fetchedIds,
+        List<BibEntry> fetchedCandidates
+    ) {
+        candidate
+            .getField(field)
+            .filter(id -> !fetchedIds.contains(id))
+            .ifPresent(id -> {
+                fetchedIds.add(id);
+                try {
+                    fetcher
+                        .performSearchById(id)
+                        .ifPresent(fetchedCandidates::add);
+                } catch (FetcherException e) {
+                    LOGGER.error("Fetching failed for id \"{}\".", id, e);
+                }
+            });
     }
 
     private static BibEntry mergeCandidates(Stream<BibEntry> candidates) {
@@ -165,7 +217,11 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         candidates.forEach(entry::mergeWith);
 
         // Retain online links only
-        List<LinkedFile> onlineLinks = entry.getFiles().stream().filter(LinkedFile::isOnlineLink).toList();
+        List<LinkedFile> onlineLinks = entry
+            .getFiles()
+            .stream()
+            .filter(LinkedFile::isOnlineLink)
+            .toList();
         entry.clearField(StandardField.FILE);
         entry.addFiles(onlineLinks);
 
@@ -175,14 +231,24 @@ public class PdfMergeMetadataImporter extends PdfImporter {
     /**
      * Imports the BibTeX data from the given PDF file and relativized the paths of each linked file based on the context and the file preferences.
      */
-    public ParserResult importDatabase(Path filePath, BibDatabaseContext context, FilePreferences filePreferences) throws IOException {
+    public ParserResult importDatabase(
+        Path filePath,
+        BibDatabaseContext context,
+        FilePreferences filePreferences
+    ) throws IOException {
         Objects.requireNonNull(context);
         Objects.requireNonNull(filePreferences);
 
         ParserResult parserResult = importDatabase(filePath);
 
-        RelativePathsCleanup relativePathsCleanup = new RelativePathsCleanup(context, filePreferences);
-        parserResult.getDatabase().getEntries().forEach(relativePathsCleanup::cleanup);
+        RelativePathsCleanup relativePathsCleanup = new RelativePathsCleanup(
+            context,
+            filePreferences
+        );
+        parserResult
+            .getDatabase()
+            .getEntries()
+            .forEach(relativePathsCleanup::cleanup);
 
         return parserResult;
     }
@@ -199,28 +265,44 @@ public class PdfMergeMetadataImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Imports BibTeX data from a PDF using multiple strategies (e.g., XMP, embedded BibTeX, text parsing, Grobid, and DOI lookup) and merges the result.");
+        return Localization.lang(
+            "Imports BibTeX data from a PDF using multiple strategies (e.g., XMP, embedded BibTeX, text parsing, Grobid, and DOI lookup) and merges the result."
+        );
     }
 
-    public static class EntryBasedFetcherWrapper extends PdfMergeMetadataImporter implements EntryBasedFetcher {
+    public static class EntryBasedFetcherWrapper
+        extends PdfMergeMetadataImporter
+        implements EntryBasedFetcher {
 
         private final FilePreferences filePreferences;
         private final BibDatabaseContext databaseContext;
 
-        public EntryBasedFetcherWrapper(ImportFormatPreferences importFormatPreferences, FilePreferences filePreferences, BibDatabaseContext context) {
+        public EntryBasedFetcherWrapper(
+            ImportFormatPreferences importFormatPreferences,
+            FilePreferences filePreferences,
+            BibDatabaseContext context
+        ) {
             super(importFormatPreferences);
             this.filePreferences = filePreferences;
             this.databaseContext = context;
         }
 
         @Override
-        public List<BibEntry> performSearch(BibEntry entry) throws FetcherException {
+        public List<BibEntry> performSearch(BibEntry entry)
+            throws FetcherException {
             for (LinkedFile file : entry.getFiles()) {
-                Optional<Path> filePath = file.findIn(databaseContext, filePreferences);
+                Optional<Path> filePath = file.findIn(
+                    databaseContext,
+                    filePreferences
+                );
                 if (filePath.isPresent()) {
                     ParserResult result = importDatabase(filePath.get());
                     if (!result.isEmpty()) {
-                        return FileUtil.relativize(result.getDatabase().getEntries(), databaseContext, filePreferences);
+                        return FileUtil.relativize(
+                            result.getDatabase().getEntries(),
+                            databaseContext,
+                            filePreferences
+                        );
                     }
                 }
             }

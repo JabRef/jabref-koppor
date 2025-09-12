@@ -7,10 +7,11 @@ import java.util.Optional;
  * e.g. [SeverityType] -- [Message] in [EntryKey]
  */
 public record BibWarning(
-        SeverityType severityType,
-        String message,
-        String fieldName,
-        String entryKey) {
+    SeverityType severityType,
+    String message,
+    String fieldName,
+    String entryKey
+) {
     public Optional<String> getFieldName() {
         return Optional.ofNullable(fieldName);
     }

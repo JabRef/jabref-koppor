@@ -3,10 +3,8 @@ package org.jabref.gui.groups;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
@@ -20,6 +18,7 @@ import org.jabref.model.groups.SearchGroup;
 import org.jabref.model.groups.SmartGroup;
 
 public class GroupTreeNodeViewModel {
+
     private final GroupTreeNode node;
 
     public GroupTreeNodeViewModel(GroupTreeNode node) {
@@ -52,33 +51,50 @@ public class GroupTreeNodeViewModel {
         String shortDescription = "";
         boolean showDynamic = true;
         shortDescription = switch (group) {
-            case SmartGroup smartGroup ->
-                    GroupDescriptions.getShortDescriptionSmartGroup(smartGroup);
-            case ExplicitGroup explicitGroup ->
-                    GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
-            case KeywordGroup keywordGroup ->
-                    GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
-            case SearchGroup searchGroup ->
-                    GroupDescriptions.getShortDescription(searchGroup, showDynamic);
-            case null,
-                 default ->
-                    GroupDescriptions.getShortDescriptionAllEntriesGroup();
+            case SmartGroup smartGroup -> GroupDescriptions.getShortDescriptionSmartGroup(
+                smartGroup
+            );
+            case ExplicitGroup explicitGroup -> GroupDescriptions.getShortDescriptionExplicitGroup(
+                explicitGroup
+            );
+            case KeywordGroup keywordGroup -> GroupDescriptions.getShortDescriptionKeywordGroup(
+                keywordGroup,
+                showDynamic
+            );
+            case SearchGroup searchGroup -> GroupDescriptions.getShortDescription(
+                searchGroup,
+                showDynamic
+            );
+            case
+                null,
+                default -> GroupDescriptions.getShortDescriptionAllEntriesGroup();
         };
         return "<html>" + shortDescription + "</html>";
     }
 
     public boolean canAddEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && !getNode().getGroup().containsAll(entries);
+        return (
+            (getNode().getGroup() instanceof GroupEntryChanger)
+            && !getNode().getGroup().containsAll(entries)
+        );
     }
 
     public boolean canRemoveEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && getNode().getGroup().containsAny(entries);
+        return (
+            (getNode().getGroup() instanceof GroupEntryChanger)
+            && getNode().getGroup().containsAny(entries)
+        );
     }
 
     public void sortChildrenByName(boolean recursive) {
         getNode().sortChildren(
-                (node1, node2) -> node1.getGroup().getName().compareToIgnoreCase(node2.getGroup().getName()),
-                recursive);
+            (node1, node2) ->
+                node1
+                    .getGroup()
+                    .getName()
+                    .compareToIgnoreCase(node2.getGroup().getName()),
+            recursive
+        );
     }
 
     @Override
@@ -108,27 +124,39 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveUp() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (
+            (getNode().getPreviousSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
+        );
     }
 
     public boolean canMoveDown() {
-        return (getNode().getNextSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (
+            (getNode().getNextSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
+        );
     }
 
     public boolean canMoveLeft() {
-        return !(getNode().getGroup() instanceof AllEntriesGroup)
-                // TODO: Null!
-                && !(getNode().getParent().get().getGroup() instanceof AllEntriesGroup);
+        return (
+            !(getNode().getGroup() instanceof AllEntriesGroup)
+            // TODO: Null!
+            && !(getNode().getParent().get().getGroup()
+                    instanceof AllEntriesGroup)
+        );
     }
 
     public boolean canMoveRight() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (
+            (getNode().getPreviousSibling().isPresent())
+            && !(getNode().getGroup() instanceof AllEntriesGroup)
+        );
     }
 
-    public void changeEntriesTo(List<BibEntry> entries, UndoManager undoManager) {
+    public void changeEntriesTo(
+        List<BibEntry> entries,
+        UndoManager undoManager
+    ) {
         AbstractGroup group = node.getGroup();
         List<FieldChange> changesRemove = new ArrayList<>();
         List<FieldChange> changesAdd = new ArrayList<>();
@@ -159,14 +187,25 @@ public class GroupTreeNodeViewModel {
 
         // Remember undo information
         if (!changesRemove.isEmpty()) {
-            AbstractUndoableEdit undoRemove = UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesRemove);
+            AbstractUndoableEdit undoRemove =
+                UndoableChangeEntriesOfGroup.getUndoableEdit(
+                    this,
+                    changesRemove
+                );
             if (!changesAdd.isEmpty() && (undoRemove != null)) {
                 // we removed and added entries
-                undoRemove.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesAdd));
+                undoRemove.addEdit(
+                    UndoableChangeEntriesOfGroup.getUndoableEdit(
+                        this,
+                        changesAdd
+                    )
+                );
             }
             undoManager.addEdit(undoRemove);
         } else if (!changesAdd.isEmpty()) {
-            undoManager.addEdit(UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesAdd));
+            undoManager.addEdit(
+                UndoableChangeEntriesOfGroup.getUndoableEdit(this, changesAdd)
+            );
         }
     }
 
@@ -178,14 +217,18 @@ public class GroupTreeNodeViewModel {
         return getNode().getGroup() instanceof AllEntriesGroup;
     }
 
-    public void addNewGroup(AbstractGroup newGroup, CountingUndoManager undoManager) {
+    public void addNewGroup(
+        AbstractGroup newGroup,
+        CountingUndoManager undoManager
+    ) {
         GroupTreeNode newNode = GroupTreeNode.fromGroup(newGroup);
         this.getNode().addChild(newNode);
 
         UndoableAddOrRemoveGroup undo = new UndoableAddOrRemoveGroup(
-                this,
-                new GroupTreeNodeViewModel(newNode),
-                UndoableAddOrRemoveGroup.ADD_NODE);
+            this,
+            new GroupTreeNodeViewModel(newNode),
+            UndoableAddOrRemoveGroup.ADD_NODE
+        );
         undoManager.addEdit(undo);
     }
 
@@ -196,7 +239,11 @@ public class GroupTreeNodeViewModel {
         return node.addEntriesToGroup(entries);
     }
 
-    public void subscribeToDescendantChanged(Consumer<GroupTreeNodeViewModel> subscriber) {
-        getNode().subscribeToDescendantChanged(node -> subscriber.accept(new GroupTreeNodeViewModel(node)));
+    public void subscribeToDescendantChanged(
+        Consumer<GroupTreeNodeViewModel> subscriber
+    ) {
+        getNode().subscribeToDescendantChanged(node ->
+            subscriber.accept(new GroupTreeNodeViewModel(node))
+        );
     }
 }

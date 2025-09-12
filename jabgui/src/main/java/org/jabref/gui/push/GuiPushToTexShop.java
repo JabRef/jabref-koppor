@@ -6,11 +6,16 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToTexShop;
 
-public class GuiPushToTexShop extends PushToTexShop implements GuiPushToApplication {
+public class GuiPushToTexShop
+    extends PushToTexShop
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToTexShop(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToTexShop(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }

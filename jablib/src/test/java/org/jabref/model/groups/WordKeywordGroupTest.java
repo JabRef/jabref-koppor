@@ -1,16 +1,14 @@
 package org.jabref.model.groups;
 
-import java.util.Optional;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Optional;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class WordKeywordGroupTest {
 
@@ -21,9 +19,33 @@ class WordKeywordGroupTest {
 
     @BeforeEach
     void setUp() {
-        testGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", false, ',', false);
-        testCaseSensitiveGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", true, ',', false);
-        waterGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "\\H2O", false, ',', false);
+        testGroup = new WordKeywordGroup(
+            "name",
+            GroupHierarchyType.INDEPENDENT,
+            StandardField.KEYWORDS,
+            "test",
+            false,
+            ',',
+            false
+        );
+        testCaseSensitiveGroup = new WordKeywordGroup(
+            "name",
+            GroupHierarchyType.INDEPENDENT,
+            StandardField.KEYWORDS,
+            "test",
+            true,
+            ',',
+            false
+        );
+        waterGroup = new WordKeywordGroup(
+            "name",
+            GroupHierarchyType.INDEPENDENT,
+            StandardField.KEYWORDS,
+            "\\H2O",
+            false,
+            ',',
+            false
+        );
         entry = new BibEntry();
     }
 
@@ -36,21 +58,30 @@ class WordKeywordGroupTest {
 
     @Test
     void containsFindsWordInSentence() {
-        entry.setField(StandardField.KEYWORDS, "Some sentence containing test word");
+        entry.setField(
+            StandardField.KEYWORDS,
+            "Some sentence containing test word"
+        );
 
         assertTrue(testGroup.contains(entry));
     }
 
     @Test
     void containsFindsWordInCommaSeparatedList() {
-        entry.setField(StandardField.KEYWORDS, "Some,list,containing,test,word");
+        entry.setField(
+            StandardField.KEYWORDS,
+            "Some,list,containing,test,word"
+        );
 
         assertTrue(testGroup.contains(entry));
     }
 
     @Test
     void containsFindsWordInSemicolonSeparatedList() {
-        entry.setField(StandardField.KEYWORDS, "Some;list;containing;test;word");
+        entry.setField(
+            StandardField.KEYWORDS,
+            "Some;list;containing;test;word"
+        );
 
         assertTrue(testGroup.contains(entry));
     }
@@ -64,7 +95,10 @@ class WordKeywordGroupTest {
 
     @Test
     void containsFindsComplexWordInSentence() {
-        entry.setField(StandardField.KEYWORDS, "Some sentence containing \\H2O word");
+        entry.setField(
+            StandardField.KEYWORDS,
+            "Some sentence containing \\H2O word"
+        );
 
         assertTrue(waterGroup.contains(entry));
     }
@@ -78,7 +112,10 @@ class WordKeywordGroupTest {
 
     @Test
     void containsDoesNotFindsWordInSentenceIfCaseDiffers() {
-        entry.setField(StandardField.KEYWORDS, "Some sentence containing Test word");
+        entry.setField(
+            StandardField.KEYWORDS,
+            "Some sentence containing Test word"
+        );
 
         assertFalse(testCaseSensitiveGroup.contains(entry));
     }
@@ -87,7 +124,10 @@ class WordKeywordGroupTest {
     void addChangesFieldIfEmptyBefore() {
         testGroup.add(entry);
 
-        assertEquals(Optional.of("test"), entry.getField(StandardField.KEYWORDS));
+        assertEquals(
+            Optional.of("test"),
+            entry.getField(StandardField.KEYWORDS)
+        );
     }
 
     @Test
@@ -95,7 +135,10 @@ class WordKeywordGroupTest {
         entry.setField(StandardField.KEYWORDS, "bla, blubb");
         testGroup.add(entry);
 
-        assertEquals(Optional.of("bla, blubb, test"), entry.getField(StandardField.KEYWORDS));
+        assertEquals(
+            Optional.of("bla, blubb, test"),
+            entry.getField(StandardField.KEYWORDS)
+        );
     }
 
     @Test
@@ -103,7 +146,10 @@ class WordKeywordGroupTest {
         entry.setField(StandardField.KEYWORDS, "test, blubb");
         testGroup.add(entry);
 
-        assertEquals(Optional.of("test, blubb"), entry.getField(StandardField.KEYWORDS));
+        assertEquals(
+            Optional.of("test, blubb"),
+            entry.getField(StandardField.KEYWORDS)
+        );
     }
 
     @Test
@@ -111,7 +157,10 @@ class WordKeywordGroupTest {
         entry.setField(StandardField.KEYWORDS, "something");
         testGroup.remove(entry);
 
-        assertEquals(Optional.of("something"), entry.getField(StandardField.KEYWORDS));
+        assertEquals(
+            Optional.of("something"),
+            entry.getField(StandardField.KEYWORDS)
+        );
     }
 
     @Test
@@ -119,6 +168,9 @@ class WordKeywordGroupTest {
         entry.setField(StandardField.KEYWORDS, "test, blubb");
         testGroup.remove(entry);
 
-        assertEquals(Optional.of("blubb"), entry.getField(StandardField.KEYWORDS));
+        assertEquals(
+            Optional.of("blubb"),
+            entry.getField(StandardField.KEYWORDS)
+        );
     }
 }

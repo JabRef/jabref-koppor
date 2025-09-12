@@ -12,14 +12,27 @@ public class GuiPushToLyx extends PushToLyx implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToLyx(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToLyx(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences pushToApplicationPreferences) {
-        return new GuiPushToLyxSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
+    public GuiPushToApplicationSettings getSettings(
+        PushToApplication application,
+        DialogService dialogService,
+        FilePreferences filePreferences,
+        PushToApplicationPreferences pushToApplicationPreferences
+    ) {
+        return new GuiPushToLyxSettings(
+            application,
+            dialogService,
+            filePreferences,
+            pushToApplicationPreferences
+        );
     }
 
     @Override

@@ -1,9 +1,7 @@
 package org.jabref.gui.mergeentries;
 
 import java.util.List;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
@@ -27,11 +25,13 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
     private final NotificationService notificationService;
     private final TaskExecutor taskExecutor;
 
-    public BatchEntryMergeWithFetchedDataAction(StateManager stateManager,
-                                                UndoManager undoManager,
-                                                GuiPreferences preferences,
-                                                NotificationService notificationService,
-                                                TaskExecutor taskExecutor) {
+    public BatchEntryMergeWithFetchedDataAction(
+        StateManager stateManager,
+        UndoManager undoManager,
+        GuiPreferences preferences,
+        NotificationService notificationService,
+        TaskExecutor taskExecutor
+    ) {
         this.stateManager = stateManager;
         this.undoManager = undoManager;
         this.preferences = preferences;
@@ -47,21 +47,27 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
             return;
         }
 
-        List<BibEntry> entries = stateManager.getActiveDatabase()
-                                             .map(BibDatabaseContext::getEntries)
-                                             .orElse(List.of());
+        List<BibEntry> entries = stateManager
+            .getActiveDatabase()
+            .map(BibDatabaseContext::getEntries)
+            .orElse(List.of());
 
         if (entries.isEmpty()) {
-            notificationService.notify(Localization.lang("No entries available for merging"));
+            notificationService.notify(
+                Localization.lang("No entries available for merging")
+            );
             return;
         }
 
-        MergingIdBasedFetcher fetcher = new MergingIdBasedFetcher(preferences.getImportFormatPreferences());
+        MergingIdBasedFetcher fetcher = new MergingIdBasedFetcher(
+            preferences.getImportFormatPreferences()
+        );
         BatchEntryMergeTask mergeTask = new BatchEntryMergeTask(
-                entries,
-                fetcher,
-                undoManager,
-                notificationService);
+            entries,
+            fetcher,
+            undoManager,
+            notificationService
+        );
 
         mergeTask.executeWith(taskExecutor);
     }

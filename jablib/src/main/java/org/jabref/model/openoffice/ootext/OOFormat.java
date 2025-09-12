@@ -9,8 +9,7 @@ import org.jabref.model.strings.StringUtil;
  */
 public class OOFormat {
 
-    private OOFormat() {
-    }
+    private OOFormat() {}
 
     /**
      * Mark {@code ootext} as using a character locale known to OO.
@@ -24,7 +23,11 @@ public class OOFormat {
      *               The territory part is not only optional, the allowed "codes are vendor and browser-specific", so probably best to avoid them if possible.
      */
     public static OOText setLocale(OOText ootext, String locale) {
-        return OOText.fromString("<span lang=\"%s\">".formatted(locale) + ootext.toString() + "</span>");
+        return OOText.fromString(
+            "<span lang=\"%s\">".formatted(locale)
+                + ootext.toString()
+                + "</span>"
+        );
     }
 
     /**
@@ -42,9 +45,11 @@ public class OOFormat {
      * @param charStyle Name of a character style known to OO. May be empty for "Standard", which in turn means do not override any properties.
      */
     public static OOText setCharStyle(OOText ootext, String charStyle) {
-        return OOText.fromString("<span oo:CharStyleName=\"%s\">".formatted(charStyle)
+        return OOText.fromString(
+            "<span oo:CharStyleName=\"%s\">".formatted(charStyle)
                 + ootext.toString()
-                + "</span>");
+                + "</span>"
+        );
     }
 
     /**
@@ -68,8 +73,13 @@ public class OOFormat {
     /**
      * Format an OO cross-reference showing the target's page number as label to a reference mark.
      */
-    public static OOText formatReferenceToPageNumberOfReferenceMark(String referenceMarkName) {
-        String string = "<oo:referenceToPageNumberOfReferenceMark target=\"%s\">".formatted(referenceMarkName);
+    public static OOText formatReferenceToPageNumberOfReferenceMark(
+        String referenceMarkName
+    ) {
+        String string =
+            "<oo:referenceToPageNumberOfReferenceMark target=\"%s\">".formatted(
+                referenceMarkName
+            );
         return OOText.fromString(string);
     }
 }

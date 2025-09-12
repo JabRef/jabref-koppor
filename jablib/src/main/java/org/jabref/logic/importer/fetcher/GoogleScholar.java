@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
@@ -29,8 +29,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -43,11 +41,17 @@ import org.slf4j.LoggerFactory;
  * Search String infos: https://scholar.google.com/intl/en/scholar/help.html#searching
  */
 public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScholar.class);
 
-    private static final Pattern LINK_TO_BIB_PATTERN = Pattern.compile("(https:\\/\\/scholar.googleusercontent.com\\/scholar.bib[^\"]*)");
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GoogleScholar.class
+    );
 
-    private static final String BASIC_SEARCH_URL = "https://scholar.google.ch/scholar?";
+    private static final Pattern LINK_TO_BIB_PATTERN = Pattern.compile(
+        "(https:\\/\\/scholar.googleusercontent.com\\/scholar.bib[^\"]*)"
+    );
+
+    private static final String BASIC_SEARCH_URL =
+        "https://scholar.google.ch/scholar?";
 
     private static final int NUM_RESULTS = 10;
 
@@ -59,7 +63,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
     }
 
     @Override
-    public Optional<URL> findFullText(BibEntry entry) throws IOException, FetcherException {
+    public Optional<URL> findFullText(BibEntry entry)
+        throws IOException, FetcherException {
         Objects.requireNonNull(entry);
 
         // Search in title
@@ -72,7 +77,10 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             URIBuilder uriBuilder = new URIBuilder(BASIC_SEARCH_URL);
             uriBuilder.addParameter("as_q", "");
             // as_epq as exact phrase
-            uriBuilder.addParameter("as_epq", entry.getField(StandardField.TITLE).orElse(""));
+            uriBuilder.addParameter(
+                "as_epq",
+                entry.getField(StandardField.TITLE).orElse("")
+            );
             // as_occt field to search in
             uriBuilder.addParameter("as_occt", "title");
 
@@ -90,16 +98,22 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
     private Optional<URL> search(String url) throws IOException {
         Optional<URL> pdfLink = Optional.empty();
 
-        Document doc = Jsoup.connect(url).userAgent(URLDownload.USER_AGENT).get();
+        Document doc = Jsoup.connect(url)
+            .userAgent(URLDownload.USER_AGENT)
+            .get();
 
         if (needsCaptcha(doc.body().html())) {
-            LOGGER.warn("Hit Google traffic limitation. Captcha prevents automatic fetching.");
+            LOGGER.warn(
+                "Hit Google traffic limitation. Captcha prevents automatic fetching."
+            );
             return Optional.empty();
         }
         // Check results for PDF link
         // TODO: link always on first result or none?
         for (int i = 0; i < NUM_RESULTS; i++) {
-            Elements link = doc.select("div[data-rp=%S] div.gs_or_ggsm a".formatted(i));
+            Elements link = doc.select(
+                "div[data-rp=%S] div.gs_or_ggsm a".formatted(i)
+            );
 
             if (link.first() != null) {
                 String target = link.first().attr("href");
@@ -130,13 +144,20 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         return Optional.of(HelpFile.FETCHER_GOOGLE_SCHOLAR);
     }
 
-    private void addHitsFromQuery(List<BibEntry> entryList, String queryURL) throws IOException, FetcherException {
+    private void addHitsFromQuery(List<BibEntry> entryList, String queryURL)
+        throws IOException, FetcherException {
         String content = new URLDownload(queryURL).asString();
 
         if (needsCaptcha(content)) {
             // TODO: Remove "null"
-            throw new FetcherException(queryURL, "Fetching from Google Scholar failed: Captacha hit." +
-                    Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), null);
+            throw new FetcherException(
+                queryURL,
+                "Fetching from Google Scholar failed: Captacha hit."
+                    + Localization.lang(
+                        "This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."
+                    ),
+                null
+            );
         }
 
         Matcher matcher = LINK_TO_BIB_PATTERN.matcher(content);
@@ -147,17 +168,22 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         }
     }
 
-    private BibEntry downloadEntry(String link) throws IOException, FetcherException {
+    private BibEntry downloadEntry(String link)
+        throws IOException, FetcherException {
         String downloadedContent = new URLDownload(link).asString();
         BibtexParser parser = new BibtexParser(importFormatPreferences);
         ParserResult result = parser.parse(Reader.of(downloadedContent));
         if ((result == null) || (result.getDatabase() == null)) {
-            throw new FetcherException("Parsing entries from Google Scholar bib file failed.");
+            throw new FetcherException(
+                "Parsing entries from Google Scholar bib file failed."
+            );
         } else {
             Collection<BibEntry> entries = result.getDatabase().getEntries();
             if (entries.size() != 1) {
                 LOGGER.debug("{} entries found! ({})", entries.size(), link);
-                throw new FetcherException("Parsing entries from Google Scholar bib file failed.");
+                throw new FetcherException(
+                    "Parsing entries from Google Scholar bib file failed."
+                );
             } else {
                 BibEntry entry = entries.iterator().next();
                 return entry;
@@ -167,21 +193,32 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
 
     private void obtainAndModifyCookie() throws FetcherException {
         try {
-            URLDownload downloader = new URLDownload("https://scholar.google.com");
+            URLDownload downloader = new URLDownload(
+                "https://scholar.google.com"
+            );
             List<HttpCookie> cookies = downloader.getCookieFromUrl();
             for (HttpCookie cookie : cookies) {
                 // append "CF=4" which represents "Citation format bibtex"
                 cookie.setValue(cookie.getValue() + ":CF=4");
             }
         } catch (IOException e) {
-            throw new FetcherException("Cookie configuration for Google Scholar failed.", e);
+            throw new FetcherException(
+                "Cookie configuration for Google Scholar failed.",
+                e
+            );
         }
     }
 
     @Override
-    public Page<BibEntry> performSearchPaged(BaseQueryNode queryNode, int pageNumber) throws FetcherException {
-        ScholarQueryTransformer queryTransformer = new ScholarQueryTransformer();
-        String transformedQuery = queryTransformer.transformSearchQuery(queryNode).orElse("");
+    public Page<BibEntry> performSearchPaged(
+        BaseQueryNode queryNode,
+        int pageNumber
+    ) throws FetcherException {
+        ScholarQueryTransformer queryTransformer =
+            new ScholarQueryTransformer();
+        String transformedQuery = queryTransformer
+            .transformSearchQuery(queryNode)
+            .orElse("");
 
         obtainAndModifyCookie();
 
@@ -194,10 +231,19 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         uriBuilder.addParameter("hl", "en");
         uriBuilder.addParameter("btnG", "Search");
         uriBuilder.addParameter("q", transformedQuery);
-        uriBuilder.addParameter("start", String.valueOf(pageNumber * getPageSize()));
+        uriBuilder.addParameter(
+            "start",
+            String.valueOf(pageNumber * getPageSize())
+        );
         uriBuilder.addParameter("num", String.valueOf(getPageSize()));
-        uriBuilder.addParameter("as_ylo", String.valueOf(queryTransformer.getStartYear()));
-        uriBuilder.addParameter("as_yhi", String.valueOf(queryTransformer.getEndYear()));
+        uriBuilder.addParameter(
+            "as_ylo",
+            String.valueOf(queryTransformer.getStartYear())
+        );
+        uriBuilder.addParameter(
+            "as_yhi",
+            String.valueOf(queryTransformer.getEndYear())
+        );
 
         List<BibEntry> foundEntries = new ArrayList<>(10);
 
@@ -212,9 +258,18 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             // if there are too much requests from the same IP adress google is answering with a 503 and redirecting to a captcha challenge
             // The caught IOException looks for example like this:
             // java.io.IOException: Server returned HTTP response code: 503 for URL: https://ipv4.google.com/sorry/index?continue=https://scholar.google.com/scholar%3Fhl%3Den%26btnG%3DSearch%26q%3Dbpmn&hl=en&q=CGMSBI0NBDkYuqy9wAUiGQDxp4NLQCWbIEY1HjpH5zFJhv4ANPGdWj0
-            if (e.getMessage().contains("Server returned HTTP response code: 503 for URL")) {
-                throw new FetcherException("Fetching from Google Scholar failed.",
-                        Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), e);
+            if (
+                e
+                    .getMessage()
+                    .contains("Server returned HTTP response code: 503 for URL")
+            ) {
+                throw new FetcherException(
+                    "Fetching from Google Scholar failed.",
+                    Localization.lang(
+                        "This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."
+                    ),
+                    e
+                );
             } else {
                 URL url;
                 try {
@@ -222,7 +277,11 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
                 } catch (URISyntaxException | MalformedURLException ex) {
                     throw new FetcherException("Wrong URL syntax", e);
                 }
-                throw new FetcherException(url, "Error while fetching from " + getName(), e);
+                throw new FetcherException(
+                    url,
+                    "Error while fetching from " + getName(),
+                    e
+                );
             }
         }
         return new Page<>(transformedQuery, pageNumber, foundEntries);

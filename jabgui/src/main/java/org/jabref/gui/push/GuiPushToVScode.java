@@ -6,11 +6,16 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.push.PushToVScode;
 
-public class GuiPushToVScode extends PushToVScode implements GuiPushToApplication {
+public class GuiPushToVScode
+    extends PushToVScode
+    implements GuiPushToApplication {
 
     private final DialogService dialogService;
 
-    public GuiPushToVScode(DialogService dialogService, PushToApplicationPreferences preferences) {
+    public GuiPushToVScode(
+        DialogService dialogService,
+        PushToApplicationPreferences preferences
+    ) {
         super(dialogService, preferences);
         this.dialogService = dialogService;
     }

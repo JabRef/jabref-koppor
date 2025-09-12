@@ -1,15 +1,18 @@
 package org.jabref.gui.git;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -28,15 +31,10 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.strings.StringUtil;
 
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-import org.eclipse.jgit.api.errors.GitAPIException;
-
 /// "Preferences" dialog for sharing library to GitHub.
 /// We do not put it into the JabRef preferences dialog because we want these settings to be close to the user.
 public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
+
     private final StateManager stateManager;
 
     // The preferences stored in JabRef
@@ -46,26 +44,31 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
     private final GitHandlerRegistry gitHandlerRegistry;
 
     // The preferences of this dialog
-    private final StringProperty usernameProperty = new SimpleStringProperty("");
+    private final StringProperty usernameProperty = new SimpleStringProperty(
+        ""
+    );
     private final StringProperty patProperty = new SimpleStringProperty("");
 
     // TODO: This should be a library preference -> the library is connected to repository; not all JabRef libraries to the same one
     //       Reason: One could have https://github.com/JabRef/JabRef-exmple-libraries as one repo and https://github.com/myexampleuser/demolibs as onther repository
     //               Both share the same secrets, but are different URLs.
     //       Also think of having two .bib files in the same folder - they will have the same repository URL -- should make no issues, but let's see...
-    private final StringProperty repositoryUrlProperty = new SimpleStringProperty("");
-    private final BooleanProperty rememberPatProperty = new SimpleBooleanProperty();
+    private final StringProperty repositoryUrlProperty =
+        new SimpleStringProperty("");
+    private final BooleanProperty rememberPatProperty =
+        new SimpleBooleanProperty();
 
     private final Validator repositoryUrlValidator;
     private final Validator githubUsernameValidator;
     private final Validator githubPatValidator;
 
     public GitShareToGitHubDialogViewModel(
-            GitPreferences gitPreferences,
-            StateManager stateManager,
-            DialogService dialogService,
-            TaskExecutor taskExecutor,
-            GitHandlerRegistry gitHandlerRegistry) {
+        GitPreferences gitPreferences,
+        StateManager stateManager,
+        DialogService dialogService,
+        TaskExecutor taskExecutor,
+        GitHandlerRegistry gitHandlerRegistry
+    ) {
         this.stateManager = stateManager;
         this.gitPreferences = gitPreferences;
         this.dialogService = dialogService;
@@ -73,19 +76,27 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         this.gitHandlerRegistry = gitHandlerRegistry;
 
         repositoryUrlValidator = new FunctionBasedValidator<>(
-                repositoryUrlProperty,
-                githubHttpsUrlValidator(),
-                ValidationMessage.error(Localization.lang("Please enter a valid HTTPS GitHub repository URL"))
+            repositoryUrlProperty,
+            githubHttpsUrlValidator(),
+            ValidationMessage.error(
+                Localization.lang(
+                    "Please enter a valid HTTPS GitHub repository URL"
+                )
+            )
         );
         githubUsernameValidator = new FunctionBasedValidator<>(
-                usernameProperty,
-                notEmptyValidator(),
-                ValidationMessage.error(Localization.lang("GitHub username is required"))
+            usernameProperty,
+            notEmptyValidator(),
+            ValidationMessage.error(
+                Localization.lang("GitHub username is required")
+            )
         );
         githubPatValidator = new FunctionBasedValidator<>(
-                patProperty,
-                notEmptyValidator(),
-                ValidationMessage.error(Localization.lang("Personal Access Token is required"))
+            patProperty,
+            notEmptyValidator(),
+            ValidationMessage.error(
+                Localization.lang("Personal Access Token is required")
+            )
         );
     }
 
@@ -94,28 +105,31 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         // We store the settings because "Share" implies that the settings should be used as typed
         // We also have the option to not store the settings permanently: This is implemented in JabRefCliPreferences at the listeners.
         this.storeSettings();
-        BackgroundTask
-                .wrap(() -> {
-                    this.doShareToGitHub();
-                    return null;
-                })
-                .onSuccess(_ -> {
-                    dialogService.notify(Localization.lang("Successfully pushed to GitHub."));
-                    close.run();
-                })
-                .onFailure(e ->
-                        dialogService.showErrorDialogAndWait(
-                                Localization.lang("GitHub share failed"),
-                                e.getMessage(),
-                                e
-                        )
+        BackgroundTask.wrap(() -> {
+            this.doShareToGitHub();
+            return null;
+        })
+            .onSuccess(_ -> {
+                dialogService.notify(
+                    Localization.lang("Successfully pushed to GitHub.")
+                );
+                close.run();
+            })
+            .onFailure(e ->
+                dialogService.showErrorDialogAndWait(
+                    Localization.lang("GitHub share failed"),
+                    e.getMessage(),
+                    e
                 )
-                .executeWith(taskExecutor);
+            )
+            .executeWith(taskExecutor);
     }
 
     /// Method assumes that settings are stored before.
-    private void doShareToGitHub() throws JabRefException, IOException, GitAPIException {
-        Optional<BibDatabaseContext> activeDatabaseOpt = stateManager.getActiveDatabase();
+    private void doShareToGitHub()
+        throws JabRefException, IOException, GitAPIException {
+        Optional<BibDatabaseContext> activeDatabaseOpt =
+            stateManager.getActiveDatabase();
         if (activeDatabaseOpt.isEmpty()) {
             throw new JabRefException(Localization.lang("No library open"));
         }
@@ -123,7 +137,11 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         BibDatabaseContext activeDatabase = activeDatabaseOpt.get();
         Optional<Path> bibFilePathOpt = activeDatabase.getDatabasePath();
         if (bibFilePathOpt.isEmpty()) {
-            throw new JabRefException(Localization.lang("No library file path. Please save the library to a file first."));
+            throw new JabRefException(
+                Localization.lang(
+                    "No library file path. Please save the library to a file first."
+                )
+            );
         }
 
         // We don't get a new preference object (and re-use the existing one instead), because of ADR-0016
@@ -139,13 +157,22 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         GitHandler handler = gitHandlerRegistry.get(bibPath.getParent());
         handler.setCredentials(user, pat);
 
-        GitStatusSnapshot status = GitStatusChecker.checkStatusAndFetch(handler);
+        GitStatusSnapshot status = GitStatusChecker.checkStatusAndFetch(
+            handler
+        );
 
         if (status.syncStatus() == SyncStatus.BEHIND) {
-            throw new JabRefException(Localization.lang("Remote repository is not empty. Please pull changes before pushing."));
+            throw new JabRefException(
+                Localization.lang(
+                    "Remote repository is not empty. Please pull changes before pushing."
+                )
+            );
         }
 
-        handler.createCommitOnCurrentBranch(Localization.lang("Share library to GitHub"), false);
+        handler.createCommitOnCurrentBranch(
+            Localization.lang("Share library to GitHub"),
+            false
+        );
 
         if (status.syncStatus() == SyncStatus.REMOTE_EMPTY) {
             handler.pushCurrentBranchCreatingUpstream();
@@ -185,7 +212,8 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
     }
 
     private Predicate<String> githubHttpsUrlValidator() {
-        return input -> StringUtil.isNotBlank(input) && URLUtil.isURL(input.trim());
+        return input ->
+            StringUtil.isNotBlank(input) && URLUtil.isURL(input.trim());
     }
 
     public StringProperty usernameProperty() {

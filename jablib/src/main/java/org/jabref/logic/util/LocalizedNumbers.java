@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class LocalizedNumbers {
+
     public static Optional<Double> stringToDouble(String value) {
         return stringToDouble(Locale.getDefault(), value);
     }

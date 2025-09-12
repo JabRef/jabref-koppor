@@ -1,15 +1,19 @@
 package org.jabref.logic.git.model;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 public final class PullResult implements GitOperationResult {
+
     private final boolean isSuccessful;
     private final boolean noop;
     private final List<BibEntry> mergedEntries;
 
-    private PullResult(boolean isSuccessful, boolean noop, List<BibEntry> mergedEntries) {
+    private PullResult(
+        boolean isSuccessful,
+        boolean noop,
+        List<BibEntry> mergedEntries
+    ) {
         this.isSuccessful = isSuccessful;
         this.noop = noop;
         this.mergedEntries = mergedEntries == null ? List.of() : mergedEntries;

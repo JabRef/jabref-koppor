@@ -2,9 +2,7 @@ package org.jabref.logic.citationstyle;
 
 import java.nio.file.Path;
 import java.util.Objects;
-
 import org.jabref.logic.openoffice.style.OOStyle;
-
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -14,7 +12,8 @@ import org.jspecify.annotations.NonNull;
 public class CitationStyle implements OOStyle {
 
     // Currently, we have support for only one alphanumeric style, so we hardcode it
-    private static final String ALPHANUMERIC_STYLE = "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690";
+    private static final String ALPHANUMERIC_STYLE =
+        "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690";
 
     private final String filePath;
     private final String title;
@@ -25,7 +24,16 @@ public class CitationStyle implements OOStyle {
     private final String source;
     private final boolean isInternalStyle;
 
-    public CitationStyle(@NonNull String filePath, @NonNull String title, @NonNull String shortTitle, boolean isNumericStyle, boolean hasBibliography, boolean usesHangingIndent, @NonNull String source, boolean isInternalStyle) {
+    public CitationStyle(
+        @NonNull String filePath,
+        @NonNull String title,
+        @NonNull String shortTitle,
+        boolean isNumericStyle,
+        boolean hasBibliography,
+        boolean usesHangingIndent,
+        @NonNull String source,
+        boolean isInternalStyle
+    ) {
         this.filePath = Path.of(filePath).toString(); // wrapping with Path.of takes care of extra slashes in path due to subsequent storage and retrieval (observed on Windows)
         this.title = title;
         this.shortTitle = shortTitle;
@@ -39,8 +47,25 @@ public class CitationStyle implements OOStyle {
     /**
      * Creates a new citation style with an auto-determined internal/external state.
      */
-    public CitationStyle(@NonNull String filePath, @NonNull String title, @NonNull String shortTitle, boolean isNumericStyle, boolean hasBibliography, boolean usesHangingIndent, @NonNull String source) {
-        this(filePath, title, shortTitle, isNumericStyle, hasBibliography, usesHangingIndent, source, !Path.of(filePath).isAbsolute());
+    public CitationStyle(
+        @NonNull String filePath,
+        @NonNull String title,
+        @NonNull String shortTitle,
+        boolean isNumericStyle,
+        boolean hasBibliography,
+        boolean usesHangingIndent,
+        @NonNull String source
+    ) {
+        this(
+            filePath,
+            title,
+            shortTitle,
+            isNumericStyle,
+            hasBibliography,
+            usesHangingIndent,
+            source,
+            !Path.of(filePath).isAbsolute()
+        );
     }
 
     public String getTitle() {

@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 
 public class DirectoryMonitor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryMonitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        DirectoryMonitor.class
+    );
     private static final int POLL_INTERVAL = 1000;
 
     private final FileAlterationMonitor monitor;
@@ -18,7 +20,10 @@ public class DirectoryMonitor {
         start();
     }
 
-    public void addObserver(FileAlterationObserver observer, FileAlterationListener listener) {
+    public void addObserver(
+        FileAlterationObserver observer,
+        FileAlterationListener listener
+    ) {
         if (observer != null) {
             observer.addListener(listener);
             monitor.addObserver(observer);

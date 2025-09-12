@@ -1,17 +1,15 @@
 package org.jabref.model.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KeyChangeListenerTest {
 
@@ -47,23 +45,41 @@ class KeyChangeListenerTest {
 
     @Test
     void crossrefChanged() {
-        assertEquals(Optional.of("Entry4"), entry1.getField(StandardField.CROSSREF));
+        assertEquals(
+            Optional.of("Entry4"),
+            entry1.getField(StandardField.CROSSREF)
+        );
         entry4.setCitationKey("Banana");
-        assertEquals(Optional.of("Banana"), entry1.getField(StandardField.CROSSREF));
+        assertEquals(
+            Optional.of("Banana"),
+            entry1.getField(StandardField.CROSSREF)
+        );
     }
 
     @Test
     void relatedChanged() {
-        assertEquals(Optional.of("Entry1,Entry3"), entry2.getField(StandardField.RELATED));
+        assertEquals(
+            Optional.of("Entry1,Entry3"),
+            entry2.getField(StandardField.RELATED)
+        );
         entry1.setCitationKey("Banana");
-        assertEquals(Optional.of("Banana,Entry3"), entry2.getField(StandardField.RELATED));
+        assertEquals(
+            Optional.of("Banana,Entry3"),
+            entry2.getField(StandardField.RELATED)
+        );
     }
 
     @Test
     void relatedChangedInSameEntry() {
-        assertEquals(Optional.of("Entry1,Entry2,Entry3"), entry3.getField(StandardField.RELATED));
+        assertEquals(
+            Optional.of("Entry1,Entry2,Entry3"),
+            entry3.getField(StandardField.RELATED)
+        );
         entry3.setCitationKey("Banana");
-        assertEquals(Optional.of("Entry1,Entry2,Banana"), entry3.getField(StandardField.RELATED));
+        assertEquals(
+            Optional.of("Entry1,Entry2,Banana"),
+            entry3.getField(StandardField.RELATED)
+        );
     }
 
     @Test
@@ -81,7 +97,10 @@ class KeyChangeListenerTest {
     @Test
     void relatedEntryRemoved() {
         db.removeEntry(entry1);
-        assertEquals(Optional.of("Entry3"), entry2.getField(StandardField.RELATED));
+        assertEquals(
+            Optional.of("Entry3"),
+            entry2.getField(StandardField.RELATED)
+        );
     }
 
     @Test

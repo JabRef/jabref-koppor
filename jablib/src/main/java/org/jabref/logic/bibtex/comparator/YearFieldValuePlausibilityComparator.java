@@ -4,11 +4,11 @@ import java.time.Year;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.integrity.YearChecker;
 import org.jabref.model.strings.StringUtil;
 
-public class YearFieldValuePlausibilityComparator extends FieldValuePlausibilityComparator {
+public class YearFieldValuePlausibilityComparator
+    extends FieldValuePlausibilityComparator {
 
     private static final Pattern YEAR_PATTERN = Pattern.compile("(\\d{4})");
 
@@ -34,13 +34,19 @@ public class YearFieldValuePlausibilityComparator extends FieldValuePlausibility
 
         // left and right values are not blank.
 
-        boolean leftValueCorrectlyFormatted = YearChecker.isValueCorrectlyFormatted(leftValue);
-        boolean rightValueCorrectlyFormatted = YearChecker.isValueCorrectlyFormatted(rightValue);
+        boolean leftValueCorrectlyFormatted =
+            YearChecker.isValueCorrectlyFormatted(leftValue);
+        boolean rightValueCorrectlyFormatted =
+            YearChecker.isValueCorrectlyFormatted(rightValue);
         if (leftValueCorrectlyFormatted && !rightValueCorrectlyFormatted) {
             return ComparisonResult.LEFT_BETTER;
-        } else if (rightValueCorrectlyFormatted && !leftValueCorrectlyFormatted) {
+        } else if (
+            rightValueCorrectlyFormatted && !leftValueCorrectlyFormatted
+        ) {
             return ComparisonResult.RIGHT_BETTER;
-        } else if (!leftValueCorrectlyFormatted && !rightValueCorrectlyFormatted) {
+        } else if (
+            !leftValueCorrectlyFormatted && !rightValueCorrectlyFormatted
+        ) {
             return ComparisonResult.UNDETERMINED;
         }
 
@@ -48,8 +54,10 @@ public class YearFieldValuePlausibilityComparator extends FieldValuePlausibility
 
         int leftYear = extractYear(leftValue).get();
         int rightYear = extractYear(rightValue).get();
-        boolean leftYearInRange = (leftYear >= 1800) && (leftYear <= Year.now().getValue() + 2);
-        boolean rightYearInRange = (rightYear >= 1800) && (rightYear <= Year.now().getValue() + 2);
+        boolean leftYearInRange =
+            (leftYear >= 1800) && (leftYear <= Year.now().getValue() + 2);
+        boolean rightYearInRange =
+            (rightYear >= 1800) && (rightYear <= Year.now().getValue() + 2);
         if (leftYearInRange && !rightYearInRange) {
             return ComparisonResult.LEFT_BETTER;
         } else if (rightYearInRange && !leftYearInRange) {
@@ -61,8 +69,8 @@ public class YearFieldValuePlausibilityComparator extends FieldValuePlausibility
         int diff = Math.abs(leftYear - rightYear);
         if (diff > 10) {
             return rightYear > leftYear
-                    ? ComparisonResult.RIGHT_BETTER
-                    : ComparisonResult.LEFT_BETTER;
+                ? ComparisonResult.RIGHT_BETTER
+                : ComparisonResult.LEFT_BETTER;
         }
 
         return ComparisonResult.UNDETERMINED; // years are close, undetermined

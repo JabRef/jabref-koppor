@@ -1,11 +1,9 @@
 package org.jabref.logic.citation.repository;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 public interface BibEntryCitationsAndReferencesRepository {
-
     void insertCitations(BibEntry entry, List<BibEntry> citations);
 
     List<BibEntry> readCitations(BibEntry entry);

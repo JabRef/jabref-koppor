@@ -10,7 +10,7 @@ import org.jabref.model.entry.BibEntry;
  * @param localBibEntry      Affected {@link BibEntry}
  */
 public record UpdateRefusedEvent(
-        BibDatabaseContext bibDatabaseContext,
-        BibEntry localBibEntry,
-        BibEntry sharedBibEntry) {
-}
+    BibDatabaseContext bibDatabaseContext,
+    BibEntry localBibEntry,
+    BibEntry sharedBibEntry
+) {}

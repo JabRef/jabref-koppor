@@ -1,10 +1,10 @@
 package org.jabref.logic.bibtex.comparator;
 
 import java.util.Comparator;
-
 import org.jabref.model.entry.BibEntry;
 
 public class BibEntryByCitationKeyComparator implements Comparator<BibEntry> {
+
     @Override
     public int compare(BibEntry e1, BibEntry e2) {
         boolean e1HasCitationKey = e1.hasCitationKey();

@@ -1,17 +1,15 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.util.Optional;
-
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.testutils.category.FetcherTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @FetcherTest
 class OpenAccessDoiTest {
@@ -28,7 +26,14 @@ class OpenAccessDoiTest {
     @Test
     void findByDOI() throws IOException {
         entry.setField(StandardField.DOI, "10.1186/s12993-024-00248-9");
-        assertEquals(Optional.of(URLUtil.create("https://behavioralandbrainfunctions.biomedcentral.com/counter/pdf/10.1186/s12993-024-00248-9")), finder.findFullText(entry));
+        assertEquals(
+            Optional.of(
+                URLUtil.create(
+                    "https://behavioralandbrainfunctions.biomedcentral.com/counter/pdf/10.1186/s12993-024-00248-9"
+                )
+            ),
+            finder.findFullText(entry)
+        );
     }
 
     @Test

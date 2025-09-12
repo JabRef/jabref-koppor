@@ -2,7 +2,6 @@ package org.jabref.logic.cleanup;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
@@ -27,7 +26,12 @@ public class FileLinksCleanup implements CleanupJob {
         String newValue = FileFieldWriter.getStringRepresentation(fileList);
         if (!oldValue.get().equals(newValue)) {
             entry.setField(StandardField.FILE, newValue);
-            FieldChange change = new FieldChange(entry, StandardField.FILE, oldValue.get(), newValue);
+            FieldChange change = new FieldChange(
+                entry,
+                StandardField.FILE,
+                oldValue.get(),
+                newValue
+            );
             return List.of(change);
         }
         return List.of();

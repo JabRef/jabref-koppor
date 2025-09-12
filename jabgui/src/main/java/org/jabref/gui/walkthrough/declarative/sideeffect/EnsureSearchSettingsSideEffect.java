@@ -5,12 +5,12 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.search.SearchPreferences;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
-
 import org.jspecify.annotations.NonNull;
 
 /// Ensures the search bar starts with unfiltered mode and regex disabled, then restores
 /// previous settings on exit.
 public class EnsureSearchSettingsSideEffect implements WalkthroughSideEffect {
+
     private final boolean previousRegex;
     private final boolean previousCaseSensitive;
     private final SearchDisplayMode previousDisplayMode;
@@ -38,8 +38,14 @@ public class EnsureSearchSettingsSideEffect implements WalkthroughSideEffect {
 
     @Override
     public boolean backward(@NonNull Walkthrough walkthrough) {
-        searchPreferences.setSearchFlag(SearchFlags.REGULAR_EXPRESSION, previousRegex);
-        searchPreferences.setSearchFlag(SearchFlags.CASE_SENSITIVE, previousCaseSensitive);
+        searchPreferences.setSearchFlag(
+            SearchFlags.REGULAR_EXPRESSION,
+            previousRegex
+        );
+        searchPreferences.setSearchFlag(
+            SearchFlags.CASE_SENSITIVE,
+            previousCaseSensitive
+        );
         searchPreferences.setSearchDisplayMode(previousDisplayMode);
         return true;
     }

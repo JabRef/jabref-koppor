@@ -3,6 +3,7 @@ package org.jabref.languageserver;
 import com.google.gson.JsonObject;
 
 public class ExtensionSettings {
+
     private boolean consistencyCheck;
     private boolean integrityCheck;
 
@@ -35,19 +36,29 @@ public class ExtensionSettings {
         if (json.has("jabref") && json.get("jabref").isJsonObject()) {
             json = json.getAsJsonObject("jabref");
         }
-        if (json.has("consistencyCheck") && json.get("consistencyCheck").isJsonPrimitive()) {
+        if (
+            json.has("consistencyCheck")
+            && json.get("consistencyCheck").isJsonPrimitive()
+        ) {
             this.consistencyCheck = json.get("consistencyCheck").getAsBoolean();
         }
-        if (json.has("integrityCheck") && json.get("integrityCheck").isJsonPrimitive()) {
+        if (
+            json.has("integrityCheck")
+            && json.get("integrityCheck").isJsonPrimitive()
+        ) {
             this.integrityCheck = json.get("integrityCheck").getAsBoolean();
         }
     }
 
     @Override
     public String toString() {
-        return "ExtensionSettings{" +
-                "consistencyCheck=" + consistencyCheck +
-                ", integrityCheck=" + integrityCheck +
-                '}';
+        return (
+            "ExtensionSettings{"
+            + "consistencyCheck="
+            + consistencyCheck
+            + ", integrityCheck="
+            + integrityCheck
+            + '}'
+        );
     }
 }

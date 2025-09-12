@@ -1,5 +1,6 @@
 package org.jabref.gui.autosaveandbackup;
 
+import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -18,9 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import javafx.scene.control.TableColumn;
-
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
 import org.jabref.gui.maintable.columns.MainTableColumn;
@@ -41,8 +40,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
-import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +51,9 @@ import org.slf4j.LoggerFactory;
  */
 public class BackupManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BackupManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        BackupManager.class
+    );
 
     private static final int MAXIMUM_BACKUP_FILE_COUNT = 10;
 
@@ -74,7 +73,13 @@ public class BackupManager {
     private final Queue<Path> backupFilesQueue = new LinkedBlockingQueue<>();
     private boolean needsBackup = false;
 
-    BackupManager(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter, BibEntryTypesManager entryTypesManager, CliPreferences preferences) {
+    BackupManager(
+        LibraryTab libraryTab,
+        BibDatabaseContext bibDatabaseContext,
+        CoarseChangeFilter coarseChangeFilter,
+        BibEntryTypesManager entryTypesManager,
+        CliPreferences preferences
+    ) {
         this.bibDatabaseContext = bibDatabaseContext;
         this.coarseChangeFilter = coarseChangeFilter;
         this.entryTypesManager = entryTypesManager;
@@ -87,14 +92,25 @@ public class BackupManager {
      * Determines the most recent backup file name
      */
     static Path getBackupPathForNewBackup(Path originalPath, Path backupDir) {
-        return BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalPath, BackupFileType.BACKUP, backupDir);
+        return BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+            originalPath,
+            BackupFileType.BACKUP,
+            backupDir
+        );
     }
 
     /**
      * Determines the most recent existing backup file name
      */
-    static Optional<Path> getLatestBackupPath(Path originalPath, Path backupDir) {
-        return BackupFileUtil.getPathOfLatestExistingBackupFile(originalPath, BackupFileType.BACKUP, backupDir);
+    static Optional<Path> getLatestBackupPath(
+        Path originalPath,
+        Path backupDir
+    ) {
+        return BackupFileUtil.getPathOfLatestExistingBackupFile(
+            originalPath,
+            BackupFileType.BACKUP,
+            backupDir
+        );
     }
 
     /**
@@ -105,9 +121,23 @@ public class BackupManager {
      *
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
-    public static BackupManager start(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter, BibEntryTypesManager entryTypesManager, CliPreferences preferences) {
-        BackupManager backupManager = new BackupManager(libraryTab, bibDatabaseContext, coarseChangeFilter, entryTypesManager, preferences);
-        backupManager.startBackupTask(preferences.getFilePreferences().getBackupDirectory());
+    public static BackupManager start(
+        LibraryTab libraryTab,
+        BibDatabaseContext bibDatabaseContext,
+        CoarseChangeFilter coarseChangeFilter,
+        BibEntryTypesManager entryTypesManager,
+        CliPreferences preferences
+    ) {
+        BackupManager backupManager = new BackupManager(
+            libraryTab,
+            bibDatabaseContext,
+            coarseChangeFilter,
+            entryTypesManager,
+            preferences
+        );
+        backupManager.startBackupTask(
+            preferences.getFilePreferences().getBackupDirectory()
+        );
         coarseChangeFilter.registerListener(backupManager);
         RUNNING_INSTANCES.add(backupManager);
         return backupManager;
@@ -118,8 +148,15 @@ public class BackupManager {
      *
      * @param bibDatabaseContext Associated {@link BibDatabaseContext}
      */
-    public static void discardBackup(BibDatabaseContext bibDatabaseContext, Path backupDir) {
-        RUNNING_INSTANCES.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.discardBackup(backupDir));
+    public static void discardBackup(
+        BibDatabaseContext bibDatabaseContext,
+        Path backupDir
+    ) {
+        RUNNING_INSTANCES.stream()
+            .filter(
+                instance -> instance.bibDatabaseContext == bibDatabaseContext
+            )
+            .forEach(backupManager -> backupManager.discardBackup(backupDir));
     }
 
     /**
@@ -129,9 +166,21 @@ public class BackupManager {
      * @param backupDir          The path to the backup directory
      * @param createBackup       True, if a backup should be created
      */
-    public static void shutdown(BibDatabaseContext bibDatabaseContext, Path backupDir, boolean createBackup) {
-        RUNNING_INSTANCES.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).forEach(backupManager -> backupManager.shutdown(backupDir, createBackup));
-        RUNNING_INSTANCES.removeIf(instance -> instance.bibDatabaseContext == bibDatabaseContext);
+    public static void shutdown(
+        BibDatabaseContext bibDatabaseContext,
+        Path backupDir,
+        boolean createBackup
+    ) {
+        RUNNING_INSTANCES.stream()
+            .filter(
+                instance -> instance.bibDatabaseContext == bibDatabaseContext
+            )
+            .forEach(backupManager ->
+                backupManager.shutdown(backupDir, createBackup)
+            );
+        RUNNING_INSTANCES.removeIf(
+            instance -> instance.bibDatabaseContext == bibDatabaseContext
+        );
     }
 
     /**
@@ -152,45 +201,75 @@ public class BackupManager {
             try {
                 Files.delete(discardedFile);
             } catch (IOException e) {
-                LOGGER.error("Could not remove discarded file {}", discardedFile, e);
+                LOGGER.error(
+                    "Could not remove discarded file {}",
+                    discardedFile,
+                    e
+                );
                 return true;
             }
             return false;
         }
-        return getLatestBackupPath(originalPath, backupDir).map(latestBackupPath -> {
-            FileTime latestBackupFileLastModifiedTime;
-            try {
-                latestBackupFileLastModifiedTime = Files.getLastModifiedTime(latestBackupPath);
-            } catch (IOException e) {
-                LOGGER.debug("Could not get timestamp of backup file {}", latestBackupPath, e);
-                // If we cannot get the timestamp, we do show any warning
-                return false;
-            }
-            FileTime currentFileLastModifiedTime;
-            try {
-                currentFileLastModifiedTime = Files.getLastModifiedTime(originalPath);
-            } catch (IOException e) {
-                LOGGER.debug("Could not get timestamp of current file file {}", originalPath, e);
-                // If we cannot get the timestamp, we do show any warning
-                return false;
-            }
-            if (latestBackupFileLastModifiedTime.compareTo(currentFileLastModifiedTime) <= 0) {
-                // Backup is older than current file
-                // We treat the backup as non-different (even if it could differ)
-                return false;
-            }
-            try {
-                boolean result = Files.mismatch(originalPath, latestBackupPath) != -1L;
-                if (result) {
-                    LOGGER.info("Backup file {} differs from current file {}", latestBackupPath, originalPath);
+        return getLatestBackupPath(originalPath, backupDir)
+            .map(latestBackupPath -> {
+                FileTime latestBackupFileLastModifiedTime;
+                try {
+                    latestBackupFileLastModifiedTime =
+                        Files.getLastModifiedTime(latestBackupPath);
+                } catch (IOException e) {
+                    LOGGER.debug(
+                        "Could not get timestamp of backup file {}",
+                        latestBackupPath,
+                        e
+                    );
+                    // If we cannot get the timestamp, we do show any warning
+                    return false;
                 }
-                return result;
-            } catch (IOException e) {
-                LOGGER.debug("Could not compare original file and backup file.", e);
-                // User has to investigate in this case
-                return true;
-            }
-        }).orElse(false);
+                FileTime currentFileLastModifiedTime;
+                try {
+                    currentFileLastModifiedTime = Files.getLastModifiedTime(
+                        originalPath
+                    );
+                } catch (IOException e) {
+                    LOGGER.debug(
+                        "Could not get timestamp of current file file {}",
+                        originalPath,
+                        e
+                    );
+                    // If we cannot get the timestamp, we do show any warning
+                    return false;
+                }
+                if (
+                    latestBackupFileLastModifiedTime.compareTo(
+                        currentFileLastModifiedTime
+                    )
+                    <= 0
+                ) {
+                    // Backup is older than current file
+                    // We treat the backup as non-different (even if it could differ)
+                    return false;
+                }
+                try {
+                    boolean result =
+                        Files.mismatch(originalPath, latestBackupPath) != -1L;
+                    if (result) {
+                        LOGGER.info(
+                            "Backup file {} differs from current file {}",
+                            latestBackupPath,
+                            originalPath
+                        );
+                    }
+                    return result;
+                } catch (IOException e) {
+                    LOGGER.debug(
+                        "Could not compare original file and backup file.",
+                        e
+                    );
+                    // User has to investigate in this case
+                    return true;
+                }
+            })
+            .orElse(false);
     }
 
     /**
@@ -199,20 +278,31 @@ public class BackupManager {
      * @param originalPath Path to the file which should be equalized to the backup file.
      */
     public static void restoreBackup(Path originalPath, Path backupDir) {
-        Optional<Path> backupPath = getLatestBackupPath(originalPath, backupDir);
+        Optional<Path> backupPath = getLatestBackupPath(
+            originalPath,
+            backupDir
+        );
         if (backupPath.isEmpty()) {
             LOGGER.error("There is no backup file");
             return;
         }
         try {
-            Files.copy(backupPath.get(), originalPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                backupPath.get(),
+                originalPath,
+                StandardCopyOption.REPLACE_EXISTING
+            );
         } catch (IOException e) {
             LOGGER.error("Error while restoring the backup file.", e);
         }
     }
 
     Optional<Path> determineBackupPathForNewBackup(Path backupDir) {
-        return bibDatabaseContext.getDatabasePath().map(path -> BackupManager.getBackupPathForNewBackup(path, backupDir));
+        return bibDatabaseContext
+            .getDatabasePath()
+            .map(path ->
+                BackupManager.getBackupPathForNewBackup(path, backupDir)
+            );
     }
 
     /**
@@ -233,60 +323,94 @@ public class BackupManager {
             try {
                 Files.delete(oldestBackupFile);
             } catch (IOException e) {
-                LOGGER.error("Could not delete backup file {}", oldestBackupFile, e);
+                LOGGER.error(
+                    "Could not delete backup file {}",
+                    oldestBackupFile,
+                    e
+                );
             }
         }
 
         // code similar to org.jabref.gui.exporter.SaveDatabaseAction.saveDatabase
         SelfContainedSaveOrder saveOrder = bibDatabaseContext
-                .getMetaData().getSaveOrder()
-                .map(so -> {
-                    if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                        // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
-                        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
-                        return new SelfContainedSaveOrder(
-                                SaveOrder.OrderType.SPECIFIED,
-                                sortOrder.stream()
-                                         .filter(col -> col instanceof MainTableColumn<?>)
-                                         .map(column -> ((MainTableColumn<?>) column).getModel())
-                                         .flatMap(model -> model.getSortCriteria().stream())
-                                         .toList());
-                    } else {
-                        return SelfContainedSaveOrder.of(so);
-                    }
-                })
-                .orElse(SaveOrder.getDefaultSaveOrder());
-        SelfContainedSaveConfiguration saveConfiguration = (SelfContainedSaveConfiguration) new SelfContainedSaveConfiguration()
+            .getMetaData()
+            .getSaveOrder()
+            .map(so -> {
+                if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
+                    // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
+                    List<TableColumn<BibEntryTableViewModel, ?>> sortOrder =
+                        libraryTab.getMainTable().getSortOrder();
+                    return new SelfContainedSaveOrder(
+                        SaveOrder.OrderType.SPECIFIED,
+                        sortOrder
+                            .stream()
+                            .filter(col -> col instanceof MainTableColumn<?>)
+                            .map(column ->
+                                ((MainTableColumn<?>) column).getModel()
+                            )
+                            .flatMap(model -> model.getSortCriteria().stream())
+                            .toList()
+                    );
+                } else {
+                    return SelfContainedSaveOrder.of(so);
+                }
+            })
+            .orElse(SaveOrder.getDefaultSaveOrder());
+        SelfContainedSaveConfiguration saveConfiguration =
+            (SelfContainedSaveConfiguration) new SelfContainedSaveConfiguration()
                 .withMakeBackup(false)
                 .withSaveOrder(saveOrder)
-                .withReformatOnSave(preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
+                .withReformatOnSave(
+                    preferences
+                        .getLibraryPreferences()
+                        .shouldAlwaysReformatOnSave()
+                );
 
         // "Clone" the database context
         // We "know" that "only" the BibEntries might be changed during writing (see [org.jabref.logic.exporter.BibDatabaseWriter.savePartOfDatabase])
-        List<BibEntry> list = bibDatabaseContext.getDatabase().getEntries().stream()
-                                                .map(BibEntry::new)
-                                                .toList();
+        List<BibEntry> list = bibDatabaseContext
+            .getDatabase()
+            .getEntries()
+            .stream()
+            .map(BibEntry::new)
+            .toList();
         BibDatabase bibDatabaseClone = new BibDatabase(list);
-        bibDatabaseContext.getDatabase().getStringValues().stream().map(BibtexString::clone)
-                          .map(BibtexString.class::cast)
-                          .forEach(bibDatabaseClone::addString);
-        BibDatabaseContext bibDatabaseContextClone = new BibDatabaseContext(bibDatabaseClone, bibDatabaseContext.getMetaData());
+        bibDatabaseContext
+            .getDatabase()
+            .getStringValues()
+            .stream()
+            .map(BibtexString::clone)
+            .map(BibtexString.class::cast)
+            .forEach(bibDatabaseClone::addString);
+        BibDatabaseContext bibDatabaseContextClone = new BibDatabaseContext(
+            bibDatabaseClone,
+            bibDatabaseContext.getMetaData()
+        );
 
-        Charset encoding = bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8);
+        Charset encoding = bibDatabaseContext
+            .getMetaData()
+            .getEncoding()
+            .orElse(StandardCharsets.UTF_8);
         // We want to have successful backups only
         // Thus, we do not use a plain "FileWriter", but the "AtomicFileWriter"
         // Example: What happens if one hard powers off the machine (or kills the jabref process) during writing of the backup?
         //          This MUST NOT create a broken backup file that then jabref wants to "restore" from?
-        try (Writer writer = new AtomicFileWriter(backupPath, encoding, false)) {
-            BibWriter bibWriter = new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator());
+        try (
+            Writer writer = new AtomicFileWriter(backupPath, encoding, false)
+        ) {
+            BibWriter bibWriter = new BibWriter(
+                writer,
+                bibDatabaseContext.getDatabase().getNewLineSeparator()
+            );
             new BibDatabaseWriter(
-                    bibWriter,
-                    saveConfiguration,
-                    preferences.getFieldPreferences(),
-                    preferences.getCitationKeyPatternPreferences(),
-                    entryTypesManager)
-                    // we save the clone to prevent the original database (and thus the UI) from being changed
-                    .saveDatabase(bibDatabaseContextClone);
+                bibWriter,
+                saveConfiguration,
+                preferences.getFieldPreferences(),
+                preferences.getCitationKeyPatternPreferences(),
+                entryTypesManager
+            )
+                // we save the clone to prevent the original database (and thus the UI) from being changed
+                .saveDatabase(bibDatabaseContextClone);
             backupFilesQueue.add(backupPath);
 
             // We wrote the file successfully
@@ -298,7 +422,12 @@ public class BackupManager {
     }
 
     private static Path determineDiscardedFile(Path file, Path backupDir) {
-        return backupDir.resolve(BackupFileUtil.getUniqueFilePrefix(file) + "--" + file.getFileName() + "--discarded");
+        return backupDir.resolve(
+            BackupFileUtil.getUniqueFilePrefix(file)
+                + "--"
+                + file.getFileName()
+                + "--discarded"
+        );
     }
 
     /**
@@ -308,7 +437,10 @@ public class BackupManager {
      * Therefore, we mark discarded backups by a --discarded file.
      */
     public void discardBackup(Path backupDir) {
-        Path path = determineDiscardedFile(bibDatabaseContext.getDatabasePath().get(), backupDir);
+        Path path = determineDiscardedFile(
+            bibDatabaseContext.getDatabasePath().get(),
+            backupDir
+        );
         try {
             Files.createFile(path);
         } catch (IOException e) {
@@ -321,7 +453,8 @@ public class BackupManager {
         while (innermostCause.getCause() != null) {
             innermostCause = innermostCause.getCause();
         }
-        boolean isErrorInField = innermostCause instanceof InvalidFieldValueException;
+        boolean isErrorInField =
+            innermostCause instanceof InvalidFieldValueException;
 
         // do not print errors in field values into the log during autosave
         if (!isErrorInField) {
@@ -330,7 +463,9 @@ public class BackupManager {
     }
 
     @Subscribe
-    public synchronized void listen(@SuppressWarnings("unused") BibDatabaseContextChangedEvent event) {
+    public synchronized void listen(
+        @SuppressWarnings("unused") BibDatabaseContextChangedEvent event
+    ) {
         if (!event.isFilteredOut()) {
             this.needsBackup = true;
         }
@@ -340,30 +475,42 @@ public class BackupManager {
         fillQueue(backupDir);
 
         executor.scheduleAtFixedRate(
-                                     // We need to determine the backup path on each action, because we use the timestamp in the filename
-                                     () -> determineBackupPathForNewBackup(backupDir).ifPresent(this::performBackup),
-                                     DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
-                                     DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
-                                     TimeUnit.SECONDS);
+            // We need to determine the backup path on each action, because we use the timestamp in the filename
+            () ->
+                determineBackupPathForNewBackup(backupDir).ifPresent(
+                    this::performBackup
+                ),
+            DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
+            DELAY_BETWEEN_BACKUP_ATTEMPTS_IN_SECONDS,
+            TimeUnit.SECONDS
+        );
     }
 
     private void fillQueue(Path backupDir) {
         if (!Files.exists(backupDir)) {
             return;
         }
-        bibDatabaseContext.getDatabasePath().ifPresent(databasePath -> {
-            // code similar to {@link org.jabref.logic.util.io.BackupFileUtil.getPathOfLatestExisingBackupFile}
-            final String prefix = BackupFileUtil.getUniqueFilePrefix(databasePath) + "--" + databasePath.getFileName();
-            try {
-                List<Path> allSavFiles = Files.list(backupDir)
-                                              // just list the .sav belonging to the given targetFile
-                                              .filter(p -> p.getFileName().toString().startsWith(prefix))
-                                              .sorted().toList();
-                backupFilesQueue.addAll(allSavFiles);
-            } catch (IOException e) {
-                LOGGER.error("Could not determine most recent file", e);
-            }
-        });
+        bibDatabaseContext
+            .getDatabasePath()
+            .ifPresent(databasePath -> {
+                // code similar to {@link org.jabref.logic.util.io.BackupFileUtil.getPathOfLatestExisingBackupFile}
+                final String prefix =
+                    BackupFileUtil.getUniqueFilePrefix(databasePath)
+                    + "--"
+                    + databasePath.getFileName();
+                try {
+                    List<Path> allSavFiles = Files.list(backupDir)
+                        // just list the .sav belonging to the given targetFile
+                        .filter(p ->
+                            p.getFileName().toString().startsWith(prefix)
+                        )
+                        .sorted()
+                        .toList();
+                    backupFilesQueue.addAll(allSavFiles);
+                } catch (IOException e) {
+                    LOGGER.error("Could not determine most recent file", e);
+                }
+            });
     }
 
     /**
@@ -379,7 +526,9 @@ public class BackupManager {
 
         if (createBackup) {
             // Ensure that backup is a recent one
-            determineBackupPathForNewBackup(backupDir).ifPresent(this::performBackup);
+            determineBackupPathForNewBackup(backupDir).ifPresent(
+                this::performBackup
+            );
         }
     }
 }

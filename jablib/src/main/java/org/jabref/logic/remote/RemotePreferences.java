@@ -4,12 +4,10 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,9 @@ import org.slf4j.LoggerFactory;
  */
 public class RemotePreferences {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotePreferences.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        RemotePreferences.class
+    );
 
     private final IntegerProperty port;
     private final BooleanProperty useRemoteServer;
@@ -30,12 +30,21 @@ public class RemotePreferences {
     private final BooleanProperty enableLanguageServer;
     private final IntegerProperty languageServerPort;
 
-    public RemotePreferences(int port, boolean useRemoteServer, int httpPort, boolean enableHttpServer, boolean enableLanguageServer, int languageServerPort) {
+    public RemotePreferences(
+        int port,
+        boolean useRemoteServer,
+        int httpPort,
+        boolean enableHttpServer,
+        boolean enableLanguageServer,
+        int languageServerPort
+    ) {
         this.port = new SimpleIntegerProperty(port);
         this.useRemoteServer = new SimpleBooleanProperty(useRemoteServer);
         this.httpPort = new SimpleIntegerProperty(httpPort);
         this.enableHttpServer = new SimpleBooleanProperty(enableHttpServer);
-        this.enableLanguageServer = new SimpleBooleanProperty(enableLanguageServer);
+        this.enableLanguageServer = new SimpleBooleanProperty(
+            enableLanguageServer
+        );
         this.languageServerPort = new SimpleIntegerProperty(languageServerPort);
     }
 
@@ -130,13 +139,26 @@ public class RemotePreferences {
 
     public @NonNull URI getHttpServerUri() {
         try {
-            return new URI("http", null, RemotePreferences.getIpAddress().getHostAddress(), getHttpPort(), null, null, null);
+            return new URI(
+                "http",
+                null,
+                RemotePreferences.getIpAddress().getHostAddress(),
+                getHttpPort(),
+                null,
+                null,
+                null
+            );
         } catch (UnknownHostException | URISyntaxException e) {
-            LOGGER.error("Could not create HTTP server URI. Falling back to default.", e);
+            LOGGER.error(
+                "Could not create HTTP server URI. Falling back to default.",
+                e
+            );
             try {
                 return new URI("http://localhost:23119");
             } catch (URISyntaxException ex) {
-                LOGGER.error("Should never happen, raw string is already valid uri");
+                LOGGER.error(
+                    "Should never happen, raw string is already valid uri"
+                );
                 throw new RuntimeException(ex);
             }
         }

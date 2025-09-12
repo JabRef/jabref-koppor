@@ -4,19 +4,21 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jspecify.annotations.NonNull;
 
 public class GitPreferences {
+
     private final StringProperty username;
     private final StringProperty pat;
     private final StringProperty repositoryUrl;
     private final BooleanProperty rememberPat;
 
-    public GitPreferences(String username,
-                          String pat,
-                          String repositoryUrl,
-                          boolean rememberPat) {
+    public GitPreferences(
+        String username,
+        String pat,
+        String repositoryUrl,
+        boolean rememberPat
+    ) {
         this.username = new SimpleStringProperty(username);
         this.pat = new SimpleStringProperty(pat);
         this.repositoryUrl = new SimpleStringProperty(repositoryUrl);

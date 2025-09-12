@@ -1,8 +1,8 @@
 package org.jabref.gui;
 
+import com.tobiasdiez.easybind.EasyBinding;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -11,7 +11,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
-
 import org.jabref.gui.ai.components.aichat.AiChatWindow;
 import org.jabref.gui.edit.automaticfiededitor.LastAutomaticFieldEditorEdit;
 import org.jabref.gui.search.SearchType;
@@ -28,8 +27,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.query.SearchQuery;
 
-import com.tobiasdiez.easybind.EasyBinding;
-
 /**
  * This class manages the GUI-state of JabRef, including:
  *
@@ -44,7 +41,6 @@ import com.tobiasdiez.easybind.EasyBinding;
  * </ul>
  */
 public interface StateManager extends SrvStateManager {
-
     ObservableList<SidePaneType> getVisibleSidePaneComponents();
 
     CustomLocalDragboard getLocalDragboard();
@@ -57,11 +53,17 @@ public interface StateManager extends SrvStateManager {
 
     IntegerProperty searchResultSize(SearchType type);
 
-    void setIndexManager(BibDatabaseContext database, IndexManager indexManager);
+    void setIndexManager(
+        BibDatabaseContext database,
+        IndexManager indexManager
+    );
 
     void setSelectedEntries(List<BibEntry> newSelectedEntries);
 
-    void setSelectedGroups(BibDatabaseContext context, List<GroupTreeNode> newSelectedGroups);
+    void setSelectedGroups(
+        BibDatabaseContext context,
+        List<GroupTreeNode> newSelectedGroups
+    );
 
     ObservableList<GroupTreeNode> getSelectedGroups(BibDatabaseContext context);
 
@@ -89,9 +91,13 @@ public interface StateManager extends SrvStateManager {
 
     void setDialogWindowState(String className, DialogWindowState state);
 
-    ObjectProperty<LastAutomaticFieldEditorEdit> lastAutomaticFieldEditorEditProperty();
+    ObjectProperty<
+        LastAutomaticFieldEditorEdit
+    > lastAutomaticFieldEditorEditProperty();
 
-    void setLastAutomaticFieldEditorEdit(LastAutomaticFieldEditorEdit automaticFieldEditorEdit);
+    void setLastAutomaticFieldEditorEdit(
+        LastAutomaticFieldEditorEdit automaticFieldEditorEdit
+    );
 
     void addSearchHistory(String search);
 

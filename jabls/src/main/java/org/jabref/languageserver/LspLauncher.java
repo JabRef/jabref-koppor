@@ -8,19 +8,19 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
-
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.preferences.CliPreferences;
-
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LspLauncher extends Thread {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LspLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        LspLauncher.class
+    );
 
     private final CliPreferences cliPreferences;
     private final JournalAbbreviationRepository abbreviationRepository;
@@ -30,7 +30,11 @@ public class LspLauncher extends Thread {
     private volatile boolean running;
     private ServerSocket serverSocket;
 
-    public LspLauncher(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, int port) {
+    public LspLauncher(
+        CliPreferences cliPreferences,
+        JournalAbbreviationRepository abbreviationRepository,
+        int port
+    ) {
         this.cliPreferences = cliPreferences;
         this.abbreviationRepository = abbreviationRepository;
         this.threadPool = Executors.newCachedThreadPool();
@@ -39,7 +43,13 @@ public class LspLauncher extends Thread {
     }
 
     public LspLauncher(CliPreferences cliPreferences, int port) {
-        this(cliPreferences, JournalAbbreviationLoader.loadRepository(cliPreferences.getJournalAbbreviationPreferences()), port);
+        this(
+            cliPreferences,
+            JournalAbbreviationLoader.loadRepository(
+                cliPreferences.getJournalAbbreviationPreferences()
+            ),
+            port
+        );
     }
 
     @Override
@@ -69,12 +79,24 @@ public class LspLauncher extends Thread {
     }
 
     private void handleClient(Socket socket) {
-        LspClientHandler clientHandler = new LspClientHandler(cliPreferences, abbreviationRepository);
+        LspClientHandler clientHandler = new LspClientHandler(
+            cliPreferences,
+            abbreviationRepository
+        );
         LOGGER.debug("LSP clientHandler started.");
-        try (socket; // socket should be closed on error
-             InputStream in = socket.getInputStream();
-             OutputStream out = socket.getOutputStream()) {
-            Launcher<LanguageClient> launcher = org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(clientHandler, in, out, Executors.newCachedThreadPool(), Function.identity());
+        try (
+            socket; // socket should be closed on error
+            InputStream in = socket.getInputStream();
+            OutputStream out = socket.getOutputStream()
+        ) {
+            Launcher<LanguageClient> launcher =
+                org.eclipse.lsp4j.launch.LSPLauncher.createServerLauncher(
+                    clientHandler,
+                    in,
+                    out,
+                    Executors.newCachedThreadPool(),
+                    Function.identity()
+                );
             LOGGER.debug("LSP clientHandler launched.");
             clientHandler.connect(launcher.getRemoteProxy());
             LOGGER.debug("LSP clientHandler connected.");

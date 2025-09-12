@@ -2,12 +2,10 @@ package org.jabref.logic.preferences;
 
 import java.nio.file.Path;
 import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.util.io.FileHistory;
 
 public class LastFilesOpenedPreferences {
@@ -20,8 +18,14 @@ public class LastFilesOpenedPreferences {
     // observable list last files opened in the file menu
     private final FileHistory fileHistory;
 
-    public LastFilesOpenedPreferences(List<Path> lastFilesOpened, Path lastFocusedFile, FileHistory fileHistory) {
-        this.lastFilesOpened = FXCollections.observableArrayList(lastFilesOpened);
+    public LastFilesOpenedPreferences(
+        List<Path> lastFilesOpened,
+        Path lastFocusedFile,
+        FileHistory fileHistory
+    ) {
+        this.lastFilesOpened = FXCollections.observableArrayList(
+            lastFilesOpened
+        );
         this.lastFocusedFile = new SimpleObjectProperty<>(lastFocusedFile);
         this.fileHistory = fileHistory;
     }

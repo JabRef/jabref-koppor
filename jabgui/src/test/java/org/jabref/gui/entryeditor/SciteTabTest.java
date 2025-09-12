@@ -1,11 +1,15 @@
 package org.jabref.gui.entryeditor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +18,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(ApplicationExtension.class)
 public class SciteTabTest {
 
@@ -26,17 +25,24 @@ public class SciteTabTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private TaskExecutor taskExecutor;
+
     @Mock
     private DialogService dialogService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        EntryEditorPreferences entryEditorPreferences = mock(EntryEditorPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        EntryEditorPreferences entryEditorPreferences = mock(
+            EntryEditorPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
         when(entryEditorPreferences.shouldShowSciteTab()).thenReturn(true);
-        when(preferences.getEntryEditorPreferences()).thenReturn(entryEditorPreferences);
+        when(preferences.getEntryEditorPreferences()).thenReturn(
+            entryEditorPreferences
+        );
     }
 
     @Test
@@ -60,8 +66,10 @@ public class SciteTabTest {
     @Test
     void bindEntry() {
         SciteTab tab = new SciteTab(preferences, taskExecutor, dialogService);
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.DOI, SAMPLE_DOI);
+        BibEntry entry = new BibEntry().withField(
+            StandardField.DOI,
+            SAMPLE_DOI
+        );
 
         tab.bindToEntry(entry);
     }

@@ -4,7 +4,7 @@ public final class PushResult implements GitOperationResult {
 
     public enum Outcome {
         PUSHED,
-        NOOP_UP_TO_DATE
+        NOOP_UP_TO_DATE,
     }
 
     private final boolean isSuccessful;

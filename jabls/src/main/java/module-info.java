@@ -1,6 +1,7 @@
 module org.jabref.jabls {
     exports org.jabref.languageserver;
-    opens org.jabref.languageserver to org.eclipse.lsp4j, org.eclipse.lsp4j.jsonrpc, com.google.gson;
+    opens org.jabref.languageserver
+        to org.eclipse.lsp4j, org.eclipse.lsp4j.jsonrpc, com.google.gson;
     exports org.jabref.languageserver.controller;
     exports org.jabref.languageserver.util;
 

@@ -4,15 +4,16 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.citationstyle.CitationStylePreviewLayout;
 import org.jabref.logic.l10n.Localization;
 
 public class CSLStyleSelectViewModel {
+
     private final CitationStylePreviewLayout layout;
     private final StringProperty nameProperty = new SimpleStringProperty();
     private final StringProperty pathProperty = new SimpleStringProperty();
-    private final BooleanProperty internalStyleProperty = new SimpleBooleanProperty();
+    private final BooleanProperty internalStyleProperty =
+        new SimpleBooleanProperty();
 
     public CSLStyleSelectViewModel(CitationStylePreviewLayout layout) {
         this.layout = layout;
@@ -22,7 +23,9 @@ public class CSLStyleSelectViewModel {
         } else {
             this.pathProperty.set(layout.getFilePath());
         }
-        this.internalStyleProperty.set(layout.citationStyle().isInternalStyle());
+        this.internalStyleProperty.set(
+            layout.citationStyle().isInternalStyle()
+        );
     }
 
     public StringProperty nameProperty() {

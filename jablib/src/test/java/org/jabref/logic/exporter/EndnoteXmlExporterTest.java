@@ -1,29 +1,26 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class EndnoteXmlExporterTest {
 
@@ -33,26 +30,40 @@ class EndnoteXmlExporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences = mock(
+            ImportFormatPreferences.class,
+            Answers.RETURNS_DEEP_STUBS
+        );
+        when(importFormatPreferences.bibEntryPreferences()).thenReturn(
+            mock(BibEntryPreferences.class)
+        );
+        when(
+            importFormatPreferences.bibEntryPreferences().getKeywordSeparator()
+        ).thenReturn(',');
 
         databaseContext = new BibDatabaseContext();
         exporter = new EndnoteXmlExporter(new BibEntryPreferences(','));
 
         bookEntry = new BibEntry(StandardEntryType.Book)
-                .withCitationKey("Bhattacharyya2013")
-                .withField(StandardField.EDITOR, "Bhattacharyya, R. and McCormick, M. E.")
-                .withField(StandardField.PUBLISHER, "Elsevier Science")
-                .withField(StandardField.TITLE, "Wave Energy Conversion")
-                .withField(StandardField.YEAR, "2013")
-                .withField(StandardField.ISBN, "9780080442129")
-                .withField(StandardField.FILE, "/home/mfg/acad/ext/arts/waves/water/[R._Bhattacharyya_and_M.E._McCormick_(Eds.)]_Wave_(z-lib.org).pdf")
-                .withField(StandardField.KEYWORDS, "waves, agua");
+            .withCitationKey("Bhattacharyya2013")
+            .withField(
+                StandardField.EDITOR,
+                "Bhattacharyya, R. and McCormick, M. E."
+            )
+            .withField(StandardField.PUBLISHER, "Elsevier Science")
+            .withField(StandardField.TITLE, "Wave Energy Conversion")
+            .withField(StandardField.YEAR, "2013")
+            .withField(StandardField.ISBN, "9780080442129")
+            .withField(
+                StandardField.FILE,
+                "/home/mfg/acad/ext/arts/waves/water/[R._Bhattacharyya_and_M.E._McCormick_(Eds.)]_Wave_(z-lib.org).pdf"
+            )
+            .withField(StandardField.KEYWORDS, "waves, agua");
     }
 
     @Test
-    void exportForEmptyEntryList(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void exportForEmptyEntryList(@TempDir Path tempDir)
+        throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path file = tempDir.resolve("EmptyFile.xml");
 
         exporter.export(databaseContext, file, List.of());
@@ -64,13 +75,15 @@ class EndnoteXmlExporterTest {
         Path file = tempDir.resolve("NullDB");
 
         assertThrows(NullPointerException.class, () ->
-                exporter.export(null, file, List.of(bookEntry)));
+            exporter.export(null, file, List.of(bookEntry))
+        );
     }
 
     @Test
     void exportForNullExportPathThrowsException(@TempDir Path tempDir) {
         assertThrows(NullPointerException.class, () ->
-                exporter.export(databaseContext, null, List.of(bookEntry)));
+            exporter.export(databaseContext, null, List.of(bookEntry))
+        );
     }
 
     @Test
@@ -78,6 +91,7 @@ class EndnoteXmlExporterTest {
         Path file = tempDir.resolve("EntryNull");
 
         assertThrows(NullPointerException.class, () ->
-                exporter.export(databaseContext, file, null));
+            exporter.export(databaseContext, file, null)
+        );
     }
 }

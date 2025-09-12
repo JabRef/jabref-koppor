@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.model.strings.StringUtil;
 
 /**
@@ -32,18 +31,31 @@ public class KeywordList implements Iterable<Keyword> {
     }
 
     public KeywordList(List<String> keywordChains) {
-        this(keywordChains.stream().map(Keyword::new).collect(Collectors.toList()));
+        this(
+            keywordChains
+                .stream()
+                .map(Keyword::new)
+                .collect(Collectors.toList())
+        );
     }
 
     public KeywordList(String... keywordChains) {
-        this(Arrays.stream(keywordChains).map(Keyword::new).collect(Collectors.toList()));
+        this(
+            Arrays.stream(keywordChains)
+                .map(Keyword::new)
+                .collect(Collectors.toList())
+        );
     }
 
     public KeywordList(Keyword... keywordChains) {
         this(Arrays.asList(keywordChains));
     }
 
-    public static KeywordList parse(String keywordString, Character delimiter, Character hierarchicalDelimiter) {
+    public static KeywordList parse(
+        String keywordString,
+        Character delimiter,
+        Character hierarchicalDelimiter
+    ) {
         if (StringUtil.isBlank(keywordString)) {
             return new KeywordList();
         }
@@ -53,10 +65,15 @@ public class KeywordList implements Iterable<Keyword> {
 
         KeywordList keywordList = new KeywordList();
 
-        StringTokenizer tok = new StringTokenizer(keywordString, delimiter.toString());
+        StringTokenizer tok = new StringTokenizer(
+            keywordString,
+            delimiter.toString()
+        );
         while (tok.hasMoreTokens()) {
             String chain = tok.nextToken();
-            Keyword chainRoot = Keyword.of(chain.split(hierarchicalDelimiter.toString()));
+            Keyword chainRoot = Keyword.of(
+                chain.split(hierarchicalDelimiter.toString())
+            );
             keywordList.add(chainRoot);
         }
         return keywordList;
@@ -70,17 +87,36 @@ public class KeywordList implements Iterable<Keyword> {
      * @return an parsed list containing the keywordChains
      */
     public static KeywordList parse(String keywordString, Character delimiter) {
-        return parse(keywordString, delimiter, Keyword.DEFAULT_HIERARCHICAL_DELIMITER);
+        return parse(
+            keywordString,
+            delimiter,
+            Keyword.DEFAULT_HIERARCHICAL_DELIMITER
+        );
     }
 
-    public static String serialize(List<Keyword> keywords, Character delimiter) {
-        return keywords.stream().map(Keyword::get).collect(Collectors.joining(delimiter.toString()));
+    public static String serialize(
+        List<Keyword> keywords,
+        Character delimiter
+    ) {
+        return keywords
+            .stream()
+            .map(Keyword::get)
+            .collect(Collectors.joining(delimiter.toString()));
     }
 
-    public static KeywordList merge(String keywordStringA, String keywordStringB, Character delimiter) {
+    public static KeywordList merge(
+        String keywordStringA,
+        String keywordStringB,
+        Character delimiter
+    ) {
         KeywordList keywordListA = parse(keywordStringA, delimiter);
         KeywordList keywordListB = parse(keywordStringB, delimiter);
-        List<Keyword> distinctKeywords = Stream.concat(keywordListA.stream(), keywordListB.stream()).distinct().toList();
+        List<Keyword> distinctKeywords = Stream.concat(
+            keywordListA.stream(),
+            keywordListB.stream()
+        )
+            .distinct()
+            .toList();
         return new KeywordList(distinctKeywords);
     }
 
@@ -124,7 +160,10 @@ public class KeywordList implements Iterable<Keyword> {
      * Keywords are separated by the given delimiter and an additional space, i.e. "one, two".
      */
     public String getAsString(Character delimiter) {
-        return keywordChains.stream().map(Keyword::toString).collect(Collectors.joining(delimiter + " "));
+        return keywordChains
+            .stream()
+            .map(Keyword::toString)
+            .collect(Collectors.joining(delimiter + " "));
     }
 
     public void add(String keywordsString) {
@@ -186,7 +225,10 @@ public class KeywordList implements Iterable<Keyword> {
     }
 
     public Set<String> toStringList() {
-        return keywordChains.stream().map(Keyword::toString).collect(Collectors.toSet());
+        return keywordChains
+            .stream()
+            .map(Keyword::toString)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -198,7 +240,10 @@ public class KeywordList implements Iterable<Keyword> {
             return false;
         }
         KeywordList keywords1 = (KeywordList) o;
-        return Objects.equals(new HashSet<>(keywordChains), new HashSet<>(keywords1.keywordChains));
+        return Objects.equals(
+            new HashSet<>(keywordChains),
+            new HashSet<>(keywords1.keywordChains)
+        );
     }
 
     @Override

@@ -2,9 +2,7 @@ package org.jabref.gui.fieldeditors;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import javax.swing.undo.UndoManager;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -16,12 +14,14 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.icore.ConferenceEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ICORERankingEditorViewModel.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        ICORERankingEditorViewModel.class
+    );
 
     private final DialogService dialogService;
     private final GuiPreferences preferences;
@@ -30,13 +30,13 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
     private ConferenceEntry matchedConference;
 
     public ICORERankingEditorViewModel(
-            Field field,
-            SuggestionProvider<?> suggestionProvider,
-            FieldCheckers fieldCheckers,
-            DialogService dialogService,
-            UndoManager undoManager,
-            GuiPreferences preferences,
-            ConferenceRepository conferenceRepository
+        Field field,
+        SuggestionProvider<?> suggestionProvider,
+        FieldCheckers fieldCheckers,
+        DialogService dialogService,
+        UndoManager undoManager,
+        GuiPreferences preferences,
+        ConferenceRepository conferenceRepository
     ) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
@@ -45,7 +45,9 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void lookupIdentifier(BibEntry bibEntry) {
-        Optional<String> bookTitle = bibEntry.getFieldOrAlias(StandardField.BOOKTITLE);
+        Optional<String> bookTitle = bibEntry.getFieldOrAlias(
+            StandardField.BOOKTITLE
+        );
 
         if (bookTitle.isEmpty()) {
             bookTitle = bibEntry.getFieldOrAlias(StandardField.JOURNAL);
@@ -55,7 +57,9 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
             return;
         }
 
-        Optional<ConferenceEntry> conference = repo.getConferenceFromBookTitle(bookTitle.get());
+        Optional<ConferenceEntry> conference = repo.getConferenceFromBookTitle(
+            bookTitle.get()
+        );
         if (conference.isPresent()) {
             entry.setField(field, conference.get().rank());
             matchedConference = conference.get();
@@ -67,10 +71,16 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
     public void openExternalLink() {
         if (matchedConference != null) {
             try {
-                NativeDesktop.openBrowser(matchedConference.getICOREURL(), preferences.getExternalApplicationsPreferences());
+                NativeDesktop.openBrowser(
+                    matchedConference.getICOREURL(),
+                    preferences.getExternalApplicationsPreferences()
+                );
             } catch (IOException e) {
                 LOGGER.error("Error opening external link in browser", e);
-                dialogService.showErrorDialogAndWait(Localization.lang("Could not open website."), e);
+                dialogService.showErrorDialogAndWait(
+                    Localization.lang("Could not open website."),
+                    e
+                );
             }
         }
     }

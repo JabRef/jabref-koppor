@@ -6,6 +6,7 @@ import java.util.List;
  * Used for GSON
  */
 public class CitationsResponse {
+
     private int offset;
     private int next;
     private List<CitationDataItem> data;

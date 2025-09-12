@@ -32,10 +32,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
@@ -43,10 +44,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.http.SimpleHttpResponse;
 import org.jabref.model.strings.StringUtil;
-
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.Unirest;
-import kong.unirest.core.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +63,14 @@ import org.slf4j.LoggerFactory;
  */
 public class URLDownload {
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0";
-    private static final Logger LOGGER = LoggerFactory.getLogger(URLDownload.class);
-    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
+    public static final String USER_AGENT =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0";
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        URLDownload.class
+    );
+    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(
+        30
+    );
     private static final int MAX_RETRIES = 3;
 
     private final URL source;
@@ -79,9 +81,9 @@ public class URLDownload {
 
     static {
         Unirest.config()
-               .followRedirects(true)
-               .enableCookieManagement(true)
-               .setDefaultHeader("User-Agent", USER_AGENT);
+            .followRedirects(true)
+            .enableCookieManagement(true)
+            .setDefaultHeader("User-Agent", USER_AGENT);
     }
 
     /**
@@ -123,7 +125,9 @@ public class URLDownload {
             String locationHeader;
             do {
                 retries++;
-                HttpResponse<String> response = Unirest.head(urlToCheck).asString();
+                HttpResponse<String> response = Unirest.head(
+                    urlToCheck
+                ).asString();
                 // Check if we have redirects, e.g. arxiv will give otherwise content type html for the original url
                 // We need to do it "manually", because ".followRedirects(true)" only works for GET not for HEAD
                 locationHeader = response.getHeaders().getFirst("location");
@@ -131,8 +135,14 @@ public class URLDownload {
                     urlToCheck = locationHeader;
                 }
                 // while loop, because there could be multiple redirects
-            } while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
-            contentType = Unirest.head(urlToCheck).asString().getHeaders().getFirst("Content-Type");
+            } while (
+                !StringUtil.isNullOrEmpty(locationHeader)
+                && retries <= MAX_RETRIES
+            );
+            contentType = Unirest.head(urlToCheck)
+                .asString()
+                .getHeaders()
+                .getFirst("Content-Type");
             if ((contentType != null) && !contentType.isEmpty()) {
                 return Optional.of(contentType);
             }
@@ -142,7 +152,11 @@ public class URLDownload {
 
         // Use GET request as alternative if no HEAD request is available
         try {
-            contentType = Unirest.get(source.toString()).asString().getHeaders().get("Content-Type").getFirst();
+            contentType = Unirest.get(source.toString())
+                .asString()
+                .getHeaders()
+                .get("Content-Type")
+                .getFirst();
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
@@ -152,7 +166,9 @@ public class URLDownload {
 
         // Try to resolve local URIs
         try {
-            URLConnection connection = URLUtil.create(source.toString()).openConnection();
+            URLConnection connection = URLUtil.create(
+                source.toString()
+            ).openConnection();
             contentType = connection.getContentType();
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
@@ -171,13 +187,14 @@ public class URLDownload {
      * @return the status code of the response
      */
     public boolean canBeReached() throws UnirestException {
-
         int statusCode = Unirest.head(source.toString()).asString().getStatus();
         return (statusCode >= 200) && (statusCode < 300);
     }
 
     public boolean isMimeType(String type) {
-        return getMimeType().map(mimeType -> mimeType.startsWith(type)).orElse(false);
+        return getMimeType()
+            .map(mimeType -> mimeType.startsWith(type))
+            .orElse(false);
     }
 
     public boolean isPdf() {
@@ -219,7 +236,8 @@ public class URLDownload {
      * @param existingConnection an existing connection
      * @return the downloaded string
      */
-    public static String asString(URLConnection existingConnection) throws FetcherException {
+    public static String asString(URLConnection existingConnection)
+        throws FetcherException {
         return asString(StandardCharsets.UTF_8, existingConnection);
     }
 
@@ -230,9 +248,14 @@ public class URLDownload {
      * @param connection an existing connection
      * @return the downloaded string
      */
-    public static String asString(Charset encoding, URLConnection connection) throws FetcherException {
-        try (InputStream input = new BufferedInputStream(connection.getInputStream());
-             Writer output = new StringWriter()) {
+    public static String asString(Charset encoding, URLConnection connection)
+        throws FetcherException {
+        try (
+            InputStream input = new BufferedInputStream(
+                connection.getInputStream()
+            );
+            Writer output = new StringWriter()
+        ) {
             copy(input, output, encoding);
             return output.toString();
         } catch (IOException e) {
@@ -262,7 +285,11 @@ public class URLDownload {
      * @param destination the destination file path.
      */
     public void toFile(Path destination) throws FetcherException {
-        try (InputStream input = new BufferedInputStream(this.openConnection().getInputStream())) {
+        try (
+            InputStream input = new BufferedInputStream(
+                this.openConnection().getInputStream()
+            )
+        ) {
             Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             LOGGER.warn("Could not copy input", e);
@@ -274,7 +301,8 @@ public class URLDownload {
      * Takes the web resource as the source for a monitored input stream.
      */
     public ProgressInputStream asInputStream() throws FetcherException {
-        HttpURLConnection urlConnection = (HttpURLConnection) this.openConnection();
+        HttpURLConnection urlConnection =
+            (HttpURLConnection) this.openConnection();
 
         int responseCode;
         try {
@@ -284,7 +312,9 @@ public class URLDownload {
         }
         LOGGER.debug("Response code: {}", responseCode); // We could check for != 200, != 204
         if (responseCode >= 300) {
-            SimpleHttpResponse simpleHttpResponse = new SimpleHttpResponse(urlConnection);
+            SimpleHttpResponse simpleHttpResponse = new SimpleHttpResponse(
+                urlConnection
+            );
             LOGGER.error("Failed to read from url: {}", simpleHttpResponse);
             throw FetcherException.of(this.source, simpleHttpResponse);
         }
@@ -295,7 +325,10 @@ public class URLDownload {
         } catch (IOException e) {
             throw new FetcherException("Error getting input stream", e);
         }
-        return new ProgressInputStream(new BufferedInputStream(inputStream), fileSize);
+        return new ProgressInputStream(
+            new BufferedInputStream(inputStream),
+            fileSize
+        );
     }
 
     /**
@@ -308,9 +341,14 @@ public class URLDownload {
         String sourcePath = source.getPath();
 
         // Take everything after the last '/' as name + extension
-        String fileNameWithExtension = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
-        String fileName = "jabref-" + FileUtil.getBaseName(fileNameWithExtension);
-        String extension = "." + FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
+        String fileNameWithExtension = sourcePath.substring(
+            sourcePath.lastIndexOf('/') + 1
+        );
+        String fileName =
+            "jabref-" + FileUtil.getBaseName(fileNameWithExtension);
+        String extension =
+            "."
+            + FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
 
         // Create temporary file and download to it
         Path file;
@@ -330,7 +368,8 @@ public class URLDownload {
         return "URLDownload{" + "source=" + this.source + '}';
     }
 
-    private static void copy(InputStream in, Writer out, Charset encoding) throws IOException {
+    private static void copy(InputStream in, Writer out, Charset encoding)
+        throws IOException {
         Reader r = new InputStreamReader(in, encoding);
         try (BufferedReader read = new BufferedReader(r)) {
             String line;
@@ -366,9 +405,11 @@ public class URLDownload {
                 throw new FetcherException("Error getting response code", e);
             }
 
-            if ((status == HttpURLConnection.HTTP_MOVED_TEMP)
+            if (
+                (status == HttpURLConnection.HTTP_MOVED_TEMP)
                 || (status == HttpURLConnection.HTTP_MOVED_PERM)
-                || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
+                || (status == HttpURLConnection.HTTP_SEE_OTHER)
+            ) {
                 // get redirect url from "location" header field
                 String newUrl = connection.getHeaderField("location");
                 // open the new connection again
@@ -377,12 +418,21 @@ public class URLDownload {
                     // multiple redirects are implemented by this recursion
                     connection = new URLDownload(newUrl).openConnection();
                 } catch (MalformedURLException e) {
-                    throw new FetcherException("Could not open URL Download", e);
+                    throw new FetcherException(
+                        "Could not open URL Download",
+                        e
+                    );
                 }
             } else if (status >= 400) {
                 // in case of an error, propagate the error message
-                SimpleHttpResponse httpResponse = new SimpleHttpResponse(httpURLConnection);
-                LOGGER.info("{}: {}", FetcherException.getRedactedUrl(this.source.toString()), httpResponse);
+                SimpleHttpResponse httpResponse = new SimpleHttpResponse(
+                    httpURLConnection
+                );
+                LOGGER.info(
+                    "{}: {}",
+                    FetcherException.getRedactedUrl(this.source.toString()),
+                    httpResponse
+                );
                 if (status < 500) {
                     throw new FetcherClientException(this.source, httpResponse);
                 } else {
@@ -400,7 +450,10 @@ public class URLDownload {
             httpConnection.setInstanceFollowRedirects(true);
         }
 
-        if ((sslContext != null) && (connection instanceof HttpsURLConnection httpsConnection)) {
+        if (
+            (sslContext != null)
+            && (connection instanceof HttpsURLConnection httpsConnection)
+        ) {
             httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
         }
 
@@ -410,7 +463,11 @@ public class URLDownload {
         }
         if (!this.postData.isEmpty()) {
             connection.setDoOutput(true);
-            try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+            try (
+                DataOutputStream wr = new DataOutputStream(
+                    connection.getOutputStream()
+                )
+            ) {
                 wr.writeBytes(this.postData);
             }
         }

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -20,6 +19,7 @@ import org.jabref.model.entry.types.StandardEntryType;
  * TODO: This class is similar to {@link org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter}, we need to unify them.
  */
 public class RuleBasedPlainCitationParser implements PlainCitationParser {
+
     private static final String AUTHOR_TAG = "[author_tag]";
     private static final String URL_TAG = "[url_tag]";
     private static final String YEAR_TAG = "[year_tag]";
@@ -29,28 +29,41 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private static final String LASTNAME_GROUP = "LASTNAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(
-            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" +
-                    "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*" +
-                    "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+            + "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*"
+            + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+    );
 
     private static final Pattern YEAR_PATTERN = Pattern.compile(
-            "\\d{4}",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        "\\d{4}",
+        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+    );
 
     private static final Pattern AUTHOR_PATTERN = Pattern.compile(
-            "(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+),?\\s(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})" +
-                    "\\s*(and|,|\\.)*",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        "(?<"
+            + LASTNAME_GROUP
+            + ">\\p{Lu}\\w+),?\\s(?<"
+            + INITIALS_GROUP
+            + ">(\\p{Lu}\\.\\s){1,2})"
+            + "\\s*(and|,|\\.)*",
+        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+    );
 
     private static final Pattern AUTHOR_PATTERN_2 = Pattern.compile(
-            "(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+)" +
-                    "\\s*(and|,|\\.)*",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        "(?<"
+            + INITIALS_GROUP
+            + ">(\\p{Lu}\\.\\s){1,2})(?<"
+            + LASTNAME_GROUP
+            + ">\\p{Lu}\\w+)"
+            + "\\s*(and|,|\\.)*",
+        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+    );
 
     private static final Pattern PAGES_PATTERN = Pattern.compile(
-            "(p.)?\\s?\\d+(-\\d+)?",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        "(p.)?\\s?\\d+(-\\d+)?",
+        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+    );
 
     private final List<String> urls = new ArrayList<>();
     private final List<String> authors = new ArrayList<>();
@@ -61,7 +74,8 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private String journalOrPublisher = "";
 
     @Override
-    public Optional<BibEntry> parsePlainCitation(String text) throws FetcherException {
+    public Optional<BibEntry> parsePlainCitation(String text)
+        throws FetcherException {
         String inputWithoutUrls = findUrls(text);
         String inputWithoutAuthors = findAuthors(inputWithoutUrls);
         String inputWithoutYear = findYear(inputWithoutAuthors);
@@ -71,9 +85,14 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     }
 
     private Optional<BibEntry> generateEntity(String input) {
-        EntryType type = isArticle ? StandardEntryType.Article : StandardEntryType.Book;
+        EntryType type = isArticle
+            ? StandardEntryType.Article
+            : StandardEntryType.Book;
         BibEntry extractedEntity = new BibEntry(type);
-        extractedEntity.setField(StandardField.AUTHOR, String.join(" and ", authors));
+        extractedEntity.setField(
+            StandardField.AUTHOR,
+            String.join(" and ", authors)
+        );
         extractedEntity.setField(StandardField.URL, String.join(", ", urls));
         extractedEntity.setField(StandardField.YEAR, year);
         extractedEntity.setField(StandardField.PAGES, pages);
@@ -81,7 +100,10 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         if (isArticle) {
             extractedEntity.setField(StandardField.JOURNAL, journalOrPublisher);
         } else {
-            extractedEntity.setField(StandardField.PUBLISHER, journalOrPublisher);
+            extractedEntity.setField(
+                StandardField.PUBLISHER,
+                journalOrPublisher
+            );
         }
         extractedEntity.setField(StandardField.COMMENT, input);
         return Optional.of(extractedEntity);
@@ -98,9 +120,16 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private String findYear(String input) {
         Matcher matcher = YEAR_PATTERN.matcher(input);
         while (matcher.find()) {
-            String yearCandidate = input.substring(matcher.start(), matcher.end());
+            String yearCandidate = input.substring(
+                matcher.start(),
+                matcher.end()
+            );
             int intYearCandidate = Integer.parseInt(yearCandidate);
-            if ((intYearCandidate > 1700) && (intYearCandidate <= Calendar.getInstance().get(Calendar.YEAR))) {
+            if (
+                (intYearCandidate > 1700)
+                && (intYearCandidate
+                    <= Calendar.getInstance().get(Calendar.YEAR))
+            ) {
                 year = yearCandidate;
                 return fixSpaces(input.replace(year, YEAR_TAG));
             }
@@ -116,7 +145,12 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private String findAuthorsByPattern(String input, Pattern pattern) {
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
-            authors.add(GenerateAuthor(matcher.group(LASTNAME_GROUP), matcher.group(INITIALS_GROUP)));
+            authors.add(
+                GenerateAuthor(
+                    matcher.group(LASTNAME_GROUP),
+                    matcher.group(INITIALS_GROUP)
+                )
+            );
         }
         return fixSpaces(matcher.replaceAll(AUTHOR_TAG));
     }
@@ -134,9 +168,11 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     }
 
     private String fixSpaces(String input) {
-        return input.replaceAll("[,.!?;:]", "$0 ")
-                    .replaceAll("\\p{Lt}", " $0")
-                    .replaceAll("\\s+", " ").trim();
+        return input
+            .replaceAll("[,.!?;:]", "$0 ")
+            .replaceAll("\\p{Lt}", " $0")
+            .replaceAll("\\s+", " ")
+            .trim();
     }
 
     private String findParts(String input) {
@@ -149,12 +185,21 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         }
         int delimiterIndex = input.lastIndexOf("//");
         if (delimiterIndex != -1) {
-            lastParts.add(input.substring(afterAuthorsIndex, delimiterIndex)
-                               .replace(YEAR_TAG, "")
-                               .replace(PAGES_TAG, ""));
-            lastParts.addAll(Arrays.asList(input.substring(delimiterIndex + 2).split(",|\\.")));
+            lastParts.add(
+                input
+                    .substring(afterAuthorsIndex, delimiterIndex)
+                    .replace(YEAR_TAG, "")
+                    .replace(PAGES_TAG, "")
+            );
+            lastParts.addAll(
+                Arrays.asList(
+                    input.substring(delimiterIndex + 2).split(",|\\.")
+                )
+            );
         } else {
-            lastParts.addAll(Arrays.asList(input.substring(afterAuthorsIndex).split(",|\\.")));
+            lastParts.addAll(
+                Arrays.asList(input.substring(afterAuthorsIndex).split(",|\\."))
+            );
         }
         int nonDigitParts = 0;
         for (String part : lastParts) {
