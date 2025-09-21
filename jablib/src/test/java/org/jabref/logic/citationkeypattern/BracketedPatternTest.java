@@ -662,7 +662,6 @@ class BracketedPatternTest {
                 BracketedPattern.expandBrackets("[title:shorttitle]", ';', bibEntry, null));
     }
 
-
     static Stream<Arguments> expandBracketsCamelNModifier() {
       return Stream.of(
         Arguments.of("[title:camel1]", "Open"),
@@ -680,7 +679,6 @@ class BracketedPatternTest {
         assertEquals(expected,
                 BracketedPattern.expandBrackets(pattern, ';', bibentry, null));
     }
-
 
     static Stream<Arguments> expandBracketsCamelNTitle() {
       return Stream.of(
