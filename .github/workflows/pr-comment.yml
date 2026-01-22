@@ -114,7 +114,7 @@ jobs:
         with:
           # java version supported by ghprcomment.java - https://github.com/koppor/ghprcomment/blob/2b1060508ebb51d137698fe66f5c20d9012b2be9/ghprcomment.java#L3
           java-version: '24'
-          distribution: 'corretto'
+          distribution: 'semeru'
           check-latest: true
       - name: Generate JBang cache key
         if: ${{ github.event_name == 'workflow_dispatch' || (steps.check-label.outputs.has_label == 'false' && steps.read-pr_number.outputs.pr_number != '' && steps.isCrossRepository.outputs.isCrossRepository == 'true') }}

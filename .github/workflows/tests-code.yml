@@ -99,7 +99,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '24'
-          distribution: 'corretto'
+          distribution: 'semeru'
           check-latest: true
       - run: |
           cd Convert2MarkdownJavadoc
@@ -347,7 +347,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '25'
-          distribution: 'corretto'
+          distribution: 'semeru'
           check-latest: true
 
       # Build all JBang scripts
@@ -403,7 +403,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '25'
-          distribution: 'corretto'
+          distribution: 'semeru'
           check-latest: true
       - name: Modify ${{ matrix.script }} to include changed classes
         shell: bash
@@ -459,7 +459,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 25
-          distribution: 'corretto'
+          distribution: 'semeru'
           cache: maven
           check-latest: true
       - run: |
@@ -486,7 +486,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 24
-          distribution: 'corretto'
+          distribution: 'semeru'
           cache: maven
           check-latest: true
       - run: |
@@ -557,7 +557,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 25
-          distribution: 'corretto'
+          distribution: 'semeru'
           check-latest: true
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
