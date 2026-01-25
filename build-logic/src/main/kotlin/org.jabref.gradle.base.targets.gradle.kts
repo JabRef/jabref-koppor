@@ -8,7 +8,6 @@ javaModulePackaging {
     // Configuration shared by all targets and applications
     vendor = "JabRef"
     jlinkOptions.addAll(
-        "--generate-cds-archive",
         "--ignore-signing-information",
         "--compress", "zip-6",
         "--no-header-files",
