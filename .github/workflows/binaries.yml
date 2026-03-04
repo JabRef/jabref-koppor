@@ -23,7 +23,7 @@ on:
       jvmDistribution:
         description: "JDK distribution (setup-java)"
         type: choice
-        default: corretto
+        default: graalvm
         options:
           # These are the distributions listed at https://github.com/actions/setup-java/blob/main/README.md#supported-distributions
           - adopt
@@ -42,7 +42,7 @@ on:
       jvmVendor:
         description: "JDK vendor (gradle toolchain)"
         type: choice
-        default: AMAZON
+        default: GRAAL_VM
         options:
           # These are the vendors listed at https://docs.gradle.org/current/javadoc/org/gradle/jvm/toolchain/JvmVendorSpec.html
           - ADOPTIUM
@@ -191,8 +191,8 @@ jobs:
           fi
 
           # The distribution to use at setup-java
-          echo "JVM distribution: ${{ github.event.inputs.jvmDistribution || 'corretto' }}"
-          echo "jvmDistribution=${{ github.event.inputs.jvmDistribution || 'corretto' }}" >> "$GITHUB_OUTPUT"
+          echo "JVM distribution: ${{ github.event.inputs.jvmDistribution || 'graalvm' }}"
+          echo "jvmDistribution=${{ github.event.inputs.jvmDistribution || 'graalvm' }}" >> "$GITHUB_OUTPUT"
 
           # Enable testing of EA JDKs later even if not triggered by workflow dispatch.
           # One needs to set "useEaJdk=true" above even at the stable case to enable this.
@@ -425,6 +425,38 @@ jobs:
           fi
 
           echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+  native-compile:
+    needs: [ compute-matrix, conditions, disk-space-check ]
+    if: ${{ needs.conditions.outputs.should-build == 'true' }}
+    runs-on: ubuntu-22.04
+    outputs:
+      major: ${{ steps.gitversion.outputs.Major }}
+      minor: ${{ steps.gitversion.outputs.Minor }}
+    name: JabKit native image
+    steps:
+      - name: Fetch all history for all tags and branches
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: 'true'
+          show-progress: 'false'
+
+      - name: Install GitVersion
+        id: pre-gitversion
+        # background: true
+        uses: gittools/actions/gitversion/setup@v3.2.1
+        with:
+          versionSpec: "5.x"
+      - name: Run GitVersion
+        # wait: pre-gitversion
+        # background: true
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.2.1
+
+      - uses: ./.github/actions/setup-gradle
+        with:
+          distribution: graalvm
+      - run: gradle :jabkit:nativeCompile
 
   build:
     needs: [ compute-matrix, conditions, disk-space-check ]
@@ -478,14 +510,14 @@ jobs:
         run: choco install rsync --version=6.4.4
 
       - name: Patch used JDK
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.jvmVendor != 'AMAZON' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.jvmVendor != 'GRAAL_VM' }}
         shell: bash
         run: |
           set -ex
           PS4='+$LINENO: '
           SED_I=(-i)
           [[ '${{ startsWith(matrix.os, 'macos') }}' == 'true' ]] && SED_I=(-i '')
-          sed "${SED_I[@]}" "s/AMAZON/${{ inputs.jvmVendor }}/" build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
+          sed "${SED_I[@]}" "s/GRAAL_VM/${{ inputs.jvmVendor }}/" build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
           cat build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
 
       # Setup JDK EA and JavaFX EA
@@ -506,7 +538,7 @@ jobs:
           [[ '${{ startsWith(matrix.os, 'macos') }}' == 'true' ]] && SED_I=(-i '')
 
           sed "${SED_I[@]}" "s/JavaLanguageVersion.of(25)/JavaLanguageVersion.of(${{ needs.conditions.outputs.jdkVersion }})/" build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
-          sed "${SED_I[@]}" "s/AMAZON/ORACLE/" build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
+          sed "${SED_I[@]}" "s/GRAAL_VM/ORACLE/" build-logic/src/main/kotlin/org.jabref.gradle.feature.compile.gradle.kts
           sed "${SED_I[@]}" "s|val javafx = .*|val javafx = \"${{ needs.conditions.outputs.javafxVersion }}\"|" versions/build.gradle.kts
 
       - uses: ./.github/actions/setup-gradle

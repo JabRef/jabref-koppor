@@ -1,6 +1,7 @@
 plugins {
     id("org.jabref.gradle.module")
     id("org.jabref.gradle.feature.shadowjar")
+    id("org.jabref.gradle.feature.buildtools.native")
     id("application")
 }
 
