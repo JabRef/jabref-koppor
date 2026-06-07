@@ -1,0 +1,6 @@
+# Jenesis build outputs and runtime caches
+**/target/
+**/.jenesis/
+
+# Locally bootstrapped engine copy (regenerate from the jenesis-engine submodule)
+build/jenesis/

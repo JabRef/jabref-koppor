@@ -16,3 +16,6 @@
 [submodule "jablib/src/main/resources/ltwa"]
   path = jablib/src/main/resources/ltwa
   url = https://github.com/JabRef/ltwa.git
+[submodule "jenesis-engine"]
+	path = jenesis-engine
+	url = https://github.com/raphw/jenesis.git
