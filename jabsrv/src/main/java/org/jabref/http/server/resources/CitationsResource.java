@@ -101,7 +101,7 @@ public class CitationsResource {
         BibDatabaseContext targetContext = resolveTargetContext(id);
 
         BibEntry parsed = ServerUtils.parsePlainCitation(preferences, citationText)
-                .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
+                                     .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
 
         // Cross-library lookup: walk every open library so we can tell the
         // client whether the citation is in the *target* library (Ctrl+J

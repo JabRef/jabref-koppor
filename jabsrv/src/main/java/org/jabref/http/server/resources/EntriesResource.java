@@ -99,7 +99,7 @@ public class EntriesResource {
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
 
         BibEntry parsed = ServerUtils.parsePlainCitation(preferences, citationText)
-                .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
+                                     .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
 
         StringWriter rawEntry = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntry, "\n");
