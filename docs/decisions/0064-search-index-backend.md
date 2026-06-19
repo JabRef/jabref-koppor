@@ -14,6 +14,7 @@ JabRef's "search within a library" — including fulltext search of linked PDF f
 Historically this was [Apache Lucene](https://lucene.apache.org/); PR [#11803](https://github.com/JabRef/jabref/pull/11803) replaced the Lucene-based bib-field search with an *embedded PostgreSQL server* (via the testing-oriented `io.zonky.test` wrapper), while Lucene stayed on for linked-PDF fulltext — so the product ships **two** search engines today, plus H2 MVStore for journal abbreviations.
 The embedded-PostgreSQL choice was made without an architectural decision record and has since produced a string of operational failures (orphaned processes [#12844](https://github.com/JabRef/jabref/issues/12844), a release that would not start [#15111](https://github.com/JabRef/jabref/issues/15111), unstartable linux-arm64 builds [#14783](https://github.com/JabRef/jabref/issues/14783), exception storms after process death [#12190](https://github.com/JabRef/jabref/issues/12190)); it has already been demoted to an opt-in, default-off setting in favour of an in-memory backend (PR [#15599](https://github.com/JabRef/jabref/pull/15599)).
 Issue [#12708](https://github.com/JabRef/jabref/issues/12708) is the long-running discussion on which DBMS/index technology should back JabRef's search, and the fulltext migration in issue [#12261](https://github.com/JabRef/jabref/issues/12261) is explicitly *blocked* on this decision.
+Its most recent consolidated, maintainer-reviewed recommendation ([#12708 (comment)](https://github.com/JabRef/jabref/issues/12708#issuecomment-3947205759)) summarized a 13-technology evaluation and proposed **Lucene for all search plus SQLite for relational storage** (two technologies); this ADR weighs that recommendation against the per-option evaluations and, as recorded in the Decision Outcome, diverges from it.
 This ADR selects the backend, weighing the requirements collected in [Search backend](../requirements/search-backend.md) (the `req~search.backend.*~1` family) against per-option evaluations and the JMH benchmark harness added in PR [#15385](https://github.com/JabRef/jabref/pull/15385).
 
 ## Decision Drivers
@@ -40,7 +41,22 @@ The requirements document holds the full, sourced list; the drivers that actuall
 * **[Apache Lucene](../evaluations/search-backend-lucene.md)** — pure-Java embeddable search library; incumbent for PDF fulltext.
 * **[In-memory search (no persistent index)](../evaluations/search-backend-in-memory.md)** — grammar walk over the in-heap entries; the current default.
 
-No other option (H2, DuckDB, …) reached the threshold of being argued in more than one source; DuckDB is noted in the requirements as failing `req~search.backend.auto-index-update~1` (no automatic full-text-index maintenance on table changes) at evaluation time.
+These four are the options evaluated in depth (one document each); the wider field from the #12708 sweep was eliminated earlier and is recorded below for traceability.
+
+### Also considered and rejected
+
+The consolidated #12708 evaluation ([comment 3947205759](https://github.com/JabRef/jabref/issues/12708#issuecomment-3947205759)) screened a wider field of 13+ technologies; none reached the depth-evaluation threshold, and each is rejected for a recorded reason:
+
+| Technology | Verdict | Reason |
+|---|---|---|
+| **DuckDB** | rejected | FTS index does **not** auto-update on `INSERT`/`UPDATE` — fails `req~search.backend.auto-index-update~1`, a dealbreaker for interactive editing |
+| **H2 (MVStore)** | rejected | `FullTextLucene` broken with Lucene 10.x; MVStore corruption documented across 5+ issues; today carries only journal abbreviations (the third technology `req~search.backend.single-technology~1` aims to retire) |
+| **Xapian** | rejected | Java bindings marked "experimental", not on Maven Central; no advantage over pure-Java Lucene |
+| **Embedded Solr** | rejected | embedding officially discouraged by the Solr project; ~50 MB+ jar, dependency-conflict risk |
+| **Terrier IR** | rejected | academic batch-retrieval engine, not designed for interactive desktop search |
+| **Tantivy4Java** | rejected | production-ready Rust/JNI bindings exist, but reintroduce native-binary packaging and the switch is unjustified while Lucene is already shipped |
+| **Panama FFM custom FTS5 tokenizer** | deferred | would let SQLite host a LaTeX/ICU-folding tokenizer in-process, but high complexity; the two-column literal + LaTeX-free transform covers the need without it (`req~search.backend.term-normalization~1`) |
+| **MapDB, Chronicle Map, Meilisearch, Typesense, Bleve, Groonga, Manticore** | rejected | server-only, missing/weak Java bindings, or no advantage over the shortlist |
 
 ## Decision Outcome
 
@@ -55,6 +71,8 @@ Rationale, grounded in the evaluations:
 * PostgreSQL is functionally the strongest engine but **architecturally non-compliant**: four drivers (`in-process`, `no-orphan-processes`, `no-network-ports`, sub-second `startup-time`) are unreachable at any effort level, and the project has already demoted it (#15599). Keeping it would mean approving a permanently non-compliant default.
 * Lucene is the strongest on normalization, fuzzy, ranking, and is the shipped fulltext engine, but it was already tried and reverted as bib-field backend (#11803); its token model does not natively give the deterministic substring / whole-value regex / case-sensitive semantics JabRef's grammar guarantees, and it leaves the storage question to a companion technology (so "single technology" is not achieved). It remains the best **fallback** for fulltext and the option to reconsider if fuzzy/ranking become hard requirements.
 * In-memory is an excellent floor (it already ships as default and passes every reliability/footprint requirement) but **definitionally violates** `req~search.backend.query-speed~1` (linear scan) and provides **no fulltext at all** — it cannot be the complete answer, only the fallback beside an indexed primary.
+
+**Relationship to the #12708 recommendation.** The thread's most recent consolidated recommendation ([comment 3947205759](https://github.com/JabRef/jabref/issues/12708#issuecomment-3947205759)) was *Lucene for all search + SQLite for storage* — two technologies, chosen primarily for Lucene's analyzer-grade normalization (the LaTeX→ICU folding pipeline) and its native fuzzy/ranking. This ADR keeps the SQLite half but makes **SQLite-FTS5, not Lucene, the search engine**: for JabRef's deterministic-substring-first semantics the single-technology consolidation (`req~search.backend.single-technology~1`) and the by-construction reliability/packaging wins outweigh Lucene's linguistic edge, and the normalization gap collapses to the same application-level `ue`↔`ü`/name folding *both* stacks must implement anyway (`req~search.backend.term-normalization~1` is "partial" for SQLite and Postgres alike). The Zotero precedent the recommendation cites — "SQLite full-text search bloats and slows past ~30k items" — is real for Zotero's *word-tokenized* FTS, but the **trigram** tokenizer JabRef would use is a different index (externally benchmarked at 10–30 ms over 18.2 M rows, ~10× the largest real JabRef library), so it does not transfer; the genuinely unproven axis is regex throughput, not substring. The divergence is therefore conditional: if the regex gate fails, or fuzzy/relevance ranking are upgraded to "must", the recommendation's Lucene+SQLite split is the documented fallback (see the revisit triggers).
 
 This decision is **proposed**, not accepted: it is explicitly gated on two measurements that the evaluations flag as unproven (see Confirmation and More Information). If either gate fails, the outcome changes (see the revisit triggers).
 
