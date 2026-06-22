@@ -46,6 +46,7 @@ import static picocli.CommandLine.Option;
         mixinStandardHelpOptions = true,
         // sorted alphabetically
         subcommands = {
+                AutoFix.class,
                 Check.class,
                 CitationKeys.class,
                 Convert.class,
