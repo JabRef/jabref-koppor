@@ -69,14 +69,16 @@ public class EntriesResource {
     @POST
     @Consumes(MediaTypes.APPLICATION_BIBTEX)
     public void addBibtex(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String bibtex) {
-        if (uiMessageHandler == null) {
-            throw new BadRequestException("Only possible in GUI mode.");
-        }
-        if (bibtex == null || bibtex.isBlank()) {
+        if (StringUtil.isBlank(bibtex)) {
             throw new BadRequestException("BibTeX data must not be empty.");
         }
+        if (!uiMessageHandler.isGuiConnected()) {
+            throw new BadRequestException("Only possible in GUI mode.");
+        }
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
-        uiMessageHandler.handleUiCommands(List.of(new UiCommand.AppendBibTeXToLibrary(targetLibrary, bibtex, group)));
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary
+                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, bibtex, group))
+                .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(bibtex, group))));
     }
 
     /// Parses a plain-text bibliography reference into a BibTeX entry and appends it to the
@@ -90,11 +92,11 @@ public class EntriesResource {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public void addPlainCitation(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String citationText) throws FetcherException, IOException {
-        if (uiMessageHandler == null) {
-            throw new BadRequestException("Only possible in GUI mode.");
-        }
         if (StringUtil.isBlank(citationText)) {
             throw new BadRequestException("Citation text must not be empty.");
+        }
+        if (!uiMessageHandler.isGuiConnected()) {
+            throw new BadRequestException("Only possible in GUI mode.");
         }
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
 
@@ -108,13 +110,15 @@ public class EntriesResource {
                 new BibEntryTypesManager());
         entryWriter.write(parsed, bibWriter, BibDatabaseMode.BIBTEX);
 
-        uiMessageHandler.handleUiCommands(List.of(new UiCommand.AppendBibTeXToLibrary(targetLibrary, rawEntry.toString(), group)));
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary
+                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntry.toString(), group))
+                .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(rawEntry.toString(), group))));
     }
 
     @POST
     @Consumes("*/*")
     public void addUnknown(@PathParam("id") String id, Reader body) throws IOException {
-        if (uiMessageHandler == null) {
+        if (!uiMessageHandler.isGuiConnected()) {
             throw new BadRequestException("Only possible in GUI mode.");
         }
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);

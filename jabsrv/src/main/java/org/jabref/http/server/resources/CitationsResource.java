@@ -61,7 +61,6 @@ public class CitationsResource {
     SrvStateManager srvStateManager;
 
     @Inject
-    @Nullable
     UiMessageHandler uiMessageHandler;
 
     @Inject
@@ -141,11 +140,11 @@ public class CitationsResource {
     public Response addFromCache(@PathParam("id") String id,
                                  @PathParam("parserCacheKey") String parserCacheKey,
                                  @QueryParam("group") @Nullable String group) {
-        if (uiMessageHandler == null) {
+        if (!uiMessageHandler.isGuiConnected()) {
             throw new BadRequestException("Only possible in GUI mode.");
         }
         BibDatabaseContext context = resolveTargetContext(id);
-        Optional<java.nio.file.Path> targetLibrary = targetLibrary(id, context);
+        Optional<java.nio.file.Path> targetLibrary = targetLibrary(id);
 
         Optional<CitationCacheService.CachedCitation> cached = citationCacheService.get(parserCacheKey);
         if (cached.isEmpty()) {
@@ -200,7 +199,9 @@ public class CitationsResource {
         }
 
         // uiMessageHandler is null-checked at the top of addFromCache; safe here.
-        uiMessageHandler.handleUiCommands(List.of(new UiCommand.AppendBibTeXToLibrary(targetLibrary, rawEntry.toString(), group)));
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary
+                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntry.toString(), group))
+                .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(rawEntry.toString(), group))));
 
         // Evict so the same token can't add a second copy. The client
         // already has confirmation it landed; re-tries fall through to
@@ -221,12 +222,17 @@ public class CitationsResource {
     }
 
     /// The append target for the resolved library: empty for "current" (append to the active
-    /// tab without switching), otherwise the library's on-disk path so the GUI switches to it
+    /// tab without switching), otherwise the open library's on-disk path so the GUI switches to it
     /// first. Mirrors {@link EntriesResource#resolveTargetLibrary}.
-    private Optional<java.nio.file.Path> targetLibrary(String id, BibDatabaseContext context) {
+    ///
+    /// Non-"current" ids are resolved against the *open* libraries via [ServerUtils#getLibraryPath]
+    /// rather than the resolved context's path. This rejects path-less contexts such as the bundled
+    /// "demo" library with 404 instead of silently falling back to an empty Optional (which
+    /// [UiCommand.AppendBibTeXToLibrary] would interpret as "append to the active library").
+    private Optional<java.nio.file.Path> targetLibrary(String id) {
         if ("current".equals(id)) {
             return Optional.empty();
         }
-        return context.getDatabasePath();
+        return Optional.of(ServerUtils.getLibraryPath(id, srvStateManager));
     }
 }
