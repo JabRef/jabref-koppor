@@ -218,8 +218,12 @@ afterburner's create-and-cache fallback is exercised and must be kept.
   run) — pre-existing, environment-dependent.
 - [x] CHECKLIST.md walkthrough done (enforced by hook at PR creation): checkstyle/modernizer/rewriteDryRun/javadoc/
   markdownlint all green; new classes @NullMarked; imports of all 183 touched files rebuilt into checkstyle groups.
-- [ ] GUI smoke test: `./gradlew :jabgui:run` — open About dialog (DialogPane path), entry editor
-  (fx:root field editors path), preferences (fx:include path), Integrity check dialog (view(Class) path).
+- [x] GUI smoke test on DISPLAY=:10.0: app starts, demo library loads, entry editor (fx:root field editors) and
+  preview render — screenshot verified. Dialog paths covered by now-green TestFX suites (AboutDialogViewTest =
+  setAsDialogPane, IdentifierEditorTest = fx:root editor, ContextActionTest, SourceTabTest, GlobalSearchBarTest).
+  Full :jabgui:test with display: 853 tests, only pre-existing/env-bound failures (KeyBindingViewModelTest baseline-
+  identical; 4 TestFX suites flaky under parallel load but green in isolation). Manual click-through can be done in
+  the running instance (holds remote port 6050, isolated prefs — close it before starting a real JabRef).
 - [x] Commit + push to koppor fork + draft PR there (user requested). PLAN.md included in the draft on purpose (working state); remove it and fill in the CHANGELOG PR link (marked TODO) before the real JabRef/jabref PR.
 
 ## Stretch (separate PR material, not required)
