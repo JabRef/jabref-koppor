@@ -1168,6 +1168,50 @@ We want to have a look that matches our icons in the tool-bar */
 }
 
 /* Editable semantic preview at the top of the "Main" tab (issue #12711, concept #2) */
+#entryEditor .semantic-preview-header {
+    -fx-spacing: 8;
+    -fx-padding: 4 4 0 4;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-entry-type {
+    -fx-text-fill: -fx-mid-text-color;
+    -fx-font-family: monospace;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-entry-type:hover {
+    -fx-text-fill: -jr-theme;
+    -fx-underline: true;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-header-separator {
+    -fx-text-fill: -fx-mid-text-color;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-citation-key {
+    -fx-font-family: monospace;
+    -fx-font-weight: bold;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-citation-key:hover {
+    -fx-text-fill: -jr-theme;
+    -fx-underline: true;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-citation-key-missing {
+    -fx-text-fill: derive(-jr-theme, 25%);
+    -fx-font-style: italic;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-citation-key-missing:hover {
+    -fx-text-fill: -jr-theme;
+    -fx-underline: true;
+}
+
+#entryEditor .semantic-preview-header .semantic-preview-editing {
+    -fx-text-fill: -jr-theme;
+    -fx-underline: true;
+}
+
 #entryEditor .semantic-preview-flow {
     -fx-padding: 6 4 10 4;
     -fx-line-spacing: 3;

@@ -17,11 +17,14 @@ import javax.swing.undo.UndoManager;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -30,6 +33,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -41,6 +45,7 @@ import javafx.scene.layout.VBox;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.fieldeditors.FieldEditorFX;
 import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.menus.ChangeEntryTypeMenu;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.PreviewPanel;
 import org.jabref.gui.undo.RedoAction;
@@ -90,6 +95,7 @@ public class AllFieldsTab extends FieldsEditorTab {
 
     private final BibEntryTypesManager entryTypesManager;
     private final GuiPreferences guiPreferences;
+    private final UndoManager undoManager;
 
     /// The current user's personal comment field (derived from the default-owner preference).
     private final UserSpecificCommentField userSpecificCommentField;
@@ -134,6 +140,10 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// Overlay row hosting the in-place editor (field label + bound editor node).
     private final HBox inPlaceEditorRow = new HBox();
 
+    /// Header line above the preview: "@type · citationkey"; the key is click-to-edit,
+    /// the type opens the change-entry-type menu.
+    private final HBox headerRow = new HBox();
+
     /// Guards the focus-loss listener while the editor is being closed programmatically.
     private boolean closingInPlaceEditor;
 
@@ -158,6 +168,7 @@ public class AllFieldsTab extends FieldsEditorTab {
 
         this.entryTypesManager = entryTypesManager;
         this.guiPreferences = preferences;
+        this.undoManager = undoManager;
         String defaultOwner = NON_ALPHANUMERIC.matcher(
                 preferences.getOwnerPreferences().getDefaultOwner().toLowerCase(Locale.ROOT)).replaceAll("-");
         this.userSpecificCommentField = new UserSpecificCommentField(defaultOwner);
@@ -166,6 +177,9 @@ public class AllFieldsTab extends FieldsEditorTab {
         setText(EntryEditorTabModel.BuiltIn.ALL_FIELDS.displayName());
         setTooltip(new Tooltip(Localization.lang("Show all fields")));
         setGraphic(IconTheme.JabRefIcons.REQUIRED.getGraphicNode());
+
+        headerRow.getStyleClass().add("semantic-preview-header");
+        headerRow.setAlignment(Pos.CENTER_LEFT);
 
         inPlaceEditorRow.getStyleClass().add("semantic-preview-editor-row");
         inPlaceEditorRow.setAlignment(Pos.CENTER_LEFT);
@@ -279,20 +293,74 @@ public class AllFieldsTab extends FieldsEditorTab {
     }
 
     /// Rebuilds when the shown or preview-covered field set changed; otherwise only
-    /// re-renders the flow text.
+    /// re-renders the flow text and the header line.
     private void refreshAfterChange(BibEntry entry) {
         SequencedSet<Field> target = determineFieldsToShow(entry);
         CitationSegments segments = computeSegments(entry);
-        if (!target.equals(editors.keySet()) || !segments.coveredFields().equals(coveredByPreview)) {
+        if (!target.equals(editors.keySet()) || !coveredWithCitationKey(segments).equals(coveredByPreview)) {
             rebuildPanel(activeDatabaseContext(), entry);
         } else {
             previewFlow.render(segments, null, this::onSegmentClicked);
+            renderHeaderRow(entry);
         }
     }
 
     private CitationSegments computeSegments(BibEntry entry) {
         return CitationSegments.of(entry, entryTypesManager.enrich(entry.getType(), getDatabaseMode()));
     }
+
+    /// The preview also represents the citation key (in the header line above the flow),
+    /// so it counts as covered for the no-duplication rule.
+    private SequencedSet<Field> coveredWithCitationKey(CitationSegments segments) {
+        SequencedSet<Field> covered = new LinkedHashSet<>(segments.coveredFields());
+        covered.add(InternalField.KEY_FIELD);
+        return covered;
+    }
+
+    // region header row
+
+    /// "@type · citationkey": the type opens the change-entry-type menu, the key opens
+    /// its in-place editor (CitationKeyEditor including the generate button).
+    private void renderHeaderRow(BibEntry entry) {
+        Label typeLabel = new Label("@" + entry.getType().getName());
+        typeLabel.getStyleClass().add("semantic-preview-entry-type");
+        typeLabel.setCursor(Cursor.HAND);
+        typeLabel.setTooltip(new Tooltip(Localization.lang("Change entry type")));
+        typeLabel.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                ContextMenu typeMenu = new ChangeEntryTypeMenu(
+                        List.of(entry), activeDatabaseContext(), undoManager, entryTypesManager).asContextMenu();
+                typeMenu.show(typeLabel, Side.BOTTOM, 0, 0);
+            }
+        });
+
+        Label keyLabel;
+        Optional<String> citationKey = entry.getCitationKey().filter(key -> !key.isBlank());
+        if (citationKey.isPresent()) {
+            keyLabel = new Label(citationKey.get());
+            keyLabel.getStyleClass().add("semantic-preview-citation-key");
+        } else {
+            keyLabel = new Label("{{" + FieldTextMapper.getDisplayName(InternalField.KEY_FIELD) + "}}");
+            keyLabel.getStyleClass().add("semantic-preview-citation-key-missing");
+        }
+        if (InternalField.KEY_FIELD.equals(inPlaceEditingField)) {
+            keyLabel.getStyleClass().add("semantic-preview-editing");
+        }
+        keyLabel.setCursor(Cursor.HAND);
+        keyLabel.setTooltip(new Tooltip(Localization.lang("Edit") + ": "
+                + FieldTextMapper.getDisplayName(InternalField.KEY_FIELD)));
+        keyLabel.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                onSegmentClicked(InternalField.KEY_FIELD);
+            }
+        });
+
+        Label separator = new Label("·");
+        separator.getStyleClass().add("semantic-preview-header-separator");
+        headerRow.getChildren().setAll(typeLabel, separator, keyLabel);
+    }
+
+    // endregion
 
     // region in-place editing
 
@@ -335,7 +403,19 @@ public class AllFieldsTab extends FieldsEditorTab {
         listContainer.getChildren().add(flowIndex + 1, inPlaceEditorRow);
 
         previewFlow.render(computeSegments(entry), field, this::onSegmentClicked);
+        renderHeaderRow(entry);
         Platform.runLater(editor::focus);
+    }
+
+    /// Jump-to-field and the focus key bindings route preview-covered fields to the
+    /// in-place editor; everything else focuses its regular editor row.
+    @Override
+    public void requestFocus(Field fieldName) {
+        if (coveredByPreview.contains(fieldName) && editors.containsKey(fieldName)) {
+            openInPlaceEditor(fieldName);
+            return;
+        }
+        super.requestFocus(fieldName);
     }
 
     /// Closes the overlay editor. `keepValue = false` (Esc) restores the field to the
@@ -390,8 +470,9 @@ public class AllFieldsTab extends FieldsEditorTab {
         }
 
         CitationSegments segments = computeSegments(entry);
-        coveredByPreview = segments.coveredFields();
+        coveredByPreview = coveredWithCitationKey(segments);
         previewFlow.render(segments, inPlaceEditingField, this::onSegmentClicked);
+        renderHeaderRow(entry);
 
         Map<FieldListSections.SectionType, SequencedSet<Field>> buckets =
                 new EnumMap<>(FieldListSections.SectionType.class);
@@ -411,7 +492,7 @@ public class AllFieldsTab extends FieldsEditorTab {
         }
         addFieldRows(gridPane, buckets.get(FieldListSections.SectionType.MAIN), labelForField);
 
-        listContainer.getChildren().setAll(previewFlow, gridPane, createMainChipBar(bibDatabaseContext, entry));
+        listContainer.getChildren().setAll(headerRow, previewFlow, gridPane, createMainChipBar(bibDatabaseContext, entry));
         for (FieldListSections.SectionType type : FieldListSections.SectionType.values()) {
             if (type == FieldListSections.SectionType.MAIN) {
                 continue;
