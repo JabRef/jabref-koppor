@@ -11,10 +11,10 @@ import javafx.scene.control.TabPane;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

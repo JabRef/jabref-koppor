@@ -4,8 +4,6 @@ module org.jabref.jabls.cli {
     requires org.jabref.jablib;
     requires org.jabref.jabls;
 
-    requires afterburner.fx;
-
     requires org.slf4j;
     requires jul.to.slf4j;
     requires /*runtime*/ org.tinylog.api;

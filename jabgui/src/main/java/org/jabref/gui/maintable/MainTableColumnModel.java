@@ -16,12 +16,12 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
 
 import org.jabref.gui.util.FieldsUtil;
+import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.metadata.SaveOrder;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

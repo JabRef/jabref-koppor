@@ -101,7 +101,7 @@ public class ImporterPreferences {
     }
 
     private static Map<String, String> getDefaultFetcherKeys() {
-        // To avoid including a heavy dependency tree with the current dependency injector of afterburner.fx, we
+        // To avoid pulling in the service locator (org.jabref.injection.Injector) here, we
         // instantiate "BuildInfo" directly.
         BuildInfo buildInfo = new BuildInfo();
 

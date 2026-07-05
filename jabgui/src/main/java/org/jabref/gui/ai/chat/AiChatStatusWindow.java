@@ -5,14 +5,13 @@ import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTask;
 import org.jabref.logic.ai.rag.logic.AnswerEngine;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class AiChatStatusWindow extends BaseDialog<Void> {
     @FXML private AiChatStatusView aiChatStatusView;

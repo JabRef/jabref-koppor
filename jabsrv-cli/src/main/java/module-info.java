@@ -9,9 +9,6 @@ module org.jabref.jabsrv.cli {
 
     requires static jakarta.annotation;
 
-    requires afterburner.fx;
-    provides com.airhacks.afterburner.views.ResourceLocator
-            with org.jabref.http.cli.JabRefResourceLocator;
     requires javafx.base;
 
     requires org.glassfish.grizzly.http.server;

@@ -10,10 +10,10 @@ import javafx.scene.control.Tooltip;
 import org.jabref.gui.importer.ImporterViewModel;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelTableRowFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class CustomImporterTab extends AbstractPreferenceTabView<CustomImporterTabViewModel> implements PreferencesTab {

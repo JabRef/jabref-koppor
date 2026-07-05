@@ -18,6 +18,7 @@ import javafx.scene.input.MouseButton;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.StateManager;
+import org.jabref.injection.Injector;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.logic.importer.util.MediaTypes;
@@ -31,7 +32,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.BibtexString;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

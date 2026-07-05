@@ -3,9 +3,8 @@ package org.jabref.gui.consistency;
 import javafx.stage.Modality;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class ConsistencySymbolsDialog extends BaseDialog<Void> {
 

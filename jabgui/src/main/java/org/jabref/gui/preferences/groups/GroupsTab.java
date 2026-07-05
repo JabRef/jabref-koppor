@@ -6,9 +6,8 @@ import javafx.scene.control.RadioButton;
 
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class GroupsTab extends AbstractPreferenceTabView<GroupsTabViewModel> implements PreferencesTab {
 

@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import javafx.fxml.FXMLLoader;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
@@ -184,9 +183,6 @@ public class LocalizationParser {
     private static Collection<LocalizationEntry> getLanguageKeysInFxmlFile(Path path, LocalizationBundleForTest type) {
         Collection<String> result = new ArrayList<>();
 
-        // Afterburner ViewLoader forces a controller factory, but we do not need any controller
-        MockedStatic<ViewLoader> viewLoader = Mockito.mockStatic(ViewLoader.class, Answers.RETURNS_DEEP_STUBS);
-
         // Record which keys are requested; we pretend that we have all keys
         ResourceBundle registerUsageResourceBundle = new ResourceBundle() {
             @Override
@@ -208,7 +204,11 @@ public class LocalizationParser {
             }
         };
 
-        try {
+        // Custom controls referenced in the FXML files load their own FXML in their
+        // constructors via ViewLoader; mock it statically so that their instantiation
+        // during static loading stays inert. jabgui is only on the test runtime path
+        // (a compile-time requires would create a module cycle), hence the reflective lookup.
+        try (MockedStatic<?> viewLoader = Mockito.mockStatic(Class.forName("org.jabref.gui.util.ViewLoader"), Answers.RETURNS_DEEP_STUBS)) {
             FXMLLoader loader = new FXMLLoader(path.toUri().toURL(), registerUsageResourceBundle);
             // We don't want to initialize controller
             loader.setControllerFactory(Mockito::mock);
@@ -216,10 +216,8 @@ public class LocalizationParser {
             // We need to load in "static mode" because otherwise fxml files with fx:root doesn't work
             setStaticLoad(loader);
             loader.load();
-        } catch (IOException exception) {
+        } catch (IOException | ClassNotFoundException exception) {
             throw new RuntimeException(exception);
-        } finally {
-            viewLoader.close();
         }
 
         return result.stream()

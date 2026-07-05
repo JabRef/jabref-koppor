@@ -21,6 +21,7 @@ import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
 import org.jabref.gui.theme.ThemeTypes;
 import org.jabref.gui.util.IconValidationDecorator;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.http.manager.HttpServerManager;
 import org.jabref.languageserver.controller.LanguageServerController;
@@ -31,7 +32,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
 import org.jabref.model.database.BibDatabaseMode;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;
