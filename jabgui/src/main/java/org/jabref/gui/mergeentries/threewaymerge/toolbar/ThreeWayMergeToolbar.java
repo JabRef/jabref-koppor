@@ -19,7 +19,7 @@ import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.google.common.base.Enums;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyBinding;

@@ -19,7 +19,7 @@ import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTabViewModel> implements PreferencesTab {
 

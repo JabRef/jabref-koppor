@@ -44,7 +44,7 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
 import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;

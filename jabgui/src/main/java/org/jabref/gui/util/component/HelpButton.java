@@ -13,7 +13,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.help.HelpFile;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 public class HelpButton extends Button {

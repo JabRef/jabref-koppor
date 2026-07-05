@@ -24,11 +24,8 @@ import java.util.stream.Stream;
 
 import javafx.fxml.FXMLLoader;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import org.mockito.Answers;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 @ResourceLock("Localization.lang")
@@ -184,9 +181,6 @@ public class LocalizationParser {
     private static Collection<LocalizationEntry> getLanguageKeysInFxmlFile(Path path, LocalizationBundleForTest type) {
         Collection<String> result = new ArrayList<>();
 
-        // Afterburner ViewLoader forces a controller factory, but we do not need any controller
-        MockedStatic<ViewLoader> viewLoader = Mockito.mockStatic(ViewLoader.class, Answers.RETURNS_DEEP_STUBS);
-
         // Record which keys are requested; we pretend that we have all keys
         ResourceBundle registerUsageResourceBundle = new ResourceBundle() {
             @Override
@@ -218,8 +212,6 @@ public class LocalizationParser {
             loader.load();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
-        } finally {
-            viewLoader.close();
         }
 
         return result.stream()

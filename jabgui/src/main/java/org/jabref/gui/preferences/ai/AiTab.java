@@ -33,7 +33,7 @@ import org.jabref.model.ai.pipeline.AnswerEngineKind;
 import org.jabref.model.ai.summarization.SummarizatorKind;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.dlsc.gemsfx.EnhancedPasswordField;
 import com.dlsc.unitfx.IntegerInputField;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;

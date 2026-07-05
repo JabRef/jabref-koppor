@@ -66,7 +66,7 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.model.util.OptionalUtil;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

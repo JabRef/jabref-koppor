@@ -5,7 +5,7 @@ import javafx.scene.layout.VBox;
 
 import org.jabref.gui.theme.ThemeTypes;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 public class ThemeWireFrame extends VBox {

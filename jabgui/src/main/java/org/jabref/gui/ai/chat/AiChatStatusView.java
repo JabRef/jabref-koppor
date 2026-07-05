@@ -29,7 +29,7 @@ import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.pipeline.AnswerEngineKind;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 /// Displays status and metadata for an AI chat session.

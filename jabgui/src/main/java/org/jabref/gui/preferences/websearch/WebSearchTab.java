@@ -32,7 +32,7 @@ import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewModel> implements PreferencesTab {
     // Multiplier for row height based on font size

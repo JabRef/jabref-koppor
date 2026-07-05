@@ -22,7 +22,7 @@ import org.jabref.gui.util.component.MarkdownTextFlow;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AiChatMessageView extends HBox {

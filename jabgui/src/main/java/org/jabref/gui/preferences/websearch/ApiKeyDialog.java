@@ -19,7 +19,7 @@ import org.jabref.gui.preferences.websearch.WebSearchTabViewModel.FetcherViewMod
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class ApiKeyDialog extends FXDialog {
     public static final Duration STATUS_DURATION = Duration.seconds(5);

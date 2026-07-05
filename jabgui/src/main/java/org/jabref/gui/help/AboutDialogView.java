@@ -13,7 +13,7 @@ import org.jabref.gui.util.ControlHelper;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AboutDialogView extends BaseDialog<Void> {

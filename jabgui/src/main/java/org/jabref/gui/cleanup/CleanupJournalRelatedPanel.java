@@ -12,7 +12,7 @@ import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 public class CleanupJournalRelatedPanel extends VBox implements CleanupPanel {

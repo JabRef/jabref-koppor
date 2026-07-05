@@ -6,7 +6,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.TaskExecutor;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class SearchForUpdateAction extends SimpleCommand {
 

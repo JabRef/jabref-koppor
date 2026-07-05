@@ -96,7 +96,7 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class MainMenu extends MenuBar {
     private final JabRefFrame frame;

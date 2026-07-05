@@ -13,7 +13,7 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.MainFileDirectoryDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class MainFileDirectoryDialog extends FXDialog {
     @FXML private TextField pathField;

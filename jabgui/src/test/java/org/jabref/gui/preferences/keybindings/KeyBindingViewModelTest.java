@@ -12,7 +12,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.support.DisabledOnCIServer;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

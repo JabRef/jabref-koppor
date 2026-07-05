@@ -31,7 +31,7 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 import org.controlsfx.control.textfield.CustomTextField;

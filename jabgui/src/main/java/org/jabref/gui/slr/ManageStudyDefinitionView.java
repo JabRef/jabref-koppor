@@ -38,7 +38,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyQuery;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

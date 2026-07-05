@@ -21,9 +21,7 @@ open module org.jabref {
 
     requires com.tobiasdiez.easybind;
 
-    requires afterburner.fx;
-    provides com.airhacks.afterburner.views.ResourceLocator
-            with org.jabref.gui.util.JabRefResourceLocator;
+    requires com.dlsc.fxmlkit;
 
     requires com.dlsc.gemsfx;
     uses com.dlsc.gemsfx.TagsField;

@@ -10,7 +10,7 @@ import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 /// This class is just a simple wrapper for the soon to be refactored SaveDatabaseAction.
 public class SaveAction extends SimpleCommand {

@@ -52,7 +52,7 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.NonNull;

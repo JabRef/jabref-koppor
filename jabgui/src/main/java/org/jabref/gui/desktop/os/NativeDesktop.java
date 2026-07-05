@@ -31,7 +31,7 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.Identifier;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.slf4j.LoggerFactory;
 
 import static org.jabref.model.entry.field.StandardField.PDF;

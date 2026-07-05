@@ -23,7 +23,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.Subscription;
 import jakarta.inject.Inject;

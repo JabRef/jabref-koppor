@@ -7,7 +7,7 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

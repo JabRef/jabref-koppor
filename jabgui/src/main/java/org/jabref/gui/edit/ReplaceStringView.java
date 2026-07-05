@@ -12,7 +12,7 @@ import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.IconValidationDecorator;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 public class ReplaceStringView extends BaseDialog<Void> {

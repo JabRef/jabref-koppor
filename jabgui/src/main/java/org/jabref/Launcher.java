@@ -28,7 +28,7 @@ import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.Directories;
 import org.jabref.migrations.PreferencesMigrations;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;

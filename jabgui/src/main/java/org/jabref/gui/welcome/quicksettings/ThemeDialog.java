@@ -19,7 +19,7 @@ import org.jabref.gui.welcome.components.ThemeWireFrame;
 import org.jabref.gui.welcome.quicksettings.viewmodel.ThemeDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class ThemeDialog extends FXDialog {
     @FXML private CheckBox themeSyncOs;

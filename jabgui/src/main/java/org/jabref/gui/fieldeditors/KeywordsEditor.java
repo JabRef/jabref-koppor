@@ -15,7 +15,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class KeywordsEditor extends TagsEditor {
 

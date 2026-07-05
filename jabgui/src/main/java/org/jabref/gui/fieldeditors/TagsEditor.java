@@ -41,7 +41,7 @@ import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.dlsc.gemsfx.TagsField;
 import com.google.common.collect.Comparators;
 import org.slf4j.Logger;

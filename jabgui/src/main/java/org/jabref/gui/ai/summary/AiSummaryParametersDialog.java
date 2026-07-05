@@ -8,7 +8,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.ai.summarization.logic.summarizationalgorithms.Summarizator;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 // [impl->req~ai.expert-settings.summarization-local~1]
 public class AiSummaryParametersDialog extends BaseDialog<Boolean> {

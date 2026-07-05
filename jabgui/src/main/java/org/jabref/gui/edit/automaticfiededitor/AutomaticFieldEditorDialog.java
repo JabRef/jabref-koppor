@@ -14,7 +14,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

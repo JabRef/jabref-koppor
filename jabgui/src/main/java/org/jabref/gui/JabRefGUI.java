@@ -34,6 +34,7 @@ import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.gui.util.DefaultFileUpdateMonitor;
 import org.jabref.gui.util.DirectoryMonitor;
+import org.jabref.gui.util.InjectorDiAdapter;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.util.WebViewStore;
 import org.jabref.http.manager.HttpServerManager;
@@ -60,7 +61,8 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
+import com.dlsc.fxmlkit.fxml.FxmlKit;
 import com.dlsc.gemsfx.PowerPane;
 import com.dlsc.gemsfx.infocenter.InfoCenterPane;
 import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
@@ -110,6 +112,11 @@ public class JabRefGUI extends Application {
         try {
             this.mainStage = stage;
             Injector.setModelOrService(Stage.class, mainStage);
+
+            // Views built on FxmlKit (FxmlView/FxmlViewProvider) resolve their controllers
+            // and localization from the same sources as ViewLoader-based views
+            FxmlKit.setDiAdapter(new InjectorDiAdapter());
+            FxmlKit.setResourceBundle(Localization.getMessages());
 
             initialize();
 

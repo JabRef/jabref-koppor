@@ -20,7 +20,7 @@ import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.util.Range;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

@@ -24,7 +24,7 @@ import org.jabref.gui.util.IconValidationDecorator;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.dlsc.gemsfx.EnhancedPasswordField;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;

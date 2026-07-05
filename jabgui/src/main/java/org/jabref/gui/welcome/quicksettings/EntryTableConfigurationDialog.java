@@ -11,7 +11,7 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.EntryTableConfigurationDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class EntryTableConfigurationDialog extends FXDialog {
     @FXML private CheckBox showCitationKeyBox;

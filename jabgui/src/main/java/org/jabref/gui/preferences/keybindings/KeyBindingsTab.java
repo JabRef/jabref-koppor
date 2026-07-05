@@ -26,7 +26,7 @@ import org.jabref.gui.util.RecursiveTreeItem;
 import org.jabref.gui.util.ViewModelTreeTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 import org.controlsfx.control.textfield.CustomTextField;

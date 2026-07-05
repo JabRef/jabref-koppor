@@ -29,8 +29,8 @@ import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.airhacks.afterburner.views.ViewLoaderResult;
+import org.jabref.gui.util.ViewLoader;
+import org.jabref.gui.util.ViewLoaderResult;
 import jakarta.inject.Inject;
 import org.controlsfx.control.table.TableFilter;
 import org.slf4j.Logger;

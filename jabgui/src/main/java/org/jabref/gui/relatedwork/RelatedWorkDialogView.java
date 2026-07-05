@@ -22,7 +22,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.LinkedFile;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class RelatedWorkDialogView extends BaseDialog<Void> {

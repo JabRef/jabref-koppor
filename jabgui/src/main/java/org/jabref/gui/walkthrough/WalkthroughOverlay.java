@@ -23,7 +23,7 @@ import org.jabref.gui.walkthrough.utils.WalkthroughReverter;
 import org.jabref.gui.walkthrough.utils.WalkthroughScroller;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

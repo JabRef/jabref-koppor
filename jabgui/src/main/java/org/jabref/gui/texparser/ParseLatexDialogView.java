@@ -22,7 +22,7 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;

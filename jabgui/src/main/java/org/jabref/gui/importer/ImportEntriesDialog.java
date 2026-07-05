@@ -59,7 +59,7 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 import org.controlsfx.control.CheckListView;

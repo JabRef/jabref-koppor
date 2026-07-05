@@ -21,7 +21,7 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class JournalEditor extends HBox implements FieldEditorFX {

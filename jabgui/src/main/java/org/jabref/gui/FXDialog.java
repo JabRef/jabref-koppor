@@ -10,7 +10,7 @@ import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.util.BaseDialog;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 /// This class provides a super class for all dialogs implemented in JavaFX.
 ///

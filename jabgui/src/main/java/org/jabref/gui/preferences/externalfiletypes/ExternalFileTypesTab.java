@@ -12,7 +12,7 @@ import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 /// Editor for external file types.
 public class ExternalFileTypesTab extends AbstractPreferenceTabView<ExternalFileTypesTabViewModel> implements PreferencesTab {

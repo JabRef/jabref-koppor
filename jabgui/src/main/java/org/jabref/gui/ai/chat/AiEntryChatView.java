@@ -9,7 +9,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.ai.AiService;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 // [impl->feat~ai.chatting.entries~1]

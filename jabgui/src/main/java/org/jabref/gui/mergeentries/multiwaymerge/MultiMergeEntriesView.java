@@ -53,7 +53,7 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyObservableValue;
 import org.slf4j.Logger;

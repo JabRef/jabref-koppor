@@ -20,7 +20,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsList;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 /// Dialog for managing term list files.

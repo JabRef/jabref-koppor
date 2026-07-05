@@ -33,7 +33,7 @@ import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
 import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.sun.javafx.scene.NodeHelper;
 import org.controlsfx.control.PopOver;
 import org.jspecify.annotations.NonNull;

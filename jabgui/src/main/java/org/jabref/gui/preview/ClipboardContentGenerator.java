@@ -22,7 +22,7 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 
 public record ClipboardContentGenerator(

@@ -12,7 +12,7 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 /// This action checks whether any new custom entry types were loaded from this
 /// BIB file. If so, an offer to remember these entry types is given.

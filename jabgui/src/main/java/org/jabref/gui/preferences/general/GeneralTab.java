@@ -31,7 +31,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
 import org.jabref.model.database.BibDatabaseMode;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;

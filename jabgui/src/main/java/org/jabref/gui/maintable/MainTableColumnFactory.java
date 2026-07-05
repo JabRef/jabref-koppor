@@ -45,7 +45,7 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.groups.AbstractGroup;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

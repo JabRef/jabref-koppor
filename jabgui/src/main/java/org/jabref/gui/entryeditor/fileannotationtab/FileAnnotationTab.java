@@ -12,7 +12,7 @@ import org.jabref.logic.pdf.FileAnnotationCache;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class FileAnnotationTab extends EntryEditorTab {

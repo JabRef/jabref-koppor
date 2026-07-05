@@ -9,7 +9,7 @@ import org.jabref.gui.libraryproperties.AbstractPropertiesTabView;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class PreamblePropertiesView extends AbstractPropertiesTabView<PreamblePropertiesViewModel> {

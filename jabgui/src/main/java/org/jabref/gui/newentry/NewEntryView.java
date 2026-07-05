@@ -65,8 +65,8 @@ import org.jabref.model.entry.types.IEEETranEntryTypeDefinitions;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.injection.Injector;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;

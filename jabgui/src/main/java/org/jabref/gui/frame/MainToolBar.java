@@ -35,7 +35,7 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.dlsc.gemsfx.infocenter.InfoCenterPane;
 import com.tobiasdiez.easybind.Subscription;
 import org.controlsfx.control.PopOver;

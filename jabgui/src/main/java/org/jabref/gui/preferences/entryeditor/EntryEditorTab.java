@@ -19,7 +19,7 @@ import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.importer.fetcher.citation.CitationCountFetcherType;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabViewModel> implements PreferencesTab {
 

@@ -6,7 +6,7 @@ import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.logic.preferences.CliPreferences;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 

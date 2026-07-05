@@ -6,7 +6,7 @@ import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class ParseLatexAction extends SimpleCommand {
 

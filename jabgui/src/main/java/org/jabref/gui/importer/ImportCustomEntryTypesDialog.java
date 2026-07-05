@@ -14,7 +14,7 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 import org.controlsfx.control.CheckListView;
 

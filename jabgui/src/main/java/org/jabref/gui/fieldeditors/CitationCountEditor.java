@@ -27,8 +27,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.injection.Injector;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class CitationCountEditor extends HBox implements FieldEditorFX {

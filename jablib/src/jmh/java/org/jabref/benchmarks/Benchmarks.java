@@ -48,7 +48,7 @@ import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.apache.commons.io.FileUtils;
 import org.mockito.Answers;
 import org.openjdk.jmh.Main;

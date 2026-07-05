@@ -16,7 +16,7 @@ import org.jabref.gui.util.URLs;
 import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.model.ai.llm.AiProvider;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AiPrivacyNoticeView extends ScrollPane {

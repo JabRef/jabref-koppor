@@ -33,7 +33,7 @@ import org.jabref.model.entry.EntryLinkList;
 import org.jabref.model.entry.ParsedEntryLink;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.dlsc.gemsfx.TagsField;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;

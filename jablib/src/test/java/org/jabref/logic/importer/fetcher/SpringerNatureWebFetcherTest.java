@@ -16,7 +16,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.testutils.category.FetcherTest;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

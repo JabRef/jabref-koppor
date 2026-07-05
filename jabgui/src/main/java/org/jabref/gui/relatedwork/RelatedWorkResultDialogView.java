@@ -18,7 +18,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.relatedwork.RelatedWorkMatchResult;
 import org.jabref.model.entry.BibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class RelatedWorkResultDialogView extends BaseDialog<Void> {

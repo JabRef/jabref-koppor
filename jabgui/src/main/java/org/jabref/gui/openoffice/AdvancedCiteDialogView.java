@@ -9,7 +9,7 @@ import javafx.scene.control.ToggleGroup;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class AdvancedCiteDialogView extends BaseDialog<AdvancedCiteDialogViewModel> {
 

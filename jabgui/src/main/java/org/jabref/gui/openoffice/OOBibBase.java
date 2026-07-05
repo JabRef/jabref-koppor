@@ -46,7 +46,7 @@ import org.jabref.model.openoffice.uno.UnoUndo;
 import org.jabref.model.openoffice.util.OOResult;
 import org.jabref.model.openoffice.util.OOVoidResult;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.sun.star.comp.helper.BootstrapException;
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.lang.WrappedTargetException;

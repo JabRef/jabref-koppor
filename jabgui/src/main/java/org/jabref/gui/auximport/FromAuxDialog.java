@@ -17,7 +17,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 

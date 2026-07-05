@@ -41,7 +41,7 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TestEntry;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;

@@ -20,7 +20,7 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;

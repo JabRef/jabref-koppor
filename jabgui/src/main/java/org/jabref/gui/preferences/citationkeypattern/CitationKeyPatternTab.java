@@ -11,8 +11,8 @@ import org.jabref.gui.preferences.PreferencesTab;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.injection.Injector;
+import org.jabref.gui.util.ViewLoader;
 
 public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKeyPatternTabViewModel> implements PreferencesTab {
 

@@ -49,7 +49,7 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;
 import org.controlsfx.control.GridCell;

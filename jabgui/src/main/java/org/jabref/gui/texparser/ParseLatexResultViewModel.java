@@ -21,7 +21,7 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.texparser.Citation;
 import org.jabref.model.texparser.LatexBibEntriesResolverResult;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class ParseLatexResultViewModel extends AbstractViewModel {
 

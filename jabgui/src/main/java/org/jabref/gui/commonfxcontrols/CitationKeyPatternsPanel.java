@@ -20,7 +20,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.types.EntryType;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanelItemModel> {
 

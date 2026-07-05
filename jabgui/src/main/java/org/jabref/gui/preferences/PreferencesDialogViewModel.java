@@ -44,7 +44,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

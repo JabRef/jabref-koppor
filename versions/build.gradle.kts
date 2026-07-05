@@ -45,6 +45,7 @@ dependencies.constraints {
 
     api("cc.jilt:jilt:1.9.1")
 
+    api("com.dlsc.fxmlkit:fxmlkit:1.5.1")
     api("com.dlsc.gemsfx:gemsfx:4.2.0")
     api("com.dlsc.unitfx:unitfx:1.0.10")
     api("com.dlsc.pdfviewfx:pdfviewfx:3.4.2")
@@ -131,7 +132,6 @@ dependencies.constraints {
     api("org.hamcrest:hamcrest:3.0")
     api("org.hibernate.validator:hibernate-validator:9.1.1.Final")
     api("org.hisp.dhis:json-tree:1.9.4")
-    api("org.jabref:afterburner.fx:2.0.0")
     api("org.jabref:easybind:2.3.0")
     api("org.jabref:mslinks:1.2")
     api("org.jetbrains:annotations:26.1.0")

@@ -44,7 +44,7 @@ import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;

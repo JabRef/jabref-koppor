@@ -6,7 +6,7 @@ import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;

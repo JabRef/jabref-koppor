@@ -12,7 +12,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class AiChatStatusWindow extends BaseDialog<Void> {
     @FXML private AiChatStatusView aiChatStatusView;

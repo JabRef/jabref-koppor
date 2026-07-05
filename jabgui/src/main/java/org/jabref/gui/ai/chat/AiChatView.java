@@ -28,7 +28,7 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 /// General AI chat component with [org.jabref.model.entry.BibEntry]. Can be used for chatting with one entry ([AiEntryChatView]) or with several entries (like [AiGroupChatView]).

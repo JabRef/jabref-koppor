@@ -12,7 +12,7 @@ import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.EntryTypeFactory;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -14,7 +14,7 @@ import javafx.scene.text.TextFlow;
 
 import org.jabref.gui.clipboard.ClipBoardManager;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import org.jspecify.annotations.Nullable;
 
 public class SelectableTextFlow extends TextFlow {

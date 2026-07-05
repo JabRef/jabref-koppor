@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 
 import org.jabref.logic.importer.FetcherException;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class JournalInfoView extends VBox {
     @FXML private Label title;

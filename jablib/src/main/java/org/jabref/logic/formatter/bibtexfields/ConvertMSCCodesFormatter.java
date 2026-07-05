@@ -12,7 +12,7 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

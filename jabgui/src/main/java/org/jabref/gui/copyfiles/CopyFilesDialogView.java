@@ -12,7 +12,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class CopyFilesDialogView extends BaseDialog<Void> {
 

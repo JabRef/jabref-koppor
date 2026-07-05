@@ -8,7 +8,7 @@ import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class GroupsTab extends AbstractPreferenceTabView<GroupsTabViewModel> implements PreferencesTab {
 

@@ -17,7 +17,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.gui.util.IconValidationDecorator;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;
 
