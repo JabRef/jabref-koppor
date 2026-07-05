@@ -13,6 +13,7 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /// Renders the [CitationSegments] of an entry as a wrapping text flow — the visual
 /// part of the editable semantic preview in the [AllFieldsTab] (issue #12711,
@@ -26,7 +27,9 @@ public class SemanticPreviewFlow extends TextFlow {
         getStyleClass().add("semantic-preview-flow");
     }
 
-    public void render(CitationSegments segments, Consumer<Field> onFieldClick) {
+    /// Renders the tokens; the segments of `editingField` (currently edited in place)
+    /// get an extra highlight style.
+    public void render(CitationSegments segments, @Nullable Field editingField, Consumer<Field> onFieldClick) {
         getChildren().clear();
         for (CitationSegments.Token token : segments.tokens()) {
             switch (token) {
@@ -41,11 +44,17 @@ public class SemanticPreviewFlow extends TextFlow {
                     if (style == CitationSegments.SegmentStyle.ITALIC) {
                         textNode.getStyleClass().add("semantic-preview-italic");
                     }
+                    if (field.equals(editingField)) {
+                        textNode.getStyleClass().add("semantic-preview-editing");
+                    }
                     addClickableSegment(textNode, field, onFieldClick);
                 }
                 case CitationSegments.PlaceholderToken(Field field) -> {
                     Text textNode = new Text("{{" + FieldTextMapper.getDisplayName(field) + "}}");
                     textNode.getStyleClass().add("semantic-preview-placeholder");
+                    if (field.equals(editingField)) {
+                        textNode.getStyleClass().add("semantic-preview-editing");
+                    }
                     addClickableSegment(textNode, field, onFieldClick);
                 }
             }

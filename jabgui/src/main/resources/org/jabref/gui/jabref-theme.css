@@ -1184,7 +1184,7 @@ We want to have a look that matches our icons in the tool-bar */
 
 #entryEditor .semantic-preview-flow .semantic-preview-value:hover {
     -fx-underline: true;
-    -fx-fill: -jr-theme-text;
+    -fx-fill: -jr-theme;
 }
 
 #entryEditor .semantic-preview-flow .semantic-preview-italic {
@@ -1192,13 +1192,29 @@ We want to have a look that matches our icons in the tool-bar */
 }
 
 #entryEditor .semantic-preview-flow .semantic-preview-placeholder {
-    -fx-fill: -fx-mid-text-color;
+    -fx-fill: derive(-jr-theme, 25%);
     -fx-font-style: italic;
 }
 
 #entryEditor .semantic-preview-flow .semantic-preview-placeholder:hover {
     -fx-underline: true;
-    -fx-fill: -jr-theme-text;
+    -fx-fill: -jr-theme;
+}
+
+#entryEditor .semantic-preview-flow .semantic-preview-editing {
+    -fx-fill: -jr-theme;
+    -fx-underline: true;
+    -fx-font-weight: bold;
+}
+
+/* Overlay row hosting the in-place editor beneath the preview flow */
+#entryEditor .semantic-preview-editor-row {
+    -fx-spacing: 8;
+    -fx-padding: 2 4 10 4;
+}
+
+#entryEditor .semantic-preview-editor-label {
+    -fx-font-weight: bold;
 }
 
 #entryEditor Text {

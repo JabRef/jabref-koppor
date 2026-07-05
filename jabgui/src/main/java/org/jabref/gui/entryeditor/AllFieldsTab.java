@@ -28,6 +28,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -122,6 +124,19 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// precedence, a field never appears twice (no-duplication rule).
     private SequencedSet<Field> coveredByPreview = new LinkedHashSet<>();
 
+    /// In-place editing: the preview-covered field currently edited in the overlay row
+    /// directly beneath the flow; null when no in-place editor is open.
+    private @Nullable Field inPlaceEditingField;
+
+    /// The field's value when the in-place editor was opened; Esc restores it.
+    private Optional<String> inPlaceEditingPreviousValue = Optional.empty();
+
+    /// Overlay row hosting the in-place editor (field label + bound editor node).
+    private final HBox inPlaceEditorRow = new HBox();
+
+    /// Guards the focus-loss listener while the editor is being closed programmatically.
+    private boolean closingInPlaceEditor;
+
     public AllFieldsTab(UndoManager undoManager,
                         UndoAction undoAction,
                         RedoAction redoAction,
@@ -151,6 +166,29 @@ public class AllFieldsTab extends FieldsEditorTab {
         setText(EntryEditorTabModel.BuiltIn.ALL_FIELDS.displayName());
         setTooltip(new Tooltip(Localization.lang("Show all fields")));
         setGraphic(IconTheme.JabRefIcons.REQUIRED.getGraphicNode());
+
+        inPlaceEditorRow.getStyleClass().add("semantic-preview-editor-row");
+        inPlaceEditorRow.setAlignment(Pos.CENTER_LEFT);
+        inPlaceEditorRow.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                closeInPlaceEditor(true);
+                event.consume();
+            } else if (event.getCode() == KeyCode.ESCAPE) {
+                closeInPlaceEditor(false);
+                event.consume();
+            }
+        });
+        // Focus leaving the overlay row closes the editor (value is already written
+        // through); runLater so focus transfers inside the row do not close it.
+        inPlaceEditorRow.focusWithinProperty().addListener((_, _, focused) -> {
+            if (!focused && (inPlaceEditingField != null) && !closingInPlaceEditor) {
+                Platform.runLater(() -> {
+                    if ((inPlaceEditingField != null) && !closingInPlaceEditor && !inPlaceEditorRow.isFocusWithin()) {
+                        closeInPlaceEditor(true);
+                    }
+                });
+            }
+        });
     }
 
     /// Order: citation key, required fields (entry-type order), set optional fields
@@ -199,6 +237,7 @@ public class AllFieldsTab extends FieldsEditorTab {
 
     @Override
     protected void bindToEntry(BibEntry entry) {
+        discardInPlaceEditor();
         if (subscribedEntry.filter(current -> current == entry).isEmpty()) {
             subscribedEntry.ifPresent(previous -> previous.unregisterListener(this));
             entry.registerListener(this);
@@ -229,13 +268,25 @@ public class AllFieldsTab extends FieldsEditorTab {
         if (editors.containsKey(event.getField()) && StringUtil.isBlank(event.getNewValue())) {
             userAddedFields.add(event.getField());
         }
+        if (inPlaceEditingField != null) {
+            // Defer structural rebuilds while the overlay editor is open (no focus
+            // theft); the flow still re-renders so the edited segment's text follows
+            // the typing live. The deferred check runs in closeInPlaceEditor.
+            previewFlow.render(computeSegments(entry), inPlaceEditingField, this::onSegmentClicked);
+            return;
+        }
+        refreshAfterChange(entry);
+    }
+
+    /// Rebuilds when the shown or preview-covered field set changed; otherwise only
+    /// re-renders the flow text.
+    private void refreshAfterChange(BibEntry entry) {
         SequencedSet<Field> target = determineFieldsToShow(entry);
         CitationSegments segments = computeSegments(entry);
         if (!target.equals(editors.keySet()) || !segments.coveredFields().equals(coveredByPreview)) {
             rebuildPanel(activeDatabaseContext(), entry);
         } else {
-            // Same layout, possibly new values: refresh the preview text only.
-            previewFlow.render(segments, this::onSegmentClicked);
+            previewFlow.render(segments, null, this::onSegmentClicked);
         }
     }
 
@@ -243,11 +294,85 @@ public class AllFieldsTab extends FieldsEditorTab {
         return CitationSegments.of(entry, entryTypesManager.enrich(entry.getType(), getDatabaseMode()));
     }
 
-    /// Clicking a preview segment will open the field's editor in place (next step);
-    /// for now it focuses the field's editor if one is shown below.
+    // region in-place editing
+
+    /// Clicking a preview segment opens the field's bound editor in the overlay row
+    /// directly beneath the flow; the segment gets a highlight. (A literal swap inside
+    /// the TextFlow is not feasible: field editors are compound HBox controls that
+    /// would wreck the line layout.)
+    // [impl->req~entry-editor.main-tab.in-place-edit~1]
     private void onSegmentClicked(Field field) {
-        requestFocus(field);
+        if (field.equals(inPlaceEditingField)) {
+            FieldEditorFX editor = editors.get(field);
+            if (editor != null) {
+                editor.focus();
+            }
+            return;
+        }
+        if (!coveredByPreview.contains(field)) {
+            requestFocus(field);
+            return;
+        }
+        openInPlaceEditor(field);
     }
+
+    private void openInPlaceEditor(Field field) {
+        BibEntry entry = getCurrentEntry();
+        FieldEditorFX editor = editors.get(field);
+        if ((entry == null) || (editor == null)) {
+            return;
+        }
+        closeInPlaceEditor(true);
+        inPlaceEditingField = field;
+        inPlaceEditingPreviousValue = entry.getField(field);
+
+        Label label = new Label(FieldTextMapper.getDisplayName(field));
+        label.getStyleClass().add("semantic-preview-editor-label");
+        Node editorNode = editor.getNode();
+        HBox.setHgrow(editorNode, Priority.ALWAYS);
+        inPlaceEditorRow.getChildren().setAll(label, editorNode);
+        int flowIndex = listContainer.getChildren().indexOf(previewFlow);
+        listContainer.getChildren().add(flowIndex + 1, inPlaceEditorRow);
+
+        previewFlow.render(computeSegments(entry), field, this::onSegmentClicked);
+        Platform.runLater(editor::focus);
+    }
+
+    /// Closes the overlay editor. `keepValue = false` (Esc) restores the field to the
+    /// value it had when the editor was opened. Afterwards the deferred layout check
+    /// runs: rebuild if the shown/covered set changed while editing, else just drop
+    /// the highlight.
+    private void closeInPlaceEditor(boolean keepValue) {
+        if (inPlaceEditingField == null) {
+            return;
+        }
+        closingInPlaceEditor = true;
+        Field field = inPlaceEditingField;
+        BibEntry entry = getCurrentEntry();
+        try {
+            if (!keepValue && (entry != null)) {
+                inPlaceEditingPreviousValue.ifPresentOrElse(
+                        value -> entry.setField(field, value),
+                        () -> entry.clearField(field));
+            }
+        } finally {
+            discardInPlaceEditor();
+            closingInPlaceEditor = false;
+        }
+        if (entry != null) {
+            refreshAfterChange(entry);
+        }
+    }
+
+    /// Drops the overlay editor without value restore or refresh (entry switch, rebind).
+    private void discardInPlaceEditor() {
+        inPlaceEditingField = null;
+        inPlaceEditingPreviousValue = Optional.empty();
+        listContainer.getChildren().remove(inPlaceEditorRow);
+        inPlaceEditorRow.getChildren().clear();
+    }
+
+    // endregion
 
     /// Main fields as a grid with natural row heights, then the optional-field chip bar,
     /// then the always-present collapsible sections (identifiers / files & links /
@@ -266,7 +391,7 @@ public class AllFieldsTab extends FieldsEditorTab {
 
         CitationSegments segments = computeSegments(entry);
         coveredByPreview = segments.coveredFields();
-        previewFlow.render(segments, this::onSegmentClicked);
+        previewFlow.render(segments, inPlaceEditingField, this::onSegmentClicked);
 
         Map<FieldListSections.SectionType, SequencedSet<Field>> buckets =
                 new EnumMap<>(FieldListSections.SectionType.class);
@@ -453,6 +578,7 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// field if necessary) and focuses it.
     // [impl->req~entry-editor.main-tab.add-chips~1]
     private void showFieldEditor(BibDatabaseContext bibDatabaseContext, BibEntry entry, Field field) {
+        closeInPlaceEditor(true);
         userAddedFields.add(field);
         rebuildPanel(bibDatabaseContext, entry);
         Platform.runLater(() -> requestFocus(field));
