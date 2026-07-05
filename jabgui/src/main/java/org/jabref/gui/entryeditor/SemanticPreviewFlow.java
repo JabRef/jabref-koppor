@@ -1,5 +1,6 @@
 package org.jabref.gui.entryeditor;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import javafx.scene.Cursor;
@@ -8,12 +9,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 /// Renders the [CitationSegments] of an entry as a wrapping text flow — the visual
 /// part of the editable semantic preview in the [AllFieldsTab] (issue #12711,
@@ -29,7 +28,7 @@ public class SemanticPreviewFlow extends TextFlow {
 
     /// Renders the tokens; the segments of `editingField` (currently edited in place)
     /// get an extra highlight style.
-    public void render(CitationSegments segments, @Nullable Field editingField, Consumer<Field> onFieldClick) {
+    public void render(CitationSegments segments, Optional<Field> editingField, Consumer<Field> onFieldClick) {
         getChildren().clear();
         for (CitationSegments.Token token : segments.tokens()) {
             switch (token) {
@@ -44,7 +43,7 @@ public class SemanticPreviewFlow extends TextFlow {
                     if (style == CitationSegments.SegmentStyle.ITALIC) {
                         textNode.getStyleClass().add("semantic-preview-italic");
                     }
-                    if (field.equals(editingField)) {
+                    if (editingField.filter(field::equals).isPresent()) {
                         textNode.getStyleClass().add("semantic-preview-editing");
                     }
                     addClickableSegment(textNode, field, onFieldClick);
@@ -52,7 +51,7 @@ public class SemanticPreviewFlow extends TextFlow {
                 case CitationSegments.PlaceholderToken(Field field) -> {
                     Text textNode = new Text("{{" + FieldTextMapper.getDisplayName(field) + "}}");
                     textNode.getStyleClass().add("semantic-preview-placeholder");
-                    if (field.equals(editingField)) {
+                    if (editingField.filter(field::equals).isPresent()) {
                         textNode.getStyleClass().add("semantic-preview-editing");
                     }
                     addClickableSegment(textNode, field, onFieldClick);
@@ -63,8 +62,7 @@ public class SemanticPreviewFlow extends TextFlow {
 
     private void addClickableSegment(Text textNode, Field field, Consumer<Field> onFieldClick) {
         textNode.setCursor(Cursor.HAND);
-        Tooltip.install(textNode, new Tooltip(
-                Localization.lang("Edit") + ": " + FieldTextMapper.getDisplayName(field)));
+        Tooltip.install(textNode, new Tooltip(FieldTextMapper.getDisplayName(field)));
         textNode.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
                 onFieldClick.accept(field);

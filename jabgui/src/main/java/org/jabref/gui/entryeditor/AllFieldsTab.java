@@ -131,8 +131,8 @@ public class AllFieldsTab extends FieldsEditorTab {
     private SequencedSet<Field> coveredByPreview = new LinkedHashSet<>();
 
     /// In-place editing: the preview-covered field currently edited in the overlay row
-    /// directly beneath the flow; null when no in-place editor is open.
-    private @Nullable Field inPlaceEditingField;
+    /// directly beneath the flow; empty when no in-place editor is open.
+    private Optional<Field> inPlaceEditingField = Optional.empty();
 
     /// The field's value when the in-place editor was opened; Esc restores it.
     private Optional<String> inPlaceEditingPreviousValue = Optional.empty();
@@ -195,9 +195,9 @@ public class AllFieldsTab extends FieldsEditorTab {
         // Focus leaving the overlay row closes the editor (value is already written
         // through); runLater so focus transfers inside the row do not close it.
         inPlaceEditorRow.focusWithinProperty().addListener((_, _, focused) -> {
-            if (!focused && (inPlaceEditingField != null) && !closingInPlaceEditor) {
+            if (!focused && inPlaceEditingField.isPresent() && !closingInPlaceEditor) {
                 Platform.runLater(() -> {
-                    if ((inPlaceEditingField != null) && !closingInPlaceEditor && !inPlaceEditorRow.isFocusWithin()) {
+                    if (inPlaceEditingField.isPresent() && !closingInPlaceEditor && !inPlaceEditorRow.isFocusWithin()) {
                         closeInPlaceEditor(true);
                     }
                 });
@@ -282,7 +282,7 @@ public class AllFieldsTab extends FieldsEditorTab {
         if (editors.containsKey(event.getField()) && StringUtil.isBlank(event.getNewValue())) {
             userAddedFields.add(event.getField());
         }
-        if (inPlaceEditingField != null) {
+        if (inPlaceEditingField.isPresent()) {
             // Defer structural rebuilds while the overlay editor is open (no focus
             // theft); the flow still re-renders so the edited segment's text follows
             // the typing live. The deferred check runs in closeInPlaceEditor.
@@ -300,7 +300,7 @@ public class AllFieldsTab extends FieldsEditorTab {
         if (!target.equals(editors.keySet()) || !coveredWithCitationKey(segments).equals(coveredByPreview)) {
             rebuildPanel(activeDatabaseContext(), entry);
         } else {
-            previewFlow.render(segments, null, this::onSegmentClicked);
+            previewFlow.render(segments, Optional.empty(), this::onSegmentClicked);
             renderHeaderRow(entry);
         }
     }
@@ -334,21 +334,23 @@ public class AllFieldsTab extends FieldsEditorTab {
             }
         });
 
-        Label keyLabel;
-        Optional<String> citationKey = entry.getCitationKey().filter(key -> !key.isBlank());
-        if (citationKey.isPresent()) {
-            keyLabel = new Label(citationKey.get());
-            keyLabel.getStyleClass().add("semantic-preview-citation-key");
-        } else {
-            keyLabel = new Label("{{" + FieldTextMapper.getDisplayName(InternalField.KEY_FIELD) + "}}");
-            keyLabel.getStyleClass().add("semantic-preview-citation-key-missing");
-        }
-        if (InternalField.KEY_FIELD.equals(inPlaceEditingField)) {
+        Label keyLabel = entry.getCitationKey()
+                              .filter(StringUtil::isNotBlank)
+                              .map(key -> {
+                                  Label label = new Label(key);
+                                  label.getStyleClass().add("semantic-preview-citation-key");
+                                  return label;
+                              })
+                              .orElseGet(() -> {
+                                  Label label = new Label("{{" + FieldTextMapper.getDisplayName(InternalField.KEY_FIELD) + "}}");
+                                  label.getStyleClass().add("semantic-preview-citation-key-missing");
+                                  return label;
+                              });
+        if (inPlaceEditingField.filter(InternalField.KEY_FIELD::equals).isPresent()) {
             keyLabel.getStyleClass().add("semantic-preview-editing");
         }
         keyLabel.setCursor(Cursor.HAND);
-        keyLabel.setTooltip(new Tooltip(Localization.lang("Edit") + ": "
-                + FieldTextMapper.getDisplayName(InternalField.KEY_FIELD)));
+        keyLabel.setTooltip(new Tooltip(FieldTextMapper.getDisplayName(InternalField.KEY_FIELD)));
         keyLabel.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
                 onSegmentClicked(InternalField.KEY_FIELD);
@@ -370,10 +372,9 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// would wreck the line layout.)
     // [impl->req~entry-editor.main-tab.in-place-edit~1]
     private void onSegmentClicked(Field field) {
-        if (field.equals(inPlaceEditingField)) {
-            FieldEditorFX editor = editors.get(field);
-            if (editor != null) {
-                editor.focus();
+        if (inPlaceEditingField.filter(field::equals).isPresent()) {
+            if (editors.containsKey(field)) {
+                editors.get(field).focus();
             }
             return;
         }
@@ -385,26 +386,27 @@ public class AllFieldsTab extends FieldsEditorTab {
     }
 
     private void openInPlaceEditor(Field field) {
-        BibEntry entry = getCurrentEntry();
-        FieldEditorFX editor = editors.get(field);
-        if ((entry == null) || (editor == null)) {
+        if (!editors.containsKey(field)) {
             return;
         }
-        closeInPlaceEditor(true);
-        inPlaceEditingField = field;
-        inPlaceEditingPreviousValue = entry.getField(field);
+        Optional.ofNullable(getCurrentEntry()).ifPresent(entry -> {
+            closeInPlaceEditor(true);
+            FieldEditorFX editor = editors.get(field);
+            inPlaceEditingField = Optional.of(field);
+            inPlaceEditingPreviousValue = entry.getField(field);
 
-        Label label = new Label(FieldTextMapper.getDisplayName(field));
-        label.getStyleClass().add("semantic-preview-editor-label");
-        Node editorNode = editor.getNode();
-        HBox.setHgrow(editorNode, Priority.ALWAYS);
-        inPlaceEditorRow.getChildren().setAll(label, editorNode);
-        int flowIndex = listContainer.getChildren().indexOf(previewFlow);
-        listContainer.getChildren().add(flowIndex + 1, inPlaceEditorRow);
+            Label label = new Label(FieldTextMapper.getDisplayName(field));
+            label.getStyleClass().add("semantic-preview-editor-label");
+            Node editorNode = editor.getNode();
+            HBox.setHgrow(editorNode, Priority.ALWAYS);
+            inPlaceEditorRow.getChildren().setAll(label, editorNode);
+            int flowIndex = listContainer.getChildren().indexOf(previewFlow);
+            listContainer.getChildren().add(flowIndex + 1, inPlaceEditorRow);
 
-        previewFlow.render(computeSegments(entry), field, this::onSegmentClicked);
-        renderHeaderRow(entry);
-        Platform.runLater(editor::focus);
+            previewFlow.render(computeSegments(entry), inPlaceEditingField, this::onSegmentClicked);
+            renderHeaderRow(entry);
+            Platform.runLater(editor::focus);
+        });
     }
 
     /// Jump-to-field and the focus key bindings route preview-covered fields to the
@@ -423,30 +425,28 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// runs: rebuild if the shown/covered set changed while editing, else just drop
     /// the highlight.
     private void closeInPlaceEditor(boolean keepValue) {
-        if (inPlaceEditingField == null) {
+        if (inPlaceEditingField.isEmpty()) {
             return;
         }
         closingInPlaceEditor = true;
-        Field field = inPlaceEditingField;
-        BibEntry entry = getCurrentEntry();
+        Field field = inPlaceEditingField.orElseThrow();
+        Optional<BibEntry> entry = Optional.ofNullable(getCurrentEntry());
         try {
-            if (!keepValue && (entry != null)) {
-                inPlaceEditingPreviousValue.ifPresentOrElse(
-                        value -> entry.setField(field, value),
-                        () -> entry.clearField(field));
+            if (!keepValue) {
+                entry.ifPresent(current -> inPlaceEditingPreviousValue.ifPresentOrElse(
+                        value -> current.setField(field, value),
+                        () -> current.clearField(field)));
             }
         } finally {
             discardInPlaceEditor();
             closingInPlaceEditor = false;
         }
-        if (entry != null) {
-            refreshAfterChange(entry);
-        }
+        entry.ifPresent(this::refreshAfterChange);
     }
 
     /// Drops the overlay editor without value restore or refresh (entry switch, rebind).
     private void discardInPlaceEditor() {
-        inPlaceEditingField = null;
+        inPlaceEditingField = Optional.empty();
         inPlaceEditingPreviousValue = Optional.empty();
         listContainer.getChildren().remove(inPlaceEditorRow);
         inPlaceEditorRow.getChildren().clear();

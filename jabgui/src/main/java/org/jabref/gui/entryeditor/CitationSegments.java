@@ -6,7 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedSet;
+import java.util.regex.Pattern;
 
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
@@ -39,6 +41,9 @@ public record CitationSegments(List<Token> tokens, SequencedSet<Field> coveredFi
     /// Rendered field values are capped at this many characters (long values such as
     /// abstracts are not part of the template vocabulary, but titles can get long too).
     static final int VALUE_DISPLAY_MAX_LENGTH = 250;
+
+    /// Runs of whitespace (including line breaks) collapse to one space for display.
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
     /// Visual style of a [FieldToken]; standalone titles and venue names render italic.
     public enum SegmentStyle {
@@ -211,28 +216,23 @@ public record CitationSegments(List<Token> tokens, SequencedSet<Field> coveredFi
         /// requirement (its [OrFields] group) is entirely unmet → [PlaceholderToken];
         /// otherwise nothing. The prefix literal is emitted only alongside a token.
         private void slot(String prefix, SegmentStyle style, Field... candidates) {
-            Optional<Field> setField = firstSet(candidates);
-            if (setField.isPresent()) {
-                emitField(prefix, style, setField.get(), displayValue(setField.get()));
-                return;
-            }
-            firstUnmetRequired(candidates).ifPresent(field -> emitPlaceholder(prefix, field));
+            firstSet(candidates).ifPresentOrElse(
+                    field -> emitField(prefix, style, field, displayValue(field)),
+                    () -> firstUnmetRequired(candidates).ifPresent(field -> emitPlaceholder(prefix, field)));
         }
 
         /// Author/editor slot: display via [AuthorList] ("First Last and First Last");
         /// an editor-resolved slot is marked with " (Eds.)".
         private void personSlot() {
-            Optional<Field> setField = firstSet(StandardField.AUTHOR, StandardField.EDITOR);
-            if (setField.isPresent()) {
-                Field field = setField.get();
-                emitField("", SegmentStyle.PLAIN, field, displayPersons(field));
-                if (field == StandardField.EDITOR) {
-                    tokens.add(new TextToken(" (Eds.)"));
-                }
-                return;
-            }
-            firstUnmetRequired(StandardField.AUTHOR, StandardField.EDITOR)
-                    .ifPresent(field -> emitPlaceholder("", field));
+            firstSet(StandardField.AUTHOR, StandardField.EDITOR).ifPresentOrElse(
+                    field -> {
+                        emitField("", SegmentStyle.PLAIN, field, displayPersons(field));
+                        if (field == StandardField.EDITOR) {
+                            tokens.add(new TextToken(" (Eds.)"));
+                        }
+                    },
+                    () -> firstUnmetRequired(StandardField.AUTHOR, StandardField.EDITOR)
+                            .ifPresent(field -> emitPlaceholder("", field)));
         }
 
         /// Year with date alias: the set one of year/date, else the required one.
@@ -332,7 +332,7 @@ public record CitationSegments(List<Token> tokens, SequencedSet<Field> coveredFi
         // region field access and display
 
         private boolean isSet(Field field) {
-            return entry.getField(field).filter(value -> !value.isBlank()).isPresent();
+            return entry.getField(field).filter(StringUtil::isNotBlank).isPresent();
         }
 
         private Optional<Field> firstSet(Field... candidates) {
@@ -350,9 +350,9 @@ public record CitationSegments(List<Token> tokens, SequencedSet<Field> coveredFi
         }
 
         private String displayValue(Field field) {
-            String value = LatexToUnicodeAdapter.format(entry.getField(field).orElse(""))
-                                                .replaceAll("\\s+", " ")
-                                                .trim();
+            String value = WHITESPACE.matcher(LatexToUnicodeAdapter.format(entry.getField(field).orElse("")))
+                                     .replaceAll(" ")
+                                     .trim();
             if (field == StandardField.PAGES) {
                 value = value.replace("--", "–");
             }
