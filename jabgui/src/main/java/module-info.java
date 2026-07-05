@@ -22,6 +22,8 @@ open module org.jabref {
     requires com.tobiasdiez.easybind;
 
     requires com.dlsc.fxmlkit;
+    // Runtime library for FXML/2 markup extensions (%key resources)
+    requires jfxcore.markup;
 
     requires com.dlsc.gemsfx;
     uses com.dlsc.gemsfx.TagsField;

@@ -19,6 +19,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,6 +34,11 @@ import org.mockito.Mockito;
 
 @ResourceLock("Localization.lang")
 public class LocalizationParser {
+
+    /// Matches FXML/2 resource attribute values: `="%plain key"` or `="%'quoted, key with \' escapes'"`.
+    /// Group 1 = quoted key (backslash-escaped apostrophes), group 2 = plain key
+    /// (terminated by the closing quote or by `;` introducing named extension arguments).
+    private static final Pattern FXML2_RESOURCE_KEY = Pattern.compile("=\\s*\"%(?:'((?:\\\\'|[^'])*)'|([^\";]+))");
 
     public static SortedSet<LocalizationEntry> findMissingKeys(LocalizationBundleForTest type) throws IOException {
         Set<LocalizationEntry> entries = findLocalizationEntriesInFiles(type);
@@ -105,9 +112,12 @@ public class LocalizationParser {
 
     private static Set<LocalizationEntry> findLocalizationEntriesInFxmlFiles(LocalizationBundleForTest type) throws IOException {
         try {
+            // classic FXML lives in src/main/resources; FXML/2 sources live in src/main/java
             return List.of("jablib", "jabkit", "jabsrv", "jabgui", "jabls")
                        .stream()
-                       .map(path -> Path.of("..", path, "src", "main", "resources").normalize())
+                       .flatMap(module -> Stream.of(
+                               Path.of("..", module, "src", "main", "resources").normalize(),
+                               Path.of("..", module, "src", "main", "java").normalize()))
                        .filter(Files::isDirectory)
                        .flatMap(Unchecked.function(path -> Files.walk(path)))
                        .filter(LocalizationParser::isFxmlFile)
@@ -206,9 +216,12 @@ public class LocalizationParser {
 
         try {
             // FXML/2 files are compiled to classes at build time and cannot be parsed by FXMLLoader;
-            // their keys are checked at compile time by the FXML/2 compiler instead
-            if (Files.readString(path, StandardCharsets.UTF_8).contains("http://jfxcore.org/fxml/2.0")) {
-                return List.of();
+            // their %-resource keys are extracted textually instead
+            String content = Files.readString(path, StandardCharsets.UTF_8);
+            if (content.contains("http://jfxcore.org/fxml/2.0")) {
+                return getResourceKeysInFxml2Content(content).stream()
+                                                             .map(key -> new LocalizationEntry(path, key, type))
+                                                             .toList();
             }
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -233,6 +246,26 @@ public class LocalizationParser {
         return result.stream()
                      .map(key -> new LocalizationEntry(path, key, type))
                      .toList();
+    }
+
+    static List<String> getResourceKeysInFxml2Content(String content) {
+        List<String> keys = new ArrayList<>();
+        Matcher matcher = FXML2_RESOURCE_KEY.matcher(content);
+        while (matcher.find()) {
+            String key = matcher.group(1) != null
+                    ? matcher.group(1).replace("\\'", "'")
+                    : matcher.group(2);
+            keys.add(unescapeXmlEntities(key));
+        }
+        return keys;
+    }
+
+    private static String unescapeXmlEntities(String value) {
+        return value.replace("&quot;", "\"")
+                    .replace("&apos;", "'")
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">")
+                    .replace("&amp;", "&");
     }
 
     private static void setStaticLoad(FXMLLoader loader) {

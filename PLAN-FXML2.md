@@ -90,8 +90,21 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
 
 ## Phase 2 — Foundations (after GO)
 
-- [ ] Add `jfxcore/markup` runtime lib; implement JabRef `ResourceContextProvider` on `Localization.getMessages()`;
-  prove `%key` (incl. spaces + format args) on one localized view.
+- [x] Add `jfxcore/markup` runtime lib (`org.jfxcore:markup:0.2.0`, module `jfxcore.markup`; mapping added to
+  `gradle/modules.properties`); `JabRefResourceContext implements ResourceContext` delegates to
+  `Localization.lang(key, args)` (key=value convention, `%0` placeholders, NO MessageFormat — its quote handling
+  would corrupt JabRef values); views opt in via `interface LocalizedView extends ResourceContextProvider`
+  (one `implements` per view). PROVEN on `CleanupMultiFieldPanel` (8 real keys): TestFX-verified.
+  **Key syntax recipe:** plain `%key` only for keys without `' , ; { }` — the parser UNQUOTES apostrophes and
+  splits at commas in plain form! For keys with such punctuation use the quoted form `%'key with, comma and
+  \'escaped\' apostrophes'`. Uniform quoting is safest. Also: the FXML/2 runtime passes `args == null` when no
+  formatArguments are declared (guarded in JabRefResourceContext). NOT yet proven: formatArguments (`%0`-style)
+  in markup — test when the first view needs it.
+- [x] `LocalizationParser`: extracts keys from FXML/2 files (regex for both `%plain` and `%'quoted'` forms incl.
+  `\'` unescaping + XML entities) and now also scans `src/main/java` for `.fxml` (FXML/2 sources live there).
+  `LocalizationConsistencyTest` green — obsolete/missing detection covers converted views.
+- [x] FXML/2 dialect gotcha found: attributes map to NAMED CONSTRUCTOR ARGUMENTS — partial `<Insets top left>`
+  (classic: missing sides = 0) must list all four.
 - [ ] Solve stylesheet attachment convention for converted views (markup `stylesheets` or base-class helper).
 - [ ] Extend `LocalizationParser` to EXTRACT keys from FXML/2 files (XML parse for `%`/StaticResource) so l10n
   consistency checks cover converted views again.
