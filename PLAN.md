@@ -7,6 +7,13 @@ fresh on `main` and explores concept #2: **in-place editing inside a semantic pr
 
 Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, based on `main`).
 
+**2026-07-05: concept #1 was MERGED into origin/main as PR #16166 ("New entry
+editor")** — AllFieldsTab, FieldListSections, FieldsEditorTab hooks, classic-tab
+sunset are all upstream now (byte-identical to `../jabref` except a trivial `==`
+in FieldListSections). This branch therefore *evolves the merged AllFieldsTab*
+instead of porting anything. Note: main also got #16161 (JabRefGuiPreferences →
+PreferenceBindings), so prefs plumbing details in older notes may be stale.
+
 ## Target UX (concept #2, Oliver 2026-07-05)
 
 - **Tab lineup as in PR #731**: one field tab **"Main"** replaces the classic category tabs
@@ -86,13 +93,13 @@ Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, based on
 
 ## Steps (check off as done; commit after each step)
 
-### Phase 0 — Baseline: port #731 substrate
+### Phase 0 — Baseline
 
-- [ ] **1. Port #731 diff** from `../jabref` (exclude its `PLAN.md`), i.e. tab model,
-  factory, prefs (+UI), sunset of classic tabs, `FieldListSections`(+test),
-  `FieldsEditorTab` hooks, `AllFieldsTab`, CSS, l10n, CHANGELOG, requirements doc.
-  One clearly-labeled port commit. *Check: `./gradlew :jabgui:compileJava`,
-  `:jabgui:test --tests "org.jabref.gui.entryeditor.*"`, checkstyle.*
+- [x] **1. Baseline = origin/main.** ~~Port #731 diff~~ OBSOLETE: concept #1 merged
+  upstream as #16166. Branch rebased onto origin/main (6c67e6f99b); only the
+  PLAN.md commit kept. The earlier port commit (ebf393e0c8) and the
+  AllFieldsTab→MainTab rename (092f8bab66) were dropped — **class keeps the
+  upstream name `AllFieldsTab`** for a minimal PR diff (open question 3 closed).
 
 ### Phase 1 — Semantic preview, read-only
 
@@ -144,8 +151,8 @@ Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, based on
    is the *real* citation style. Interim: keep, user can hide via divider.)
 2. Semantic preview style: one fixed hand-rolled template (interim: yes) or derived
    from the user's selected preview/CSL style (hard: CSL output is opaque)?
-3. Rename `AllFieldsTab` → `MainTab` in this branch? (Interim idea: yes, during
-   step 1 port — concept #2 diverges enough; avoids confusion with #731.)
+3. Rename `AllFieldsTab` → `MainTab`? → **RESOLVED: no** — the class landed in
+   main via #16166 under that name; keep it, reshape in place (minimal diff).
 4. Citation key + entry type rendering: header line "@article{key," style or plain
    row? (Interim: header line with both parts clickable.)
 5. Abstract/keywords in the preview flow? (Interim: no — they stay as rows below;
@@ -171,3 +178,7 @@ JVMs inherit it).
   editable → new TextFlow component; field editors two-way bind automatically;
   #731 substrate portable). Design for `CitationSegments` / `SemanticPreviewFlow`
   fixed (see Design section). No implementation steps done yet.
+- 2026-07-05: Oliver: concept #1 merged into origin/main (#16166) → branch reset
+  onto origin/main + PLAN.md cherry-picked; port/rename commits dropped as
+  obsolete. Baseline verified upstream-identical to the explored `../jabref`
+  state. Next: step 2 (`CitationSegments`).
