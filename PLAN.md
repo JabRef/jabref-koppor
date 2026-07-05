@@ -103,8 +103,12 @@ Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, on origi
   ref), requirements doc extended (semantic-preview / in-place-edit /
   no-duplication reqs + single-list reworded), no new l10n keys needed
   ("Edit"/"Change entry type" existed), traceRequirements green, no dead code.
-- [ ] **9. Push to `koppor` remote + PR** at github.com/JabRef/jabref-koppor for
-  internal inspection (like #731). Keep PLAN.md + incremental commits (no squash).
+- [ ] **9. Push to `koppor` remote + PR** — branch `new-entry-editor-in-place-edit`
+  PUSHED to koppor (incl. CHECKLIST compliance commit 07d2d525bc); screenshots
+  published on orphan branch `koppor-images-in-place-edit`; PR body prepared at
+  scratchpad/pr-body.md (template-complete incl. checklist walkthrough).
+  **BLOCKED: `gh pr create` denied by the local permission classifier — needs
+  Oliver to approve/run the command** (see status log for the exact command).
 
 ## Open questions (ask Oliver / decide before the relevant step)
 
@@ -119,6 +123,17 @@ Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, on origi
 6. Known quirk: a required-outside-vocabulary field (e.g. biblatex `url` for
    @online) is a trailing placeholder while unset but moves to its section once
    set. Acceptable? (Documented in CitationSegments javadoc.)
+
+## PR creation (pending approval)
+
+```bash
+gh pr create --repo JabRef/jabref-koppor --base main \
+  --head new-entry-editor-in-place-edit \
+  --title "Entry editor concept #2: Main tab as editable semantic preview (in-place editing)" \
+  --body-file <scratchpad>/pr-body.md
+```
+
+(pr-body.md currently at /tmp/claude-41003/-export-home-kopp-git-repositories-jabref-worktree-1/6fb3e7b9-c0a2-45a2-a9f8-d71ce0d66188/scratchpad/pr-body.md — copy it somewhere durable if the session's scratchpad is gone on resume.)
 
 ## Build / verify commands
 
