@@ -26,6 +26,8 @@ import javafx.fxml.FXMLLoader;
 
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.parallel.ResourceLock;
+import org.mockito.Answers;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 @ResourceLock("Localization.lang")
@@ -202,7 +204,11 @@ public class LocalizationParser {
             }
         };
 
-        try {
+        // Custom controls referenced in the FXML files load their own FXML in their
+        // constructors via ViewLoader; mock it statically so that their instantiation
+        // during static loading stays inert. jabgui is only on the test runtime path
+        // (a compile-time requires would create a module cycle), hence the reflective lookup.
+        try (MockedStatic<?> viewLoader = Mockito.mockStatic(Class.forName("org.jabref.gui.util.ViewLoader"), Answers.RETURNS_DEEP_STUBS)) {
             FXMLLoader loader = new FXMLLoader(path.toUri().toURL(), registerUsageResourceBundle);
             // We don't want to initialize controller
             loader.setControllerFactory(Mockito::mock);
@@ -210,7 +216,7 @@ public class LocalizationParser {
             // We need to load in "static mode" because otherwise fxml files with fx:root doesn't work
             setStaticLoad(loader);
             loader.load();
-        } catch (IOException exception) {
+        } catch (IOException | ClassNotFoundException exception) {
             throw new RuntimeException(exception);
         }
 

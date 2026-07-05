@@ -176,7 +176,9 @@ afterburner's create-and-cache fallback is exercised and must be kept.
   `requires afterburner.fx;` and the `provides ... ResourceLocator` clause.
 - [x] `jabls-cli`: delete `src/main/java/org/jabref/languageserver/cli/JabRefResourceLocator.java`; remove
   `requires afterburner.fx;` from module-info.
-- [x] (DONE: removed the vestigial MockedStatic + unused imports; plain FXMLLoader static-load kept) `jablib/src/test/java/org/jabref/logic/l10n/LocalizationParser.java:186-190`: currently static-mocks
+- [x] (CORRECTED twice: the MockedStatic was NOT vestigial — custom controls load their own FXML via ViewLoader in
+  constructors during static load. Restored it against the new ViewLoader via Class.forName + RETURNS_DEEP_STUBS,
+  in a try-with-resources.) `jablib/src/test/java/org/jabref/logic/l10n/LocalizationParser.java:186-190`: currently static-mocks
   afterburner's ViewLoader before parsing FXMLs. Read the surrounding code and rework — afterburner is gone, and
   jabgui's new ViewLoader is not visible from jablib tests. Likely fix: mock/stub nothing and use a plain
   `FXMLLoader` with a no-op controller factory, since the mock only existed to suppress controller creation.
@@ -193,10 +195,14 @@ afterburner's create-and-cache fallback is exercised and must be kept.
 
 ## Phase 7 — Verification
 
-- [x] `./gradlew :jablib:test --tests "...LocalizationConsistencyTest"` — CORRECTION: cannot pass on this headless
-  machine (it is a TestFX `ApplicationExtension` test needing an X display); fails identically on the
-  pre-migration tree (git stash baseline). Verify on a machine with a display or under xvfb. (The earlier
-  "PASSED" was a phantom: `cmd | tail -N` reports tail's exit code — always check `${PIPESTATUS[0]}`.)
+- [x] `./gradlew :jablib:test --tests "...LocalizationConsistencyTest"` — PASSES with `DISPLAY=:10.0` (all 60
+  tests) after restoring the `MockedStatic<ViewLoader>` in `LocalizationParser` against the NEW
+  `org.jabref.gui.util.ViewLoader` via `Class.forName` (jabgui is runtimeOnly on jablib's test module path —
+  a compile-time requires would create a JPMS module cycle; that's why the mock must be reflective).
+  Removing that mock had been a real bug: custom controls like `FieldFormatterCleanupsPanel` load their own FXML
+  in their constructors during static loading. (Historical note: earlier "PASSED" claims without a display were
+  phantoms — `cmd | tail -N` reports tail's exit code; always check `${PIPESTATUS[0]}`. Gradle daemons must be
+  started with DISPLAY in their environment: `./gradlew --stop`, then `DISPLAY=:10.0 ./gradlew ...`.)
 - [x] `./gradlew :jabsrv:test --tests "org.jabref.http.JabSrvArchitectureTest"`, `:jabgui:test --tests
   "org.jabref.gui.JabGuiArchitectureTest"`, and the new `InjectorTest` (create-and-cache, @Inject resolution,
   fresh presenters) — PASSED (verified via PIPESTATUS).
