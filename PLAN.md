@@ -188,19 +188,30 @@ afterburner's create-and-cache fallback is exercised and must be kept.
   (except possibly docs/changelog prose).
 - [x] Check docs/text references: updated `docs/code-howtos/index.md` (DI section), `ImporterPreferences` comment, `.jbang/JabSrvLauncher.java` (removed afterburner DEPS, reworded JavaFX pin comment). `external-libraries.md` needs no change (libraries listed via generated SBOM). `grep -rni afterburner docs/ *.md` — update
   `external-libraries.md` (replace afterburner.fx entry with FxmlKit, Apache-2.0) and anything else found.
-- [x] `CHANGELOG.md`: added entry under Changed — TODO fill in PR link when the PR exists under "Changed": replaced afterburner.fx fork with FxmlKit for FXML loading and DI.
+- [x] `CHANGELOG.md`: added entry under "Changed"; PR link filled in after draft-PR creation.
 - [x] ADR created: `docs/decisions/0065-replace-afterburner-fx-with-fxmlkit.md` documenting the FxmlKit choice (follow existing MADR template numbering).
 
 ## Phase 7 — Verification
 
-- [x] `./gradlew :jablib:test --tests "org.jabref.logic.l10n.LocalizationConsistencyTest"` — PASSED.
-- [x] `./gradlew :jabsrv:test --tests "org.jabref.http.JabSrvArchitectureTest"` and `:jabgui:test --tests "*ArchitectureTest*"` — PASSED. Also added+ran `jablib/src/test/java/org/jabref/injection/InjectorTest.java` (create-and-cache, @Inject resolution, fresh presenters) — PASSED.
-- [x] Broader test run: `./gradlew :jablib:test :jabgui:test` — jablib green. jabgui: one REAL regression found and
+- [x] `./gradlew :jablib:test --tests "...LocalizationConsistencyTest"` — CORRECTION: cannot pass on this headless
+  machine (it is a TestFX `ApplicationExtension` test needing an X display); fails identically on the
+  pre-migration tree (git stash baseline). Verify on a machine with a display or under xvfb. (The earlier
+  "PASSED" was a phantom: `cmd | tail -N` reports tail's exit code — always check `${PIPESTATUS[0]}`.)
+- [x] `./gradlew :jabsrv:test --tests "org.jabref.http.JabSrvArchitectureTest"`, `:jabgui:test --tests
+  "org.jabref.gui.JabGuiArchitectureTest"`, and the new `InjectorTest` (create-and-cache, @Inject resolution,
+  fresh presenters) — PASSED (verified via PIPESTATUS).
+- [x] Broader test run: `./gradlew :jablib:check :jabgui:test`. jabgui: one REAL regression found and
   fixed (JabGuiArchitectureTest: new ViewLoader needs `@AllowedToUseClassGetResource` — added, test green now).
+  jablib: 204 failures (CSL styles/journal abbreviations) were caused by uninitialized git submodules in this
+  checkout — fixed via `git submodule update --init`; after that only 3 environment-bound suites fail
+  (LocalizationConsistencyTest needs X, RemoteSetupTest/RemoteCommunicationTest need free ports), all of which
+  fail identically on the pre-migration tree (baseline: 63/72 failures there too).
   Remaining jabgui failures are NOT regressions: 23 suites fail with "Unable to open DISPLAY" (TestFX needs an X
   server; this machine is headless — they fail before any JabRef code runs), and KeyBindingViewModelTest +
   JournalAbbreviationRepositoryTest fail IDENTICALLY on the pre-migration tree (verified via git stash baseline
   run) — pre-existing, environment-dependent.
+- [x] CHECKLIST.md walkthrough done (enforced by hook at PR creation): checkstyle/modernizer/rewriteDryRun/javadoc/
+  markdownlint all green; new classes @NullMarked; imports of all 183 touched files rebuilt into checkstyle groups.
 - [ ] GUI smoke test: `./gradlew :jabgui:run` — open About dialog (DialogPane path), entry editor
   (fx:root field editors path), preferences (fx:include path), Integrity check dialog (view(Class) path).
 - [x] Commit + push to koppor fork + draft PR there (user requested). PLAN.md included in the draft on purpose (working state); remove it and fill in the CHANGELOG PR link (marked TODO) before the real JabRef/jabref PR.
