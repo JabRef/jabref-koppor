@@ -12,6 +12,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Added
 
 - We added a new "Main" tab to the entry editor showing all fields of an entry in a single scrollable list, with one-click chips for adding optional fields and a free-form box for adding arbitrary fields. Identifiers, files and links, bibliometrics, comments, and meta fields (groups, owner, timestamps, special fields) live in collapsible sections — collapsed when empty — each offering chips for its unset fields. [#12711](https://github.com/JabRef/jabref/issues/12711)
+- The "Main" tab of the entry editor now renders the entry as an editable semantic preview: a citation-like text whose field values (and `{{placeholders}}` for missing required fields) are clicked to edit them in place, with a "@type · citationkey" header line for changing the entry type and citation key. Fields not shown in the preview keep their editor rows below; a field never appears twice. [#12711](https://github.com/JabRef/jabref/issues/12711)
 - We added auto-detection import for drag-and-dropped library files. [#15391](https://github.com/JabRef/jabref/issues/15391)
 - We added a preview style selection bar which shows the current preview style and allows to select a specific style without cycling through all of them. [#15820](https://github.com/JabRef/jabref/pull/15820)
 - We added the ability to view citation previews rendered using the selected style on hover in the "Citations" tab. [#15914](https://github.com/JabRef/jabref/pull/15914)
@@ -51,6 +52,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- We fixed an issue where pressing <kbd>Esc</kbd> anywhere in the main window was swallowed by the walkthrough key handler even when no walkthrough was active, so controls (e.g. entry editor fields) never received the key. [#13595](https://github.com/JabRef/jabref/pull/13595)
 - We fixed an issue where `jabkit`'s `-p`/`--porcelain` and `-d`/`--debug` flags only took effect when placed at the exact command level where they were parsed, so e.g. `jabkit -p check consistency file.bib` silently ran without porcelain output. [#16164](https://github.com/JabRef/jabref/pull/16164)
 - We fixed an issue where no raw preferences values were visible anymore in the preferences filter. [#16161](https://github.com/JabRef/jabref/pull/16161)
 - We fixed an issue where cleanup did not detect an arXiv entry when its `url` field ended with a fragment anchor (e.g. `https://arxiv.org/html/2510.26275v2#bib`). [#16150](https://github.com/JabRef/jabref/pull/16150)

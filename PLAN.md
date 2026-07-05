@@ -62,29 +62,47 @@ Branch: `new-entry-editor-in-place-edit` (worktree `jabref-worktree-1`, on origi
 
 ## Steps (check off as done; commit after each step)
 
-- [ ] **1. `CitationSegments` + unit tests** (class written, needs: compile, tests,
-  checkstyle, commit). *Check: article/book/inproceedings/thesis/fallback rendering,
-  placeholders, punctuation suppression, alias slots, coveredFields, latex→unicode,
-  pages en-dash, length cap, trailing required placeholders.*
-- [ ] **2. `SemanticPreviewFlow` read-only + tab integration**: TextFlow + CSS
-  (value/placeholder/punctuation, italic style, hover); mount atop `AllFieldsTab`;
-  subtract covered fields from chips/rows. *Check: compile; GUI smoke on
-  DISPLAY=:10.0, screenshots.*
-- [ ] **3. Click-to-edit**: open bound editor for clicked segment (inline swap or
-  editor-row-under-flow); Enter/focus-out close; Esc restores pre-edit value;
-  placeholder click starts empty.
-- [ ] **4. Re-render policy**: suppress while editing; re-render on close + external
-  changes (Source tab, fetchers, undo); entry switch resets. *Check 3+4: value lands
-  in entry (Source tab); no focus loss mid-typing.*
-- [ ] **5. Citation key + entry type header row**, click-to-edit (CitationKeyEditor
-  incl. generate button).
-- [ ] **6. Focus & navigation**: `requestFocus(Field)` (JumpToField) routes covered
-  fields to the in-place editor; Tab order sensible.
-- [ ] **7. Live verification** on DISPLAY=:10.0: full manual pass (each segment type,
-  placeholders, chips, sections, free-form add, undo/redo, entry switch, type
-  change), screenshots; entryeditor tests + LocalizationConsistencyTest + checkstyle.
-- [ ] **8. Housekeeping**: CHANGELOG, l10n keys, requirements doc
-  (docs/requirements/entry-editor.md) extended for concept #2, dead code check.
+- [x] **1. `CitationSegments` + unit tests** → done 2026-07-05, commit c1f4c3890d;
+  20 unit tests green (all listed checks), checkstyle clean.
+- [x] **2. `SemanticPreviewFlow` read-only + tab integration** → done 2026-07-05,
+  commit 10ee1a7414. Verified live (screenshots in build/screenshots/): complete
+  article renders "John Doe and Jane Smith. Great Results in Testing. *Journal of
+  Tests*, 12(3):45–67, 2020."; sparse article shows {{Journal}}/{{Year}}
+  placeholders; thesis expands Files & links; editor-only book shows "(Eds.)" and
+  NO empty Author row (unset alternatives of satisfied OrFields groups are
+  suppressed; free-form add = escape hatch). Covered fields subtracted from rows,
+  section chips, and the optional chip bar. entryeditor tests + checkstyle green.
+- [x] **3. Click-to-edit** → done 2026-07-05, commit 5a80a596f4. Design: overlay
+  editor row beneath the flow (NOT literal inline swap — editors are HBox
+  compounds), segment highlighted (.semantic-preview-editing). Enter/focus-out
+  close & keep; Esc restores pre-edit value; placeholder click starts empty.
+  Verified live: title/year edits, live write-through into flow+table+preview,
+  {{Year}}→2024, Esc XXX→restore. BONUS: found+fixed upstream bug (b5fd8d52c5)
+  — WalkthroughKeyBindings consumed EVERY Esc app-wide at scene-filter level.
+- [x] **4. Re-render policy** → done 2026-07-05 (same commit): rebuilds deferred
+  while overlay open (flow text still follows typing); deferred shown/covered
+  check on close; entry switch discards silently; chip clicks close first.
+- [x] **5. Citation key + entry type header row** → done 2026-07-05, commit
+  e843cb2332: "@type · citationkey" line above the flow; key click → overlay
+  CitationKeyEditor (incl. Generate); type click → ChangeEntryTypeMenu popup;
+  KEY_FIELD counts as covered (old grid row gone). Verified live incl. type
+  change @article→@book (flow re-templates, chips update).
+- [x] **6. Focus & navigation** → done 2026-07-05 (same commit):
+  `requestFocus(Field)` override routes preview-covered fields to the in-place
+  editor. JumpToField dialog live-check pending in step 7.
+- [x] **7. Live verification** → done 2026-07-05: segments (article/book/thesis/
+  inproceedings), placeholders, in-place edit (Enter/Esc/focus-out), live
+  write-through, header key edit + generate button, type change with re-template,
+  JumpToField→overlay (title) verified, entry switch state reset, chip add
+  (+Month row focused, chip removed). Tests+LocalizationConsistencyTest+
+  checkstyle+traceRequirements green. FINDING: Edit>Undo stays greyed for ALL
+  entry-editor edits — also for plain upstream rows (verified with Abstract) →
+  pre-existing upstream condition, not introduced by concept #2.
+- [x] **8. Housekeeping** → done 2026-07-05: CHANGELOG (Added entry for the
+  editable semantic preview; Fixed entry for the app-wide Esc bug → PR #13595
+  ref), requirements doc extended (semantic-preview / in-place-edit /
+  no-duplication reqs + single-list reworded), no new l10n keys needed
+  ("Edit"/"Change entry type" existed), traceRequirements green, no dead code.
 - [ ] **9. Push to `koppor` remote + PR** at github.com/JabRef/jabref-koppor for
   internal inspection (like #731). Keep PLAN.md + incremental commits (no squash).
 
@@ -123,3 +141,29 @@ there; keep PLAN.md + incremental commits; DISPLAY=:10.0 available for GUI/TestF
 - 2026-07-05: `CitationSegments.java` written (templates, slots, punctuation,
   trailing placeholders, coveredFields). NEXT: compile it, write
   `CitationSegmentsTest`, checkstyle, commit (= finish step 1).
+- 2026-07-05: Step 1 committed (c1f4c3890d). Step 2 committed (10ee1a7414), live
+  smoke test done. INFRA notes: (a) /export ran 100% full mid-test → cleared
+  ~/.gradle/caches/build-cache-1 (13G, regenerable); (b) csl-styles/csl-locales
+  submodules had to be `git submodule update --init`-ed in this worktree, the app
+  HANGS at startup without them ("Could not find citation style catalog");
+  (c) GUI driving works via AWT-Robot helper (scratchpad/UiDriver.java — click/
+  type/key/shot), no xdotool on the box; demo library at scratchpad/demo.bib.
+- 2026-07-05: Step 3+4 design decided: NOT literal inline swap (JavaFX field
+  editors are HBox compounds — they would wreck the TextFlow line layout);
+  instead a shared editor overlay row directly beneath the flow, edited segment
+  highlighted via css .semantic-preview-editing. Enter/focus-out = close & keep
+  (write-through is live), Esc = restore pre-edit value. While an editor is open,
+  rebuilds are DEFERRED (flow still re-renders live for value changes); the
+  deferred target/covered check runs on close. Entry switch closes silently.
+  Known polish item: Esc-restore bypasses the undo manager (typed edits stay in
+  undo history) — revisit before release.
+- 2026-07-05 (steps 3+4 done): In-place editing verified live end-to-end.
+  DEBUGGING SAGA worth remembering: Esc never reached the overlay row —
+  root cause was an UPSTREAM bug (WalkthroughKeyBindings consumes every Esc
+  in the main scene even without active walkthrough; my row filter saw all
+  keys except ESCAPE). Fixed in commit b5fd8d52c5 — candidate for a separate
+  small PR to JabRef main! Second finding: the first Esc after typing may be
+  eaten by the controlsfx autocompletion popup (its own window) — standard
+  behavior, acceptable. Commits: b5fd8d52c5 (Esc fix), 5a80a596f4 (in-place
+  editing). Tests + checkstyle green. NEXT: step 5 (citation key + type
+  header row), step 6 (requestFocus routing).

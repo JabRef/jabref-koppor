@@ -19,10 +19,31 @@ When the user hovers over a citation entry inside the Entry Editor's "Citations"
 
 Needs: impl
 
-## Main tab shows all fields in one scrollable list
+## Main tab represents all fields of the entry
 `req~entry-editor.main-tab.single-list~1`
 
-The "Main" tab shows the citation key, all required fields of the entry type (even when unset), and every set field of the entry in a single vertically scrolling list with natural row heights. Field order: citation key, required fields (entry-type order), set optional fields (important before secondary, each in entry-type order), remaining set fields sorted by name, then fields added by the user that are still empty.
+The "Main" tab represents the citation key, all required fields of the entry type (even when unset), and every set field of the entry in a single vertically scrolling column: fields covered by the semantic preview are rendered (and edited) there, all remaining fields appear as editor rows with natural heights below the preview. Row order: required fields (entry-type order), set optional fields (important before secondary, each in entry-type order), remaining set fields sorted by name, then fields added by the user that are still empty.
+
+Needs: impl
+
+## Main tab renders the entry as a semantic preview
+`req~entry-editor.main-tab.semantic-preview~1`
+
+The top of the "Main" tab renders the entry as a citation-like text (authors, title, venue, volume(number):pages, publisher, year, …) driven by per-entry-type templates with a generic fallback; display text is LaTeX-free and author names render as "First Last and First Last". Required-but-unset fields appear as `{{Field}}` placeholders inside the text (required fields outside the template vocabulary as a trailing placeholder sentence); punctuation around empty slots is suppressed. A header line above shows "@type · citationkey"; clicking the type opens the change-entry-type menu.
+
+Needs: impl
+
+## Preview segments are edited in place
+`req~entry-editor.main-tab.in-place-edit~1`
+
+Clicking a field value or placeholder in the semantic preview (or the citation key in the header) opens the field's regular editor in an overlay row directly beneath the preview, with the clicked segment highlighted. Edits write through live (preview, main table, and preview panel follow the typing). Enter or moving the focus elsewhere closes the editor and keeps the value; Esc restores the value the field had when the editor was opened. Jump-to-field opens the in-place editor for preview-covered fields. While the editor is open, the tab does not rebuild its layout (no focus loss).
+
+Needs: impl
+
+## A field never appears twice on the Main tab
+`req~entry-editor.main-tab.no-duplication~1`
+
+A field represented in the semantic preview (as value or placeholder, including the citation key in the header) appears nowhere else on the tab: not as an editor row, not as an add-chip in the chip bar or any section. Unset alternatives of an already-satisfied required or-group (e.g. the author field of an editor-only book) get no empty editor row either; the free-form field-name box remains the escape hatch to add them explicitly.
 
 Needs: impl
 
