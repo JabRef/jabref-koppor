@@ -110,8 +110,17 @@ public class AllFieldsTab extends FieldsEditorTab {
     /// when fields are set/unset from outside, e.g. Source tab, fetchers, undo).
     private Optional<BibEntry> subscribedEntry = Optional.empty();
 
-    /// Scroll content: main grid + chip bar + section panes + free-form add row.
+    /// Scroll content: semantic preview + main grid + chip bar + section panes +
+    /// free-form add row.
     private final VBox listContainer = new VBox();
+
+    /// The editable semantic preview at the top of the tab (concept #2, issue #12711).
+    private final SemanticPreviewFlow previewFlow = new SemanticPreviewFlow();
+
+    /// Fields currently represented in the semantic preview (as value or placeholder).
+    /// They are subtracted from all rows and chip lists below — the preview takes
+    /// precedence, a field never appears twice (no-duplication rule).
+    private SequencedSet<Field> coveredByPreview = new LinkedHashSet<>();
 
     public AllFieldsTab(UndoManager undoManager,
                         UndoAction undoAction,
@@ -221,9 +230,23 @@ public class AllFieldsTab extends FieldsEditorTab {
             userAddedFields.add(event.getField());
         }
         SequencedSet<Field> target = determineFieldsToShow(entry);
-        if (!target.equals(editors.keySet())) {
+        CitationSegments segments = computeSegments(entry);
+        if (!target.equals(editors.keySet()) || !segments.coveredFields().equals(coveredByPreview)) {
             rebuildPanel(activeDatabaseContext(), entry);
+        } else {
+            // Same layout, possibly new values: refresh the preview text only.
+            previewFlow.render(segments, this::onSegmentClicked);
         }
+    }
+
+    private CitationSegments computeSegments(BibEntry entry) {
+        return CitationSegments.of(entry, entryTypesManager.enrich(entry.getType(), getDatabaseMode()));
+    }
+
+    /// Clicking a preview segment will open the field's editor in place (next step);
+    /// for now it focuses the field's editor if one is shown below.
+    private void onSegmentClicked(Field field) {
+        requestFocus(field);
     }
 
     /// Main fields as a grid with natural row heights, then the optional-field chip bar,
@@ -241,12 +264,21 @@ public class AllFieldsTab extends FieldsEditorTab {
             labelIndex++;
         }
 
+        CitationSegments segments = computeSegments(entry);
+        coveredByPreview = segments.coveredFields();
+        previewFlow.render(segments, this::onSegmentClicked);
+
         Map<FieldListSections.SectionType, SequencedSet<Field>> buckets =
                 new EnumMap<>(FieldListSections.SectionType.class);
         for (FieldListSections.SectionType type : FieldListSections.SectionType.values()) {
             buckets.put(type, new LinkedHashSet<>());
         }
-        editors.keySet().forEach(field -> buckets.get(FieldListSections.sectionOf(field)).add(field));
+        // [impl->req~entry-editor.main-tab.no-duplication~1]
+        Set<Field> suppressedAlternatives = unsetAlternativesOfSatisfiedGroups(entry);
+        editors.keySet().stream()
+               .filter(field -> !coveredByPreview.contains(field))
+               .filter(field -> !suppressedAlternatives.contains(field))
+               .forEach(field -> buckets.get(FieldListSections.sectionOf(field)).add(field));
 
         // Main section rows go into the (already cleared) inherited gridPane
         if (!gridPane.getStyleClass().contains("all-fields-list")) {
@@ -254,7 +286,7 @@ public class AllFieldsTab extends FieldsEditorTab {
         }
         addFieldRows(gridPane, buckets.get(FieldListSections.SectionType.MAIN), labelForField);
 
-        listContainer.getChildren().setAll(gridPane, createMainChipBar(bibDatabaseContext, entry));
+        listContainer.getChildren().setAll(previewFlow, gridPane, createMainChipBar(bibDatabaseContext, entry));
         for (FieldListSections.SectionType type : FieldListSections.SectionType.values()) {
             if (type == FieldListSections.SectionType.MAIN) {
                 continue;
@@ -311,7 +343,7 @@ public class AllFieldsTab extends FieldsEditorTab {
             content.getChildren().add(sectionGrid);
         }
 
-        SequencedSet<Field> chipFields = FieldListSections.subtract(sectionMemberFields(type), editors.keySet());
+        SequencedSet<Field> chipFields = FieldListSections.subtract(sectionMemberFields(type), visibleFields());
         if (!chipFields.isEmpty()) {
             FlowPane chips = new FlowPane();
             chips.getStyleClass().add("all-fields-add-chips");
@@ -357,7 +389,7 @@ public class AllFieldsTab extends FieldsEditorTab {
         chips.getStyleClass().add("all-fields-add-chips");
 
         entryTypesManager.enrich(entry.getType(), mode).ifPresent(entryType -> {
-            List<Field> shown = List.copyOf(editors.keySet());
+            Set<Field> shown = visibleFields();
             FieldListSections.subtract(entryType.getImportantOptionalFields(), shown).stream()
                              .filter(field -> FieldListSections.sectionOf(field) == FieldListSections.SectionType.MAIN)
                              .forEach(field -> chips.getChildren().add(createAddChip(bibDatabaseContext, entry, field)));
@@ -431,6 +463,39 @@ public class AllFieldsTab extends FieldsEditorTab {
     }
 
     // endregion
+
+    /// Unset members of required [OrFields] groups whose requirement is already satisfied
+    /// by another (set) member — e.g. the empty Author row of an editor-only `@book`.
+    /// They are alternatives, not missing data, so they get no empty editor row below the
+    /// preview. Explicitly user-added fields stay visible (free-form add is the escape
+    /// hatch to fill the other alternative anyway).
+    private Set<Field> unsetAlternativesOfSatisfiedGroups(BibEntry entry) {
+        Set<Field> result = new LinkedHashSet<>();
+        entryTypesManager.enrich(entry.getType(), getDatabaseMode()).ifPresent(entryType -> {
+            for (OrFields group : entryType.getRequiredFields()) {
+                if (group.hasExactlyOne()) {
+                    continue;
+                }
+                boolean satisfied = group.getFields().stream()
+                                         .anyMatch(field -> entry.getField(field).filter(value -> !value.isBlank()).isPresent());
+                if (satisfied) {
+                    group.getFields().stream()
+                         .filter(field -> entry.getField(field).filter(value -> !value.isBlank()).isEmpty())
+                         .filter(field -> !userAddedFields.contains(field))
+                         .forEach(result::add);
+                }
+            }
+        });
+        return result;
+    }
+
+    /// Fields already visible somewhere on this tab: as an editor row or as a
+    /// segment (value/placeholder) of the semantic preview.
+    private Set<Field> visibleFields() {
+        Set<Field> visible = new LinkedHashSet<>(editors.keySet());
+        visible.addAll(coveredByPreview);
+        return visible;
+    }
 
     private BibDatabaseMode getDatabaseMode() {
         return stateManager.getActiveDatabase()
