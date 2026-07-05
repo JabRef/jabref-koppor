@@ -2,28 +2,13 @@ package org.jabref.gui.cleanup;
 
 import java.util.EnumSet;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.VBox;
-
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
 import org.jabref.logic.l10n.Localization;
 
 import org.jspecify.annotations.NonNull;
 
-public class CleanupJournalRelatedPanel extends VBox implements CleanupPanel {
-    @FXML public Label cleanupJournalAbbreviationsLabel;
-    @FXML private ToggleGroup journalAbbreviationsToggleGroup;
-
-    @FXML private RadioButton abbreviateDefault;
-    @FXML private RadioButton abbreviateDottles;
-    @FXML private RadioButton abbreviateShortestUnique;
-    @FXML private RadioButton abbreviateLTWA;
-    @FXML private RadioButton unabbreviate;
+public class CleanupJournalRelatedPanel extends CleanupJournalRelatedPanelBase implements CleanupPanel {
 
     private final CleanupJournalRelatedViewModel viewModel;
     private final CleanupDialogViewModel dialogViewModel;
@@ -33,9 +18,7 @@ public class CleanupJournalRelatedPanel extends VBox implements CleanupPanel {
         this.dialogViewModel = dialogViewModel;
         this.viewModel = new CleanupJournalRelatedViewModel(cleanupPreferences);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
 
         initialize();
         bindProperties();

@@ -4,12 +4,7 @@ import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-
-import org.jabref.gui.util.ViewLoader;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
@@ -19,17 +14,7 @@ import org.jabref.model.entry.field.StandardField;
 
 import org.jspecify.annotations.NonNull;
 
-public class CleanupFileRelatedPanel extends VBox implements CleanupPanel {
-
-    @FXML private Label cleanupRenamePdfLabel;
-
-    @FXML private CheckBox cleanupMovePdf;
-    @FXML private CheckBox cleanupMakePathsRelative;
-    @FXML private CheckBox cleanupRenamePdf;
-    @FXML private CheckBox cleanupRenamePdfOnlyRelativePaths;
-    @FXML private CheckBox cleanupDeletedFiles;
-    @FXML private CheckBox cleanupUpgradeExternalLinks;
-    @FXML private CheckBox cleanupRemoveXmpMetadata;
+public class CleanupFileRelatedPanel extends CleanupFileRelatedPanelBase implements CleanupPanel, LocalizedView {
 
     private final CleanupFileViewModel viewModel;
     private final CleanupDialogViewModel dialogViewModel;
@@ -42,9 +27,7 @@ public class CleanupFileRelatedPanel extends VBox implements CleanupPanel {
         this.dialogViewModel = dialogViewModel;
         this.viewModel = new CleanupFileViewModel(cleanupPreferences);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
 
         init(databaseContext, filePreferences);
         bindProperties();

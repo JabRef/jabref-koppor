@@ -105,7 +105,11 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
   `LocalizationConsistencyTest` green — obsolete/missing detection covers converted views.
 - [x] FXML/2 dialect gotcha found: attributes map to NAMED CONSTRUCTOR ARGUMENTS — partial `<Insets top left>`
   (classic: missing sides = 0) must list all four.
-- [ ] Solve stylesheet attachment convention for converted views (markup `stylesheets` or base-class helper).
+- [ ] Solve stylesheet attachment convention for converted views (markup `stylesheets` or base-class helper) —
+  none of the cleanup views had co-located CSS; solve when the first CSS-bearing view is converted.
+  NOTE: no classic FXML uses parameterized keys except 2 files (AiPrivacyNoticeView, ...Generated at %0...) where
+  the FXML value is a placeholder replaced programmatically — formatArguments therefore has no migration blocker;
+  prove it when the first view wants it.
 - [ ] Extend `LocalizationParser` to EXTRACT keys from FXML/2 files (XML parse for `%`/StaticResource) so l10n
   consistency checks cover converted views again.
 - [x] Dialog pattern decided and proven on `CleanupDialog`: FXML root `<DialogPane fx:subclass="...XDialogPane">`
@@ -134,6 +138,12 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
 
 ## Phase 3 — Incremental conversion (many PRs)
 
+- [x] Cleanup family COMPLETE (all 4 panels + dialog pane) — first fully-FXML/2 dialog. Also proven:
+  `fx:define` + `$id` references (ToggleGroup) work unchanged. THIRD build gotcha found: after ADDING a new
+  `.fxml`, the first build needs `--no-configuration-cache` (plugin scans at configuration time; reused config
+  cache does not see new files) — hits every conversion PR, documented in the howto; strongest candidate if
+  upstream contact is ever wanted.
+- [x] Conversion recipe documented: `docs/code-howtos/fxml2.md`.
 - [ ] Field editors (fx:root family, ~20 views) → then panels/tabs → then dialogs (47) → preferences tabs.
 - [ ] Each conversion deletes its ViewLoader usage; when usages hit 0: delete `ViewLoader`/`ViewLoaderResult`,
   drop FxmlKit wiring if unused, update ADR/CHANGELOG.
