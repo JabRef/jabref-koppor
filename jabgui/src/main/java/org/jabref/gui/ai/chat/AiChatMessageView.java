@@ -18,11 +18,11 @@ import javafx.scene.layout.VBox;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.LocaleUtil;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.MarkdownTextFlow;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AiChatMessageView extends HBox {

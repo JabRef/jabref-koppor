@@ -15,11 +15,11 @@ import org.jabref.gui.libraryproperties.AbstractPropertiesTabView;
 import org.jabref.gui.libraryproperties.PropertiesTab;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelTextFieldTableCellVisualizationFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class ConstantsPropertiesView extends AbstractPropertiesTabView<ConstantsPropertiesViewModel> implements PropertiesTab {

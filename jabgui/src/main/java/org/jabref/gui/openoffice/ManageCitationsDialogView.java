@@ -13,10 +13,10 @@ import javafx.scene.text.Text;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class ManageCitationsDialogView extends BaseDialog<Void> {

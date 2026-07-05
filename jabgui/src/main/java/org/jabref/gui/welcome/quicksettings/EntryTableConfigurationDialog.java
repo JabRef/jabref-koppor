@@ -7,11 +7,10 @@ import javafx.scene.control.CheckBox;
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.EntryTableConfigurationDialogViewModel;
 import org.jabref.logic.l10n.Localization;
-
-import org.jabref.gui.util.ViewLoader;
 
 public class EntryTableConfigurationDialog extends FXDialog {
     @FXML private CheckBox showCitationKeyBox;

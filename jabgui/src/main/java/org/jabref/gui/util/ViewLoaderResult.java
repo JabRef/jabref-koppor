@@ -4,15 +4,19 @@ import javafx.scene.Parent;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 /// Result of [ViewLoader#load()], giving access to the loaded root node and the
 /// initialized controller. Drop-in replacement for afterburner.fx's
 /// `ViewLoaderResult`.
+@NullMarked
 public class ViewLoaderResult {
 
     private final Parent view;
-    private final Object controller;
+    private final @Nullable Object controller;
 
-    public ViewLoaderResult(Parent view, Object controller) {
+    public ViewLoaderResult(Parent view, @Nullable Object controller) {
         this.view = view;
         this.controller = controller;
     }
@@ -21,7 +25,8 @@ public class ViewLoaderResult {
         return view;
     }
 
-    public Object getController() {
+    /// @return the controller, or null if the FXML file does not declare an `fx:controller`
+    public @Nullable Object getController() {
         return controller;
     }
 

@@ -21,9 +21,9 @@ import org.jabref.gui.walkthrough.utils.WalkthroughResolver;
 import org.jabref.gui.walkthrough.utils.WalkthroughResolver.WalkthroughResult;
 import org.jabref.gui.walkthrough.utils.WalkthroughReverter;
 import org.jabref.gui.walkthrough.utils.WalkthroughScroller;
+import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

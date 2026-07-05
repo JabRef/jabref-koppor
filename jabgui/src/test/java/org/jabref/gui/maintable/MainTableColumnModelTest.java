@@ -1,8 +1,8 @@
 package org.jabref.gui.maintable;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.preferences.CliPreferences;
 
-import org.jabref.injection.Injector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -16,7 +17,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.testutils.category.FetcherTest;
 
-import org.jabref.injection.Injector;
 import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

@@ -13,6 +13,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ControlHelper;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.relatedwork.RelatedWorkMatchResult;
@@ -22,7 +23,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.LinkedFile;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class RelatedWorkDialogView extends BaseDialog<Void> {

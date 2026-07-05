@@ -8,9 +8,9 @@ import javafx.scene.control.TableView;
 import org.jabref.gui.exporter.ExporterViewModel;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class CustomExporterTab extends AbstractPreferenceTabView<CustomExporterTabViewModel> implements PreferencesTab {

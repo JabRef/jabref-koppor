@@ -9,12 +9,12 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.layout.VBox;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 import org.controlsfx.control.CheckListView;
 

@@ -13,6 +13,7 @@ import org.jabref.gui.JabRefGUI;
 import org.jabref.gui.logging.JavaFxCssLogFilter;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.JabRefGuiPreferences;
+import org.jabref.injection.Injector;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.net.ProxyAuthenticator;
@@ -28,7 +29,6 @@ import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.Directories;
 import org.jabref.migrations.PreferencesMigrations;
 
-import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;

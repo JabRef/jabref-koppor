@@ -10,12 +10,12 @@ import javafx.scene.text.Text;
 
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ControlHelper;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.texparser.LatexBibEntriesResolverResult;
 
-import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class ParseLatexResultView extends BaseDialog<Void> {

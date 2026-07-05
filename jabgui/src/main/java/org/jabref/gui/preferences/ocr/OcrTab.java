@@ -6,9 +6,8 @@ import javafx.scene.control.TextField;
 
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
-import org.jabref.logic.l10n.Localization;
-
 import org.jabref.gui.util.ViewLoader;
+import org.jabref.logic.l10n.Localization;
 
 public class OcrTab extends AbstractPreferenceTabView<OcrTabViewModel> implements PreferencesTab {
     @FXML private TextField ocrEnginePath;

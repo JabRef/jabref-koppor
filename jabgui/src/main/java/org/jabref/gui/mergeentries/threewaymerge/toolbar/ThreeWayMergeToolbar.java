@@ -17,9 +17,9 @@ import org.jabref.gui.mergeentries.MergeDialogPreferences;
 import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter.BasicDiffMethod;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.gui.util.ViewLoader;
 import com.google.common.base.Enums;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyBinding;

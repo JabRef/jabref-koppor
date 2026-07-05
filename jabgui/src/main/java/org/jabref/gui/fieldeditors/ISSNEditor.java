@@ -17,12 +17,12 @@ import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 // TODO: Document why this is not an IdentifierEditor like ISBN and EPrint

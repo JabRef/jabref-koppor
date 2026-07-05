@@ -6,12 +6,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.logic.ai.summarization.logic.summarizationalgorithms.Summarizator;
 import org.jabref.model.ai.summarization.SummarizatorKind;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 /// A quick view (that is used as a dialog in [AiSummaryParametersDialog]) for modifying the parameters of the summarization process.

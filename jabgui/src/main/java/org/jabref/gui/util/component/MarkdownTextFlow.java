@@ -14,8 +14,8 @@ import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.edit.OpenBrowserAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.SelectableTextFlow;
-
 import org.jabref.injection.Injector;
+
 import com.vladsch.flexmark.ast.BlockQuote;
 import com.vladsch.flexmark.ast.BulletList;
 import com.vladsch.flexmark.ast.BulletListItem;

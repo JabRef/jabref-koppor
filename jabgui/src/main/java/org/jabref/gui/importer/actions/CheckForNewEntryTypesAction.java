@@ -5,14 +5,13 @@ import java.util.stream.Collectors;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.ImportCustomEntryTypesDialog;
+import org.jabref.injection.Injector;
 import org.jabref.logic.LibraryPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.jabref.injection.Injector;
 
 /// This action checks whether any new custom entry types were loaded from this
 /// BIB file. If so, an offer to remember these entry types is given.

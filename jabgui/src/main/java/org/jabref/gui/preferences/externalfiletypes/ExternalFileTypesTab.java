@@ -10,9 +10,8 @@ import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.PreferencesTab;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.ValueTableCellFactory;
-import org.jabref.logic.l10n.Localization;
-
 import org.jabref.gui.util.ViewLoader;
+import org.jabref.logic.l10n.Localization;
 
 /// Editor for external file types.
 public class ExternalFileTypesTab extends AbstractPreferenceTabView<ExternalFileTypesTabViewModel> implements PreferencesTab {

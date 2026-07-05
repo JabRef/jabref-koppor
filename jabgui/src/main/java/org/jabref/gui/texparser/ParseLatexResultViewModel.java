@@ -14,14 +14,13 @@ import javafx.collections.ObservableList;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.ImportEntriesDialog;
+import org.jabref.injection.Injector;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.texparser.Citation;
 import org.jabref.model.texparser.LatexBibEntriesResolverResult;
-
-import org.jabref.injection.Injector;
 
 public class ParseLatexResultViewModel extends AbstractViewModel {
 

@@ -23,14 +23,14 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditor;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.gui.util.ViewLoader;
+import org.jabref.gui.util.ViewLoaderResult;
 import org.jabref.gui.util.ViewModelTableRowFactory;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import org.jabref.gui.util.ViewLoader;
-import org.jabref.gui.util.ViewLoaderResult;
 import jakarta.inject.Inject;
 import org.controlsfx.control.table.TableFilter;
 import org.slf4j.Logger;

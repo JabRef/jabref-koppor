@@ -2,6 +2,7 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import java.util.List;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
@@ -12,7 +13,6 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 
-import org.jabref.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

@@ -23,10 +23,10 @@ import org.jabref.gui.preferences.PreferencesTab;
 import org.jabref.gui.preferences.keybindings.presets.KeyBindingPreset;
 import org.jabref.gui.util.ColorUtil;
 import org.jabref.gui.util.RecursiveTreeItem;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelTreeTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 import org.controlsfx.control.textfield.CustomTextField;

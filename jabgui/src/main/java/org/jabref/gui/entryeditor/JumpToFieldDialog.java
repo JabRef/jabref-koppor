@@ -7,9 +7,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.gui.util.ViewLoader;
 import org.controlsfx.control.textfield.TextFields;
 
 public class JumpToFieldDialog extends BaseDialog<Void> {

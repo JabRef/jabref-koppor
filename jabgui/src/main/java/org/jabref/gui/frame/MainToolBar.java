@@ -29,13 +29,13 @@ import org.jabref.gui.search.GlobalSearchBar;
 import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import org.jabref.injection.Injector;
 import com.dlsc.gemsfx.infocenter.InfoCenterPane;
 import com.tobiasdiez.easybind.Subscription;
 import org.controlsfx.control.PopOver;

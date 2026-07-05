@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javafx.scene.input.ClipboardContent;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.citationstyle.CitationStyleGenerator;
 import org.jabref.logic.citationstyle.CitationStyleOutputFormat;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -22,7 +23,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import org.jabref.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 
 public record ClipboardContentGenerator(

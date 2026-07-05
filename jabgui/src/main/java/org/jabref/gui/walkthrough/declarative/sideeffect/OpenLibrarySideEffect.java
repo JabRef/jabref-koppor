@@ -12,6 +12,7 @@ import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.gui.walkthrough.Walkthrough;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.importer.OpenDatabase;
 import org.jabref.logic.util.TaskExecutor;
@@ -19,7 +20,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

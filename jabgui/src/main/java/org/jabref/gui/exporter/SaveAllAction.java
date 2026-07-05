@@ -8,10 +8,9 @@ import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.jabref.injection.Injector;
 
 import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 

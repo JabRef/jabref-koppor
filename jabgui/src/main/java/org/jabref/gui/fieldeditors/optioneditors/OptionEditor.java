@@ -8,10 +8,9 @@ import javafx.scene.layout.HBox;
 
 import org.jabref.gui.fieldeditors.FieldEditorFX;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.model.entry.BibEntry;
-
-import org.jabref.gui.util.ViewLoader;
 
 /// Field editor that provides various pre-defined options as a drop-down combobox.
 public class OptionEditor<T> extends HBox implements FieldEditorFX {

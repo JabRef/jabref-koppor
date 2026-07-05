@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
 import org.jabref.gui.theme.ThemeTypes;
-
 import org.jabref.gui.util.ViewLoader;
+
 import org.jspecify.annotations.NonNull;
 
 public class ThemeWireFrame extends VBox {

@@ -17,7 +17,6 @@ import javafx.stage.Window;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-
 import org.jabref.injection.Injector;
 
 public class BaseDialog<T> extends Dialog<T> {

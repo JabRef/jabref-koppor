@@ -10,6 +10,7 @@ All research in "Findings" is complete and verified — do not redo it.
 ## Findings (research complete — reference only)
 
 ### afterburner usage inventory
+
 - `com.airhacks.afterburner.views.ViewLoader`: 118 files. 117× `ViewLoader.view(this)` (jabgui),
   1× `ViewLoader.view(BibLogSettingsPane.class)` in `jabgui/.../gui/integrity/IntegrityCheckDialog.java`,
   1 static-mock in `jablib/src/test/java/org/jabref/logic/l10n/LocalizationParser.java:188`.
@@ -30,6 +31,7 @@ All research in "Findings" is complete and verified — do not redo it.
 - `jabsrv/src/test/java/org/jabref/http/JabSrvArchitectureTest.java:22` forbids package `com.airhacks.afterburner.injection..`.
 
 ### Fork semantics that MUST be preserved
+
 - `Injector.instantiateModelOrService(C)`: returns cached singleton; if absent → instantiate, inject `@Inject`
   (jakarta) fields, **cache as singleton**. (FxmlKit's `LiteDiAdapter.getInstance` alone does NOT cache unbound
   creations — the facade must add caching.)
@@ -43,6 +45,7 @@ All research in "Findings" is complete and verified — do not redo it.
 - Resource bundle: always `Localization.getMessages()` (that's all the ResourceLocator SPI ever did).
 
 ### FxmlKit facts
+
 - `DiAdapter` iface: `<T> T getInstance(Class<T>)` + `void injectMembers(Object)` (idempotent).
   `LiteDiAdapter`: `bindInstance(Class,T)`, `isBound(Class)`; recognizes `@Inject` from **jakarta.inject**, javax.inject
   and Guice (README claiming javax-only is outdated) → JabRef's 82 `@Inject` files stay untouched.
@@ -57,11 +60,13 @@ All research in "Findings" is complete and verified — do not redo it.
 - Module name `com.dlsc.fxmlkit` should auto-map to `com.dlsc.fxmlkit:fxmlkit` (same pattern as `com.dlsc.gemsfx`).
 
 ### Architecture decision (REVISED during implementation — this is what is built)
+
 `LiteDiAdapter` was ruled out for the service locator: its idempotency set `injectedObjects` holds STRONG
 references to every injected object → would leak every per-dialog view instance (afterburner used weak sets);
 its reflection helper `InjectionUtils` is in the non-exported `di.internal` package so it cannot be reused with
 different tracking. Also, `ConferenceRepository` (`@Inject`-ed in `ICORERankingEditor`, never registered) proves
 afterburner's create-and-cache fallback is exercised and must be kept.
+
 - New `org.jabref.injection.Injector` (jablib, new exported package, SELF-CONTAINED, no FxmlKit dep — jablib
   sheds its GUI-framework dependency entirely): `setModelOrService`, `instantiateModelOrService` (create+cache via
   no-arg ctor; registers BEFORE field injection so cycles terminate), `registerExistingAndInject` (jakarta
@@ -84,6 +89,7 @@ afterburner's create-and-cache fallback is exercised and must be kept.
 
 - [x] `versions/build.gradle.kts:134`: replace `api("org.jabref:afterburner.fx:2.0.0")` with `api("com.dlsc.fxmlkit:fxmlkit:1.5.1")`.
 - [x] `build-logic/.../org.jabref.gradle.base.dependency-rules.gradle.kts`: replace the `module("org.jabref:afterburner.fx") {...}` block with:
+
   ```kotlin
   module("com.dlsc.fxmlkit:fxmlkit") {
       // POM declares javafx-* as provided, but module-info has 'requires transitive' on them
@@ -91,6 +97,7 @@ afterburner's create-and-cache fallback is exercised and must be kept.
       addApiDependency("org.openjfx:javafx-controls")
   }
   ```
+
 - [x] Contingency (NOT needed — module auto-mapped, :jablib:compileJava passed): if the build later fails to map module `com.dlsc.fxmlkit` → GA coordinates, add a
   `moduleNameToGA`/mapping entry the same way other odd modules are mapped (grep build-logic for how e.g.
   `unirest.modules.gson` is handled).
@@ -108,10 +115,12 @@ afterburner's create-and-cache fallback is exercised and must be kept.
 
 - [x] Swap every remaining `import com.airhacks.afterburner.injection.Injector;` →
   `import org.jabref.injection.Injector;`:
+
   ```bash
   grep -rl 'com\.airhacks\.afterburner\.injection\.Injector' --include='*.java' . \
     | xargs sed -i 's/com\.airhacks\.afterburner\.injection\.Injector/org.jabref.injection.Injector/g'
   ```
+
 - [x] jabkit `module-info.java`: remove `requires afterburner.fx;` (Injector now comes from jablib's exported package).
 - [x] `jabsrv/src/test/java/org/jabref/http/JabSrvArchitectureTest.java`: change forbidden package
   `com.airhacks.afterburner.injection..` → `org.jabref.injection..`; reword the comment/`because(...)` text.
@@ -137,19 +146,23 @@ afterburner's create-and-cache fallback is exercised and must be kept.
   `getView()`, `getController()`, `setAsDialogPane(Dialog<?>)`, `setAsContent(DialogPane)`. (Skip
   `getViewWithoutRootContainer`/`getResourceBundle` — unused.)
 - [x] Import swap in jabgui (done repo-wide; CAUTION: the sed also rewrites doc comments containing the literal — fixed by hand in the two new files):
+
   ```bash
   grep -rl 'com\.airhacks\.afterburner\.views\.ViewLoader\b' --include='*.java' jabgui \
     | xargs sed -i 's/com\.airhacks\.afterburner\.views\.ViewLoader/org.jabref.gui.util.ViewLoader/g'
   grep -rl 'com\.airhacks\.afterburner\.views\.ViewLoaderResult' --include='*.java' jabgui \
     | xargs sed -i 's/com\.airhacks\.afterburner\.views\.ViewLoaderResult/org.jabref.gui.util.ViewLoaderResult/g'
   ```
+
   Note: files in `org.jabref.gui.util` itself then have a same-package import — remove those redundant imports if any.
 - [x] Wire FxmlKit globals in `jabgui/src/main/java/org/jabref/gui/JabRefGUI.java` (done in start(), before initialize()) (in `start()`/init, near the
   existing `Injector.setModelOrService` bootstrap):
+
   ```java
   FxmlKit.setDiAdapter(new InjectorDiAdapter());
   FxmlKit.setResourceBundle(Localization.getMessages());
   ```
+
 - [x] Delete `jabgui/src/main/java/org/jabref/gui/util/JabRefResourceLocator.java` and
   `jabgui/src/main/java/org/jabref/gui/l10n/LocalizationLocator.java` (verify no references first:
   `grep -rn "JabRefResourceLocator\|LocalizationLocator" jabgui`).

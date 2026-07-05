@@ -7,9 +7,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 
 import org.jabref.gui.util.BaseDialog;
-import org.jabref.logic.l10n.Localization;
-
 import org.jabref.gui.util.ViewLoader;
+import org.jabref.logic.l10n.Localization;
 
 public class AdvancedCiteDialogView extends BaseDialog<AdvancedCiteDialogViewModel> {
 

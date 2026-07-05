@@ -38,6 +38,7 @@ import org.jabref.gui.util.InjectorDiAdapter;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.util.WebViewStore;
 import org.jabref.http.manager.HttpServerManager;
+import org.jabref.injection.Injector;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.ai.AiService;
@@ -61,7 +62,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import org.jabref.injection.Injector;
 import com.dlsc.fxmlkit.fxml.FxmlKit;
 import com.dlsc.gemsfx.PowerPane;
 import com.dlsc.gemsfx.infocenter.InfoCenterPane;

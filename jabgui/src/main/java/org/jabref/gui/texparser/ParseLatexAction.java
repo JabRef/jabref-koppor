@@ -4,9 +4,8 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
-import org.jabref.model.database.BibDatabaseContext;
-
 import org.jabref.injection.Injector;
+import org.jabref.model.database.BibDatabaseContext;
 
 public class ParseLatexAction extends SimpleCommand {
 

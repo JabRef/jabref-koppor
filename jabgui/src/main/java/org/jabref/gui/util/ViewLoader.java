@@ -2,6 +2,8 @@ package org.jabref.gui.util;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.Optional;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,8 +12,7 @@ import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jspecify.annotations.NullMarked;
 
 /// Convention-based FXML loader, a drop-in replacement for afterburner.fx's
 /// `ViewLoader` (same fluent API and conventions).
@@ -30,9 +31,8 @@ import org.slf4j.LoggerFactory;
 /// `StackPane`), because JabRef's views are their own controllers and often their own
 /// `fx:root`, which FxmlKit does not support.
 @AllowedToUseClassGetResource("FXML files and stylesheets have to be located and attached by URL")
+@NullMarked
 public class ViewLoader {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewLoader.class);
 
     private static final String VIEW_SUFFIX = "View";
     private static final String FXML_FILE_ENDING = ".fxml";
@@ -44,7 +44,9 @@ public class ViewLoader {
 
     private ViewLoader(Class<?> clazz) {
         this.clazz = clazz;
-        this.fxmlLoader = new FXMLLoader(getResourceUrl(FXML_FILE_ENDING, true));
+        URL fxmlUrl = findResourceUrl(FXML_FILE_ENDING).orElseThrow(
+                () -> new IllegalStateException("Cannot find FXML file for view " + clazz.getName()));
+        this.fxmlLoader = new FXMLLoader(fxmlUrl);
         fxmlLoader.setControllerFactory(Injector::instantiatePresenter);
     }
 
@@ -102,37 +104,23 @@ public class ViewLoader {
 
     private void addStyleSheetIfAvailable(Parent parent) {
         // .bss files are binary encoded css files which JavaFX produces
-        URL styleSheet = getResourceUrl(BSS_FILE_ENDING, false);
-        if (styleSheet == null) {
-            styleSheet = getResourceUrl(CSS_FILE_ENDING, false);
-        }
-        if (styleSheet == null) {
-            return;
-        }
-        String uriToCss = styleSheet.toExternalForm();
-        if (!parent.getStylesheets().contains(uriToCss)) {
-            parent.getStylesheets().add(uriToCss);
-        }
+        findResourceUrl(BSS_FILE_ENDING)
+                .or(() -> findResourceUrl(CSS_FILE_ENDING))
+                .map(URL::toExternalForm)
+                .filter(uri -> !parent.getStylesheets().contains(uri))
+                .ifPresent(uri -> parent.getStylesheets().add(uri));
     }
 
     /// Resolves a co-located resource named after the view class ("View" suffix stripped),
     /// trying the lowercase variant first, then the camel-case variant.
-    private URL getResourceUrl(String ending, boolean mandatory) {
+    private Optional<URL> findResourceUrl(String ending) {
         String baseName = clazz.getSimpleName();
         if (baseName.endsWith(VIEW_SUFFIX)) {
             baseName = baseName.substring(0, baseName.lastIndexOf(VIEW_SUFFIX));
         }
-
-        URL found = clazz.getResource(baseName.toLowerCase() + ending);
-        if (found != null) {
-            return found;
-        }
-        found = clazz.getResource(baseName + ending);
-        if ((found == null) && mandatory) {
-            String message = "Cannot find resource %s%s for view %s".formatted(baseName, ending, clazz.getName());
-            LOGGER.error(message);
-            throw new IllegalStateException(message);
-        }
-        return found;
+        String lowerCaseName = baseName.toLowerCase(Locale.ROOT) + ending;
+        String camelCaseName = baseName + ending;
+        return Optional.ofNullable(clazz.getResource(lowerCaseName))
+                       .or(() -> Optional.ofNullable(clazz.getResource(camelCaseName)));
     }
 }

@@ -9,11 +9,10 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.MainFileDirectoryDialogViewModel;
 import org.jabref.logic.l10n.Localization;
-
-import org.jabref.gui.util.ViewLoader;
 
 public class MainFileDirectoryDialog extends FXDialog {
     @FXML private TextField pathField;

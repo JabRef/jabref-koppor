@@ -12,6 +12,7 @@ import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
+import org.jabref.injection.Injector;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.formatter.casechanger.ProtectTermsFormatter;
 import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
@@ -19,7 +20,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsList;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
 
-import org.jabref.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 class ProtectedTermsMenu extends Menu {

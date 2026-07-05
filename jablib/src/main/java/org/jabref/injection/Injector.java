@@ -2,9 +2,11 @@ package org.jabref.injection;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.inject.Inject;
+import org.jspecify.annotations.NullMarked;
 
 /// Static service locator for JabRef's application-wide singletons.
 ///
@@ -20,6 +22,7 @@ import jakarta.inject.Inject;
 ///
 /// In the GUI, FXML controller injection is bridged to FxmlKit via a `DiAdapter`
 /// backed by this class.
+@NullMarked
 public class Injector {
 
     private static final Map<Class<?>, Object> SERVICES = new ConcurrentHashMap<>();
@@ -36,27 +39,18 @@ public class Injector {
     /// is instantiated via its no-arg constructor, cached as the singleton, and its `@Inject`
     /// fields are resolved.
     public static <T> T instantiateModelOrService(Class<T> clazz) {
-        Object service = SERVICES.get(clazz);
-        if (service == null) {
-            SERVICES.putIfAbsent(clazz, instantiate(clazz));
-            service = SERVICES.get(clazz);
-            // Registering before injecting lets cyclic @Inject references terminate
-            registerExistingAndInject(service);
-        }
-        return clazz.cast(service);
+        return clazz.cast(Optional.ofNullable(SERVICES.get(clazz)).orElseGet(() -> createService(clazz)));
     }
 
     /// Resolves the `@Inject` fields of an already existing instance. Fields that are already
     /// set are left untouched. The instance itself is not registered as a singleton.
     public static <T> T registerExistingAndInject(T instance) {
-        Class<?> clazz = instance.getClass();
-        while (clazz != null) {
-            for (Field field : clazz.getDeclaredFields()) {
+        for (Class<?> type = instance.getClass(); type != Object.class; type = type.getSuperclass()) {
+            for (Field field : type.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     injectField(field, instance);
                 }
             }
-            clazz = clazz.getSuperclass();
         }
         return instance;
     }
@@ -66,6 +60,14 @@ public class Injector {
     /// every call returns a new instance.
     public static <T> T instantiatePresenter(Class<T> clazz) {
         return registerExistingAndInject(instantiate(clazz));
+    }
+
+    private static Object createService(Class<?> clazz) {
+        // Registering before injecting fields lets cyclic @Inject references terminate
+        SERVICES.putIfAbsent(clazz, instantiate(clazz));
+        Object service = SERVICES.get(clazz);
+        registerExistingAndInject(service);
+        return service;
     }
 
     private static void injectField(Field field, Object instance) {

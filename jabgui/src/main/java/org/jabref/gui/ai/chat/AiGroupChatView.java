@@ -7,10 +7,10 @@ import javafx.scene.layout.StackPane;
 import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.groups.GroupNodeViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.AiService;
 import org.jabref.model.database.BibDatabaseContext;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 // [impl->feat~ai.chatting.groups~1]

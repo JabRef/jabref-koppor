@@ -10,9 +10,8 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ValueTableCellFactory;
-import org.jabref.logic.l10n.Localization;
-
 import org.jabref.gui.util.ViewLoader;
+import org.jabref.logic.l10n.Localization;
 
 public class CopyFilesDialogView extends BaseDialog<Void> {
 

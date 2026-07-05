@@ -6,9 +6,8 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
-import org.jabref.logic.importer.FetcherException;
-
 import org.jabref.gui.util.ViewLoader;
+import org.jabref.logic.importer.FetcherException;
 
 public class JournalInfoView extends VBox {
     @FXML private Label title;

@@ -13,10 +13,10 @@ import javafx.scene.text.Text;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.model.ai.llm.AiProvider;
 
-import org.jabref.gui.util.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AiPrivacyNoticeView extends ScrollPane {

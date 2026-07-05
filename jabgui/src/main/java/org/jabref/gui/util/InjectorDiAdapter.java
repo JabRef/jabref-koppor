@@ -3,6 +3,7 @@ package org.jabref.gui.util;
 import org.jabref.injection.Injector;
 
 import com.dlsc.fxmlkit.di.DiAdapter;
+import org.jspecify.annotations.NullMarked;
 
 /// Bridges FxmlKit's dependency injection to JabRef's [Injector] service locator.
 ///
@@ -12,6 +13,7 @@ import com.dlsc.fxmlkit.di.DiAdapter;
 ///
 /// Controllers are created freshly per [#getInstance(Class)] call and are never cached —
 /// a controller (and its scene graph) must not be shared between two view instances.
+@NullMarked
 public class InjectorDiAdapter implements DiAdapter {
 
     @Override

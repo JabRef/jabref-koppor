@@ -8,11 +8,11 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
 import org.jabref.logic.l10n.Localization;
 
-import org.jabref.gui.util.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 public class CleanupJournalRelatedPanel extends VBox implements CleanupPanel {

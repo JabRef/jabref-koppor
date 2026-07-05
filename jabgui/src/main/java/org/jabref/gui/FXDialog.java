@@ -9,7 +9,6 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.util.BaseDialog;
-
 import org.jabref.injection.Injector;
 
 /// This class provides a super class for all dialogs implemented in JavaFX.

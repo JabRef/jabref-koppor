@@ -13,6 +13,7 @@ import javax.xml.transform.TransformerException;
 
 import javafx.util.Pair;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.exporter.AtomicFileWriter;
@@ -35,7 +36,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.toolkit.exception.ExportServiceException;
 
-import org.jabref.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

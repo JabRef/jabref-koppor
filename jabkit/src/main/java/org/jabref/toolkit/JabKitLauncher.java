@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javafx.util.Pair;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetcher;
 import org.jabref.logic.importer.WebFetchers;
@@ -38,7 +39,6 @@ import org.jabref.toolkit.exception.CliExceptionHandler;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
 
-import org.jabref.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;

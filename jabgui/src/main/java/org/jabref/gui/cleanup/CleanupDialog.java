@@ -16,6 +16,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -24,8 +25,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import org.jabref.gui.util.ViewLoader;
 
 public class CleanupDialog extends BaseDialog<Void> {
 

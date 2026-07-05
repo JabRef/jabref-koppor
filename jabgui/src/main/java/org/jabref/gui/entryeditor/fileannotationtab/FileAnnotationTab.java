@@ -7,12 +7,12 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditorTab;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.pdf.FileAnnotationCache;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import org.jabref.gui.util.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class FileAnnotationTab extends EntryEditorTab {

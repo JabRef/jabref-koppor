@@ -7,11 +7,10 @@ import org.jabref.gui.commonfxcontrols.FieldFormatterCleanupsPanel;
 import org.jabref.gui.commonfxcontrols.SaveOrderConfigPanel;
 import org.jabref.gui.libraryproperties.AbstractPropertiesTabView;
 import org.jabref.gui.libraryproperties.PropertiesTab;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
-
-import org.jabref.gui.util.ViewLoader;
 
 public class SavingPropertiesView extends AbstractPropertiesTabView<SavingPropertiesViewModel> implements PropertiesTab {
 
