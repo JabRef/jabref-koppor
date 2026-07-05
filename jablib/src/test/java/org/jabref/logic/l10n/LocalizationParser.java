@@ -204,6 +204,16 @@ public class LocalizationParser {
             }
         };
 
+        try {
+            // FXML/2 files are compiled to classes at build time and cannot be parsed by FXMLLoader;
+            // their keys are checked at compile time by the FXML/2 compiler instead
+            if (Files.readString(path, StandardCharsets.UTF_8).contains("http://jfxcore.org/fxml/2.0")) {
+                return List.of();
+            }
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
         // Custom controls referenced in the FXML files load their own FXML in their
         // constructors via ViewLoader; mock it statically so that their instantiation
         // during static loading stays inert. jabgui is only on the test runtime path
