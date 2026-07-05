@@ -3,12 +3,13 @@
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.TabPane?>
-<DialogPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.jabref.gui.cleanup.CleanupDialog"
+
+<DialogPane xmlns="http://javafx.com/javafx" xmlns:fx="http://jfxcore.org/fxml/2.0"
+            fx:subclass="org.jabref.gui.cleanup.CleanupDialogPane"
             prefHeight="600.0" prefWidth="650.0">
     <content>
         <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE"/>
     </content>
-    <ButtonType fx:id="cleanUpButton" text="%Clean up" buttonData="APPLY" />
+    <ButtonType fx:id="cleanUpButton" text="%'Clean up'" buttonData="APPLY" />
     <ButtonType fx:constant="CANCEL" />
 </DialogPane>

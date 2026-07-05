@@ -108,7 +108,17 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
 - [ ] Solve stylesheet attachment convention for converted views (markup `stylesheets` or base-class helper).
 - [ ] Extend `LocalizationParser` to EXTRACT keys from FXML/2 files (XML parse for `%`/StaticResource) so l10n
   consistency checks cover converted views again.
-- [ ] Decide dialog pattern (pane-class split) and convert one dialog end-to-end as the template.
+- [x] Dialog pattern decided and proven on `CleanupDialog`: FXML root `<DialogPane fx:subclass="...XDialogPane">`
+  with `ButtonType` children (named ctor args `text`/`buttonData` work, `%'...'` for the text, `fx:constant="CANCEL"`
+  works); code-behind `XDialogPane extends XDialogPaneBase implements LocalizedView` with bare
+  `initializeComponent()` ctor; the dialog class keeps ALL logic, does `setDialogPane(new XDialogPane())` and reaches
+  fx:id members via the pane's protected fields (same package). ViewLoader/`setAsDialogPane` gone. BONUS proven:
+  classic and FXML/2 views coexist inside the SAME dialog (2 of 4 cleanup tabs still classic).
+- [x] Project-wide daemon JVM pinned: `gradle/gradle-daemon-jvm.properties` (toolchainVersion=25 via
+  `./gradlew updateDaemonJvm --jvm-version=25`) — plain `./gradlew` works for everyone incl. CI; the
+  `-Dorg.gradle.java.home` workaround is obsolete.
+- [x] Upstream-issues decision (Oliver): none needed — full conversion makes the resources-scan issue moot (build
+  filter carries the transition), quoting is documented grammar, and the daemon-JDK need is solved project-side.
 - [ ] Document the conversion recipe in `docs/code-howtos/` + ADR amending ADR-0065.
 
 ## Phase 3 — Incremental conversion (many PRs)
