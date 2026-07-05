@@ -119,6 +119,17 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
   `-Dorg.gradle.java.home` workaround is obsolete.
 - [x] Upstream-issues decision (Oliver): none needed — full conversion makes the resources-scan issue moot (build
   filter carries the transition), quoting is documented grammar, and the daemon-JDK need is solved project-side.
+- [x] MVVM checkpoint (re-verified on request): the pattern survives conversion 1:1. ViewModels are untouched;
+  views keep the shape ctor = "create ViewModel → initializeComponent() → bindProperties()"; all control state
+  still flows through bidirectional property bindings; actions still delegate to the ViewModel
+  (`viewModel.apply(...)` in CleanupDialog); the compiled `CleanupDialogPane` is a passive view with zero logic.
+  Encapsulation note (not MVVM): the dialog reaches the pane's fx:id members via protected fields (same package) —
+  acceptable for the template, add getters if a pane ever leaves its package.
+  OPPORTUNITY: FXML/2's `fx:context` + `${...}`/`{fx:bind}` can bind markup DIRECTLY against the ViewModel —
+  which is literally the "ideal world" that `docs/code-howtos/javafx.md` line 37 says classic FXML cannot do
+  ("In an ideal world all the binding would already be done directly in the FXML. But JavaFX's binding
+  expressions are not yet powerful enough"). Candidate for Phase 3+: set `<fx:context>` to the ViewModel and move
+  `bindProperties()` into markup — deliberately NOT done during the 1:1 migration to keep diffs reviewable.
 - [ ] Document the conversion recipe in `docs/code-howtos/` + ADR amending ADR-0065.
 
 ## Phase 3 — Incremental conversion (many PRs)
