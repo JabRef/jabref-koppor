@@ -161,7 +161,7 @@ bind; logic stays in ViewModels.
    "org.jabref.logic.l10n.LocalizationConsistencyTest" :jabgui:checkstyleMain :jabgui:checkstyleTest`
    — check `${PIPESTATUS[0]}`, never trust `| tail` exit codes. FieldEditorFXTest covers the field editors.
 6. Batch = one coherent family. After each green batch: update the ledger below, commit
-   (message pattern: "FXML/2: convert <family>"), push to `koppor fxml2-spike`. NEVER force-push.
+   (message pattern: "FXML/2: convert FAMILY"), push to `koppor fxml2-spike`. NEVER force-push.
 
 ### Translation table (all verified on the cleanup family unless marked VERIFY)
 
