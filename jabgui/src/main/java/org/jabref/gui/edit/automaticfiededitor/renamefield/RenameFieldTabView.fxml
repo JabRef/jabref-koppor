@@ -6,12 +6,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<fx:root
-        type="VBox"
+<VBox
         styleClass="edit-field-content-pane"
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.jabref.gui.edit.automaticfiededitor.renamefield.RenameFieldTabView">
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://jfxcore.org/fxml/2.0"
+        fx:subclass="org.jabref.gui.edit.automaticfiededitor.renamefield.RenameFieldTabView">
     <Label styleClass="sectionHeader"
            text="%Rename field"/>
     <HBox styleClass="actions">
@@ -26,6 +25,6 @@
     </HBox>
     <Button fx:id="renameButton"
             mnemonicParsing="false"
-            onAction="#renameField"
+            onAction="renameField"
             text="%Rename"/>
-</fx:root>
+</VBox>

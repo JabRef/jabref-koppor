@@ -180,6 +180,7 @@ bind; logic stays in ViewModels.
 | `fx:constant="CANCEL"` (ButtonType) | unchanged |
 | partial `<Insets top left>` | list all four sides (named ctor args) |
 | `HBox.hgrow="ALWAYS"`, `maxHeight="Infinity"` | expected unchanged. VERIFY on first use |
+| Views sharing a common `abstract class AbstractXView extends VBox` (for a default method / shared fields) | CONFLICTS with FXML/2: the fx:subclass MUST extend the generated `XViewBase extends VBox`, and Java has single inheritance, so it can no longer also extend the shared abstract view class. VERIFIED on the automaticfiededitor tab family: deleted `AbstractAutomaticFieldEditorTabView` (only provided `getContent() { return this; }`), each of the 4 tabs now `implements AutomaticFieldEditorTab` directly with its own one-line `getContent()` override. If the shared base has real logic (not just a trivial method), consider moving it to a default interface method instead of deleting it. |
 | `fx:subclass` on a GENERIC class (e.g. `OptionEditor<T>`) | WORKS. VERIFIED on OptionEditor: the fxml-compiler generates a plain non-generic `OptionEditorBase extends HBox` (raw fields, e.g. `protected ComboBox comboBox`); the generic subclass `OptionEditor<T> extends OptionEditorBase` compiles fine — Java allows a generic class to extend a non-generic supertype. Combine with the raw-field cast pattern above for any `fx:id` field typed with the class's own type parameter. |
 | Dialog (`X extends BaseDialog`, DialogPane root) | split: `XDialogPane.fxml` + minimal pane class; dialog does `setDialogPane(new XDialogPane())`, reads fx:id members via protected pane fields (same package). See CleanupDialog |
 | `fx:include` | instantiate the included view class directly as an element. VERIFY on first use |
@@ -200,7 +201,8 @@ bind; logic stays in ViewModels.
 Converted (green): CleanupSingleFieldPanel, CleanupMultiFieldPanel, CleanupFileRelatedPanel,
 CleanupJournalRelatedPanel, CleanupDialog(+Pane), UrlEditor, DateEditor, LinkedEntriesEditor, OwnerEditor,
 CitationKeyEditor, ISSNEditor, JournalEditor, CitationCountEditor, ICORERankingEditor, IdentifierEditor,
-LinkedFilesEditor, OptionEditor.
+LinkedFilesEditor, OptionEditor, AutomaticFieldEditorDialog(+Pane), ClearContentTabView,
+CopyOrMoveFieldContentTabView, EditFieldContentTabView, RenameFieldTabView.
 
 - [x] Batch 1 — simple field editors: DateEditor, LinkedEntriesEditor (generic `fx:id` raw-type gotcha found,
   table updated), UrlEditor (canonical `${...}`/handler VERIFY case, table updated), OwnerEditor, CitationKeyEditor,
@@ -218,7 +220,16 @@ LinkedFilesEditor, OptionEditor.
   equivalent — renamed to a plain method called explicitly right after `initializeComponent()`. All 5 green:
   `:jabgui:compileJava`, `:jabgui:test --tests "org.jabref.gui.fieldeditors.*"`,
   `:jablib:test --tests LocalizationConsistencyTest`, `:jabgui:checkstyleMain`/`checkstyleTest`.
-- [ ] Batch 3 — edit/automaticfiededitor family (4 tabs + dialog, mirrors cleanup family).
+- [x] Batch 3 — edit/automaticfiededitor family (4 tabs + dialog). Dialog-pane split proven again
+  (AutomaticFieldEditorDialog/Pane, mirrors CleanupDialog/Pane). New finding (table updated): the 4 tabs shared
+  `abstract class AbstractAutomaticFieldEditorTabView extends VBox` (single-inheritance conflict with the
+  generated `XViewBase`) — deleted it, each tab now implements `AutomaticFieldEditorTab` directly. Only
+  ClearContentTabView needed the raw-ComboBox-cast workaround (its `onClear()` calls `.getValue()`, which returns
+  `Object` on the raw field); the other 3 tabs only pass typed values INTO raw-erased combo-box methods, which is
+  fine without a cast (unchecked, not an error) — cast only where a raw method's RETURN value needs a typed
+  method called on it. All green: `:jabgui:compileJava`,
+  `:jabgui:test --tests "org.jabref.gui.edit.automaticfiededitor.*"`,
+  `:jablib:test --tests LocalizationConsistencyTest`, `:jabgui:checkstyleMain`/`checkstyleTest`.
 - [ ] Batch 4 — libraryproperties family (dialog + property views; first `fx:include` cases likely here).
 - [ ] Batch 5+ — preferences tabs, remaining dialogs (46), main-frame components LAST (highest risk).
 

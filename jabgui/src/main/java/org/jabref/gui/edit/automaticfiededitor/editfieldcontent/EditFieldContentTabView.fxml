@@ -8,12 +8,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<fx:root
-        type="VBox"
+<VBox
         styleClass="edit-field-content-pane"
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.jabref.gui.edit.automaticfiededitor.editfieldcontent.EditFieldContentTabView">
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://jfxcore.org/fxml/2.0"
+        fx:subclass="org.jabref.gui.edit.automaticfiededitor.editfieldcontent.EditFieldContentTabView">
     <Label styleClass="sectionHeader"
            text="%Edit field content for selected entries"/>
     <HBox styleClass="actions">
@@ -38,13 +37,13 @@
     <HBox styleClass="actions">
         <Button fx:id="setValueButton"
                 mnemonicParsing="false"
-                onAction="#setFieldValue"
+                onAction="setFieldValue"
                 text="%Set"/>
         <Button fx:id="appendValueButton"
                 mnemonicParsing="false"
-                onAction="#appendToFieldValue"
+                onAction="appendToFieldValue"
                 text="%Append"/>
         <Separator
                 orientation="VERTICAL"/>
     </HBox>
-</fx:root>
+</VBox>

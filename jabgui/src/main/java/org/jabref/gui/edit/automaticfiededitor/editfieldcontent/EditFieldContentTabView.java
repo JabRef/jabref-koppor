@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
-import org.jabref.gui.edit.automaticfiededitor.AbstractAutomaticFieldEditorTabView;
+import org.jabref.gui.edit.automaticfiededitor.AutomaticFieldEditorTab;
 import org.jabref.gui.edit.automaticfiededitor.FieldHelper;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.undo.NamedCompoundEdit;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
@@ -26,23 +22,13 @@ import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
-public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView {
-    public Button appendValueButton;
-    public Button setValueButton;
+public class EditFieldContentTabView extends EditFieldContentTabViewBase implements AutomaticFieldEditorTab, LocalizedView {
     private final NamedCompoundEdit compoundEdit;
     private final DialogService dialogService;
     private final List<BibEntry> selectedEntries;
     private final BibDatabase database;
     private final StateManager stateManager;
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
-    @FXML
-    private CheckBox showOnlySetFieldsCheckBox;
-    @FXML
-    private ComboBox<Field> fieldComboBox;
-    @FXML
-    private TextField fieldValueTextField;
-    @FXML
-    private CheckBox overwriteFieldContentCheckBox;
     private EditFieldContentViewModel viewModel;
 
     public EditFieldContentTabView(BibDatabase database,
@@ -55,13 +41,12 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
+
+        initialize();
     }
 
-    @FXML
-    public void initialize() {
+    private void initialize() {
         viewModel = new EditFieldContentViewModel(database, selectedEntries, compoundEdit, dialogService, stateManager);
         fieldComboBox.setConverter(FIELD_STRING_CONVERTER);
 
@@ -93,16 +78,19 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
     }
 
     @Override
+    public Pane getContent() {
+        return this;
+    }
+
+    @Override
     public String getTabName() {
         return Localization.lang("Edit content");
     }
 
-    @FXML
     void appendToFieldValue() {
         viewModel.appendToFieldValue();
     }
 
-    @FXML
     void setFieldValue() {
         viewModel.setFieldValue();
     }

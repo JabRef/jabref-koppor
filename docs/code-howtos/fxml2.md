@@ -56,6 +56,11 @@ The already converted `org.jabref.gui.cleanup` family serves as the reference fo
      convention) has NO FXML/2 equivalent — nothing calls a method named `initialize()` automatically. Rename it
      to a plain method (drop `@FXML`) and call it explicitly right after `initializeComponent()`. See
      `LinkedFilesEditor`.
+   * A family of views sharing `abstract class AbstractXView extends VBox` (for one common method or field) can't
+     keep that shared base once converted: the fx:subclass must extend the GENERATED `XViewBase extends VBox`,
+     and Java only allows one superclass. Drop the shared abstract class and have each view `implement` the
+     interface directly (duplicating the one-liner it provided). See the `automaticfiededitor` tab family, where
+     `AbstractAutomaticFieldEditorTabView` (only `getContent() { return this; }`) was removed.
 7. **Build**: after ADDING a new `.fxml` file, run the first build with `--no-configuration-cache`
    (the FXML plugin scans for markup files at configuration time, so a reused configuration cache does not see
    new files). Subsequent builds are fine. The Gradle daemon needs JDK 24+; this is pinned project-wide in

@@ -10,14 +10,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import org.jabref.gui.icon.JabRefIconView?>
-<fx:root
+<VBox
         prefHeight="400.0"
         prefWidth="600.0"
-        type="VBox"
         styleClass="edit-field-content-pane"
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.jabref.gui.edit.automaticfiededitor.clearcontent.ClearContentTabView">
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://jfxcore.org/fxml/2.0"
+        fx:subclass="org.jabref.gui.edit.automaticfiededitor.clearcontent.ClearContentTabView">
     <GridPane
             hgap="8.0"
             prefWidth="568.0"
@@ -61,7 +60,7 @@
             <Label styleClass="sectionHeader"
                    text="%Clear field content for selected entries">
                 <HBox.margin>
-                    <Insets bottom="10.0"/>
+                    <Insets top="0.0" right="0.0" bottom="10.0" left="0.0"/>
                 </HBox.margin>
             </Label>
         </HBox>
@@ -80,7 +79,7 @@
               GridPane.columnSpan="3">
             <Button fx:id="clearButton"
                     text="%Clear field content"
-                    onAction="#onClear">
+                    onAction="onClear">
                 <graphic>
                     <JabRefIconView
                             glyph="DELETE_ENTRY"/>
@@ -88,4 +87,4 @@
             </Button>
         </HBox>
     </GridPane>
-</fx:root>
+</VBox>
