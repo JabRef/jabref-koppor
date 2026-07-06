@@ -136,6 +136,76 @@ runtime bridge for **not-yet-converted** views during this (long, view-by-view) 
   `bindProperties()` into markup — deliberately NOT done during the 1:1 migration to keep diffs reviewable.
 - [ ] Document the conversion recipe in `docs/code-howtos/` + ADR amending ADR-0065.
 
+## HANDOFF PLAYBOOK — conveyor phase (written for a Sonnet session)
+
+**Mission:** convert the remaining classic-FXML views to FXML/2, batch by batch, strictly following
+`docs/code-howtos/fxml2.md` and the translation table below. Everything below is verified unless marked VERIFY.
+Do not redo research. Do not change localization key texts, properties files, or ViewModels. Keep MVVM: views only
+bind; logic stays in ViewModels.
+
+### Per-view workflow
+
+1. `git mv` is wrong — the file moves across trees: `git rm` the FXML under `src/main/resources/...`, create the
+   rewritten FXML under `src/main/java/<same package>/` (same base name as the class).
+2. Rewrite FXML header: concrete root type (no `fx:root`/`fx:controller`), namespaces
+   `xmlns="http://javafx.com/javafx" xmlns:fx="http://jfxcore.org/fxml/2.0"`, `fx:subclass="<fq class name>"`.
+3. Rewrite the class: `extends <Name>Base`, delete ALL `@FXML` fields (incl. `@FXML private XViewModel viewModel`
+   → becomes a plain `private XViewModel viewModel;`), delete the ViewLoader call.
+   **Constructor order (MANDATORY):** `Injector.registerExistingAndInject(this);` (only if the class has `@Inject`
+   fields) → create the ViewModel → `initializeComponent();` → remaining wiring/bindings.
+   The ViewModel MUST exist before `initializeComponent()` whenever the markup references it (`${viewModel...}`),
+   because plain fields are read once and not re-observed.
+4. First build after ADDING the new .fxml: `./gradlew --no-configuration-cache :jabgui:compileJava` (config cache
+   does not see new files). Later builds: normal.
+5. Verify: `DISPLAY=:10.0 ./gradlew :jabgui:test --tests "org.jabref.gui.FAMILY.*" :jablib:test --tests
+   "org.jabref.logic.l10n.LocalizationConsistencyTest" :jabgui:checkstyleMain :jabgui:checkstyleTest`
+   — check `${PIPESTATUS[0]}`, never trust `| tail` exit codes. FieldEditorFXTest covers the field editors.
+6. Batch = one coherent family. After each green batch: update the ledger below, commit
+   (message pattern: "FXML/2: convert <family>"), push to `koppor fxml2-spike`. NEVER force-push.
+
+### Translation table (all verified on the cleanup family unless marked VERIFY)
+
+| Classic | FXML/2 |
+| --- | --- |
+| `<fx:root type="VBox" ...>` + `fx:controller` | `<VBox ... fx:subclass="...">` |
+| `@FXML private X x;` (fx:id) | delete — inherited protected field from generated base |
+| `ViewLoader.view(this).root(this).load()` | `initializeComponent()` (order: see workflow 3) |
+| `@Inject` fields (filled during load) | `Injector.registerExistingAndInject(this)` FIRST in ctor |
+| `text="%Simple key"` | unchanged (plain form) — ONLY if key has no `' , ; { }` |
+| `text="%Key with, comma or 'quotes'"` | `text="%'Key with, comma or \'quotes\''"` + class `implements LocalizedView` |
+| `onAction="#handleX"` | `onAction="handleX"` — plain method name, no `#` (method may drop the event param). VERIFY on first use |
+| `${controller.viewModel.x}` | `${viewModel.x}` — context is the code-behind root; resolves plain fields, getters, `xProperty()`. VERIFY on first use |
+| `<fx:define>` + `$id` refs (ToggleGroup) | unchanged |
+| `fx:constant="CANCEL"` (ButtonType) | unchanged |
+| partial `<Insets top left>` | list all four sides (named ctor args) |
+| `HBox.hgrow="ALWAYS"`, `maxHeight="Infinity"` | expected unchanged. VERIFY on first use |
+| Dialog (`X extends BaseDialog`, DialogPane root) | split: `XDialogPane.fxml` + minimal pane class; dialog does `setDialogPane(new XDialogPane())`, reads fx:id members via protected pane fields (same package). See CleanupDialog |
+| `fx:include` | instantiate the included view class directly as an element. VERIFY on first use |
+| co-located `.css` (ViewLoader auto-attach) | UNSOLVED — first CSS-bearing view: try `stylesheets` in markup or `getStylesheets().add(...)` in ctor; record the recipe here |
+
+### Escalation rules
+
+- A view uses something not in the table (scripts, cell factories in FXML, unusual constructs) → SKIP it, add it
+  to "Deferred views" below with the reason, continue with the next view. Do not improvise beyond one focused
+  attempt; the compiler's error messages are precise — quote them in the ledger.
+- A test fails and the cause is unclear → baseline the same test via `git stash` before blaming the conversion.
+- NEVER: change key texts, edit `JabRef_*.properties`, touch ViewModels, force-push, commit failing states.
+
+### Batch order & ledger
+
+Converted (green): CleanupSingleFieldPanel, CleanupMultiFieldPanel, CleanupFileRelatedPanel,
+CleanupJournalRelatedPanel, CleanupDialog(+Pane).
+
+- [ ] Batch 1 — simple field editors: DateEditor, LinkedEntriesEditor, UrlEditor (canonical `${...}`/handler
+  VERIFY case — do this one first and update the table), OwnerEditor, CitationKeyEditor, ISSNEditor, JournalEditor.
+- [ ] Batch 2 — remaining field editors (CitationCountEditor, ICORERankingEditor use `registerExistingAndInject`
+  already; IdentifierEditor, KeywordsEditor, TagsEditor, PersonsEditor, GroupsEditor, LinkedFilesEditor, OptionEditor).
+- [ ] Batch 3 — edit/automaticfiededitor family (4 tabs + dialog, mirrors cleanup family).
+- [ ] Batch 4 — libraryproperties family (dialog + property views; first `fx:include` cases likely here).
+- [ ] Batch 5+ — preferences tabs, remaining dialogs (46), main-frame components LAST (highest risk).
+
+Deferred views (reason): —
+
 ## Phase 3 — Incremental conversion (many PRs)
 
 - [x] Cleanup family COMPLETE (all 4 panels + dialog pane) — first fully-FXML/2 dialog. Also proven:
