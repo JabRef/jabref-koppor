@@ -97,8 +97,8 @@
     <Label text="%When a linked file's absolute path cannot be found, try substituting a mapped directory for a matching prefix." wrapText="true"/>
     <TableView fx:id="directoryMappingTable" editable="true">
         <columns>
-            <TableColumn fx:id="directoryMappingDirectoryColumn" text="%Directory" editable="true"/>
-            <TableColumn fx:id="directoryMappingMappedDirectoryColumn" text="%Mapped directory" editable="true"/>
+            <TableColumn fx:id="directoryMappingDirectoryColumn" text="%Stored directory" editable="true"/>
+            <TableColumn fx:id="directoryMappingMappedDirectoryColumn" text="%Local directory" editable="true"/>
             <TableColumn fx:id="directoryMappingDeleteColumn" minWidth="40.0" maxWidth="40.0"/>
         </columns>
         <columnResizePolicy>
