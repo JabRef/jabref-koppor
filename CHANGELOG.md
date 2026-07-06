@@ -37,7 +37,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
-- We replaced the abandoned afterburner.fx framework (used for FXML view loading and dependency injection) with [FxmlKit](https://github.com/dlsc-software-consulting-gmbh/FxmlKit) and a small JabRef-owned service locator. [koppor#733](https://github.com/JabRef/jabref-koppor/pull/733)
+- We replaced the abandoned afterburner.fx framework (used for FXML view loading and dependency injection) with [FxmlKit](https://github.com/dlsc-software-consulting-gmbh/FxmlKit) and a small JabRef-owned service locator. [#733](https://github.com/JabRef/jabref-koppor/pull/733)
 - The `jabkit check` `github-actions` output now embeds the citation key and field name in each finding's message, so the plain workflow log lines are self-describing (not only the pull request annotations). [#16065](https://github.com/JabRef/jabref/pull/16065)
 - We extended the per-fetcher timeout for fulltext PDF lookups from 10 to 120 seconds so fetchers that bounce through an institutional sign-in or a slow publisher CDN have a chance to complete. [#15877](https://github.com/JabRef/jabref/pull/15877)
 - When an imported entry has an empty citation key, it is generated. [#15624](https://github.com/JabRef/jabref/pull/15624)

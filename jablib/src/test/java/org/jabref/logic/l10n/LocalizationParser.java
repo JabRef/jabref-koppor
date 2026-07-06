@@ -253,8 +253,8 @@ public class LocalizationParser {
         Matcher matcher = FXML2_RESOURCE_KEY.matcher(content);
         while (matcher.find()) {
             String key = matcher.group(1) != null
-                    ? matcher.group(1).replace("\\'", "'")
-                    : matcher.group(2);
+                         ? matcher.group(1).replace("\\'", "'")
+                         : matcher.group(2);
             keys.add(unescapeXmlEntities(key));
         }
         return keys;
