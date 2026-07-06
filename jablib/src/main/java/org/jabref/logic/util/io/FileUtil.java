@@ -447,7 +447,57 @@ public class FileUtil {
     public static Optional<Path> find(@NonNull BibDatabaseContext databaseContext,
                                       @NonNull String fileName,
                                       @NonNull FilePreferences filePreferences) {
-        return find(fileName, databaseContext.getFileDirectories(filePreferences));
+        return find(fileName, databaseContext.getFileDirectories(filePreferences))
+                .or(() -> isAbsoluteLike(fileName)
+                        ? applyDirectoryMappings(fileName, filePreferences.getDirectoryMappings())
+                        : Optional.empty());
+    }
+
+    private static final Pattern WINDOWS_DRIVE_ABSOLUTE_PATTERN = Pattern.compile("^[A-Za-z]:/.*");
+
+    /// Checks whether `path` looks like an absolute path on some OS (POSIX, Windows drive letter, or UNC-like),
+    /// without relying on [Path#isAbsolute], which is OS-dependent and would reject e.g. a Windows `C:/...` path
+    /// when running on Linux/macOS.
+    ///
+    /// @param path the (possibly foreign-OS) path string to check, as stored (backslashes are normalized first)
+    public static boolean isAbsoluteLike(String path) {
+        String normalized = path.replace('\\', '/');
+        return normalized.startsWith("/") || WINDOWS_DRIVE_ABSOLUTE_PATTERN.matcher(normalized).matches();
+    }
+
+    /// Tries to resolve an absolute path that does not exist as stored (e.g. because the `.bib` file was written on a
+    /// different machine) by substituting a configured directory prefix with its mapped counterpart.
+    ///
+    /// Matching is a plain string-prefix comparison on `absoluteLink` (not `Path`-aware), so a path string from a
+    /// foreign OS never has to be parsed by the current platform's filesystem. Backslashes are normalized to forward
+    /// slashes before comparing (mirroring how [LinkedFile] itself normalizes stored links), so a mapping's
+    /// `directory` may be entered using either separator style.
+    ///
+    /// @param absoluteLink the stored (absolute) link, as-is
+    /// @param mappings     the configured mappings, tried in order; the first substitution that exists on disk wins
+    public static Optional<Path> applyDirectoryMappings(String absoluteLink, List<DirectoryMapping> mappings) {
+        String normalizedLink = absoluteLink.replace('\\', '/');
+        for (DirectoryMapping mapping : mappings) {
+            String normalizedDirectory = withTrailingSlash(mapping.directory().replace('\\', '/'));
+            if (normalizedLink.startsWith(normalizedDirectory)) {
+                String rest = normalizedLink.substring(normalizedDirectory.length());
+                try {
+                    Path candidate = Path.of(mapping.mappedDirectory()).resolve(rest);
+                    if (Files.exists(candidate)) {
+                        return Optional.of(candidate);
+                    }
+                } catch (InvalidPathException ex) {
+                    LOGGER.debug("Skipping directory mapping {} -> {}: not a valid path on this OS", mapping.directory(), mapping.mappedDirectory(), ex);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /// Ensures `directory` ends with a `/`, so prefix matching in [#applyDirectoryMappings] only matches whole
+    /// path segments (e.g. `/foo/` does not match `/foobar/baz`).
+    private static String withTrailingSlash(String directory) {
+        return directory.endsWith("/") ? directory : directory + "/";
     }
 
     /// Converts a relative filename to an absolute one, if necessary. Returns
@@ -459,7 +509,7 @@ public class FileUtil {
         if (directories.isEmpty()) {
             // Fallback, if no directories to resolve are passed
             Path path = Path.of(fileName);
-            if (path.isAbsolute()) {
+            if (path.isAbsolute() && Files.exists(path)) {
                 return Optional.of(path);
             } else {
                 return Optional.empty();
