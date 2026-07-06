@@ -180,9 +180,11 @@ bind; logic stays in ViewModels.
 | `fx:constant="CANCEL"` (ButtonType) | unchanged |
 | partial `<Insets top left>` | list all four sides (named ctor args) |
 | `HBox.hgrow="ALWAYS"`, `maxHeight="Infinity"` | expected unchanged. VERIFY on first use |
+| `fx:subclass` on a GENERIC class (e.g. `OptionEditor<T>`) | WORKS. VERIFIED on OptionEditor: the fxml-compiler generates a plain non-generic `OptionEditorBase extends HBox` (raw fields, e.g. `protected ComboBox comboBox`); the generic subclass `OptionEditor<T> extends OptionEditorBase` compiles fine — Java allows a generic class to extend a non-generic supertype. Combine with the raw-field cast pattern above for any `fx:id` field typed with the class's own type parameter. |
 | Dialog (`X extends BaseDialog`, DialogPane root) | split: `XDialogPane.fxml` + minimal pane class; dialog does `setDialogPane(new XDialogPane())`, reads fx:id members via protected pane fields (same package). See CleanupDialog |
 | `fx:include` | instantiate the included view class directly as an element. VERIFY on first use |
-| `fx:id` on a generic control (e.g. `TagsField<ParsedEntryLink>`) | VERIFIED on LinkedEntriesEditor: the generated base declares the field as the RAW type (no type-argument syntax in FXML/2) — lambdas assigned to its generic methods (`setSuggestionProvider`, `setTagViewFactory`, `setNewItemProducer`, `setMatcher`) fail to compile (`cannot find symbol`/`incompatible types`, arguments typed as `Object`). Fix: cast once to the parameterized type (`@SuppressWarnings("unchecked") TagsField<X> typed = (TagsField<X>) (TagsField<?>) rawField;`) and use the typed local/field everywhere instead of the inherited raw one. |
+| `fx:id` on a generic control (e.g. `TagsField<ParsedEntryLink>`) | VERIFIED on LinkedEntriesEditor (also CitationCountEditor's `ComboBox<T>`, LinkedFilesEditor's `ListView<T>`): the generated base declares the field as the RAW type (no type-argument syntax in FXML/2) — lambdas assigned to its generic methods (`setSuggestionProvider`, `setTagViewFactory`, `setNewItemProducer`, `setMatcher`) or code calling methods on the erased return value (e.g. `getSelectedItem().someTypedMethod()`) fail to compile (`cannot find symbol`/`incompatible types`, arguments typed as `Object`). Fix: cast once to the parameterized type (`@SuppressWarnings("unchecked") TagsField<X> typed = (TagsField<X>) (TagsField<?>) rawField;` — same pattern via `super.rawField` when the subclass shadows the field name) and use the typed local/field everywhere instead of the inherited raw one. |
+| `${viewModel.x}` where `x` is a plain derived getter with NO backing `xProperty()` | FAILS to compile: `processFxml` error `X.getX is not a valid binding source, required javafx.beans.value.ObservableValue (note: assignment can be used instead)`. VERIFIED on IdentifierEditor's `identifierLookupNotInProgress` (classic FXML silently tolerated the same expression — apparently non-reactive there). FXML/2 requires a REAL `ObservableValue` for `${...}`, unlike classic FXML. Since ViewModels must not be touched, fix in code-behind instead: give the element an `fx:id`, drop the `${...}` attribute, and bind imperatively off a property that DOES exist (e.g. `.not()` on the sibling boolean property) after `initializeComponent()`. |
 | co-located `.css` (ViewLoader auto-attach) | UNSOLVED — first CSS-bearing view: try `stylesheets` in markup or `getStylesheets().add(...)` in ctor; record the recipe here |
 
 ### Escalation rules
@@ -197,15 +199,25 @@ bind; logic stays in ViewModels.
 
 Converted (green): CleanupSingleFieldPanel, CleanupMultiFieldPanel, CleanupFileRelatedPanel,
 CleanupJournalRelatedPanel, CleanupDialog(+Pane), UrlEditor, DateEditor, LinkedEntriesEditor, OwnerEditor,
-CitationKeyEditor, ISSNEditor, JournalEditor.
+CitationKeyEditor, ISSNEditor, JournalEditor, CitationCountEditor, ICORERankingEditor, IdentifierEditor,
+LinkedFilesEditor, OptionEditor.
 
 - [x] Batch 1 — simple field editors: DateEditor, LinkedEntriesEditor (generic `fx:id` raw-type gotcha found,
   table updated), UrlEditor (canonical `${...}`/handler VERIFY case, table updated), OwnerEditor, CitationKeyEditor,
   ISSNEditor, JournalEditor (trailing-period `%key` gotcha found on Owner/JournalEditor, table updated). All 7
   green: `:jabgui:compileJava`, `:jabgui:test --tests "org.jabref.gui.fieldeditors.*"`,
   `:jablib:test --tests LocalizationConsistencyTest`, `:jabgui:checkstyleMain`/`checkstyleTest`.
-- [ ] Batch 2 — remaining field editors (CitationCountEditor, ICORERankingEditor use `registerExistingAndInject`
-  already; IdentifierEditor, KeywordsEditor, TagsEditor, PersonsEditor, GroupsEditor, LinkedFilesEditor, OptionEditor).
+- [x] Batch 2 — remaining field editors: CitationCountEditor, ICORERankingEditor, IdentifierEditor,
+  LinkedFilesEditor, OptionEditor. NOTE: KeywordsEditor, TagsEditor, PersonsEditor, GroupsEditor have NO `.fxml`
+  at all (pure programmatic scene graphs, no `ViewLoader`) — not applicable to this migration, removed from scope.
+  New findings (table updated): (1) raw-type-via-erasure gotcha also hits `ComboBox<T>`/`ListView<T>`, not just
+  `TagsField<T>`; (2) `${viewModel.x}` needs a REAL `xProperty()` — IdentifierEditor's `identifierLookupNotInProgress`
+  is a plain derived getter and had to move to a code-behind binding instead; (3) `fx:subclass` on a GENERIC class
+  (`OptionEditor<T>`) works fine — the generated base is simply non-generic; (4) LinkedFilesEditor's classic
+  `@FXML private void initialize()` auto-callback (FXMLLoader's `Initializable`-style hook) has no FXML/2
+  equivalent — renamed to a plain method called explicitly right after `initializeComponent()`. All 5 green:
+  `:jabgui:compileJava`, `:jabgui:test --tests "org.jabref.gui.fieldeditors.*"`,
+  `:jablib:test --tests LocalizationConsistencyTest`, `:jabgui:checkstyleMain`/`checkstyleTest`.
 - [ ] Batch 3 — edit/automaticfiededitor family (4 tabs + dialog, mirrors cleanup family).
 - [ ] Batch 4 — libraryproperties family (dialog + property views; first `fx:include` cases likely here).
 - [ ] Batch 5+ — preferences tabs, remaining dialogs (46), main-frame components LAST (highest risk).

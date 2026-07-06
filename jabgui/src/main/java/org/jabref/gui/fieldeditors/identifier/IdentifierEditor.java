@@ -4,21 +4,17 @@ import java.util.Optional;
 
 import javax.swing.undo.UndoManager;
 
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
-import org.jabref.gui.fieldeditors.EditorTextField;
 import org.jabref.gui.fieldeditors.EditorValidator;
 import org.jabref.gui.fieldeditors.FieldEditorFX;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.l10n.Localization;
@@ -34,13 +30,9 @@ import static org.jabref.model.entry.field.StandardField.EPRINT;
 import static org.jabref.model.entry.field.StandardField.ISBN;
 import static org.jabref.model.entry.field.StandardField.ISSN;
 
-public class IdentifierEditor extends HBox implements FieldEditorFX {
+public class IdentifierEditor extends IdentifierEditorBase implements FieldEditorFX, LocalizedView {
 
-    @FXML private BaseIdentifierEditorViewModel<?> viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button shortenDOIButton;
-    @FXML private Button fetchInformationByIdentifierButton;
-    @FXML private Button lookupIdentifierButton;
+    private BaseIdentifierEditorViewModel<?> viewModel;
 
     @Inject private DialogService dialogService;
     @Inject private TaskExecutor taskExecutor;
@@ -53,8 +45,8 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
                             SuggestionProvider<?> suggestionProvider,
                             FieldCheckers fieldCheckers) {
 
-        // Viewloader must be called after the viewmodel is loaded,
-        // but we need the injected vars to create the viewmodels.
+        // Injector must run before the viewmodel is created (constructor needs the injected
+        // deps), and the viewmodel must exist before initializeComponent() (markup references it).
         Injector.registerExistingAndInject(this);
 
         switch (field) {
@@ -75,9 +67,7 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
             }
         }
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
 
         textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
@@ -90,6 +80,11 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
                 new Tooltip(Localization.lang("Shorten %0", FieldTextMapper.getDisplayName(field))));
 
         textField.initContextMenu(new DefaultMenu(textField), preferences.getKeyBindingRepository());
+
+        // identifierLookupNotInProgress is a plain derived getter (no backing Property) on the
+        // ViewModel, so it cannot be used as a live FXML/2 `${...}` binding source; bind its
+        // negation here instead.
+        lookupIdentifierIcon.visibleProperty().bind(viewModel.identifierLookupInProgressProperty().not());
 
         new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
 
@@ -111,23 +106,19 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
         return this;
     }
 
-    @FXML
-    private void fetchInformationByIdentifier() {
+    void fetchInformationByIdentifier() {
         entry.ifPresent(viewModel::fetchBibliographyInformation);
     }
 
-    @FXML
-    private void lookupIdentifier() {
+    void lookupIdentifier() {
         entry.ifPresent(viewModel::lookupIdentifier);
     }
 
-    @FXML
-    private void openExternalLink() {
+    void openExternalLink() {
         viewModel.openExternalLink();
     }
 
-    @FXML
-    private void shortenID() {
+    void shortenID() {
         viewModel.shortenID();
     }
 }

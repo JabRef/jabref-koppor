@@ -43,6 +43,19 @@ The already converted `org.jabref.gui.cleanup` family serves as the reference fo
      reference everywhere instead of the raw inherited field (see `LinkedEntriesEditor`).
    * `%key` ending in a period (`.`) needs the quoted form even without `' , ; { }` — the plain-form parser reads
      a trailing `.` as a member-access continuation and fails with `processFxml` error `'}' expected`.
+   * `${viewModel.x}` requires `x` to be backed by a real `xProperty()` — a plain derived getter with no
+     matching property fails with `processFxml` error "... is not a valid binding source, required
+     javafx.beans.value.ObservableValue". Classic FXML silently accepted the same expression (non-reactively).
+     Since ViewModels must not be changed to add a missing property, move that one binding into code-behind:
+     give the element an `fx:id`, drop `${...}`, and bind imperatively (e.g. off a sibling property's `.not()`)
+     after `initializeComponent()`. See `IdentifierEditor`.
+   * A generic class (`class MyEditor<T> extends HBox`) can still be an `fx:subclass`: the generated base is
+     simply non-generic (`MyEditorBase extends HBox`, raw fields) and the generic subclass extends it — Java
+     allows that. See `OptionEditor`.
+   * Classic FXMLLoader's auto-called `@FXML private void initialize()` lifecycle hook (the `Initializable`
+     convention) has NO FXML/2 equivalent — nothing calls a method named `initialize()` automatically. Rename it
+     to a plain method (drop `@FXML`) and call it explicitly right after `initializeComponent()`. See
+     `LinkedFilesEditor`.
 7. **Build**: after ADDING a new `.fxml` file, run the first build with `--no-configuration-cache`
    (the FXML plugin scans for markup files at configuration time, so a reused configuration cache does not see
    new files). Subsequent builds are fine. The Gradle daemon needs JDK 24+; this is pinned project-wide in
