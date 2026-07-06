@@ -19,11 +19,14 @@ The already converted `org.jabref.gui.cleanup` family serves as the reference fo
    `@FXML` fields (they are inherited from the generated base), replace the `ViewLoader` call with
    `initializeComponent()`. Keep the MVVM shape: create the ViewModel first, then `initializeComponent()`,
    then `bindProperties()`.
-4. **Localized keys**: add `implements LocalizedView` (`org.jabref.gui.l10n`) to the class. In the markup, keys
-   keep JabRef's key=value convention. Syntax: `%Simple key with spaces` works as-is, but keys containing
-   apostrophes or commas MUST use the quoted form with escaped apostrophes:
-   `text="%'Move DOIs from \'note\' field and \'URL\' field to \'DOI\' field and remove http prefix'"`.
-   (In the plain form, the parser unquotes apostrophes and treats commas as argument separators.)
+4. **Localized keys**: add `implements LocalizedView` (`org.jabref.gui.l10n`) to the class — required for ANY `%key`
+   use, plain or quoted (`StaticResource` throws at runtime otherwise: "requires the root element to implement
+   ResourceContextProvider"). In the markup, keys keep JabRef's key=value convention. Syntax: `%Simple key with
+   spaces` works as-is, but keys containing apostrophes, commas, **or a trailing period** MUST use the quoted form
+   with escaped apostrophes: `text="%'Move DOIs from \'note\' field and \'URL\' field to \'DOI\' field and remove
+   http prefix'"`. (In the plain form, the parser unquotes apostrophes, treats commas as argument separators, and
+   fails to compile — `processFxml` error `'}' expected` — on a key ending in `.`, since it reads the trailing dot
+   as the start of a member-access continuation it can't finish.)
 5. **Dialogs** (`XDialog extends BaseDialog<T>` with a `DialogPane` root): split off a pane class. The FXML becomes
    `XDialogPane.fxml` with `fx:subclass="...XDialogPane"`; the pane code-behind is minimal
    (`initializeComponent()` in the constructor). The dialog class keeps all logic, calls
@@ -34,6 +37,12 @@ The already converted `org.jabref.gui.cleanup` family serves as the reference fo
    * Attributes are named constructor arguments: partial `<Insets top="10" left="20"/>` must list all four sides.
    * `fx:define` + `$id` references (e.g. `ToggleGroup`) work unchanged.
    * The FXML/2 file is a source file — do not reference it as a runtime resource.
+   * `fx:id` on a generic control (e.g. `TagsField<X>`): the generated base field is the RAW type — no
+     type-argument syntax exists in FXML/2. Lambdas relying on the generic method's inferred type will fail to
+     compile against the raw field. Fix by casting once to the parameterized type and using that typed
+     reference everywhere instead of the raw inherited field (see `LinkedEntriesEditor`).
+   * `%key` ending in a period (`.`) needs the quoted form even without `' , ; { }` — the plain-form parser reads
+     a trailing `.` as a member-access continuation and fails with `processFxml` error `'}' expected`.
 7. **Build**: after ADDING a new `.fxml` file, run the first build with `--no-configuration-cache`
    (the FXML plugin scans for markup files at configuration time, so a reused configuration cache does not see
    new files). Subsequent builds are fine. The Gradle daemon needs JDK 24+; this is pinned project-wide in

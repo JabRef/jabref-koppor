@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import com.dlsc.gemsfx.TagsField?>
+<HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://jfxcore.org/fxml/2.0"
+      fx:subclass="org.jabref.gui.fieldeditors.LinkedEntriesEditor">
+    <TagsField fx:id="entryLinkField" HBox.hgrow="ALWAYS"/>
+</HBox>

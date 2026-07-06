@@ -2,20 +2,18 @@ package org.jabref.gui.fieldeditors;
 
 import javax.swing.undo.UndoManager;
 
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.AutoCompletionTextInputBinding;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
-import org.jabref.gui.util.ViewLoader;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.util.TaskExecutor;
@@ -24,11 +22,9 @@ import org.jabref.model.entry.field.Field;
 
 import jakarta.inject.Inject;
 
-public class JournalEditor extends HBox implements FieldEditorFX {
+public class JournalEditor extends JournalEditorBase implements FieldEditorFX, LocalizedView {
 
-    @FXML private JournalEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
+    private final JournalEditorViewModel viewModel;
 
     @Inject private DialogService dialogService;
     @Inject private GuiPreferences preferences;
@@ -43,9 +39,7 @@ public class JournalEditor extends HBox implements FieldEditorFX {
                          UndoAction undoAction,
                          RedoAction redoAction) {
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        Injector.registerExistingAndInject(this);
 
         this.viewModel = new JournalEditorViewModel(
                 field,
@@ -77,13 +71,11 @@ public class JournalEditor extends HBox implements FieldEditorFX {
         return this;
     }
 
-    @FXML
-    private void toggleAbbreviation() {
+    void toggleAbbreviation() {
         viewModel.toggleAbbreviation();
     }
 
-    @FXML
-    private void showJournalInfo() {
+    void showJournalInfo() {
         if (JournalInfoOptInDialogHelper.isJournalInfoEnabled(dialogService, preferences.getEntryEditorPreferences())) {
             viewModel.showJournalInfo(journalInfoButton);
         }

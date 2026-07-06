@@ -171,16 +171,18 @@ bind; logic stays in ViewModels.
 | `@FXML private X x;` (fx:id) | delete — inherited protected field from generated base |
 | `ViewLoader.view(this).root(this).load()` | `initializeComponent()` (order: see workflow 3) |
 | `@Inject` fields (filled during load) | `Injector.registerExistingAndInject(this)` FIRST in ctor |
-| `text="%Simple key"` | unchanged (plain form) — ONLY if key has no `' , ; { }` |
+| `text="%Simple key"` | unchanged (plain form) — ONLY if key has no `' , ; { }` **and does not END with `.`** — **class MUST still `implements LocalizedView`** (VERIFIED on UrlEditor: `StaticResource` throws `RuntimeException: StaticResource requires the root element to implement ResourceContextProvider` at ANY `%key` use, plain or quoted, if the class doesn't implement it) |
+| `text="%Key ending in a period."` | plain form FAILS to compile: `processFxml` error `'}' expected` pointing right after the trailing `.` (VERIFIED on OwnerEditor/JournalEditor — the parser reads a trailing `.` as the start of a member-access continuation it then can't finish). Use the quoted form instead: `text="%'Key ending in a period.'"` — quoting is required for a trailing period even though `.` isn't in the `' , ; { }` set the docs call out. A period NOT at the end (e.g. mid-sentence) is fine unquoted — only checked the trailing case so far. |
 | `text="%Key with, comma or 'quotes'"` | `text="%'Key with, comma or \'quotes\''"` + class `implements LocalizedView` |
-| `onAction="#handleX"` | `onAction="handleX"` — plain method name, no `#` (method may drop the event param). VERIFY on first use |
-| `${controller.viewModel.x}` | `${viewModel.x}` — context is the code-behind root; resolves plain fields, getters, `xProperty()`. VERIFY on first use |
+| `onAction="#handleX"` | `onAction="handleX"` — plain method name, no `#`. VERIFIED on UrlEditor: the handler method must be package-visible (not `private`) — the generated base class (same package) calls it directly, compile-time-checked (no reflection); a `private` method fails `:compileJava` with "cannot be resolved". Keeping the `ActionEvent` parameter works fine (not dropped). |
+| `${controller.viewModel.x}` | `${viewModel.x}` — context is the code-behind root; resolves plain fields, getters, `xProperty()`. VERIFIED on UrlEditor (`${viewModel.validUrlIsNotPresent}` bound to `Button.disable`, TestFX-checked it flips live as the viewModel's text property changes). |
 | `<fx:define>` + `$id` refs (ToggleGroup) | unchanged |
 | `fx:constant="CANCEL"` (ButtonType) | unchanged |
 | partial `<Insets top left>` | list all four sides (named ctor args) |
 | `HBox.hgrow="ALWAYS"`, `maxHeight="Infinity"` | expected unchanged. VERIFY on first use |
 | Dialog (`X extends BaseDialog`, DialogPane root) | split: `XDialogPane.fxml` + minimal pane class; dialog does `setDialogPane(new XDialogPane())`, reads fx:id members via protected pane fields (same package). See CleanupDialog |
 | `fx:include` | instantiate the included view class directly as an element. VERIFY on first use |
+| `fx:id` on a generic control (e.g. `TagsField<ParsedEntryLink>`) | VERIFIED on LinkedEntriesEditor: the generated base declares the field as the RAW type (no type-argument syntax in FXML/2) — lambdas assigned to its generic methods (`setSuggestionProvider`, `setTagViewFactory`, `setNewItemProducer`, `setMatcher`) fail to compile (`cannot find symbol`/`incompatible types`, arguments typed as `Object`). Fix: cast once to the parameterized type (`@SuppressWarnings("unchecked") TagsField<X> typed = (TagsField<X>) (TagsField<?>) rawField;`) and use the typed local/field everywhere instead of the inherited raw one. |
 | co-located `.css` (ViewLoader auto-attach) | UNSOLVED — first CSS-bearing view: try `stylesheets` in markup or `getStylesheets().add(...)` in ctor; record the recipe here |
 
 ### Escalation rules
@@ -194,10 +196,14 @@ bind; logic stays in ViewModels.
 ### Batch order & ledger
 
 Converted (green): CleanupSingleFieldPanel, CleanupMultiFieldPanel, CleanupFileRelatedPanel,
-CleanupJournalRelatedPanel, CleanupDialog(+Pane).
+CleanupJournalRelatedPanel, CleanupDialog(+Pane), UrlEditor, DateEditor, LinkedEntriesEditor, OwnerEditor,
+CitationKeyEditor, ISSNEditor, JournalEditor.
 
-- [ ] Batch 1 — simple field editors: DateEditor, LinkedEntriesEditor, UrlEditor (canonical `${...}`/handler
-  VERIFY case — do this one first and update the table), OwnerEditor, CitationKeyEditor, ISSNEditor, JournalEditor.
+- [x] Batch 1 — simple field editors: DateEditor, LinkedEntriesEditor (generic `fx:id` raw-type gotcha found,
+  table updated), UrlEditor (canonical `${...}`/handler VERIFY case, table updated), OwnerEditor, CitationKeyEditor,
+  ISSNEditor, JournalEditor (trailing-period `%key` gotcha found on Owner/JournalEditor, table updated). All 7
+  green: `:jabgui:compileJava`, `:jabgui:test --tests "org.jabref.gui.fieldeditors.*"`,
+  `:jablib:test --tests LocalizationConsistencyTest`, `:jabgui:checkstyleMain`/`checkstyleTest`.
 - [ ] Batch 2 — remaining field editors (CitationCountEditor, ICORERankingEditor use `registerExistingAndInject`
   already; IdentifierEditor, KeywordsEditor, TagsEditor, PersonsEditor, GroupsEditor, LinkedFilesEditor, OptionEditor).
 - [ ] Batch 3 — edit/automaticfiededitor family (4 tabs + dialog, mirrors cleanup family).
