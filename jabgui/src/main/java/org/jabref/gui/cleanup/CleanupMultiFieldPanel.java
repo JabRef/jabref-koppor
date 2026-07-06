@@ -2,25 +2,13 @@ package org.jabref.gui.cleanup;
 
 import java.util.EnumSet;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.VBox;
-
-import org.jabref.gui.util.ViewLoader;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
 
 import org.jspecify.annotations.NonNull;
 
-public class CleanupMultiFieldPanel extends VBox implements CleanupPanel {
-    @FXML private CheckBox cleanupDoi;
-    @FXML private CheckBox cleanupArXivDoi;
-    @FXML private CheckBox cleanupEprint;
-    @FXML private CheckBox cleanupUrl;
-    @FXML private CheckBox cleanupBibLaTeX;
-    @FXML private CheckBox cleanupBibTeX;
-    @FXML private CheckBox cleanupTimestampToCreationDate;
-    @FXML private CheckBox cleanupTimestampToModificationDate;
+public class CleanupMultiFieldPanel extends CleanupMultiFieldPanelBase implements CleanupPanel, LocalizedView {
 
     private final CleanupMultiFieldViewModel viewModel;
     private final CleanupDialogViewModel dialogViewModel;
@@ -31,9 +19,7 @@ public class CleanupMultiFieldPanel extends VBox implements CleanupPanel {
         this.dialogViewModel = dialogViewModel;
         this.viewModel = new CleanupMultiFieldViewModel(cleanupPreferences);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
 
         bindProperties();
     }

@@ -4,16 +4,12 @@ import java.util.Optional;
 
 import javax.swing.undo.UndoManager;
 
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.injection.Injector;
 import org.jabref.logic.icore.ConferenceRepository;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -23,11 +19,8 @@ import org.jabref.model.entry.field.Field;
 
 import jakarta.inject.Inject;
 
-public class ICORERankingEditor extends HBox implements FieldEditorFX {
-    @FXML private ICORERankingEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button lookupICORERankButton;
-    @FXML private Button visitICOREConferencePageButton;
+public class ICORERankingEditor extends ICORERankingEditorBase implements FieldEditorFX {
+    private final ICORERankingEditorViewModel viewModel;
 
     @Inject private DialogService dialogService;
     @Inject private UndoManager undoManager;
@@ -42,10 +35,6 @@ public class ICORERankingEditor extends HBox implements FieldEditorFX {
 
         Injector.registerExistingAndInject(this);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
-
         this.viewModel = new ICORERankingEditorViewModel(
                 field,
                 suggestionProvider,
@@ -55,6 +44,8 @@ public class ICORERankingEditor extends HBox implements FieldEditorFX {
                 preferences,
                 conferenceRepository
         );
+
+        initializeComponent();
 
         textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
@@ -79,13 +70,11 @@ public class ICORERankingEditor extends HBox implements FieldEditorFX {
         return this;
     }
 
-    @FXML
-    private void lookupRank() {
+    void lookupRank() {
         entry.ifPresent(viewModel::lookupIdentifier);
     }
 
-    @FXML
-    private void openExternalLink() {
+    void openExternalLink() {
         viewModel.openExternalLink();
     }
 }

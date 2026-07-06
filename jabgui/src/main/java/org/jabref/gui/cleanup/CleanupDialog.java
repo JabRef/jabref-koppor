@@ -6,17 +6,14 @@ import java.util.function.Supplier;
 import javax.swing.undo.UndoManager;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -27,9 +24,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public class CleanupDialog extends BaseDialog<Void> {
-
-    @FXML private TabPane tabPane;
-    @FXML private ButtonType cleanUpButton;
 
     private final CleanupDialogViewModel viewModel;
 
@@ -73,9 +67,8 @@ public class CleanupDialog extends BaseDialog<Void> {
     private void init(BibDatabaseContext databaseContext, CliPreferences preferences) {
         setTitle(Localization.lang("Clean up entries"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        CleanupDialogPane pane = new CleanupDialogPane();
+        setDialogPane(pane);
 
         CleanupPreferences initialPreset = preferences.getCleanupPreferences();
         FilePreferences filePreferences = preferences.getFilePreferences();
@@ -85,17 +78,17 @@ public class CleanupDialog extends BaseDialog<Void> {
         CleanupMultiFieldPanel multiFieldPanel = new CleanupMultiFieldPanel(initialPreset, viewModel);
         CleanupJournalRelatedPanel journalRelatedPanel = new CleanupJournalRelatedPanel(initialPreset, viewModel);
 
-        tabPane.getTabs().setAll(
+        pane.tabPane.getTabs().setAll(
                 new Tab(Localization.lang("Single field"), singleFieldPanel),
                 new Tab(Localization.lang("File-related"), fileRelatedPanel),
                 new Tab(Localization.lang("Multi-field"), multiFieldPanel),
                 new Tab(Localization.lang("Journal-related"), journalRelatedPanel)
         );
 
-        Button btn = (Button) getDialogPane().lookupButton(cleanUpButton);
+        Button btn = (Button) pane.lookupButton(pane.cleanUpButton);
 
         btn.addEventFilter(ActionEvent.ACTION, event -> {
-            Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+            Tab selectedTab = pane.tabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null && selectedTab.getContent() instanceof CleanupPanel panel) {
                 viewModel.apply(panel.getSelectedTab());
             }

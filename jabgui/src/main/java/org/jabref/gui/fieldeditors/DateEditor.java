@@ -7,9 +7,7 @@ import java.util.Optional;
 
 import javax.swing.undo.UndoManager;
 
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
@@ -18,8 +16,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
 import org.jabref.gui.util.UiTaskExecutor;
-import org.jabref.gui.util.ViewLoader;
-import org.jabref.gui.util.component.TemporalAccessorPicker;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
@@ -27,11 +24,9 @@ import org.jabref.model.entry.field.Field;
 
 import jakarta.inject.Inject;
 
-public class DateEditor extends HBox implements FieldEditorFX {
+public class DateEditor extends DateEditorBase implements FieldEditorFX {
 
-    @FXML private DateEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private TemporalAccessorPicker datePicker;
+    private final DateEditorViewModel viewModel;
 
     @Inject private UndoManager undoManager;
     @Inject private GuiPreferences preferences;
@@ -45,11 +40,12 @@ public class DateEditor extends HBox implements FieldEditorFX {
                       FieldCheckers fieldCheckers,
                       UndoAction undoAction,
                       RedoAction redoAction) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        Injector.registerExistingAndInject(this);
 
         this.viewModel = new DateEditorViewModel(field, suggestionProvider, dateFormatter, fieldCheckers, undoManager);
+
+        initializeComponent();
+
         textField.setId(field.getName());
         datePicker.setStringConverter(viewModel.getDateToStringConverter());
         viewModel.textProperty().addListener((_, _, newValue) -> UiTaskExecutor.runInJavaFXThread(() -> {

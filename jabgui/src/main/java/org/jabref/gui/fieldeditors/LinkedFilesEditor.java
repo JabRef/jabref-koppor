@@ -8,7 +8,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
-import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -17,7 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
@@ -40,16 +38,16 @@ import org.jabref.gui.copyfiles.CopyLinkedFilesAction;
 import org.jabref.gui.fieldeditors.contextmenu.ContextAction;
 import org.jabref.gui.fieldeditors.contextmenu.ContextMenuFactory;
 import org.jabref.gui.icon.IconTheme;
-import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.importer.GrobidUseDialogHelper;
 import org.jabref.gui.keyboard.KeyBinding;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.linkedfile.DeleteFileAction;
 import org.jabref.gui.linkedfile.LinkedFileEditDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.ControlHelper;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.gui.util.uithreadaware.UiThreadObservableList;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
@@ -65,14 +63,11 @@ import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import jakarta.inject.Inject;
 
-public class LinkedFilesEditor extends HBox implements FieldEditorFX {
+public class LinkedFilesEditor extends LinkedFilesEditorBase implements FieldEditorFX, LocalizedView {
 
-    @FXML
-    private ListView<LinkedFileViewModel> listView;
-    @FXML
-    private JabRefIconView fulltextFetcher;
-    @FXML
-    private ProgressIndicator progressIndicator;
+    // FXML/2 does not carry Java generics: the generated base declares `listView` as the raw
+    // `ListView` type. Cast once so the generic-typed calls below type-check.
+    private final ListView<LinkedFileViewModel> listView;
 
     private final Field field;
     private final BibDatabaseContext databaseContext;
@@ -112,15 +107,20 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         this.suggestionProvider = suggestionProvider;
         this.fieldCheckers = fieldCheckers;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        Injector.registerExistingAndInject(this);
+
+        initializeComponent();
+
+        @SuppressWarnings("unchecked")
+        ListView<LinkedFileViewModel> typedListView = (ListView<LinkedFileViewModel>) (ListView<?>) super.listView;
+        this.listView = typedListView;
+
+        initialize();
 
         UiThreadObservableList<LinkedFileViewModel> decoratedModelList = new UiThreadObservableList<>(viewModel.filesProperty());
         Bindings.bindContentBidirectional(listView.itemsProperty().get(), decoratedModelList);
     }
 
-    @FXML
     private void initialize() {
         this.viewModel = new LinkedFilesEditorViewModel(
                 field,
@@ -348,18 +348,15 @@ public class LinkedFilesEditor extends HBox implements FieldEditorFX {
         return this;
     }
 
-    @FXML
-    private void addNewFile() {
+    void addNewFile() {
         dialogService.showCustomDialogAndWait(new LinkedFileEditDialog()).filter(file -> !file.isEmpty()).ifPresent(newLinkedFile -> viewModel.addNewLinkedFile(newLinkedFile));
     }
 
-    @FXML
-    private void fetchFulltext() {
+    void fetchFulltext() {
         viewModel.fetchFulltext();
     }
 
-    @FXML
-    private void addFromURL() {
+    void addFromURL() {
         viewModel.addFromURL();
     }
 

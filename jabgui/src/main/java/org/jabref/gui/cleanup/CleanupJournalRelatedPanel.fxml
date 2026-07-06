@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://jfxcore.org/fxml/2.0"
+      fx:subclass="org.jabref.gui.cleanup.CleanupJournalRelatedPanel"
+      spacing="10.0">
+
+    <padding>
+        <Insets top="10.0" right="0.0" bottom="0.0" left="20.0"/>
+    </padding>
+
+    <VBox>
+        <Label fx:id="cleanupJournalAbbreviationsLabel" />
+        <fx:define>
+            <ToggleGroup fx:id="journalAbbreviationsToggleGroup"/>
+        </fx:define>
+
+        <RadioButton fx:id="abbreviateDefault" toggleGroup="$journalAbbreviationsToggleGroup"/>
+        <RadioButton fx:id="abbreviateDottles" toggleGroup="$journalAbbreviationsToggleGroup"/>
+        <RadioButton fx:id="abbreviateShortestUnique" toggleGroup="$journalAbbreviationsToggleGroup"/>
+        <RadioButton fx:id="abbreviateLTWA" toggleGroup="$journalAbbreviationsToggleGroup"/>
+        <RadioButton fx:id="unabbreviate" toggleGroup="$journalAbbreviationsToggleGroup"/>
+    </VBox>
+</VBox>

@@ -5,6 +5,9 @@ plugins {
     id("org.jabref.gradle.feature.shadowjar")
     id("application")
 
+    // Compiles FXML/2 markup (https://jfxcore.github.io/fxml-compiler/) to Java classes
+    id("org.jfxcore.fxmlplugin") version "0.14.0"
+
     // Do not activate; causes issues with the modularity plugin (no tests found etc)
     // id("com.redock.classpathtofile") version "0.1.0"
 }
@@ -14,6 +17,17 @@ version = providers.gradleProperty("projVersion")
     .orElse(providers.environmentVariable("VERSION"))
     .orElse("100.0.0")
     .get()
+
+// The FXML/2 compiler must only see FXML/2 sources (kept in src/*/java next to their code-behind
+// classes). Classic FXML files in src/*/resources are loaded at runtime via ViewLoader during the
+// incremental migration and would fail FXML/2 compilation (fx:controller/fx:root do not exist there).
+tasks.withType<org.jfxcore.gradle.tasks.ProcessFxmlTask>().configureEach {
+    fxmlSourceInfo.set(
+        fxmlSourceInfo.get().filter { info ->
+            info.sourceDir.get().asFile.path.endsWith("${File.separator}java")
+        }
+    )
+}
 
 testModuleInfo {
     requires("org.jabref.testsupport")

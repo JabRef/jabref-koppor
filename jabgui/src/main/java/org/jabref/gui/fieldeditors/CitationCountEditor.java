@@ -5,19 +5,15 @@ import java.util.List;
 import javax.swing.undo.UndoManager;
 
 import javafx.collections.FXCollections;
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
 import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.injection.Injector;
 import org.jabref.logic.citation.SearchCitationsRelationsService;
@@ -31,11 +27,12 @@ import org.jabref.model.entry.field.FieldTextMapper;
 
 import jakarta.inject.Inject;
 
-public class CitationCountEditor extends HBox implements FieldEditorFX {
-    @FXML private CitationCountEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button fetchCitationCountButton;
-    @FXML private ComboBox<CitationCountFetcherType> fetcherComboBox;
+public class CitationCountEditor extends CitationCountEditorBase implements FieldEditorFX {
+    private final CitationCountEditorViewModel viewModel;
+
+    // FXML/2 does not carry Java generics: the generated base declares `fetcherComboBox` as the
+    // raw `ComboBox` type. Cast once so the generic-typed calls below type-check.
+    private final ComboBox<CitationCountFetcherType> fetcherComboBox;
 
     @Inject private DialogService dialogService;
     @Inject private GuiPreferences preferences;
@@ -59,9 +56,11 @@ public class CitationCountEditor extends HBox implements FieldEditorFX {
                 preferences,
                 searchCitationsRelationsService);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
+
+        @SuppressWarnings("unchecked")
+        ComboBox<CitationCountFetcherType> typedFetcherComboBox = (ComboBox<CitationCountFetcherType>) (ComboBox<?>) super.fetcherComboBox;
+        this.fetcherComboBox = typedFetcherComboBox;
 
         textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
@@ -82,8 +81,7 @@ public class CitationCountEditor extends HBox implements FieldEditorFX {
         new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
     }
 
-    @FXML
-    private void fetchCitationCount() {
+    void fetchCitationCount() {
         viewModel.getCitationCount();
     }
 

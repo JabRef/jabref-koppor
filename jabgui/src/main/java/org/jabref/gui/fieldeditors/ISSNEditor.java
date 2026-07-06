@@ -4,20 +4,18 @@ import java.util.Optional;
 
 import javax.swing.undo.UndoManager;
 
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
-import org.jabref.gui.util.ViewLoader;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
@@ -27,11 +25,8 @@ import jakarta.inject.Inject;
 
 // TODO: Document why this is not an IdentifierEditor like ISBN and EPrint
 //       If there is no reason, then integrate it in IdentifierEditor
-public class ISSNEditor extends HBox implements FieldEditorFX {
-    @FXML private ISSNEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
-    @FXML private Button fetchInformationByIdentifierButton;
+public class ISSNEditor extends ISSNEditorBase implements FieldEditorFX, LocalizedView {
+    private final ISSNEditorViewModel viewModel;
 
     @Inject private DialogService dialogService;
     @Inject private GuiPreferences preferences;
@@ -48,9 +43,7 @@ public class ISSNEditor extends HBox implements FieldEditorFX {
                       UndoAction undoAction,
                       RedoAction redoAction) {
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        Injector.registerExistingAndInject(this);
 
         this.viewModel = new ISSNEditorViewModel(
                 field,
@@ -61,6 +54,8 @@ public class ISSNEditor extends HBox implements FieldEditorFX {
                 undoManager,
                 stateManager,
                 preferences);
+
+        initializeComponent();
 
         textField.setId(field.getName());
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
@@ -88,13 +83,11 @@ public class ISSNEditor extends HBox implements FieldEditorFX {
         textField.requestFocus();
     }
 
-    @FXML
-    private void fetchInformationByIdentifier() {
+    void fetchInformationByIdentifier() {
         entry.ifPresent(viewModel::fetchBibliographyInformation);
     }
 
-    @FXML
-    private void showJournalInfo() {
+    void showJournalInfo() {
         if (JournalInfoOptInDialogHelper.isJournalInfoEnabled(dialogService, preferences.getEntryEditorPreferences())) {
             viewModel.showJournalInfo(journalInfoButton);
         }

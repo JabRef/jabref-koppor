@@ -4,46 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
+import javafx.scene.layout.Pane;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
-import org.jabref.gui.edit.automaticfiededitor.AbstractAutomaticFieldEditorTabView;
 import org.jabref.gui.edit.automaticfiededitor.AutomaticFieldEditorTab;
 import org.jabref.gui.edit.automaticfiededitor.FieldHelper;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.undo.NamedCompoundEdit;
-import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.Field;
 
 import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
-public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
-    public Button copyContentButton;
+public class CopyOrMoveFieldContentTabView extends CopyOrMoveFieldContentTabViewBase implements AutomaticFieldEditorTab, LocalizedView {
     private final NamedCompoundEdit compoundEdit;
     private final DialogService dialogService;
     private final List<BibEntry> selectedEntries;
     private final BibDatabase database;
     private final StateManager stateManager;
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
-    @FXML
-    private Button moveContentButton;
-    @FXML
-    private Button swapContentButton;
-    @FXML
-    private ComboBox<Field> fromFieldComboBox;
-    @FXML
-    private ComboBox<Field> toFieldComboBox;
-    @FXML
-    private CheckBox overwriteFieldContentCheckBox;
     private CopyOrMoveFieldContentTabViewModel viewModel;
 
     public CopyOrMoveFieldContentTabView(BibDatabase database,
@@ -56,12 +40,12 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        initializeComponent();
+
+        initialize();
     }
 
-    public void initialize() {
+    private void initialize() {
         viewModel = new CopyOrMoveFieldContentTabViewModel(database, selectedEntries, compoundEdit, dialogService, stateManager);
         initializeFromAndToComboBox();
 
@@ -93,21 +77,23 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
     }
 
     @Override
+    public Pane getContent() {
+        return this;
+    }
+
+    @Override
     public String getTabName() {
         return Localization.lang("Copy or move content");
     }
 
-    @FXML
     void copyContent() {
         viewModel.copyValue();
     }
 
-    @FXML
     void moveContent() {
         viewModel.moveValue();
     }
 
-    @FXML
     void swapContent() {
         viewModel.swapValues();
     }

@@ -6,19 +6,18 @@ import java.util.function.Supplier;
 import javax.swing.undo.UndoManager;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.EditorMenus;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.l10n.LocalizedView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
-import org.jabref.gui.util.ViewLoader;
+import org.jabref.injection.Injector;
 import org.jabref.logic.formatter.bibtexfields.CleanupUrlFormatter;
 import org.jabref.logic.formatter.bibtexfields.TrimWhitespaceFormatter;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -27,10 +26,9 @@ import org.jabref.model.entry.field.Field;
 
 import jakarta.inject.Inject;
 
-public class UrlEditor extends HBox implements FieldEditorFX {
+public class UrlEditor extends UrlEditorBase implements FieldEditorFX, LocalizedView {
 
-    @FXML private final UrlEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
+    private final UrlEditorViewModel viewModel;
 
     @Inject private DialogService dialogService;
     @Inject private GuiPreferences preferences;
@@ -42,11 +40,11 @@ public class UrlEditor extends HBox implements FieldEditorFX {
                      FieldCheckers fieldCheckers,
                      UndoAction undoAction,
                      RedoAction redoAction) {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        Injector.registerExistingAndInject(this);
 
         this.viewModel = new UrlEditorViewModel(field, suggestionProvider, dialogService, preferences, fieldCheckers, undoManager);
+
+        initializeComponent();
 
         textField.setId(field.getName());
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
@@ -74,8 +72,7 @@ public class UrlEditor extends HBox implements FieldEditorFX {
         return this;
     }
 
-    @FXML
-    private void openExternalLink(ActionEvent event) {
+    void openExternalLink(ActionEvent event) {
         viewModel.openExternalLink();
     }
 }
