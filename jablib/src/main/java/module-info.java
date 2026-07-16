@@ -101,6 +101,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.shared.event;
     exports org.jabref.logic.citation;
     exports org.jabref.logic.crawler;
+    exports org.jabref.logic.directorylibrary;
     exports org.jabref.logic.pseudonymization;
     exports org.jabref.logic.citation.repository;
     exports org.jabref.model.paging;
@@ -200,7 +201,7 @@ open module org.jabref.jablib {
     // region: data mapping
     requires jdk.xml.dom;
     requires com.google.gson;
-    requires tools.jackson.databind;
+    requires transitive tools.jackson.databind;
     requires tools.jackson.dataformat.yaml;
     requires tools.jackson.core;
     requires transitive com.fasterxml.jackson.annotation;
@@ -226,7 +227,7 @@ open module org.jabref.jablib {
     requires transitive com.google.common;
     requires java.string.similarity;
     requires transitive org.apache.commons.csv;
-    requires org.apache.commons.io;
+    requires transitive org.apache.commons.io;
     requires org.apache.commons.lang3;
     requires org.apache.commons.text;
     // endregion
