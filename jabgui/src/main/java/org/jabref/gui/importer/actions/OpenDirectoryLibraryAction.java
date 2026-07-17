@@ -15,13 +15,18 @@ import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.directorylibrary.DirectoryLibraryScanner;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.directorylibrary.PdfEnrichmentTask;
 import org.jabref.logic.directorylibrary.PdfEntryFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
+import org.jabref.logic.util.DirectoryMonitor;
 import org.jabref.logic.util.TaskExecutor;
+import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
+
+import com.airhacks.afterburner.injection.Injector;
 
 /// Opens a directory as a library: the main table fills from the Hayagriva `.yml` sidecars and
 /// `.pdf` files found in the directory tree (see [DirectoryLibraryScanner]).
@@ -101,11 +106,20 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
                 clipBoardManager,
                 taskExecutor);
         tabContainer.addTab(libraryTab, true);
+        // No change event follows the synchronous tab creation, so set the initial title here
+        libraryTab.updateTabTitle(false);
+
+        BibDatabaseContext databaseContext = scanResult.databaseContext();
+        PdfEntryFactory pdfEntryFactory = new PdfEntryFactory(
+                preferences.getImportFormatPreferences(), preferences.getFilePreferences(),
+                preferences.getCitationKeyPatternPreferences());
+        DirectoryLibrarySynchronizer synchronizer = new DirectoryLibrarySynchronizer(
+                databaseContext, scanResult.catalog(), pdfEntryFactory, UiTaskExecutor::runInJavaFXThread);
+        databaseContext.attachDirectorySynchronizer(synchronizer);
+        synchronizer.startWatching(Injector.instantiateModelOrService(DirectoryMonitor.class));
+
         if (!scanResult.pendingPdfImports().isEmpty()) {
-            PdfEntryFactory pdfEntryFactory = new PdfEntryFactory(
-                    preferences.getImportFormatPreferences(), preferences.getFilePreferences(),
-                    preferences.getCitationKeyPatternPreferences());
-            new PdfEnrichmentTask(scanResult.pendingPdfImports(), pdfEntryFactory, scanResult.databaseContext(),
+            new PdfEnrichmentTask(scanResult.pendingPdfImports(), pdfEntryFactory, databaseContext,
                     UiTaskExecutor::runInJavaFXThread)
                     .executeWith(taskExecutor);
         }
