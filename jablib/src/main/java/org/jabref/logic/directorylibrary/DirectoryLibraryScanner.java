@@ -13,7 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
+import org.jabref.logic.groups.GroupsFactory;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.HayagrivaImporter;
 import org.jabref.logic.l10n.Localization;
@@ -23,19 +25,23 @@ import org.jabref.logic.util.io.GitIgnoreFileFilter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.groups.DirectoryStructureGroup;
+import org.jabref.model.groups.GroupHierarchyType;
+import org.jabref.model.groups.GroupTreeNode;
 
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Builds an in-memory library from a directory tree: each Hayagriva `.yml`/`.yaml` file
-/// contributes its entries, a PDF next to a sidecar of the same base name is linked to the
-/// sidecar's (first) entry, and PDFs without a sidecar become entries with metadata extracted
-/// from the PDF itself (see [PdfEntryFactory]). The directory itself is the library — the
-/// resulting [BibDatabaseContext] has [org.jabref.logic.shared.DatabaseLocation#DIRECTORY] and
-/// no database path; linked files are stored relative to the root, which is registered as the
+/// Builds an in-memory library from a directory tree: each Hayagriva `.yml`/`.yaml` file and
+/// each Markdown sidecar (`.md` with Hayagriva frontmatter, see [MarkdownSidecar]) contributes
+/// its entries, a PDF next to a sidecar of the same base name is linked to the sidecar's
+/// (first) entry, and PDFs without a sidecar become entries with metadata extracted from the
+/// PDF itself (see [PdfEntryFactory]). The directory itself is the library — the resulting
+/// [BibDatabaseContext] has [org.jabref.logic.shared.DatabaseLocation#DIRECTORY] and no
+/// database path; linked files are stored relative to the root, which is registered as the
 /// library-specific file directory.
-// [impl->req~directory-library.scan~4]
+// [impl->req~directory-library.scan~5]
 @NullMarked
 public class DirectoryLibraryScanner {
 
@@ -57,6 +63,7 @@ public class DirectoryLibraryScanner {
     private static final String PDF_EXTENSION = "pdf";
 
     private final HayagrivaImporter importer = new HayagrivaImporter();
+    private final MarkdownSidecar markdownSidecar = new MarkdownSidecar();
     private final PdfEntryFactory pdfEntryFactory;
 
     public DirectoryLibraryScanner(PdfEntryFactory pdfEntryFactory) {
@@ -72,26 +79,30 @@ public class DirectoryLibraryScanner {
         DirectoryLibraryCatalog catalog = new DirectoryLibraryCatalog();
         List<String> warnings = new ArrayList<>();
 
-        List<Path> yamlFiles = new ArrayList<>();
+        List<Path> sidecarFiles = new ArrayList<>();
         List<Path> pdfFiles = new ArrayList<>();
-        collectFiles(root, yamlFiles, pdfFiles);
+        collectFiles(root, sidecarFiles, pdfFiles);
 
         List<BibEntry> entries = new ArrayList<>();
         Set<Path> pairedPdfs = new HashSet<>();
-        for (Path yamlFile : yamlFiles) {
-            // A directory may contain arbitrary YAML (CI configs, ...) — only files recognized
-            // as Hayagriva become entries; others are silently ignored
-            if (!looksLikeHayagriva(yamlFile)) {
+        for (Path sidecarFile : sidecarFiles) {
+            // A directory may contain arbitrary YAML (CI configs, ...) and arbitrary Markdown
+            // (READMEs, plain notes) — only files recognized as Hayagriva(-frontmatter) become
+            // entries; others are silently ignored
+            boolean isMarkdown = MarkdownSidecar.hasMarkdownExtension(sidecarFile);
+            if (isMarkdown ? !markdownSidecar.looksLikeSidecar(sidecarFile) : !looksLikeHayagriva(sidecarFile)) {
                 continue;
             }
-            ParserResult parserResult = importer.importDatabase(yamlFile);
+            ParserResult parserResult = isMarkdown
+                                        ? markdownSidecar.read(sidecarFile)
+                                        : importer.importDatabase(sidecarFile);
             List<BibEntry> fileEntries = parserResult.getDatabase().getEntries();
             if (parserResult.isInvalid() || fileEntries.isEmpty()) {
-                warnings.add(Localization.lang("Could not parse the Hayagriva file '%0'.", yamlFile.toString()));
+                warnings.add(Localization.lang("Could not parse the Hayagriva file '%0'.", sidecarFile.toString()));
                 continue;
             }
-            fileEntries.forEach(entry -> catalog.register(entry, yamlFile, entry.getCitationKey().orElse("")));
-            findPairedPdf(yamlFile).ifPresent(pdf -> {
+            fileEntries.forEach(entry -> catalog.register(entry, sidecarFile, entry.getCitationKey().orElse("")));
+            findPairedPdf(sidecarFile).ifPresent(pdf -> {
                 pairedPdfs.add(pdf);
                 linkPdf(fileEntries.getFirst(), root, pdf);
             });
@@ -111,10 +122,36 @@ public class DirectoryLibraryScanner {
         }
 
         databaseContext.getDatabase().insertEntries(entries);
+        installDirectoryGroups(databaseContext, catalog, root);
         return new ScanResult(databaseContext, catalog, warnings, List.copyOf(pendingPdfImports));
     }
 
-    private void collectFiles(Path root, List<Path> yamlFiles, List<Path> pdfFiles) throws IOException {
+    /// The groups panel mirrors the folder structure (#10930): a [DirectoryStructureGroup]
+    /// materializes one subgroup per subdirectory from the entries' source files. The lookup
+    /// reads the live catalog, so groups follow inbound synchronization and write-back.
+    // [impl->req~directory-library.groups~1]
+    private void installDirectoryGroups(BibDatabaseContext databaseContext, DirectoryLibraryCatalog catalog, Path root) {
+        Function<BibEntry, Optional<Path>> sourceFileLookup = sourceFileLookup(catalog, root);
+        GroupTreeNode groupsRoot = new GroupTreeNode(GroupsFactory.createAllEntriesGroup());
+        groupsRoot.addSubgroup(new DirectoryStructureGroup(
+                root.getFileName().toString(), GroupHierarchyType.INDEPENDENT, sourceFileLookup));
+        databaseContext.getMetaData().setGroups(groupsRoot);
+    }
+
+    /// Resolves an entry to its source file relative to the root: the sidecar from the catalog,
+    /// or the linked PDF for entries without a sidecar yet.
+    private static Function<BibEntry, Optional<Path>> sourceFileLookup(DirectoryLibraryCatalog catalog, Path root) {
+        Path absoluteRoot = root.toAbsolutePath();
+        return entry -> catalog.sourceOf(entry)
+                               .map(source -> absoluteRoot.relativize(source.yamlFile().toAbsolutePath()))
+                               .or(() -> entry.getFiles().stream()
+                                              .filter(linkedFile -> !linkedFile.isOnlineLink())
+                                              .findFirst()
+                                              .map(linkedFile -> Path.of(linkedFile.getLink()))
+                                              .filter(path -> !path.isAbsolute()));
+    }
+
+    private void collectFiles(Path root, List<Path> sidecarFiles, List<Path> pdfFiles) throws IOException {
         GitIgnoreFileFilter gitIgnoreFilter = new GitIgnoreFileFilter(root);
         Files.walkFileTree(root, new SimpleFileVisitor<>() {
             @Override
@@ -131,8 +168,8 @@ public class DirectoryLibraryScanner {
                     return FileVisitResult.CONTINUE;
                 }
                 String extension = FileUtil.getFileExtension(file).orElse("");
-                if (YAML_EXTENSIONS.contains(extension)) {
-                    yamlFiles.add(file);
+                if (YAML_EXTENSIONS.contains(extension) || MarkdownSidecar.MARKDOWN_EXTENSION.equals(extension)) {
+                    sidecarFiles.add(file);
                 } else if (PDF_EXTENSION.equals(extension)) {
                     pdfFiles.add(file);
                 }
@@ -145,7 +182,7 @@ public class DirectoryLibraryScanner {
                 return FileVisitResult.CONTINUE;
             }
         });
-        yamlFiles.sort(Path::compareTo);
+        sidecarFiles.sort(Path::compareTo);
         pdfFiles.sort(Path::compareTo);
     }
 
@@ -164,7 +201,7 @@ public class DirectoryLibraryScanner {
         }
     }
 
-    /// The sidecar convention: `X.yml` next to `X.pdf` (same directory, same base name).
+    /// The sidecar convention: `X.yml` (or `X.md`) next to `X.pdf` (same directory, same base name).
     private Optional<Path> findPairedPdf(Path yamlFile) {
         Path parent = yamlFile.getParent();
         if (parent == null) {
