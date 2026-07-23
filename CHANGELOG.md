@@ -43,6 +43,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
+- The Hayagriva YAML exporter is now implemented programmatically instead of via a layout template: re-exporting an imported Hayagriva file preserves structured data JabRef cannot represent (short titles, person aliases, additional identifiers), `misc` entries export with a lowercase type, and journal details are written into the periodical parent. The `HayagrivaType` custom-layout formatter was removed. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
+- Hayagriva YAML import and export now cover JabRef's "Comment" field and per-user comment fields (written as `comment`/`comment-<name>` extension keys, which the Hayagriva parser ignores), and entries carrying only BibTeX `year`/`month` fields get their `date` written. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We improved the reliability of online searches by respecting the request limits of arXiv and other services. [#16300](https://github.com/JabRef/jabref/issues/16300)
 - We improved switching between large libraries so entry previews remain responsive while automatic groups and their counts are refreshed. [#16289](https://github.com/JabRef/jabref/pull/16289)
 - We improved the [MODS](https://www.loc.gov/standards/mods/) importer for mapping entry types. [#16055](https://github.com/JabRef/jabref/issues/16055)
