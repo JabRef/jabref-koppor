@@ -1,0 +1,63 @@
+name: Merge all branches
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TARGET: all-branches-merged
+  # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
+  BRANCHES: |
+    origin/main
+    origin/jabkit-extract-references
+    origin/zotero-item-import-endpoint
+    origin/add-import-via-browser
+    origin/directory-convert
+    koppor/directory-mapping-preference
+    koppor/directory-rest-api
+
+jobs:
+  merge:
+    if: github.repository == 'JabRef/jabref-koppor'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Merge branches into ${{ env.TARGET }}
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote rename origin koppor
+          git remote add origin https://github.com/JabRef/jabref.git
+          git fetch --no-tags --prune origin
+          git fetch --no-tags --prune koppor
+
+          if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
+            git checkout -B "$TARGET" "koppor/$TARGET"
+          else
+            git checkout -B "$TARGET" origin/main
+          fi
+
+          while read -r branch; do
+            [ -n "$branch" ] || continue
+            if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
+              echo "::warning::Branch $branch does not exist (any more) - skipped"
+              echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
+            elif git merge --no-edit -m "Merge $branch into $TARGET" "$branch"; then
+              echo "- :white_check_mark: \`$branch\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              git merge --abort
+              echo "::warning::Merge conflict for $branch - skipped"
+              echo "- :x: \`$branch\` - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done <<< "$BRANCHES"
+
+          git push koppor "HEAD:refs/heads/$TARGET"
