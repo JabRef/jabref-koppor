@@ -18,7 +18,7 @@ env:
     origin/add-import-via-browser
     origin/directory-convert
     koppor/directory-mapping-preference
-    koppor/directory-rest-api
+    origin/directory-rest-api
 
 jobs:
   merge:
