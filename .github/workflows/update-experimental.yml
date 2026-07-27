@@ -9,6 +9,12 @@ on:
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      # Editing the branch list below re-merges right away instead of waiting for the nightly run.
+      - .github/workflows/update-experimental.yml
 
 permissions:
   contents: write
@@ -20,6 +26,7 @@ env:
     origin/main
     origin/jabkit-extract-references
     origin/zotero-item-import-endpoint
+    origin/add-comments-tab
     origin/add-import-via-browser
     origin/directory-convert
     koppor/directory-mapping-preference
