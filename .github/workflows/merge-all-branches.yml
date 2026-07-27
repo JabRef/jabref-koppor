@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 env:
-  TARGET: all-branches-merged
+  TARGET: experimental
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
   BRANCHES: |
     origin/main
