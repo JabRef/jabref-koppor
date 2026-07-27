@@ -3,7 +3,7 @@
 # It is fork-only (no counterpart upstream), so syncing JabRef/jabref into main
 # must merge rather than force-push - a forced sync silently drops this file and
 # the daily runs stop without any failure to notice.
-name: Merge all branches
+name: Update experimental
 
 on:
   schedule:
