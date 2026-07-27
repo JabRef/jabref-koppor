@@ -1,3 +1,8 @@
+# This file has to stay on the default branch: GitHub registers `schedule` and
+# `workflow_dispatch` only from there, so a copy on a side branch never fires.
+# It is fork-only (no counterpart upstream), so syncing JabRef/jabref into main
+# must merge rather than force-push - a forced sync silently drops this file and
+# the daily runs stop without any failure to notice.
 name: Merge all branches
 
 on:
