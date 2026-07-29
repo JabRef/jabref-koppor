@@ -25,7 +25,6 @@ env:
   BRANCHES: |
     origin/main
     origin/jabkit-extract-references
-    origin/zotero-item-import-endpoint
     origin/add-comments-tab
     origin/add-import-via-browser
     origin/directory-convert
