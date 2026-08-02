@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.jabref.gui.DialogService;
 import org.jabref.logic.FilePreferences;
-import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.AutoLinkPreferences;
 import org.jabref.logic.util.io.DirectoryMapping;
 
@@ -28,13 +27,9 @@ class LinkedFilesTabViewModelTest {
         when(autoLinkPreferences.getCitationKeyDependency()).thenReturn(AutoLinkPreferences.CitationKeyDependency.START);
         when(autoLinkPreferences.getRegularExpression()).thenReturn("");
 
-        CliPreferences preferences = mock(CliPreferences.class);
-        when(preferences.getFilePreferences()).thenReturn(filePreferences);
-        when(preferences.getAutoLinkPreferences()).thenReturn(autoLinkPreferences);
-
         DialogService dialogService = mock(DialogService.class);
 
-        viewModel = new LinkedFilesTabViewModel(dialogService, preferences);
+        viewModel = new LinkedFilesTabViewModel(dialogService, filePreferences, autoLinkPreferences);
     }
 
     @Test

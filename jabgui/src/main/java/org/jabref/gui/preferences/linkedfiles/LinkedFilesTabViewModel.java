@@ -18,7 +18,6 @@ import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.AutoLinkPreferences;
 import org.jabref.logic.util.io.DirectoryMapping;
 import org.jabref.logic.util.strings.StringUtil;
@@ -61,10 +60,12 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     private final FilePreferences filePreferences;
     private final AutoLinkPreferences autoLinkPreferences;
 
-    public LinkedFilesTabViewModel(DialogService dialogService, CliPreferences preferences) {
+    public LinkedFilesTabViewModel(DialogService dialogService,
+                                   FilePreferences filePreferences,
+                                   AutoLinkPreferences autoLinkPreferences) {
         this.dialogService = dialogService;
-        this.filePreferences = preferences.getFilePreferences();
-        this.autoLinkPreferences = preferences.getAutoLinkPreferences();
+        this.filePreferences = filePreferences;
+        this.autoLinkPreferences = autoLinkPreferences;
 
         mainFileDirValidator = new FunctionBasedValidator<>(
                 mainFileDirectoryProperty,

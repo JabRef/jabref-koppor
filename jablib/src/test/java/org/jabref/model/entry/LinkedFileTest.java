@@ -13,10 +13,12 @@ import org.jabref.model.database.BibDatabaseContext;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LinkedFileTest {
+public class LinkedFileTest {
 
     // An absolute path from a foreign machine, unlikely to exist locally as-is.
     private static final String FOREIGN_ABSOLUTE_LINK = (OS.WINDOWS ? "C:\\old\\literature\\paper.pdf" : "/old/literature/paper.pdf");
@@ -44,5 +46,25 @@ class LinkedFileTest {
         BibDatabaseContext databaseContext = new BibDatabaseContext();
 
         assertEquals(Optional.empty(), linkedFile.findIn(databaseContext, filePreferences));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "http://example.com/paper.pdf, true",
+            "https://example.com/paper.pdf, true",
+            "ftp://ftp.example.com/paper.pdf, true",
+            "ftps://ftp.example.com/paper.pdf, true",
+            "www.example.com/paper.pdf, true",
+            "HTTP://EXAMPLE.COM/paper.pdf, true",
+            "FTP://FTP.EXAMPLE.COM/paper.pdf, true",
+            "FTPS://FTP.EXAMPLE.COM/paper.pdf, true",
+            "HTTPS://EXAMPLE.COM/paper.pdf, true",
+            "/local/path/file.pdf, false",
+            "C:\\Users\\file.pdf, false",
+            "file.txt, false",
+            "'', false"
+    })
+    void isOnlineLinkRecognizesFtp(String link, boolean expected) {
+        assertEquals(expected, LinkedFile.isOnlineLink(link));
     }
 }
