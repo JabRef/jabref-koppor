@@ -20,6 +20,7 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.crawler.Crawler;
 import org.jabref.logic.crawler.StudyRepository;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.BibtexParser;
@@ -67,6 +68,17 @@ public class BibDatabaseContext {
 
     @Nullable
     private CoarseChangeFilter dbmsListener;
+
+    /// The root of a [DatabaseLocation#DIRECTORY] library; unrelated to [#path], which stays
+    /// empty for directory libraries.
+    @Nullable
+    private Path directoryLibraryRoot;
+
+    @Nullable
+    private DirectoryLibrarySynchronizer directorySynchronizer;
+
+    @Nullable
+    private CoarseChangeFilter directoryListener;
 
     private DatabaseLocation location;
 
@@ -269,6 +281,27 @@ public class BibDatabaseContext {
         this.location = DatabaseLocation.SHARED;
     }
 
+    public void convertToDirectoryLibrary(Path root) {
+        this.directoryLibraryRoot = root;
+        this.location = DatabaseLocation.DIRECTORY;
+    }
+
+    public Optional<Path> getDirectoryLibraryRoot() {
+        return Optional.ofNullable(directoryLibraryRoot);
+    }
+
+    public void attachDirectorySynchronizer(DirectoryLibrarySynchronizer directorySynchronizer) {
+        this.directorySynchronizer = directorySynchronizer;
+        // Relays entry events keystroke-filtered to the synchronizer's write-back direction,
+        // mirroring convertToSharedDatabase
+        this.directoryListener = new CoarseChangeFilter(this);
+        directoryListener.registerListener(directorySynchronizer);
+    }
+
+    public @Nullable DirectoryLibrarySynchronizer getDirectorySynchronizer() {
+        return directorySynchronizer;
+    }
+
     public void convertToLocalDatabase() {
         if (dbmsListener != null && (location == DatabaseLocation.SHARED)) {
             if (dbmsSynchronizer != null) {
@@ -276,7 +309,24 @@ public class BibDatabaseContext {
             }
             dbmsListener.shutdown();
         }
+        if (directoryListener != null) {
+            if (directorySynchronizer != null) {
+                directoryListener.unregisterListener(directorySynchronizer);
+            }
+            directoryListener.shutdown();
+            this.directoryListener = null;
+        }
+        if (directorySynchronizer != null) {
+            // Flushes pending sidecar writes and stops the directory watcher
+            directorySynchronizer.shutdown();
+            this.directorySynchronizer = null;
+        }
+        if (directorySynchronizer != null) {
+            directorySynchronizer.shutdown();
+            directorySynchronizer = null;
+        }
 
+        this.directoryLibraryRoot = null;
         this.location = DatabaseLocation.LOCAL;
     }
 
