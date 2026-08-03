@@ -25,7 +25,6 @@ env:
   BRANCHES: |
     origin/main
     origin/jabkit-extract-references
-    origin/add-comments-tab
     origin/add-import-via-browser
     origin/directory-convert
     koppor/directory-mapping-preference
