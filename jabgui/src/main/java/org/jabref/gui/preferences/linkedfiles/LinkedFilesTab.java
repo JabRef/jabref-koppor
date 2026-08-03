@@ -1,12 +1,39 @@
 package org.jabref.gui.preferences.linkedfiles;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
+
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.desktop.os.NativeDesktop;
+import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
+import org.jabref.gui.util.BindingsHelper;
+import org.jabref.gui.util.ControlHelper;
+import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 
 public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabViewModel> {
+
+    // Multiplier for row height based on font size
+    private static final double FONT_HEIGHT_MULTIPLIER = 2.5;
+
+    // Default row height if font is not available
+    private static final double DEFAULT_ROW_HEIGHT = 30.0;
+
+    // Estimate for header height (used in table prefHeight calculation)
+    private static final double HEADER_HEIGHT_ESTIMATE = 1.1;
+
+    // Minimum number of (empty) rows to reserve, so an empty table doesn't collapse to just the header
+    private static final int MIN_ROW_COUNT = 1;
+
+    /// Also the source of the mapping table's row height: it is a themed control in the tree, so its
+    /// font tracks the configured font size.
+    private final Label mappingNote = new Label(Localization.lang("When a linked file's absolute path cannot be found, try substituting a mapped directory for a matching prefix."));
 
     public LinkedFilesTab() {
         this.viewModel = new LinkedFilesTabViewModel(
@@ -22,6 +49,8 @@ public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabView
     }
 
     private void buildView() {
+        mappingNote.setWrapText(true);
+
         setContent(form()
 
                 .section(Localization.lang("File directory"), fileDirectory -> fileDirectory
@@ -75,6 +104,52 @@ public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabView
                         .checkbox(Localization.lang("Move linked files on entry transfer when they would otherwise be inaccessible"), viewModel.moveFilesOnTransferProperty(),
                                 move -> move.disableWhen(viewModel.adjustLinkedFilesOnTransferProperty().not())))
 
+                .section(Localization.lang("Directory mapping"), mapping -> mapping
+                        .custom(mappingNote)
+                        .custom(buildDirectoryMappingTable())
+                        .buttonRow(ControlHelper.labelledIconButton(IconTheme.JabRefIcons.ADD_NOBOX, Localization.lang("Add mapping"), viewModel::addDirectoryMapping)))
+
                 .build());
+    }
+
+    private TableView<DirectoryMappingItem> buildDirectoryMappingTable() {
+        TableView<DirectoryMappingItem> table = new TableView<>();
+        table.setEditable(true);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setItems(viewModel.getDirectoryMappings());
+
+        TableColumn<DirectoryMappingItem, String> directory = new TableColumn<>(Localization.lang("Stored directory"));
+        directory.setEditable(true);
+        directory.setCellValueFactory(data -> data.getValue().directoryProperty());
+        directory.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<DirectoryMappingItem, String> mappedDirectory = new TableColumn<>(Localization.lang("Local directory"));
+        mappedDirectory.setEditable(true);
+        mappedDirectory.setCellValueFactory(data -> data.getValue().mappedDirectoryProperty());
+        mappedDirectory.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        TableColumn<DirectoryMappingItem, Boolean> delete = new TableColumn<>();
+        delete.setMinWidth(40.0);
+        delete.setMaxWidth(40.0);
+        delete.setCellValueFactory(_ -> BindingsHelper.constantOf(true));
+        new ValueTableCellFactory<DirectoryMappingItem, Boolean>()
+                .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
+                .withOnMouseClickedEvent((item, _) -> _ -> viewModel.removeDirectoryMapping(item))
+                .install(delete);
+
+        table.getColumns().add(directory);
+        table.getColumns().add(mappedDirectory);
+        table.getColumns().add(delete);
+
+        // Size the table to its content so it doesn't reserve empty striped rows inside the form.
+        DoubleBinding rowHeight = Bindings.createDoubleBinding(
+                () -> mappingNote.getFont() != null ? mappingNote.getFont().getSize() * FONT_HEIGHT_MULTIPLIER : DEFAULT_ROW_HEIGHT,
+                mappingNote.fontProperty());
+        table.fixedCellSizeProperty().bind(rowHeight);
+        table.prefHeightProperty().bind(
+                Bindings.max(Bindings.size(table.getItems()), MIN_ROW_COUNT)
+                        .add(HEADER_HEIGHT_ESTIMATE)
+                        .multiply(rowHeight));
+        return table;
     }
 }

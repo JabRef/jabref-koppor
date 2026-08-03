@@ -96,6 +96,7 @@ import org.jabref.logic.shared.prefs.SharedDatabasePreferences;
 import org.jabref.logic.shared.security.Password;
 import org.jabref.logic.util.Version;
 import org.jabref.logic.util.io.AutoLinkPreferences;
+import org.jabref.logic.util.io.DirectoryMapping;
 import org.jabref.logic.util.io.FileHistory;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.logic.xmp.XmpPreferences;
@@ -320,6 +321,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private static final String FILES_LAST_USED_DIRECTORY = "lastUsedDirectory";
     private static final String FILES_OPEN_FILE_EXPLORER_IN_FILE_DIRECTORY = "openFileExplorerInFileDirectory";
     private static final String FILES_OPEN_FILE_EXPLORER_IN_LAST_USED_DIRECTORY = "openFileExplorerInLastUsedDirectory";
+    private static final String FILES_DIRECTORY_MAPPING = "directoryMapping";
     // endregion
 
     // region last files opened
@@ -558,6 +560,64 @@ public class JabRefCliPreferences implements CliPreferences {
         }
 
         return Splitter.on(STRINGLIST_DELIMITER).splitToList(toConvert);
+    }
+
+    /// Directory paths may contain the plain [#STRINGLIST_DELIMITER] character or backslashes (Windows' path
+    /// separator), which collide with [#convertListToString]/[#convertStringToList]'s quoting (backslash is the
+    /// quote character there, but [#convertStringToList] never unquotes). So directory mappings get their own
+    /// properly reversible backslash-escaping instead.
+    @VisibleForTesting
+    static String convertDirectoryMappingsToString(List<DirectoryMapping> mappings) {
+        StringBuilder result = new StringBuilder();
+        for (DirectoryMapping mapping : mappings) {
+            if (!result.isEmpty()) {
+                result.append(STRINGLIST_DELIMITER);
+            }
+            result.append(escapeDirectoryMappingComponent(mapping.directory()))
+                  .append(STRINGLIST_DELIMITER)
+                  .append(escapeDirectoryMappingComponent(mapping.mappedDirectory()));
+        }
+        return result.toString();
+    }
+
+    @VisibleForTesting
+    static List<DirectoryMapping> convertStringToDirectoryMappings(String toConvert) {
+        List<String> flattened = splitEscapedDirectoryMappingComponents(toConvert);
+        List<DirectoryMapping> mappings = new ArrayList<>();
+        for (int i = 0; i + 1 < flattened.size(); i += 2) {
+            mappings.add(new DirectoryMapping(flattened.get(i), flattened.get(i + 1)));
+        }
+        return mappings;
+    }
+
+    private static String escapeDirectoryMappingComponent(String value) {
+        return value.replace("\\", "\\\\").replace(STRINGLIST_DELIMITER.toString(), "\\" + STRINGLIST_DELIMITER);
+    }
+
+    private static List<String> splitEscapedDirectoryMappingComponents(String value) {
+        if (StringUtil.isBlank(value)) {
+            return new ArrayList<>();
+        }
+
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean escaped = false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (escaped) {
+                current.append(c);
+                escaped = false;
+            } else if (c == '\\') {
+                escaped = true;
+            } else if (c == STRINGLIST_DELIMITER) {
+                result.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        result.add(current.toString());
+        return result;
     }
     // endregion
 
@@ -1760,7 +1820,8 @@ public class JabRefCliPreferences implements CliPreferences {
                 getBoolean(FILES_KEEP_DOWNLOAD_URL, defaultValues.shouldKeepDownloadUrl()),
                 getPath(FILES_LAST_USED_DIRECTORY, defaultValues.getLastUsedDirectory()),
                 getBoolean(FILES_OPEN_FILE_EXPLORER_IN_FILE_DIRECTORY, defaultValues.shouldOpenFileExplorerInFileDirectory()),
-                getBoolean(FILES_OPEN_FILE_EXPLORER_IN_LAST_USED_DIRECTORY, defaultValues.shouldOpenFileExplorerInLastUsedDirectory()));
+                getBoolean(FILES_OPEN_FILE_EXPLORER_IN_LAST_USED_DIRECTORY, defaultValues.shouldOpenFileExplorerInLastUsedDirectory()),
+                convertStringToDirectoryMappings(get(FILES_DIRECTORY_MAPPING, convertDirectoryMappingsToString(defaultValues.getDirectoryMappings()))));
 
         // mainFileDirectory defaults to getDefaultPath(), which the GUI overrides to a meaningful location.
         bindPath(filePreferences.mainFileDirectoryProperty(), FILES_MAIN_DIRECTORY, getDefaultPath());
@@ -1784,6 +1845,8 @@ public class JabRefCliPreferences implements CliPreferences {
         bindPath(filePreferences.lastUsedDirectoryProperty(), FILES_LAST_USED_DIRECTORY, getDefaultPath());
         bindBoolean(filePreferences.openFileExplorerInFileDirectoryProperty(), FILES_OPEN_FILE_EXPLORER_IN_FILE_DIRECTORY, defaultValues.shouldOpenFileExplorerInFileDirectory());
         bindBoolean(filePreferences.openFileExplorerInLastUsedDirectoryProperty(), FILES_OPEN_FILE_EXPLORER_IN_LAST_USED_DIRECTORY, defaultValues.shouldOpenFileExplorerInLastUsedDirectory());
+        bindCustomList(filePreferences.directoryMappingsProperty(), FILES_DIRECTORY_MAPPING, defaultValues.getDirectoryMappings(),
+                JabRefCliPreferences::convertDirectoryMappingsToString, JabRefCliPreferences::convertStringToDirectoryMappings);
 
         return filePreferences;
     }
