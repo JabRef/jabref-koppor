@@ -40,6 +40,7 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileHistory;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.migrations.PerformLoadDatabaseMigrations;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
@@ -277,6 +278,7 @@ public class OpenDatabaseAction extends SimpleCommand {
                 parserResult = OpenDatabase.loadDatabase(fileToLoad,
                         preferences.getImportFormatPreferences(),
                         fileUpdateMonitor);
+                PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(parserResult, preferences.getImportFormatPreferences().bibEntryPreferences().getKeywordSeparator());
             }
 
             if (parserResult.hasWarnings()) {
