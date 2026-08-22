@@ -145,7 +145,7 @@ public class JabRefFrameViewModel {
                                         .orElse(null);
 
         // Then ask if the user really wants to close, if the library has not been saved since last save.
-        if (!tabContainer.closeTabs(tabContainer.getLibraryTabs())) {
+        if (!tabContainer.closeTabs(tabContainer.getLibraryTabs(), false)) {
             return false;
         }
 
@@ -271,7 +271,11 @@ public class JabRefFrameViewModel {
     private void selectLibraryTab(Optional<Path> library) {
         library.map(path -> path.toAbsolutePath().normalize()).ifPresent(normalized ->
                 tabContainer.getLibraryTabs().stream()
+                            // A directory library has no .bib path; it is identified by its root
+                            // directory, the same path the server derives its id from
+                            // [impl->req~directory-library.rest-api~1]
                             .filter(tab -> tab.getBibDatabaseContext().getDatabasePath()
+                                              .or(tab.getBibDatabaseContext()::getDirectoryLibraryRoot)
                                               .map(path -> path.toAbsolutePath().normalize().equals(normalized))
                                               .orElse(false))
                             .findFirst()
