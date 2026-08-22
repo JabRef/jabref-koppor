@@ -1,0 +1,79 @@
+# Runs the search-backend MWE suite (tests-manual/search-backend-mwe) so ADR 0064's
+# gates move from "claimed" to "measured". Two triggers:
+#   a) manual  -> workflow_dispatch (pick the entry count)
+#   b) on change of the MWE files -> push / pull_request filtered to their paths
+name: Search backend MWEs
+
+on:
+  workflow_dispatch:
+    inputs:
+      entries:
+        description: 'Number of synthetic entries to benchmark'
+        default: '100000'
+        type: string
+  push:
+    paths:
+      - 'tests-manual/search-backend-mwe/**'
+      - '.github/workflows/search-backend-mwe.yml'
+  pull_request:
+    paths:
+      - 'tests-manual/search-backend-mwe/**'
+      - '.github/workflows/search-backend-mwe.yml'
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  sqlite-regex:
+    name: "SQLite regex gate"
+    # ubuntu-latest (not -slim): JBang provisions JDK 25 and sqlite-jdbc loads a native library.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          submodules: 'false'
+          show-progress: 'false'
+
+      - name: Generate JBang cache key
+        id: cache-key
+        shell: bash
+        run: echo "cache_key=jbang-search-mwe-$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache ~/.jbang
+        uses: actions/cache@v5
+        with:
+          path: ~/.jbang
+          key: ${{ steps.cache-key.outputs.cache_key }}
+          restore-keys: jbang-search-mwe-
+
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@main
+
+      - name: Run the MWE suite
+        shell: bash
+        # workflow_dispatch -> the chosen size (default 100000); push/PR -> a smaller, faster set.
+        run: bash tests-manual/search-backend-mwe/run-suite.sh "${{ inputs.entries || '20000' }}"
+
+      - name: Show results
+        if: always()
+        shell: bash
+        run: |
+          for f in tests-manual/search-backend-mwe/out/*.csv; do
+            [ -e "$f" ] || continue
+            echo "== $f =="
+            cat "$f"
+          done
+
+      - name: Upload results CSV
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: search-backend-mwe-results
+          path: tests-manual/search-backend-mwe/out/*.csv
+          if-no-files-found: warn
