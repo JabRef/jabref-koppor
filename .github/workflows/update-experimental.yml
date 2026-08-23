@@ -38,6 +38,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # PAT with `workflows` scope: the default GITHUB_TOKEN cannot push
+          # merges that touch .github/workflows/* (e.g. upstream main editing a
+          # workflow file), which makes the final push fail.
+          token: ${{ secrets.GH_TOKEN_JABREF_MACHINE_PR_APPROVE || github.token }}
 
       - name: Merge branches into ${{ env.TARGET }}
         run: |
