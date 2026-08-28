@@ -1,5 +1,6 @@
 open module org.jabref.jablib {
     exports org.jabref.model;
+    exports org.jabref.model.undo;
     exports org.jabref.logic;
 
     exports org.jabref.search;
@@ -160,6 +161,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.ai.models;
     exports org.jabref.logic.ocr.docling;
     exports org.jabref.model.ocr.docling;
+    exports org.jabref.logic.undo;
     // endregion
 
     requires java.base;
