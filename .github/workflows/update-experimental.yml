@@ -29,6 +29,7 @@ env:
     origin/directory-convert
     koppor/directory-mapping-preference
     origin/directory-rest-api
+    origin/fixUnlinkedFiles
 
 jobs:
   merge:
