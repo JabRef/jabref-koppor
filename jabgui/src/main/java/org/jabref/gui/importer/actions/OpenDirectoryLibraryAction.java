@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.swing.undo.UndoManager;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -33,6 +32,7 @@ import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.DirectoryMonitor;
 import org.jabref.logic.util.TaskExecutor;

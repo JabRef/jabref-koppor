@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.undo.UndoManager;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -22,6 +21,7 @@ import org.jabref.logic.ai.AiService;
 import org.jabref.logic.directorylibrary.DirectoryLibraryConverter;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
