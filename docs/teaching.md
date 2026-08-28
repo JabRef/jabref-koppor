@@ -41,7 +41,7 @@ For a near-to-perfect preparation and effect of the course, we ask you to get in
 
 It is also possible to just direct students to our [Contribution Guide](https://devdocs.jabref.org/contributing.html#contribute-code). The learning effect may be lower as the time of the students has to be spent to a) learn about JabRef and b) select an appropriate issue.
 
-Since a huge fraction of software costs is spent on [software maintenance](https://en.wikipedia.org/wiki/Software_maintenance), adding new features also educates in that aspect: perfective maintenance[1](teaching.md#LientzSwanson) is trained. When fixing bugs, corrective maintenance [2](teaching.md#LientzSwanson) is trained.
+Since a huge fraction of software costs is spent on [software maintenance](https://en.wikipedia.org/wiki/Software_maintenance), adding new features also educates in that aspect: perfective maintenance [2](#LientzSwanson) is trained. When fixing bugs, corrective maintenance [2](#LientzSwanson) is trained.
 
 ## Process for contributions
 
@@ -143,25 +143,26 @@ Course [Open Source Software](https://github.com/igorsteinmacher/DSL-UTFPR), 201
 
 ## Praises and media coverage
 
-> I have learnt more from this single pull request regarding production-ready code than I ever have from my three years of CS degree.
+* [O. Kopp et al.: JabRef: BibTeX-based literature management software, TUGboat 44(3)](https://doi.org/10.47397/tb/44-3/tb138kopp-jabref) - explains the motivation and the concept of the curated issues.
+* "I have learnt more from this single pull request regarding production-ready code than I ever have from my three years of CS degree."
+* JabRef mentioned as one of "Top 8 Open Source GitHub Projects to Level-Up Your Coding" by [CodeGym](https://codegym.cc/groups/posts/383-top-8-open-source-github-projects-to-level-up-your-coding).
 
 (Please send us your praise if you enjoyed the experience)
-
----
-
-* JabRef mentioned as one of "Top 8 Open Source GitHub Projects to Level-Up Your Coding" by [CodeGym](https://codegym.cc/groups/posts/383-top-8-open-source-github-projects-to-level-up-your-coding).
-* [O. Kopp et al.: JabRef: BibTeX-based literature management software, TUGboat 44(3)](https://doi.org/10.47397/tb/44-3/tb138kopp-jabref) - explains the motivation and the concept of the curated issues.
 
 ## Notes
 
 1. JabRef tries to achieve high code quality. This ultimately leads to improved software engineering knowledge of contributors. After contributing for JabRef, both coding and general software engineering skills will have increased. Our [development strategy](getting-into-the-code/development-strategy.md) provides more details.
-2. We recommend to start early and constantly, since students working earlier and more often produce projects that are more correct and completed earlier at the same overall invested time [1](teaching.md#Ayaankazerouni).
+2. We recommend to start early and constantly, since students working earlier and more often produce projects that are more correct and completed earlier at the same overall invested time [1](#Ayaankazerouni).
 3. Be aware that JabRef is run by volunteers. This implies that the development team cannot ensure to provide feedback on code within hours.
 4. Be aware that from the first pull request to the final acceptance the typical time needed is two weeks.
 5. Be aware that JabRef tries to achieve high code quality. This leads to code reviews requiring actions from the contributors. This also applies for code of students. Read on at our [Development Strategy](getting-into-the-code/development-strategy.md) for more details.
 
 ## References
 
-[1](teaching.md#a1): [@ayaankazerouni](https://github.com/ayaankazerouni): [Developing Procrastination Feedback for Student Software Developers](https://medium.com/@ayaankazerouni/developing-procrastination-feedback-for-student-software-developers-1652de60db7f) [2](teaching.md#a2): Lientz B., Swanson E., 1980: Software Maintenance Management. Addison Wesley, Reading, MA.
+<a id="Ayaankazerouni"></a>
+[1]: [@ayaankazerouni](https://github.com/ayaankazerouni): [Developing Procrastination Feedback for Student Software Developers](https://medium.com/@ayaankazerouni/developing-procrastination-feedback-for-student-software-developers-1652de60db7f)
+
+<a id="LientzSwanson"></a>
+[2]: Lientz B., Swanson E., 1980: Software Maintenance Management. Addison Wesley, Reading, MA.
 
 <!-- markdownlint-disable-file MD012 -->
