@@ -42,7 +42,7 @@ jobs:
           # PAT with `workflows` scope: the default GITHUB_TOKEN cannot push
           # merges that touch .github/workflows/* (e.g. upstream main editing a
           # workflow file), which makes the final push fail.
-          token: ${{ secrets.GH_TOKEN_JABREF_MACHINE_PR_APPROVE || github.token }}
+          token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
 
       - name: Merge branches into ${{ env.TARGET }}
         run: |
