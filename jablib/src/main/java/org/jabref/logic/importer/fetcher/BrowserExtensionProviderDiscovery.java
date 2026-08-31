@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public final class BrowserExtensionProviderDiscovery {
     }
 
     /// Returns the absolute path of the discovery directory for the current platform.
+    // [impl->req~bxf.discovery-dir~1]
     public static Path discoveryDirectory() {
         if (OS.WINDOWS) {
             String appData = System.getenv("APPDATA");
@@ -90,6 +92,7 @@ public final class BrowserExtensionProviderDiscovery {
         return List.copyOf(providers);
     }
 
+    // [impl->req~bxf.discovery-schema~1]
     private static Optional<BrowserExtensionProvider> parseProvider(Path file) {
         DiscoveryFile parsed;
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -121,7 +124,13 @@ public final class BrowserExtensionProviderDiscovery {
             LOGGER.warn("Skipping fulltext-provider {} declaring out-of-range port {}", parsed.name(), port);
             return Optional.empty();
         }
-        Path tokenFile = Path.of(parsed.tokenFile());
+        Path tokenFile;
+        try {
+            tokenFile = Path.of(parsed.tokenFile());
+        } catch (InvalidPathException e) {
+            LOGGER.warn("Skipping fulltext-provider {} declaring invalid tokenFile {}", parsed.name(), parsed.tokenFile(), e);
+            return Optional.empty();
+        }
         if (!tokenFile.isAbsolute()) {
             LOGGER.warn("Skipping fulltext-provider {} declaring non-absolute tokenFile {}", parsed.name(), parsed.tokenFile());
             return Optional.empty();
