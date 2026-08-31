@@ -55,9 +55,9 @@ public final class EntryChangeDetailsView extends DatabaseChangeDetailsView {
                                   String leftLabelText,
                                   String rightLabelText) {
         Label inJabRef = new Label(leftLabelText);
-        inJabRef.getStyleClass().add("lib-change-header");
+        inJabRef.getStyleClass().addAll("h4", "padding-2");
         Label onDisk = new Label(rightLabelText);
-        onDisk.getStyleClass().add("lib-change-header");
+        onDisk.getStyleClass().addAll("h4", "padding-2");
 
         // we need a copy here as we otherwise would set the same entry twice
         PreviewViewer previewClone = new PreviewViewer(dialogService, preferences, taskExecutor);

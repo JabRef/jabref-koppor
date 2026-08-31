@@ -29,9 +29,9 @@ public final class GitEntryChangeDetailsView extends AnchorPane {
                                      GuiPreferences preferences,
                                      BibEntryTypesManager entryTypesManager) {
         Label committedVersion = new Label(Localization.lang("Committed version"));
-        committedVersion.getStyleClass().add("lib-change-header");
+        committedVersion.getStyleClass().addAll("h4", "padding-2");
         Label savedFile = new Label(Localization.lang("Saved file"));
-        savedFile.getStyleClass().add("lib-change-header");
+        savedFile.getStyleClass().addAll("h4", "padding-2");
 
         StyleClassedTextArea oldSourceArea = createConfiguredTextArea(oldEntry, oldDatabaseContext, preferences, entryTypesManager);
         StyleClassedTextArea newSourceArea = createConfiguredTextArea(newEntry, newDatabaseContext, preferences, entryTypesManager);
@@ -46,7 +46,7 @@ public final class GitEntryChangeDetailsView extends AnchorPane {
         splitPane.setDividerPositions(0.5);
 
         Label legendLabel = new Label(Localization.lang("Red: Removed, Blue: Changed, Green: Added"));
-        legendLabel.getStyleClass().add("lib-change-legend");
+        legendLabel.getStyleClass().addAll("font-size-090", "text-subtle", "padding-4");
 
         VBox resultContainer = new VBox(splitPane, legendLabel);
         resultContainer.setSpacing(5);
