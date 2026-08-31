@@ -215,11 +215,18 @@ iteration: install/stub the missing jars, re-run, classify what remains.
 - [ ] **8. Debian process**: take over/retitle #877718 as ITP (jabkit first), repo on
       salsa (java-team), find sponsor — tmancill (Debian Java team) already commented in
       #135; loop in sre4ever.
-- [ ] **9. OpenJFX spike, part 2** (can run in parallel with 5–8): Makefile for the
-      Linux natives (glass-gtk, prism-es2, prism-sw, font, iio, decora-SSE), run the JSL
-      shader compiler, then a rendering smoke test on sid. If green: propose the
-      gradle-free `openjfx26` package to debian-java@ / ebourg with the PoC attached.
-  - [x] Java-side compile of all 7 modules proven (one javac invocation, 0 errors).
+- [x] **9. OpenJFX spike, part 2 — DONE (2026-08-31): the `openjfx26` Debian package
+      exists and works.** Packaging repo: `/data/kopp/openjfx26-debian` (source package
+      `openjfx26`, binary `libopenjfx26-java`). Validated on sid/amd64:
+      `dpkg-buildpackage -b` succeeds; in a pristine container the .deb installs with
+      auto-resolved deps and the autopkgtest passes — es2 **and** sw Prism pipelines
+      render correctly (pixel-asserted), fonts (freetype/pango), Decora effects, JPEG
+      decode via **system libjpeg**; lintian error-free. Debian's antlr4 4.9 drives the
+      JSL shader compiler fine (only JabRef's own grammars need ≥ 4.10). Natives are a
+      ~90-line shell script transcribed from buildSrc/linux.gradle.
+  - [ ] Propose to debian-java@ / ebourg (repo README has the TODO list: ITP, orig
+        tarball repack/Files-Excluded, copyright audit, jar/jni split question,
+        reproducibility, arm64).
 - [ ] **10. Stage 2 (GUI)**: once JavaFX 26 is packagable (route A or B), package the
       JavaFX library stack (fxmisc, dlsc, ikonli, mvvmfx, …); then add the `jabref` GUI
       binary package to the same source package.
