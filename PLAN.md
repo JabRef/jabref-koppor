@@ -205,6 +205,17 @@ iteration: install/stub the missing jars, re-run, classify what remains.
         exact bill of materials.
 - [ ] **4. Decide** Stage-1 trim set from PoC results; write the quilt patch series.
 - [ ] **5. Package the missing libs** (order above), ITP each; org.jabref libs first.
+  - [ ] Before filing any ITP, search WNPP/BTS for existing bugs (`wnpp-check` from
+        devscripts, <https://wnpp.debian.org>, and per-source
+        `bugs.debian.org/cgi-bin/pkgreport.cgi?src=…`). The 2016–2018 effort left
+        bugs that need retitling or closing: citeproc-java ITP
+        [#841020](https://bugs.debian.org/841020) (still wanted),
+        latex2unicode [#858809](https://bugs.debian.org/858809) + fastparse
+        [#858810](https://bugs.debian.org/858810) (obsolete since latex-conv — close),
+        afterburner.fx [#848398](https://bugs.debian.org/848398), controlsfx
+        [#848396](https://bugs.debian.org/848396), easybind
+        [#848399](https://bugs.debian.org/848399) (packages exist but far behind the
+        forks/versions we need — reuse these bugs to track the updates).
 - [ ] **6. Update** caffeine, afterburner.fx, easybind (coordinate with current Debian
       maintainers; the forks may need new source package names).
 - [ ] **7. `jabref` source package** producing `jabkit` (+ `libjablib-java`?):
@@ -215,9 +226,18 @@ iteration: install/stub the missing jars, re-run, classify what remains.
 - [ ] **8. Debian process**: take over/retitle #877718 as ITP (jabkit first), repo on
       salsa (java-team), find sponsor — tmancill (Debian Java team) already commented in
       #135; loop in sre4ever.
+  - [ ] Triage the open BTS bugs against jabref 3.8.2
+        (`bugs.debian.org/cgi-bin/pkgreport.cgi?src=jabref`) — most are fixed upstream
+        (e.g. [#926537](https://bugs.debian.org/926537) "depends on unirest-java",
+        [#1103889](https://bugs.debian.org/1103889) pdfbox) and get closed by the new
+        upload's changelog; the rest need forwarding upstream.
 - [x] **9. OpenJFX spike, part 2 — DONE (2026-08-31): the `openjfx26` Debian package
-      exists and works.** Packaging repo: `/data/kopp/openjfx26-debian` (source package
-      `openjfx26`, binary `libopenjfx26-java`). Validated on sid/amd64:
+      exists and works.** Packaging repo: <https://github.com/koppor/openjfx26-debian>
+      (locally `/data/kopp/openjfx26-debian`; source package `openjfx26`, binary
+      `libopenjfx26-java`; CI on debian:sid rebuilds, lintian-checks, installs into a
+      pristine container and renders; its README links the verified related Debian bugs
+      — openjfx update request [#1041527](https://bugs.debian.org/1041527), layout bugs
+      #972062/#933669, gradle bootstrapping #792390). Validated on sid/amd64:
       `dpkg-buildpackage -b` succeeds; in a pristine container the .deb installs with
       auto-resolved deps and the autopkgtest passes — es2 **and** sw Prism pipelines
       render correctly (pixel-asserted), fonts (freetype/pango), Decora effects, JPEG
