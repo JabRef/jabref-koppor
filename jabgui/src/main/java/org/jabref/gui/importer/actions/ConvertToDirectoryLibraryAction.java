@@ -17,11 +17,11 @@ import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.exporter.SaveDatabaseAction;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.undo.GuiUndoManager;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.directorylibrary.DirectoryLibraryConverter;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
@@ -56,7 +56,7 @@ public class ConvertToDirectoryLibraryAction extends SimpleCommand {
                                            FileUpdateMonitor fileUpdateMonitor,
                                            BibEntryTypesManager entryTypesManager,
                                            JournalAbbreviationRepository journalAbbreviationRepository,
-                                           UndoManager undoManager,
+                                           GuiUndoManager undoManager,
                                            ClipBoardManager clipBoardManager,
                                            TaskExecutor taskExecutor) {
         this.tabContainer = tabContainer;
@@ -112,7 +112,7 @@ public class ConvertToDirectoryLibraryAction extends SimpleCommand {
             return;
         }
 
-        if (!new SaveDatabaseAction(libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository).save()) {
+        if (new SaveDatabaseAction(libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository).save() != SaveDatabaseAction.SaveResult.SUCCESS) {
             return;
         }
         try {

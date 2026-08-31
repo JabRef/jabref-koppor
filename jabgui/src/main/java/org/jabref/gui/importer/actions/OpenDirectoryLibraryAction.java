@@ -19,6 +19,7 @@ import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.git.GitConflictResolverDialog;
 import org.jabref.gui.git.GuiGitConflictResolverStrategy;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.undo.GuiUndoManager;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
@@ -32,7 +33,6 @@ import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.DirectoryMonitor;
 import org.jabref.logic.util.TaskExecutor;
@@ -60,7 +60,7 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
     private final StateManager stateManager;
     private final FileUpdateMonitor fileUpdateMonitor;
     private final BibEntryTypesManager entryTypesManager;
-    private final UndoManager undoManager;
+    private final GuiUndoManager undoManager;
     private final ClipBoardManager clipBoardManager;
     private final TaskExecutor taskExecutor;
 
@@ -71,7 +71,7 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
                                       StateManager stateManager,
                                       FileUpdateMonitor fileUpdateMonitor,
                                       BibEntryTypesManager entryTypesManager,
-                                      UndoManager undoManager,
+                                      GuiUndoManager undoManager,
                                       ClipBoardManager clipBoardManager,
                                       TaskExecutor taskExecutor) {
         this.tabContainer = tabContainer;
