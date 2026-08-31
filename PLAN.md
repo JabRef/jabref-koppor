@@ -139,19 +139,25 @@ snakeyaml 2.5, xz 1.11, postgresql-jdbc, icu4j 77 (drop the `72!!` pin in a patc
 java-diff-utils, java-string-similarity 2.0.0, jbibtex 1.0.20, bcprov 1.80 (vs 1.85),
 h2 2.2 (mvstore classes inside h2.jar; verify MV file compat vs 2.4),
 libreoffice UNO (libreoffice-java-common; not installed in the PoC, hence its 362 errors),
-jna, picocli 4.6, jgit 6.7, lucene9 9.12, slf4j 1.7, javafx-base 11 (from libopenjfx-java),
+jna, picocli 4.6, jgit 6.7, lucene9 9.12 (one-line patch, see classification below),
+slf4j 1.7 (six-line patch), **caffeine 2.6 (compiles as-is!)**, snakeyaml-engine 2.7
+(runtime-verified with jackson v3's YAML), commons-csv 1.9 (two-line patch),
 **jspecify 1.0**, jakarta-annotation-api (2.1 vs 3.0), jakarta-inject-api,
-intellij-annotations.
+intellij-annotations. (javafx.base comes from our openjfx26 package, not openjfx 11.)
 
-**In Debian, needs major update:** antlr4 (4.9 → ≥ 4.10/4.13, see above), caffeine
-(2.6 → 3.2), afterburner.fx (1.7 → JabRef fork 2.0; but see "drop instead" below),
-easybind (1.0.3 → JabRef fork 2.3; 9 import sites), pdfbox (2 → 3, as new source package).
+**In Debian, needs major update:** antlr4 (4.9 → ≥ 4.10/4.13, see above), afterburner.fx
+(1.7 → JabRef fork 2.0; but see "drop instead" below), easybind (1.0.3 → JabRef fork 2.3;
+9 import sites), pdfbox (2 → 3, as new source package), jackson2-annotations (runtime
+needs ≥ 2.19-ish for jackson v3's databind — rides along with the jackson v3 packaging).
 
 **Missing — new packages** (import sites in jablib): unirest-java core+gson (103),
 jackson v3 `tools.jackson.*` (36 — Debian only has jackson 2, different coords → new
 source package), jool (12), citeproc-java (11), snuggletex de.rototor fork (9),
 java-keyring (7), **org.jabref:mslinks** (4), dd-plist (4), cuid (3), e-adr (3,
-compile-only), **org.jabref:latex-conv** (2), terminal-text-formatter (2).
+compile-only), **org.jabref:latex-conv** (2), terminal-text-formatter (2), jilt
+(compile-only annotations), flexmark (one source package; jablib needs flexmark +
+util-{ast,data,builder} and friends), **java-diff-utils (reintroduction — 4.9-1 still
+in trixie/forky but removed from sid, checked 2026-09-01)**.
 Runtime-only (no compile errors, needed in Depends): aalto-xml, tinylog2 (or use
 Debian's slf4j binding via patch).
 
@@ -171,11 +177,28 @@ okhttp/kotlin-stdlib (only reached via AI stack), mvvmfx-validation jitpack pin 
 must die upstream anyway — jitpack is unfetchable for Debian *and* a supply-chain
 liability).
 
-**Still to classify:** ~2500 "cannot find symbol" errors = knock-on effects of the
-missing packages above + real API deltas (javafx.base 11 vs 26 — `ObservableValue#map`,
-`Subscription`; lucene 9 vs 10; pdfbox 2 vs 3; antlr-runtime 4.9 vs 4.13-generated code
-— the 24 "does not override" errors; jilt-generated builders; caffeine 2.6). Next PoC
-iteration: install/stub the missing jars, re-run, classify what remains.
+**API-delta classification (final, 2026-09-01):** with the missing jars supplied (gradle
+cache as placeholders) and our openjfx26 javafx.base, the ~2500 knock-on errors collapse
+to **32 errors with exactly four root causes**:
+
+| Root cause | Errors | Verdict |
+|---|---|---|
+| pdfbox 2 vs 3 (`Loader`, `Standard14Fonts`) | ~19 in 10 files | the **only real Debian update needed** → new `pdfbox3` source package |
+| slf4j 1.7 lacks the 2.x fluent API (`atDebug()`/`atTrace()`) | 6 call sites | trivial patch (classic calls) — or Debian's overdue slf4j-2 transition |
+| commons-csv 1.9 lacks `Builder.get()` | 2 call sites | trivial patch (`.build()`) or csv update |
+| lucene 9: `TotalHits.value` is a field, not `value()` | 1 call site | one-line patch — **jablib otherwise compiles against Debian's lucene 9.12** |
+
+Everything else Debian ships compiles unchanged (jgit 6.7, caffeine 2.6, icu4j 77,
+guava 32, jsoup 1.15, h2 2.2, …).
+
+**jabkit runs (2026-09-01):** with those placeholder jars + the four mini-patches
+implicitly avoided (placeholders used current versions), the full jablib + jabkit tree
+compiles with **0 errors** on sid, and `jabkit --version`, `--help` and a real
+`jabkit convert --input t.bib --input-format=bibtex --output-format ris` produce correct
+output (RIS verified). Notes for the packaging: version string needs `build.properties`
+substitution in debian/rules; the Depends jar list must be curated, not globbed
+(Debian's xerces on the classpath hijacks JAXP and breaks XMP/MsBib); importer
+auto-detection needed an explicit `--input-format` — investigate before upload.
 
 ## Upstream work items (in JabRef, we control these)
 
@@ -194,15 +217,17 @@ iteration: install/stub the missing jars, re-run, classify what remains.
 ## Step-by-step execution list
 
 - [x] **1. Inventory** dependencies vs Debian sid (this document, 2026-08-31).
-- [ ] **2. Sync** this plan to jabref-koppor#135 (link + update the stale 2017 list).
-- [ ] **3. PoC build** in a sid container (docker `debian:sid`):
+- [x] **2. Sync** this plan to jabref-koppor#135 (2026-09-01: body rewritten with
+      current status, 2017 list preserved collapsed;
+      [announcement comment](https://github.com/JabRef/jabref-koppor/issues/135#issuecomment-5485763593)).
+- [x] **3. PoC build** in a sid container (docker `debian:sid`) — **complete 2026-09-01**:
   - [x] Harvest missing packages: javac all jablib sources against Debian sid jars
         (2026-08-31, results in the inventory above — 73 % compiles, missing list exact).
-  - [ ] Classify the ~2500 remaining symbol errors into API-delta buckets
-        (javafx.base, lucene, pdfbox, antlr-runtime, jilt, caffeine).
-  - [ ] Add trim patches + locally-built jars for the missing libs; get a working
-        `jabkit --version` / `jabkit convert`. This converts "huge effort" into an
-        exact bill of materials.
+  - [x] Classify the remaining symbol errors → four root causes, table above.
+        Only pdfbox needs a real Debian update; slf4j/csv/lucene are 1–6-line patches.
+  - [x] Working `jabkit --version` / `--help` / `convert` (bibtex → RIS verified) on
+        sid with Debian jars + our openjfx26 javafx.base + placeholder jars for the
+        to-be-packaged libs. The bill of materials is now exact.
 - [ ] **4. Decide** Stage-1 trim set from PoC results; write the quilt patch series.
 - [ ] **5. Package the missing libs** (order above), ITP each; org.jabref libs first.
   - [ ] Before filing any ITP, search WNPP/BTS for existing bugs (`wnpp-check` from
