@@ -24,12 +24,10 @@ env:
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
   BRANCHES: |
     origin/main
-    origin/jabkit-extract-references
     origin/add-import-via-browser
     origin/directory-convert
     koppor/directory-mapping-preference
     origin/directory-rest-api
-    origin/fixUnlinkedFiles
     origin/common-style
 
 jobs:
