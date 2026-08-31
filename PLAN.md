@@ -44,7 +44,7 @@ Launch scripts: `/usr/bin/jabkit` / `/usr/bin/jabref` are shell wrappers running
 | Component | Debian sid | JabRef needs | Verdict |
 |---|---|---|---|
 | JDK | openjdk-25 (25.0.4) | Java 25 | ✅ fine |
-| openjfx | **11.0.11** | JavaFX 26 (+incubator modules) | ❌ **GUI blocker**; openjfx itself needs modern gradle to update |
+| openjfx | **11.0.11** | JavaFX 26 (+incubator modules) | ❌ **GUI blocker** — but a gradle-free build is feasible, see spike below |
 | gradle | 4.4.1 | 9.x | ❌ irrelevant if we build with javac |
 | lucene | liblucene9-java 9.12.3 | 10.5 | ⚠️ small API port or new lucene10 pkg |
 | pdfbox | libpdfbox2-java 2.0.29 | 3.0.8 | ❌ new `pdfbox3` source pkg needed (maven-built, doable) |
@@ -71,11 +71,48 @@ to compile against openjfx 11's javafx-base, or ship a tiny `javafx-base26` jar 
 own trivial source package. Everything else the CLI needs is ~15 small library packages
 (below) plus feature-trim patches.
 
-**Stage 2 = `jabref` GUI.** Blocked on Debian-side infrastructure we don't own:
-gradle 8/9 → kotlin 2.x → openjfx 26. Plus ~20 further JavaFX libraries (fxmisc stack,
-dlsc stack, ikonli, mvvmfx, …). Until then the official jpackage `.deb`, snap and flathub
-remain the delivery channels. Track/support sre4ever's gradle work; revisit when openjfx
-moves.
+**Stage 2 = `jabref` GUI.** Needs JavaFX 26. Two routes:
+
+- **Route A (primary): a gradle-free `openjfx26` source package.** The feasibility spike
+  below shows the Java side of all seven modules JabRef needs compiles with *one javac
+  command*. JabRef needs **no javafx.web** (WebKit — explicitly banned in our build since
+  html-to-node) and **no javafx.media** (GStreamer) — precisely the two modules that make
+  OpenJFX packaging a nightmare. What remains is ~32k LoC of ordinary C (gtk3/GL/freetype/
+  pango/libjpeg) behind a Makefile, plus running the in-tree shader compiler. This would
+  also unblock every other JavaFX app in Debian — a strong argument for co-maintainers
+  (coordinate with ebourg, the openjfx maintainer, before investing).
+- **Route B (fallback): wait for Debian's gradle 8/9 → kotlin 2.x → openjfx 26 chain**
+  (sre4ever's salsa work). Multi-year horizon, outside our control.
+
+Beyond JavaFX itself: ~20 further JavaFX libraries (fxmisc stack, dlsc stack, ikonli,
+mvvmfx, …). Until Stage 2 lands, the official jpackage `.deb`, snap and flathub remain
+the delivery channels.
+
+## Gradle-free OpenJFX 26 — feasibility spike (2026-08-31, measured)
+
+Sparse checkout of `openjdk/jfx` at tag `26-ga`, Debian sid container / JDK 25:
+
+- **javafx.base**: 310 files, `javac` → **0 errors** after stubbing
+  `com.sun.javafx.runtime.VersionInfo` (6 lines; gradle generates it — just version
+  strings).
+- **All 7 modules JabRef needs** (base, graphics, controls, fxml, swing,
+  jfx.incubator.input, jfx.incubator.richtext): **one `javac --module-source-path … -m …`
+  invocation, 0 errors.** (Compiling per-module on the classpath instead yields exactly 20
+  errors — all "cannot extend sealed class in different package", i.e. pure JPMS
+  mechanics, not missing code. Note: JavaFX itself must be built *as modules*; JabRef on
+  top of it can still be classpath.)
+- **Generated shader classes are not compile-time references** — Prism loads them
+  reflectively at runtime. Generation chain for a *working* runtime: the in-tree JSL
+  compiler (`modules/javafx.graphics/src/jslc`, plain Java + an **ANTLR 4** grammar) over
+  62 `.jsl` files. No gradle needed; scriptable in `debian/rules`. (Same antlr4 ≥ 4.10
+  Debian update as JabRef's grammars need.)
+- **Native code, Linux-relevant only**: glass-gtk 11.4k LoC, prism-es2 7.1k, prism-sw
+  4.2k, font 7.2k, decora-SSE ~1k, iio ~2k glue (its remaining 31k LoC is a bundled
+  libjpeg copy — Debian links the system one anyway). Total ≈ **32k LoC of standard C**,
+  pkg-config deps only; a Makefile + `javac -h` JNI-headers job.
+- **Not yet proven**: natives Makefile, shader generation run, and a rendering smoke test
+  (JavaFX HelloWorld on sid with the hand-built stack). That's the next spike milestone —
+  it de-risks Route A completely before any Debian process starts.
 
 **Feature-trim patches for the Debian build** (allowed and normal for Debian; keep as a
 small quilt series):
@@ -178,13 +215,21 @@ iteration: install/stub the missing jars, re-run, classify what remains.
 - [ ] **8. Debian process**: take over/retitle #877718 as ITP (jabkit first), repo on
       salsa (java-team), find sponsor — tmancill (Debian Java team) already commented in
       #135; loop in sre4ever.
-- [ ] **9. Stage 2 (GUI)**: track gradle/kotlin/openjfx progress in Debian; package the
-      JavaFX library stack once openjfx ≥ 24 lands; then add the `jabref` GUI binary
-      package to the same source package.
+- [ ] **9. OpenJFX spike, part 2** (can run in parallel with 5–8): Makefile for the
+      Linux natives (glass-gtk, prism-es2, prism-sw, font, iio, decora-SSE), run the JSL
+      shader compiler, then a rendering smoke test on sid. If green: propose the
+      gradle-free `openjfx26` package to debian-java@ / ebourg with the PoC attached.
+  - [x] Java-side compile of all 7 modules proven (one javac invocation, 0 errors).
+- [ ] **10. Stage 2 (GUI)**: once JavaFX 26 is packagable (route A or B), package the
+      JavaFX library stack (fxmisc, dlsc, ikonli, mvvmfx, …); then add the `jabref` GUI
+      binary package to the same source package.
 
 ## Risks / notes
 
-- **openjfx modernization may take years** — that's why Stage 1 avoids it entirely.
+- **openjfx modernization via gradle (route B) may take years** — that's why Stage 1
+  avoids JavaFX and why route A (gradle-free openjfx26) is worth the spike. Route A's
+  own risk is per-release maintenance of a parallel build definition (~every 6 months)
+  and Debian-maintainer acceptance — hence: talk to ebourg early, with the PoC in hand.
 - Debian stable freeze vs. JabRef's "only latest release supported": accept; stable gets
   security patches only. sid/testing users track releases.
 - The old `jabref-in-debian.md` (koppor/jabref, `about` branch) is superseded by this file;
