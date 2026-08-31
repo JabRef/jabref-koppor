@@ -49,7 +49,7 @@ Launch scripts: `/usr/bin/jabkit` / `/usr/bin/jabref` are shell wrappers running
 | lucene | liblucene9-java 9.12.3 | 10.5 | ⚠️ small API port or new lucene10 pkg |
 | pdfbox | libpdfbox2-java 2.0.29 | 3.0.8 | ❌ new `pdfbox3` source pkg needed (maven-built, doable) |
 | slf4j | 1.7.32 | 2.0.x | ⚠️ compile against 1.7 works; use Debian's binding instead of tinylog |
-| antlr4 | 4.9.2 | 4.13 | ✅ regenerate grammar with 4.9 at build time |
+| antlr4 | 4.9.2 | 4.13 | ❌ 4.9 cannot parse our grammars (`caseInsensitive` needs ≥ 4.10) — antlr4 update in Debian required (verified in PoC) |
 | libreoffice UNO | 26.8 | 26.2 | ✅ |
 | httpclient5/core5 | 5.6 / 5.4.3 | same | ✅ current |
 | postgresql-jdbc | 42.7.13 | same | ✅ current |
@@ -90,33 +90,55 @@ small quilt series):
 
 ## Dependency inventory — Stage 1 (jablib + jabkit)
 
-**Already in Debian, usable (version delta acceptable):** gson, guava (32 vs 33),
+**Measured, not guessed**: a PoC compile of all jablib sources (module-info excluded,
+ANTLR sources pre-generated with 4.13) against pure Debian sid jars in a `debian:sid`
+container ran on 2026-08-31. Result: **~73 % of jablib compiles as-is** (515 of ~1900
+files with errors); every unresolved import is accounted for below (import-site counts
+from javac in parentheses).
+
+**Already in Debian, resolves cleanly:** gson, guava (32 vs 33),
 commons-{io,lang3,text,csv,logging,compress}, httpcore5, httpclient5, jsoup (1.15 vs 1.23),
 snakeyaml 2.5, xz 1.11, postgresql-jdbc, icu4j 77 (drop the `72!!` pin in a patch),
 java-diff-utils, java-string-similarity 2.0.0, jbibtex 1.0.20, bcprov 1.80 (vs 1.85),
-h2 2.2 (mvstore classes are inside h2.jar; 2.4 wanted — verify MV file compat),
-libreoffice UNO, antlr4-runtime 4.9, jna, picocli 4.6 (vs 4.7), jgit 6.7 (vs 7.7 —
-verify API; update likely wanted), lucene9 9.12 (port from 10.5 or package lucene10).
-*Verify:* jakarta.{annotation,inject,ws.rs}, stax2/woodstox, unit-api/indriya.
+h2 2.2 (mvstore classes inside h2.jar; verify MV file compat vs 2.4),
+libreoffice UNO (libreoffice-java-common; not installed in the PoC, hence its 362 errors),
+jna, picocli 4.6, jgit 6.7, lucene9 9.12, slf4j 1.7, javafx-base 11 (from libopenjfx-java),
+**jspecify 1.0**, jakarta-annotation-api (2.1 vs 3.0), jakarta-inject-api,
+intellij-annotations.
 
-**In Debian, needs major update:** caffeine (2.6 → 3.2), afterburner.fx (1.7 → JabRef
-fork 2.0), easybind (1.0.3 → JabRef fork 2.3), pdfbox (2 → 3, as new source package).
+**In Debian, needs major update:** antlr4 (4.9 → ≥ 4.10/4.13, see above), caffeine
+(2.6 → 3.2), afterburner.fx (1.7 → JabRef fork 2.0; but see "drop instead" below),
+easybind (1.0.3 → JabRef fork 2.3; 9 import sites), pdfbox (2 → 3, as new source package).
 
-**Missing — new packages (roughly in packaging order, easiest first):**
-appdirs, cuid, dd-plist, jool, aalto-xml, java-keyring, terminal-text-formatter,
-e-adr (compile-only), tinylog2 (or avoid via binding patch), unirest-java (core + gson
-module), snuggletex (de.rototor fork), velocity-engine-core 2.x (Debian only has
-velocity 1.7), citeproc-java, flexmark (multi-module, biggest of the lot),
-jackson v3 (`tools.jackson.*` — Debian only has jackson 2, different coords, so a new
-source package), **org.jabref:latex-conv**, **org.jabref:mslinks**.
+**Missing — new packages** (import sites in jablib): unirest-java core+gson (103),
+jackson v3 `tools.jackson.*` (36 — Debian only has jackson 2, different coords → new
+source package), jool (12), citeproc-java (11), snuggletex de.rototor fork (9),
+java-keyring (7), **org.jabref:mslinks** (4), dd-plist (4), cuid (3), e-adr (3,
+compile-only), **org.jabref:latex-conv** (2), terminal-text-formatter (2).
+Runtime-only (no compile errors, needed in Depends): aalto-xml, tinylog2 (or use
+Debian's slf4j binding via patch).
 
 The org.jabref-owned ones are the easiest: we control releases, can ship clean poms and
 source tarballs, and can package them ourselves via maven-debian-helper.
 
-**Patched out (not packaged):** langchain4j, djl, jvm-openai, jtokkit, opennlp,
-embedded-postgres(+binaries), okhttp/kotlin-stdlib (only reached via AI stack),
-mvvmfx-validation jitpack pin (GUI; must die upstream anyway — jitpack is unfetchable
-for Debian *and* a supply-chain liability).
+**Tiny surface — consider dropping upstream instead of packaging** (each is one or two
+files in jablib): flexmark (1 file, `MarkdownFormatter`), afterburner in jablib (1 file,
+`ConvertMSCCodesFormatter` — jablib shouldn't need an injection framework), appdirs
+(1 file, `Directories` — XDG logic is small), jakarta.ws.rs (2 fetchers, likely just
+`UriBuilder`). Velocity is *not yet* a jablib dep in main (1 file; arrives with the
+velocity-layouts PR — note: Debian only has velocity 1.7, not engine-core 2.x).
+
+**Patched out (not packaged):** langchain4j+djl+jvm-openai (~130 import sites — matches
+the ~30-file estimate), jtokkit, opennlp, embedded-postgres(+binaries),
+okhttp/kotlin-stdlib (only reached via AI stack), mvvmfx-validation jitpack pin (GUI;
+must die upstream anyway — jitpack is unfetchable for Debian *and* a supply-chain
+liability).
+
+**Still to classify:** ~2500 "cannot find symbol" errors = knock-on effects of the
+missing packages above + real API deltas (javafx.base 11 vs 26 — `ObservableValue#map`,
+`Subscription`; lucene 9 vs 10; pdfbox 2 vs 3; antlr-runtime 4.9 vs 4.13-generated code
+— the 24 "does not override" errors; jilt-generated builders; caffeine 2.6). Next PoC
+iteration: install/stub the missing jars, re-run, classify what remains.
 
 ## Upstream work items (in JabRef, we control these)
 
@@ -136,10 +158,14 @@ for Debian *and* a supply-chain liability).
 
 - [x] **1. Inventory** dependencies vs Debian sid (this document, 2026-08-31).
 - [ ] **2. Sync** this plan to jabref-koppor#135 (link + update the stale 2017 list).
-- [ ] **3. PoC build** in a sid chroot: javac jablib+jabkit against Debian jars with the
-      trim patches; deliverables: the *true* missing-jar list, the API-delta list
-      (lucene 9 vs 10, javafx.base 11 vs 26, jgit 6 vs 7, h2 2.2 vs 2.4), and a working
-      `jabkit --version`. This converts "huge effort" into an exact bill of materials.
+- [ ] **3. PoC build** in a sid container (docker `debian:sid`):
+  - [x] Harvest missing packages: javac all jablib sources against Debian sid jars
+        (2026-08-31, results in the inventory above — 73 % compiles, missing list exact).
+  - [ ] Classify the ~2500 remaining symbol errors into API-delta buckets
+        (javafx.base, lucene, pdfbox, antlr-runtime, jilt, caffeine).
+  - [ ] Add trim patches + locally-built jars for the missing libs; get a working
+        `jabkit --version` / `jabkit convert`. This converts "huge effort" into an
+        exact bill of materials.
 - [ ] **4. Decide** Stage-1 trim set from PoC results; write the quilt patch series.
 - [ ] **5. Package the missing libs** (order above), ITP each; org.jabref libs first.
 - [ ] **6. Update** caffeine, afterburner.fx, easybind (coordinate with current Debian
