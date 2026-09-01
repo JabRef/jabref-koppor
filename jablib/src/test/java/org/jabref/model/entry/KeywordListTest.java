@@ -1,7 +1,13 @@
 package org.jabref.model.entry;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -80,19 +86,62 @@ class KeywordListTest {
     }
 
     @Test
-    void parseHierarchicalChain() {
-        Keyword expected = Keyword.of("Parent", "Node", "Child");
+    void parseWithMultipleDelimitersSingleKeyword() {
+        assertEquals(new KeywordList("keywordOne"),
+                KeywordList.parseWithMultipleDelimiters("keywordOne", List.of(';', ',')));
+    }
 
-        assertEquals(new KeywordList(expected), KeywordList.parse("Parent > Node > Child", ',', '>'));
+    @Test
+    void parseWithMultipleDelimitersWithSemicolonDelimiter() {
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
+                KeywordList.parseWithMultipleDelimiters("keywordOne; keywordTwo", List.of(';', ',')));
+    }
+
+    @Test
+    void parseWithMultipleDelimitersWithCommaDelimiter() {
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
+                KeywordList.parseWithMultipleDelimiters("keywordOne, keywordTwo", List.of(';', ',')));
+    }
+
+    @Test
+    void parseWithMultipleDelimitersSplitsOnAllConfiguredDelimiters() {
+        assertEquals(new KeywordList("keywordOne", "keywordTwo", "keywordThree"),
+                KeywordList.parseWithMultipleDelimiters("keywordOne, keywordTwo; keywordThree", List.of(';', ',')));
+    }
+
+    @Test
+    void parseWithMultipleDelimitersDoesNotSplitConfiguredDelimitersInsideBraces() {
+        assertEquals(new KeywordList("test1", "{2,1}", "test3"),
+                KeywordList.parseWithMultipleDelimiters("test1; {2,1}; test3", List.of(';', ',')));
+    }
+
+    @Test
+    void parseWithMultipleDelimitersDoesNotSplitEscapedConfiguredDelimiters() {
+        assertEquals(new KeywordList("keyword#one", "keywordTwo"),
+                KeywordList.parseWithMultipleDelimiters("keyword\\#one; keywordTwo", List.of(';', '#')));
+    }
+
+    @Test
+    void parseHierarchicalChain() {
+        Keyword expected = Keyword.of(List.of("Parent", "Node", "Child"));
+
+        assertEquals(new KeywordList(expected), KeywordList.parse("Parent > Node > Child", ','));
+    }
+
+    @Test
+    void parseWithMultipleDelimitersHierarchicalChain() {
+        Keyword expected = Keyword.of(List.of("Parent", "Node", "Child"));
+
+        assertEquals(new KeywordList(expected), KeywordList.parseWithMultipleDelimiters("Parent > Node > Child", List.of(';', ',')));
     }
 
     @Test
     void parseTwoHierarchicalChains() {
-        Keyword expectedOne = Keyword.of("Parent1", "Node1", "Child1");
-        Keyword expectedTwo = Keyword.of("Parent2", "Node2", "Child2");
+        Keyword expectedOne = Keyword.of(List.of("Parent1", "Node1", "Child1"));
+        Keyword expectedTwo = Keyword.of(List.of("Parent2", "Node2", "Child2"));
 
         assertEquals(new KeywordList(expectedOne, expectedTwo),
-                KeywordList.parse("Parent1 > Node1 > Child1, Parent2 > Node2 > Child2", ',', '>'));
+                KeywordList.parse("Parent1 > Node1 > Child1, Parent2 > Node2 > Child2", ','));
     }
 
     @Test
@@ -114,5 +163,65 @@ class KeywordListTest {
     @Test
     void mergeTwoListsOfKeywordsShouldReturnTheKeywordsMerged() {
         assertEquals(new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"), KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
+    }
+
+    private static Stream<Arguments> parseKeywordWithEscapedDelimiterDoesNotSplitKeyword() {
+        return Stream.of(
+                Arguments.of("keyword\\,one, keywordTwo", new KeywordList("keyword,one", "keywordTwo")),
+                Arguments.of("keywordOne\\,, keywordTwo", new KeywordList("keywordOne,", "keywordTwo")),
+                Arguments.of("keyword\\\\, keywordTwo", new KeywordList("keyword\\", "keywordTwo")),
+                Arguments.of("keyword\\,one > sub", new KeywordList(Keyword.of(List.of("keyword,one", "sub")))),
+                Arguments.of("one\\,two\\,three, four", new KeywordList("one,two,three", "four")),
+                Arguments.of("keywordOne\\\\", new KeywordList("keywordOne\\"))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource()
+    void parseKeywordWithEscapedDelimiterDoesNotSplitKeyword(String input, KeywordList expected) {
+        assertEquals(expected, KeywordList.parse(input, ','));
+    }
+
+    private static Stream<Arguments> serializeKeywordWithNonEscapedDelimiterJoinsKeywordsCorrectly() {
+        return Stream.of(
+                Arguments.of(List.of(new Keyword("keyword,one"), new Keyword("keywordTwo")), "keyword\\,one,keywordTwo"),
+                Arguments.of(List.of(new Keyword("keywordOne,"), new Keyword("keywordTwo")), "keywordOne\\,,keywordTwo"),
+                Arguments.of(List.of(Keyword.of(List.of("keyword\\")), Keyword.of(List.of("keywordTwo"))), "keyword\\\\,keywordTwo"),
+                Arguments.of(List.of(Keyword.of(List.of("keyword,one", "sub"))), "keyword\\,one > sub"),
+                Arguments.of(List.of(new Keyword("one,two,three"), new Keyword("four")), "one\\,two\\,three,four"),
+                Arguments.of(List.of(new Keyword("keywordOne\\")), "keywordOne\\\\")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource()
+    void serializeKeywordWithNonEscapedDelimiterJoinsKeywordsCorrectly(List<Keyword> input, String expected) {
+        assertEquals(expected, KeywordList.serialize(input, ','));
+    }
+
+    @ParameterizedTest
+    @MethodSource("parseKeywordWithEscapedDelimiterDoesNotSplitKeyword")
+    void afterFirstParsingNoChangesShouldBeDoneToKeywords(String input, KeywordList expected) {
+        char delimiter = ',';
+        KeywordList firstParse = KeywordList.parse(input, delimiter);
+        String serialized = KeywordList.serialize(firstParse.stream().toList(), delimiter);
+        KeywordList secondParse = KeywordList.parse(serialized, delimiter);
+        assertEquals(expected, secondParse);
+    }
+
+    @ParameterizedTest
+    @MethodSource("serializeKeywordWithNonEscapedDelimiterJoinsKeywordsCorrectly")
+    void afterFirstSerializeNoChangesShouldBeDoneToKeywords(List<Keyword> input, String expected) {
+        char delimiter = ',';
+        String firstSerialize = KeywordList.serialize(input, delimiter);
+        KeywordList parsed = KeywordList.parse(firstSerialize, delimiter);
+        String secondSerialize = KeywordList.serialize(parsed.stream().toList(), delimiter);
+        assertEquals(expected, secondSerialize);
+    }
+
+    @Test
+    void serializeWithSpacesEscapesEmbeddedDelimiterAndKeepsReadableSeparatorSpacing() {
+        assertEquals("keyword\\,one, keywordTwo",
+                KeywordList.serializeWithSpaces(List.of(new Keyword("keyword,one"), new Keyword("keywordTwo")), ','));
     }
 }

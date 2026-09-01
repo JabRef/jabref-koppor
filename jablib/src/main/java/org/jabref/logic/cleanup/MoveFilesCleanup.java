@@ -3,8 +3,7 @@ package org.jabref.logic.cleanup;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jabref.logic.FilePreferences;
@@ -15,14 +14,12 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.util.OptionalUtil;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Moves the file into the default file directory. Does <em>not</em> rename the file.
- */
+/// Moves the file into the default file directory. Does *not* rename the file.
 public class MoveFilesCleanup implements CleanupJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MoveFilesCleanup.class);
@@ -31,14 +28,15 @@ public class MoveFilesCleanup implements CleanupJob {
     private final FilePreferences filePreferences;
     private final List<JabRefException> ioExceptions;
 
-    public MoveFilesCleanup(Supplier<BibDatabaseContext> databaseContext, FilePreferences filePreferences) {
-        this.databaseContext = Objects.requireNonNull(databaseContext);
-        this.filePreferences = Objects.requireNonNull(filePreferences);
+    public MoveFilesCleanup(@NonNull Supplier<BibDatabaseContext> databaseContext,
+                            @NonNull FilePreferences filePreferences) {
+        this.databaseContext = databaseContext;
+        this.filePreferences = filePreferences;
         this.ioExceptions = new ArrayList<>();
     }
 
     @Override
-    public List<FieldChange> cleanup(BibEntry entry) {
+    public List<FieldChange> cleanup(BibEntry entry, Consumer<Runnable> mutationScheduler) {
         List<LinkedFile> files = entry.getFiles();
 
         boolean changed = false;
@@ -53,11 +51,15 @@ public class MoveFilesCleanup implements CleanupJob {
         }
 
         if (changed) {
-            Optional<FieldChange> changes = entry.setFiles(files);
-            return OptionalUtil.toList(changes);
+            return FileFieldCleanupUpdater.updateFileField(entry, files, mutationScheduler);
         }
 
         return List.of();
+    }
+
+    @Override
+    public List<FieldChange> cleanup(BibEntry entry) {
+        return cleanup(entry, Runnable::run);
     }
 
     public List<JabRefException> getIoExceptions() {

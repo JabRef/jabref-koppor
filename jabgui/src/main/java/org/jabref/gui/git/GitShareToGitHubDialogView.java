@@ -2,6 +2,7 @@ package org.jabref.gui.git;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -15,6 +16,7 @@ import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.IconValidationDecorator;
+import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
@@ -32,6 +34,7 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
     @FXML private TextField username;
     @FXML private PasswordField personalAccessToken;
     @FXML private ButtonType shareButton;
+    @FXML private Button checkGitHubAccessButton;
     @FXML private Label patHelpIcon;
     @FXML private Tooltip patHelpTooltip;
     @FXML private CheckBox rememberSettingsCheck;
@@ -50,6 +53,9 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
     private TaskExecutor taskExecutor;
 
     @Inject
+    private GitHandlerRegistry gitHandlerRegistry;
+
+    @Inject
     private GuiPreferences preferences;
 
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
@@ -62,9 +68,10 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
 
     @FXML
     private void initialize() {
-        this.viewModel = new GitShareToGitHubDialogViewModel(preferences.getGitPreferences(), stateManager, dialogService, taskExecutor);
+        this.viewModel = new GitShareToGitHubDialogViewModel(preferences.getGitPreferences(), stateManager, dialogService, taskExecutor, gitHandlerRegistry);
 
         this.setTitle(Localization.lang("Share this Library to GitHub"));
+        checkGitHubAccessButton.setText(Localization.lang("Check GitHub access"));
 
         // See "javafx.md"
         this.setResultConverter(button -> {
@@ -124,6 +131,11 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
 
     @FXML
     private void shareToGitHub() {
-        viewModel.shareToGitHub(() -> this.close());
+        viewModel.shareToGitHub(this::close);
+    }
+
+    @FXML
+    private void checkGitHubAccess() {
+        viewModel.checkGitHubAccess();
     }
 }

@@ -11,12 +11,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-import org.jabref.model.strings.StringUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +28,23 @@ import org.xml.sax.SAXException;
 
 public class PicaXmlParser implements Parser {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicaXmlParser.class);
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final String DISALLOW_DOCTYPE_DECLARATION = "http://apache.org/xml/features/disallow-doctype-decl";
 
     @Override
     public List<BibEntry> parseEntries(InputStream inputStream) throws ParseException {
         try {
-            DocumentBuilder dbuild = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            DocumentBuilder dbuild = createDocumentBuilder();
             Document content = dbuild.parse(inputStream);
             return this.parseEntries(content);
         } catch (ParserConfigurationException | SAXException | IOException exception) {
             throw new ParseException(exception);
         }
+    }
+
+    private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setFeature(DISALLOW_DOCTYPE_DECLARATION, true);
+        return documentBuilderFactory.newDocumentBuilder();
     }
 
     private List<BibEntry> parseEntries(Document content) {
@@ -203,7 +209,7 @@ public class PicaXmlParser implements Parser {
                 String kor = getSubfield("b", datafield);
 
                 if (kor != null) {
-                    series = series + " / " + kor;
+                    series += " / " + kor;
                 }
             }
 

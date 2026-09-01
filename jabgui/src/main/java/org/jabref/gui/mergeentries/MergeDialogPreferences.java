@@ -16,6 +16,16 @@ public class MergeDialogPreferences {
     private final BooleanProperty mergeApplyToAllEntries;
     private final ObjectProperty<DuplicateResolverDialog.DuplicateResolverResult> allEntriesDuplicateResolverDecision;
 
+    private MergeDialogPreferences() {
+        this(DiffMode.WORD,                                             // Default diff mode
+                true,                                                   // Default show diff
+                true,                                                   // Default show unified diff
+                true,                                                   // Default highlight words
+                false,                                                  // Default show changed fields only
+                false,                                                  // Default apply to all entries
+                DuplicateResolverDialog.DuplicateResolverResult.BREAK); // Default duplicate resolver decision
+    }
+
     public MergeDialogPreferences(DiffMode mergeDiffMode,
                                   boolean mergeShouldShowDiff,
                                   boolean mergeShouldShowUnifiedDiff,
@@ -31,6 +41,10 @@ public class MergeDialogPreferences {
         this.mergeShowChangedFieldsOnly = new SimpleBooleanProperty(mergeShowChangedFieldsOnly);
         this.mergeApplyToAllEntries = new SimpleBooleanProperty(mergeApplyToAllEntries);
         this.allEntriesDuplicateResolverDecision = new SimpleObjectProperty<>(allEntriesDuplicateResolverDecision);
+    }
+
+    public static MergeDialogPreferences getDefault() {
+        return new MergeDialogPreferences();
     }
 
     public DiffMode getMergeDiffMode() {

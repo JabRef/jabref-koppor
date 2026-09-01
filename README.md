@@ -13,7 +13,7 @@ It supports you in every step of your research work.
 
 ### Collect
 
-- Search across many online scientific catalogues like CiteSeer, CrossRef, Google Scholar, IEEEXplore, INSPIRE-HEP, Medline PubMed, MathSciNet, Springer, arXiv, and zbMATH
+- Search across many online scientific catalogues like CrossRef, Google Scholar, IEEEXplore, INSPIRE-HEP, Medline PubMed, MathSciNet, Springer, arXiv, and zbMATH
 - Import options for over 15 reference formats
 - Easily retrieve and link full-text articles
 - Fetch complete bibliographic information based on ISBN, DOI, PubMed-ID and arXiv-ID
@@ -48,7 +48,7 @@ It supports you in every step of your research work.
 ## Installation
 
 Fresh development builds are available at [builds.jabref.org](https://builds.jabref.org/main/).
-The [latest stable release is available at FossHub](https://downloads.jabref.org/).
+The [latest stable release is available at GitHub](https://downloads.jabref.org/).
 
 Please see our [Installation Guide](https://docs.jabref.org/installation).
 
@@ -118,14 +118,4 @@ DOI (also includes [full text](https://tug.org/TUGboat/tb44-3/tb138kopp-jabref.p
 JabRef development is powered by YourKit Java Profiler  
 [![YourKit Java Profiler](https://www.yourkit.com/images/yk_logo.svg)](https://www.yourkit.com/java/profiler/)
 
-## ProductMap File Analysis Result
-
-This section contains an analysis of ProductMap files. Each file has a link to its source.
-
-| Github File | ProductMap File URL |
-|-------------|---------------------|
-| [src/main/java/org/jabref/gui/maintable/MainTableTooltip.java](https://github.com/JabRef/jabref/blob/main/src/main/java/org/jabref/gui/maintable/MainTableTooltip.java) | [View File](https://product-map.ai/app/public?url=https://github.com/JabRef/jabref/blob/main/src/main/java/org/jabref/gui/maintable/MainTableTooltip.java ) |
-
-### ProductMap - Contact Us
-
-For any inquiries, feel free to [contact ProductMap.ai](https://product-map.ai).
+<!-- markdownlint-disable-file MD060 -->

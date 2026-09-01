@@ -9,6 +9,9 @@ import java.util.Set;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public class AuxParserResult {
 
     private final BibDatabase masterDatabase;
@@ -44,11 +47,9 @@ public class AuxParserResult {
         return unresolvedKeys.size();
     }
 
-    /**
-     * Query the number of extra entries pulled in due to crossrefs from other entries.
-     *
-     * @return The number of additional entries pulled in due to crossref
-     */
+    /// Query the number of extra entries pulled in due to crossrefs from other entries.
+    ///
+    /// @return The number of additional entries pulled in due to crossref
     public int getCrossRefEntriesCount() {
         return crossRefEntriesCount;
     }

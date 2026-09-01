@@ -7,14 +7,20 @@ import org.jabref.model.openoffice.backend.NamedRange;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoCursor;
+import org.jabref.model.openoffice.uno.UnoDispatch;
 import org.jabref.model.openoffice.uno.UnoReferenceMark;
 
+import com.sun.star.beans.UnknownPropertyException;
+import com.sun.star.beans.XPropertySet;
 import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.text.XText;
 import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.uno.XComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +40,7 @@ public class NamedRangeReferenceMark implements NamedRange {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedRangeReferenceMark.class);
 
-    /**
-     * reference mark name
-     */
+    /// reference mark name
     private final String rangeId;
 
     private NamedRangeReferenceMark(String rangeId) {
@@ -47,17 +51,15 @@ public class NamedRangeReferenceMark implements NamedRange {
         return rangeId;
     }
 
-    /**
-     * Insert {@code n} spaces in a way that reference marks just before or just after the cursor are not affected.
-     * <p>
-     * This is based on the observation, that starting two new paragraphs separates us from reference marks on either side.
-     * <p>
-     * The pattern used is: {@code safeInsertSpaces(n): para, para, left, space(n), right-delete, left(n), left-delete}
-     *
-     * @param position  Where to insert (at position.getStart())
-     * @param numSpaces Number of spaces to insert.
-     * @return a new cursor, covering the just-inserted spaces.
-     */
+    /// Insert `n` spaces in a way that reference marks just before or just after the cursor are not affected.
+    ///
+    /// This is based on the observation, that starting two new paragraphs separates us from reference marks on either side.
+    ///
+    /// The pattern used is: `safeInsertSpaces(n): para, para, left, space(n), right-delete, left(n), left-delete`
+    ///
+    /// @param position  Where to insert (at position.getStart())
+    /// @param numSpaces Number of spaces to insert.
+    /// @return a new cursor, covering the just-inserted spaces.
     public static XTextCursor safeInsertSpacesBetweenReferenceMarks(XTextRange position, int numSpaces) {
         // Start with an empty cursor at position.getStart();
         XText text = position.getText();
@@ -75,8 +77,10 @@ public class NamedRangeReferenceMark implements NamedRange {
     }
 
     private static void createReprInDocument(XTextDocument doc,
+                                             Optional<XComponentContext> context,
                                              String refMarkName,
                                              XTextCursor position,
+                                             boolean insertSpaceBefore,
                                              boolean insertSpaceAfter,
                                              boolean withoutBrackets)
             throws
@@ -98,51 +102,77 @@ public class NamedRangeReferenceMark implements NamedRange {
         final String left = NamedRangeReferenceMark.REFERENCE_MARK_LEFT_BRACKET;
         final String right = NamedRangeReferenceMark.REFERENCE_MARK_RIGHT_BRACKET;
         String bracketedContent = withoutBrackets
-                ? ""
-                : left + right;
+                                  ? ""
+                                  : left + right;
 
         cursor.getText().insertString(cursor, bracketedContent, true);
+        XTextRange endRange = cursor.getEnd();
         DocumentAnnotation documentAnnotation = new DocumentAnnotation(doc, refMarkName, cursor, true /* absorb */);
         UnoReferenceMark.create(documentAnnotation);
 
-        // eat the first inserted space
-        cursorBefore.goRight((short) 1, true);
-        cursorBefore.setString("");
+        if (!insertSpaceBefore) {
+            // eat the first inserted space
+            cursorBefore.goRight((short) 1, true);
+            cursorBefore.setString("");
+        }
         if (!insertSpaceAfter) {
             // eat the second inserted space
             cursorAfter.goLeft((short) 1, true);
             cursorAfter.setString("");
         }
+
+        position.gotoRange(cursorAfter.getEnd(), false);
+
+        if (!insertSpaceAfter && context.isPresent()) {
+            UnoDispatch.resetAttributesAtRangeEnd(doc, context.orElseThrow(), endRange);
+        }
+    }
+
+    private static Optional<XComponentContext> findComponentContext(XTextDocument doc) {
+        XMultiServiceFactory factory = UnoRuntime.queryInterface(XMultiServiceFactory.class, doc);
+        if (factory == null) {
+            return Optional.empty();
+        }
+
+        XPropertySet propertySet = UnoRuntime.queryInterface(XPropertySet.class, factory);
+        if (propertySet == null) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.ofNullable(UnoRuntime.queryInterface(XComponentContext.class, propertySet.getPropertyValue("DefaultContext")));
+        } catch (UnknownPropertyException | WrappedTargetException exception) {
+            LOGGER.debug("Could not resolve LibreOffice component context from document", exception);
+            return Optional.empty();
+        }
     }
 
     static NamedRangeReferenceMark create(XTextDocument doc,
+                                          XComponentContext context,
                                           String refMarkName,
                                           XTextCursor position,
+                                          boolean insertSpaceBefore,
                                           boolean insertSpaceAfter,
                                           boolean withoutBrackets)
             throws
             CreationException {
 
-        createReprInDocument(doc, refMarkName, position, insertSpaceAfter, withoutBrackets);
+        createReprInDocument(doc, Optional.of(context), refMarkName, position, insertSpaceBefore, insertSpaceAfter, withoutBrackets);
         return new NamedRangeReferenceMark(refMarkName);
     }
 
-    /**
-     * @return Optional.empty if there is no corresponding range.
-     */
+    /// @return Optional.empty if there is no corresponding range.
     static Optional<NamedRangeReferenceMark> getFromDocument(XTextDocument doc, String refMarkName)
             throws
             NoDocumentException,
             WrappedTargetException {
         return UnoReferenceMark.getAnchor(doc, refMarkName)
-                                .map(e -> new NamedRangeReferenceMark(refMarkName));
+                               .map(entry -> new NamedRangeReferenceMark(refMarkName));
     }
 
-    /**
-     * Remove it from the document.
-     * <p>
-     * See: removeCitationGroups
-     */
+    /// Remove it from the document.
+    ///
+    /// See: removeCitationGroups
     @Override
     public void removeFromDocument(XTextDocument doc)
             throws
@@ -156,9 +186,7 @@ public class NamedRangeReferenceMark implements NamedRange {
         return rangeId;
     }
 
-    /**
-     * @return Optional.empty if the reference mark is missing. See: UnoReferenceMark.getAnchor
-     */
+    /// @return Optional.empty if the reference mark is missing. See: UnoReferenceMark.getAnchor
     @Override
     public Optional<XTextRange> getMarkRange(XTextDocument doc)
             throws
@@ -168,11 +196,9 @@ public class NamedRangeReferenceMark implements NamedRange {
         return UnoReferenceMark.getAnchor(doc, name);
     }
 
-    /**
-     * Cursor for the reference marks as is, not prepared for filling, but does not need cleanFillCursor either.
-     *
-     * @return Optional.empty() if reference mark is missing from the document, otherwise an XTextCursor for getMarkRange See: getRawCursorForCitationGroup
-     */
+    /// Cursor for the reference marks as is, not prepared for filling, but does not need cleanFillCursor either.
+    ///
+    /// @return Optional.empty() if reference mark is missing from the document, otherwise an XTextCursor for getMarkRange See: getRawCursorForCitationGroup
     @Override
     public Optional<XTextCursor> getRawCursor(XTextDocument doc)
             throws
@@ -195,9 +221,7 @@ public class NamedRangeReferenceMark implements NamedRange {
         return full;
     }
 
-    /**
-     * See: getFillCursorForCitationGroup
-     */
+    /// See: getFillCursorForCitationGroup
     @Override
     public XTextCursor getFillCursor(XTextDocument doc)
             throws
@@ -244,9 +268,10 @@ public class NamedRangeReferenceMark implements NamedRange {
                 full.setString("");
                 UnoReferenceMark.removeIfExists(doc, name);
 
+                final boolean insertSpaceBefore = false;
                 final boolean insertSpaceAfter = false;
                 final boolean withoutBrackets = false;
-                createReprInDocument(doc, name, full, insertSpaceAfter, withoutBrackets);
+                createReprInDocument(doc, findComponentContext(doc), name, full, insertSpaceBefore, insertSpaceAfter, withoutBrackets);
             }
         }
 
@@ -366,11 +391,9 @@ public class NamedRangeReferenceMark implements NamedRange {
         }
     }
 
-    /**
-     * Remove brackets, but if the result would become empty, leave them; if the result would be a single characer, leave the left bracket.
-     * <p>
-     * See: cleanFillCursorForCitationGroup
-     */
+    /// Remove brackets, but if the result would become empty, leave them; if the result would be a single characer, leave the left bracket.
+    ///
+    /// See: cleanFillCursorForCitationGroup
     @Override
     public void cleanFillCursor(XTextDocument doc)
             throws

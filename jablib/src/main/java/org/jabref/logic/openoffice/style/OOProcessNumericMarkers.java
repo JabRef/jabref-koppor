@@ -14,14 +14,12 @@ class OOProcessNumericMarkers {
     private OOProcessNumericMarkers() {
     }
 
-    /**
-     * Produce citation markers for the case of numbered citations
-     * with bibliography sorted by first appearance in the text.
-     *
-     * Numbered citation markers for each CitationGroup.
-     * Numbering is according to first appearance.
-     * Assumes global order and local order are already applied.
-     */
+    /// Produce citation markers for the case of numbered citations
+    /// with bibliography sorted by first appearance in the text.
+    ///
+    /// Numbered citation markers for each CitationGroup.
+    /// Numbering is according to first appearance.
+    /// Assumes global order and local order are already applied.
     static void produceCitationMarkers(CitationGroups citationGroups, JStyle style) {
         assert style.isNumberEntries();
 
@@ -32,8 +30,8 @@ class OOProcessNumericMarkers {
         }
 
         for (CitationGroup group : citationGroups.getCitationGroupsInGlobalOrder()) {
-            List<CitationMarkerNumericEntry> cits = OOListUtil.map(group.getCitationsInLocalOrder(), e -> e);
-            OOText citMarker = style.getNumCitationMarker2(cits);
+            List<CitationMarkerNumericEntry> citations = OOListUtil.map(group.getCitationsInLocalOrder(), citation -> citation);
+            OOText citMarker = style.getNumCitationMarker2(citations);
             group.setCitationMarker(Optional.of(citMarker));
         }
     }

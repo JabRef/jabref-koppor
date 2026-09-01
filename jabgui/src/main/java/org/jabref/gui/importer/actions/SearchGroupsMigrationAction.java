@@ -14,10 +14,8 @@ import org.jabref.model.groups.SearchGroup;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-/**
- * This action checks whether the syntax for SearchGroups is the new one.
- * If not we ask the user whether to migrate.
- */
+/// This action checks whether the syntax for SearchGroups is the new one.
+/// If not we ask the user whether to migrate.
 public class SearchGroupsMigrationAction implements GUIPostOpenAction {
 
     // We cannot have this constant in `Version.java` because of recursion errors
@@ -37,20 +35,7 @@ public class SearchGroupsMigrationAction implements GUIPostOpenAction {
             return false;
         }
 
-        Optional<GroupTreeNode> groups = parserResult.getMetaData().getGroups();
-        return groups.filter(this::groupOrSubgroupIsSearchGroup).isPresent();
-    }
-
-    private boolean groupOrSubgroupIsSearchGroup(GroupTreeNode groupTreeNode) {
-        if (groupTreeNode.getGroup() instanceof SearchGroup) {
-            return true;
-        }
-        for (GroupTreeNode child : groupTreeNode.getChildren()) {
-            if (groupOrSubgroupIsSearchGroup(child)) {
-                return true;
-            }
-        }
-        return false;
+        return parserResult.getMetaData().containsSearchGroups();
     }
 
     @Override

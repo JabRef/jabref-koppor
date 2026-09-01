@@ -2,6 +2,7 @@ package org.jabref.gui.maintable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -18,12 +19,13 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.search.MatchCategory;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.FilteredListProxy;
-import org.jabref.logic.search.IndexManager;
+import org.jabref.logic.search.SearchContext;
 import org.jabref.logic.search.SearchPreferences;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.database.event.EntriesRemovedEvent;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.SearchDisplayMode;
@@ -42,7 +44,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jabref.model.search.PostgreConstants.ENTRY_ID;
+import static org.jabref.model.search.PostgresConstants.ENTRY_ID;
 
 public class MainTableDataModel {
     private final Logger LOGGER = LoggerFactory.getLogger(MainTableDataModel.class);
@@ -56,20 +58,21 @@ public class MainTableDataModel {
     private final NameDisplayPreferences nameDisplayPreferences;
     private final BibDatabaseContext bibDatabaseContext;
     private final TaskExecutor taskExecutor;
+    private final AtomicLong searchUpdateSequence = new AtomicLong();
     private final Subscription searchQuerySubscription;
     private final Subscription searchDisplayModeSubscription;
     private final Subscription selectedGroupsSubscription;
     private final Subscription groupViewModeSubscription;
     private final SearchIndexListener indexUpdatedListener;
     private final OptionalObjectProperty<SearchQuery> searchQueryProperty;
-    @Nullable private final IndexManager indexManager;
+    @Nullable private final SearchContext searchContext;
 
     private Optional<MatcherSet> groupsMatcher;
 
     public MainTableDataModel(BibDatabaseContext context,
                               GuiPreferences preferences,
                               TaskExecutor taskExecutor,
-                              @Nullable IndexManager indexManager,
+                              @Nullable SearchContext searchContext,
                               ListProperty<GroupTreeNode> selectedGroupsProperty,
                               OptionalObjectProperty<SearchQuery> searchQueryProperty,
                               IntegerProperty resultSizeProperty) {
@@ -77,7 +80,7 @@ public class MainTableDataModel {
         this.searchPreferences = preferences.getSearchPreferences();
         this.nameDisplayPreferences = preferences.getNameDisplayPreferences();
         this.taskExecutor = taskExecutor;
-        this.indexManager = indexManager;
+        this.searchContext = searchContext;
         this.bibDatabaseContext = context;
         this.searchQueryProperty = searchQueryProperty;
         this.indexUpdatedListener = new SearchIndexListener();
@@ -101,13 +104,20 @@ public class MainTableDataModel {
     }
 
     private void updateSearchMatches(Optional<SearchQuery> query) {
-        BackgroundTask.wrap(() -> {
-            if (query.isPresent()) {
-                setSearchMatches(indexManager.search(query.get()));
-            } else {
-                clearSearchMatches();
-            }
-        }).onSuccess(result -> FilteredListProxy.refilterListReflection(entriesFiltered)).executeWith(taskExecutor);
+        long updateSequence = searchUpdateSequence.incrementAndGet();
+
+        BackgroundTask.wrap(() ->
+                              query.map(searchQuery -> searchContext.search(searchQuery)))
+                      .onSuccess(results -> {
+                          if (updateSequence != searchUpdateSequence.get()) {
+                              return;
+                          }
+                          results.ifPresentOrElse(
+                                  this::setSearchMatches,
+                                  this::clearSearchMatches
+                          );
+                          FilteredListProxy.refilterListReflection(entriesFiltered);
+                      }).executeWith(taskExecutor);
     }
 
     /// Refresh the current search
@@ -190,8 +200,8 @@ public class MainTableDataModel {
 
         final MatcherSet searchRules = MatcherSets.build(
                 groupsPreferences.getGroupViewMode().contains(GroupViewMode.INTERSECTION)
-                        ? MatcherSets.MatcherType.AND
-                        : MatcherSets.MatcherType.OR);
+                ? MatcherSets.MatcherType.AND
+                : MatcherSets.MatcherType.OR);
 
         for (GroupTreeNode node : selectedGroups) {
             searchRules.addRule(node.getSearchMatcher());
@@ -222,8 +232,8 @@ public class MainTableDataModel {
 
     public Optional<BibEntryTableViewModel> getViewModelByCitationKey(String citationKey) {
         return entriesViewModel.stream()
-                .filter(viewModel -> citationKey.equals(viewModel.getEntry().getCitationKey().orElse("")))
-                .findFirst();
+                               .filter(viewModel -> citationKey.equals(viewModel.getEntry().getCitationKey().orElse("")))
+                               .findFirst();
     }
 
     public void resetFieldFormatter() {
@@ -243,7 +253,7 @@ public class MainTableDataModel {
                         SearchQuery searchQuery = searchQueryProperty.get().get();
                         String newSearchExpression = "(" + ENTRY_ID + "= " + entry.getId() + ") AND (" + searchQuery.getSearchExpression() + ")";
                         SearchQuery entryQuery = new SearchQuery(newSearchExpression, searchQuery.getSearchFlags());
-                        SearchResults results = indexManager.search(entryQuery);
+                        SearchResults results = searchContext.search(entryQuery);
 
                         isMatched = results.isMatched(entry);
                         viewModel.hasFullTextResultsProperty().set(results.hasFulltextResults(entry));
@@ -266,6 +276,20 @@ public class MainTableDataModel {
         @Subscribe
         public void listen(IndexStartedEvent indexStartedEvent) {
             updateSearchMatches(searchQueryProperty.get());
+        }
+
+        @Subscribe
+        public void listen(EntriesRemovedEvent removedEntriesEvent) {
+            // When entries are removed, we need to refresh the search matches
+            // to ensure the filtered list is properly updated and doesn't show stale entries
+            BackgroundTask.wrap(() -> {
+                // Re-run the current search to update the filtered results
+                if (searchQueryProperty.get().isPresent()) {
+                    setSearchMatches(searchContext.search(searchQueryProperty.get().get()));
+                } else {
+                    clearSearchMatches();
+                }
+            }).onSuccess(result -> FilteredListProxy.refilterListReflection(entriesFiltered)).executeWith(taskExecutor);
         }
     }
 }

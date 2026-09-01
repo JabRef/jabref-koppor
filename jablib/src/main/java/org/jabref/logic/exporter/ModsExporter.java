@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -32,12 +31,11 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TemplateExporter for exporting in MODS XML format.
- */
+/// TemplateExporter for exporting in MODS XML format.
 class ModsExporter extends Exporter {
 
     private static final String MODS_NAMESPACE_URI = "http://www.loc.gov/mods/v3";
@@ -52,9 +50,9 @@ class ModsExporter extends Exporter {
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries) throws SaveException {
-        Objects.requireNonNull(databaseContext);
-        Objects.requireNonNull(entries);
+    public void export(@NonNull final BibDatabaseContext databaseContext,
+                       final Path file,
+                       @NonNull List<BibEntry> entries) throws SaveException {
         if (entries.isEmpty()) { // Only export if entries exist
             return;
         }
@@ -123,7 +121,7 @@ class ModsExporter extends Exporter {
                 }
                 writeOriginInformation(writer, originItems, fieldMap);
                 // Write related items
-                writeRelatedInformation(writer, parts, fieldMap);
+                writeRelatedInformation(writer, parts, fieldMap, bibEntry.getType());
                 writer.writeEndElement(); // end mods
             }
             writer.writeEndDocument();
@@ -180,14 +178,15 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap, EntryType entryType) throws XMLStreamException {
         writer.writeStartElement("mods", "relatedItem", MODS_NAMESPACE_URI);
         writer.writeAttribute("type", "host");
 
+        Field hostTitleField = getHostTitleField(entryType);
         for (Map.Entry<Field, String> entry : fieldMap.entrySet()) {
             Field field = entry.getKey();
             String value = entry.getValue();
-            if (StandardField.JOURNAL == field) {
+            if (hostTitleField == field) {
                 addJournal(writer, value);
             }
         }
@@ -198,6 +197,15 @@ class ModsExporter extends Exporter {
         writer.writeStartElement("mods", "typeOfResource", MODS_NAMESPACE_URI);
         writer.writeCharacters("text");
         writer.writeEndElement(); // end typeOfResource
+    }
+
+    private Field getHostTitleField(EntryType entryType) {
+        String typeName = entryType.getName();
+        if ("inbook".equals(typeName) || "incollection".equals(typeName) || "inproceedings".equals(typeName)) {
+            return StandardField.BOOKTITLE;
+        }
+
+        return StandardField.JOURNAL;
     }
 
     private void writePartInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap) throws XMLStreamException {

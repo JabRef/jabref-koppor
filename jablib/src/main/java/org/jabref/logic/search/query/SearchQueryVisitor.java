@@ -33,8 +33,8 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
     @Override
     public BaseQueryNode visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
         List<BaseQueryNode> children = ctx.expression().stream()
-                                      .map(this::visit)
-                                      .collect(Collectors.toList());
+                                          .map(this::visit)
+                                          .collect(Collectors.toList());
         if (children.size() == 1) {
             return children.getFirst();
         }
@@ -82,14 +82,19 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
             return new SearchQueryNode(Optional.empty(), term);
         }
 
+        // TODO: Here, there is no unescaping of the term (e.g., field\=thing=value does not work as expected)
         String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
 
         // Pseudo-fields
         field = switch (field) {
-            case "key" -> InternalField.KEY_FIELD.getName();
-            case "anykeyword" -> StandardField.KEYWORDS.getName();
-            case "anyfield" -> "any";
-            default -> field;
+            case SearchFieldConstants.KEY ->
+                    InternalField.KEY_FIELD.getName();
+            case SearchFieldConstants.ANY_KEYWORD ->
+                    StandardField.KEYWORDS.getName();
+            case SearchFieldConstants.ANY_FIELD_ALIAS ->
+                    SearchFieldConstants.ANY_FIELD;
+            default ->
+                    field;
         };
 
         if (ctx.operator() != null) {
@@ -99,7 +104,7 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
             }
         }
 
-        if ("any".equals(field)) {
+        if (SearchFieldConstants.ANY_FIELD.equals(field)) {
             return new SearchQueryNode(Optional.empty(), term);
         }
 

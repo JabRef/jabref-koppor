@@ -10,7 +10,7 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.collections.ObservableList;
 
 import org.jabref.gui.StateManager;
-import org.jabref.logic.git.GitHandler;
+import org.jabref.gui.slr.StudyCatalogItem;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.shared.DatabaseLocation;
@@ -20,6 +20,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 
+import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyBinding;
 
@@ -46,6 +47,23 @@ public class ActionHelper {
     public static BooleanExpression needsStudyDatabase(StateManager stateManager) {
         EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(), context -> context.filter(BibDatabaseContext::isStudy).isPresent());
         return BooleanExpression.booleanExpression(binding);
+    }
+
+    public static BooleanExpression needsGitRemoteConfigured(StateManager stateManager) {
+        return BooleanExpression.booleanExpression(
+                EasyBind.map(
+                        stateManager.activeDatabaseProperty(),
+                        contextOptional -> contextOptional
+                                .filter(context -> context.getLocation() == DatabaseLocation.LOCAL)
+                                .map(context ->
+                                        context.getDatabasePath()
+                                               // TODO: This dependency should be passed more directly. Maybe as part of StateManager - or similar to AiChatService
+                                               .flatMap(path -> Injector.instantiateModelOrService(GitHandlerRegistry.class)
+                                                                        .fromAnyPath(path))
+                                               .map(handler -> handler.hasRemote("origin"))
+                                               .orElse(false))
+                                .orElse(false))
+        );
     }
 
     public static BooleanExpression needsEntriesSelected(StateManager stateManager) {
@@ -94,33 +112,42 @@ public class ActionHelper {
         return BooleanExpression.booleanExpression(fileIsPresent);
     }
 
-    /**
-     * Check if at least one of the selected entries has linked files
-     * <br>
-     * Used in {@link org.jabref.gui.maintable.OpenSelectedEntriesFilesAction} when multiple entries selected
-     *
-     * @param stateManager manager for the state of the GUI
-     * @return a boolean binding
-     */
+    public static BooleanExpression isPdfFilePresentForSelectedEntry(StateManager stateManager, CliPreferences preferences) {
+        ObservableList<BibEntry> selectedEntries = stateManager.getSelectedEntries();
+        Binding<Boolean> pdfFileIsPresent = EasyBind.valueAt(selectedEntries, 0).mapOpt(entry -> {
+            if (stateManager.getActiveDatabase().isEmpty()) {
+                return false;
+            }
+
+            return entry.getFiles().stream()
+                        .filter(linkedFile -> linkedFile.getFileName()
+                                                        .map(Path::of)
+                                                        .map(FileUtil::isPDFFile)
+                                                        .orElse(false))
+                        .anyMatch(linkedFile -> FileUtil.find(
+                                                                stateManager.getActiveDatabase().get(),
+                                                                linkedFile.getLink(),
+                                                                preferences.getFilePreferences())
+                                                        .isPresent());
+        }).orElseOpt(false);
+
+        return BooleanExpression.booleanExpression(pdfFileIsPresent);
+    }
+
+    /// Check if at least one of the selected entries has linked files
+    /// <br>
+    /// Used in {@link org.jabref.gui.maintable.OpenSelectedEntriesFilesAction} when multiple entries selected
+    ///
+    /// @param stateManager manager for the state of the GUI
+    /// @return a boolean binding
     public static BooleanExpression hasLinkedFileForSelectedEntries(StateManager stateManager) {
         return BooleanExpression.booleanExpression(EasyBind.reduce(stateManager.getSelectedEntries(),
                 entries -> entries.anyMatch(entry -> !entry.getFiles().isEmpty())));
     }
 
-    public static BooleanExpression needsGitRemoteConfigured(StateManager stateManager) {
-        return BooleanExpression.booleanExpression(
-                EasyBind.map(stateManager.activeDatabaseProperty(), contextOptional -> {
-                    if (contextOptional.isPresent()) {
-                        return contextOptional.get().getDatabasePath()
-                                         .map(path -> {
-                                             GitHandler handler = new GitHandlerRegistry().get(path.getParent());
-                                             return handler != null && handler.hasRemote("origin");
-                                         })
-                                         .orElse(false);
-                    } else {
-                        return false;
-                    }
-                })
-        );
+    public static BooleanExpression noCatalogEnabled(ObservableList<StudyCatalogItem> catalogs) {
+        return Bindings.createBooleanBinding(
+                () -> catalogs.stream().noneMatch(StudyCatalogItem::isEnabled),
+                catalogs);
     }
 }

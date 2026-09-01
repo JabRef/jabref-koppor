@@ -2,6 +2,7 @@ package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
+import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -21,20 +23,26 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
-/**
- * Importer for the Refer/Endnote format.
- * modified to use article number for pages if pages are missing (some
- * journals, e.g., Physical Review Letters, don't use pages anymore)
- * <br>
- * check here for details on the format
- * <a href="http://libguides.csuchico.edu/c.php?g=414245&p=2822898">...</a>
- */
+import org.jspecify.annotations.NonNull;
+
+/// Importer for the Refer/Endnote format.
+/// modified to use article number for pages if pages are missing (some
+/// journals, e.g., Physical Review Letters, don't use pages anymore)
+/// <br>
+/// check here for details on the format
+/// <a href="http://libguides.csuchico.edu/c.php?g=414245&p=2822898">...</a>
 public class EndnoteImporter extends Importer {
 
     private static final String ENDOFRECORD = "__EOREOR__";
 
     private static final Pattern A_PATTERN = Pattern.compile("%A .*");
     private static final Pattern E_PATTERN = Pattern.compile("%E .*");
+
+    private final CitationKeyPatternPreferences citationKeyPatternPreferences;
+
+    public EndnoteImporter(CitationKeyPatternPreferences citationKeyPatternPreferences) {
+        this.citationKeyPatternPreferences = citationKeyPatternPreferences;
+    }
 
     @Override
     public String getName() {
@@ -57,10 +65,11 @@ public class EndnoteImporter extends Importer {
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
+    public boolean isRecognizedFormat(@NonNull Reader reader) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(reader);
         // Our strategy is to look for the "%A *" line.
         String str;
-        while ((str = reader.readLine()) != null) {
+        while ((str = bufferedReader.readLine()) != null) {
             if (A_PATTERN.matcher(str).matches() || E_PATTERN.matcher(str).matches()) {
                 return true;
             }
@@ -69,7 +78,7 @@ public class EndnoteImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
+    public ParserResult importDatabase(@NonNull BufferedReader reader) throws IOException {
         List<BibEntry> bibitems = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         String str;
@@ -234,7 +243,7 @@ public class EndnoteImporter extends Importer {
                         }
                     }
                     case "F" ->
-                            hm.put(InternalField.KEY_FIELD, CitationKeyGenerator.cleanKey(val, ""));
+                            hm.put(InternalField.KEY_FIELD, CitationKeyGenerator.removeUnwantedCharactersWithKeepDiacritics(val, citationKeyPatternPreferences.getUnwantedCharacters()));
                 }
             }
 
@@ -267,16 +276,14 @@ public class EndnoteImporter extends Importer {
         return new ParserResult(bibitems);
     }
 
-    /**
-     * We must be careful about the author names, since they can be presented differently
-     * by different sources. Normally each %A tag brings one name, and we get the authors
-     * separated by " and ". This is the correct behaviour.
-     * One source lists the names separated by comma, with a comma at the end. We can detect
-     * this format and fix it.
-     *
-     * @param s The author string
-     * @return The fixed author string
-     */
+    /// We must be careful about the author names, since they can be presented differently
+    /// by different sources. Normally each %A tag brings one name, and we get the authors
+    /// separated by " and ". This is the correct behaviour.
+    /// One source lists the names separated by comma, with a comma at the end. We can detect
+    /// this format and fix it.
+    ///
+    /// @param s The author string
+    /// @return The fixed author string
     private static String fixAuthor(String s) {
         int index = s.indexOf(" and ");
         if (index >= 0) {

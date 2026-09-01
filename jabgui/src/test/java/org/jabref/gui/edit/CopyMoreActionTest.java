@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefDialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.StandardActions;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
@@ -111,7 +111,7 @@ class CopyMoreActionTest {
                         Localization.lang("Warning: %0 out of %1 entries have undefined %2.", "1", "2", "Title")),
 
                 Arguments.of(StandardActions.COPY_CITATION_KEY,
-                        (Consumer<BibEntry>) BibEntry::clearCiteKey,
+                        (Consumer<BibEntry>) BibEntry::clearCitationKey,
                         Localization.lang("None of the selected entries have citation keys."),
                         Localization.lang("Warning: %0 out of %1 entries have undefined citation key.", "1", "2")),
 
@@ -207,14 +207,22 @@ class CopyMoreActionTest {
 
     private String expectedClipboardString(StandardActions action) {
         return String.join("\n", switch (action) {
-            case COPY_FIELD_TITLE -> titles;
-            case COPY_CITATION_KEY -> keys;
-            case COPY_DOI -> dois;
-            case COPY_FIELD_AUTHOR -> authors;
-            case COPY_FIELD_JOURNAL -> journals;
-            case COPY_FIELD_DATE -> dates;
-            case COPY_FIELD_KEYWORDS -> keywords;
-            case COPY_FIELD_ABSTRACT -> abstracts;
+            case COPY_FIELD_TITLE ->
+                    titles;
+            case COPY_CITATION_KEY ->
+                    keys;
+            case COPY_DOI ->
+                    dois;
+            case COPY_FIELD_AUTHOR ->
+                    authors;
+            case COPY_FIELD_JOURNAL ->
+                    journals;
+            case COPY_FIELD_DATE ->
+                    dates;
+            case COPY_FIELD_KEYWORDS ->
+                    keywords;
+            case COPY_FIELD_ABSTRACT ->
+                    abstracts;
             default ->
                     throw new IllegalArgumentException("Unhandled action: " + action);
         });

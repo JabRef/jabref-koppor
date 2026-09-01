@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,13 +21,13 @@ import org.jabref.logic.importer.fetcher.transformers.DefaultQueryTransformer;
 import org.jabref.logic.importer.util.JsonReader;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.util.URLUtil;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-import org.jabref.model.strings.StringUtil;
 
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONException;
@@ -38,6 +37,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,20 +53,16 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         this.importerPreferences = importerPreferences;
     }
 
-    /**
-     * Tries to find a fulltext URL for a given BibTex entry.
-     * <p>
-     * Uses the DOI if present, otherwise the arXiv identifier.
-     *
-     * @param entry The Bibtex entry
-     * @return The fulltext PDF URL Optional, if found, or an empty Optional if not found.
-     * @throws IOException      if a page could not be fetched correctly
-     * @throws FetcherException if the received page differs from what was expected
-     */
+    /// Tries to find a fulltext URL for a given BibTex entry.
+    ///
+    /// Uses the DOI if present, otherwise the arXiv identifier.
+    ///
+    /// @param entry The Bibtex entry
+    /// @return The fulltext PDF URL Optional, if found, or an empty Optional if not found.
+    /// @throws IOException      if a page could not be fetched correctly
+    /// @throws FetcherException if the received page differs from what was expected
     @Override
-    public Optional<URL> findFullText(BibEntry entry) throws IOException, FetcherException {
-        Objects.requireNonNull(entry);
-
+    public Optional<URL> findFullText(@NonNull BibEntry entry) throws IOException, FetcherException {
         Optional<DOI> doi = entry.getField(StandardField.DOI).flatMap(DOI::parse);
         Optional<ArXivIdentifier> arXiv = entry.getField(StandardField.EPRINT).flatMap(ArXivIdentifier::parse);
 
@@ -95,10 +91,10 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
             }
             String source = SOURCE_ID_SEARCH + arXivString;
             Connection jsoupRequest = Jsoup.connect(getURLBySource(source))
-                                    .userAgent(URLDownload.USER_AGENT)
-                                    .referrer("https://www.google.com")
-                                    .header("Accept", "text/html; charset=utf-8")
-                                    .ignoreHttpErrors(true);
+                                           .userAgent(URLDownload.USER_AGENT)
+                                           .referrer("https://www.google.com")
+                                           .header("Accept", "text/html; charset=utf-8")
+                                           .ignoreHttpErrors(true);
             importerPreferences.getApiKey(getName()).ifPresent(
                     key -> jsoupRequest.header("x-api-key", key));
             html = jsoupRequest.get();
@@ -126,18 +122,35 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
 
     String getURLBySource(String source) throws IOException, FetcherException {
         URLDownload download = new URLDownload(source);
+        importerPreferences.getApiKey(getName()).ifPresent(
+                key -> download.addHeader("x-api-key", key));
         JSONObject json = new JSONObject(download.asString());
-        LOGGER.debug("URL for source: {}", json.get("url").toString());
-        if (!json.has("url")) {
-            throw new FetcherException("Page does not contain field \"url\"");
+        if (!json.has("paperId")) {
+            throw new FetcherException("Page does not contain field \"paperId\"");
         }
-        return json.get("url").toString();
+        String paperId = json.get("paperId").toString();
+        LOGGER.debug("URL for source: https://www.semanticscholar.org/paper/{}", paperId);
+        return "https://www.semanticscholar.org/paper/" + paperId;
     }
 
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
+        String transformedQuery = new DefaultQueryTransformer().transformSearchQuery(queryNode).orElse("");
+        return buildSearchURL(transformedQuery, pageNumber);
+    }
+
+    @Override
+    public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(rawQuery, pageNumber);
+    }
+
+    /// Builds the search URL for the given query string
+    ///
+    /// The query is sent as the `query` parameter, so raw queries
+    /// bypass [DefaultQueryTransformer] and are passed unchanged to the catalog
+    private URL buildSearchURL(String query, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SOURCE_WEB_SEARCH);
-        uriBuilder.addParameter("query", new DefaultQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter("query", query);
         uriBuilder.addParameter("offset", String.valueOf(pageNumber * getPageSize()));
         uriBuilder.addParameter("limit", String.valueOf(Math.min(getPageSize(), 10000 - pageNumber * getPageSize())));
         // All fields need to be specified
@@ -147,9 +160,7 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         return result;
     }
 
-    /**
-     * Returns the parser used to convert the response to a list of {@link BibEntry}.
-     */
+    /// Returns the parser used to convert the response to a list of {@link BibEntry}.
     @Override
     public Parser getParser() {
         return inputStream -> {
@@ -180,13 +191,11 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         };
     }
 
-    /**
-     * This is copy-paste from CrossRef, need to be checked.
-     *
-     * @param item an entry received, needs to be parsed into a BibEntry
-     * @return The BibEntry that corresponds to the received object
-     * @throws ParseException if the JSONObject could not be parsed
-     */
+    /// This is copy-paste from CrossRef, need to be checked.
+    ///
+    /// @param item an entry received, needs to be parsed into a BibEntry
+    /// @return The BibEntry that corresponds to the received object
+    /// @throws ParseException if the JSONObject could not be parsed
     private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
         try {
             BibEntry entry = new BibEntry(StandardEntryType.Article);
@@ -215,25 +224,18 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         }
     }
 
-    /**
-     * Returns the localized name of this fetcher. The title can be used to display the fetcher in the menu and in the side pane.
-     *
-     * @return the localized name
-     */
     @Override
     public String getName() {
         return "SemanticScholar";
     }
 
-    /**
-     * Looks for hits which are matched by the given {@link BibEntry}.
-     *
-     * @param entry entry to search bibliographic information for
-     * @return a list of {@link BibEntry}, which are matched by the query (may be empty)
-     * @throws FetcherException if an error linked to the Fetcher applies
-     */
+    /// Looks for hits which are matched by the given {@link BibEntry}.
+    ///
+    /// @param entry entry to search bibliographic information for
+    /// @return a list of {@link BibEntry}, which are matched by the query (may be empty)
+    /// @throws FetcherException if an error linked to the Fetcher applies
     @Override
-    public List<BibEntry> performSearch(BibEntry entry) throws FetcherException {
+    public List<BibEntry> performSearch(@NonNull BibEntry entry) throws FetcherException {
         Optional<String> title = entry.getTitle();
         if (title.isEmpty()) {
             return new ArrayList<>();

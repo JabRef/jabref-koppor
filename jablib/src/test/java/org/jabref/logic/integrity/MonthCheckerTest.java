@@ -7,10 +7,12 @@ import org.jabref.model.database.BibDatabaseMode;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+@ResourceLock("Localization.lang")
 class MonthCheckerTest {
 
     private MonthChecker checker;
@@ -79,5 +81,17 @@ class MonthCheckerTest {
     @Test
     void bibLaTexAcceptsInteger() {
         assertEquals(Optional.empty(), checkerBiblatex.checkValue("10"));
+    }
+
+    @Test
+    void checkValueDoesNotAcceptPartialMatches() {
+        assertEquals(Optional.of("should be an integer or normalized"), checkerBiblatex.checkValue("January123"));
+        assertEquals(Optional.of("should be an integer or normalized"), checkerBiblatex.checkValue("#jan#trailing"));
+    }
+
+    @Test
+    void checkValueAcceptsZeroPaddedMonths() {
+        assertEquals(Optional.empty(), checkerBiblatex.checkValue("01"));
+        assertEquals(Optional.empty(), checkerBiblatex.checkValue("09"));
     }
 }

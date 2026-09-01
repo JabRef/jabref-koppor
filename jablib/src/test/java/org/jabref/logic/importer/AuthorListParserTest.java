@@ -13,9 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Similar tests are available in {@link org.jabref.model.entry.AuthorListTest}
- */
+/// Similar tests are available in {@link org.jabref.model.entry.AuthorListTest}
 class AuthorListParserTest {
 
     AuthorListParser parser = new AuthorListParser();
@@ -23,6 +21,8 @@ class AuthorListParserTest {
     private static Stream<Arguments> parseSingleAuthorCorrectly() {
         return Stream.of(
                 Arguments.of("王, 军", new Author("军", "军.", null, "王", null)),
+                Arguments.of("हिंदी, परीक्षण", new Author("परीक्षण", "प.", null, "हिंदी", null)),
+                Arguments.of("العربية, اختبار", new Author("اختبار", "ا.", null, "العربية", null)),
                 Arguments.of("Doe, John", new Author("John", "J.", null, "Doe", null)),
                 Arguments.of("von Berlichingen zu Hornberg, Johann Gottfried", new Author("Johann Gottfried", "J. G.", "von", "Berlichingen zu Hornberg", null)),
                 Arguments.of("{Robert and Sons, Inc.}", new Author(null, null, null, "{Robert and Sons, Inc.}", null)),
@@ -95,10 +95,10 @@ class AuthorListParserTest {
                                 new Author("J. M.", "J. M.", null, "Carmona", null)
                         ),
                         """
-                        Alexander Artemenko
-                        I. Podadera
-                        J. M. Carmona
-                        """),
+                                Alexander Artemenko
+                                I. Podadera
+                                J. M. Carmona
+                                """),
                 Arguments.of(
                         AuthorList.of(
                                 new Author("First1", "F.", null, "Last1", null),
@@ -106,10 +106,10 @@ class AuthorListParserTest {
                                 new Author("First3", "F.", null, "Last3", null)
                         ),
                         """
-                        First1 Last1
-                            First2 Last2
-                            First3 Last3
-                        """)
+                                First1 Last1
+                                    First2 Last2
+                                    First3 Last3
+                                """)
         );
     }
 

@@ -99,9 +99,9 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
             String applicationName = preferences.getPushToApplicationPreferences()
                                                 .getActiveApplicationName();
             GuiPushToApplication application = GuiPushToApplications.getGUIApplicationByName(
-                                                                      applicationName,
-                                                                      dialogService,
-                                                                      preferences.getPushToApplicationPreferences())
+                                                                            applicationName,
+                                                                            dialogService,
+                                                                            preferences.getPushToApplicationPreferences())
                                                                     .orElseGet(() -> new GuiPushToTeXstudio(dialogService, preferences.getPushToApplicationPreferences()));
             preferences.getPushToApplicationPreferences().setActiveApplicationName(application.getDisplayName());
             application.jumpToLine(selectedItem.path(), selectedItem.line(), selectedItem.colStart());
@@ -132,7 +132,7 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
                 .withInitialDirectory(directory.get()).build();
 
         dialogService.showDirectorySelectionDialog(directoryDialogConfiguration).ifPresent(selectedDirectory ->
-                currentDatabaseContext.getMetaData().setLatexFileDirectory(preferences.getFilePreferences().getUserAndHost(), selectedDirectory.toAbsolutePath()));
+                currentDatabaseContext.getMetaData().setLatexFileDirectory(preferences.getFilePreferences().getUserAndHost(), selectedDirectory.toAbsolutePath().toString()));
 
         checkAndUpdateDirectory();
     }
@@ -188,10 +188,6 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
 
     public StringProperty searchErrorProperty() {
         return searchError;
-    }
-
-    public boolean shouldShow() {
-        return preferences.getEntryEditorPreferences().shouldShowLatexCitationsTab();
     }
 
     private class CitationsAlterationListener implements FileAlterationListener {

@@ -14,12 +14,11 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import org.jabref.gui.AbstractViewModel;
-import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
-import org.jabref.gui.entryeditor.AdaptVisibleTabs;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.frame.SidePanePreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.ai.AiService;
@@ -39,7 +38,6 @@ public class SidePaneViewModel extends AbstractViewModel {
     private final GuiPreferences preferences;
     private final StateManager stateManager;
     private final SidePaneContentFactory sidePaneContentFactory;
-    private final AdaptVisibleTabs adaptVisibleTabs;
     private final DialogService dialogService;
 
     public SidePaneViewModel(LibraryTabContainer tabContainer,
@@ -47,7 +45,6 @@ public class SidePaneViewModel extends AbstractViewModel {
                              JournalAbbreviationRepository abbreviationRepository,
                              StateManager stateManager,
                              TaskExecutor taskExecutor,
-                             AdaptVisibleTabs adaptVisibleTabs,
                              DialogService dialogService,
                              AiService aiService,
                              FileUpdateMonitor fileUpdateMonitor,
@@ -56,7 +53,6 @@ public class SidePaneViewModel extends AbstractViewModel {
                              UndoManager undoManager) {
         this.preferences = preferences;
         this.stateManager = stateManager;
-        this.adaptVisibleTabs = adaptVisibleTabs;
         this.dialogService = dialogService;
         this.sidePaneContentFactory = new SidePaneContentFactory(
                 tabContainer,
@@ -66,7 +62,6 @@ public class SidePaneViewModel extends AbstractViewModel {
                 dialogService,
                 aiService,
                 stateManager,
-                adaptVisibleTabs,
                 fileUpdateMonitor,
                 entryTypesManager,
                 clipBoardManager,
@@ -88,28 +83,29 @@ public class SidePaneViewModel extends AbstractViewModel {
         SidePaneComponent sidePaneComponent = sidePaneComponentLookup.get(pane);
         if (sidePaneComponent == null) {
             sidePaneComponent = switch (pane) {
-                case GROUPS -> new GroupsSidePaneComponent(
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory,
-                        preferences.getGroupsPreferences(),
-                        dialogService);
-                case WEB_SEARCH, OPEN_OFFICE -> new SidePaneComponent(pane,
-                        new ClosePaneAction(pane),
-                        new MoveUpAction(pane),
-                        new MoveDownAction(pane),
-                        sidePaneContentFactory);
+                case GROUPS ->
+                        new GroupsSidePaneComponent(
+                                new ClosePaneAction(pane),
+                                new MoveUpAction(pane),
+                                new MoveDownAction(pane),
+                                sidePaneContentFactory,
+                                preferences.getGroupsPreferences(),
+                                dialogService);
+                case WEB_SEARCH,
+                     OPEN_OFFICE ->
+                        new SidePaneComponent(pane,
+                                new ClosePaneAction(pane),
+                                new MoveUpAction(pane),
+                                new MoveDownAction(pane),
+                                sidePaneContentFactory);
             };
             sidePaneComponentLookup.put(pane, sidePaneComponent);
         }
         return sidePaneComponent;
     }
 
-    /**
-     * Stores the current configuration of visible panes in the preferences, so that we show panes at the preferred
-     * position next time.
-     */
+    /// Stores the current configuration of visible panes in the preferences, so that we show panes at the preferred
+    /// position next time.
     private void updatePreferredPositions() {
         Map<SidePaneType, Integer> preferredPositions = new HashMap<>(preferences.getSidePanePreferences()
                                                                                  .getPreferredPositions());
@@ -166,9 +162,7 @@ public class SidePaneViewModel extends AbstractViewModel {
         observableList.sort(Comparator.comparingInt(placeholder::indexOf));
     }
 
-    /**
-     * Helper class for sorting visible side panes based on their preferred position.
-     */
+    /// Helper class for sorting visible side panes based on their preferred position.
     protected static class PreferredIndexSort implements Comparator<SidePaneType> {
 
         private final Map<SidePaneType, Integer> preferredPositions;

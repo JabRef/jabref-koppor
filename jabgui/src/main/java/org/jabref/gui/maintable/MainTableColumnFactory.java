@@ -3,7 +3,6 @@ package org.jabref.gui.maintable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,6 +24,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
+import org.jabref.gui.maintable.columns.ContentSelectorColumn;
 import org.jabref.gui.maintable.columns.FieldColumn;
 import org.jabref.gui.maintable.columns.FileColumn;
 import org.jabref.gui.maintable.columns.LibraryColumn;
@@ -34,7 +34,6 @@ import org.jabref.gui.maintable.columns.SpecialFieldColumn;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.search.MatchCategory;
 import org.jabref.gui.specialfields.SpecialFieldValueViewModel;
-import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
@@ -45,7 +44,8 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.groups.AbstractGroup;
 
-import com.airhacks.afterburner.injection.Injector;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,25 +64,25 @@ public class MainTableColumnFactory {
     private final StateManager stateManager;
     private final MainTableTooltip tooltip;
 
-    public MainTableColumnFactory(BibDatabaseContext database,
-                                  GuiPreferences preferences,
+    public MainTableColumnFactory(@NonNull BibDatabaseContext database,
+                                  @NonNull GuiPreferences preferences,
                                   ColumnPreferences abstractColumnPrefs,
                                   UndoManager undoManager,
                                   DialogService dialogService,
                                   StateManager stateManager,
                                   TaskExecutor taskExecutor) {
-        this.database = Objects.requireNonNull(database);
-        this.preferences = Objects.requireNonNull(preferences);
+        this.database = database;
+        this.preferences = preferences;
         this.columnPreferences = abstractColumnPrefs;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
         this.cellFactory = new CellFactory(preferences, undoManager);
         this.undoManager = undoManager;
         this.stateManager = stateManager;
-        ThemeManager themeManager = Injector.instantiateModelOrService(ThemeManager.class);
-        this.tooltip = new MainTableTooltip(dialogService, preferences, themeManager, taskExecutor);
+        this.tooltip = new MainTableTooltip(dialogService, preferences, taskExecutor);
     }
 
+    @Nullable
     public TableColumn<BibEntryTableViewModel, ?> createColumn(MainTableColumnModel column) {
         TableColumn<BibEntryTableViewModel, ?> returnColumn = null;
         switch (column.getType()) {
@@ -122,7 +122,13 @@ public class MainTableColumnFactory {
                 break;
             case NORMALFIELD:
                 if (!column.getQualifier().isBlank()) {
-                    returnColumn = createFieldColumn(column, tooltip);
+                    Field field = FieldFactory.parseField(column.getQualifier());
+                    List<String> values = database.getMetaData().getContentSelectorValuesForField(field);
+                    if (values.isEmpty()) {
+                        returnColumn = createFieldColumn(column, tooltip);
+                    } else {
+                        returnColumn = createContentSelectorColumn(column, values);
+                    }
                 }
                 break;
             default:
@@ -144,12 +150,10 @@ public class MainTableColumnFactory {
         column.setMaxWidth(width);
     }
 
-    /**
-     * Creates a column for the match category.
-     * <p>This column is always hidden but is used for sorting the table
-     * in the floating mode. The order of the {@link MatchCategory} enum constants
-     * determines the sorting order.</p>
-     */
+    /// Creates a column for the match category.
+    /// This column is always hidden but is used for sorting the table
+    /// in the floating mode. The order of the {@link MatchCategory} enum constants
+    /// determines the sorting order.
     private TableColumn<BibEntryTableViewModel, MatchCategory> createMatchCategoryColumn(MainTableColumnModel columnModel) {
         TableColumn<BibEntryTableViewModel, MatchCategory> column = new MainTableColumn<>(columnModel);
         column.setCellValueFactory(cellData -> cellData.getValue().matchCategory());
@@ -159,16 +163,14 @@ public class MainTableColumnFactory {
         return column;
     }
 
-    /**
-     * Creates a column with a continuous number
-     */
+    /// Creates a column with a continuous number
     private TableColumn<BibEntryTableViewModel, String> createIndexColumn(MainTableColumnModel columnModel) {
         TableColumn<BibEntryTableViewModel, String> column = new MainTableColumn<>(columnModel);
         Node header = new Text("#");
         header.getStyleClass().add("mainTable-header");
         Tooltip.install(header, new Tooltip(MainTableColumnModel.Type.INDEX.getDisplayName()));
         column.setGraphic(header);
-        column.setStyle("-fx-alignment: CENTER-RIGHT;");
+        column.getStyleClass().add("align-center-right");
         column.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
                 String.valueOf(cellData.getTableView().getItems().indexOf(cellData.getValue()) + 1)));
         new ValueTableCellFactory<BibEntryTableViewModel, String>()
@@ -178,9 +180,7 @@ public class MainTableColumnFactory {
         return column;
     }
 
-    /**
-     * Creates a column for group color bars.
-     */
+    /// Creates a column for group color bars.
     private TableColumn<BibEntryTableViewModel, ?> createGroupColumn(MainTableColumnModel columnModel) {
         TableColumn<BibEntryTableViewModel, List<AbstractGroup>> column = new MainTableColumn<>(columnModel);
         Node headerGraphic = IconTheme.JabRefIcons.DEFAULT_GROUP_ICON.getGraphicNode();
@@ -193,14 +193,12 @@ public class MainTableColumnFactory {
         new ValueTableCellFactory<BibEntryTableViewModel, List<AbstractGroup>>()
                 .withGraphic(this::createGroupColorRegion)
                 .install(column);
-        column.setStyle("-fx-padding: 0 0 0 0;");
+        column.getStyleClass().add("padding-0");
         column.setSortable(true);
         return column;
     }
 
-    /**
-     * Creates a column for group icons
-     */
+    /// Creates a column for group icons
     private TableColumn<BibEntryTableViewModel, ?> createGroupIconColumn(MainTableColumnModel columnModel) {
         TableColumn<BibEntryTableViewModel, List<AbstractGroup>> column = new MainTableColumn<>(columnModel);
         Node headerGraphic = IconTheme.JabRefIcons.DEFAULT_GROUP_ICON_COLUMN.getGraphicNode();
@@ -212,14 +210,14 @@ public class MainTableColumnFactory {
         new ValueTableCellFactory<BibEntryTableViewModel, List<AbstractGroup>>()
                 .withGraphic(this::createGroupIconRegion)
                 .install(column);
-        column.setStyle("-fx-padding: 0 0 0 0;");
+        column.getStyleClass().add("padding-0");
         column.setSortable(true);
         return column;
     }
 
     private Node createGroupColorRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
         List<Color> groupColors = matchedGroups.stream()
-                                               .flatMap(group -> group.getColor().stream())
+                                               .flatMap(group -> group.getColor().map(Color::valueOf).stream())
                                                .toList();
 
         if (!groupColors.isEmpty()) {
@@ -253,8 +251,11 @@ public class MainTableColumnFactory {
     private Node createGroupIconRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
         List<JabRefIcon> groupIcons = matchedGroups.stream()
                                                    .filter(abstractGroup -> abstractGroup.getIconName().isPresent())
-                                                   .flatMap(group -> IconTheme.findIcon(group.getIconName().get(), group.getColor().orElse(IconTheme.getDefaultGroupColor())).stream()
-                                                   )
+                                                   .flatMap(group -> IconTheme.findGroupIcon(group.getIconName().get())
+                                                                              .map(icon -> icon.withColor(group.getColor()
+                                                                                                               .map(Color::valueOf)
+                                                                                                               .orElse(IconTheme.DEFAULT_GROUP_COLOR)))
+                                                                              .stream())
                                                    .toList();
         if (!groupIcons.isEmpty()) {
             HBox container = new HBox();
@@ -276,31 +277,29 @@ public class MainTableColumnFactory {
         return new Pane();
     }
 
-    /**
-     * Creates a text column to display any standard field.
-     */
+    /// Creates a text column to display any standard field.
     private TableColumn<BibEntryTableViewModel, ?> createFieldColumn(MainTableColumnModel columnModel, MainTableTooltip tooltip) {
         return new FieldColumn(columnModel, tooltip);
     }
 
-    /**
-     * Creates a clickable icons column for DOIs, URLs, URIs and EPrints.
-     */
+    /// Creates a clickable icons column for DOIs, URLs, URIs and EPrints.
     private TableColumn<BibEntryTableViewModel, Map<Field, String>> createIdentifierColumn(MainTableColumnModel columnModel) {
         return new LinkedIdentifierColumn(columnModel, cellFactory, database, dialogService, preferences, stateManager);
     }
 
-    /**
-     * Creates a column that displays a {@link SpecialField}
-     */
+    /// Creates a column that displays a {@link SpecialField}
     private TableColumn<BibEntryTableViewModel, Optional<SpecialFieldValueViewModel>> createSpecialFieldColumn(MainTableColumnModel columnModel) {
         return new SpecialFieldColumn(columnModel, preferences, undoManager);
     }
 
-    /**
-     * Creates a column for all the linked files. Instead of creating a column for a single file type, like {@link
-     * #createExtraFileColumn(MainTableColumnModel)} createExtraFileColumn} does, this creates one single column collecting all file links.
-     */
+    /// Creates a column for fields with content selectors.
+    private TableColumn<BibEntryTableViewModel, ?> createContentSelectorColumn(MainTableColumnModel columnModel,
+                                                                               List<String> values) {
+        return new ContentSelectorColumn(columnModel, values, undoManager);
+    }
+
+    /// Creates a column for all the linked files. Instead of creating a column for a single file type, like {@link
+    /// #createExtraFileColumn(MainTableColumnModel)} createExtraFileColumn} does, this creates one single column collecting all file links.
     private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createFilesColumn(MainTableColumnModel columnModel) {
         return new FileColumn(columnModel,
                 database,
@@ -309,9 +308,7 @@ public class MainTableColumnFactory {
                 taskExecutor);
     }
 
-    /**
-     * Creates a column for all the linked files of a single file type.
-     */
+    /// Creates a column for all the linked files of a single file type.
     private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createExtraFileColumn(MainTableColumnModel columnModel) {
         return new FileColumn(columnModel,
                 database,
@@ -321,9 +318,7 @@ public class MainTableColumnFactory {
                 taskExecutor);
     }
 
-    /**
-     * Create library column containing the Filename of the library's bib file
-     */
+    /// Create library column containing the Filename of the library's bib file
     private TableColumn<BibEntryTableViewModel, String> createLibraryColumn(MainTableColumnModel columnModel) {
         return new LibraryColumn(columnModel);
     }

@@ -7,6 +7,7 @@ import javax.swing.undo.UndoManager;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
@@ -23,6 +24,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
+import org.jabref.model.entry.field.FieldTextMapper;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.airhacks.afterburner.views.ViewLoader;
@@ -31,6 +33,8 @@ import jakarta.inject.Inject;
 import static org.jabref.model.entry.field.StandardField.DOI;
 import static org.jabref.model.entry.field.StandardField.EPRINT;
 import static org.jabref.model.entry.field.StandardField.ISBN;
+import static org.jabref.model.entry.field.StandardField.ISSN;
+import static org.jabref.model.entry.field.StandardField.MR_NUMBER;
 
 public class IdentifierEditor extends HBox implements FieldEditorFX {
 
@@ -39,6 +43,7 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
     @FXML private Button shortenDOIButton;
     @FXML private Button fetchInformationByIdentifierButton;
     @FXML private Button lookupIdentifierButton;
+    @FXML private ToggleButton syncWithBrowserToggle;
 
     @Inject private DialogService dialogService;
     @Inject private TaskExecutor taskExecutor;
@@ -60,32 +65,41 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
                     this.viewModel = new DoiIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
             case ISBN ->
                     this.viewModel = new ISBNIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+            case ISSN ->
+                    this.viewModel = new ISSNIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
             case EPRINT ->
-                    this.viewModel = new EprintIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager);
+                    this.viewModel = new EprintIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+            case MR_NUMBER ->
+                    this.viewModel = new MathSciNetIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
 
             // TODO: Add support for PMID
-            case null, default -> {
+            case null,
+                 default -> {
                 assert field != null;
-                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'".formatted(field.getDisplayName()));
+                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'".formatted(FieldTextMapper.getDisplayName(field)));
             }
         }
 
         ViewLoader.view(this)
-                 .root(this)
-                 .load();
+                  .root(this)
+                  .load();
 
+        textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
+        syncWithBrowserToggle.setSelected(viewModel.getSyncWithBrowser());
 
         fetchInformationByIdentifierButton.setTooltip(
-                new Tooltip(Localization.lang("Get bibliographic data from %0", field.getDisplayName())));
+                new Tooltip(Localization.lang("Get bibliographic data from %0", FieldTextMapper.getDisplayName(field))));
         lookupIdentifierButton.setTooltip(
-                new Tooltip(Localization.lang("Look up %0", field.getDisplayName())));
+                new Tooltip(Localization.lang("Look up %0", FieldTextMapper.getDisplayName(field))));
         shortenDOIButton.setTooltip(
-                new Tooltip(Localization.lang("Shorten %0", field.getDisplayName())));
+                new Tooltip(Localization.lang("Shorten %0", FieldTextMapper.getDisplayName(field))));
 
         textField.initContextMenu(new DefaultMenu(textField), preferences.getKeyBindingRepository());
 
         new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+
+        // whether a button is shown or disabled is done in .fmxl
     }
 
     public BaseIdentifierEditorViewModel<?> getViewModel() {
@@ -121,5 +135,10 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
     @FXML
     private void shortenID() {
         viewModel.shortenID();
+    }
+
+    @FXML
+    private void toggleSyncWithBrowser() {
+        viewModel.setSyncWithBrowser(syncWithBrowserToggle.isSelected());
     }
 }

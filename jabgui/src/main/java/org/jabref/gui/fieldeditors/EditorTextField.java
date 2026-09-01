@@ -2,7 +2,6 @@ package org.jabref.gui.fieldeditors;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
 
@@ -13,13 +12,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-import org.jabref.gui.ClipBoardManager;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+
+import org.jspecify.annotations.NonNull;
 
 public class EditorTextField extends TextField implements Initializable, ContextMenuAddable {
 
     private final ContextMenu contextMenu = new ContextMenu();
+
     private Runnable additionalPasteActionHandler = () -> {
         // No additional paste behavior
     };
@@ -33,6 +35,10 @@ public class EditorTextField extends TextField implements Initializable, Context
 
         // Always fill out all the available space
         setPrefHeight(Double.POSITIVE_INFINITY);
+        // Detach the reported preferred width from the current text's length (JavaFX's default
+        // TextField.computePrefWidth grows with content) so Hgrow/fillWidth fill the available
+        // space instead of growing the field - and its containers - to fit long values.
+        setPrefWidth(1);
         HBox.setHgrow(this, Priority.ALWAYS);
 
         ClipBoardManager.addX11Support(this);
@@ -52,8 +58,7 @@ public class EditorTextField extends TextField implements Initializable, Context
         // not needed
     }
 
-    public void setAdditionalPasteActionHandler(Runnable handler) {
-        Objects.requireNonNull(handler);
+    public void setAdditionalPasteActionHandler(@NonNull Runnable handler) {
         this.additionalPasteActionHandler = handler;
     }
 

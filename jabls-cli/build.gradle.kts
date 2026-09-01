@@ -3,40 +3,31 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 plugins {
     id("org.jabref.gradle.module")
     id("application")
+    id("org.jabref.gradle.feature.nativecompile")
+    id("org.jabref.gradle.feature.shadowjar")
+}
+
+group = "org.jabref.languageserver"
+version = providers.gradleProperty("projVersion")
+    .orElse(providers.environmentVariable("VERSION"))
+    .orElse("100.0.0")
+    .get()
+
+mainModuleInfo {
+    annotationProcessor("info.picocli.codegen")
 }
 
 application{
-    mainClass.set("org.jabref.languageserver.cli.ServerCli")
-    mainModule.set("org.jabref.jabls.cli")
+    mainClass = "org.jabref.languageserver.cli.ServerCli"
 
     applicationDefaultJvmArgs = listOf(
+        "--enable-native-access=com.sun.jna,org.apache.lucene.core",
+
         // Enable JEP 450: Compact Object Headers
         "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCompactObjectHeaders",
 
-        "-XX:+UseZGC", "-XX:+ZUncommit",
-        "-XX:+UseStringDeduplication",
-
-        "--enable-native-access=com.sun.jna,org.apache.lucene.core"
+        "-XX:+UseStringDeduplication"
     )
-}
-
-dependencies {
-    implementation(project(":jablib"))
-    implementation(project(":jabls"))
-
-    implementation("org.openjfx:javafx-controls")
-    implementation("org.openjfx:javafx-fxml")
-    implementation("org.jabref:afterburner.fx")
-
-    implementation("org.slf4j:slf4j-api")
-    implementation("org.tinylog:slf4j-tinylog")
-    implementation("org.tinylog:tinylog-impl")
-    // route all requests to java.util.logging to SLF4J (which in turn routes to tinylog)
-    implementation("org.slf4j:jul-to-slf4j")
-    // route all requests to log4j to SLF4J
-    implementation("org.apache.logging.log4j:log4j-to-slf4j")
-    implementation("info.picocli:picocli")
-    annotationProcessor("info.picocli:picocli-codegen")
 }
 
 tasks.test {
@@ -49,16 +40,13 @@ tasks.test {
 }
 
 tasks.named<JavaExec>("run") {
-    doFirst {
-        application.applicationDefaultJvmArgs =
-            listOf(
-                "--enable-native-access=com.sun.jna"
-            )
-    }
+    // "assert" statements in the code should activated when running using gradle
+    enableAssertions = true
+    jvmArgs("--enable-native-access=com.sun.jna")
 }
 
 javaModulePackaging {
-    applicationName = "jabös"
+    applicationName = "jabls"
     vendor = "JabRef"
 
     // All targets have to have "app-image" as sole target, since we do not distribute an installer

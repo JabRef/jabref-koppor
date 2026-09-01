@@ -20,17 +20,19 @@ import javafx.stage.FileChooser;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.gui.util.FileDialogConfiguration;
+import org.jabref.logic.FilePreferences;
 import org.jabref.logic.InternalPreferences;
+import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.net.ProxyPreferences;
 import org.jabref.logic.net.ProxyRegisterer;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.net.ssl.SSLCertificate;
+import org.jabref.logic.net.ssl.SSLPreferences;
 import org.jabref.logic.net.ssl.TrustStoreManager;
 import org.jabref.logic.os.OS;
-import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.StandardFileType;
-import org.jabref.model.strings.StringUtil;
+import org.jabref.logic.util.strings.StringUtil;
 
 import de.saxsys.mvvmfx.utils.validation.CompositeValidator;
 import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
@@ -56,24 +58,34 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
     private final Validator proxyUsernameValidator;
     private final Validator proxyPasswordValidator;
 
-    private final DialogService dialogService;
-    private final CliPreferences preferences;
+    private final StringProperty gitUsernameProperty = new SimpleStringProperty("");
+    private final StringProperty gitPatProperty = new SimpleStringProperty("");
+    private final BooleanProperty gitPersistPatProperty = new SimpleBooleanProperty();
 
+    private final DialogService dialogService;
+    private final FilePreferences filePreferences;
 
     private final ProxyPreferences proxyPreferences;
     private final ProxyPreferences backupProxyPreferences;
     private final InternalPreferences internalPreferences;
+
+    private final GitPreferences gitPreferences;
 
     private final TrustStoreManager trustStoreManager;
 
     private final AtomicBoolean sslCertificatesChanged = new AtomicBoolean(false);
 
     public NetworkTabViewModel(DialogService dialogService,
-                               CliPreferences preferences) {
+                               ProxyPreferences proxyPreferences,
+                               GitPreferences gitPreferences,
+                               InternalPreferences internalPreferences,
+                               SSLPreferences sslPreferences,
+                               FilePreferences filePreferences) {
         this.dialogService = dialogService;
-        this.preferences = preferences;
-        this.proxyPreferences = preferences.getProxyPreferences();
-        this.internalPreferences = preferences.getInternalPreferences();
+        this.filePreferences = filePreferences;
+        this.proxyPreferences = proxyPreferences;
+        this.gitPreferences = gitPreferences;
+        this.internalPreferences = internalPreferences;
 
         backupProxyPreferences = new ProxyPreferences(
                 proxyPreferences.shouldUseProxy(),
@@ -116,7 +128,7 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
                         Localization.lang("Proxy configuration"),
                         Localization.lang("Please specify a password"))));
 
-        this.trustStoreManager = new TrustStoreManager(Path.of(preferences.getSSLPreferences().getTruststorePath()));
+        this.trustStoreManager = new TrustStoreManager(sslPreferences.getTruststorePath());
     }
 
     @Override
@@ -124,6 +136,7 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         versionCheckProperty.setValue(internalPreferences.isVersionCheckEnabled());
 
         setProxyValues();
+        setGitValues();
         setSSLValues();
     }
 
@@ -136,6 +149,12 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         proxyPasswordProperty.setValue(proxyPreferences.getPassword());
         proxyPersistPasswordProperty.setValue(proxyPreferences.shouldPersistPassword());
         passwordPersistAvailable.setValue(OS.isKeyringAvailable());
+    }
+
+    private void setGitValues() {
+        gitUsernameProperty.setValue(gitPreferences.getUsername());
+        gitPatProperty.setValue(gitPreferences.getPat());
+        gitPersistPatProperty.setValue(gitPreferences.getPersistPat());
     }
 
     private void setSSLValues() {
@@ -167,6 +186,10 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         proxyPreferences.setPersistPassword(proxyPersistPasswordProperty.getValue()); // Set before the password to actually persist
         proxyPreferences.setPassword(proxyPasswordProperty.getValue());
         ProxyRegisterer.register(proxyPreferences);
+
+        gitPreferences.setUsername(gitUsernameProperty.getValue().trim());
+        gitPreferences.setPersistPat(gitPersistPatProperty.getValue()); // Set before the password to actually persist
+        gitPreferences.setPat(gitPatProperty.getValue().trim());
 
         trustStoreManager.flush();
     }
@@ -218,9 +241,9 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         return true;
     }
 
-    /**
-     * Check the connection by using the given url. Used for validating the http proxy. The checking result will be appear when request finished. The checking result could be either success or fail, if fail, the cause will be displayed.
-     */
+    /// Check the connection by using the given url. Used for validating the http proxy. The checking result will be appearing when request finished.
+    /// The checking result could be either success or fail.
+    /// If fail, the cause will be displayed.
     public void checkConnection() {
         final String connectionSuccessText = Localization.lang("Connection successful!");
         final String connectionFailedText = Localization.lang("Connection failed!");
@@ -300,6 +323,18 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         return passwordPersistAvailable;
     }
 
+    public StringProperty gitUsernameProperty() {
+        return gitUsernameProperty;
+    }
+
+    public StringProperty gitPatProperty() {
+        return gitPatProperty;
+    }
+
+    public BooleanProperty gitPersistPatProperty() {
+        return gitPersistPatProperty;
+    }
+
     public ListProperty<CustomCertificateViewModel> customCertificateListProperty() {
         return customCertificateListProperty;
     }
@@ -308,7 +343,7 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(new FileChooser.ExtensionFilter(Localization.lang("SSL certificate file"), "*.crt", "*.cer"))
                 .withDefaultExtension(Localization.lang("SSL certificate file"), StandardFileType.CER)
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
+                .withInitialDirectory(filePreferences.getWorkingDirectory())
                 .build();
 
         dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(certPath -> SSLCertificate.fromPath(certPath).ifPresent(sslCertificate -> {

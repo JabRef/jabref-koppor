@@ -14,7 +14,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.model.strings.StringUtil;
+import org.jabref.logic.util.strings.StringUtil;
 
 import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
@@ -77,7 +77,7 @@ public class ManageCitationsDialogView extends BaseDialog<Void> {
 
         Text startText = new Text(start);
         Text inBetweenText = new Text(inBetween);
-        inBetweenText.setStyle("-fx-font-weight: bold");
+        inBetweenText.getStyleClass().add("bold");
         Text endText = new Text(end);
 
         return new FlowPane(startText, inBetweenText, endText);

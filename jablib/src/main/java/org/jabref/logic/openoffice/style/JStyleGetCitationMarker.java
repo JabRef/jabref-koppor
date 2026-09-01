@@ -1,10 +1,12 @@
 package org.jabref.logic.openoffice.style;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.jabref.logic.formatter.bibtexfields.RemoveEnclosingBracesFormatter;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
@@ -15,9 +17,9 @@ import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.style.CitationLookupResult;
 import org.jabref.model.openoffice.style.CitationMarkerEntry;
 import org.jabref.model.openoffice.style.CitationMarkerNormEntry;
+import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.style.NonUniqueCitationMarker;
 import org.jabref.model.openoffice.style.PageInfo;
-import org.jabref.model.strings.StringUtil;
 
 import org.jspecify.annotations.NonNull;
 
@@ -28,17 +30,15 @@ class JStyleGetCitationMarker {
     private JStyleGetCitationMarker() {
     }
 
-    /**
-     * Look up the nth author and return the "proper" last name for
-     * citation markers.
-     *
-     * Note: "proper" in the sense that it includes the "von" part
-     *        of the name (followed by a space) if there is one.
-     *
-     * @param authorList     The author list.
-     * @param number The number of the author to return.
-     * @return The author name, or an empty String if inapplicable.
-     */
+    /// Look up the nth author and return the "proper" last name for
+    /// citation markers.
+    ///
+    /// Note: "proper" in the sense that it includes the "von" part
+    /// of the name (followed by a space) if there is one.
+    ///
+    /// @param authorList The author list.
+    /// @param number     The number of the author to return.
+    /// @return The author name, or an empty String if inapplicable.
     private static String getAuthorLastName(AuthorList authorList, int number) {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -63,32 +63,16 @@ class JStyleGetCitationMarker {
                 + style.getAuthorNameMarkupAfter();
     }
 
-    /**
-     * @param authorList Parsed list of authors.
-     *
-     * @param maxAuthors The maximum number of authors to write out.
-     *                   If there are more authors, then ET_AL_STRING is emitted
-     *                   to mark their omission.
-     *                   Set to -1 to write out all authors.
-     *
-     *                   maxAuthors=0 is pointless, now throws IllegalArgumentException
-     *                   (Earlier it behaved as maxAuthors=1)
-     *
-     *                   maxAuthors less than -1 : throw IllegalArgumentException
-     *
-     * @param andString  For "A, B[ and ]C"
-     *
-     * @return "Au[AS]Bu[AS]Cu[OXFORD_COMMA][andString]Du[yearSep]"
-     *      or "Au[etAlString][yearSep]"
-     *
-     *             where AS = AUTHOR_SEPARATOR
-     *                   Au, Bu, Cu, Du are last names of authors.
-     *
-     *         Note:
-     *          - The "Au[AS]Bu[AS]Cu" (or the "Au") part may be empty (maxAuthors==0 or nAuthors==0).
-     *          - OXFORD_COMMA is only emitted if nAuthors is at least 3.
-     *          - andString  is only emitted if nAuthors is at least 2.
-     */
+    ///
+    /// Note:
+    /// - The "Au[AS]Bu[AS]Cu" (or the "Au") part may be empty (maxAuthors==0 or nAuthors==0).
+    /// - OXFORD_COMMA is only emitted if nAuthors is at least 3.
+    /// - andString  is only emitted if nAuthors is at least 2.
+    ///
+    /// @param authorList Parsed list of authors.
+    /// @param maxAuthors The maximum number of authors to write out. If there are more authors, then ET_AL_STRING is emitted to mark their omission. Set to -1 to write out all authors. maxAuthors=0 is pointless, now throws IllegalArgumentException.  (Earlier it behaved as maxAuthors=1). maxAuthors less than -1 : throw IllegalArgumentException
+    /// @param andString  For "A, B[and]C"
+    /// @return "Au[AS]Bu[AS]Cu[OXFORD_COMMA][andString]Du[yearSep]" or "Au[etAlString][yearSep]",  where AS = AUTHOR_SEPARATOR, Au, Bu, Cu, Du are last names of authors.
     private static String formatAuthorList(JStyle style,
                                            @NonNull AuthorList authorList,
                                            int maxAuthors,
@@ -205,27 +189,24 @@ class JStyleGetCitationMarker {
         return stringBuilder.toString();
     }
 
-    /**
-     * On success, getRawCitationMarkerField returns content,
-     * but we also need to know which field matched, because
-     * for some fields (actually: for author names) we need to
-     * reproduce the surrounding braces to inform AuthorList.parse
-     * not to split up the content.
-     */
+    /// On success, getRawCitationMarkerField returns content,
+    /// but we also need to know which field matched, because
+    /// for some fields (actually: for author names) we need to
+    /// reproduce the surrounding braces to inform AuthorList.parse
+    /// not to split up the content.
     private static class FieldAndContent {
         Field field;
         String content;
+
         FieldAndContent(Field field, String content) {
             this.field = field;
             this.content = content;
         }
     }
 
-    /**
-     * @return the field and the content of the first nonempty (after trimming)
-     * field (or alias) from {@code fields} found in {@code entry}.
-     * Return {@code Optional.empty()} if found nothing.
-     */
+    /// @return the field and the content of the first nonempty (after trimming)
+    /// field (or alias) from `fields` found in `entry`.
+    /// Return `Optional.empty()` if found nothing.
     private static Optional<FieldAndContent> getRawCitationMarkerField(@NonNull BibEntry entry,
                                                                        @NonNull BibDatabase database,
                                                                        @NonNull OrFields fields) {
@@ -240,33 +221,18 @@ class JStyleGetCitationMarker {
         return Optional.empty();
     }
 
-    /**
-     * This method looks up a field for an entry in a database.
-     *
-     * Any number of backup fields can be used if the primary field is
-     * empty.
-     *
-     * @param fields   A list of fields, to look up, using first nonempty hit.
-     *
-     *                 If backup fields are needed, separate field
-     *                 names by /.
-     *
-     *                 E.g. to use "author" with "editor" as backup,
-     *                 specify
-     *                     FieldFactory.serializeOrFields(StandardField.AUTHOR,
-     *                                                    StandardField.EDITOR)
-     *
-     * @return The resolved field content, or an empty string if the
-     *         field(s) were empty.
-     *
-     *
-     *
-     */
+    /// This method looks up a field for an entry in a database.
+    ///
+    /// Any number of backup fields can be used if the primary field is
+    /// empty.
+    ///
+    /// @param fields A list of fields, to look up, using first nonempty hit. If backup fields are needed, separate field names by /. E.g. to use "author" with "editor" as backup, specify `FieldFactory.serializeOrFields(StandardField.AUTHOR, StandardField.EDITOR)`
+    /// @return The resolved field content, or an empty string if the field(s) were empty.
     private static String getCitationMarkerField(JStyle style,
-                                                 @NonNull CitationLookupResult db,
+                                                 @NonNull CitationLookupResult citationLookupResult,
                                                  OrFields fields) {
         Optional<FieldAndContent> optionalFieldAndContent =
-            getRawCitationMarkerField(db.entry, db.database, fields);
+                getRawCitationMarkerField(citationLookupResult.entry, citationLookupResult.database, fields);
 
         if (optionalFieldAndContent.isEmpty()) {
             // No luck? Return an empty string:
@@ -287,27 +253,48 @@ class JStyleGetCitationMarker {
         return result;
     }
 
-    private static AuthorList getAuthorList(JStyle style, CitationLookupResult db) {
+    private static AuthorList getAuthorList(JStyle style, CitationLookupResult citationLookupResult) {
         // The bibtex fields providing author names, e.g. "author" or
         // "editor".
         OrFields authorFieldNames = style.getAuthorFieldNames();
 
-        String authorListAsString = getCitationMarkerField(style, db, authorFieldNames);
+        String authorListAsString = getCitationMarkerField(style, citationLookupResult, authorFieldNames);
         return AuthorList.parse(authorListAsString);
     }
 
     private enum AuthorYearMarkerPurpose {
         IN_PARENTHESIS,
         IN_TEXT,
-        NORMALIZED
+        NORMALIZED,
+        /// "Doe, 2003" -- no brackets at all.
+        NO_PARENTHESIS,
+        /// "Doe" -- author part only.
+        AUTHOR_ONLY,
+        /// "2003a" -- year part only.
+        YEAR_ONLY
     }
 
-    /**
-     * How many authors would be emitted for entry, considering
-     * style and entry.getIsFirstAppearanceOfSource()
-     *
-     * If entry is unresolved, return 0.
-     */
+    private static AuthorYearMarkerPurpose purposeOf(CitationType citationType) {
+        return switch (citationType) {
+            // INVISIBLE_CIT never reaches marker generation, the value is irrelevant.
+            case AUTHORYEAR_PAR,
+                 INVISIBLE_CIT ->
+                    AuthorYearMarkerPurpose.IN_PARENTHESIS;
+            case AUTHORYEAR_INTEXT ->
+                    AuthorYearMarkerPurpose.IN_TEXT;
+            case AUTHORYEAR_NOPAR ->
+                    AuthorYearMarkerPurpose.NO_PARENTHESIS;
+            case AUTHOR_ONLY ->
+                    AuthorYearMarkerPurpose.AUTHOR_ONLY;
+            case YEAR_ONLY ->
+                    AuthorYearMarkerPurpose.YEAR_ONLY;
+        };
+    }
+
+    /// How many authors would be emitted for entry, considering
+    /// style and entry.getIsFirstAppearanceOfSource()
+    ///
+    /// If entry is unresolved, return 0.
     private static int calculateNAuthorsToEmit(JStyle style, CitationMarkerEntry entry) {
         if (entry.getLookupResult().isEmpty()) {
             // unresolved
@@ -315,8 +302,8 @@ class JStyleGetCitationMarker {
         }
 
         int maxAuthors = entry.getIsFirstAppearanceOfSource()
-                          ? style.getMaxAuthorsFirst()
-                          : style.getMaxAuthors();
+                         ? style.getMaxAuthorsFirst()
+                         : style.getMaxAuthors();
 
         AuthorList authorList = getAuthorList(style, entry.getLookupResult().get());
         int nAuthors = authorList.getNumberOfAuthors();
@@ -328,42 +315,25 @@ class JStyleGetCitationMarker {
         }
     }
 
-    /**
-     * Produce (Author, year) or "Author (year)" style citation strings.
-     *
-     * @param purpose IN_PARENTHESIS and NORMALIZED puts parentheses around the whole,
-     *                IN_TEXT around each (year,uniqueLetter,pageInfo) part.
-     *
-     *                NORMALIZED omits uniqueLetter and pageInfo,
-     *                ignores isFirstAppearanceOfSource (always
-     *                style.getMaxAuthors, not getMaxAuthorsFirst)
-     *
-     * @param entries   The list of CitationMarkerEntry values to process.
-     *
-     *              Here we do not check for duplicate entries: those
-     *              are handled by {@code getCitationMarker} by
-     *              omitting them from the list.
-     *
-     *              Unresolved citations recognized by
-     *              entry.getBibEntry() and/or
-     *              entry.getDatabase() returning empty, and
-     *              emitted as "Unresolved${citationKey}".
-     *
-     *              Neither uniqueLetter nor pageInfo are emitted
-     *              for unresolved citations.
-     *
-     * @param startsNewGroup Should have the same length as {@code entries}, and
-     *               contain true for entries starting a new group,
-     *               false for those that only add a uniqueLetter to
-     *               the grouped presentation.
-     *
-     * @param maxAuthorsOverride If not empty, always show this number of authors.
-     *               Added to allow NORMALIZED to use maxAuthors value that differs from
-     *               style.getMaxAuthors()
-     *
-     * @return The formatted citation.
-     *
-     */
+    /// Produce (Author, year) or "Author (year)" style citation strings.
+    ///
+    /// Here we do not check for duplicate entries: those
+    /// are handled by `getCitationMarker` by
+    /// omitting them from the list.
+    ///
+    /// Unresolved citations recognized by
+    /// entry.getBibEntry() and/or
+    /// entry.getDatabase() returning empty, and
+    /// emitted as "Unresolved${citationKey}".
+    ///
+    /// Neither uniqueLetter nor pageInfo are emitted
+    /// for unresolved citations.
+    ///
+    /// @param purpose            IN_PARENTHESIS and NORMALIZED puts parentheses around the whole, IN_TEXT around each (year,uniqueLetter,pageInfo) part. NORMALIZED omits uniqueLetter and pageInfo,  ignores isFirstAppearanceOfSource (always style.getMaxAuthors, not getMaxAuthorsFirst)
+    /// @param entries            The list of CitationMarkerEntry values to process.
+    /// @param startsNewGroup     Should have the same length as `entries`, and contain true for entries starting a new group, false for those that only add a uniqueLetter tothe grouped presentation.
+    /// @param maxAuthorsOverride If not empty, always show this number of authors. Added to allow NORMALIZED to use maxAuthors value that differs from style.getMaxAuthors()
+    /// @return The formatted citation.
     private static OOText getAuthorYearParenthesisMarker2(JStyle style,
                                                           AuthorYearMarkerPurpose purpose,
                                                           List<CitationMarkerEntry> entries,
@@ -371,12 +341,25 @@ class JStyleGetCitationMarker {
                                                           Optional<Integer> maxAuthorsOverride) {
 
         boolean inParenthesis = purpose == AuthorYearMarkerPurpose.IN_PARENTHESIS
-                                 || purpose == AuthorYearMarkerPurpose.NORMALIZED;
+                || purpose == AuthorYearMarkerPurpose.NORMALIZED;
+
+        boolean bracketsAroundYear = purpose == AuthorYearMarkerPurpose.IN_TEXT;
+
+        boolean emitAuthors = purpose != AuthorYearMarkerPurpose.YEAR_ONLY;
+        boolean emitYear = purpose != AuthorYearMarkerPurpose.AUTHOR_ONLY;
+
+        boolean emitPageInfo = purpose != AuthorYearMarkerPurpose.NORMALIZED
+                && purpose != AuthorYearMarkerPurpose.AUTHOR_ONLY;
 
         // The String to separate authors from year, e.g. "; ".
-        String yearSep = inParenthesis
-                          ? style.getYearSeparator()
-                          : style.getYearSeparatorInText();
+        String yearSep;
+        if (!emitAuthors || !emitYear) {
+            yearSep = "";
+        } else if (bracketsAroundYear) {
+            yearSep = style.getYearSeparatorInText();
+        } else {
+            yearSep = style.getYearSeparator();
+        }
 
         // The opening parenthesis.
         String startBrace = style.getBracketBefore();
@@ -391,9 +374,9 @@ class JStyleGetCitationMarker {
         OrFields yearFieldNames = style.getYearFieldNames();
 
         // The String to add between the two last author names, e.g. " & ".
-        String andString = inParenthesis
-                            ? style.getAuthorLastSeparator()
-                            : style.getAuthorLastSeparatorInTextWithFallBack();
+        String andString = bracketsAroundYear
+                           ? style.getAuthorLastSeparatorInTextWithFallBack()
+                           : style.getAuthorLastSeparator();
 
         String pageInfoSeparator = style.getPageInfoSeparator();
         String uniquefierSeparator = style.getUniquefierSeparator();
@@ -419,7 +402,7 @@ class JStyleGetCitationMarker {
                 }
 
                 // And close the brace, if we are the last in the group.
-                if (!inParenthesis && endingAGroup) {
+                if (bracketsAroundYear && endingAGroup) {
                     stringBuilder.append(endBrace);
                 }
                 continue;
@@ -430,9 +413,9 @@ class JStyleGetCitationMarker {
             }
 
             StringBuilder pageInfoPart = new StringBuilder();
-            if (purpose != AuthorYearMarkerPurpose.NORMALIZED) {
+            if (emitPageInfo) {
                 Optional<OOText> pageInfo =
-                    PageInfo.normalizePageInfo(entry.getPageInfo());
+                        PageInfo.normalizePageInfo(entry.getPageInfo());
                 if (pageInfo.isPresent()) {
                     pageInfoPart.append(pageInfoSeparator);
                     pageInfoPart.append(OOText.toString(pageInfo.get()));
@@ -442,43 +425,47 @@ class JStyleGetCitationMarker {
             final boolean isUnresolved = entry.getLookupResult().isEmpty();
             if (isUnresolved) {
                 stringBuilder.append("Unresolved(%s)".formatted(entry.getCitationKey()));
-                if (purpose != AuthorYearMarkerPurpose.NORMALIZED) {
+                if (emitPageInfo) {
                     stringBuilder.append(pageInfoPart);
                 }
             } else {
-                CitationLookupResult db = entry.getLookupResult().get();
+                CitationLookupResult citationLookupResult = entry.getLookupResult().get();
 
                 int maxAuthors = purpose == AuthorYearMarkerPurpose.NORMALIZED
-                                  ? style.getMaxAuthors()
-                                  : calculateNAuthorsToEmit(style, entry);
+                                 ? style.getMaxAuthors()
+                                 : calculateNAuthorsToEmit(style, entry);
 
                 if (maxAuthorsOverride.isPresent()) {
                     maxAuthors = maxAuthorsOverride.get();
                 }
 
-                AuthorList authorList = getAuthorList(style, db);
-                String authorString = formatAuthorList(style, authorList, maxAuthors, andString);
-                stringBuilder.append(authorString);
-                stringBuilder.append(yearSep);
+                if (emitAuthors) {
+                    AuthorList authorList = getAuthorList(style, citationLookupResult);
+                    String authorString = formatAuthorList(style, authorList, maxAuthors, andString);
+                    stringBuilder.append(authorString);
+                    stringBuilder.append(yearSep);
+                }
 
-                if (!inParenthesis) {
+                if (bracketsAroundYear) {
                     stringBuilder.append(startBrace); // parenthesis before year
                 }
 
-                String year = getCitationMarkerField(style, db, yearFieldNames);
-                if (year != null) {
-                    stringBuilder.append(year);
+                if (emitYear) {
+                    String year = getCitationMarkerField(style, citationLookupResult, yearFieldNames);
+                    if (year != null) {
+                        stringBuilder.append(year);
+                    }
+
+                    if (purpose != AuthorYearMarkerPurpose.NORMALIZED) {
+                        entry.getUniqueLetter().ifPresent(stringBuilder::append);
+                    }
                 }
 
-                if (purpose != AuthorYearMarkerPurpose.NORMALIZED) {
-                    entry.getUniqueLetter().ifPresent(stringBuilder::append);
-                }
-
-                if (purpose != AuthorYearMarkerPurpose.NORMALIZED) {
+                if (emitPageInfo) {
                     stringBuilder.append(pageInfoPart);
                 }
 
-                if (!inParenthesis && endingAGroup) {
+                if (bracketsAroundYear && endingAGroup) {
                     stringBuilder.append(endBrace);  // parenthesis after year
                 }
             }
@@ -491,9 +478,7 @@ class JStyleGetCitationMarker {
         return OOText.fromString(stringBuilder.toString());
     }
 
-    /**
-     * Add / override methods for the purpose of creating a normalized citation marker.
-     */
+    /// Add / override methods for the purpose of creating a normalized citation marker.
     private static class CitationMarkerNormEntryWrap implements CitationMarkerEntry {
 
         CitationMarkerNormEntry inner;
@@ -528,26 +513,23 @@ class JStyleGetCitationMarker {
         }
     }
 
-    /**
-     * @param normEntry          A citation to process.
-     *
-     * @return A normalized citation marker for deciding which
-     *         citations need uniqueLetters.
-     *
-     * For details of what "normalized" means: See {@link JStyleGetCitationMarker#getAuthorYearParenthesisMarker2}
-     *
-     * Note: now includes some markup.
-     */
+    /// @param normEntry A citation to process.
+    /// @return A normalized citation marker for deciding which
+    /// citations need uniqueLetters.
+    ///
+    /// For details of what "normalized" means: See {@link JStyleGetCitationMarker#getAuthorYearParenthesisMarker2}
+    ///
+    /// Note: now includes some markup.
     static OOText getNormalizedCitationMarker(JStyle style,
                                               CitationMarkerNormEntry normEntry,
                                               Optional<Integer> maxAuthorsOverride) {
         boolean[] startsNewGroup = {true};
         CitationMarkerEntry entry = new CitationMarkerNormEntryWrap(normEntry);
         return getAuthorYearParenthesisMarker2(style,
-                                               AuthorYearMarkerPurpose.NORMALIZED,
-                                               List.of(entry),
-                                               startsNewGroup,
-                                               maxAuthorsOverride);
+                AuthorYearMarkerPurpose.NORMALIZED,
+                List.of(entry),
+                startsNewGroup,
+                maxAuthorsOverride);
     }
 
     private static List<OOText>
@@ -558,46 +540,50 @@ class JStyleGetCitationMarker {
         List<OOText> normalizedMarkers = new ArrayList<>(citationMarkerEntries.size());
         for (CitationMarkerEntry citationMarkerEntry : citationMarkerEntries) {
             OOText normalized = getNormalizedCitationMarker(style,
-                                                            citationMarkerEntry,
-                                                            maxAuthorsOverride);
+                    citationMarkerEntry,
+                    maxAuthorsOverride);
             normalizedMarkers.add(normalized);
         }
         return normalizedMarkers;
     }
 
-    /**
-     * Produce citation marker for a citation group.
-     *
-     * Attempts to join consecutive citations: if normalized citations
-     *    markers match and no pageInfo is present, the second entry
-     *    can be presented by appending its uniqueLetter to the
-     *    previous.
-     *
-     *    If either entry has pageInfo, join is inhibited.
-     *    If the previous entry has more names than we need
-     *    we check with extended normalizedMarkers if they match.
-     *
-     * For consecutive identical entries, the second one is omitted.
-     *     Identical requires same pageInfo here, we do not try to merge them.
-     *     Note: notifying the user about them would be nice.
-     *
-     * @param citationMarkerEntries A group of citations to process.
-     *
-     * @param inParenthesis If true, put parenthesis around the whole group,
-     *             otherwise around each (year,uniqueLetter,pageInfo) part.
-     *
-     * @param nonUniqueCitationMarkerHandling What should happen if we
-     *             stumble upon citations with identical normalized
-     *             citation markers which cite different sources and
-     *             are not distinguished by uniqueLetters.
-     *
-     *             Note: only consecutive citations are checked.
-     *
-     */
+    /// Produce citation marker for a citation group.
+    ///
+    /// Attempts to join consecutive citations: if normalized citations
+    /// markers match and no pageInfo is present, the second entry
+    /// can be presented by appending its uniqueLetter to the
+    /// previous.
+    ///
+    /// If either entry has pageInfo, join is inhibited.
+    /// If the previous entry has more names than we need
+    /// we check with extended normalizedMarkers if they match.
+    ///
+    /// For consecutive identical entries, the second one is omitted.
+    /// Identical requires same pageInfo here, we do not try to merge them.
+    /// Note: notifying the user about them would be nice.
+    /// Note: only consecutive citations are checked.
+    ///
+    /// @param citationMarkerEntries           A group of citations to process.
+    /// @param inParenthesis                   If true, put parenthesis around the whole group, otherwise around each (year,uniqueLetter,pageInfo) part.
+    /// @param nonUniqueCitationMarkerHandling What should happen if we stumble upon citations with identical normalized citation markers which cite different sources and are not distinguished by uniqueLetters.
     public static OOText
     createCitationMarker(JStyle style,
                          List<CitationMarkerEntry> citationMarkerEntries,
                          boolean inParenthesis,
+                         NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
+        return createCitationMarker(style,
+                citationMarkerEntries,
+                inParenthesis ? CitationType.AUTHORYEAR_PAR : CitationType.AUTHORYEAR_INTEXT,
+                nonUniqueCitationMarkerHandling);
+    }
+
+    /// As above, but selects the presentation from the citation type of the group.
+    ///
+    /// @param citationType Decides brackets and which of the (author, year) parts are emitted.
+    public static OOText
+    createCitationMarker(JStyle style,
+                         List<CitationMarkerEntry> citationMarkerEntries,
+                         CitationType citationType,
                          NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
 
         final int nEntries = citationMarkerEntries.size();
@@ -618,8 +604,8 @@ class JStyleGetCitationMarker {
         //
 
         List<OOText> normalizedMarkers = getNormalizedCitationMarkers(style,
-                                                                      citationMarkerEntries,
-                                                                      Optional.empty());
+                citationMarkerEntries,
+                Optional.empty());
 
         // How many authors would be emitted without grouping.
         int[] nAuthorsToEmit = new int[nEntries];
@@ -672,8 +658,8 @@ class JStyleGetCitationMarker {
                     // nAuthorsToEmitRevised[i-1] may have been indirectly increased,
                     // we have to check that too.
                     if (!isFirst1 &&
-                        !isFirst2 &&
-                        (nAuthorsToEmitRevised[i - 1] == nAuthorsToEmit[i - 1])) {
+                            !isFirst2 &&
+                            (nAuthorsToEmitRevised[i - 1] == nAuthorsToEmit[i - 1])) {
                         // we can rely on normalizedMarkers
                         nAuthorsShownInhibitsJoin = false;
                     } else if (style.getMaxAuthors() == style.getMaxAuthorsFirst()) {
@@ -691,9 +677,9 @@ class JStyleGetCitationMarker {
                             // prevShown >= need
                             // Check with extended normalizedMarkers.
                             OOText nmx1 =
-                                getNormalizedCitationMarker(style, ce1, Optional.of(prevShown));
+                                    getNormalizedCitationMarker(style, ce1, Optional.of(prevShown));
                             OOText nmx2 =
-                                getNormalizedCitationMarker(style, ce2, Optional.of(prevShown));
+                                    getNormalizedCitationMarker(style, ce2, Optional.of(prevShown));
                             boolean extendedMarkersDiffer = !nmx2.equals(nmx1);
                             nAuthorsShownInhibitsJoin = extendedMarkersDiffer;
                         }
@@ -714,24 +700,24 @@ class JStyleGetCitationMarker {
                 final boolean uniqueLettersDiffer = !ul2.equals(ul1);
 
                 final boolean uniqueLetterDoesNotMakeUnique = citationKeysDiffer
-                                                               && !normalizedMarkersDiffer
-                                                               && !uniqueLettersDiffer;
+                        && !normalizedMarkersDiffer
+                        && !uniqueLettersDiffer;
 
                 if (uniqueLetterDoesNotMakeUnique &&
                         nonUniqueCitationMarkerHandling == NonUniqueCitationMarker.THROWS) {
                     throw new IllegalArgumentException("different citation keys,"
-                                                       + " but same normalizedMarker and uniqueLetter");
+                            + " but same normalizedMarker and uniqueLetter");
                 }
 
                 final boolean pageInfoInhibitsJoin = bothPageInfosAreEmpty
-                                                      ? false
-                                                      : (citationKeysDiffer || pageInfosDiffer);
+                                                     ? false
+                                                     : (citationKeysDiffer || pageInfosDiffer);
 
                 startingNewGroup = normalizedMarkersDiffer
-                                    || nAuthorsShownInhibitsJoin
-                                    || pageInfoInhibitsJoin
-                                    || uniqueLetterPresenceChanged
-                                    || uniqueLetterDoesNotMakeUnique;
+                        || nAuthorsShownInhibitsJoin
+                        || pageInfoInhibitsJoin
+                        || uniqueLetterPresenceChanged
+                        || uniqueLetterDoesNotMakeUnique;
 
                 if (!startingNewGroup) {
                     // inherit from first of group. Used at next i.
@@ -739,9 +725,9 @@ class JStyleGetCitationMarker {
                 }
 
                 sameAsPrev = !startingNewGroup
-                              && !uniqueLettersDiffer
-                              && !citationKeysDiffer
-                              && !pageInfosDiffer;
+                        && !uniqueLettersDiffer
+                        && !citationKeysDiffer
+                        && !pageInfosDiffer;
             }
 
             if (!sameAsPrev) {
@@ -751,12 +737,14 @@ class JStyleGetCitationMarker {
             }
         }
 
+        if (citationType.isPartial()) {
+            Arrays.fill(startsNewGroup, true);
+        }
+
         return getAuthorYearParenthesisMarker2(style,
-                                               inParenthesis
-                                               ? AuthorYearMarkerPurpose.IN_PARENTHESIS
-                                               : AuthorYearMarkerPurpose.IN_TEXT,
-                                              filteredCitationMarkerEntries,
-                                              startsNewGroup,
-                                              Optional.empty());
+                purposeOf(citationType),
+                filteredCitationMarkerEntries,
+                startsNewGroup,
+                Optional.empty());
     }
 }

@@ -3,6 +3,7 @@ package org.jabref.logic.openoffice.action;
 import java.io.IOException;
 import java.util.List;
 
+import org.jabref.logic.JabRefException;
 import org.jabref.logic.openoffice.frontend.OOFrontend;
 import org.jabref.logic.openoffice.frontend.UpdateBibliography;
 import org.jabref.logic.openoffice.frontend.UpdateCitationMarkers;
@@ -13,6 +14,7 @@ import org.jabref.model.openoffice.rangesort.FunctionalTextViewCursor;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoScreenRefresh;
+import org.jabref.model.openoffice.util.OOResult;
 
 import com.sun.star.lang.IllegalArgumentException;
 import com.sun.star.lang.WrappedTargetException;
@@ -20,9 +22,7 @@ import com.sun.star.text.XTextDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Update document: citation marks and bibliography
- */
+/// Update document: citation marks and bibliography
 public class Update {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Update.class);
@@ -30,9 +30,7 @@ public class Update {
     private Update() {
     }
 
-    /**
-     * @return the list of unresolved citation keys
-     */
+    /// @return the list of unresolved citation keys
     private static List<String> updateDocument(XTextDocument doc,
                                                OOFrontend frontend,
                                                List<BibDatabase> databases,
@@ -100,41 +98,28 @@ public class Update {
         }
     }
 
-    public static List<String> synchronizeDocument(XTextDocument doc,
-                                                   OOFrontend frontend,
-                                                   JStyle style,
-                                                   FunctionalTextViewCursor fcursor,
-                                                   SyncOptions syncOptions)
-            throws
-            CreationException,
-            NoDocumentException,
-            WrappedTargetException,
-            IllegalArgumentException {
-
-        return Update.updateDocument(doc,
-                frontend,
-                syncOptions.databases,
-                style,
-                fcursor,
-                syncOptions.updateBibliography,
-                syncOptions.alwaysAddCitedOnPages);
+    public static OOResult<List<String>, JabRefException> synchronizeDocument(XTextDocument doc,
+                                                                              OOFrontend frontend,
+                                                                              JStyle style,
+                                                                              FunctionalTextViewCursor fcursor,
+                                                                              SyncOptions syncOptions) {
+        try {
+            return OOResult.ok(Update.updateDocument(doc, frontend, syncOptions.databases, style, fcursor, syncOptions.updateBibliography, syncOptions.alwaysAddCitedOnPages));
+        } catch (CreationException | NoDocumentException | WrappedTargetException | IllegalArgumentException e) {
+            return OOResult.error(new JabRefException(e.getMessage(), e));
+        }
     }
 
-    /**
-     * Reread document before sync
-     */
-    public static List<String> resyncDocument(XTextDocument doc,
-                                              JStyle style,
-                                              FunctionalTextViewCursor fcursor,
-                                              SyncOptions syncOptions)
-            throws
-            CreationException,
-            NoDocumentException,
-            WrappedTargetException,
-            IllegalArgumentException {
-
-        OOFrontend frontend = new OOFrontend(doc);
-
-        return Update.synchronizeDocument(doc, frontend, style, fcursor, syncOptions);
+    /// Reread document before sync
+    public static OOResult<List<String>, JabRefException> resyncDocument(XTextDocument doc,
+                                                                         JStyle style,
+                                                                         FunctionalTextViewCursor fcursor,
+                                                                         SyncOptions syncOptions) {
+        try {
+            OOFrontend frontend = new OOFrontend(doc);
+            return Update.synchronizeDocument(doc, frontend, style, fcursor, syncOptions);
+        } catch (NoDocumentException | WrappedTargetException e) {
+            return OOResult.error(new JabRefException(e.getMessage(), e));
+        }
     }
 }

@@ -8,23 +8,20 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
-/**
- * Parse a plain citation using regex rules.
- * <p>
- * TODO: This class is similar to {@link org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter}, we need to unify them.
- */
+/// Parse a plain citation using regex rules.
+///
+/// TODO: This class is similar to {@link org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter}, we need to unify them.
 public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private static final String AUTHOR_TAG = "[author_tag]";
     private static final String URL_TAG = "[url_tag]";
     private static final String YEAR_TAG = "[year_tag]";
     private static final String PAGES_TAG = "[pages_tag]";
-
     private static final String INITIALS_GROUP = "INITIALS";
     private static final String LASTNAME_GROUP = "LASTNAME";
 
@@ -52,17 +49,30 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
             "(p.)?\\s?\\d+(-\\d+)?",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private final List<String> urls = new ArrayList<>();
-    private final List<String> authors = new ArrayList<>();
-    private String year = "";
-    private String pages = "";
-    private String title = "";
-    private boolean isArticle = true;
-    private String journalOrPublisher = "";
+    private List<String> urls;
+    private List<String> authors;
+    private String year;
+    private String pages;
+    private String title;
+    private String doi;
+    private boolean isArticle;
+    private String journalOrPublisher;
 
     @Override
-    public Optional<BibEntry> parsePlainCitation(String text) throws FetcherException {
-        String inputWithoutUrls = findUrls(text);
+    public Optional<BibEntry> parsePlainCitation(String text) {
+        urls = new ArrayList<>();
+        authors = new ArrayList<>();
+        year = "";
+        pages = "";
+        title = "";
+        doi = "";
+        isArticle = true;
+        journalOrPublisher = "";
+
+        // DOI is extracted first so a "doi.org" link is recorded as a DOI
+        // rather than being swallowed by the generic URL rule.
+        String inputWithoutDoi = findDoi(text);
+        String inputWithoutUrls = findUrls(inputWithoutDoi);
         String inputWithoutAuthors = findAuthors(inputWithoutUrls);
         String inputWithoutYear = findYear(inputWithoutAuthors);
         String inputWithoutPages = findPages(inputWithoutYear);
@@ -78,6 +88,9 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         extractedEntity.setField(StandardField.YEAR, year);
         extractedEntity.setField(StandardField.PAGES, pages);
         extractedEntity.setField(StandardField.TITLE, title);
+        if (!doi.isEmpty()) {
+            extractedEntity.setField(StandardField.DOI, doi);
+        }
         if (isArticle) {
             extractedEntity.setField(StandardField.JOURNAL, journalOrPublisher);
         } else {
@@ -93,6 +106,30 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
             urls.add(input.substring(matcher.start(1), matcher.end()));
         }
         return fixSpaces(matcher.replaceAll(URL_TAG));
+    }
+
+    /// Extracts the first DOI found in {@code input}, stores its canonical form in {@link #doi},
+    /// and returns {@code input} with the matched DOI (including any leading {@code doi:} or
+    /// {@code https://doi.org/} prefix) removed so the remaining rules do not re-parse it as a
+    /// URL or title.
+    ///
+    /// The DOI is replaced with an empty string rather than a placeholder token: {@link #findParts}
+    /// later infers the title and journal/publisher from the count of non-numeric segments, and a
+    /// placeholder would skew that count because DOIs typically contain digits while a token like
+    /// {@code [doi_tag]} would not.
+    ///
+    /// Called before {@link #findUrls} so a {@code doi.org} link is recorded as a DOI rather
+    /// than being swallowed by the generic URL rule.
+    ///
+    /// @param input raw citation text
+    /// @return the input with the DOI stripped, or the original input if no DOI was found
+    private String findDoi(String input) {
+        return DOI.findInText(input)
+                  .map(parsed -> {
+                      doi = parsed.asString();
+                      return fixSpaces(DOI.replaceInText(input, ""));
+                  })
+                  .orElse(input);
     }
 
     private String findYear(String input) {
@@ -158,7 +195,7 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         }
         int nonDigitParts = 0;
         for (String part : lastParts) {
-            if (part.matches(".*\\d.*")) {
+            if (containsDigit(part)) {
                 break;
             }
             nonDigitParts++;
@@ -173,5 +210,12 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
             isArticle = false;
         }
         return fixSpaces(input);
+    }
+
+    /// Checks whether {@code input} contains at least one digit. Used instead of a
+    /// {@code ".*\\d.*"} regex on user-provided text: a direct scan is linear time and
+    /// not susceptible to regex backtracking on adversarial input.
+    private static boolean containsDigit(String input) {
+        return input.codePoints().anyMatch(Character::isDigit);
     }
 }

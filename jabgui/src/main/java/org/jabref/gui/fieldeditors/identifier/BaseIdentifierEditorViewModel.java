@@ -11,9 +11,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.fieldeditors.AbstractEditorViewModel;
+import org.jabref.gui.mergeentries.FetchAndMergeEntry;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherServerException;
@@ -24,6 +26,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
+import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.identifier.Identifier;
 
 import com.tobiasdiez.easybind.EasyBind;
@@ -36,12 +39,14 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     protected final BooleanProperty canShortenIdentifier = new SimpleBooleanProperty(false);
     protected final BooleanProperty identifierLookupInProgress = new SimpleBooleanProperty(false);
     protected final BooleanProperty canLookupIdentifier = new SimpleBooleanProperty(true);
-    protected final BooleanProperty canFetchBibliographyInformationById = new SimpleBooleanProperty();
+    protected final BooleanProperty canFetchBibliographyInformationById = new SimpleBooleanProperty(false);
+    protected final BooleanProperty canSyncWithBrowser = new SimpleBooleanProperty(false);
     protected IdentifierParser identifierParser;
     protected final ObjectProperty<Optional<T>> identifier = new SimpleObjectProperty<>(Optional.empty());
     protected DialogService dialogService;
     protected TaskExecutor taskExecutor;
     protected GuiPreferences preferences;
+    protected final StateManager stateManager;
 
     public BaseIdentifierEditorViewModel(Field field,
                                          SuggestionProvider<?> suggestionProvider,
@@ -49,24 +54,31 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
                                          DialogService dialogService,
                                          TaskExecutor taskExecutor,
                                          GuiPreferences preferences,
-                                         UndoManager undoManager) {
+                                         UndoManager undoManager,
+                                         StateManager stateManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
+        this.stateManager = stateManager;
     }
 
-    /**
-     * Since it's not possible to perform the same actions on all identifiers, specific implementations can call the {@code configure}
-     * method to tell the actions they can perform and the actions they can't. Based on this configuration, the view will enable/disable or
-     * show/hide certain UI elements for certain identifier editors.
-     * <p>
-     * <b>NOTE: This method MUST be called by all the implementation view models in their principal constructor</b>
-     */
+    /// Since it's not possible to perform the same actions on all identifiers, specific implementations can call the `configure`
+    /// method to tell the actions they can perform and the actions they can't. Based on this configuration, the view will enable/disable or
+    /// show/hide certain UI elements for certain identifier editors.
+    ///
+    /// **NOTE: This method MUST be called by all the implementation view models in their principal constructor**
     protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier) {
-        this.canLookupIdentifier.set(canLookupIdentifier);
+        configure(canFetchBibliographyInformationById, canLookupIdentifier, canShortenIdentifier, false);
+    }
+
+    /// Overload adding `canSyncWithBrowser`, currently only used by the MathSciNet editor. Kept separate from the
+    /// 3-arg overload so the far more common call sites don't all need a trailing `false`.
+    protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier, boolean canSyncWithBrowser) {
         this.canFetchBibliographyInformationById.set(canFetchBibliographyInformationById);
+        this.canLookupIdentifier.set(canLookupIdentifier);
         this.canShortenIdentifier.set(canShortenIdentifier);
+        this.canSyncWithBrowser.set(canSyncWithBrowser);
     }
 
     protected Optional<T> updateIdentifier() {
@@ -107,6 +119,24 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
         return canFetchBibliographyInformationById.get();
     }
 
+    public BooleanProperty canSyncWithBrowserProperty() {
+        return canSyncWithBrowser;
+    }
+
+    public boolean getCanSyncWithBrowser() {
+        return canSyncWithBrowser.get();
+    }
+
+    /// Whether this identifier should currently be synced to the browser extension. Only meaningful when
+    /// {@link #getCanSyncWithBrowser()} is true; overridden by the (currently only) editor that supports it.
+    public boolean getSyncWithBrowser() {
+        return false;
+    }
+
+    public void setSyncWithBrowser(boolean syncWithBrowser) {
+        // No-op: only the MathSciNet editor currently supports browser sync.
+    }
+
     public BooleanProperty canLookupIdentifierProperty() {
         return canLookupIdentifier;
     }
@@ -131,12 +161,20 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
         return identifierLookupInProgress;
     }
 
+    public boolean getIdentifierLookupNotInProgress() {
+        return identifierLookupInProgress.not().get();
+    }
+
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        LOGGER.warn("Unable to fetch bibliography information using the '{}' identifier", field.getDisplayName());
+        stateManager.getActiveDatabase().ifPresentOrElse(
+                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager, stateManager)
+                        .fetchAndMerge(entry, field),
+                () -> dialogService.notify(Localization.lang("No library selected"))
+        );
     }
 
     public void lookupIdentifier(BibEntry bibEntry) {
-        LOGGER.warn("Unable to lookup identifier for '{}'", field.getDisplayName());
+        LOGGER.warn("Lookup not implemented yet for identifier '{}'", FieldTextMapper.getDisplayName(field));
     }
 
     public void openExternalLink() {

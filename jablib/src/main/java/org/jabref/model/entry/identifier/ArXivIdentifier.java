@@ -7,18 +7,23 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.model.strings.StringUtil;
+import org.jabref.architecture.AllowedToUseLogic;
+import org.jabref.logic.util.strings.StringUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Identifier for the arXiv. See https://arxiv.org/help/arxiv_identifier
- */
+/// Identifier for the arXiv. See https://arxiv.org/help/arxiv_identifier
+@AllowedToUseLogic("Uses StringUtil temporarily")
 public class ArXivIdentifier extends EprintIdentifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArXivIdentifier.class);
 
-    private static final String ARXIV_PREFIX = "http(s)?://arxiv.org/(abs|pdf)/|arxiv|arXiv";
+    private static final String ARXIV_PREFIX = "http(s)?://arxiv.org/(abs|html|pdf)/|arxiv|arXiv";
+    /// Optional trailing URL fragment/anchor (e.g. `#bib` in `https://arxiv.org/html/2510.26275v2#bib`).
+    private static final String OPTIONAL_FRAGMENT = "(#\\S*)?";
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?" + OPTIONAL_FRAGMENT);
+    private static final Pattern OLD_IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?" + OPTIONAL_FRAGMENT);
+
     private final String identifier;
     private final String classification;
     private final String version;
@@ -39,14 +44,12 @@ public class ArXivIdentifier extends EprintIdentifier {
 
     public static Optional<ArXivIdentifier> parse(String value) {
         String identifier = value.replace(" ", "");
-        Pattern identifierPattern = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?");
-        Matcher identifierMatcher = identifierPattern.matcher(identifier);
+        Matcher identifierMatcher = IDENTIFIER_PATTERN.matcher(identifier);
         if (identifierMatcher.matches()) {
             return getArXivIdentifier(identifierMatcher);
         }
 
-        Pattern oldIdentifierPattern = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?");
-        Matcher oldIdentifierMatcher = oldIdentifierPattern.matcher(identifier);
+        Matcher oldIdentifierMatcher = OLD_IDENTIFIER_PATTERN.matcher(identifier);
         if (oldIdentifierMatcher.matches()) {
             return getArXivIdentifier(oldIdentifierMatcher);
         }
@@ -75,14 +78,11 @@ public class ArXivIdentifier extends EprintIdentifier {
         }
     }
 
-    /**
-     * ArXiV articles are assigned DOIs automatically, which starts with a DOI prefix '10.48550/' followed by the ArXiV
-     * ID (replacing the colon with a period).
-     *<p>
-     * For more information:
-     * <a href="https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/">
-     *     new-arxiv-articles-are-now-automatically-assigned-dois</a>
-     * */
+    /// ArXiv articles are automatically assigned DOIs starting with the prefix
+    /// `10.48550/`, followed by the ArXiv ID (with the colon replaced by a period).
+    ///
+    /// More information:
+    /// [new-arxiv-articles-are-now-automatically-assigned-dois](https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/)
     public Optional<DOI> inferDOI() {
         if (StringUtil.isBlank(identifier)) {
             return Optional.empty();
@@ -138,5 +138,23 @@ public class ArXivIdentifier extends EprintIdentifier {
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
+    }
+
+    public static Optional<ArXivIdentifier> findInText(String text) {
+        if (StringUtil.isBlank(text)) {
+            return Optional.empty();
+        }
+
+        Optional<ArXivIdentifier> directParse = parse(text);
+        if (directParse.isPresent()) {
+            return directParse;
+        }
+
+        Matcher matcher = IDENTIFIER_PATTERN.matcher(text);
+        if (matcher.find()) {
+            return parse(matcher.group());
+        }
+
+        return Optional.empty();
     }
 }

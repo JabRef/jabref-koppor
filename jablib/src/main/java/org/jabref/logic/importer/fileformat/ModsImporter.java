@@ -4,13 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -36,21 +36,22 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
+import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
+import org.jabref.model.entry.types.StandardEntryType;
 
-import com.google.common.base.Joiner;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Importer for the MODS format.<br>
- * More details about the format can be found here <a href="http://www.loc.gov/standards/mods/">http://www.loc.gov/standards/mods/</a>. <br>
- * The newest xml schema can also be found here <a href="www.loc.gov/standards/mods/mods-schemas.html.">www.loc.gov/standards/mods/mods-schemas.html.</a>.
- */
+/// Importer for the MODS format.<br>
+/// More details about the format can be found here <a href="http://www.loc.gov/standards/mods/">http://www.loc.gov/standards/mods/</a>. <br>
+/// The newest xml schema can also be found here <a href="www.loc.gov/standards/mods/mods-schemas.html.">www.loc.gov/standards/mods/mods-schemas.html.</a>.
 public class ModsImporter extends Importer implements Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModsImporter.class);
-    private static final Pattern MODS_PATTERN = Pattern.compile("<mods .*>");
+    private static final Pattern MODS_PATTERN = Pattern.compile("<mods(?:\\s|>)");
 
     private final String keywordSeparator;
     private final XMLInputFactory xmlInputFactory;
@@ -58,21 +59,18 @@ public class ModsImporter extends Importer implements Parser {
     public ModsImporter(ImportFormatPreferences importFormatPreferences) {
         keywordSeparator = importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " ";
         xmlInputFactory = XMLInputFactory.newInstance();
-        // prevent xxe (https://rules.sonarsource.com/java/RSPEC-2755)
-        // Not supported by aalto-xml
-        // xmlInputFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        // xmlInputFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader input) throws IOException {
-        return input.lines().anyMatch(line -> MODS_PATTERN.matcher(line).find());
+    public boolean isRecognizedFormat(@NonNull Reader input) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(input);
+        return bufferedReader.lines().anyMatch(line -> MODS_PATTERN.matcher(line).find());
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader input) throws IOException {
-        Objects.requireNonNull(input);
-
+    public ParserResult importDatabase(@NonNull BufferedReader input) throws IOException {
         List<BibEntry> bibItems = new ArrayList<>();
         try {
             XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(input);
@@ -111,6 +109,7 @@ public class ModsImporter extends Importer implements Parser {
         List<String> notes = new ArrayList<>();
         List<String> keywords = new ArrayList<>();
         List<String> authors = new ArrayList<>();
+        TypeHints typeHints = new TypeHints();
 
         while (reader.hasNext()) {
             reader.next();
@@ -127,11 +126,19 @@ public class ModsImporter extends Importer implements Parser {
                     case "genre" -> {
                         reader.next();
                         if (isCharacterXMLEvent(reader)) {
-                            entry.setType(EntryTypeFactory.parse(mapGenre(reader.getText())));
+                            typeHints.mainGenres.add(reader.getText());
                         }
                     }
-                    case "language" -> parseLanguage(reader, fields);
-                    case "location" -> parseLocationAndUrl(reader, fields);
+                    case "typeOfResource" -> {
+                        reader.next();
+                        if (isCharacterXMLEvent(reader)) {
+                            typeHints.mainResource = reader.getText();
+                        }
+                    }
+                    case "language" ->
+                            parseLanguage(reader, fields);
+                    case "location" ->
+                            parseLocationAndUrl(reader, fields);
                     case "identifier" -> {
                         String type = reader.getAttributeValue(null, "type");
                         reader.next();
@@ -145,12 +152,18 @@ public class ModsImporter extends Importer implements Parser {
                             notes.add(reader.getText());
                         }
                     }
-                    case "recordInfo" -> parseRecordInfo(reader, fields);
-                    case "titleInfo" -> parseTitle(reader, fields);
-                    case "subject" -> parseSubject(reader, fields, keywords);
-                    case "originInfo" -> parseOriginInfo(reader, fields);
-                    case "name" -> parseName(reader, fields, authors);
-                    case "relatedItem" -> parseRelatedItem(reader, fields);
+                    case "recordInfo" ->
+                            parseRecordInfo(reader, fields);
+                    case "titleInfo" ->
+                            parseTitle(reader, fields);
+                    case "subject" ->
+                            parseSubject(reader, fields, keywords);
+                    case "originInfo" ->
+                            parseOriginInfo(reader, fields, typeHints, false);
+                    case "name" ->
+                            parseName(reader, fields, authors);
+                    case "relatedItem" ->
+                            parseRelatedItem(reader, fields, typeHints);
                 }
             }
 
@@ -162,15 +175,21 @@ public class ModsImporter extends Importer implements Parser {
         putIfListIsNotEmpty(fields, notes, StandardField.NOTE, ", ");
         putIfListIsNotEmpty(fields, keywords, StandardField.KEYWORDS, this.keywordSeparator);
         putIfListIsNotEmpty(fields, authors, StandardField.AUTHOR, " and ");
+
+        inferEntryType(typeHints)
+                .ifPresent(entry::setType);
+
+        putRelatedItemTitle(fields, typeHints, entry.getType());
     }
 
-    /**
-     * Parses information from the RelatedModsGroup. It has the same elements as ModsGroup.
-     * But information like volume, issue and the pages appear here instead of in the ModsGroup.
-     * Also, if there appears a title field, then this indicates that is the name of the journal
-     * which the article belongs to.
-     */
-    private void parseRelatedItem(XMLStreamReader reader, Map<Field, String> fields) throws XMLStreamException {
+    /// Parses information from the RelatedModsGroup. It has the same elements as ModsGroup.
+    /// But information like volume, issue and the pages appear here instead of in the ModsGroup.
+    /// Also, if there appears a title field, then this indicates that is the name of the journal
+    /// which the article belongs to.
+    private void parseRelatedItem(XMLStreamReader reader, Map<Field, String> fields, TypeHints typeHints) throws XMLStreamException {
+        String relatedItemType = reader.getAttributeValue(null, "type");
+        boolean hostRelatedItem = "host".equals(relatedItemType);
+
         while (reader.hasNext()) {
             reader.next();
             if (isStartXMLEvent(reader)) {
@@ -178,11 +197,25 @@ public class ModsImporter extends Importer implements Parser {
                     case "title" -> {
                         reader.next();
                         if (isCharacterXMLEvent(reader)) {
-                            putIfValueNotNull(fields, StandardField.JOURNAL, reader.getText());
+                            if (hostRelatedItem) {
+                                typeHints.hostTitle = reader.getText();
+                            } else {
+                                putIfValueNotNull(fields, StandardField.JOURNAL, reader.getText());
+                            }
                         }
                     }
-                    case "detail" -> handleDetail(reader, fields);
-                    case "extent" -> handleExtent(reader, fields);
+                    case "genre" -> {
+                        reader.next();
+                        if (hostRelatedItem && isCharacterXMLEvent(reader)) {
+                            typeHints.hostGenres.add(reader.getText());
+                        }
+                    }
+                    case "originInfo" ->
+                            parseOriginInfo(reader, fields, typeHints, hostRelatedItem);
+                    case "detail" ->
+                            handleDetail(reader, fields);
+                    case "extent" ->
+                            handleExtent(reader, fields);
                 }
             }
 
@@ -290,7 +323,7 @@ public class ModsImporter extends Importer implements Parser {
         handleAuthorsInNamePart(names, authors);
     }
 
-    private void parseOriginInfo(XMLStreamReader reader, Map<Field, String> fields) throws XMLStreamException {
+    private void parseOriginInfo(XMLStreamReader reader, Map<Field, String> fields, TypeHints typeHints, boolean hostOriginInfo) throws XMLStreamException {
         List<String> places = new ArrayList<>();
 
         while (reader.hasNext()) {
@@ -302,30 +335,37 @@ public class ModsImporter extends Importer implements Parser {
                     case "issuance" -> {
                         reader.next();
                         if (isCharacterXMLEvent(reader)) {
-                            putIfValueNotNull(fields, new UnknownField("issuance"), reader.getText());
+                            if (hostOriginInfo) {
+                                typeHints.hostIssuance = reader.getText();
+                            } else {
+                                typeHints.mainIssuance = reader.getText();
+                            }
                         }
                     }
                     case "placeTerm" -> {
                         reader.next();
-                        if (isCharacterXMLEvent(reader)) {
+                        if (!hostOriginInfo && isCharacterXMLEvent(reader)) {
                             appendIfValueNotNullOrBlank(places, reader.getText());
                         }
                     }
                     case "publisher" -> {
                         reader.next();
-                        if (isCharacterXMLEvent(reader)) {
+                        if (!hostOriginInfo && isCharacterXMLEvent(reader)) {
                             putIfValueNotNull(fields, StandardField.PUBLISHER, reader.getText());
                         }
                     }
                     case "edition" -> {
                         reader.next();
-                        if (isCharacterXMLEvent(reader)) {
+                        if (!hostOriginInfo && isCharacterXMLEvent(reader)) {
                             putIfValueNotNull(fields, StandardField.EDITION, reader.getText());
                         }
                     }
-                    case "dateIssued", "dateCreated", "dateCaptured", "dateModified" -> {
+                    case "dateIssued",
+                         "dateCreated",
+                         "dateCaptured",
+                         "dateModified" -> {
                         reader.next();
-                        if (isCharacterXMLEvent(reader)) {
+                        if (!hostOriginInfo && isCharacterXMLEvent(reader)) {
                             putDate(fields, elementName, reader.getText());
                         }
                     }
@@ -472,12 +512,100 @@ public class ModsImporter extends Importer implements Parser {
 
     private String mapGenre(String genre) {
         return switch (genre.toLowerCase(Locale.ROOT)) {
-            case "conference publication" -> "proceedings";
-            case "database" -> "dataset";
-            case "yearbook", "handbook" -> "book";
-            case "law report or digest", "technical report", "reporting" -> "report";
-            default -> genre;
+            case "academic journal",
+                 "article" ->
+                    "article";
+            case "book" ->
+                    "book";
+            case "conference publication" ->
+                    "proceedings";
+            case "database" ->
+                    "dataset";
+            case "yearbook",
+                 "handbook" ->
+                    "book";
+            case "law report or digest",
+                 "technical report",
+                 "reporting" ->
+                    "report";
+            default ->
+                    genre;
         };
+    }
+
+    private Optional<EntryType> inferEntryType(TypeHints typeHints) {
+        Optional<EntryType> explicitMainType = typeHints.mainGenres.stream()
+                                                                   .map(this::mapGenre)
+                                                                   .map(this::parseKnownEntryType)
+                                                                   .flatMap(Optional::stream)
+                                                                   .findFirst();
+        if (explicitMainType.isPresent()) {
+            return explicitMainType;
+        }
+
+        Optional<EntryType> hostType = inferHostEntryType(typeHints);
+        if (hostType.isPresent()) {
+            return hostType;
+        }
+
+        if ("text".equalsIgnoreCase(typeHints.mainResource) && "monographic".equalsIgnoreCase(typeHints.mainIssuance)) {
+            return Optional.of(StandardEntryType.Book);
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<EntryType> inferHostEntryType(TypeHints typeHints) {
+        if (typeHints.hostGenres.stream().anyMatch("conference publication"::equalsIgnoreCase)) {
+            return Optional.of(StandardEntryType.InProceedings);
+        }
+
+        if (typeHints.hostGenres.stream().anyMatch("book"::equalsIgnoreCase)
+                || ("text".equalsIgnoreCase(typeHints.mainResource) && "monographic".equalsIgnoreCase(typeHints.hostIssuance))) {
+            return Optional.of(StandardEntryType.InBook);
+        }
+
+        if (typeHints.hostGenres.stream().anyMatch("multivolume monograph"::equalsIgnoreCase)) {
+            return Optional.of(StandardEntryType.InCollection);
+        }
+
+        if (typeHints.hostGenres.stream().anyMatch(genre -> "periodical".equalsIgnoreCase(genre) || "academic journal".equalsIgnoreCase(genre))) {
+            return Optional.of(StandardEntryType.Article);
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<EntryType> parseKnownEntryType(String typeName) {
+        EntryType parsedType = EntryTypeFactory.parse(typeName);
+        if (parsedType instanceof StandardEntryType) {
+            return Optional.of(parsedType);
+        }
+
+        return Optional.empty();
+    }
+
+    private void putRelatedItemTitle(Map<Field, String> fields, TypeHints typeHints, EntryType entryType) {
+        if (typeHints.hostTitle == null) {
+            return;
+        }
+
+        if (StandardEntryType.InBook == entryType
+                || StandardEntryType.InCollection == entryType
+                || StandardEntryType.InProceedings == entryType) {
+            putIfValueNotNull(fields, StandardField.BOOKTITLE, typeHints.hostTitle);
+        } else {
+            putIfValueNotNull(fields, StandardField.JOURNAL, typeHints.hostTitle);
+        }
+    }
+
+    private static final class TypeHints {
+        private final List<String> mainGenres = new ArrayList<>();
+        private final List<String> hostGenres = new ArrayList<>();
+        private @Nullable String mainResource;
+        private @Nullable String mainIssuance;
+        private @Nullable String hostIssuance;
+        private @Nullable String hostTitle;
     }
 
     private void parseIdentifier(Map<Field, String> fields, Identifier identifier, BibEntry entry) {
@@ -499,20 +627,22 @@ public class ModsImporter extends Importer implements Parser {
                             .ifPresent(parsedDate -> fields.put(StandardField.DATE, parsedDate.getNormalized()));
 
                     optionalParsedDate.flatMap(Date::getYear)
-                            .ifPresent(year -> fields.put(StandardField.YEAR, year.toString()));
+                                      .ifPresent(year -> fields.put(StandardField.YEAR, year.toString()));
 
                     optionalParsedDate.flatMap(Date::getMonth)
-                            .ifPresent(month -> fields.put(StandardField.MONTH, month.getJabRefFormat()));
+                                      .ifPresent(month -> fields.put(StandardField.MONTH, month.getJabRefFormat()));
                 }
                 case "dateCreated" -> {
                     // If there was no year in date issued, then take the year from date created
-                    fields.computeIfAbsent(StandardField.YEAR, k -> date.substring(0, 4));
+                    fields.computeIfAbsent(StandardField.YEAR, _ -> date.substring(0, 4));
                     fields.put(new UnknownField("created"), date);
                 }
-                case "dateCaptured" -> optionalParsedDate
-                        .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
-                case "dateModified" -> optionalParsedDate
-                        .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
+                case "dateCaptured" ->
+                        optionalParsedDate
+                                .ifPresent(parsedDate -> fields.put(StandardField.CREATIONDATE, parsedDate.getNormalized()));
+                case "dateModified" ->
+                        optionalParsedDate
+                                .ifPresent(parsedDate -> fields.put(StandardField.MODIFICATIONDATE, parsedDate.getNormalized()));
             }
         }
     }
@@ -540,7 +670,7 @@ public class ModsImporter extends Importer implements Parser {
                 // we have to check if forename and family name are not empty in case it's the first author
                 if (!foreName.isEmpty() && !familyName.isEmpty()) {
                     // now set and add the old author
-                    author = familyName + ", " + Joiner.on(" ").join(foreName);
+                    author = familyName + ", " + String.join(" ", foreName);
                     authors.add(author);
                     // remove old forenames
                     foreName.clear();
@@ -555,7 +685,7 @@ public class ModsImporter extends Importer implements Parser {
 
         // last author is not added, so do it here
         if (!foreName.isEmpty() && !familyName.isEmpty()) {
-            author = familyName + ", " + Joiner.on(" ").join(foreName);
+            author = familyName + ", " + String.join(" ", foreName);
             authors.add(author.trim());
             foreName.clear();
         } else if (foreName.isEmpty() && !familyName.isEmpty()) {

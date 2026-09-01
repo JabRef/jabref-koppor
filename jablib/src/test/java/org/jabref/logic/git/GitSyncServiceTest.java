@@ -5,13 +5,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import org.jabref.logic.git.conflicts.GitConflictResolverStrategy;
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.io.GitFileReader;
-import org.jabref.logic.git.merge.GitSemanticMergeExecutor;
-import org.jabref.logic.git.merge.GitSemanticMergeExecutorImpl;
-import org.jabref.logic.git.model.PullResult;
+import org.jabref.logic.git.io.GitFileWriter;
+import org.jabref.logic.git.model.BookkeepingResult;
+import org.jabref.logic.git.model.PullPlan;
+import org.jabref.logic.git.model.PushResult;
+import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.git.util.NoopGitSystemReader;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -35,15 +38,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyAutoPlan;
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Execution(ExecutionMode.SAME_THREAD)
+@ResourceLock("git")
 class GitSyncServiceTest {
     private Path library;
 
@@ -58,7 +68,6 @@ class GitSyncServiceTest {
 
     private ImportFormatPreferences importFormatPreferences;
     private GitConflictResolverStrategy gitConflictResolverStrategy;
-    private GitSemanticMergeExecutor mergeExecutor;
     private BibDatabaseContext context;
     private GitHandlerRegistry gitHandlerRegistry;
 
@@ -74,29 +83,29 @@ class GitSyncServiceTest {
     // In the future, consider replacing with structured BibEntry construction
     // to improve semantic robustness and avoid syntax errors.
     private final String initialContent = """
-            @article{a,
-              author = {don't know the author},
-              doi = {xya},
-            }
+                @article{a,
+                  author = {don't know the author},
+                  doi = {xya},
+                }
 
-            @article{b,
-              author = {don't know the author},
-              doi = {xyz},
-            }
-        """;
+                @article{b,
+                  author = {don't know the author},
+                  doi = {xyz},
+                }
+            """;
 
     // Alice modifies a
     private final String aliceUpdatedContent = """
-            @article{a,
-              author = {author-a},
-              doi = {xya},
-            }
+                @article{a,
+                  author = {author-a},
+                  doi = {xya},
+                }
 
-            @article{b,
-              author = {don't know the author},
-              doi = {xyz},
-            }
-        """;
+                @article{b,
+                  author = {don't know the author},
+                  doi = {xyz},
+                }
+            """;
 
     // Bob reorders a and b
     private final String bobUpdatedContent = """
@@ -111,12 +120,10 @@ class GitSyncServiceTest {
             }
             """;
 
-    /**
-     * Creates a commit graph with a base commit, one modification by Alice and one modification by Bob
-     * 1. Alice commit initial → push to remote
-     * 2. Bob clone remote -> update b → push
-     * 3. Alice update a → pull
-     */
+    /// Creates a commit graph with a base commit, one modification by Alice and one modification by Bob
+    /// 1. Alice commit initial → push to remote
+    /// 2. Bob clone remote -> update b → push
+    /// 3. Alice update a → pull
     @BeforeEach
     void aliceBobSimple(@TempDir Path tempDir) throws Exception {
         SystemReader.setInstance(new NoopGitSystemReader());
@@ -125,16 +132,18 @@ class GitSyncServiceTest {
         when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
 
         gitConflictResolverStrategy = mock(GitConflictResolverStrategy.class);
-        mergeExecutor = new GitSemanticMergeExecutorImpl(importFormatPreferences);
-        gitHandlerRegistry = new GitHandlerRegistry();
+        GitPreferences gitPreferences = mock(GitPreferences.class);
+        when(gitPreferences.getUsername()).thenReturn("");
+        when(gitPreferences.getPat()).thenReturn("");
+        gitHandlerRegistry = new GitHandlerRegistry(gitPreferences);
 
         // create fake remote repo
         remoteDir = tempDir.resolve("remote.git");
         remoteGit = Git.init()
-                           .setBare(true)
-                           .setInitialBranch("main")
-                           .setDirectory(remoteDir.toFile())
-                           .call();
+                       .setBare(true)
+                       .setInitialBranch("main")
+                       .setDirectory(remoteDir.toFile())
+                       .call();
 
         // Alice init local repository
         aliceDir = tempDir.resolve("alice");
@@ -154,20 +163,20 @@ class GitSyncServiceTest {
                 .call();
 
         aliceGit.push()
-           .setRemote("origin")
-           .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
-           .call();
+                .setRemote("origin")
+                .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
+                .call();
 
         configureTracking(aliceGit, "main", "origin");
 
         // Bob clone remote
         bobDir = tempDir.resolve("bob");
         bobGit = Git.cloneRepository()
-                        .setURI(remoteDir.toUri().toString())
-                        .setDirectory(bobDir.toFile())
-                        .setBranchesToClone(List.of("refs/heads/main"))
-                        .setBranch("main")
-                        .call();
+                    .setURI(remoteDir.toUri().toString())
+                    .setDirectory(bobDir.toFile())
+                    .setBranchesToClone(List.of("refs/heads/main"))
+                    .setBranch("main")
+                    .call();
 
         Path bobLibrary = bobDir.resolve("library.bib");
         bobCommit = writeAndCommit(bobUpdatedContent, "Exchange a with b", bob, bobLibrary, bobGit);
@@ -207,93 +216,169 @@ class GitSyncServiceTest {
 
     @Test
     void pullTriggersSemanticMergeWhenNoConflicts() throws Exception {
-        GitSyncService syncService = new GitSyncService(importFormatPreferences, gitHandlerRegistry, gitConflictResolverStrategy, mergeExecutor);
-        PullResult result = syncService.fetchAndMerge(context, library);
+        GitSyncService syncService = GitSyncService.create(importFormatPreferences, gitHandlerRegistry);
+        Optional<PullPlan> pullPlan = syncService.prepareMerge(context, library);
 
-        assertTrue(result.isSuccessful());
+        assertEquals(List.of(), pullPlan.get().conflicts(), "Expected no conflicts");
+        assertFalse(pullPlan.get().autoPlan().isEmpty(), "Expected auto changes from remote");
+        assertFalse(pullPlan.get().isNoop(), "Should not be UP_TO_DATE");
+        assertFalse(pullPlan.get().isNoopAhead(), "Should not be AHEAD");
+
+        applyAutoPlan(context, pullPlan.get().autoPlan());
+        GitFileWriter.write(library, context, importFormatPreferences);
+        BookkeepingResult bookkeepingResult = syncService.finalizeMerge(library, pullPlan.orElse(null));
+
+        assertFalse(bookkeepingResult.isFastForward(), "DIVERGED without conflicts should produce a merge commit");
+        RevCommit head = aliceGit.log().setMaxCount(1).call().iterator().next();
+        assertEquals(2, head.getParentCount(), "Expected a two-parent merge commit");
+
         String merged = Files.readString(library);
 
         String expected = """
-        @article{a,
-          author = {author-a},
-          doi = {xya},
-        }
+                @article{a,
+                  author = {author-a},
+                  doi = {xya},
+                }
 
-        @article{b,
-          author = {author-b},
-          doi = {xyz},
-        }
-        """;
+                @article{b,
+                  author = {author-b},
+                  doi = {xyz},
+                }
+                """;
 
         assertEquals(normalize(expected), normalize(merged));
     }
 
     @Test
     void pushTriggersMergeAndPushWhenNoConflicts() throws Exception {
-        GitSyncService syncService = new GitSyncService(importFormatPreferences, gitHandlerRegistry, gitConflictResolverStrategy, mergeExecutor);
-        syncService.push(context, library);
+        GitSyncService syncService = GitSyncService.create(importFormatPreferences, gitHandlerRegistry);
+        Optional<PullPlan> pullPlan = syncService.prepareMerge(context, library);
 
+        assertFalse(pullPlan.get().isNoop(), "Should not be up to date");
+        assertFalse(pullPlan.get().isNoopAhead(), "Should not be ahead");
+        assertEquals(List.of(), pullPlan.get().conflicts(), "This case expects an auto-merge only");
+
+        applyAutoPlan(context, pullPlan.get().autoPlan());
+        GitFileWriter.write(library, context, importFormatPreferences);
+
+        BookkeepingResult bookkeepingResult = syncService.finalizeMerge(library, pullPlan.orElse(null));
+        assertEquals(BookkeepingResult.Kind.NEW_COMMIT, bookkeepingResult.kind(), "Expected bookkeeping to create a new commit");
+
+        PushResult pushResult = syncService.push(context, library);
+        assertEquals(new PushResult(true, false), pushResult, "Expected pushResult to indicate a successful push");
+
+        aliceGit.fetch().setRemote("origin").call();
         String pushedContent = GitFileReader
                 .readFileFromCommit(aliceGit, aliceGit.log().setMaxCount(1).call().iterator().next(), Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("Expected file 'library.bib' not found in commit"));
         String expected = """
-        @article{a,
-          author = {author-a},
-          doi = {xya},
-        }
+                @article{a,
+                  author = {author-a},
+                  doi = {xya},
+                }
 
-        @article{b,
-          author = {author-b},
-          doi = {xyz},
-        }
-        """;
+                @article{b,
+                  author = {author-b},
+                  doi = {xyz},
+                }
+                """;
 
         assertEquals(normalize(expected), normalize(pushedContent));
+        RevCommit head = aliceGit.log().setMaxCount(1).call().iterator().next();
+        assertEquals(2, head.getParentCount(), "Expected a two-parent merge commit");
+    }
+
+    @Test
+    void pushCreatesUpstreamForEmptyRemote(@TempDir Path tempDir) throws Exception {
+        Path emptyRemoteDirectory = tempDir.resolve("empty-remote.git");
+        Path localDirectory = tempDir.resolve("local");
+        Path localLibrary = localDirectory.resolve("library.bib");
+
+        try (Git emptyRemote = Git.init()
+                                  .setBare(true)
+                                  .setInitialBranch("main")
+                                  .setDirectory(emptyRemoteDirectory.toFile())
+                                  .call();
+             Git localGit = Git.init()
+                               .setInitialBranch("main")
+                               .setDirectory(localDirectory.toFile())
+                               .call()) {
+            RevCommit localCommit = writeAndCommit(initialContent, "Initial commit", alice, localLibrary, localGit);
+            localGit.remoteAdd()
+                    .setName("origin")
+                    .setUri(new URIish(emptyRemoteDirectory.toUri().toString()))
+                    .call();
+            localGit.getRepository().updateRef("refs/remotes/origin/main").link("refs/heads/main");
+
+            StoredConfig config = localGit.getRepository().getConfig();
+            config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, "main", ConfigConstants.CONFIG_KEY_REMOTE, "origin");
+            config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, "main", ConfigConstants.CONFIG_KEY_MERGE, Constants.R_HEADS + "main");
+            config.save();
+
+            GitPreferences gitPreferences = mock(GitPreferences.class);
+            when(gitPreferences.getUsername()).thenReturn("user");
+            when(gitPreferences.getPat()).thenReturn("personal-access-token");
+            GitHandlerRegistry emptyRemoteRegistry = new GitHandlerRegistry(gitPreferences);
+            GitSyncService syncService = GitSyncService.create(importFormatPreferences, emptyRemoteRegistry);
+
+            PushResult result = syncService.push(new BibDatabaseContext(), localLibrary);
+
+            assertEquals(PushResult.pushed(), result);
+            assertEquals(localCommit.getId(), emptyRemote.getRepository().resolve("refs/heads/main"));
+        }
     }
 
     @Test
     void mergeConflictOnSameFieldTriggersDialogAndUsesUserResolution() throws Exception {
+        GitSyncService syncService = GitSyncService.create(importFormatPreferences, gitHandlerRegistry);
+
         Path bobLibrary = bobDir.resolve("library.bib");
         String bobEntry = """
-              @article{b,
-              author = {author-b},
-              doi = {xyz},
-            }
+                      @article{b,
+                      author = {author-b},
+                      doi = {xyz},
+                    }
 
-            @article{a,
-              author = {don't know the author},
-              doi = {xya},
-            }
+                    @article{a,
+                      author = {don't know the author},
+                      doi = {xya},
+                    }
 
-            @article{c,
-              author = {bob-c},
-              title = {Title C},
-            }
-        """;
+                    @article{c,
+                      author = {bob-c},
+                      title = {Title C},
+                    }
+                """;
         writeAndCommit(bobEntry, "Bob adds article-c", bob, bobLibrary, bobGit);
         bobGit.push().setRemote("origin").call();
         String aliceEntry = """
-            @article{a,
-              author = {author-a},
-              doi = {xya},
-            }
+                    @article{a,
+                      author = {author-a},
+                      doi = {xya},
+                    }
 
-            @article{b,
-              author = {don't know the author},
-              doi = {xyz},
-            }
+                    @article{b,
+                      author = {don't know the author},
+                      doi = {xyz},
+                    }
 
-            @article{c,
-              author = {alice-c},
-              title = {Title C},
-            }
-        """;
+                    @article{c,
+                      author = {alice-c},
+                      title = {Title C},
+                    }
+                """;
         writeAndCommit(aliceEntry, "Alice adds conflicting article-c", alice, library, aliceGit);
         aliceGit.fetch().setRemote("origin").call();
 
         String actualContent = Files.readString(library);
         context = BibDatabaseContext.of(actualContent, importFormatPreferences);
 
+        Optional<PullPlan> pullPlan = syncService.prepareMerge(context, library);
+        assertFalse(pullPlan.get().isNoop(), "Should not be up to date");
+        assertFalse(pullPlan.get().isNoopAhead(), "Should not be ahead");
+        assertFalse(pullPlan.get().conflicts().isEmpty(), "This case expects a conflict");
+
+        applyAutoPlan(context, pullPlan.get().autoPlan());
         // Setup mock conflict resolver
         GitConflictResolverStrategy resolver = mock(GitConflictResolverStrategy.class);
         when(resolver.resolveConflicts(anyList())).thenAnswer(invocation -> {
@@ -306,18 +391,33 @@ class GitSyncServiceTest {
             return List.of(resolved);
         });
 
-        GitSyncService service = new GitSyncService(importFormatPreferences, gitHandlerRegistry, resolver, mergeExecutor);
-        PullResult result = service.fetchAndMerge(context, library);
-
-        assertTrue(result.isSuccessful());
-        List<BibEntry> merged = result.getMergedEntries();
-        BibEntry entryC = merged.stream()
-                                .filter(entry -> "c".equals(entry.getCitationKey().orElse("")))
-                                .findFirst()
-                                .orElseThrow(() -> new AssertionError("Entry 'c' not found in merged result"));
-
-        assertEquals("alice-c + bob-c", entryC.getField(StandardField.AUTHOR).orElse(""));
+        List<BibEntry> resolvedEntries = resolver.resolveConflicts(pullPlan.get().conflicts());
         verify(resolver).resolveConflicts(anyList());
+        applyResolved(context, resolvedEntries);
+
+        GitFileWriter.write(library, context, importFormatPreferences);
+        BookkeepingResult bookkeepingResult = syncService.finalizeMerge(library, pullPlan.orElse(null));
+        assertEquals(BookkeepingResult.Kind.NEW_COMMIT, bookkeepingResult.kind(), "Expected bookkeeping to create a new commit");
+
+        String mergedText = Files.readString(library);
+
+        String expectedMerged = """
+                    @article{a,
+                      author = {author-a},
+                      doi = {xya},
+                    }
+
+                    @article{b,
+                      author = {author-b},
+                      doi = {xyz},
+                    }
+
+                    @article{c,
+                      author = {alice-c + bob-c},
+                      title = {Title C},
+                    }
+                """;
+        assertEquals(normalize(expectedMerged), normalize(mergedText), "Merged content did not match expected result");
     }
 
     @Test

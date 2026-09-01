@@ -36,18 +36,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * Fetcher for <a href="https://isidore.science">ISIDORE</a>```
- * Will take in the link to the website or the last six digits that identify the reference
- * Uses <a href="https://isidore.science/api">ISIDORE's API</a>.
- */
+/// Fetcher for <a href="https://isidore.science">ISIDORE</a>```
+/// Will take in the link to the website or the last six digits that identify the reference
+/// Uses <a href="https://isidore.science/api">ISIDORE's API</a>.
 public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISIDOREFetcher.class);
 
     private static final String SOURCE_WEB_SEARCH = "https://api.isidore.science/resource/search";
-
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+    private static final String DISALLOW_DOCTYPE_DECLARATION = "http://apache.org/xml/features/disallow-doctype-decl";
 
     @Override
     public Parser getParser() {
@@ -66,7 +63,7 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
                 }
 
                 pushbackInputStream.unread(data);
-                DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+                DocumentBuilder builder = createDocumentBuilder();
                 Document document = builder.parse(pushbackInputStream);
 
                 // Assuming the root element represents an entry
@@ -82,8 +79,14 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
             } catch (ParserConfigurationException | IOException | SAXException e) {
                 Unchecked.throwChecked(new FetcherException("Issue with parsing link", e));
             }
-            return null;
+            return List.of();
         };
+    }
+
+    private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setFeature(DISALLOW_DOCTYPE_DECLARATION, true);
+        return documentBuilderFactory.newDocumentBuilder();
     }
 
     @Override
@@ -97,19 +100,33 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
         ISIDOREQueryTransformer queryTransformer = new ISIDOREQueryTransformer();
         String transformedQuery = queryTransformer.transformSearchQuery(queryNode).orElse("");
+        URIBuilder uriBuilder = new URIBuilder(buildSearchURL(transformedQuery, pageNumber).toURI());
+        queryTransformer.getParameterMap().forEach(uriBuilder::addParameter);
+
+        URL url = uriBuilder.build().toURL();
+        LOGGER.debug("URl for query {}", url);
+        return url;
+    }
+
+    @Override
+    public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(rawQuery, pageNumber);
+    }
+
+    /// Builds the search URL for the given query string
+    ///
+    /// The query is sent as the `q` parameter, so raw queries
+    /// bypass [ISIDOREQueryTransformer] and are passed unchanged to the catalog
+    private URL buildSearchURL(String query, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SOURCE_WEB_SEARCH);
-        uriBuilder.addParameter("q", transformedQuery);
+        uriBuilder.addParameter("q", query);
         if (pageNumber > 1) {
             uriBuilder.addParameter("page", String.valueOf(pageNumber));
         }
         uriBuilder.addParameter("replies", String.valueOf(getPageSize()));
         uriBuilder.addParameter("lang", "en");
         uriBuilder.addParameter("output", "xml");
-        queryTransformer.getParameterMap().forEach(uriBuilder::addParameter);
-
-        URL url = uriBuilder.build().toURL();
-        LOGGER.debug("URl for query {}", url);
-        return url;
+        return uriBuilder.build().toURL();
     }
 
     private List<BibEntry> parseXMl(Element element) {
@@ -147,10 +164,8 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
         return "";
     }
 
-    /**
-     * Get the type of the document, ISIDORE only seems to have select types, also their types are different to
-     * those used by JabRef.
-     */
+    /// Get the type of the document, ISIDORE only seems to have select types, also their types are different to
+    /// those used by JabRef.
     private EntryType getType(NodeList list) {
         for (int i = 0; i < list.getLength(); i++) {
             String type = list.item(i).getTextContent();
@@ -182,9 +197,7 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
         return stringJoiner.toString().substring(0, stringJoiner.length()).trim().replaceAll("\\s+", " ");
     }
 
-    /**
-     * Remove numbers from a string and everything after the number, (helps with the author field).
-     */
+    /// Remove numbers from a string and everything after the number, (helps with the author field).
     private String removeNumbers(String string) {
         for (int i = 0; i < string.length(); i++) {
             if (Character.isDigit(string.charAt(i))) {

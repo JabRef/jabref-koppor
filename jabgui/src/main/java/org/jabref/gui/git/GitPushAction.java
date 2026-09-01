@@ -10,11 +10,7 @@ import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
 import org.jabref.logic.git.GitSyncService;
-import org.jabref.logic.git.conflicts.GitConflictResolverStrategy;
-import org.jabref.logic.git.merge.GitSemanticMergeExecutor;
-import org.jabref.logic.git.merge.GitSemanticMergeExecutorImpl;
 import org.jabref.logic.git.model.PushResult;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.l10n.Localization;
@@ -22,26 +18,31 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GitPushAction extends SimpleCommand {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitPushAction.class);
+
     private final DialogService dialogService;
     private final StateManager stateManager;
     private final GuiPreferences guiPreferences;
     private final TaskExecutor taskExecutor;
+    private final GitHandlerRegistry gitHandlerRegistry;
 
     public GitPushAction(DialogService dialogService,
                          StateManager stateManager,
                          GuiPreferences guiPreferences,
-                         TaskExecutor taskExecutor) {
+                         TaskExecutor taskExecutor,
+                         GitHandlerRegistry handlerRegistry) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.guiPreferences = guiPreferences;
         this.taskExecutor = taskExecutor;
+        this.gitHandlerRegistry = handlerRegistry;
 
-        this.executable.bind(ActionHelper.needsDatabase(stateManager)
-                                         .and(ActionHelper.needsGitRemoteConfigured(stateManager)));
+        this.executable.bind(ActionHelper.needsGitRemoteConfigured(stateManager));
     }
 
     @Override
@@ -66,20 +67,21 @@ public class GitPushAction extends SimpleCommand {
         }
 
         Path bibFilePath = bibFilePathOpt.get();
+        LOGGER.info("Starting Git push for {}", bibFilePath);
 
-        GitHandlerRegistry registry = Injector.instantiateModelOrService(GitHandlerRegistry.class);
         GitStatusViewModel gitStatusViewModel =
-                GitStatusViewModel.fromPathAndContext(stateManager, taskExecutor, registry, bibFilePath);
+                GitStatusViewModel.fromPathAndContext(stateManager, taskExecutor, gitHandlerRegistry, bibFilePath);
 
         BackgroundTask
-                .wrap(() -> doPush(activeDatabase, bibFilePath, gitStatusViewModel, registry))
+                .wrap(() -> doPush(activeDatabase, bibFilePath, gitStatusViewModel, gitHandlerRegistry))
                 .onSuccess(result -> {
+                    LOGGER.info("Git push completed for {}. Successful: {}, no operation: {}", bibFilePath, result.successful(), result.noop());
                     if (result.noop()) {
                         dialogService.showInformationDialogAndWait(
                                 Localization.lang("Git Push"),
                                 Localization.lang("Nothing to push. Local branch is up to date.")
                         );
-                    } else if (result.isSuccessful()) {
+                    } else if (result.successful()) {
                         dialogService.showInformationDialogAndWait(
                                 Localization.lang("Git Push"),
                                 Localization.lang("Pushed successfully.")
@@ -94,53 +96,42 @@ public class GitPushAction extends SimpleCommand {
                               Path bibPath,
                               GitStatusViewModel gitStatusViewModel,
                               GitHandlerRegistry registry) throws IOException, GitAPIException, JabRefException {
-
-        GitSyncService syncService = buildSyncService(bibPath, registry);
-        GitHandler handler = registry.get(bibPath.getParent());
-        String user = guiPreferences.getGitPreferences().getUsername();
-        String pat = guiPreferences.getGitPreferences().getPat();
-        handler.setCredentials(user, pat);
-
+        GitSyncService syncService = GitSyncService.create(guiPreferences.getImportFormatPreferences(), registry);
         PushResult result = syncService.push(databaseContext, bibPath);
 
-        if (result.isSuccessful()) {
+        if (result.successful()) {
             gitStatusViewModel.refresh(bibPath);
         }
         return result;
     }
 
-    private GitSyncService buildSyncService(Path bibPath, GitHandlerRegistry handlerRegistry) throws JabRefException {
-        GitConflictResolverDialog dialog = new GitConflictResolverDialog(dialogService, guiPreferences);
-        GitConflictResolverStrategy resolver = new GuiGitConflictResolverStrategy(dialog);
-        GitSemanticMergeExecutor mergeExecutor = new GitSemanticMergeExecutorImpl(guiPreferences.getImportFormatPreferences());
-        return new GitSyncService(guiPreferences.getImportFormatPreferences(), handlerRegistry, resolver, mergeExecutor);
-    }
-
     private void showPushError(Throwable ex) {
-        if (ex instanceof JabRefException e) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Push Failed"),
-                    e.getLocalizedMessage(),
-                    e
-            );
-        } else if (ex instanceof GitAPIException e) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Push Failed"),
-                    Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()),
-                    e
-            );
-        } else if (ex instanceof IOException e) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Push Failed"),
-                    Localization.lang("I/O error: %0", e.getLocalizedMessage()),
-                    e
-            );
-        } else {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Push Failed"),
-                    Localization.lang("Unexpected error: %0", ex.getMessage()),
-                    ex
-            );
+        LOGGER.warn("Git push failed", ex);
+        switch (ex) {
+            case JabRefException e ->
+                    dialogService.showErrorDialogAndWait(
+                            Localization.lang("Git Push Failed"),
+                            e.getLocalizedMessage(),
+                            e
+                    );
+            case GitAPIException e ->
+                    dialogService.showErrorDialogAndWait(
+                            Localization.lang("Git Push Failed"),
+                            Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()),
+                            e
+                    );
+            case IOException e ->
+                    dialogService.showErrorDialogAndWait(
+                            Localization.lang("Git Push Failed"),
+                            Localization.lang("I/O error: %0", e.getLocalizedMessage()),
+                            e
+                    );
+            default ->
+                    dialogService.showErrorDialogAndWait(
+                            Localization.lang("Git Push Failed"),
+                            Localization.lang("Unexpected error: %0", ex.getMessage()),
+                            ex
+                    );
         }
     }
 }

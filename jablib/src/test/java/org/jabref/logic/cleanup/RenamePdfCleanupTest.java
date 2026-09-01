@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import org.jabref.logic.FilePreferences;
@@ -51,9 +52,7 @@ class RenamePdfCleanupTest {
         cleanup = new RenamePdfCleanup(false, () -> context, filePreferences);
     }
 
-    /**
-     * Test for #466
-     */
+    /// Test for #466
     @Test
     void cleanupRenamePdfRenamesFileEvenIfOnlyDifferenceIsCase() throws IOException {
         Path path = testFolder.resolve("toot.tmp");
@@ -90,10 +89,10 @@ class RenamePdfCleanupTest {
         cleanup.cleanup(entry);
 
         assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(
-                Arrays.asList(
-                        new LinkedFile("", Path.of(""), ""),
-                        new LinkedFile("", Path.of("Toot - test title.tmp"), ""),
-                        new LinkedFile("", Path.of(""), "")))),
+                        Arrays.asList(
+                                new LinkedFile("", Path.of(""), ""),
+                                new LinkedFile("", Path.of("Toot - test title.tmp"), ""),
+                                new LinkedFile("", Path.of(""), "")))),
                 entry.getField(StandardField.FILE));
     }
 
@@ -126,5 +125,23 @@ class RenamePdfCleanupTest {
 
         LinkedFile newFileField = new LinkedFile("", Path.of("Toot - test title.pdf"), "PDF");
         assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(newFileField)), entry.getField(StandardField.FILE));
+    }
+
+    @Test
+    void cleanupRenamePdfUsesMutationSchedulerForEntryUpdate() throws IOException {
+        Path path = testFolder.resolve("Toot.pdf");
+        Files.createFile(path);
+        entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(new LinkedFile("", path.toAbsolutePath(), "PDF")));
+        entry.setField(StandardField.TITLE, "test title");
+
+        when(filePreferences.getFileNamePattern()).thenReturn("[citationkey] - [fulltitle]");
+
+        AtomicBoolean schedulerUsed = new AtomicBoolean(false);
+        cleanup.cleanup(entry, mutation -> {
+            schedulerUsed.set(true);
+            mutation.run();
+        });
+
+        assertTrue(schedulerUsed.get());
     }
 }

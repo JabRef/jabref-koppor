@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,38 +15,36 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.importer.fileformat.BibliographyFromPdfImporter;
-import org.jabref.logic.importer.fileformat.PdfMergeMetadataImporter;
+import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.PdfUtils;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-import org.jabref.model.strings.StringUtil;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import static org.jabref.model.strings.StringUtil.isNullOrEmpty;
+import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
 
-/**
- * Parses data of the first page of the PDF and creates a BibTeX entry.
- * <p>
- * Currently, Springer, and IEEE formats are supported.
- * <p>
- * In case one wants to have a list of {@link BibEntry} matching the bibliography of a PDF,
- * please see {@link BibliographyFromPdfImporter}.
- * <p>
- * If several PDF importers should be tried, use {@link PdfMergeMetadataImporter}.
- */
+/// Parses data of the first page of the PDF and creates a BibTeX entry.
+///
+/// Currently, Springer, and IEEE formats are supported.
+///
+/// In case one wants to have a list of {@link BibEntry} matching the bibliography of a PDF,
+/// please see {@link RuleBasedBibliographyPdfImporter}.
+///
+/// If several PDF importers should be tried, use {@link PdfMergeMetadataImporter}.
 public class PdfContentImporter extends PdfImporter {
 
     private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile("\\d{4}");
@@ -61,15 +61,13 @@ public class PdfContentImporter extends PdfImporter {
 
     private String year;
 
-    /**
-     * Removes all non-letter characters at the end
-     * <p>
-     * EXCEPTION: a closing bracket is NOT removed
-     * </p>
-     * <p>
-     * TODO: Additionally replace multiple subsequent spaces by one space, which will cause a rename of this method
-     * </p>
-     */
+    /// Removes all non-letter characters at the end
+    ///
+    /// EXCEPTION: a closing bracket is NOT removed
+    ///
+    ///
+    /// TODO: Additionally replace multiple subsequent spaces by one space, which will cause a rename of this method
+    ///
     private String removeNonLettersAtEnd(String input) {
         String result = input.trim();
         if (result.isEmpty()) {
@@ -137,7 +135,9 @@ public class PdfContentImporter extends PdfImporter {
             boolean isFirst = true;
             int i = 0;
             res = "";
+            // @formatter:off
             do {
+                // @formatter:on
                 if (workedOnFirstOrMiddle) {
                     // last item was a first or a middle name
                     // we have to check whether we are on a middle name
@@ -186,13 +186,14 @@ public class PdfContentImporter extends PdfImporter {
         return removeNonLettersAtEnd(title);
     }
 
-    public List<BibEntry> importDatabase(Path filePath, PDDocument document) throws IOException {
+    @Override
+    public ParserResult importDatabase(Path filePath, PDDocument document) throws IOException {
         List<BibEntry> result = new ArrayList<>(1);
         String firstPageContents = PdfUtils.getFirstPageContents(document);
         Optional<String> titleByFontSize = extractTitleFromDocument(document);
         Optional<BibEntry> entry = getEntryFromPDFContent(firstPageContents, OS.NEWLINE, titleByFontSize);
         entry.ifPresent(result::add);
-        return result;
+        return new ParserResult(result);
     }
 
     private static Optional<String> extractTitleFromDocument(PDDocument document) throws IOException {
@@ -202,23 +203,26 @@ public class PdfContentImporter extends PdfImporter {
 
     private static class TitleExtractorByFontSize extends PDFTextStripper {
 
-        private final List<TextPosition> textPositionsList;
+        private final List<List<TextPosition>> textPositionsPerPage;
 
         public TitleExtractorByFontSize() {
             super();
-            this.textPositionsList = new ArrayList<>();
+            this.textPositionsPerPage = new ArrayList<>();
         }
 
         public Optional<String> getTitle(PDDocument document) throws IOException {
             this.setStartPage(1);
             this.setEndPage(2);
             this.writeText(document, new StringWriter());
-            return findLargestFontText(textPositionsList);
+            return findLargestFontText();
         }
 
         @Override
         protected void writeString(String text, List<TextPosition> textPositions) {
-            textPositionsList.addAll(textPositions);
+            while (textPositionsPerPage.size() < getCurrentPageNo()) {
+                textPositionsPerPage.add(new ArrayList<>());
+            }
+            textPositionsPerPage.get(getCurrentPageNo() - 1).addAll(textPositions);
         }
 
         private boolean isFarAway(TextPosition previous, TextPosition current) {
@@ -251,9 +255,31 @@ public class PdfContentImporter extends PdfImporter {
             return lastPositionMap.containsKey(fontSize) && isFarAway(lastPositionMap.get(fontSize), textPosition);
         }
 
-        private Optional<String> findLargestFontText(List<TextPosition> textPositions) {
+        @NullMarked
+        private record TitleCandidate(float fontSize, int pageIndex, String text) {
+        }
+
+        private Optional<String> findLargestFontText() {
+            List<TitleCandidate> candidates = new ArrayList<>();
+            for (int pageIndex = 0; pageIndex < textPositionsPerPage.size(); pageIndex++) {
+                collectCandidates(textPositionsPerPage.get(pageIndex), pageIndex, candidates);
+            }
+            // Candidates from all scanned pages compete on font size, so the real title on the page
+            // after a publisher/repository cover sheet still wins. Ties (e.g. figure labels that
+            // happen to use the title's font size) go to the earlier page instead of being
+            // concatenated across pages.
+            candidates.sort(Comparator.comparing(TitleCandidate::fontSize, Comparator.reverseOrder())
+                                      .thenComparing(TitleCandidate::pageIndex));
+            return candidates.stream()
+                             .map(TitleCandidate::text)
+                             .filter(this::isLegalTitle)
+                             .findFirst()
+                             .or(() -> candidates.stream().map(TitleCandidate::text).findFirst());
+        }
+
+        private void collectCandidates(List<TextPosition> textPositions, int pageIndex, List<TitleCandidate> candidates) {
             Map<Float, StringBuilder> fontSizeTextMap = new TreeMap<>(Collections.reverseOrder());
-            Map<Float, TextPosition> lastPositionMap = new TreeMap<>(Collections.reverseOrder());
+            Map<Float, TextPosition> lastPositionMap = new HashMap<>();
             TextPosition previousTextPosition = null;
             for (TextPosition textPosition : textPositions) {
                 float fontSize = textPosition.getFontSizeInPt();
@@ -270,12 +296,8 @@ public class PdfContentImporter extends PdfImporter {
                 previousTextPosition = textPosition;
             }
             for (Map.Entry<Float, StringBuilder> entry : fontSizeTextMap.entrySet()) {
-                String candidateText = entry.getValue().toString().trim();
-                if (isLegalTitle(candidateText)) {
-                    return Optional.of(candidateText);
-                }
+                candidates.add(new TitleCandidate(entry.getKey(), pageIndex, entry.getValue().toString().trim()));
             }
-            return fontSizeTextMap.values().stream().findFirst().map(StringBuilder::toString).map(String::trim);
         }
 
         private boolean isLegalTitle(String candidateText) {
@@ -284,42 +306,53 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         private boolean isThereSpace(TextPosition previous, TextPosition current) {
-            float XspaceThreshold = 1F;
-            float YspaceThreshold = previous.getFontSizeInPt();
-            float Xgap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
-            float Ygap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
-            return Math.abs(Xgap) > XspaceThreshold || Math.abs(Ygap) > YspaceThreshold;
+            float widthOfSpace = previous.getWidthOfSpace();
+            // The word-break threshold must scale with the rendered text: kerning adjustments
+            // exceed a fixed 1pt at title font sizes. A quarter of a space-glyph advance sits well
+            // between observed intra-word gaps (rounding and tracking stay below 0.02 space widths)
+            // and real word gaps (which shrink to 0.38 space widths in tightly set titles). The
+            // font size is only a fallback basis, because text drawn at "Tf 1" and blown up via
+            // the text matrix reports a bogus font size in pt.
+            float xSpaceThreshold = Float.isFinite(widthOfSpace) && widthOfSpace > 0
+                                    ? 0.25F * widthOfSpace
+                                    : 0.15F * previous.getFontSizeInPt();
+            float ySpaceThreshold = previous.getFontSizeInPt();
+            float xGap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
+            float yGap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
+            // A small negative X gap is a kerning adjustment — the glyph is drawn tighter than the
+            // previous glyph's advance width (e.g. "T" and "o" in TeX output), never a word
+            // boundary. Only a jump of several space widths back toward the margin (further than
+            // any kern or composed accent reaches) is a line break.
+            boolean isLineBreak = xGap < -12 * xSpaceThreshold;
+            return xGap > xSpaceThreshold || isLineBreak || Math.abs(yGap) > ySpaceThreshold;
         }
     }
 
-    /**
-     * Parses the first page content of a PDF document and extracts bibliographic information such as title, author,
-     * abstract, keywords, and other relevant metadata. This method processes the content line-by-line and uses
-     * custom parsing logic to identify and assemble information blocks from academic papers.
-     *
-     * idea: split[] contains the different lines, blocks are separated by empty lines, treat each block
-     *       or do special treatment at authors (which are not broken).
-     *       Therefore, we do a line-based and not a block-based splitting i points to the current line
-     *       curString (mostly) contains the current block,
-     *       the different lines are joined into one and thereby separated by " "
-     *
-     * <p> This method follows the structure typically found in academic paper PDFs:
-     * - First, it attempts to detect the title by font size, if available, or by text position.
-     * - Authors are then processed line-by-line until reaching the next section.
-     * - Abstract and keywords, if found, are extracted as they appear on the page.
-     * - Finally, conference details, DOI, and publication information are parsed from the lower blocks.
-     *
-     * <p> The parsing logic also identifies and categorizes entries based on keywords such as "Abstract" or "Keywords"
-     * and specific terms that denote sections. Additionally, this method can handle
-     * publisher-specific formats like Springer or IEEE, extracting data like series, volume, and conference titles.
-     *
-     * @param firstpageContents The raw content of the PDF's first page, which may contain metadata and main content.
-     * @param lineSeparator     The line separator used to format and unify line breaks in the text content.
-     * @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the
-     *                          default title parsing.
-     * @return An {@link Optional} containing a {@link BibEntry} with the parsed bibliographic data if extraction
-     *         is successful. Otherwise, an empty {@link Optional}.
-     */
+    /// Parses the first page content of a PDF document and extracts bibliographic information such as title, author,
+    /// abstract, keywords, and other relevant metadata. This method processes the content line-by-line and uses
+    /// custom parsing logic to identify and assemble information blocks from academic papers.
+    ///
+    /// idea: split[] contains the different lines, blocks are separated by empty lines, treat each block
+    /// or do special treatment at authors (which are not broken).
+    /// Therefore, we do a line-based and not a block-based splitting i points to the current line
+    /// curString (mostly) contains the current block,
+    /// the different lines are joined into one and thereby separated by " "
+    ///
+    /// This method follows the structure typically found in academic paper PDFs:
+    /// - First, it attempts to detect the title by font size, if available, or by text position.
+    /// - Authors are then processed line-by-line until reaching the next section.
+    /// - Abstract and keywords, if found, are extracted as they appear on the page.
+    /// - Finally, conference details, DOI, and publication information are parsed from the lower blocks.
+    ///
+    /// The parsing logic also identifies and categorizes entries based on keywords such as "Abstract" or "Keywords"
+    /// and specific terms that denote sections. Additionally, this method can handle
+    /// publisher-specific formats like Springer or IEEE, extracting data like series, volume, and conference titles.
+    ///
+    /// @param firstpageContents The raw content of the PDF's first page, which may contain metadata and main content.
+    /// @param lineSeparator     The line separator used to format and unify line breaks in the text content.
+    /// @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the default title parsing.
+    /// @return An [Optional] containing a [BibEntry] with the parsed bibliographic data if extraction
+    /// is successful. Otherwise, an empty [Optional].
     @VisibleForTesting
     Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
         String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(firstpageContents, lineSeparator);
@@ -338,7 +371,7 @@ public class PdfContentImporter extends PdfImporter {
         // we start at the current line
         curString = lines[lineIndex];
         // i might get incremented later and curString modified, too
-        lineIndex = lineIndex + 1;
+        lineIndex++;
 
         String author;
         String editor = null;
@@ -602,9 +635,7 @@ public class PdfContentImporter extends PdfImporter {
         return arXivId;
     }
 
-    /**
-     * Extract the year out of curString (if it is not yet defined)
-     */
+    /// Extract the year out of curString (if it is not yet defined)
     private void extractYear() {
         if (year != null) {
             return;
@@ -616,27 +647,23 @@ public class PdfContentImporter extends PdfImporter {
         }
     }
 
-    /**
-     * PDFTextStripper normally does NOT produce multiple empty lines
-     * (besides at strange PDFs). These strange PDFs are handled here:
-     * proceed to next non-empty line
-     */
+    /// PDFTextStripper normally does NOT produce multiple empty lines
+    /// (besides at strange PDFs). These strange PDFs are handled here:
+    /// proceed to next non-empty line
     private void proceedToNextNonEmptyLine() {
-        while ((lineIndex < lines.length) && lines[lineIndex].trim().isEmpty()) {
+        while ((lineIndex < lines.length) && lines[lineIndex].isBlank()) {
             lineIndex++;
         }
     }
 
-    /**
-     * Fill curString with lines until "" is found
-     * No trailing space is added
-     * i is advanced to the next non-empty line (ignoring white space)
-     * <p>
-     * Lines containing only white spaces are ignored,
-     * but NOT considered as ""
-     * <p>
-     * Uses GLOBAL variables lines, curLine, i
-     */
+    /// Fill curString with lines until "" is found
+    /// No trailing space is added
+    /// i is advanced to the next non-empty line (ignoring white space)
+    ///
+    /// Lines containing only white spaces are ignored,
+    /// but NOT considered as ""
+    ///
+    /// Uses GLOBAL variables lines, curLine, i
     private void fillCurStringWithNonEmptyLines() {
         // ensure that curString does not end with " "
         curString = curString.trim();
@@ -655,15 +682,13 @@ public class PdfContentImporter extends PdfImporter {
         proceedToNextNonEmptyLine();
     }
 
-    /**
-     * resets curString
-     * curString now contains the last block (until "" reached)
-     * Trailing space is added
-     * <p>
-     * invariant before/after: i points to line before the last handled block
-     */
+    /// resets curString
+    /// curString now contains the last block (until "" reached)
+    /// Trailing space is added
+    ///
+    /// invariant before/after: i points to line before the last handled block
     private void readLastBlock() {
-        while ((lineIndex >= 0) && lines[lineIndex].trim().isEmpty()) {
+        while ((lineIndex >= 0) && lines[lineIndex].isBlank()) {
             lineIndex--;
         }
         // i is now at the end of a block

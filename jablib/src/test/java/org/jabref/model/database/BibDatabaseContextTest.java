@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
@@ -118,6 +119,17 @@ class BibDatabaseContextTest {
     }
 
     @Test
+    void getUserFileDirectoryIfAllAreEmpty() {
+        when(fileDirPrefs.shouldStoreFilesRelativeToBibFile()).thenReturn(false);
+        Path userDirJabRef = Directories.getUserDirectory();
+
+        when(fileDirPrefs.getMainFileDirectory()).thenReturn(Optional.of(userDirJabRef));
+        BibDatabaseContext database = new BibDatabaseContext();
+        database.setDatabasePath(Path.of("biblio.bib"));
+        assertEquals(List.of(userDirJabRef), database.getFileDirectories(fileDirPrefs));
+    }
+
+    @Test
     void typeBasedOnDefaultBiblatex() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(), new MetaData());
         assertEquals(BibDatabaseMode.BIBLATEX, bibDatabaseContext.getMode());
@@ -174,12 +186,12 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStringCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+                @article{Alice2023,
+                    author = {Alice},
+                    title = {Test Title},
+                    year = {2023}
+                }
+                """;
 
         BibDatabaseContext context = BibDatabaseContext.of(bibContent, importPrefs);
         BibEntry expected = new BibEntry(StandardEntryType.Article)
@@ -194,12 +206,12 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStreamCorrectly() throws Exception {
         String bibContent = """
-        @article{Alice2023,
-            author = {Alice},
-            title = {Test Title},
-            year = {2023}
-        }
-        """;
+                @article{Alice2023,
+                    author = {Alice},
+                    title = {Test Title},
+                    year = {2023}
+                }
+                """;
 
         try (InputStream bibContentStream = new ByteArrayInputStream(bibContent.getBytes(StandardCharsets.UTF_8))) {
             BibDatabaseContext context = BibDatabaseContext.of(bibContentStream, importPrefs);

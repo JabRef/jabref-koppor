@@ -2,11 +2,11 @@ package org.jabref.logic.importer.fileformat;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.net.InetAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import org.jabref.logic.citationkeypattern.AbstractCitationKeyPatterns;
 import org.jabref.logic.citationkeypattern.DatabaseCitationKeyPatterns;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
-import org.jabref.logic.cleanup.FieldFormatterCleanups;
+import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
 import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.formatter.bibtexfields.EscapeAmpersandsFormatter;
 import org.jabref.logic.formatter.bibtexfields.EscapeDollarSignFormatter;
@@ -44,6 +44,7 @@ import org.jabref.model.entry.Season;
 import org.jabref.model.entry.field.BibField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldPriority;
+import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.StandardField;
@@ -63,8 +64,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,12 +77,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for reading whole bib files can be found at {@link org.jabref.logic.importer.fileformat.BibtexImporterTest}
- * <p>
- * Tests cannot be executed concurrently, because Localization is used at {@link BibtexParser#parseAndAddEntry(String)}
- */
+/// Tests for reading whole bib files can be found at {@link org.jabref.logic.importer.fileformat.BibtexImporterTest}
+///
+/// Tests cannot be executed concurrently, because Localization is used at {@link BibtexParser#parseAndAddEntry(String)}
 @SuppressWarnings("checkstyle:NoMultipleClosingBracesAtEndOfLine")
+@ResourceLock("Localization.lang")
 class BibtexParserTest {
     private static final String BIB_DESK_ROOT_GROUP_NAME = "BibDeskGroups";
     private ImportFormatPreferences importFormatPreferences;
@@ -488,9 +490,7 @@ class BibtexParserTest {
         );
     }
 
-    /**
-     * JabRef's heuristics is not able to parse this special case.
-     */
+    /// JabRef's heuristics is not able to parse this special case.
     @Test
     void parseFailsWithFinalSlashAsSlashWhenSingleLine() throws IOException {
         ParserResult parserResult = parser.parse(Reader.of("@misc{, test = {wired\\}}"));
@@ -1059,9 +1059,7 @@ class BibtexParserTest {
         assertEquals(Optional.of("H'{e}lne Fiaux"), parsedEntry.getField(StandardField.AUTHOR));
     }
 
-    /**
-     * Test for <a href="https://github.com/JabRef/jabref/issues/669">#669</a>
-     */
+    /// Test for <a href="https://github.com/JabRef/jabref/issues/669">#669</a>
     @Test
     void parsePreambleAndEntryWithoutNewLine() throws IOException {
         ParserResult result = parser
@@ -1217,7 +1215,7 @@ class BibtexParserTest {
 
                         @comment{jabref-meta: saveActions:enabled;title[lower_case]}"""));
 
-        FieldFormatterCleanups saveActions = parserResult.getMetaData().getSaveActions().get();
+        FieldFormatterCleanupActions saveActions = parserResult.getMetaData().getSaveActions().get();
 
         assertTrue(saveActions.isEnabled());
         assertEquals(List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())),
@@ -1250,7 +1248,7 @@ class BibtexParserTest {
                         ;}
                         """));
 
-        FieldFormatterCleanups saveActions = parserResult.getMetaData().getSaveActions().get();
+        FieldFormatterCleanupActions saveActions = parserResult.getMetaData().getSaveActions().get();
 
         assertTrue(saveActions.isEnabled());
 
@@ -1307,7 +1305,7 @@ class BibtexParserTest {
         ParserResult parserResult = parser
                 .parse(Reader.of("@comment{jabref-meta: saveActions:enabled;title[lower_case]}"));
 
-        FieldFormatterCleanups saveActions = parserResult.getMetaData().getSaveActions().get();
+        FieldFormatterCleanupActions saveActions = parserResult.getMetaData().getSaveActions().get();
 
         assertTrue(saveActions.isEnabled());
         assertEquals(List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())),
@@ -1332,6 +1330,63 @@ class BibtexParserTest {
                 ));
 
         assertEquals(Set.of(expectedEntryType), result.getEntryTypes());
+    }
+
+    @Test
+    void integrationTestBibEntryTypeReadV2First() throws IOException {
+        ParserResult result = parser.parse(
+                Reader.of("@comment{jabref-entrytype-v2: Customtype: req[title] opt[customfield|VERBATIM]}" + OS.NEWLINE
+                        + "@comment{jabref-entrytype: Customtype: req[title] opt[customfield]}"));
+
+        assertEquals(1, result.getEntryTypes().size());
+        BibEntryType entryType = result.getEntryTypes().iterator().next();
+        Optional<Field> customField = entryType.getOptionalFields().stream()
+                                               .map(BibField::field)
+                                               .filter(field -> "customfield".equalsIgnoreCase(field.getName()))
+                                               .findFirst();
+        assertTrue(customField.isPresent());
+        assertTrue(customField.get().getProperties().contains(FieldProperty.VERBATIM));
+    }
+
+    @Test
+    void integrationTestBibEntryTypeReadV1First() throws IOException {
+        ParserResult result = parser.parse(
+                Reader.of("@comment{jabref-entrytype: Customtype: req[title] opt[customfield]}" + OS.NEWLINE
+                        + "@comment{jabref-entrytype-v2: Customtype: req[title] opt[customfield|VERBATIM]}"));
+
+        assertEquals(1, result.getEntryTypes().size());
+        BibEntryType entryType = result.getEntryTypes().iterator().next();
+        Optional<Field> customField = entryType.getOptionalFields().stream()
+                                               .map(BibField::field)
+                                               .filter(field -> "customfield".equalsIgnoreCase(field.getName()))
+                                               .findFirst();
+        assertEquals(Optional.of(EnumSet.of(FieldProperty.VERBATIM)), customField.map(Field::getProperties));
+    }
+
+    @Test
+    void integrationTestBibEntryTypeV2WithProperties() throws IOException {
+        ParserResult result = parser.parse(
+                Reader.of("@Comment{jabref-entrytype-v2: person: req[Name|PERSON_NAMES] opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]}"));
+
+        assertEquals(1, result.getEntryTypes().size());
+        BibEntryType entryType = result.getEntryTypes().iterator().next();
+
+        Optional<Field> requiredName = entryType.getRequiredFields().stream()
+                                                .flatMap(orFields -> orFields.getFields().stream())
+                                                .filter(field -> "name".equalsIgnoreCase(field.getName()))
+                                                .findFirst();
+        assertEquals(Optional.of(EnumSet.of(FieldProperty.PERSON_NAMES)), requiredName.map(Field::getProperties));
+
+        Optional<Field> googleScholar = entryType.getOptionalFields().stream()
+                                                 .map(BibField::field)
+                                                 .filter(field -> "googlescholar".equalsIgnoreCase(field.getName()))
+                                                 .findFirst();
+        Optional<Field> orcid = entryType.getOptionalFields().stream()
+                                         .map(BibField::field)
+                                         .filter(field -> "orcid".equalsIgnoreCase(field.getName()))
+                                         .findFirst();
+        assertEquals(Optional.of(EnumSet.of(FieldProperty.EXTERNAL)), googleScholar.map(Field::getProperties));
+        assertEquals(Optional.of(EnumSet.of(FieldProperty.EXTERNAL)), orcid.map(Field::getProperties));
     }
 
     @Test
@@ -1398,9 +1453,7 @@ class BibtexParserTest {
                 ((ExplicitGroup) root.getChildren().get(2).getGroup()).getLegacyEntryKeys());
     }
 
-    /**
-     * Checks that BibDesk Static Groups are available after parsing the library
-     */
+    /// Checks that BibDesk Static Groups are available after parsing the library
     @Test
     void integrationTestBibDeskStaticGroup() throws IOException {
         ParserResult result = parser.parse(Reader.of("""
@@ -1469,9 +1522,7 @@ class BibtexParserTest {
         assertEquals(List.of(root.getGroup(), firstTestGroupExpected), root.getContainingGroups(db.getEntryByCitationKey("Heyl:2023aa").stream().toList(), false).stream().map(GroupTreeNode::getGroup).toList());
     }
 
-    /**
-     * Checks that BibDesk Smart Groups are available after parsing the library
-     */
+    /// Checks that BibDesk Smart Groups are available after parsing the library
     @Test
     @Disabled("Not yet supported")
     void integrationTestBibDeskSmartGroup() throws IOException {
@@ -1588,9 +1639,7 @@ class BibtexParserTest {
         assertFalse(root.getChildren().get(1).getGroup().contains(db.getEntryByCitationKey("Swain:2023aa").get()));
     }
 
-    /**
-     * Checks that both BibDesk Static Groups and Smart Groups are available after parsing the library
-     */
+    /// Checks that both BibDesk Static Groups and Smart Groups are available after parsing the library
     @Test
     @Disabled("Not yet supported")
     void integrationTestBibDeskMultipleGroup() throws IOException {
@@ -1703,11 +1752,10 @@ class BibtexParserTest {
         assertTrue(root.getChildren().getFirst().getGroup().containsAll(smartGroupEntriesExpected));
     }
 
-    /**
-     * Checks that a TexGroup finally gets the required data, after parsing the library.
-     */
+    /// Checks that a TexGroup finally gets the required data, after parsing the library.
     @Test
     void integrationTestTexGroup() throws IOException {
+        String userHostInfo = OS.getUserHostInfo().getUserHostString();
         ParserResult result = parser.parse(Reader.of(
                 "@comment{jabref-meta: grouping:" + OS.NEWLINE
                         + "0 AllEntriesGroup:;" + OS.NEWLINE
@@ -1716,19 +1764,16 @@ class BibtexParserTest {
                         + "@Comment{jabref-meta: databaseType:biblatex;}" + OS.NEWLINE
                         + "@Comment{jabref-meta: fileDirectory:src/test/resources/org/jabref/model/groups;}" + OS.NEWLINE
                         + "@Comment{jabref-meta: fileDirectory-"
-                        + System.getProperty("user.name") + "-"
-                        + InetAddress.getLocalHost().getHostName()
+                        + userHostInfo
                         + ":src/test/resources/org/jabref/model/groups;}" + OS.NEWLINE
                         + "@Comment{jabref-meta: fileDirectoryLatex-"
-                        + System.getProperty("user.name") + "-"
-                        + InetAddress.getLocalHost().getHostName()
+                        + userHostInfo
                         + ":src/test/resources/org/jabref/model/groups;}" + OS.NEWLINE
         ));
 
         GroupTreeNode root = result.getMetaData().getGroups().get();
 
-        assertEquals(((TexGroup) root.getChildren().getFirst().getGroup()).getFilePath(),
-                Path.of("src/test/resources/org/jabref/model/groups/paper.aux"));
+        assertEquals(Path.of("paper.aux"), ((TexGroup) root.getChildren().getFirst().getGroup()).getFilePath());
     }
 
     @Test
@@ -1824,7 +1869,7 @@ class BibtexParserTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
+    @ValueSource(strings = {
             // single backslash kept
             "C:\\temp\\test",
             "\\\\servername\\path\\to\\file",

@@ -12,6 +12,17 @@ public class CopyToPreferences {
         this.shouldAskForIncludingCrossReferences.set(shouldAskForIncludingCrossReferences);
     }
 
+    private CopyToPreferences() {
+        this(
+                true, // shouldAskForIncludingCrossReferences
+                false // shouldIncludeCrossReferences
+        );
+    }
+
+    public static CopyToPreferences getDefault() {
+        return new CopyToPreferences();
+    }
+
     public boolean getShouldIncludeCrossReferences() {
         return shouldIncludeCrossReferences.get();
     }

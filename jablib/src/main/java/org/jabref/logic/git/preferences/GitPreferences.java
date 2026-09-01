@@ -5,8 +5,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class GitPreferences {
     private final StringProperty username;
     private final StringProperty pat;
@@ -23,7 +24,21 @@ public class GitPreferences {
         this.rememberPat = new SimpleBooleanProperty(rememberPat);
     }
 
-    public void setUsername(@NonNull String username) {
+    // Creates object with default preference values
+    private GitPreferences() {
+        this(
+                "",     // username: GitHub username
+                "",     // pat: GitHub personal access token (stored in keyring when rememberPat is enabled)
+                "",     // repositoryUrl: URL of the remote repository
+                false   // rememberPat: Whether the PAT should be persisted in the keyring
+        );
+    }
+
+    public static GitPreferences getDefault() {
+        return new GitPreferences();
+    }
+
+    public void setUsername(String username) {
         this.username.set(username);
     }
 
@@ -31,7 +46,7 @@ public class GitPreferences {
         return username.get();
     }
 
-    public void setPat(@NonNull String pat) {
+    public void setPat(String pat) {
         this.pat.set(pat);
     }
 
@@ -43,15 +58,15 @@ public class GitPreferences {
         return repositoryUrl.get();
     }
 
-    public void setRepositoryUrl(@NonNull String repositoryUrl) {
+    public void setRepositoryUrl(String repositoryUrl) {
         this.repositoryUrl.set(repositoryUrl);
     }
 
-    public boolean getRememberPat() {
+    public boolean getPersistPat() {
         return this.rememberPat.get();
     }
 
-    public void setRememberPat(boolean remember) {
+    public void setPersistPat(boolean remember) {
         this.rememberPat.set(remember);
     }
 

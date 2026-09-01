@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.jabref.model.strings.StringUtil;
+import org.jabref.logic.util.strings.StringUtil;
+import org.jabref.model.metadata.UserHostInfo;
 
 import com.github.javakeyring.BackendNotSupportedException;
 import com.github.javakeyring.Keyring;
@@ -20,9 +21,7 @@ import mslinks.ShellLinkException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * For GUI-specific things, see `jabref.gui.desktop.os.NativeDesktop`
- */
+/// For GUI-specific things, see `jabref.gui.desktop.os.NativeDesktop`
 public class OS {
     // No LOGGER may be initialized directly
     // Otherwise, org.jabref.Launcher.addLogToDisk will fail, because tinylog's properties are frozen
@@ -41,7 +40,15 @@ public class OS {
 
     private static final String DEFAULT_EXECUTABLE_EXTENSION = ".exe";
 
-    public static String getHostName() {
+    public static UserHostInfo getUserHostInfo() {
+        return new UserHostInfo(System.getProperty("user.name"), getHostName());
+    }
+
+    public static UserHostInfo getUserHostInfo(String customOwner) {
+        return new UserHostInfo(customOwner, getHostName());
+    }
+
+    private static String getHostName() {
         String hostName;
         // Following code inspired by https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/SystemUtils.html#getHostName--
         // See also https://stackoverflow.com/a/20793241/873282
@@ -91,7 +98,7 @@ public class OS {
                     ShellLink link = new ShellLink(texworksLinkPath);
                     return link.resolveTarget();
                 } catch (IOException |
-                        ShellLinkException e) {
+                         ShellLinkException e) {
                     // Static logger instance cannot be used. See the class comment.
                     Logger logger = LoggerFactory.getLogger(OS.class);
                     logger.warn("Error while reading .lnk file for TeXworks", e);

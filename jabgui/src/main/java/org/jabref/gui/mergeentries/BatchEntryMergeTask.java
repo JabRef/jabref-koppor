@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import javax.swing.undo.UndoManager;
 
-import org.jabref.gui.undo.NamedCompound;
+import org.jabref.gui.undo.NamedCompoundEdit;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.importer.fetcher.MergingIdBasedFetcher;
 import org.jabref.logic.l10n.Localization;
@@ -24,11 +24,12 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchEntryMergeTask.class);
 
-    private final NamedCompound compoundEdit;
+    private final NamedCompoundEdit compoundEdit;
     private final List<BibEntry> entries;
     private final MergingIdBasedFetcher fetcher;
     private final UndoManager undoManager;
     private final NotificationService notificationService;
+    private final char keywordSeparator;
 
     private int processedEntries;
     private int successfulUpdates;
@@ -36,13 +37,15 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
     public BatchEntryMergeTask(List<BibEntry> entries,
                                MergingIdBasedFetcher fetcher,
                                UndoManager undoManager,
-                               NotificationService notificationService) {
+                               NotificationService notificationService,
+                               char keywordSeparator) {
         this.entries = entries;
         this.fetcher = fetcher;
         this.undoManager = undoManager;
         this.notificationService = notificationService;
+        this.keywordSeparator = keywordSeparator;
 
-        this.compoundEdit = new NamedCompound(Localization.lang("Merge entries"));
+        this.compoundEdit = new NamedCompoundEdit(Localization.lang("Merge entries"));
         this.processedEntries = 0;
         this.successfulUpdates = 0;
 
@@ -53,24 +56,24 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     @Override
     public Void call() {
-            if (isCancelled()) {
-                notifyCancellation();
-                return null;
-            }
-
-            List<String> updatedEntries = processMergeEntries();
-
-            if (isCancelled()) {
-                notifyCancellation();
-                updateUndoManager(updatedEntries);
-                return null;
-            }
-
-            updateUndoManager(updatedEntries);
-            LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}",
-                    processedEntries, successfulUpdates);
-            notifySuccess(successfulUpdates);
+        if (isCancelled()) {
+            notifyCancellation();
             return null;
+        }
+
+        List<String> updatedEntries = processMergeEntries();
+
+        if (isCancelled()) {
+            notifyCancellation();
+            updateUndoManager(updatedEntries);
+            return null;
+        }
+
+        updateUndoManager(updatedEntries);
+        LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}",
+                processedEntries, successfulUpdates);
+        notifySuccess(successfulUpdates);
+        return null;
     }
 
     private void notifyCancellation() {
@@ -107,7 +110,7 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
         return fetcher.fetchEntry(entry)
                       .filter(MergingIdBasedFetcher.FetcherResult::hasChanges)
                       .flatMap(result -> {
-                          boolean changesApplied = MergeEntriesHelper.mergeEntries(result.mergedEntry(), entry, compoundEdit);
+                          boolean changesApplied = MergeEntriesHelper.mergeEntries(result.mergedEntry(), entry, compoundEdit, keywordSeparator);
                           if (changesApplied) {
                               successfulUpdates++;
                               return entry.getCitationKey();
@@ -125,8 +128,8 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     private void notifySuccess(int updateCount) {
         String message = updateCount == 0
-                ? Localization.lang("No updates found.")
-                : Localization.lang("Batch update successful. %0 entry(s) updated.", updateCount);
+                         ? Localization.lang("No updates found.")
+                         : Localization.lang("Batch update successful. %0 entry(s) updated.", updateCount);
         notificationService.notify(message);
     }
 }

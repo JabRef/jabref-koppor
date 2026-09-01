@@ -1,10 +1,8 @@
 package org.jabref.logic.help;
 
-/**
- * This enum globally defines all help pages with the name of the markdown file in the help repository at Github.
- *
- * @see <a href="https://github.com/JabRef/user-documentation">user-documentation@github</a>
- */
+/// This enum globally defines all help pages with the name of the markdown file in the help repository at Github.
+///
+/// @see <a href="https://github.com/JabRef/user-documentation">user-documentation@github</a>
 public enum HelpFile {
     // empty string denotes that it refers to the TOC/index
     CONTENTS(""), // this is always the index
@@ -26,7 +24,6 @@ public enum HelpFile {
     FETCHER_ACM("collect/import-using-online-bibliographic-database#acm-portal"),
     FETCHER_BIBSONOMY_SCRAPER(""),
     FETCHER_BIODIVERSITY_HERITAGE_LIBRARY("collect/import-using-online-bibliographic-database#bibliotheksverbund-bayern-bvb"),
-    FETCHER_CITESEERX("collect/import-using-online-bibliographic-database#citeseerx"),
     FETCHER_COLLECTION_OF_COMPUTER_SCIENCE_BIBLIOGRAPHIES("collect/import-using-online-bibliographic-database#collection-of-computer-science-bibliographies-ccsb"),
     FETCHER_CROSSREF("collect/import-using-online-bibliographic-database#crossref-unpaywalll"),
     FETCHER_DBLP("collect/import-using-online-bibliographic-database#dblp"),
@@ -56,20 +53,16 @@ public enum HelpFile {
 
     private final String pageName;
 
-    /**
-     * Sets the URL path part of the help page.
-     *
-     * @param pageName the URL path part of the help page
-     */
+    /// Sets the URL path part of the help page.
+    ///
+    /// @param pageName the URL path part of the help page
     HelpFile(String pageName) {
         this.pageName = pageName;
     }
 
-    /**
-     * Returns the URL path part of the help page.
-     *
-     * @return the URL path part of the help page
-     */
+    /// Returns the URL path part of the help page.
+    ///
+    /// @return the URL path part of the help page
     public String getPageName() {
         return pageName;
     }

@@ -37,12 +37,10 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
         }
     }
 
-    /**
-     * Constructs a URL based on the query, size and page number.
-     *
-     * @param queryNode the first search node
-     * @param pageNumber  the number of the page indexed from 0
-     */
+    /// Constructs a URL based on the query, size and page number.
+    ///
+    /// @param queryNode  the first search node
+    /// @param pageNumber the number of the page indexed from 0
     URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException;
 
     @Override
@@ -53,5 +51,37 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
     @Override
     default List<BibEntry> performSearch(BaseQueryNode queryNode) throws FetcherException {
         return SearchBasedParserFetcher.super.performSearch(queryNode);
+    }
+
+    /// Resolves the diamond inheritance of `performRawSearchQuery`: this interface inherits one default from
+    /// [SearchBasedParserFetcher] (single-page, via `getURLForRawQuery`) and another from
+    /// [PagedSearchBasedFetcher] (paged, via `performRawSearchQueryPaged`). Paged fetchers implement the paged
+    /// hook, so we route through the paged default.
+    @Override
+    default List<BibEntry> performRawSearchQuery(String rawQuery) throws FetcherException {
+        return PagedSearchBasedFetcher.super.performRawSearchQuery(rawQuery);
+    }
+
+    /// Default implementation: builds the URL via [#getURLForRawQuery(String, int)], then downloads, parses, and post-cleans the result.
+    @Override
+    default Page<BibEntry> performRawSearchQueryPaged(String rawQuery, int pageNumber) throws FetcherException {
+        if (rawQuery.isBlank()) {
+            return new Page<>(rawQuery, pageNumber, List.of());
+        }
+        URL urlForQuery;
+        try {
+            urlForQuery = getURLForRawQuery(rawQuery, pageNumber);
+        } catch (URISyntaxException | MalformedURLException | FetcherException e) {
+            throw new FetcherException("Search URI crafted from raw search query is malformed: " + rawQuery, e);
+        }
+        return new Page<>(rawQuery, pageNumber, getBibEntries(urlForQuery));
+    }
+
+    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query transformer).
+    ///
+    /// @param rawQuery   catalog-native query string sent verbatim to the catalog
+    /// @param pageNumber requested page number indexed from 0
+    default URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException, FetcherException {
+        throw new UnsupportedOperationException(getName() + " has not yet been migrated to performRawSearchQueryPaged");
     }
 }

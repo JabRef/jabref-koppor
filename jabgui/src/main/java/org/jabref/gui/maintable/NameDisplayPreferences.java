@@ -22,6 +22,17 @@ public class NameDisplayPreferences {
         this.abbreviationStyle.set(abbreviationStyle);
     }
 
+    private NameDisplayPreferences() {
+        this(
+                DisplayStyle.NATBIB,
+                AbbreviationStyle.FULL
+        );
+    }
+
+    public static NameDisplayPreferences getDefault() {
+        return new NameDisplayPreferences();
+    }
+
     public DisplayStyle getDisplayStyle() {
         return displayStyle.get();
     }

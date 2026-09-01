@@ -2,7 +2,6 @@ package org.jabref.logic.exporter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -28,6 +26,7 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +34,7 @@ public class OpenOfficeDocumentCreator extends Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenOfficeDocumentCreator.class);
 
-    /**
-     * Creates a new instance of OpenOfficeDocumentCreator
-     */
+    /// Creates a new instance of OpenOfficeDocumentCreator
     public OpenOfficeDocumentCreator() {
         super("oocalc", "Old OpenOffice/LibreOffice Calc format", StandardFileType.SXC);
     }
@@ -63,34 +60,35 @@ public class OpenOfficeDocumentCreator extends Exporter {
 
     private static void exportOpenOfficeCalc(Path file, BibDatabase database, List<BibEntry> entries) throws IOException {
         // First store the xml formatted content to a temporary file.
-        File tmpFile = File.createTempFile("oocalc", null);
+        Path tmpFile = Files.createTempFile("oocalc", null);
         OpenOfficeDocumentCreator.exportOpenOfficeCalcXML(tmpFile, database, entries);
 
         // Then add the content to the zip file:
-        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(tmpFile.toPath()))) {
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(tmpFile))) {
             OpenOfficeDocumentCreator.storeOpenOfficeFile(file, in);
         }
 
         // Delete the temporary file:
-        if (!tmpFile.delete()) {
-            LOGGER.info("Cannot delete temporary export file");
+        try {
+            Files.delete(tmpFile);
+        } catch (IOException e) {
+            LOGGER.info("Cannot delete temporary export file", e);
         }
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext, final Path file,
-                       List<BibEntry> entries) throws IOException {
-        Objects.requireNonNull(databaseContext);
-        Objects.requireNonNull(entries);
+    public void export(@NonNull final BibDatabaseContext databaseContext,
+                       final Path file,
+                       @NonNull List<BibEntry> entries) throws IOException {
         if (!entries.isEmpty()) { // Do not export if no entries
             OpenOfficeDocumentCreator.exportOpenOfficeCalc(file, databaseContext.getDatabase(), entries);
         }
     }
 
-    private static void exportOpenOfficeCalcXML(File tmpFile, BibDatabase database, List<BibEntry> entries) {
+    private static void exportOpenOfficeCalcXML(Path tmpFile, BibDatabase database, List<BibEntry> entries) {
         OOCalcDatabase od = new OOCalcDatabase(database, entries);
 
-        try (Writer ps = new OutputStreamWriter(Files.newOutputStream(tmpFile.toPath()), StandardCharsets.UTF_8)) {
+        try (Writer ps = new OutputStreamWriter(Files.newOutputStream(tmpFile), StandardCharsets.UTF_8)) {
             DOMSource source = new DOMSource(od.getDOMrepresentation());
             StreamResult result = new StreamResult(ps);
             Transformer trans = TransformerFactory.newInstance().newTransformer();

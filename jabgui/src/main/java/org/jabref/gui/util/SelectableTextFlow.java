@@ -12,7 +12,7 @@ import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import org.jabref.gui.ClipBoardManager;
+import org.jabref.gui.clipboard.ClipBoardManager;
 
 import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
@@ -78,19 +78,19 @@ public class SelectableTextFlow extends TextFlow {
     }
 
     public boolean isSelectionActive() {
-        return startHit != null && endHit != null && startHit.getCharIndex() != endHit.getCharIndex();
+        return startHit != null && endHit != null && startHit.getInsertionIndex() != endHit.getInsertionIndex();
     }
 
     /// Returns the start index of the selection. Assumes that the selection is active.
     public int getSelectionStartIndex() {
         assert isSelectionActive();
-        return Math.min(startHit.getCharIndex(), endHit.getCharIndex());
+        return Math.min(startHit.getInsertionIndex(), endHit.getInsertionIndex());
     }
 
     /// Returns the end index of the selection. Assumes that the selection is active.
     public int getSelectionEndIndex() {
         assert isSelectionActive();
-        return Math.max(startHit.getCharIndex() + 1, endHit.getCharIndex() + 1);
+        return Math.max(startHit.getInsertionIndex(), endHit.getInsertionIndex());
     }
 
     private String getTextFlowContent() {

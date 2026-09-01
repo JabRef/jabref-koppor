@@ -98,14 +98,19 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
             return List.of(new SearchQueryNode(Optional.empty(), term));
         }
 
+        // TODO: Here, there is no unescaping of the field (e.g., field\=thing=value does not work as expected)
         String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
 
         // Pseudo-fields
         field = switch (field) {
-            case "key" -> InternalField.KEY_FIELD.getName();
-            case "anykeyword" -> StandardField.KEYWORDS.getName();
-            case "anyfield" -> "any";
-            default -> field;
+            case SearchFieldConstants.KEY ->
+                    InternalField.KEY_FIELD.getName();
+            case SearchFieldConstants.ANY_KEYWORD ->
+                    StandardField.KEYWORDS.getName();
+            case SearchFieldConstants.ANY_FIELD_ALIAS ->
+                    SearchFieldConstants.ANY_FIELD;
+            default ->
+                    field;
         };
 
         if (ctx.operator() != null) {
@@ -115,7 +120,7 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
             }
         }
 
-        if ("any".equals(field)) {
+        if (SearchFieldConstants.ANY_FIELD.equals(field)) {
             return List.of(new SearchQueryNode(Optional.empty(), term));
         }
         return List.of(new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term));

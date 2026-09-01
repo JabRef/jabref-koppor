@@ -37,12 +37,9 @@ import org.jabref.model.entry.field.StandardField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Tab displaying article recommendations based on the currently selected BibEntry
- */
+/// Tab displaying article recommendations based on the currently selected BibEntry
 public class RelatedArticlesTab extends EntryEditorTab {
 
-    public static final String NAME = "Related articles";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedArticlesTab.class);
 
     private final DialogService dialogService;
@@ -64,16 +61,14 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
         this.preferences = preferences;
 
-        setText(Localization.lang("Related articles"));
+        setText(EntryEditorTabModel.BuiltIn.RELATED_ARTICLES.displayName());
         setTooltip(new Tooltip(Localization.lang("Related articles")));
     }
 
-    /**
-     * Gets a StackPane of related article information to be displayed in the Related Articles tab
-     *
-     * @param entry The currently selected BibEntry on the JabRef UI.
-     * @return A StackPane with related article information to be displayed in the Related Articles tab.
-     */
+    /// Gets a StackPane of related article information to be displayed in the Related Articles tab
+    ///
+    /// @param entry The currently selected BibEntry on the JabRef UI.
+    /// @return A StackPane with related article information to be displayed in the Related Articles tab.
     private StackPane getRelatedArticlesPane(BibEntry entry) {
         StackPane root = new StackPane();
         root.setId("related-articles-tab");
@@ -109,12 +104,10 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return root;
     }
 
-    /**
-     * Creates a VBox of the related article information to be used in the StackPane displayed in the Related Articles tab
-     *
-     * @param list List of BibEntries of related articles
-     * @return VBox of related article descriptions to be displayed in the Related Articles tab
-     */
+    /// Creates a VBox of the related article information to be used in the StackPane displayed in the Related Articles tab
+    ///
+    /// @param list List of BibEntries of related articles
+    /// @return VBox of related article descriptions to be displayed in the Related Articles tab
     private ScrollPane getRelatedArticleInfo(List<BibEntry> list, MrDLibFetcher fetcher) {
         ScrollPane scrollPane = new ScrollPane();
 
@@ -163,11 +156,9 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return scrollPane;
     }
 
-    /**
-     * Gets a ScrollPane to display error info when recommendations fail.
-     *
-     * @return ScrollPane to display in place of recommendations
-     */
+    /// Gets a ScrollPane to display error info when recommendations fail.
+    ///
+    /// @return ScrollPane to display in place of recommendations
     private ScrollPane getErrorInfo() {
         ScrollPane scrollPane = new ScrollPane();
 
@@ -182,12 +173,10 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return scrollPane;
     }
 
-    /**
-     * Returns a consent dialog used to ask permission to send data to Mr. DLib.
-     *
-     * @param entry Currently selected BibEntry. (required to allow reloading of pane if accepted)
-     * @return StackPane returned to be placed into Related Articles tab.
-     */
+    /// Returns a consent dialog used to ask permission to send data to Mr. DLib.
+    ///
+    /// @param entry Currently selected BibEntry. (required to allow reloading of pane if accepted)
+    /// @return StackPane returned to be placed into Related Articles tab.
     private ScrollPane getPrivacyDialog(BibEntry entry) {
         ScrollPane root = new ScrollPane();
         root.setId("related-articles-tab");
@@ -201,7 +190,7 @@ public class RelatedArticlesTab extends EntryEditorTab {
         Text title = new Text(Localization.lang("Mr. DLib Privacy settings"));
         title.getStyleClass().add("heading");
 
-        Button button = new Button(Localization.lang("I Agree"));
+        Button button = new Button(Localization.lang("I agree"));
         button.setDefaultButton(true);
 
         Button hideTab = new Button(Localization.lang("Hide 'Related articles' tab"));
@@ -236,20 +225,18 @@ public class RelatedArticlesTab extends EntryEditorTab {
         vb.getChildren().addAll(cbTitle, cbVersion, cbLanguage, cbOS, cbTimezone);
         vb.setSpacing(10);
 
-        button.setOnAction(event -> {
+        button.setOnAction(_ -> {
             MrDlibPreferences mrDlibPreferences = preferences.getMrDlibPreferences();
             mrDlibPreferences.setAcceptRecommendations(true);
             mrDlibPreferences.setSendLanguage(cbLanguage.isSelected());
             mrDlibPreferences.setSendOs(cbOS.isSelected());
             mrDlibPreferences.setSendTimezone(cbTimezone.isSelected());
 
-            dialogService.showWarningDialogAndWait(Localization.lang("Restart"), Localization.lang("Please restart JabRef for preferences to take effect."));
             setContent(getRelatedArticlesPane(entry));
         });
 
-        hideTab.setOnAction(event -> {
-            preferences.getEntryEditorPreferences().setShouldShowRecommendationsTab(false);
-            dialogService.showWarningDialogAndWait(Localization.lang("Restart"), Localization.lang("Please restart JabRef for preferences to take effect."));
+        hideTab.setOnAction(_ -> {
+            preferences.getEntryEditorPreferences().setTabVisible(EntryEditorTabModel.BuiltIn.RELATED_ARTICLES, false);
         });
 
         hbox.getChildren().addAll(button, hideTab);
@@ -257,12 +244,6 @@ public class RelatedArticlesTab extends EntryEditorTab {
         root.setContent(vbox);
 
         return root;
-    }
-
-    @Override
-    public boolean shouldShow(BibEntry entry) {
-        EntryEditorPreferences entryEditorPreferences = preferences.getEntryEditorPreferences();
-        return entryEditorPreferences.shouldShowRecommendationsTab();
     }
 
     @Override

@@ -1,10 +1,14 @@
 package org.jabref.logic.importer;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -12,18 +16,20 @@ import java.util.stream.Collectors;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.fetcher.AbstractIsbnFetcher;
 import org.jabref.logic.importer.fetcher.CollectionOfComputerScienceBibliographiesFetcher;
+import org.jabref.logic.importer.fetcher.CrossRef;
 import org.jabref.logic.importer.fetcher.GoogleScholar;
 import org.jabref.logic.importer.fetcher.GvkFetcher;
 import org.jabref.logic.importer.fetcher.IssnFetcher;
 import org.jabref.logic.importer.fetcher.JstorFetcher;
 import org.jabref.logic.importer.fetcher.MrDLibFetcher;
-import org.jabref.logic.importer.fetcher.isbntobibtex.DoiToBibtexConverterComIsbnFetcher;
 import org.jabref.logic.importer.fetcher.isbntobibtex.EbookDeIsbnFetcher;
 import org.jabref.logic.importer.fetcher.isbntobibtex.LOBIDIsbnFetcher;
 import org.jabref.logic.importer.fetcher.isbntobibtex.OpenLibraryIsbnFetcher;
 import org.jabref.logic.importer.plaincitation.GrobidPlainCitationParser;
 import org.jabref.logic.importer.plaincitation.LlmPlainCitationParser;
 import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfoList;
@@ -36,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class WebFetchersTest {
 
@@ -43,7 +50,8 @@ class WebFetchersTest {
 
     private static final Set<String> IGNORED_INACCESSIBLE_FETCHERS = Set.of(
             "org.jabref.logic.importer.fetcher.ArXivFetcher$ArXiv",
-            "org.jabref.logic.importer.FulltextFetchersTest$FulltextFetcherWithTrustLevel");
+            "org.jabref.logic.importer.FulltextFetchersTest$FulltextFetcherWithTrustLevel",
+            "org.jabref.logic.importer.SearchBasedFetcherTest$StubSearchBasedFetcher");
 
     private ImportFormatPreferences importFormatPreferences;
     private ImporterPreferences importerPreferences;
@@ -57,14 +65,14 @@ class WebFetchersTest {
 
     private Set<Class<?>> getIgnoredInaccessibleClasses() {
         return IGNORED_INACCESSIBLE_FETCHERS.stream()
-                     .map(classPath -> {
-                         try {
-                             return Class.forName(classPath);
-                         } catch (ClassNotFoundException e) {
-                             LOGGER.error("Some of the ignored classes were not found", e);
-                             return null;
-                         }
-                     }).filter(Objects::nonNull).collect(Collectors.toSet());
+                                            .map(classPath -> {
+                                                try {
+                                                    return Class.forName(classPath);
+                                                } catch (ClassNotFoundException e) {
+                                                    LOGGER.error("Some of the ignored classes were not found", e);
+                                                    return null;
+                                                }
+                                            }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @Test
@@ -86,7 +94,6 @@ class WebFetchersTest {
             expected.remove(LOBIDIsbnFetcher.class);
             expected.remove(EbookDeIsbnFetcher.class);
             expected.remove(GvkFetcher.class);
-            expected.remove(DoiToBibtexConverterComIsbnFetcher.class);
             // Remove special ISSN fetcher only suitable for journal lookup
             expected.remove(IssnFetcher.class);
             // Remove the following, because they don't work at the moment
@@ -183,6 +190,17 @@ class WebFetchersTest {
 
             assertEquals(expected, getClasses(idFetchers));
         }
+    }
+
+    @Test
+    void getIdFetcherForFieldPassesImporterPreferencesToCrossref() throws URISyntaxException, MalformedURLException {
+        ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
+        when(importerPreferences.getApiKey(CrossRef.FETCHER_NAME)).thenReturn(Optional.of("user@example.org"));
+
+        CrossRef fetcher = (CrossRef) WebFetchers.getIdFetcherForField(StandardField.DOI, importerPreferences).orElseThrow();
+        URL url = fetcher.getURLForEntry(new BibEntry().withField(StandardField.TITLE, "A title"));
+
+        assertEquals("query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org", url.getQuery());
     }
 
     private Set<? extends Class<?>> getClasses(Collection<?> objects) {

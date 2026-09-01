@@ -37,17 +37,29 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
     private static final String API_URL = "https://scholar.archive.org/search";
 
-    /**
-     * Gets the query URL by luceneQuery and pageNumber.
-     *
-     * @param queryNode the first node from the parsed query
-     * @param pageNumber  the number of the page indexed from 0
-     * @return URL
-     */
+    /// Gets the query URL by luceneQuery and pageNumber.
+    ///
+    /// @param queryNode  the first node from the parsed query
+    /// @param pageNumber the number of the page indexed from 0
+    /// @return URL
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
+        String transformedQuery = new ScholarArchiveQueryTransformer().transformSearchQuery(queryNode).orElse("");
+        return buildSearchURL(transformedQuery, pageNumber);
+    }
+
+    @Override
+    public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(rawQuery, pageNumber);
+    }
+
+    /// Builds the search URL for the given query string.
+    ///
+    /// The query is sent as the `q` parameter, so raw queries
+    /// bypass [ScholarArchiveQueryTransformer] and are passed unchanged to the catalog.
+    private URL buildSearchURL(String query, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(API_URL);
-        uriBuilder.addParameter("q", new ScholarArchiveQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter("q", query);
         uriBuilder.addParameter("from", String.valueOf(getPageSize() * pageNumber));
         uriBuilder.addParameter("size", String.valueOf(getPageSize()));
         uriBuilder.addParameter("format", "json");
@@ -63,11 +75,9 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
         return download;
     }
 
-    /**
-     * Gets the list of BibEntry by given Json response from scholar archive fetcher API
-     *
-     * @return Parser, list of BibEntry
-     */
+    /// Gets the list of BibEntry by given Json response from scholar archive fetcher API
+    ///
+    /// @return Parser, list of BibEntry
     @Override
     public Parser getParser() {
         return inputStream -> {

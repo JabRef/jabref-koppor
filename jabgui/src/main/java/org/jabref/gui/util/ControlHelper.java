@@ -12,7 +12,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Cell;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.DragEvent;
+
+import org.jabref.gui.icon.JabRefIcon;
 
 public class ControlHelper {
 
@@ -22,6 +26,48 @@ public class ControlHelper {
     private static PseudoClass dragOverTop = PseudoClass.getPseudoClass("dragOver-top");
 
     public enum EllipsisPosition { BEGINNING, CENTER, ENDING }
+
+    public static Button iconButton(JabRefIcon icon) {
+        Button button = new Button();
+        button.setGraphic(icon.getGraphicNode());
+        button.getStyleClass().add("icon-button");
+        return button;
+    }
+
+    /// An icon button that also carries its label, as used in the button rows under the editable
+    /// tables ("Add", "Modify", "Remove", ...).
+    public static Button labelledIconButton(JabRefIcon icon, String text, Runnable action) {
+        Button button = new Button(text);
+        button.setGraphic(icon.getGraphicNode());
+        button.setOnAction(_ -> action.run());
+        return button;
+    }
+
+    /// A {@link #labelledIconButton} forced to `prefWidth`, so that the buttons of one row come out
+    /// uniformly wide however long their individual captions are.
+    public static Button labelledIconButton(JabRefIcon icon, String text, double prefWidth, Runnable action) {
+        Button button = labelledIconButton(icon, text, action);
+        button.setPrefWidth(prefWidth);
+        return button;
+    }
+
+    /// The compact 20x20 icon button used next to fields and lists (browse, reset, reorder, ...).
+    public static Button narrowIconButton(JabRefIcon icon, String tooltip, Runnable action) {
+        Button button = new Button();
+        button.setGraphic(icon.getGraphicNode());
+        button.getStyleClass().addAll("icon-button", "narrow");
+        button.setPrefSize(20.0, 20.0);
+        button.setTooltip(new Tooltip(tooltip));
+        button.setOnAction(_ -> action.run());
+        return button;
+    }
+
+    public static ToggleButton iconToggleButton(JabRefIcon icon) {
+        ToggleButton button = new ToggleButton();
+        button.setGraphic(icon.getGraphicNode());
+        button.getStyleClass().add("icon-button");
+        return button;
+    }
 
     public static void setAction(ButtonType buttonType, DialogPane dialogPane, Consumer<Event> consumer) {
         Button button = (Button) dialogPane.lookupButton(buttonType);
@@ -41,9 +87,7 @@ public class ControlHelper {
         });
     }
 
-    /**
-     * Returns a text formatter that restricts input to integers
-     */
+    /// Returns a text formatter that restricts input to integers
     public static TextFormatter<String> getIntegerTextFormatter() {
         UnaryOperator<TextFormatter.Change> filter = change -> {
             String text = change.getText();
@@ -63,9 +107,7 @@ public class ControlHelper {
         }
     }
 
-    /**
-     * Determines where the mouse is in the given cell.
-     */
+    /// Determines where the mouse is in the given cell.
     public static DroppingMouseLocation getDroppingMouseLocation(Cell<?> cell, DragEvent event) {
         if ((cell.getHeight() * 0.25) > event.getY()) {
             return DroppingMouseLocation.TOP;
@@ -100,17 +142,13 @@ public class ControlHelper {
         removePseudoClasses(cell, dragOverBottom, dragOverCenter, dragOverTop);
     }
 
-    /**
-     * If needed, truncates a given string to <code>maxCharacters</code>, adding <code>ellipsisString</code> instead.
-     *
-     * @param text text which should be truncated, if needed
-     * @param maxCharacters maximum amount of characters which the resulting text should have, including the
-     *                      <code>ellipsisString</code>; if set to -1, then the default length of 75 characters will be
-     *                      used
-     * @param ellipsisString string which should be used for indicating the truncation
-     * @param ellipsisPosition location in the given text where the truncation should be performed
-     * @return the new, truncated string
-     */
+    /// If needed, truncates a given string to `maxCharacters`, adding `ellipsisString` instead.
+    ///
+    /// @param text             text which should be truncated, if needed
+    /// @param maxCharacters    maximum amount of characters which the resulting text should have, including the `ellipsisString`; if set to -1, then the default length of 75 characters will be used
+    /// @param ellipsisString   string which should be used for indicating the truncation
+    /// @param ellipsisPosition location in the given text where the truncation should be performed
+    /// @return the new, truncated string
     public static String truncateString(String text, int maxCharacters, String ellipsisString, EllipsisPosition ellipsisPosition) {
         if (text == null || text.isEmpty()) {
             return text; // return original
@@ -135,7 +173,8 @@ public class ControlHelper {
                     int partialLength = (int) Math.floor((maxCharacters - ellipsisString.length()) / 2f);
                     yield text.substring(0, partialLength) + ellipsisString + text.substring(text.length() - partialLength);
                 }
-                case ENDING -> text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
+                case ENDING ->
+                        text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
             };
         }
 

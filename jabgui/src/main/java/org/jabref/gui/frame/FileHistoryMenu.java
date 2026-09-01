@@ -12,6 +12,7 @@ import javafx.scene.input.KeyEvent;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.JabRefBaseDirectoryLocator;
 import org.jabref.logic.util.io.FileHistory;
 
 public class FileHistoryMenu extends Menu {
@@ -39,12 +40,10 @@ public class FileHistoryMenu extends Menu {
         history.addListener((InvalidationListener) obs -> setItems());
     }
 
-    /**
-     * This method is to use typed letters to access recent libraries in menu.
-     *
-     * @param keyEvent a KeyEvent.
-     * @return false if typed char is invalid or not a number.
-     */
+    /// This method is to use typed letters to access recent libraries in menu.
+    ///
+    /// @param keyEvent a KeyEvent.
+    /// @return false if typed char is invalid or not a number.
     public boolean openFileByKey(KeyEvent keyEvent) {
         if (keyEvent.getCharacter() == null) {
             return false;
@@ -58,10 +57,8 @@ public class FileHistoryMenu extends Menu {
         return true;
     }
 
-    /**
-     * Adds the filename to the top of the menu. If it already is in
-     * the menu, it is merely moved to the top.
-     */
+    /// Adds the filename to the top of the menu. If it already is in
+    /// the menu, it is merely moved to the top.
     public void newFile(Path file) {
         history.newFile(file);
         setItems();
@@ -93,13 +90,21 @@ public class FileHistoryMenu extends Menu {
     }
 
     public void openFile(Path file) {
-        if (!Files.exists(file)) {
+        Path resolvedFile = file;
+
+        if (!file.isAbsolute()) {
+            Path baseDir = JabRefBaseDirectoryLocator.getBaseDirectoryPath();
+            resolvedFile = baseDir.resolve(file).normalize();
+        }
+
+        if (!Files.exists(resolvedFile)) {
             this.dialogService.showErrorDialogAndWait(
                     Localization.lang("File not found"),
                     Localization.lang("File not found") + ": " + file);
             return;
         }
-        openDatabaseAction.openFile(file);
+
+        openDatabaseAction.openFile(resolvedFile);
     }
 
     public void clearLibrariesHistory() {

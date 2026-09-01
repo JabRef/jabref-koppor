@@ -1,15 +1,20 @@
 package org.jabref.gui.util;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -19,6 +24,8 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.css.PseudoClass;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 
@@ -29,12 +36,52 @@ import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.PreboundBinding;
 import com.tobiasdiez.easybind.Subscription;
 
-/**
- * Helper methods for javafx binding. Some methods are taken from https://bugs.openjdk.java.net/browse/JDK-8134679
- */
-public class BindingsHelper {
-
+/// Helper methods for javafx binding. Some methods are taken from https://bugs.openjdk.java.net/browse/JDK-8134679
+public final class BindingsHelper {
     private BindingsHelper() {
+        throw new UnsupportedOperationException("cannot instantiate a utility class");
+    }
+
+    /// A variant of [EasyBind#listen] that uses [Runnable] as listeners
+    public static Subscription listen(Observable observable, Runnable... runnables) {
+        InvalidationListener listener = _ -> {
+            for (Runnable runnable : runnables) {
+                runnable.run();
+            }
+        };
+
+        observable.addListener(listener);
+
+        return () -> observable.removeListener(listener);
+    }
+
+    /// A variant of [EasyBind#listen] that uses [Consumer] as listeners.
+    @SafeVarargs
+    public static <T> Subscription listen(ObservableValue<T> observable, Consumer<T>... consumers) {
+        ChangeListener<T> listener = (_, _, value) -> {
+            for (Consumer<T> consumer : consumers) {
+                consumer.accept(value);
+            }
+        };
+
+        observable.addListener(listener);
+
+        return () -> observable.removeListener(listener);
+    }
+
+    /// A variant of [EasyBind#listen] that uses [Runnable] as a listener and listens to several observables.
+    public static <T> Subscription listen(Runnable runnable, Observable... observables) {
+        InvalidationListener listener = _ -> runnable.run();
+
+        for (Observable observable : observables) {
+            observable.addListener(listener);
+        }
+
+        return () -> {
+            for (Observable observable : observables) {
+                observable.removeListener(listener);
+            }
+        };
     }
 
     public static Subscription includePseudoClassWhen(Node node, PseudoClass pseudoClass, ObservableValue<? extends Boolean> condition) {
@@ -59,25 +106,19 @@ public class BindingsHelper {
         return list;
     }
 
-    /**
-     * Binds propertyA bidirectional to propertyB using the provided map functions to convert between them.
-     */
+    /// Binds propertyA bidirectional to propertyB using the provided map functions to convert between them.
     public static <A, B> void bindBidirectional(Property<A> propertyA, Property<B> propertyB, Function<A, B> mapAtoB, Function<B, A> mapBtoA) {
         Consumer<B> updateA = newValueB -> propertyA.setValue(mapBtoA.apply(newValueB));
         Consumer<A> updateB = newValueA -> propertyB.setValue(mapAtoB.apply(newValueA));
         bindBidirectional(propertyA, propertyB, updateA, updateB);
     }
 
-    /**
-     * Binds propertyA bidirectional to propertyB while using updateB to update propertyB when propertyA changed.
-     */
+    /// Binds propertyA bidirectional to propertyB while using updateB to update propertyB when propertyA changed.
     public static <A> void bindBidirectional(Property<A> propertyA, ObservableValue<A> propertyB, Consumer<A> updateB) {
         bindBidirectional(propertyA, propertyB, propertyA::setValue, updateB);
     }
 
-    /**
-     * Binds propertyA bidirectional to propertyB using updateB to update propertyB when propertyA changed and similar for updateA.
-     */
+    /// Binds propertyA bidirectional to propertyB using updateB to update propertyB when propertyA changed and similar for updateA.
     public static <A, B> void bindBidirectional(ObservableValue<A> propertyA, ObservableValue<B> propertyB, Consumer<B> updateA, Consumer<A> updateB) {
         final BidirectionalBinding<A, B> binding = new BidirectionalBinding<>(propertyA, propertyB, updateA, updateB);
 
@@ -163,9 +204,7 @@ public class BindingsHelper {
         };
     }
 
-    /**
-     * Returns a wrapper around the given list that posts changes on the JavaFX thread.
-     */
+    /// Returns a wrapper around the given list that posts changes on the JavaFX thread.
     public static <T> ObservableList<T> forUI(ObservableList<T> list) {
         return new UiThreadList<>(list);
     }
@@ -180,14 +219,12 @@ public class BindingsHelper {
         });
     }
 
-    /**
-     * Invokes {@code subscriber} for the every new value of {@code observable}, but not for the current value.
-     *
-     * @param observable observable value to subscribe to
-     * @param subscriber action to invoke for values of {@code observable}.
-     * @return a subscription that can be used to stop invoking subscriber for any further {@code observable} changes.
-     * @apiNote {@link EasyBind#subscribe(ObservableValue, Consumer)} is similar but also invokes the {@code subscriber} for the current value
-     */
+    /// Invokes `subscriber` for the every new value of `observable`, but not for the current value.
+    ///
+    /// @param observable observable value to subscribe to
+    /// @param subscriber action to invoke for values of `observable`.
+    /// @return a subscription that can be used to stop invoking subscriber for any further `observable` changes.
+    /// @apiNote {@link EasyBind#subscribe(ObservableValue, Consumer)} is similar but also invokes the `subscriber` for the current value
     public static <T> Subscription subscribeFuture(ObservableValue<T> observable, Consumer<? super T> subscriber) {
         ChangeListener<? super T> listener = (obs, oldValue, newValue) -> subscriber.accept(newValue);
         observable.addListener(listener);
@@ -249,6 +286,58 @@ public class BindingsHelper {
                 }
             }
         });
+    }
+
+    /// Bind the enum property value to multiple conditions. Useful for making state machines.
+    @SafeVarargs
+    public static <E extends Enum<E>> void bindEnum(
+            Property<E> target,
+            E otherwise,
+            Map.Entry<E, ObservableValue<Boolean>>... cases
+    ) {
+        ObjectBinding<E> binding = Bindings.createObjectBinding(() -> {
+                    for (var c : cases) {
+                        if (Boolean.TRUE.equals(c.getValue().getValue())) {
+                            return c.getKey();
+                        }
+                    }
+                    return otherwise;
+                },
+                Arrays.stream(cases)
+                      .map(Map.Entry::getValue)
+                      .toArray(ObservableValue[]::new));
+
+        target.bind(binding);
+    }
+
+    /// A shorthand to perform actions on list modification: one function that processes added elements, and one for removed.
+    public static <T> void listenToListContentChanges(ListProperty<T> listProperty, Consumer<T> onAdded, Consumer<T> onRemoved) {
+        listProperty.addListener((ListChangeListener<T>) c -> {
+            while (c.next()) {
+                if (c.wasRemoved()) {
+                    c.getRemoved().forEach(onRemoved);
+                }
+                if (c.wasAdded()) {
+                    c.getAddedSubList().forEach(onAdded);
+                }
+            }
+        });
+    }
+
+    /// A shorthand to make a [ListChangeListener] out of the [Runnable].
+    public static <T> void listenToListChange(ListProperty<T> listProperty, Runnable... actions) {
+        listProperty.addListener((ListChangeListener<T>) _ -> {
+            for (Runnable action : actions) {
+                action.run();
+            }
+        });
+    }
+
+    /// A horthand for calling the properties of action event handlers.
+    public static void handle(ObjectProperty<EventHandler<ActionEvent>> handler) {
+        if (handler.get() != null) {
+            handler.get().handle(null);
+        }
     }
 
     private static class BidirectionalBinding<A, B> {

@@ -5,21 +5,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-/**
- * Manages the loading of CitationStyles from both internal resources and external files.
- */
+/// Manages the loading of CitationStyles from both internal resources and external files.
 public record CSLStyleLoader(
         OpenOfficePreferences openOfficePreferences) {
     public static final String DEFAULT_STYLE = "ieee.csl";
@@ -36,18 +33,14 @@ public record CSLStyleLoader(
         loadExternalStyles();
     }
 
-    /**
-     * Returns a list of all available citation styles (both internal and external).
-     */
+    /// Returns a list of all available citation styles (both internal and external).
     public static List<CitationStyle> getStyles() {
-        List<CitationStyle> result = new ArrayList<>(INTERNAL_STYLES);
+        List<CitationStyle> result = new ArrayList<>(getInternalStyles());
         result.addAll(EXTERNAL_STYLES);
         return result;
     }
 
-    /**
-     * Returns the default citation style which is currently set to {@link CSLStyleLoader#DEFAULT_STYLE}.
-     */
+    /// Returns the default citation style which is currently set to {@link CSLStyleLoader#DEFAULT_STYLE}.
     public static CitationStyle getDefaultStyle() {
         return INTERNAL_STYLES.stream()
                               .filter(style -> DEFAULT_STYLE.equals(style.getFilePath()))
@@ -56,9 +49,7 @@ public record CSLStyleLoader(
                                                             .orElse(new CitationStyle("", "Empty", "Empty", false, false, false, "", true)));
     }
 
-    /**
-     * Loads the internal (built-in) CSL styles from the catalog generated at build-time.
-     */
+    /// Loads the internal (built-in) CSL styles from the catalog generated at build-time.
     public static void loadInternalStyles() {
         INTERNAL_STYLES.clear();
 
@@ -80,6 +71,10 @@ public record CSLStyleLoader(
                     String path = (String) info.get("path");
                     @NonNull
                     String title = (String) info.get("title");
+                    @NonNull
+                    String styleId = Optional.ofNullable((String) info.get("styleId")).orElse("");
+                    @NonNull
+                    String styleClass = Optional.ofNullable((String) info.get("styleClass")).orElse("");
                     @Nullable
                     String shortTitle = (String) info.get("shortTitle");
                     if (shortTitle == null) {
@@ -95,7 +90,13 @@ public record CSLStyleLoader(
                     try (InputStream styleStream = CSLStyleLoader.class.getResourceAsStream(STYLES_ROOT + "/" + path)) {
                         if (styleStream != null) {
                             String source = new String(styleStream.readAllBytes());
-                            CitationStyle style = new CitationStyle(path, title, shortTitle, isNumeric, hasBibliography, usesHangingIndent, source, true);
+                            // If cannot find styleId, then parse .csl to retrieve styleId
+                            if (styleId.isBlank() || styleClass.isBlank()) {
+                                Optional<CSLStyleUtils.StyleInfo> parsedStyleInfo = CSLStyleUtils.parseStyleInfo(path, source);
+                                styleId = styleId.isBlank() ? parsedStyleInfo.map(CSLStyleUtils.StyleInfo::styleId).orElse("") : styleId;
+                                styleClass = styleClass.isBlank() ? parsedStyleInfo.map(CSLStyleUtils.StyleInfo::styleClass).orElse("") : styleClass;
+                            }
+                            CitationStyle style = new CitationStyle(path, styleId, styleClass, title, shortTitle, isNumeric, hasBibliography, usesHangingIndent, source, true);
                             INTERNAL_STYLES.add(style);
                         }
                     } catch (IOException e) {
@@ -103,7 +104,7 @@ public record CSLStyleLoader(
                         styleCount--;
                     }
                 }
-                LOGGER.info("Loaded {} CSL styles", styleCount);
+                LOGGER.debug("Loaded {} CSL styles", styleCount);
             } else {
                 LOGGER.error("Citation style catalog is empty");
             }
@@ -112,9 +113,7 @@ public record CSLStyleLoader(
         }
     }
 
-    /**
-     * Loads external CSL styles from the preferences.
-     */
+    /// Loads external CSL styles from the preferences.
     private void loadExternalStyles() {
         EXTERNAL_STYLES.clear();
 
@@ -125,29 +124,13 @@ public record CSLStyleLoader(
         }
     }
 
-    /**
-     * Adds a new external CSL style if it's valid.
-     *
-     * @return Optional containing the added CitationStyle if valid, empty otherwise
-     */
-    public Optional<CitationStyle> addStyleIfValid(String stylePath) {
-        Objects.requireNonNull(stylePath);
-
-        Optional<CitationStyle> newStyleOptional = CSLStyleUtils.createCitationStyleFromFile(stylePath);
-        if (newStyleOptional.isPresent()) {
-            CitationStyle newStyle = newStyleOptional.get();
-
-            EXTERNAL_STYLES.add(newStyle);
-            storeExternalStyles();
-            return newStyleOptional;
-        }
-
-        return Optional.empty();
+    /// Adds a new external CSL style.
+    public void addExternalStyle(@NonNull CitationStyle citationStyle) {
+        EXTERNAL_STYLES.add(citationStyle);
+        storeExternalStyles();
     }
 
-    /**
-     * Stores the current list of external styles to preferences.
-     */
+    /// Stores the current list of external styles to preferences.
     private void storeExternalStyles() {
         List<String> stylePaths = EXTERNAL_STYLES.stream()
                                                  .map(CitationStyle::getPath)
@@ -155,13 +138,10 @@ public record CSLStyleLoader(
         openOfficePreferences.setExternalCslStyles(stylePaths);
     }
 
-    /**
-     * Removes a style from the external styles list.
-     *
-     * @return true if the style was removed, false otherwise
-     */
-    public boolean removeStyle(CitationStyle style) {
-        Objects.requireNonNull(style);
+    /// Removes a style from the external styles list.
+    ///
+    /// @return true if the style was removed, false otherwise
+    public boolean removeStyle(@NonNull CitationStyle style) {
         if (!style.isInternalStyle()) {
             boolean result = EXTERNAL_STYLES.remove(style);
             storeExternalStyles();

@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.search.PostgreConstants;
+import org.jabref.model.search.PostgresConstants;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SqlQueryNode;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchParser;
 
-import static org.jabref.model.search.PostgreConstants.ENTRY_ID;
-import static org.jabref.model.search.PostgreConstants.FIELD_NAME;
-import static org.jabref.model.search.PostgreConstants.FIELD_VALUE_LITERAL;
-import static org.jabref.model.search.PostgreConstants.FIELD_VALUE_TRANSFORMED;
+import static org.jabref.model.search.PostgresConstants.ENTRY_ID;
+import static org.jabref.model.search.PostgresConstants.FIELD_NAME;
+import static org.jabref.model.search.PostgresConstants.FIELD_VALUE_LITERAL;
+import static org.jabref.model.search.PostgresConstants.FIELD_VALUE_TRANSFORMED;
 import static org.jabref.model.search.SearchFlags.CASE_INSENSITIVE;
 import static org.jabref.model.search.SearchFlags.CASE_SENSITIVE;
 import static org.jabref.model.search.SearchFlags.EXACT_MATCH;
@@ -44,8 +44,8 @@ public class SearchToSqlVisitor extends SearchBaseVisitor<SqlQueryNode> {
 
     public SearchToSqlVisitor(String table, EnumSet<SearchFlags> searchBarFlags) {
         this.searchBarFlags = searchBarFlags;
-        this.mainTableName = PostgreConstants.getMainTableSchemaReference(table);
-        this.splitValuesTableName = PostgreConstants.getSplitTableSchemaReference(table);
+        this.mainTableName = PostgresConstants.getMainTableSchemaReference(table);
+        this.splitValuesTableName = PostgresConstants.getSplitTableSchemaReference(table);
     }
 
     @Override
@@ -172,10 +172,11 @@ public class SearchToSqlVisitor extends SearchBaseVisitor<SqlQueryNode> {
             } else {
                 setFlags(searchFlags, INEXACT_MATCH, isCaseSensitive, false);
             }
-            return getFieldQueryNode("any", term, searchFlags);
+            return getFieldQueryNode(SearchFieldConstants.ANY_FIELD, term, searchFlags);
         }
 
         // fielded expression
+        // TODO: Here, there is no unescaping of the term (e.g., field\=thing=value does not work as expected)
         String field = ctx.FIELD().getText();
         int operator = ctx.operator().getStart().getType();
 
@@ -228,33 +229,37 @@ public class SearchToSqlVisitor extends SearchBaseVisitor<SqlQueryNode> {
 
         // Pseudo-fields
         field = switch (field) {
-            case "key" -> InternalField.KEY_FIELD.getName();
-            case "anykeyword" -> StandardField.KEYWORDS.getName();
-            case "anyfield" -> "any";
-            default -> field;
+            case SearchFieldConstants.KEY ->
+                    InternalField.KEY_FIELD.getName();
+            case SearchFieldConstants.ANY_KEYWORD ->
+                    StandardField.KEYWORDS.getName();
+            case SearchFieldConstants.ANY_FIELD_ALIAS ->
+                    SearchFieldConstants.ANY_FIELD;
+            default ->
+                    field;
         };
 
         if (ENTRY_ID.toString().equals(field)) {
             return buildEntryIdQuery(term);
-        } else if ("any".equals(field)) {
+        } else if (SearchFieldConstants.ANY_FIELD.equals(field)) {
             if (searchFlags.contains(EXACT_MATCH)) {
                 return searchFlags.contains(NEGATION)
-                        ? buildExactNegationAnyFieldQuery(sqlOperator, term)
-                        : buildExactAnyFieldQuery(sqlOperator, term);
+                       ? buildExactNegationAnyFieldQuery(sqlOperator, term)
+                       : buildExactAnyFieldQuery(sqlOperator, term);
             } else {
                 return searchFlags.contains(NEGATION)
-                        ? buildContainsNegationAnyFieldQuery(sqlOperator, prefixSuffix, term)
-                        : buildContainsAnyFieldQuery(sqlOperator, prefixSuffix, term);
+                       ? buildContainsNegationAnyFieldQuery(sqlOperator, prefixSuffix, term)
+                       : buildContainsAnyFieldQuery(sqlOperator, prefixSuffix, term);
             }
         } else {
             if (searchFlags.contains(EXACT_MATCH)) {
                 return searchFlags.contains(NEGATION)
-                        ? buildExactNegationFieldQuery(field, sqlOperator, term)
-                        : buildExactFieldQuery(field, sqlOperator, term);
+                       ? buildExactNegationFieldQuery(field, sqlOperator, term)
+                       : buildExactFieldQuery(field, sqlOperator, term);
             } else {
                 return searchFlags.contains(NEGATION)
-                        ? buildContainsNegationFieldQuery(field, sqlOperator, prefixSuffix, term)
-                        : buildContainsFieldQuery(field, sqlOperator, prefixSuffix, term);
+                       ? buildContainsNegationFieldQuery(field, sqlOperator, prefixSuffix, term)
+                       : buildContainsFieldQuery(field, sqlOperator, prefixSuffix, term);
             }
         }
     }
@@ -545,15 +550,13 @@ public class SearchToSqlVisitor extends SearchBaseVisitor<SqlQueryNode> {
 
     private static String getSqlOperator(EnumSet<SearchFlags> searchFlags) {
         return searchFlags.contains(REGULAR_EXPRESSION)
-                ? (searchFlags.contains(CASE_SENSITIVE) ? "~" : "~*")
-                : (searchFlags.contains(CASE_SENSITIVE) ? "LIKE" : "ILIKE");
+               ? (searchFlags.contains(CASE_SENSITIVE) ? "~" : "~*")
+               : (searchFlags.contains(CASE_SENSITIVE) ? "LIKE" : "ILIKE");
     }
 
-    /**
-     * Escapes wildcard characters in the search term for SQL queries.
-     * <p>
-     * - Escapes {@code \}, {@code _}, and {@code %} for SQL LIKE queries.
-     */
+    /// Escapes wildcard characters in the search term for SQL queries.
+    ///
+    /// - Escapes `\`, `_`, and `%` for SQL LIKE queries.
     private static String escapeTermForSql(String term) {
         return term.replaceAll("[\\\\_%]", "\\\\$0");
     }

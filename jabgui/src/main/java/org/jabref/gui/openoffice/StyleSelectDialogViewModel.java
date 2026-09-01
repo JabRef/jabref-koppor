@@ -1,6 +1,7 @@
 package org.jabref.gui.openoffice;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -23,21 +24,23 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationstyle.CSLStyleLoader;
+import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyle;
-import org.jabref.logic.citationstyle.CitationStylePreviewLayout;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.jabref.logic.openoffice.style.BstCitationFormat;
+import org.jabref.logic.openoffice.style.BstStyle;
+import org.jabref.logic.openoffice.style.BstStyleLoader;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
+import org.jabref.logic.preview.CitationStylePreviewLayout;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class StyleSelectDialogViewModel {
 
@@ -45,6 +48,7 @@ public class StyleSelectDialogViewModel {
 
     private final CSLStyleLoader cslStyleLoader;
     private final JStyleLoader jStyleLoader;
+    private final BstStyleLoader bstStyleLoader;
 
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
     private final FilePreferences filePreferences;
@@ -57,6 +61,10 @@ public class StyleSelectDialogViewModel {
     private final ListProperty<JStyleSelectViewModel> jStyles = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ObjectProperty<JStyleSelectViewModel> selectedJStyle = new SimpleObjectProperty<>();
 
+    private final ListProperty<BstStyleSelectViewModel> bstStyles = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ObjectProperty<BstStyleSelectViewModel> selectedBstStyle = new SimpleObjectProperty<>();
+    private final ObjectProperty<BstCitationFormat> bstCitationFormat = new SimpleObjectProperty<>(BstCitationFormat.NUMERIC);
+
     private final ObservableList<CitationStylePreviewLayout> availableCslLayouts = FXCollections.observableArrayList();
     private final ObjectProperty<CitationStylePreviewLayout> selectedCslLayoutProperty = new SimpleObjectProperty<>();
     private final FilteredList<CitationStylePreviewLayout> filteredAvailableCslLayouts = new FilteredList<>(availableCslLayouts);
@@ -64,26 +72,55 @@ public class StyleSelectDialogViewModel {
     public StyleSelectDialogViewModel(DialogService dialogService,
                                       CSLStyleLoader cslStyleLoader,
                                       JStyleLoader jStyleLoader,
+                                      BstStyleLoader bstStyleLoader,
                                       GuiPreferences preferences,
+                                      JournalAbbreviationRepository journalAbbreviationRepository,
                                       TaskExecutor taskExecutor,
                                       BibEntryTypesManager bibEntryTypesManager) {
         this.dialogService = dialogService;
 
         this.cslStyleLoader = cslStyleLoader;
         this.jStyleLoader = jStyleLoader;
+        this.bstStyleLoader = bstStyleLoader;
 
         this.externalApplicationsPreferences = preferences.getExternalApplicationsPreferences();
         this.filePreferences = preferences.getFilePreferences();
-        this.openOfficePreferences = preferences.getOpenOfficePreferences(Injector.instantiateModelOrService(JournalAbbreviationRepository.class));
+        this.openOfficePreferences = preferences.getOpenOfficePreferences(journalAbbreviationRepository);
 
         this.bibEntryTypesManager = bibEntryTypesManager;
 
         jStyles.addAll(loadJStyles());
+        bstStyles.addAll(loadBstStyles());
+
+        bstCitationFormat.set(openOfficePreferences.getBstCitationFormat());
 
         OOStyle currentStyle = openOfficePreferences.getCurrentStyle();
 
         if (currentStyle instanceof JStyle jStyle) {
-            selectedJStyle.setValue(getJStyleOrDefault(jStyle.getPath()));
+            // Prefer exact path match for external styles; fall back to name for internal
+            Optional<JStyleSelectViewModel> byPath = jStyles.stream()
+                                                            .filter(vm -> vm.getStylePath().equals(jStyle.getPath()))
+                                                            .findFirst();
+            if (byPath.isPresent()) {
+                selectedJStyle.setValue(byPath.get());
+            } else {
+                jStyles.stream()
+                       .filter(vm -> vm.nameProperty().get().equals(jStyle.getName()))
+                       .findFirst()
+                       .ifPresentOrElse(selectedJStyle::setValue, () -> selectedJStyle.setValue(jStyles.getFirst()));
+            }
+        } else if (currentStyle instanceof BstStyle bstStyle) {
+            Optional<BstStyleSelectViewModel> byPath = bstStyles.stream()
+                                                                .filter(vm -> vm.getStylePath().equals(bstStyle.getPath()))
+                                                                .findFirst();
+            if (byPath.isPresent()) {
+                selectedBstStyle.setValue(byPath.get());
+            } else {
+                bstStyles.stream()
+                         .filter(vm -> vm.nameProperty().get().equals(bstStyle.getName()))
+                         .findFirst()
+                         .ifPresent(selectedBstStyle::setValue);
+            }
         }
 
         BackgroundTask.wrap(CSLStyleLoader::getStyles)
@@ -141,6 +178,10 @@ public class StyleSelectDialogViewModel {
                 if (selectedCslLayoutProperty.get() != null) {
                     return selectedCslLayoutProperty.get().citationStyle();
                 }
+            } else if ("BST Styles".equals(tabText)) {
+                if (selectedBstStyle.get() != null) {
+                    return selectedBstStyle.get().getBstStyle();
+                }
             }
         }
         return openOfficePreferences.getCurrentStyle();
@@ -149,12 +190,23 @@ public class StyleSelectDialogViewModel {
     public void storeStylePreferences() {
         // save external jstyles
         List<String> externalJStyles = jStyles.stream()
-                                             .map(this::toJStyle)
-                                             .filter(style -> !style.isInternalStyle())
-                                             .map(JStyle::getPath)
-                                             .toList();
+                                              .map(this::toJStyle)
+                                              .filter(style -> !style.isInternalStyle())
+                                              .map(JStyle::getPath)
+                                              .toList();
 
         openOfficePreferences.setExternalJStyles(externalJStyles);
+
+        // save external bst styles
+        List<String> externalBstStyles = bstStyles.stream()
+                                                  .map(vm -> vm.getBstStyle())
+                                                  .filter(style -> !style.isInternalStyle())
+                                                  .map(BstStyle::getPath)
+                                                  .toList();
+        openOfficePreferences.setExternalBstStyles(externalBstStyles);
+
+        // save bst citation format
+        openOfficePreferences.setBstCitationFormat(bstCitationFormat.get());
 
         // save the current style selection
         OOStyle selectedStyle = getSelectedStyle();
@@ -183,9 +235,7 @@ public class StyleSelectDialogViewModel {
                 searchTerm.isEmpty() || layout.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase()));
     }
 
-    /**
-     * Handles importing a custom CSL style file
-     */
+    /// Handles importing a custom CSL style file
     public void addCslStyleFile() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(Localization.lang("%0 file", StandardFileType.CITATION_STYLE.getName()), StandardFileType.CITATION_STYLE)
@@ -196,42 +246,56 @@ public class StyleSelectDialogViewModel {
         Optional<Path> path = dialogService.showFileOpenDialog(fileDialogConfiguration);
 
         path.map(Path::toAbsolutePath).map(Path::toString).ifPresent(stylePath -> {
-            Optional<CitationStyle> newStyleOptional = cslStyleLoader.addStyleIfValid(stylePath);
+            // Create a citation style
+            Optional<CitationStyle> citationStyleToAddOptional = CSLStyleUtils.createCitationStyleFromFile(stylePath);
 
-            if (newStyleOptional.isPresent()) {
-                CitationStyle newStyle = newStyleOptional.get();
-
-                List<CitationStyle> allStyles = CSLStyleLoader.getStyles();
-                List<CitationStylePreviewLayout> updatedLayouts = allStyles.stream()
-                                                                           .map(style -> new CitationStylePreviewLayout(style, bibEntryTypesManager))
-                                                                           .toList();
-
-                availableCslLayouts.setAll(updatedLayouts);
-
-                Optional<CitationStylePreviewLayout> newLayoutOptional = updatedLayouts.stream()
-                                                                                       .filter(layout -> layout.getFilePath().equals(stylePath))
-                                                                                       .findFirst();
-
-                if (newLayoutOptional.isPresent()) {
-                    CitationStylePreviewLayout newLayout = newLayoutOptional.get();
-                    selectedCslLayoutProperty.set(newLayout);
-
-                    openOfficePreferences.setCurrentStyle(newStyle);
-
-                    dialogService.showInformationDialogAndWait(
-                            Localization.lang("Style added"),
-                            Localization.lang("The CSL style has been added successfully.")
-                    );
-                } else {
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Style not found"),
-                            Localization.lang("The CSL style was added but could not be found in the list.")
-                    );
-                }
-            } else {
+            // Check if citation style is valid
+            if (citationStyleToAddOptional.isEmpty()) {
                 dialogService.showErrorDialogAndWait(
                         Localization.lang("Invalid style selected"),
                         Localization.lang("You must select a valid CSL style file.")
+                );
+                return;
+            }
+
+            CitationStyle citationStyleToAdd = citationStyleToAddOptional.get();
+
+            // Check if citation style is duplicate in the list
+            if (isDuplicate(citationStyleToAdd)) {
+                dialogService.showInformationDialogAndWait(
+                        Localization.lang("Style already available"),
+                        Localization.lang("The selected CSL style is already available in the list.")
+                );
+                return;
+            }
+
+            // Citation style is good to add
+            cslStyleLoader.addExternalStyle(citationStyleToAdd);
+
+            List<CitationStyle> allStyles = CSLStyleLoader.getStyles();
+            List<CitationStylePreviewLayout> updatedLayouts = allStyles.stream()
+                                                                       .map(style -> new CitationStylePreviewLayout(style, bibEntryTypesManager))
+                                                                       .toList();
+
+            Optional<CitationStylePreviewLayout> newLayoutOptional = updatedLayouts.stream()
+                                                                                   .filter(layout -> layout.getFilePath().equals(stylePath))
+                                                                                   .findFirst();
+
+            if (newLayoutOptional.isPresent()) {
+                CitationStylePreviewLayout newLayout = newLayoutOptional.get();
+                selectedCslLayoutProperty.set(newLayout);
+                availableCslLayouts.setAll(updatedLayouts);
+
+                openOfficePreferences.setCurrentStyle(citationStyleToAdd);
+
+                dialogService.showInformationDialogAndWait(
+                        Localization.lang("Style added"),
+                        Localization.lang("The CSL style has been added successfully.")
+                );
+            } else {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Style not found"),
+                        Localization.lang("The CSL style was added but could not be found in the list.")
                 );
             }
         });
@@ -275,12 +339,95 @@ public class StyleSelectDialogViewModel {
         }
     }
 
+    private boolean isDuplicate(CitationStyle styleToAdd) {
+        return CSLStyleLoader.getStyles().stream()
+                             .anyMatch(existingStyle -> hasSameStyleName(existingStyle, styleToAdd));
+    }
+
+    private boolean hasSameStyleName(CitationStyle existingStyle, CitationStyle styleToAdd) {
+        return existingStyle.getTitle().equals(styleToAdd.getTitle())
+                || (!styleToAdd.getShortTitle().isBlank() && existingStyle.getShortTitle().equals(styleToAdd.getShortTitle()));
+    }
+    // endregion
+
+    // region - bst-specific methods
+
+    public ListProperty<BstStyleSelectViewModel> bstStylesProperty() {
+        return bstStyles;
+    }
+
+    public ObjectProperty<BstStyleSelectViewModel> selectedBstStyleProperty() {
+        return selectedBstStyle;
+    }
+
+    public ObjectProperty<BstCitationFormat> bstCitationFormatProperty() {
+        return bstCitationFormat;
+    }
+
+    public List<BstStyleSelectViewModel> loadBstStyles() {
+        return bstStyleLoader.getStyles().stream()
+                             .map(BstStyleSelectViewModel::new)
+                             .toList();
+    }
+
+    public void addBstStyleFile() {
+        FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
+                .addExtensionFilter(Localization.lang("%0 file", StandardFileType.BST.getName()), StandardFileType.BST)
+                .withDefaultExtension(Localization.lang("%0 file", StandardFileType.BST.getName()), StandardFileType.BST)
+                .withInitialDirectory(filePreferences.getWorkingDirectory())
+                .build();
+
+        Optional<Path> path = dialogService.showFileOpenDialog(fileDialogConfiguration);
+        path.map(Path::toAbsolutePath).ifPresent(stylePath -> {
+            if (!stylePath.getFileName().toString().toLowerCase().endsWith(".bst") || !Files.exists(stylePath)) {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Invalid style selected"),
+                        Localization.lang("You must select a valid .bst style file.")
+                );
+                return;
+            }
+
+            BstStyle bstStyleToAdd = new BstStyle(stylePath);
+
+            if (isDuplicate(bstStyleToAdd)) {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Style already available"),
+                        Localization.lang("A style with the same filename already exists. If it is a different style, please rename and import.")
+                );
+                return;
+            }
+
+            bstStyleLoader.addExternalStyle(bstStyleToAdd);
+            BstStyleSelectViewModel vm = new BstStyleSelectViewModel(bstStyleToAdd);
+            bstStyles.add(vm);
+            selectedBstStyle.setValue(vm);
+            openOfficePreferences.setCurrentStyle(bstStyleToAdd);
+        });
+    }
+
+    public void deleteBstStyle(BstStyle style) {
+        bstStyleLoader.removeStyle(style);
+        bstStyles.removeIf(vm -> vm.getBstStyle().equals(style));
+        if (selectedBstStyle.get() != null && selectedBstStyle.get().getBstStyle().equals(style)) {
+            selectedBstStyle.setValue(bstStyles.isEmpty() ? null : bstStyles.getFirst());
+        }
+    }
+
+    private boolean isDuplicate(BstStyle fileToAdd) {
+        return bstStyleLoader.getStyles().stream()
+                             .anyMatch(existingStyle -> hasSameStyleName(existingStyle, fileToAdd));
+    }
+
+    private boolean hasSameStyleName(BstStyle existingStyle, BstStyle styleToAdd) {
+        return existingStyle.getName().equals(styleToAdd.getName());
+    }
+
     // endregion
 
     // region - jstyle-specific methods
 
     public JStyleSelectViewModel fromJStyle(JStyle style) {
-        return new JStyleSelectViewModel(style.getName(), String.join(", ", style.getJournals()), style.isInternalStyle() ? Localization.lang("Internal style") : style.getPath(), style);
+        return new JStyleSelectViewModel(style);
     }
 
     public JStyle toJStyle(JStyleSelectViewModel item) {
@@ -300,7 +447,10 @@ public class StyleSelectDialogViewModel {
     }
 
     private JStyleSelectViewModel getJStyleOrDefault(String stylePath) {
-        return jStyles.stream().filter(style -> style.getStylePath().equals(stylePath)).findFirst().orElse(jStyles.getFirst());
+        return jStyles.stream()
+                      .filter(style -> style.getStylePath().equals(stylePath))
+                      .findFirst()
+                      .orElse(jStyles.getFirst());
     }
 
     public void addJStyleFile() {

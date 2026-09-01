@@ -1,3 +1,5 @@
+import org.jabref.gui.icon.JabRefIconProvider;
+
 open module org.jabref {
     requires org.jabref.jablib;
     requires org.jabref.jabls;
@@ -15,7 +17,8 @@ open module org.jabref {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
-    requires javafx.web;
+    requires org.jabref.htmltonode;
+    requires jfx.incubator.richtext;
 
     requires com.tobiasdiez.easybind;
 
@@ -37,6 +40,7 @@ open module org.jabref {
 
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
+    requires /*runtime*/ org.kordamp.ikonli.material;
     requires org.kordamp.ikonli.materialdesign2;
     uses org.kordamp.ikonli.IkonHandler;
     uses org.kordamp.ikonli.IkonProvider;
@@ -44,17 +48,19 @@ open module org.jabref {
     provides org.kordamp.ikonli.IkonHandler
             with org.jabref.gui.icon.JabRefIkonHandler;
     provides org.kordamp.ikonli.IkonProvider
-            with org.jabref.gui.icon.JabrefIconProvider;
+            with JabRefIconProvider;
 
     requires reactfx;
+
+    requires tools.maran.svgnode;
     // endregion
 
     // region: Logging
     requires org.slf4j;
     requires jul.to.slf4j;
-    requires org.apache.logging.log4j.to.slf4j;
+    requires /*runtime*/ org.apache.logging.log4j.to.slf4j;
     requires org.tinylog.api;
-    requires org.tinylog.api.slf4j;
+    requires /*runtime*/ org.tinylog.api.slf4j;
     requires org.tinylog.impl;
     // endregion
 
@@ -78,11 +84,9 @@ open module org.jabref {
     // endregion
 
     // region: data mapping
-    requires jdk.xml.dom;
     // requires com.google.gson;
-    // requires com.fasterxml.jackson.databind;
-    // requires com.fasterxml.jackson.dataformat.yaml;
-    // requires com.fasterxml.jackson.datatype.jsr310;
+    requires tools.jackson.core;
+    requires tools.jackson.databind;
     // endregion
 
     // dependency injection using HK2
@@ -114,25 +118,20 @@ open module org.jabref {
     // requires org.apache.commons.logging;
     // endregion
 
-    // region: latex2unicode
-    // requires com.github.tomtung.latex2unicode;
-    // requires fastparse;
-    // requires scala.library;
-    // endregion
-
     // requires jbibtex;
     // requires citeproc.java;
 
     // requires snuggletex.core;
 
-    requires org.apache.pdfbox;
     // requires org.apache.xmpbox;
     // requires com.ibm.icu;
 
     requires flexmark;
     requires flexmark.html2md.converter;
     requires flexmark.util.ast;
+    requires flexmark.util.collection;
     requires flexmark.util.data;
+    requires flexmark.util.sequence;
 
     // requires com.h2database.mvstore;
 
@@ -159,17 +158,6 @@ open module org.jabref {
     // requires velocity.engine.core;
     // endregion
 
-    // region: Lucene
-    /*
-     * In case the version is updated, please also increment {@link org.jabref.model.search.LinkedFilesConstants.VERSION} to trigger reindexing.
-     */
-    uses org.apache.lucene.codecs.lucene101.Lucene101Codec;
-    requires org.apache.lucene.analysis.common;
-    requires org.apache.lucene.core;
-    requires org.apache.lucene.highlighter;
-    requires org.apache.lucene.queryparser;
-    // endregion
-
     // requires net.harawata.appdirs;
     // requires com.sun.jna;
     requires com.sun.jna.platform;
@@ -178,19 +166,19 @@ open module org.jabref {
     // uses org.eclipse.jgit.transport.SshSessionFactory;
     // uses org.eclipse.jgit.lib.Signer;
 
-    requires transitive org.jspecify;
+    requires org.jspecify;
 
     // region: other libraries (alphabetically)
     // requires cuid;
     requires com.dlsc.pdfviewfx;
-    requires com.pixelduke.fxthemes;
     // requires com.sun.jna;
     // requires dd.plist;
-    requires io.github.adr;
+    requires static io.github.eadr;
     // required by okhttp and some AI library
     // requires kotlin.stdlib;
     // requires mslinks;
     requires org.antlr.antlr4.runtime;
     requires org.libreoffice.uno;
+    requires veneer;
     // endregion
 }

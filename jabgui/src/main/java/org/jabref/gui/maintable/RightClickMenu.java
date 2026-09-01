@@ -7,13 +7,13 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
-import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.StandardActions;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.edit.CopyMoreAction;
 import org.jabref.gui.edit.CopyTo;
 import org.jabref.gui.edit.EditAction;
@@ -22,7 +22,6 @@ import org.jabref.gui.externalfiles.ImportHandler;
 import org.jabref.gui.frame.SendAsKindleEmailAction;
 import org.jabref.gui.frame.SendAsStandardEmailAction;
 import org.jabref.gui.importer.fetcher.LookupIdentifierAction;
-import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.linkedfile.AttachFileAction;
 import org.jabref.gui.linkedfile.AttachFileFromURLAction;
 import org.jabref.gui.menus.ChangeEntryTypeMenu;
@@ -31,27 +30,25 @@ import org.jabref.gui.mergeentries.threewaymerge.MergeEntriesAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.CopyCitationAction;
 import org.jabref.gui.preview.PreviewPreferences;
+import org.jabref.gui.relatedwork.RelatedWorkAction;
 import org.jabref.gui.specialfields.SpecialFieldMenuItemFactory;
 import org.jabref.logic.citationstyle.CitationStyleOutputFormat;
-import org.jabref.logic.citationstyle.CitationStylePreviewLayout;
-import org.jabref.logic.importer.WebFetchers;
+import org.jabref.logic.importer.fetcher.CrossRef;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.preview.CitationStylePreviewLayout;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.SpecialField;
-import org.jabref.model.entry.identifier.DOI;
 
 import com.tobiasdiez.easybind.EasyBind;
 
 public class RightClickMenu {
 
-    public static ContextMenu create(BibEntryTableViewModel entry,
-                                     KeyBindingRepository keyBindingRepository,
-                                     LibraryTab libraryTab,
+    public static ContextMenu create(LibraryTab libraryTab,
                                      DialogService dialogService,
                                      StateManager stateManager,
                                      GuiPreferences preferences,
@@ -97,15 +94,17 @@ public class RightClickMenu {
                 factory.createMenuItem(StandardActions.OPEN_EXTERNAL_FILE, new OpenSelectedEntriesFilesAction(dialogService, stateManager, preferences, taskExecutor)),
                 extractFileReferencesOnline,
                 extractFileReferencesOffline,
+                factory.createMenuItem(StandardActions.EXTRACT_RELATED_WORK_COMMENTS, new RelatedWorkAction(dialogService, stateManager, preferences)),
 
                 factory.createMenuItem(StandardActions.OPEN_URL, new OpenUrlAction(dialogService, stateManager, preferences)),
-                factory.createMenuItem(StandardActions.SEARCH_SHORTSCIENCE, new SearchShortScienceAction(dialogService, stateManager, preferences)),
+
+                createSearchSubMenu(factory, dialogService, stateManager, preferences),
 
                 new SeparatorMenuItem(),
 
                 new ChangeEntryTypeMenu(libraryTab.getSelectedEntries(), libraryTab.getBibDatabaseContext(), undoManager, entryTypesManager).asSubMenu(),
                 factory.createMenuItem(StandardActions.MERGE_WITH_FETCHED_ENTRY, new MergeWithFetchedEntryAction(dialogService, stateManager, taskExecutor, preferences, undoManager)),
-                factory.createMenuItem(StandardActions.LOOKUP_DOC_IDENTIFIER, new LookupIdentifierAction<>(WebFetchers.getIdFetcherForIdentifier(DOI.class), stateManager, undoManager, dialogService, taskExecutor))
+                factory.createMenuItem(StandardActions.LOOKUP_DOC_IDENTIFIER, new LookupIdentifierAction<>(new CrossRef(preferences.getImporterPreferences()), stateManager, undoManager, dialogService, taskExecutor))
         );
 
         EasyBind.subscribe(preferences.getGrobidPreferences().grobidEnabledProperty(), enabled -> {
@@ -152,7 +151,7 @@ public class RightClickMenu {
                     factory.createCustomMenuItem(
                             StandardActions.COPY_TO,
                             new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                                    importHandler, sourceDatabaseContext, targetDatabaseContext),
+                                    preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext),
                             targetDatabaseName
                     )
             );
@@ -162,12 +161,12 @@ public class RightClickMenu {
     }
 
     public static Menu createCopySubMenu(ActionFactory factory,
-                                          DialogService dialogService,
-                                          StateManager stateManager,
-                                          GuiPreferences preferences,
-                                          ClipBoardManager clipBoardManager,
-                                          JournalAbbreviationRepository abbreviationRepository,
-                                          TaskExecutor taskExecutor) {
+                                         DialogService dialogService,
+                                         StateManager stateManager,
+                                         GuiPreferences preferences,
+                                         ClipBoardManager clipBoardManager,
+                                         JournalAbbreviationRepository abbreviationRepository,
+                                         TaskExecutor taskExecutor) {
         Menu copySpecialMenu = factory.createMenu(StandardActions.COPY_MORE);
 
         copySpecialMenu.getItems().addAll(
@@ -203,11 +202,11 @@ public class RightClickMenu {
     }
 
     static Menu createCopyFieldContentSubMenu(ActionFactory factory,
-                                                      DialogService dialogService,
-                                                      StateManager stateManager,
-                                                      ClipBoardManager clipBoardManager,
-                                                      GuiPreferences preferences,
-                                                      JournalAbbreviationRepository abbreviationRepository) {
+                                              DialogService dialogService,
+                                              StateManager stateManager,
+                                              ClipBoardManager clipBoardManager,
+                                              GuiPreferences preferences,
+                                              JournalAbbreviationRepository abbreviationRepository) {
         Menu copyFieldContentMenu = factory.createMenu(StandardActions.COPY_FIELD_CONTENT);
 
         copyFieldContentMenu.getItems().addAll(
@@ -236,5 +235,18 @@ public class RightClickMenu {
         );
 
         return sendMenu;
+    }
+
+    private static Menu createSearchSubMenu(ActionFactory factory,
+                                            DialogService dialogService,
+                                            StateManager stateManager,
+                                            GuiPreferences preferences) {
+        Menu searchMenu = factory.createMenu(StandardActions.SEARCH);
+        searchMenu.getItems().addAll(
+                factory.createMenuItem(StandardActions.SEARCH_GOOGLE_SCHOLAR, new SearchGoogleScholarAction(dialogService, stateManager, preferences)),
+                factory.createMenuItem(StandardActions.SEARCH_SEMANTIC_SCHOLAR, new SearchSemanticScholarAction(dialogService, stateManager, preferences)),
+                factory.createMenuItem(StandardActions.SEARCH_SHORTSCIENCE, new SearchShortScienceAction(dialogService, stateManager, preferences))
+        );
+        return searchMenu;
     }
 }

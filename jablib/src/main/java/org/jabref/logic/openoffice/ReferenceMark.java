@@ -1,104 +1,88 @@
 package org.jabref.logic.openoffice;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.jabref.logic.openoffice.oocsltext.CSLCitationType;
 
 import io.github.thibaultmeyer.cuid.CUID;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReferenceMark {
-    public static final String[] PREFIXES = {"JABREF_", "CID_"};
+@NullMarked
+public sealed interface ReferenceMark permits JabRefReferenceMark, ZoteroReferenceMark {
+    Logger LOGGER = LoggerFactory.getLogger(ReferenceMark.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceMark.class);
+    String name();
 
-    private static final Pattern REFERENCE_MARK_FORMAT = Pattern.compile(
-            "^(JABREF_[\\w-:./]+ CID_\\d+(?:, JABREF_[\\w-:./]+ CID_\\d+)*) (\\w+)$",
-            Pattern.UNICODE_CHARACTER_CLASS);
+    List<String> citationKeys();
 
-    private static final Pattern ENTRY_PATTERN = Pattern.compile(
-            "JABREF_([\\w-:./]+) CID_(\\d+)",
-            Pattern.UNICODE_CHARACTER_CLASS);
+    List<Integer> citationNumbers();
 
-    private final String name;
-    private List<String> citationKeys;
-    private List<Integer> citationNumbers;
-    private String uniqueId;
+    String uniqueId();
 
-    /**
-     * @param name Allowed formats:
-     * Single entry: <code>JABREF_{citationKey} CID_{citationNumber} {uniqueId}</code>
-     * Group of entries: <code>JABREF_{citationKey1} CID_{citationNumber1}, JABREF_{citationKey2} CID_{citationNumber2}, ..., JABREF_{citationKeyN} CID_{citationNumberN} {uniqueId}</code>
-     * Disallowed: <code>JABREF_{citationKey} CID_{citationNumber}</code> (no unique ID at the end)
-     * Disallowed: <code>JABREF_{citationKey1} CID_{citationNumber1} JABREF_{citationKey2} CID_{citationNumber2} {uniqueId}</code> (no comma between entries)
-     */
-    public ReferenceMark(String name) {
-        this.name = name;
-        parse(name);
+    CSLCitationType citationType();
+
+    default String getName() {
+        return name();
     }
 
-    public ReferenceMark(String name, List<String> citationKeys, List<Integer> citationNumbers, String uniqueId) {
-        this.name = name;
-        this.citationKeys = citationKeys;
-        this.citationNumbers = citationNumbers;
-        this.uniqueId = uniqueId;
+    /// The BibTeX citation keys
+    default List<String> getCitationKeys() {
+        return citationKeys();
     }
 
-    private void parse(String name) {
-        Matcher matcher = REFERENCE_MARK_FORMAT.matcher(name);
-        if (!matcher.matches()) {
-            LOGGER.warn("CSLReferenceMark: name={} does not match pattern. Assuming random values", name);
-            this.citationKeys = List.of(CUID.randomCUID2(8).toString());
-            this.citationNumbers = List.of(0);
-            this.uniqueId = this.citationKeys.getFirst();
-            return;
+    default List<Integer> getCitationNumbers() {
+        return citationNumbers();
+    }
+
+    default String getUniqueId() {
+        return uniqueId();
+    }
+
+    default CSLCitationType getCitationType() {
+        return citationType();
+    }
+
+    static String generateRandomCUID(int length) {
+        return CUID.randomCUID2(length).toString();
+    }
+
+    static boolean isReferenceMarkName(String name) {
+        return isJabRefReferenceMarkName(name) || isZoteroReferenceMarkName(name);
+    }
+
+    static boolean isJabRefReferenceMarkName(String name) {
+        return JabRefReferenceMark.isJabRefReferenceMarkName(name);
+    }
+
+    static boolean isZoteroReferenceMarkName(String name) {
+        return ZoteroReferenceMark.isZoteroReferenceMarkName(name);
+    }
+
+    static Optional<ReferenceMark> parse(String name) {
+        if (isZoteroReferenceMarkName(name)) {
+            Optional<ZoteroReferenceMark> referenceMark = ZoteroReferenceMark.parse(name);
+            if (referenceMark.isEmpty()) {
+                LOGGER.warn("Can not parse Zotero ReferenceMark: name={}", name);
+                return Optional.empty();
+            }
+            return Optional.of(referenceMark.get());
+        } else {
+            Optional<JabRefReferenceMark> referenceMark = JabRefReferenceMark.parse(name);
+            if (referenceMark.isEmpty()) {
+                LOGGER.warn("Can not parse JabRef ReferenceMark: name={}", name);
+                return Optional.empty();
+            }
+            return Optional.of(referenceMark.get());
         }
+    }
 
-        String entriesString = matcher.group(1).trim();
-        this.uniqueId = matcher.group(2) != null ? matcher.group(2).trim() : CUID.randomCUID2(8).toString();
-
-        this.citationKeys = new ArrayList<>();
-        this.citationNumbers = new ArrayList<>();
-
-        Matcher entryMatcher = ENTRY_PATTERN.matcher(entriesString);
-        while (entryMatcher.find()) {
-            this.citationKeys.add(entryMatcher.group(1));
-            this.citationNumbers.add(Integer.parseInt(entryMatcher.group(2)));
+    static ReferenceMark of(String name, List<String> citationKeys, List<Integer> citationNumbers, String uniqueId, CSLCitationType citationType) {
+        if (isZoteroReferenceMarkName(name)) {
+            return new ZoteroReferenceMark(name, citationKeys, citationNumbers, uniqueId, citationType);
         }
-
-        if (this.citationKeys.isEmpty() || this.citationNumbers.isEmpty()) {
-            LOGGER.warn("CSLReferenceMark: Failed to parse any entries from name={}. Assuming random values", name);
-            this.citationKeys = List.of(CUID.randomCUID2(8).toString());
-            this.citationNumbers = List.of(0);
-        }
-
-        LOGGER.debug("CSLReferenceMark: citationKeys={} citationNumbers={} uniqueId={}", getCitationKeys(), getCitationNumbers(), getUniqueId());
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * The BibTeX citation keys
-     */
-    public List<String> getCitationKeys() {
-        return citationKeys;
-    }
-
-    public List<Integer> getCitationNumbers() {
-        return citationNumbers;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public static Optional<ReferenceMark> of(String name) {
-        ReferenceMark mark = new ReferenceMark(name);
-        return mark.citationKeys.isEmpty() ? Optional.empty() : Optional.of(mark);
+        return new JabRefReferenceMark(name, citationKeys, citationNumbers, uniqueId, citationType);
     }
 }

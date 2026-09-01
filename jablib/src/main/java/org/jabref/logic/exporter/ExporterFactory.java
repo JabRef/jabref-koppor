@@ -3,7 +3,6 @@ package org.jabref.logic.exporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -15,12 +14,14 @@ import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
 
+import org.jspecify.annotations.NonNull;
+
 public class ExporterFactory {
 
     private final List<Exporter> exporters;
 
-    private ExporterFactory(List<Exporter> exporters) {
-        this.exporters = Objects.requireNonNull(exporters);
+    private ExporterFactory(@NonNull List<Exporter> exporters) {
+        this.exporters = exporters;
     }
 
     public static ExporterFactory create(CliPreferences preferences) {
@@ -49,6 +50,7 @@ public class ExporterFactory {
         exporters.add(new TemplateExporter("ISO 690", "iso690txt", "iso690", "iso690txt", StandardFileType.TXT, layoutPreferences, saveOrder));
         exporters.add(new TemplateExporter("Endnote", "endnote", "EndNote", "endnote", StandardFileType.TXT, layoutPreferences, saveOrder));
         exporters.add(new TemplateExporter("OpenOffice/LibreOffice CSV", "oocsv", "openoffice-csv", "openoffice", StandardFileType.CSV, layoutPreferences, saveOrder));
+        exporters.add(new TemplateExporter("CSV", "csv", "csv", "csv", StandardFileType.CSV, layoutPreferences, saveOrder));
         exporters.add(new TemplateExporter("RIS", "ris", "ris", "ris", StandardFileType.RIS, layoutPreferences, saveOrder, BlankLineBehaviour.DELETE_BLANKS));
         exporters.add(new TemplateExporter("MIS Quarterly", "misq", "misq", "misq", StandardFileType.RTF, layoutPreferences, saveOrder));
         exporters.add(new TemplateExporter("CSL YAML", "yaml", "yaml", null, StandardFileType.YAML, layoutPreferences, saveOrder, BlankLineBehaviour.DELETE_BLANKS));
@@ -62,6 +64,7 @@ public class ExporterFactory {
         exporters.add(new EmbeddedBibFilePdfExporter(bibDatabaseMode, preferences.getCustomEntryTypesRepository(), fieldPreferences));
         exporters.add(new CffExporter());
         exporters.add(new EndnoteXmlExporter(preferences.getBibEntryPreferences()));
+        exporters.add(new AcademicPagesExporter(layoutPreferences, fieldPreferences, preferences.getCustomEntryTypesRepository()));
 
         // Now add custom export formats
         exporters.addAll(customFormats);
@@ -69,21 +72,17 @@ public class ExporterFactory {
         return new ExporterFactory(exporters);
     }
 
-    /**
-     * Get a list of all exporters.
-     *
-     * @return A list containing all exporters
-     */
+    /// Get a list of all exporters.
+    ///
+    /// @return A list containing all exporters
     public List<Exporter> getExporters() {
         return Collections.unmodifiableList(exporters);
     }
 
-    /**
-     * Look up the named exporter (case-insensitive).
-     *
-     * @param consoleName The export name given in the JabRef console help information.
-     * @return The exporter, or an empty option if no exporter with that name is registered.
-     */
+    /// Look up the named exporter (case-insensitive).
+    ///
+    /// @param consoleName The export name given in the JabRef console help information.
+    /// @return The exporter, or an empty option if no exporter with that name is registered.
     public Optional<Exporter> getExporterByName(String consoleName) {
         return exporters.stream().filter(exporter -> exporter.getId().equalsIgnoreCase(consoleName)).findFirst();
     }

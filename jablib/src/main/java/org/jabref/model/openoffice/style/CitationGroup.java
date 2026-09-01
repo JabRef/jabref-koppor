@@ -1,6 +1,5 @@
 package org.jabref.model.openoffice.style;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -9,9 +8,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.util.OOListUtil;
 
-/**
- * A CitationGroup describes a group of citations.
- */
+/// A CitationGroup describes a group of citations.
 public class CitationGroup {
 
     public final OODataModel dataModel;
@@ -63,7 +60,7 @@ public class CitationGroup {
         this.dataModel = dataModel;
         this.groupId = groupId;
         this.citationType = citationType;
-        this.citationsInStorageOrder = Collections.unmodifiableList(citationsInStorageOrder);
+        this.citationsInStorageOrder = List.copyOf(citationsInStorageOrder);
         this.localOrder = OOListUtil.makeIndices(citationsInStorageOrder.size());
         this.referenceMarkNameForLinking = referenceMarkNameForLinking;
         this.indexInGlobalOrder = Optional.empty();
@@ -78,9 +75,7 @@ public class CitationGroup {
      * localOrder
      */
 
-    /**
-     * Sort citations for presentation within a CitationGroup.
-     */
+    /// Sort citations for presentation within a CitationGroup.
     void imposeLocalOrder(Comparator<BibEntry> entryComparator) {
         // For JabRef52 the single pageInfo is always in the last-in-localorder citation.
         // We adjust here accordingly by taking it out and adding it back after sorting.
@@ -101,7 +96,7 @@ public class CitationGroup {
     }
 
     public List<Integer> getLocalOrder() {
-        return Collections.unmodifiableList(localOrder);
+        return List.copyOf(localOrder);
     }
 
     /*

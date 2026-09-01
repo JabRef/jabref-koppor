@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -29,6 +29,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
 import org.jabref.logic.formatter.bibtexfields.NormalizePagesFormatter;
 import org.jabref.logic.importer.Importer;
@@ -38,6 +39,7 @@ import org.jabref.logic.importer.fileformat.citavi.KnowledgeItem;
 import org.jabref.logic.importer.fileformat.citavi.Reference;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
@@ -47,12 +49,14 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-import org.jabref.model.strings.StringUtil;
 
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.function.Predicate.not;
 
 public class CitaviXmlImporter extends Importer implements Parser {
 
@@ -100,30 +104,28 @@ public class CitaviXmlImporter extends Importer implements Parser {
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
-        Objects.requireNonNull(reader);
-        return false;
-    }
-
-    @Override
-    public boolean isRecognizedFormat(Path filePath) throws IOException {
-        try (BufferedReader reader = getReaderFromZip(filePath)) {
-            String str;
-            int i = 0;
-            while (((str = reader.readLine()) != null) && (i < 50)) {
-                if (str.toLowerCase(Locale.ROOT).contains("citaviexchangedata")) {
-                    return true;
-                }
-                i++;
+    public boolean isRecognizedFormat(@NonNull Reader reader) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        String str;
+        int i = 0;
+        while (((str = bufferedReader.readLine()) != null) && (i < 50)) {
+            if (str.toLowerCase(Locale.ROOT).contains("citaviexchangedata")) {
+                return true;
             }
+            i++;
         }
         return false;
     }
 
     @Override
-    public ParserResult importDatabase(Path filePath) throws IOException {
-        Objects.requireNonNull(filePath);
+    public boolean isRecognizedFormat(@NonNull Path filePath) throws IOException {
+        try (BufferedReader reader = getReaderFromZip(filePath)) {
+            return (isRecognizedFormat((Reader) reader));
+        }
+    }
 
+    @Override
+    public ParserResult importDatabase(@NonNull Path filePath) throws IOException {
         try (BufferedReader reader = getReaderFromZip(filePath)) {
             XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(reader);
 
@@ -152,16 +154,26 @@ public class CitaviXmlImporter extends Importer implements Parser {
                 case XMLStreamConstants.START_ELEMENT -> {
                     String startElementName = reader.getLocalName();
                     switch (startElementName) {
-                        case "Persons" -> parsePersons(reader);
-                        case "Keywords" -> parseKeywords(reader);
-                        case "Publishers" -> parsePublishers(reader);
-                        case "References" -> parseReferences(reader);
-                        case "KnowledgeItems" -> parseKnowledgeItems(reader);
-                        case "ReferenceAuthors" -> parseReferenceIdLink(reader, "ReferenceAuthors", refIdWithAuthorIds);
-                        case "ReferenceKeywords" -> parseReferenceIdLink(reader, "ReferenceKeywords", refIdWithKeywordsIds);
-                        case "ReferencePublishers" -> parseReferenceIdLink(reader, "ReferencePublishers", refIdWithPublisherIds);
-                        case "ReferenceEditors" -> parseReferenceIdLink(reader, "ReferenceEditors", refIdWithEditorIds);
-                        default -> consumeElement(reader);
+                        case "Persons" ->
+                                parsePersons(reader);
+                        case "Keywords" ->
+                                parseKeywords(reader);
+                        case "Publishers" ->
+                                parsePublishers(reader);
+                        case "References" ->
+                                parseReferences(reader);
+                        case "KnowledgeItems" ->
+                                parseKnowledgeItems(reader);
+                        case "ReferenceAuthors" ->
+                                parseReferenceIdLink(reader, "ReferenceAuthors", refIdWithAuthorIds);
+                        case "ReferenceKeywords" ->
+                                parseReferenceIdLink(reader, "ReferenceKeywords", refIdWithKeywordsIds);
+                        case "ReferencePublishers" ->
+                                parseReferenceIdLink(reader, "ReferencePublishers", refIdWithPublisherIds);
+                        case "ReferenceEditors" ->
+                                parseReferenceIdLink(reader, "ReferenceEditors", refIdWithEditorIds);
+                        default ->
+                                consumeElement(reader);
                     }
                 }
                 case XMLStreamConstants.END_ELEMENT -> {
@@ -254,6 +266,11 @@ public class CitaviXmlImporter extends Importer implements Parser {
                     }
                 }
                 case XMLStreamConstants.END_ELEMENT -> {
+                    if (keywordName == null) {
+                        LOGGER.error("No keyword name found for keyword with id {}. Please check if the keyword name is present in the XML file and if the keyword name is not empty.", id);
+                        return;
+                    }
+
                     if ("Keyword".equals(reader.getLocalName())) {
                         Keyword keyword = new Keyword(keywordName);
                         knownKeywords.put(id, keyword);
@@ -337,6 +354,7 @@ public class CitaviXmlImporter extends Importer implements Parser {
         String volume = null;
         String doi = null;
         String isbn = null;
+        String citationKey = null;
 
         while (reader.hasNext()) {
             int event = reader.next();
@@ -344,21 +362,33 @@ public class CitaviXmlImporter extends Importer implements Parser {
                 case XMLStreamConstants.START_ELEMENT -> {
                     String elementName = reader.getLocalName();
                     switch (elementName) {
-                        case "ReferenceType" -> referenceType = reader.getElementText();
-                        case "Title" -> title = reader.getElementText();
-                        case "Year" -> year = reader.getElementText();
-                        case "Abstract" -> abstractText = reader.getElementText();
-                        case "PageRange" -> pageRange = reader.getElementText();
-                        case "PageCount" -> pageCount = reader.getElementText();
-                        case "Volume" -> volume = reader.getElementText();
-                        case "Doi" -> doi = reader.getElementText();
-                        case "Isbn" -> isbn = reader.getElementText();
-                        default -> consumeElement(reader);
+                        case "ReferenceType" ->
+                                referenceType = reader.getElementText();
+                        case "Title" ->
+                                title = reader.getElementText();
+                        case "Year" ->
+                                year = reader.getElementText();
+                        case "Abstract" ->
+                                abstractText = reader.getElementText();
+                        case "PageRange" ->
+                                pageRange = reader.getElementText();
+                        case "PageCount" ->
+                                pageCount = reader.getElementText();
+                        case "Volume" ->
+                                volume = reader.getElementText();
+                        case "Doi" ->
+                                doi = reader.getElementText();
+                        case "Isbn" ->
+                                isbn = reader.getElementText();
+                        case "CitationKey" ->
+                                citationKey = reader.getElementText();
+                        default ->
+                                consumeElement(reader);
                     }
                 }
                 case XMLStreamConstants.END_ELEMENT -> {
                     if ("Reference".equals(reader.getLocalName())) {
-                        references.add(new Reference(id, referenceType, title, year, abstractText, pageRange, pageCount, volume, doi, isbn));
+                        references.add(new Reference(id, referenceType, title, year, abstractText, pageRange, pageCount, volume, doi, isbn, citationKey));
                         return;
                     }
                 }
@@ -400,13 +430,20 @@ public class CitaviXmlImporter extends Importer implements Parser {
                 case XMLStreamConstants.START_ELEMENT -> {
                     String elementName = reader.getLocalName();
                     switch (elementName) {
-                        case "ReferenceID" -> referenceId = reader.getElementText();
-                        case "CoreStatement" -> coreStatement = reader.getElementText();
-                        case "Text" -> text = reader.getElementText();
-                        case "PageRangeNumber" -> pageRangeNumber = reader.getElementText();
-                        case "QuotationType" -> quotationType = reader.getElementText();
-                        case "QuotationIndex" -> quotationIndex = reader.getElementText();
-                        default -> consumeElement(reader);
+                        case "ReferenceID" ->
+                                referenceId = reader.getElementText();
+                        case "CoreStatement" ->
+                                coreStatement = reader.getElementText();
+                        case "Text" ->
+                                text = reader.getElementText();
+                        case "PageRangeNumber" ->
+                                pageRangeNumber = reader.getElementText();
+                        case "QuotationType" ->
+                                quotationType = reader.getElementText();
+                        case "QuotationIndex" ->
+                                quotationIndex = reader.getElementText();
+                        default ->
+                                consumeElement(reader);
                     }
                 }
                 case XMLStreamConstants.END_ELEMENT -> {
@@ -477,7 +514,7 @@ public class CitaviXmlImporter extends Importer implements Parser {
                     .ifPresent(value -> entry.setField(StandardField.KEYWORDS, clean(value)));
 
             Optional.ofNullable(getKnowledgeItem(knowledgeItemsByRefId, reference))
-                            .ifPresent(value -> entry.setField(StandardField.COMMENT, StringUtil.unifyLineBreaks(value, "\n")));
+                    .ifPresent(value -> entry.setField(StandardField.COMMENT, StringUtil.unifyLineBreaks(value, "\n")));
 
             bibItems.add(entry);
         }
@@ -487,6 +524,11 @@ public class CitaviXmlImporter extends Importer implements Parser {
     private void setEntryFieldsFromReference(BibEntry entry, Reference reference) {
         entry.setType(getType(reference));
 
+        Optional.ofNullable(reference.citationKey())
+                .filter(key -> !key.isBlank())
+                .map(CitaviXmlImporter::sanitizeCitationKey)
+                .filter(not(String::isEmpty))
+                .ifPresent(entry::setCitationKey);
         Optional.ofNullable(reference.title())
                 .ifPresent(value -> entry.setField(StandardField.TITLE, clean(value)));
         Optional.ofNullable(reference.abstractText())
@@ -513,9 +555,9 @@ public class CitaviXmlImporter extends Importer implements Parser {
             List<String> personIds = entry.getValue();
 
             List<Author> authorsForThisReferenceId = personIds.stream()
-                                                           .map(personMap::get)
-                                                           .filter(Objects::nonNull)
-                                                           .toList();
+                                                              .map(personMap::get)
+                                                              .filter(Objects::nonNull)
+                                                              .toList();
 
             if (!authorsForThisReferenceId.isEmpty()) {
                 String stringifiedAuthors = AuthorList.of(authorsForThisReferenceId).getAsLastFirstNamesWithAnd(false);
@@ -576,11 +618,11 @@ public class CitaviXmlImporter extends Importer implements Parser {
         }
         for (KnowledgeItem knowledgeItem : relevantKnowledgeItems) {
             Optional.ofNullable(knowledgeItem.coreStatement())
-                    .filter(Predicate.not(String::isEmpty))
+                    .filter(not(String::isEmpty))
                     .ifPresent(t -> comment.add("# " + cleanUpText(t)));
 
             Optional.ofNullable(knowledgeItem.text())
-                    .filter(Predicate.not(String::isEmpty))
+                    .filter(not(String::isEmpty))
                     .ifPresent(t -> comment.add(cleanUpText(t)));
 
             try {
@@ -624,12 +666,24 @@ public class CitaviXmlImporter extends Importer implements Parser {
 
     private static EntryType convertRefNameToType(String refName) {
         return switch (refName.toLowerCase().trim()) {
-            case "artwork", "generic", "musicalbum", "audioorvideodocument", "movie" -> StandardEntryType.Misc;
-            case "electronic article" -> IEEETranEntryType.Electronic;
-            case "book section" -> StandardEntryType.InBook;
-            case "book", "bookedited", "audiobook" -> StandardEntryType.Book;
-            case "report" -> StandardEntryType.Report;
-            default -> StandardEntryType.Article;
+            case "artwork",
+                 "generic",
+                 "musicalbum",
+                 "audioorvideodocument",
+                 "movie" ->
+                    StandardEntryType.Misc;
+            case "electronic article" ->
+                    IEEETranEntryType.Electronic;
+            case "book section" ->
+                    StandardEntryType.InBook;
+            case "book",
+                 "bookedited",
+                 "audiobook" ->
+                    StandardEntryType.Book;
+            case "report" ->
+                    StandardEntryType.Report;
+            default ->
+                    StandardEntryType.Article;
         };
     }
 
@@ -642,21 +696,20 @@ public class CitaviXmlImporter extends Importer implements Parser {
 
     private String removeSpacesBeforeLineBreak(String string) {
         return string.replaceAll(" +\r\n", "\r\n")
-              .replaceAll(" +\n", "\n");
+                     .replaceAll(" +\n", "\n");
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
-        Objects.requireNonNull(reader);
+    public ParserResult importDatabase(@NonNull BufferedReader reader) throws IOException {
         throw new UnsupportedOperationException("CitaviXmlImporter does not support importDatabase(BufferedReader reader). "
-                                                + "Instead use importDatabase(Path filePath, Charset defaultEncoding).");
+                + "Instead use importDatabase(Path filePath, Charset defaultEncoding).");
     }
 
     @Override
     public List<BibEntry> parseEntries(InputStream inputStream) {
         try {
             return importDatabase(
-                                  new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))).getDatabase().getEntries();
+                    new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))).getDatabase().getEntries();
         } catch (IOException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
@@ -675,40 +728,46 @@ public class CitaviXmlImporter extends Importer implements Parser {
         }
     }
 
-    /**
-     * {@code PageRange} and {@code PageCount} tags contain text
-     * with additional markers that need to be discarded.
-     * <p>
-     * Example {@code PageCount}:
-     * {@snippet :
-     *   <PageCount>
-     *   <c>113</c> <in>true</in> <os>113</os> <ps>113</ps>
-     *   </PageCount>
-     * }
-     * Contents of {@code PageCount} after parsing above example data:
-     * {@snippet :
-     *   <c>113</c> <in>true</in> <os>113</os> <ps>113</ps>
-     * }
-     * Content of "ps" tag is returned by {@code getPages}.
-     * <p>
-     * Example {@code PageRange}:
-     * {@snippet :
-     *   <PageRange>
-     *   <![CDATA[
-     *     <sp> <n>34165</n> <in>true</in> <os>34165</os> <ps>34165</ps> </sp>
-     *     <ep> <n>34223</n> <in>true</in> <os>34223</os> <ps>34223</ps> </ep>
-     *     <os>34165-223</os>
-     *   ]]>
-     *   </PageRange>
-     * }
-     * Contents of {@code PageRange} after parsing above example data:
-     * {@snippet :
-     *   <sp> <n>24</n> <in>true</in> <os>24</os> <ps>24</ps> </sp>
-     *   <ep> <n>31</n> <in>true</in> <os>31</os> <ps>31</ps> </ep>
-     *   <os>24-31</os>
-     * }
-     * Content of "os" tag is returned by {@code getPages}.
-     */
+    /// `PageRange` and `PageCount` tags contain text
+    /// with additional markers that need to be discarded.
+    ///
+    /// Example `PageCount`:
+    ///
+    /// ```xml
+    /// <PageCount>
+    /// <c>113</c> <in>true</in> <os>113</os> <ps>113</ps>
+    /// </PageCount>
+    /// ```
+    ///
+    /// Contents of `PageCount` after parsing above example data:
+    ///
+    /// ```xml
+    /// <c>113</c> <in>true</in> <os>113</os> <ps>113</ps>
+    /// ```
+    ///
+    /// Content of "ps" tag is returned by `getPages`.
+    ///
+    /// Example `PageRange`:
+    ///
+    /// ```xml
+    /// <PageRange>
+    /// <![CDATA[
+    /// <sp> <n>34165</n> <in>true</in> <os>34165</os> <ps>34165</ps> </sp>
+    /// <ep> <n>34223</n> <in>true</in> <os>34223</os> <ps>34223</ps> </ep>
+    /// <os>34165-223</os>
+    /// ]]>
+    /// </PageRange>
+    /// ```
+    ///
+    /// Contents of `PageRange` after parsing above example data:
+    ///
+    /// ```xml
+    /// <sp> <n>24</n> <in>true</in> <os>24</os> <ps>24</ps> </sp>
+    /// <ep> <n>31</n> <in>true</in> <os>31</os> <ps>31</ps> </ep>
+    /// <os>24-31</os>
+    /// ```
+    ///
+    /// Content of "os" tag is returned by `getPages`.
     private String getPages(String pageRange, String pageCount) {
         String tmpStr = "";
         if ((pageCount != null) && (pageRange == null)) {
@@ -750,16 +809,28 @@ public class CitaviXmlImporter extends Importer implements Parser {
         return new BufferedReader(
                 new InputStreamReader(
                         new BOMInputStream.Builder()
-                            .setInputStream(Files.newInputStream(newFile, StandardOpenOption.READ))
-                            .setInclude(false)
-                            .setByteOrderMarks(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_32BE, ByteOrderMark.UTF_32LE)
-                            .get()));
+                                .setInputStream(Files.newInputStream(newFile, StandardOpenOption.READ))
+                                .setInclude(false)
+                                .setByteOrderMarks(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_32BE, ByteOrderMark.UTF_32LE)
+                                .get()));
+    }
+
+    private static String sanitizeCitationKey(String key) {
+        return key.chars()
+                  .filter(c -> !Character.isWhitespace(c))
+                  .filter(c -> !CitationKeyGenerator.DISALLOWED_CHARACTERS.contains((char) c))
+                  .collect(
+                          StringBuilder::new,
+                          StringBuilder::appendCodePoint,
+                          StringBuilder::append
+                  )
+                  .toString();
     }
 
     private String clean(String input) {
         String result = StringUtil.unifyLineBreaks(input, " ")
-                         .trim()
-                         .replaceAll(" +", " ");
+                                  .trim()
+                                  .replaceAll(" +", " ");
         return htmlToLatexFormatter.format(result);
     }
 

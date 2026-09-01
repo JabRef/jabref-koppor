@@ -21,17 +21,18 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.actions.StandardActions;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.edit.OpenBrowserAction;
 import org.jabref.gui.frame.FileHistoryMenu;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.importer.NewDatabaseAction;
+import org.jabref.gui.importer.actions.ImportCommand;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.CountingUndoManager;
@@ -240,19 +241,26 @@ public class WelcomeTab extends Tab {
         Hyperlink newLibraryLink = createActionLink(Localization.lang("New empty library"),
                 () -> new NewDatabaseAction(tabContainer, preferences).execute());
 
-        Hyperlink openLibraryLink = createActionLink(Localization.lang("Open library"),
+        Hyperlink openLibraryLink = createActionLink(Localization.lang("Open library..."),
                 () -> new OpenDatabaseAction(tabContainer, preferences, aiService, dialogService,
                         stateManager, fileUpdateMonitor, entryTypesManager, undoManager, clipBoardManager,
                         taskExecutor).execute());
 
         Hyperlink openExampleLibraryLink = createActionLink(Localization.lang("New example library"),
                 this::openExampleLibrary);
+        Hyperlink importIntoNewLibraryLink = createActionLink(Localization.lang("Import into new library..."),
+                this::importIntoNewLibrary
+        );
 
         VBox container = new VBox();
         container.getStyleClass().add("welcome-links-content");
-        container.getChildren().addAll(newLibraryLink, openExampleLibraryLink, openLibraryLink);
+        container.getChildren().addAll(newLibraryLink, openExampleLibraryLink, openLibraryLink, importIntoNewLibraryLink);
 
         return createVBoxContainer(header, container);
+    }
+
+    private void importIntoNewLibrary() {
+        new ImportCommand(tabContainer, ImportCommand.ImportMethod.AS_NEW, preferences, stateManager, fileUpdateMonitor, taskExecutor, dialogService).execute();
     }
 
     private VBox createWelcomeRecentBox() {
@@ -335,8 +343,8 @@ public class WelcomeTab extends Tab {
         Hyperlink onlineHelpLink = createFooterLink(Localization.lang("Online help"), StandardActions.HELP, IconTheme.JabRefIcons.HELP);
         Hyperlink privacyPolicyLink = createFooterLink(Localization.lang("Privacy policy"), StandardActions.OPEN_PRIVACY_POLICY, IconTheme.JabRefIcons.BOOK);
         Hyperlink forumLink = createFooterLink(Localization.lang("Community forum"), StandardActions.OPEN_FORUM, IconTheme.JabRefIcons.FORUM);
-        Hyperlink mastodonLink = createFooterLink(Localization.lang("Mastodon"), StandardActions.OPEN_MASTODON, IconTheme.JabRefIcons.MASTODON);
-        Hyperlink linkedInLink = createFooterLink(Localization.lang("LinkedIn"), StandardActions.OPEN_LINKEDIN, IconTheme.JabRefIcons.LINKEDIN);
+        Hyperlink mastodonLink = createFooterLink("Mastodon", StandardActions.OPEN_MASTODON, IconTheme.JabRefIcons.MASTODON);
+        Hyperlink linkedInLink = createFooterLink("LinkedIn", StandardActions.OPEN_LINKEDIN, IconTheme.JabRefIcons.LINKEDIN);
         Hyperlink donationLink = createFooterLink(Localization.lang("Donation"), StandardActions.DONATE, IconTheme.JabRefIcons.DONATE);
 
         container.getChildren().addAll(onlineHelpLink, privacyPolicyLink, forumLink, mastodonLink, linkedInLink, donationLink);
@@ -358,15 +366,24 @@ public class WelcomeTab extends Tab {
         Hyperlink link = new Hyperlink(text);
         link.getStyleClass().add("welcome-community-link");
         String url = switch (action) {
-            case HELP -> URLs.HELP_URL;
-            case OPEN_FORUM -> URLs.FORUM_URL;
-            case OPEN_MASTODON -> URLs.MASTODON_URL;
-            case OPEN_LINKEDIN -> URLs.LINKEDIN_URL;
-            case DONATE -> URLs.DONATE_URL;
-            case OPEN_DEV_VERSION_LINK -> URLs.DEV_VERSION_LINK_URL;
-            case OPEN_CHANGELOG -> URLs.CHANGELOG_URL;
-            case OPEN_PRIVACY_POLICY -> URLs.PRIVACY_POLICY_URL;
-            default -> null;
+            case HELP ->
+                    URLs.HELP_URL;
+            case OPEN_FORUM ->
+                    URLs.FORUM_URL;
+            case OPEN_MASTODON ->
+                    URLs.MASTODON_URL;
+            case OPEN_LINKEDIN ->
+                    URLs.LINKEDIN_URL;
+            case DONATE ->
+                    URLs.DONATE_URL;
+            case OPEN_DEV_VERSION_LINK ->
+                    URLs.DEV_VERSION_LINK_URL;
+            case OPEN_CHANGELOG ->
+                    URLs.CHANGELOG_URL;
+            case OPEN_PRIVACY_POLICY ->
+                    URLs.PRIVACY_POLICY_URL;
+            default ->
+                    null;
         };
         if (url != null) {
             link.setOnAction(_ -> new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences()).execute());

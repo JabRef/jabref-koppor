@@ -23,9 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -39,74 +37,82 @@ import javax.net.ssl.SSLContext;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
+import org.jabref.logic.importer.ImporterPreferences;
+import org.jabref.logic.importer.fetcher.UnpaywallFetcher;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.http.SimpleHttpResponse;
-import org.jabref.model.strings.StringUtil;
 
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
 import kong.unirest.core.UnirestException;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * URL download to a string.
- * <p>
- * Example:
- * <code>
- * URLDownload dl = new URLDownload(URL);
- * String content = dl.asString(ENCODING);
- * dl.toFile(Path); // available in FILE
- * String contentType = dl.getMimeType();
- * </code>
- * <br/><br/>
- * Almost each call to a public method creates a new HTTP connection (except for {@link #asString(Charset, URLConnection) asString},
- * which uses an already opened connection). Nothing is cached.
- */
+/// ## Example
+///
+/// ``java
+/// URLDownload dl = new URLDownload(URL);
+/// String content = dl.asString(ENCODING);
+/// dl.toFile(Path);              // available in FILE
+/// String contentType = dl.getMimeType();
+/// ``
+///
+/// Almost every call to a public method creates a new HTTP connection
+/// (except for {@link #asString(Charset, URLConnection) asString},
+/// which uses an already opened connection).
+///
+/// Nothing is cached.
+///
+/// Implentation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects` to `true`
+/// and enabling cookie management.
 public class URLDownload {
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(URLDownload.class);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
     private static final int MAX_RETRIES = 3;
 
     private final URL source;
     private final Map<String, String> parameters = new HashMap<>();
+
+    // In case Unpaywall should be supported, this should be non-null
+    private @Nullable ImporterPreferences importerPreferences;
+
     private String postData = "";
     private Duration connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-    private SSLContext sslContext;
+    // Can be null if SSL is not supported. If null, then ignore.
+    private @Nullable SSLContext sslContext;
 
-    static {
-        Unirest.config()
-               .followRedirects(true)
-               .enableCookieManagement(true)
-               .setDefaultHeader("User-Agent", USER_AGENT);
-    }
-
-    /**
-     * @param source the URL to download from
-     * @throws MalformedURLException if no protocol is specified in the source, or an unknown protocol is found
-     */
+    /// @param source the URL to download from
+    /// @throws MalformedURLException if no protocol is specified in the source, or an unknown protocol is found
     public URLDownload(String source) throws MalformedURLException {
         this(URLUtil.create(source));
     }
 
-    /**
-     * @param source The URL to download.
-     */
+    /// @param source The URL to download.
     public URLDownload(URL source) {
         this.source = source;
         this.addHeader("User-Agent", URLDownload.USER_AGENT);
 
         try {
-            sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(null, null, new SecureRandom());
-            // Note: SSL certificates are installed at {@link TrustStoreManager#configureTrustStore(Path)}
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            // Use the JVM-wide default context, which reflects the merged JRE + JabRef
+            // trust managers installed by TrustStoreManager#configureTrustStore(Path).
+            // Building a fresh context with init(null, null, ...) here would silently
+            // fall back to the plain JRE cacerts and ignore that configuration.
+            sslContext = SSLContext.getDefault();
+        } catch (NoSuchAlgorithmException e) {
             LOGGER.error("Could not initialize SSL context", e);
             sslContext = null;
         }
+    }
+
+    public URLDownload(@NonNull ImporterPreferences importerPreferences, @NonNull URL citationsUrl) {
+        this(citationsUrl);
+        this.importerPreferences = importerPreferences;
     }
 
     public URL getSource() {
@@ -121,10 +127,12 @@ public class URLDownload {
         try {
             String urlToCheck = source.toString();
             String locationHeader;
+            // @formatter:off
             do {
+                // @formatter:on
                 retries++;
-                HttpResponse<String> response = Unirest.head(urlToCheck).asString();
-                // Check if we have redirects, e.g. arxiv will give otherwise content type html for the original url
+                HttpResponse<String> response = Unirest.head(urlToCheck).headers(parameters).asString();
+                // Check if we have redirects, e.g. arxiv will give otherwise content type HTML for the original url
                 // We need to do it "manually", because ".followRedirects(true)" only works for GET not for HEAD
                 locationHeader = response.getHeaders().getFirst("location");
                 if (!StringUtil.isNullOrEmpty(locationHeader)) {
@@ -132,7 +140,7 @@ public class URLDownload {
                 }
                 // while loop, because there could be multiple redirects
             } while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
-            contentType = Unirest.head(urlToCheck).asString().getHeaders().getFirst("Content-Type");
+            contentType = Unirest.head(urlToCheck).headers(parameters).asString().getHeaders().getFirst("Content-Type");
             if ((contentType != null) && !contentType.isEmpty()) {
                 return Optional.of(contentType);
             }
@@ -142,7 +150,7 @@ public class URLDownload {
 
         // Use GET request as alternative if no HEAD request is available
         try {
-            contentType = Unirest.get(source.toString()).asString().getHeaders().get("Content-Type").getFirst();
+            contentType = Unirest.get(source.toString()).headers(parameters).asString().getHeaders().get("Content-Type").getFirst();
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
@@ -164,15 +172,12 @@ public class URLDownload {
         return Optional.empty();
     }
 
-    /**
-     * Check the connection by using the HEAD request.
-     * UnirestException can be thrown for invalid request.
-     *
-     * @return the status code of the response
-     */
+    /// Check the connection by using the HEAD request.
+    /// UnirestException can be thrown for invalid request.
+    ///
+    /// @return the status code of the response
     public boolean canBeReached() throws UnirestException {
-
-        int statusCode = Unirest.head(source.toString()).asString().getStatus();
+        int statusCode = Unirest.head(source.toString()).headers(parameters).asString().getStatus();
         return (statusCode >= 200) && (statusCode < 300);
     }
 
@@ -194,43 +199,19 @@ public class URLDownload {
         }
     }
 
-    /**
-     * Downloads the web resource to a String. Uses UTF-8 as encoding.
-     *
-     * @return the downloaded string
-     */
+    /// Downloads the web resource to a String. Uses UTF-8 as encoding.
+    ///
+    /// @return the downloaded string
     public String asString() throws FetcherException {
         return asString(StandardCharsets.UTF_8, this.openConnection());
     }
 
-    /**
-     * Downloads the web resource to a String.
-     *
-     * @param encoding the desired String encoding
-     * @return the downloaded string
-     */
-    public String asString(Charset encoding) throws FetcherException {
-        return asString(encoding, this.openConnection());
-    }
-
-    /**
-     * Downloads the web resource to a String from an existing connection. Uses UTF-8 as encoding.
-     *
-     * @param existingConnection an existing connection
-     * @return the downloaded string
-     */
-    public static String asString(URLConnection existingConnection) throws FetcherException {
-        return asString(StandardCharsets.UTF_8, existingConnection);
-    }
-
-    /**
-     * Downloads the web resource to a String.
-     *
-     * @param encoding   the desired String encoding
-     * @param connection an existing connection
-     * @return the downloaded string
-     */
-    public static String asString(Charset encoding, URLConnection connection) throws FetcherException {
+    /// Downloads the web resource to a String.
+    ///
+    /// @param encoding   the desired String encoding
+    /// @param connection an existing connection
+    /// @return the downloaded string
+    private static String asString(Charset encoding, URLConnection connection) throws FetcherException {
         try (InputStream input = new BufferedInputStream(connection.getInputStream());
              Writer output = new StringWriter()) {
             copy(input, output, encoding);
@@ -256,11 +237,9 @@ public class URLDownload {
         }
     }
 
-    /**
-     * Downloads the web resource to a file.
-     *
-     * @param destination the destination file path.
-     */
+    /// Downloads the web resource to a file.
+    ///
+    /// @param destination the destination file path.
     public void toFile(Path destination) throws FetcherException {
         try (InputStream input = new BufferedInputStream(this.openConnection().getInputStream())) {
             Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
@@ -270,12 +249,23 @@ public class URLDownload {
         }
     }
 
-    /**
-     * Takes the web resource as the source for a monitored input stream.
-     */
+    /// Uses the web resource as source and creates a monitored input stream.
     public ProgressInputStream asInputStream() throws FetcherException {
-        HttpURLConnection urlConnection = (HttpURLConnection) this.openConnection();
+        URLConnection connection = this.openConnection();
+        if (connection instanceof HttpURLConnection httpURLConnection) {
+            return asInputStream(httpURLConnection);
+        }
+        try {
+            return new ProgressInputStream(new BufferedInputStream(connection.getInputStream()), connection.getContentLengthLong());
+        } catch (IOException e) {
+            throw new FetcherException("Error getting input stream", e);
+        }
+    }
 
+    /// Uses the web resource as source and creates a monitored input stream.
+    ///
+    /// Exposing the urlConnection is required for dynamic API limiting of CrossRef
+    public ProgressInputStream asInputStream(HttpURLConnection urlConnection) throws FetcherException {
         int responseCode;
         try {
             responseCode = urlConnection.getResponseCode();
@@ -298,11 +288,9 @@ public class URLDownload {
         return new ProgressInputStream(new BufferedInputStream(inputStream), fileSize);
     }
 
-    /**
-     * Downloads the web resource to a temporary file.
-     *
-     * @return the path of the temporary file.
-     */
+    /// Downloads the web resource to a temporary file.
+    ///
+    /// @return the path of the temporary file.
     public Path toTemporaryFile() throws FetcherException {
         // Determine file name and extension from source url
         String sourcePath = source.getPath();
@@ -341,13 +329,11 @@ public class URLDownload {
         }
     }
 
-    /**
-     * Open a connection to this object's URL (with specified settings).
-     * <p>
-     * If accessing an HTTP URL, remember to close the resulting connection after usage.
-     *
-     * @return an open connection
-     */
+    /// Open a connection to this object's URL (with specified settings).
+    ///
+    /// If accessing an HTTP URL, remember to close the resulting connection after usage.
+    ///
+    /// @return an open connection
     public URLConnection openConnection() throws FetcherException {
         URLConnection connection;
         try {
@@ -367,10 +353,24 @@ public class URLDownload {
             }
 
             if ((status == HttpURLConnection.HTTP_MOVED_TEMP)
-                || (status == HttpURLConnection.HTTP_MOVED_PERM)
-                || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
+                    || (status == HttpURLConnection.HTTP_MOVED_PERM)
+                    || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
                 // get redirect url from "location" header field
                 String newUrl = connection.getHeaderField("location");
+
+                if (newUrl.startsWith("https://api.unpaywall.org/")) {
+                    if (importerPreferences == null) {
+                        LOGGER.warn("importerPreferences not set, but call to Unpaywall");
+                    } else {
+                        Optional<String> apiKey = importerPreferences.getApiKey(UnpaywallFetcher.FETCHER_NAME);
+                        if (StringUtil.isBlank(apiKey)) { // No checking for enablement of Unpaywall, because used differently
+                            LOGGER.warn("No email configured for Unpaywall");
+                        } else {
+                            newUrl = newUrl.replace("<INSERT_YOUR_EMAIL>", apiKey.get());
+                        }
+                    }
+                }
+
                 // open the new connection again
                 try {
                     httpURLConnection.disconnect();

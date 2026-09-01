@@ -1,60 +1,116 @@
 package org.jabref.logic.openoffice.oocsltext;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import org.jabref.logic.openoffice.JabRefReferenceMark;
+import org.jabref.logic.openoffice.OpenOfficeReferenceMarkFormat;
 import org.jabref.logic.openoffice.ReferenceMark;
+import org.jabref.logic.openoffice.ZoteroReferenceMark;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.BibEntryTypesManager;
+import org.jabref.model.openoffice.ootext.OOText;
 
 import com.sun.star.container.XNamed;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.text.XTextContent;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
-import io.github.thibaultmeyer.cuid.CUID;
 
-/**
- * Class to model a reference mark. See {@link CSLReferenceMarkManager} for the usage and management of all reference marks.
- */
+/// Class to model a reference mark. See {@link CSLReferenceMarkManager} for the usage and management of all reference marks.
 public class CSLReferenceMark {
     private ReferenceMark referenceMark;
     private XTextContent textContent;
     private final List<String> citationKeys;
     private List<Integer> citationNumbers;
+    private final CSLCitationType citationType;
+    private Optional<OOText> formattedCitationText = Optional.empty();
 
     public CSLReferenceMark(XNamed named, ReferenceMark referenceMark) {
         this.referenceMark = referenceMark;
         this.textContent = UnoRuntime.queryInterface(XTextContent.class, named);
         this.citationKeys = referenceMark.getCitationKeys();
         this.citationNumbers = referenceMark.getCitationNumbers();
+        this.citationType = referenceMark.getCitationType();
     }
 
-    public static CSLReferenceMark of(List<String> citationKeys, List<Integer> citationNumbers, XMultiServiceFactory factory) throws Exception {
-        String uniqueId = CUID.randomCUID2(8).toString();
-        String name = buildReferenceName(citationKeys, citationNumbers, uniqueId);
+    public static CSLReferenceMark of(List<BibEntry> entries,
+                                      List<String> citationKeys,
+                                      List<Integer> citationNumbers,
+                                      CSLCitationType citationType,
+                                      int firstZoteroItemId,
+                                      XMultiServiceFactory factory,
+                                      BibDatabaseContext bibDatabaseContext,
+                                      BibEntryTypesManager entryTypesManager,
+                                      OpenOfficeReferenceMarkFormat referenceMarkFormat,
+                                      Map<String, String> zoteroUriByCitationKey) throws Exception {
+        ReferenceMark referenceMark = buildReferenceMark(
+                entries,
+                citationKeys,
+                citationNumbers,
+                citationType,
+                firstZoteroItemId,
+                bibDatabaseContext,
+                entryTypesManager,
+                referenceMarkFormat,
+                zoteroUriByCitationKey);
         XNamed named = UnoRuntime.queryInterface(XNamed.class, factory.createInstance("com.sun.star.text.ReferenceMark"));
-        named.setName(name);
-        ReferenceMark referenceMark = new ReferenceMark(name, citationKeys, citationNumbers, uniqueId);
+        named.setName(referenceMark.getName());
         return new CSLReferenceMark(named, referenceMark);
     }
 
-    private static String buildReferenceName(List<String> citationKeys, List<Integer> citationNumbers, String uniqueId) {
-        StringBuilder nameBuilder = new StringBuilder();
-        for (int i = 0; i < citationKeys.size(); i++) {
-            if (i > 0) {
-                nameBuilder.append(", ");
-            }
-            nameBuilder.append(ReferenceMark.PREFIXES[0]).append(citationKeys.get(i))
-                       .append(" ").append(ReferenceMark.PREFIXES[1]).append(citationNumbers.get(i));
-        }
-        nameBuilder.append(" ").append(uniqueId);
-        return nameBuilder.toString();
+    static ReferenceMark buildReferenceMark(List<BibEntry> entries,
+                                            List<String> citationKeys,
+                                            List<Integer> citationNumbers,
+                                            CSLCitationType citationType,
+                                            int firstZoteroItemId,
+                                            BibDatabaseContext bibDatabaseContext,
+                                            BibEntryTypesManager entryTypesManager,
+                                            OpenOfficeReferenceMarkFormat referenceMarkFormat,
+                                            Map<String, String> zoteroUriByCitationKey) {
+        return switch (referenceMarkFormat) {
+            case JABREF_ONLY ->
+                    JabRefReferenceMark.buildReferenceMark(
+                            citationKeys,
+                            citationNumbers,
+                            citationType);
+            case ZOTERO_COMPATIBLE ->
+                    ZoteroReferenceMark.buildReferenceMark(
+                            entries,
+                            citationKeys,
+                            citationNumbers,
+                            firstZoteroItemId,
+                            citationType,
+                            bibDatabaseContext,
+                            entryTypesManager,
+                            zoteroUriByCitationKey);
+        };
     }
 
     public List<String> getCitationKeys() {
         return citationKeys;
     }
 
+    public List<Integer> getCitationNumbers() {
+        return citationNumbers;
+    }
+
+    public CSLCitationType getCitationType() {
+        return citationType;
+    }
+
     public void setCitationNumbers(List<Integer> numbers) {
         this.citationNumbers = numbers;
+    }
+
+    public Optional<OOText> getFormattedCitationText() {
+        return formattedCitationText;
+    }
+
+    public void setFormattedCitationText(OOText formattedCitationText) {
+        this.formattedCitationText = Optional.of(formattedCitationText);
     }
 
     public XTextContent getTextContent() {
@@ -65,11 +121,15 @@ public class CSLReferenceMark {
         return referenceMark.getName();
     }
 
+    public String getUniqueId() {
+        return referenceMark.getUniqueId();
+    }
+
     public void updateTextContent(XTextContent newTextContent) {
         this.textContent = newTextContent;
     }
 
     public void updateName(String newName) {
-        this.referenceMark = new ReferenceMark(newName, this.citationKeys, this.citationNumbers, this.referenceMark.getUniqueId());
+        this.referenceMark = ReferenceMark.of(newName, this.citationKeys, this.citationNumbers, this.referenceMark.getUniqueId(), this.citationType);
     }
 }

@@ -6,12 +6,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
-import org.jabref.logic.cleanup.FieldFormatterCleanups;
-import org.jabref.logic.exporter.MetaDataSerializerTest;
+import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
+import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.formatter.casechanger.LowerCaseFormatter;
 import org.jabref.logic.importer.ParseException;
+import org.jabref.logic.journals.AbbreviationType;
 import org.jabref.model.entry.BibEntryTypeBuilder;
+import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.UnknownEntryType;
@@ -42,22 +45,37 @@ public class MetaDataParserTest {
         assertEquals(expected, MetaDataParser.parseDirectory(input));
     }
 
-    /**
-     * In case of any change, copy the content to {@link MetaDataSerializerTest#serializeCustomizedEntryType()}
-     */
+    /// In case of any change, copy the content to {@link org.jabref.logic.exporter.MetaDataSerializerTest#serializeCustomizedEntryType()}
     public static Stream<Arguments> parseCustomizedEntryType() {
         return Stream.of(
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(UnknownField.fromDisplayName("Test1"), UnknownField.fromDisplayName("Test2")),
+                                .withRequiredFields(new UnknownField("Test1"), new UnknownField("Test2")),
                         "jabref-entrytype: test: req[Test1;Test2] opt[]"
                 ),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
-                                .withRequiredFields(UnknownField.fromDisplayName("tEST"), UnknownField.fromDisplayName("tEsT2")),
+                                .withRequiredFields(new UnknownField("tEST"), new UnknownField("tEsT2")),
                         "jabref-entrytype: test: req[tEST;tEsT2] opt[]"
+                ),
+                Arguments.of(
+                        new BibEntryTypeBuilder()
+                                .withType(new UnknownEntryType("person"))
+                                .withRequiredFields(new UnknownField("Name", FieldProperty.PERSON_NAMES))
+                                .withImportantFields(
+                                        new UnknownField("Googlescholar", FieldProperty.EXTERNAL),
+                                        new UnknownField("Orcid", FieldProperty.EXTERNAL)
+                                ),
+                        "jabref-entrytype-v2: person: req[Name|PERSON_NAMES] opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]"
+                ),
+                Arguments.of(
+                        new BibEntryTypeBuilder()
+                                .withType(new UnknownEntryType("customizedtype"))
+                                .withRequiredFields(StandardField.TITLE, StandardField.AUTHOR, StandardField.DATE)
+                                .withImportantFields(StandardField.YEAR, StandardField.MONTH, StandardField.PUBLISHER),
+                        "jabref-entrytype-v2: customizedtype: req[title;author;date] opt[year;month;publisher]"
                 )
         );
     }
@@ -72,12 +90,20 @@ public class MetaDataParserTest {
     void saveActions() throws ParseException {
         Map<String, String> data = Map.of("saveActions", "enabled;title[lower_case]");
         MetaDataParser metaDataParser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = metaDataParser.parse(new MetaData(), data, ',');
+        MetaData parsed = metaDataParser.parse(new MetaData(), data, ',', "userAndHost");
 
         MetaData expected = new MetaData();
-        FieldFormatterCleanups fieldFormatterCleanups = new FieldFormatterCleanups(true, List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())));
-        expected.setSaveActions(fieldFormatterCleanups);
+        FieldFormatterCleanupActions fieldFormatterCleanupActions = new FieldFormatterCleanupActions(true, List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())));
+        expected.setSaveActions(fieldFormatterCleanupActions);
         assertEquals(expected, parsed);
+    }
+
+    @Test
+    void parsesAiLibraryId() throws ParseException {
+        MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
+        MetaData parsed = parser.parse(Map.of(MetaData.AI_LIBRARY_ID, "test-ai-library-id;"), ',', "userAndHost");
+
+        assertEquals(Optional.of("test-ai-library-id"), parsed.getAiLibraryId());
     }
 
     @Test
@@ -87,11 +113,11 @@ public class MetaDataParserTest {
         String rawValue = "/home/user/test.blg;";
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',');
+        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',', "userAndHost");
 
         assertEquals(Optional.of(Path.of("/home/user/test.blg")), parsed.getBlgFilePath(user));
     }
-    
+
     @Test
     void parsesLatexFileDirectoryForUserHostSuccessfully() throws ParseException {
         String user = "testUser";
@@ -101,43 +127,42 @@ public class MetaDataParserTest {
         String rawValue = "/home/user/latex;";
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',');
+        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',', "userAndHost");
 
         assertEquals(Optional.of(Path.of("/home/user/latex")), parsed.getLatexFileDirectory(userHost));
     }
-    
+
     @Test
     void parsesMultipleLatexFileDirectoriesSuccessfully() throws ParseException {
         String userHost1 = "user1-host1";
         String userHost2 = "user2-host2";
-        
+
         Map<String, String> data = Map.of(
                 "fileDirectoryLatex-" + userHost1, "/path/for/host1;",
                 "fileDirectoryLatex-" + userHost2, "/path/for/host2;"
         );
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = parser.parse(data, ',');
+        MetaData parsed = parser.parse(data, ',', "userAndHost");
 
         assertEquals(Optional.of(Path.of("/path/for/host1")), parsed.getLatexFileDirectory(userHost1));
         assertEquals(Optional.of(Path.of("/path/for/host2")), parsed.getLatexFileDirectory(userHost2));
     }
-    
+
     @Test
-    void retrievesLatexFileDirectoryForDifferentUserOnSameHost() throws ParseException {
-        String originalUserHost = "user1-host";
-        String newUserHost = "user2-host";
-        
-        Map<String, String> data = Map.of(
-                "fileDirectoryLatex-" + originalUserHost, "/path/to/latex;"
-        );
+    void libraryAbbreviationTypeRoundTrip() throws ParseException {
+        MetaData original = new MetaData();
+        original.setLibraryAbbreviationType(AbbreviationType.LTWA);
+
+        GlobalCitationKeyPatterns globalPattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
+        Map<String, String> serialized = MetaDataSerializer.getSerializedStringMap(original, globalPattern);
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = parser.parse(data, ',');
+        MetaData parsed = parser.parse(new MetaData(), serialized, ',', "userAndHost");
 
-        assertEquals(Optional.of(Path.of("/path/to/latex")), parsed.getLatexFileDirectory(newUserHost));
+        assertEquals(Optional.of(AbbreviationType.LTWA), parsed.getLibraryAbbreviationType());
     }
-    
+
     @Test
     void parsesWindowsPathsInLatexFileDirectoryCorrectly() throws ParseException {
         String userHost = "user-host";
@@ -145,7 +170,7 @@ public class MetaDataParserTest {
         String rawValue = "C:\\\\Path\\\\To\\\\Latex;";
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
-        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',');
+        MetaData parsed = parser.parse(Map.of(rawKey, rawValue), ',', "userAndHost");
 
         assertEquals(Optional.of(Path.of("C:\\Path\\To\\Latex")), parsed.getLatexFileDirectory(userHost));
     }

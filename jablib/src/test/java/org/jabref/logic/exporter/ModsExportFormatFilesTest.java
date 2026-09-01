@@ -20,6 +20,9 @@ import org.jabref.support.BibEntryAssert;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
@@ -30,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Execution(ExecutionMode.SAME_THREAD)
+@ResourceLock("exporter")
 public class ModsExportFormatFilesTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModsExportFormatFilesTest.class);
     private static Path resourceDir;
@@ -44,7 +49,7 @@ public class ModsExportFormatFilesTest {
     private Path importFile;
 
     public static Stream<String> fileNames() throws URISyntaxException, IOException {
-        resourceDir = Path.of(MSBibExportFormatFilesTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI()).getParent();
+        resourceDir = Path.of(ModsExportFormatFilesTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI()).getParent();
         LOGGER.debug("Mods export resouce dir {}", resourceDir);
 
         try (Stream<Path> stream = Files.list(resourceDir)) {

@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -170,5 +172,57 @@ class ArXivIdentifierTest {
     void constructCorrectURLForEprint() throws URISyntaxException {
         Optional<ArXivIdentifier> parsed = ArXivIdentifier.parse("0706.0001v1");
         assertEquals(Optional.of(new URI("https://arxiv.org/abs/0706.0001v1")), parsed.get().getExternalURI());
+    }
+
+    @ParameterizedTest
+    @CsvSource(emptyValue = "", textBlock = """
+            # url                                    , id         , version
+            https://arxiv.org/html/2511.01348v2      , 2511.01348 , 2
+            https://arxiv.org/html/2511.01348        , 2511.01348 , ''
+            http://arxiv.org/html/1502.05795v1       , 1502.05795 , 1
+            # trailing URL fragment (#bib anchor)
+            https://arxiv.org/html/2510.26275v2#bib  , 2510.26275 , 2
+            """)
+    void parseHtmlUrl(String url, String expectedId, String expectedVersion) {
+        Optional<ArXivIdentifier> parsed = ArXivIdentifier.parse(url);
+
+        assertEquals(Optional.of(new ArXivIdentifier(expectedId, expectedVersion, "")), parsed);
+        // ArXivIdentifier.equals() ignores the version, so assert asString() separately to guard version parsing.
+        String expectedNormalized = expectedId + (expectedVersion.isEmpty() ? "" : "v" + expectedVersion);
+        assertEquals(expectedNormalized, parsed.orElseThrow().asString());
+    }
+
+    @Test
+    void findInTextFindsArxivFromHtmlUrlWithFragment() {
+        Optional<ArXivIdentifier> parsed =
+                ArXivIdentifier.findInText(
+                        "https://arxiv.org/html/2503.08641v1#bib.bib5"
+                );
+
+        assertEquals(
+                Optional.of(new ArXivIdentifier("2503.08641", "1", "")),
+                parsed
+        );
+    }
+
+    @Test
+    void findInTextFindsArxivInsideText() {
+        Optional<ArXivIdentifier> parsed =
+                ArXivIdentifier.findInText(
+                        "https://arxiv.org/abs/1502.05795v1"
+                );
+
+        assertEquals(
+                Optional.of(new ArXivIdentifier("1502.05795", "1", "")),
+                parsed
+        );
+    }
+
+    @Test
+    void findInTextReturnsEmptyForNonArxivText() {
+        Optional<ArXivIdentifier> parsed =
+                ArXivIdentifier.findInText("this text has no identifiers");
+
+        assertEquals(Optional.empty(), parsed);
     }
 }

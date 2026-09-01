@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Supplier;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -40,15 +43,19 @@ import org.jabref.gui.mergeentries.DiffMode;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.BindingsHelper;
+import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.importer.IdBasedFetcher;
+import org.jabref.logic.importer.WebFetchers;
 import org.jabref.logic.importer.fetcher.DoiFetcher;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
+import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
 
 import com.airhacks.afterburner.views.ViewLoader;
@@ -58,7 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
-    public static final int ACTIVE_COLUMNS_MINIMUM = 2;
+    public static final int ACTIVE_COLUMNS_MINIMUM = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiMergeEntriesView.class);
 
@@ -114,10 +121,13 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
         viewModel.mergedEntryProperty().get().getFieldsObservable().addListener((MapChangeListener<Field, String>) change -> {
             if (change.wasAdded() && !fieldRows.containsKey(change.getKey())) {
-                FieldRow fieldRow = new FieldRow(
-                        change.getKey(),
-                        viewModel.mergedEntryProperty().get().getFields().size() - 1);
+                Field newField = change.getKey();
+                // UI rows are never removed even if a merged field gets cleared again. Therefore the next row index
+                // must be based on the current UI row count instead of the current merged-entry field count.
+                int nextRowIndex = fieldEditor.getChildren().size();
+                FieldRow fieldRow = new FieldRow(newField, nextRowIndex);
                 fieldRows.put(change.getKey(), fieldRow);
+                addEmptyCellsForMissingSources(newField);
             }
         });
     }
@@ -212,30 +222,65 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         return header;
     }
 
-    /**
-     * Adds ToggleButtons for all fields that are set for this BibEntry
-     *
-     * @param entrySourceColumn the entry to write
-     * @param columnIndex       the index of the column to write this entry to
-     */
+    /// Adds ToggleButtons for all fields that are set for this BibEntry
+    ///
+    /// @param entrySourceColumn the entry to write
+    /// @param columnIndex       the index of the column to write this entry to
     private void writeBibEntryToColumn(MultiMergeEntriesViewModel.EntrySource entrySourceColumn, int columnIndex) {
-        for (Map.Entry<Field, String> entry : entrySourceColumn.entryProperty().get().getFieldsObservable().entrySet()) {
-            Field key = entry.getKey();
-            String value = entry.getValue();
-            Cell cell = new Cell(value, key, columnIndex);
-            optionsGrid.add(cell, columnIndex, fieldRows.get(key).rowIndex);
+        BibEntry entry = entrySourceColumn.entryProperty().get();
+        for (Map.Entry<Field, String> fieldEntry : entry.getFieldsObservable().entrySet()) {
+            Field field = fieldEntry.getKey();
+            String value = fieldEntry.getValue();
+            Cell cell = new Cell(value, field, columnIndex);
+            optionsGrid.add(cell, columnIndex, fieldRows.get(field).rowIndex);
+        }
+
+        addEmptyCellsForMissingFields(entry, columnIndex);
+    }
+
+    private void addEmptyCellsForMissingSources(Field field) {
+        List<MultiMergeEntriesViewModel.EntrySource> sources = viewModel.entriesProperty().get();
+        for (int columnIndex = 0; columnIndex < sources.size(); columnIndex++) {
+            BibEntry sourceEntry = sources.get(columnIndex).entryProperty().get();
+            if ((sourceEntry != null) && sourceEntry.getField(field).isEmpty()) {
+                addEmptyCellIfMissing(field, columnIndex);
+            }
         }
     }
 
-    /**
-     * Set up the button that displays the name of the source so that if it is clicked, all toggles in that column are
-     * selected.
-     *
-     * @param sourceButton the header button to setup
-     * @param column       the column this button is heading
-     */
+    private void addEmptyCellsForMissingFields(BibEntry entry, int columnIndex) {
+        for (Field field : fieldRows.keySet()) {
+            if (entry.getField(field).isEmpty()) {
+                addEmptyCellIfMissing(field, columnIndex);
+            }
+        }
+    }
+
+    // [impl->req~ux.merge-entries.select-empty-field~1]
+    private void addEmptyCellIfMissing(Field field, int columnIndex) {
+        UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
+            FieldRow fieldRow = fieldRows.get(field);
+            if ((fieldRow == null) || (columnIndex >= supplierHeader.getChildren().size())) {
+                return;
+            }
+
+            boolean cellAlreadyExists = optionsGrid.getChildrenUnmodifiable().stream()
+                                                   .filter(HBox.class::isInstance)
+                                                   .anyMatch(node -> Objects.equals(GridPane.getColumnIndex(node), columnIndex)
+                                                           && Objects.equals(GridPane.getRowIndex(node), fieldRow.rowIndex));
+            if (!cellAlreadyExists) {
+                optionsGrid.add(new Cell("", field, columnIndex), columnIndex, fieldRow.rowIndex);
+            }
+        });
+    }
+
+    /// Set up the button that displays the name of the source so that if it is clicked, all toggles in that column are
+    /// selected.
+    ///
+    /// @param sourceButton the header button to setup
+    /// @param column       the column this button is heading
     private void setupSourceButtonAction(ToggleButton sourceButton, int column) {
-        sourceButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        sourceButton.selectedProperty().addListener((_, _, newValue) -> {
             if (newValue) {
                 optionsGrid.getChildrenUnmodifiable().stream()
                            .filter(node -> GridPane.getColumnIndex(node) == column)
@@ -248,12 +293,10 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         });
     }
 
-    /**
-     * Checks if the Field can be multiline
-     *
-     * @param field the field to be checked
-     * @return true if the field may be multiline, false otherwise
-     */
+    /// Checks if the Field can be multiline
+    ///
+    /// @param field the field to be checked
+    /// @return true if the field may be multiline, false otherwise
     private boolean isMultilineField(Field field) {
         if (field.equals(StandardField.DOI)) {
             return false;
@@ -291,6 +334,9 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                 cellButton.setGraphicTextGap(0);
                 getChildren().add(cellButton);
                 cellButton.maxWidthProperty().bind(widthProperty());
+                if (content.isEmpty()) {
+                    cellButton.prefWidthProperty().bind(widthProperty());
+                }
                 HBox.setHgrow(cellButton, Priority.ALWAYS);
 
                 // Text
@@ -314,8 +360,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                     cellButton.setSelected(true);
                 }
 
-                if (field.equals(StandardField.DOI)) {
-                    Button doiButton = IconTheme.JabRefIcons.LOOKUP_IDENTIFIER.asButton();
+                if (field.equals(StandardField.DOI) && !content.isEmpty()) {
+                    Button doiButton = ControlHelper.iconButton(IconTheme.JabRefIcons.LOOKUP_IDENTIFIER);
                     HBox.setHgrow(doiButton, Priority.NEVER);
                     doiButton.prefHeightProperty().bind(cellButton.heightProperty());
                     doiButton.setMinHeight(Control.USE_PREF_SIZE);
@@ -323,7 +369,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
                     getChildren().add(doiButton);
 
-                    doiButton.setOnAction(event -> {
+                    doiButton.setOnAction(_ -> {
                         DoiFetcher doiFetcher = new DoiFetcher(preferences.getImportFormatPreferences());
                         doiButton.setDisable(true);
                         addSource(Localization.lang("From DOI"), () -> {
@@ -350,6 +396,48 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
     public void addSource(String title, Supplier<BibEntry> supplier) {
         viewModel.addSource(new MultiMergeEntriesViewModel.EntrySource(title, supplier, taskExecutor));
+    }
+
+    public void addFetchedColumn(String title, IdBasedFetcher fetcher, String id) {
+        addSource(title, () -> {
+            try {
+                return fetcher.performSearchById(id).orElse(null);
+            } catch (FetcherException e) {
+                LOGGER.warn("Failed to fetch BibEntry for {} using {}", id, title, e);
+                return null;
+            }
+        });
+    }
+
+    /// Starts automatic identifier fetching for the columns already added via [#addSource]. Must be called after
+    /// all initial sources have been added, since it only considers the columns present at call time.
+    public void enableAutomaticIdentifierFetching() {
+        for (MultiMergeEntriesViewModel.EntrySource entrySourceColumn : List.copyOf(viewModel.entriesProperty())) {
+            if (!entrySourceColumn.isLoadingProperty().getValue()) {
+                triggerAutomaticIdentifierFetch(entrySourceColumn);
+            } else {
+                entrySourceColumn.isLoadingProperty().addListener(new ChangeListener<>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean isLoading) {
+                        if (!isLoading) {
+                            entrySourceColumn.isLoadingProperty().removeListener(this);
+                            triggerAutomaticIdentifierFetch(entrySourceColumn);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void triggerAutomaticIdentifierFetch(MultiMergeEntriesViewModel.EntrySource entrySourceColumn) {
+        BibEntry entry = entrySourceColumn.entryProperty().get();
+        if (entry == null) {
+            return;
+        }
+        viewModel.findNewFetchableIdentifiers(entry).forEach((field, value) ->
+                WebFetchers.getIdBasedFetcherForField(field, preferences.getImportFormatPreferences())
+                           .ifPresent(fetcher -> addFetchedColumn(
+                                   Localization.lang("From %0", FieldTextMapper.getDisplayName(field)), fetcher, value)));
     }
 
     private class FieldRow {
@@ -380,19 +468,17 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
             toggleGroup.selectedToggleProperty().addListener((_, _, newValue) -> {
                 if (newValue == null) {
-                    viewModel.mergedEntryProperty().get().setField(field, "");
+                    viewModel.setMergedFieldValue(field, null);
                 } else {
-                    viewModel.mergedEntryProperty().get().setField(field, ((DiffHighlightingEllipsingTextFlow) ((ToggleButton) newValue).getGraphic()).getFullText());
+                    viewModel.setMergedFieldValue(field, ((DiffHighlightingEllipsingTextFlow) ((ToggleButton) newValue).getGraphic()).getFullText());
                     headerToggleGroup.selectToggle(null);
                 }
             });
         }
 
-        /**
-         * Adds a row that represents this field
-         *
-         * @param field the field to add to the view as a new row in the table
-         */
+        /// Adds a row that represents this field
+        ///
+        /// @param field the field to add to the view as a new row in the table
         private void addRow(Field field) {
             VBox.setVgrow(fieldEditorCell, Priority.ALWAYS);
 
@@ -400,23 +486,15 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             BindingsHelper.bindBidirectional(
                     fieldEditorCell.textProperty(),
                     fieldBinding,
-                    text -> {
-                        if (text != null) {
-                            fieldEditorCell.setText(text);
-                        }
-                    },
-                    binding -> {
-                        if (binding != null) {
-                            viewModel.mergedEntryProperty().get().setField(field, binding);
-                        }
-                    });
+                    text -> fieldEditorCell.setText(text == null ? "" : text),
+                    binding -> viewModel.setMergedFieldValue(field, binding));
 
             fieldEditorCell.setMaxHeight(Double.MAX_VALUE);
             VBox.setVgrow(fieldEditorCell, Priority.ALWAYS);
             fieldEditor.getChildren().add(fieldEditorCell);
 
             // setup header label
-            Label fieldHeaderLabel = new Label(field.getDisplayName());
+            Label fieldHeaderLabel = new Label(FieldTextMapper.getDisplayName(field));
             fieldHeaderLabel.prefHeightProperty().bind(fieldEditorCell.heightProperty());
             fieldHeaderLabel.setMaxWidth(Control.USE_PREF_SIZE);
             fieldHeaderLabel.setMinWidth(Control.USE_PREF_SIZE);

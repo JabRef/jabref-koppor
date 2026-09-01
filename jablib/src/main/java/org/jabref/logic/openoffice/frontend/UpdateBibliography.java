@@ -8,7 +8,7 @@ import org.jabref.logic.openoffice.style.OOFormatBibliography;
 import org.jabref.model.openoffice.DocumentAnnotation;
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.ootext.OOTextIntoOO;
-import org.jabref.model.openoffice.style.CitedKeys;
+import org.jabref.model.openoffice.style.CitedReferences;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoBookmark;
@@ -34,12 +34,10 @@ public class UpdateBibliography {
         return UnoTextSection.getAnchor(doc, BIB_SECTION_NAME);
     }
 
-    /**
-     * Rebuilds the bibliography.
-     */
+    /// Rebuilds the bibliography.
     public static void rebuildBibTextSection(XTextDocument doc,
                                              OOFrontend frontend,
-                                             CitedKeys bibliography,
+                                             CitedReferences bibliography,
                                              JStyle style,
                                              boolean alwaysAddCitedOnPages)
             throws
@@ -56,11 +54,9 @@ public class UpdateBibliography {
                 alwaysAddCitedOnPages);
     }
 
-    /**
-     * Insert a paragraph break and create a text section for the bibliography.
-     * <p>
-     * Only called from `clearBibTextSectionContent2`
-     */
+    /// Insert a paragraph break and create a text section for the bibliography.
+    ///
+    /// Only called from `clearBibTextSectionContent2`
     private static void createBibTextSection2(XTextDocument doc)
             throws
             CreationException {
@@ -73,11 +69,9 @@ public class UpdateBibliography {
         UnoTextSection.create(annotation);
     }
 
-    /**
-     * Find and clear the text section BIB_SECTION_NAME to "", or create it.
-     * <p>
-     * Only called from: `rebuildBibTextSection`
-     */
+    /// Find and clear the text section BIB_SECTION_NAME to "", or create it.
+    ///
+    /// Only called from: `rebuildBibTextSection`
     private static void clearBibTextSectionContent2(XTextDocument doc)
             throws
             CreationException,
@@ -95,14 +89,12 @@ public class UpdateBibliography {
         }
     }
 
-    /**
-     * Only called from: `rebuildBibTextSection`
-     * <p>
-     * Assumes the section named BIB_SECTION_NAME exists.
-     */
+    /// Only called from: `rebuildBibTextSection`
+    ///
+    /// Assumes the section named BIB_SECTION_NAME exists.
     private static void populateBibTextSection(XTextDocument doc,
                                                OOFrontend frontend,
-                                               CitedKeys bibliography,
+                                               CitedReferences citedReferences,
                                                JStyle style,
                                                boolean alwaysAddCitedOnPages)
             throws
@@ -118,7 +110,7 @@ public class UpdateBibliography {
         // emit the title of the bibliography
         OOTextIntoOO.removeDirectFormatting(cursor);
         OOText bibliographyText = OOFormatBibliography.formatBibliography(frontend.citationGroups,
-                bibliography,
+                citedReferences,
                 style,
                 alwaysAddCitedOnPages);
         OOTextIntoOO.write(doc, cursor, bibliographyText);

@@ -2,7 +2,11 @@ package org.jabref.logic.integrity;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
+import org.jabref.model.entry.field.FieldTextMapper;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public record IntegrityMessage(
         String message,
         BibEntry entry,
@@ -10,7 +14,7 @@ public record IntegrityMessage(
 
     @Override
     public String toString() {
-        return "[" + entry().getCitationKey().orElse(entry().getAuthorTitleYear(50)) + "] in " + field.getDisplayName() + ": " + message();
+        return "[" + entry().getCitationKey().orElse(entry().getAuthorTitleYear(50)) + "] in " + FieldTextMapper.getDisplayName(field) + ": " + message();
     }
 
     @Override

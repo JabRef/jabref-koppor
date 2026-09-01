@@ -23,6 +23,7 @@ import javafx.collections.ObservableSet;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
+import org.jabref.gui.externalfiles.EntryImportHandlerTracker;
 import org.jabref.gui.externalfiles.ImportHandler;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.bibtex.BibEntryWriter;
@@ -30,6 +31,7 @@ import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.logic.database.DatabaseMerger;
 import org.jabref.logic.database.DuplicateCheck;
 import org.jabref.logic.exporter.BibWriter;
+import org.jabref.logic.groups.GroupsHelper;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -37,11 +39,13 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,10 +77,8 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     private final Optional<SearchBasedFetcher> fetcher;
     private final Optional<String> query;
 
-    /**
-     * @param databaseContext the database to import into
-     * @param task            the task executed for parsing the selected files(s).
-     */
+    /// @param databaseContext the database to import into
+    /// @param task            the task executed for parsing the selected files(s).
     public ImportEntriesViewModel(BackgroundTask<ParserResult> task,
                                   TaskExecutor taskExecutor,
                                   BibDatabaseContext databaseContext,
@@ -165,13 +167,13 @@ public class ImportEntriesViewModel extends AbstractViewModel {
     public boolean hasDuplicate(BibEntry entry) {
         return findInternalDuplicate(entry).isPresent() ||
                 new DuplicateCheck(entryTypesManager)
-                .containsDuplicate(selectedDb.getValue().getDatabase(), entry, selectedDb.getValue().getMode()).isPresent();
+                        .containsDuplicate(selectedDb.getValue().getDatabase(), entry, selectedDb.getValue().getMode()).isPresent();
     }
 
     public String getSourceString(BibEntry entry) {
         StringWriter writer = new StringWriter();
         BibWriter bibWriter = new BibWriter(writer, OS.NEWLINE);
-        FieldWriter fieldWriter = FieldWriter.buildIgnoreHashes(preferences.getFieldPreferences());
+        FieldWriter fieldWriter = new FieldWriter(preferences.getFieldPreferences());
         try {
             // Force reformatting so the displayed BibTeX is consistently formatted
             new BibEntryWriter(fieldWriter, entryTypesManager).write(entry, bibWriter, selectedDb.getValue().getMode(), true);
@@ -182,12 +184,15 @@ public class ImportEntriesViewModel extends AbstractViewModel {
         return writer.toString();
     }
 
-    /**
-     * Called after the user selected the entries to import. Does the real import stuff.
-     *
-     * @param entriesToImport subset of the entries contained in parserResult
-     */
+    /// Called after the user selected the entries to import. Does the real import stuff.
+    ///
+    /// @param entriesToImport subset of the entries contained in parserResult
     public void importEntries(List<BibEntry> entriesToImport, boolean shouldDownloadFiles) {
+        importEntries(entriesToImport, shouldDownloadFiles, null);
+    }
+
+    /// @param targetGroup name of a group the imported entries are additionally assigned to. If it is non-blank and no group with that name exists yet, it is created as a top-level explicit group. A blank/null value assigns no group.
+    public void importEntries(List<BibEntry> entriesToImport, boolean shouldDownloadFiles, @Nullable String targetGroup) {
         // Remember the selection in the dialog
         preferences.getFilePreferences().setDownloadLinkedFiles(shouldDownloadFiles);
 
@@ -207,15 +212,21 @@ public class ImportEntriesViewModel extends AbstractViewModel {
                 stateManager,
                 dialogService,
                 taskExecutor);
-        importHandler.importEntriesWithDuplicateCheck(selectedDb.getValue(), entriesToImport);
+        EntryImportHandlerTracker tracker = new EntryImportHandlerTracker(stateManager, entriesToImport.size());
+        if (StringUtil.isNotBlank(targetGroup)) {
+            // Assign the group to the actually imported BibEntry instances (the copies inserted into the
+            // database), not to the originals. The import runs asynchronously, so this must happen in the
+            // tracker's onFinish callback after all entries have been inserted/merged.
+            tracker.setOnFinish(() ->
+                    GroupsHelper.assignEntriesToGroup(selectedDb.getValue(), tracker.getImportedEntries(), targetGroup, preferences.getBibEntryPreferences().getKeywordSeparator()));
+        }
+        importHandler.importEntriesWithDuplicateCheck(null, entriesToImport, tracker);
     }
 
-    /**
-     * Checks if there are duplicates to the given entry in the list of entries to be imported.
-     *
-     * @param entry The entry to search for duplicates of.
-     * @return A possible duplicate, if any, or null if none were found.
-     */
+    /// Checks if there are duplicates to the given entry in the list of entries to be imported.
+    ///
+    /// @param entry The entry to search for duplicates of.
+    /// @return A possible duplicate, if any, or null if none were found.
     private Optional<BibEntry> findInternalDuplicate(BibEntry entry) {
         for (BibEntry othEntry : entries) {
             if (othEntry.equals(entry)) {
@@ -281,8 +292,8 @@ public class ImportEntriesViewModel extends AbstractViewModel {
 
     public void fetchMoreEntries() {
         if (fetcher.isPresent() &&
-            fetcher.get() instanceof PagedSearchBasedFetcher pagedFetcher &&
-            query.isPresent() && !loading.get()) {
+                fetcher.get() instanceof PagedSearchBasedFetcher pagedFetcher &&
+                query.isPresent() && !loading.get()) {
             loading.set(true);
             BackgroundTask<ArrayList<BibEntry>> fetchTask = BackgroundTask
                     .wrap(() -> {
@@ -293,6 +304,7 @@ public class ImportEntriesViewModel extends AbstractViewModel {
                         if (newEntries != null && !newEntries.isEmpty()) {
                             allEntries.addAll(newEntries);
                             updateTotalPages();
+                            goToNextPage();
                         } else {
                             LOGGER.warn("No new entries fetched from {} for page {}", fetcher.get().getName(), currentPageProperty.get() + 2);
                             dialogService.notify(Localization.lang("No new entries found from %0", fetcher.get().getName()));

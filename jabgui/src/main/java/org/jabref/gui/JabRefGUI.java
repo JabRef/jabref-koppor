@@ -1,5 +1,7 @@
 package org.jabref.gui;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -9,13 +11,19 @@ import javax.swing.undo.UndoManager;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
+import javafx.concurrent.Task;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.frame.JabRefFrame;
 import org.jabref.gui.help.VersionWorker;
 import org.jabref.gui.icon.IconTheme;
@@ -31,12 +39,12 @@ import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.gui.util.DefaultFileUpdateMonitor;
 import org.jabref.gui.util.DirectoryMonitor;
 import org.jabref.gui.util.UiTaskExecutor;
-import org.jabref.gui.util.WebViewStore;
 import org.jabref.http.manager.HttpServerManager;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citation.SearchCitationsRelationsService;
+import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
@@ -45,25 +53,30 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
 import org.jabref.logic.remote.RemotePreferences;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
-import org.jabref.logic.search.IndexManager;
-import org.jabref.logic.search.PostgreServer;
+import org.jabref.logic.search.sqlbased.IndexManager;
+import org.jabref.logic.search.sqlbased.PostgresServer;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.FallbackExceptionHandler;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.TaskExecutor;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
-import org.jabref.model.strings.StringUtil;
 import org.jabref.model.util.FileUpdateMonitor;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.PowerPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
 import com.tobiasdiez.easybind.EasyBind;
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import kong.unirest.core.Unirest;
+import org.controlsfx.control.decoration.Decorator;
+import org.controlsfx.control.decoration.GraphicDecoration;
+import org.controlsfx.dialog.ExceptionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Represents the outer stage and the scene of the JabRef window.
- */
+/// Represents the outer stage and the scene of the JabRef window.
 public class JabRefGUI extends Application {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefGUI.class);
@@ -82,8 +95,13 @@ public class JabRefGUI extends Application {
     private static CountingUndoManager countingUndoManager;
     private static TaskExecutor taskExecutor;
     private static ClipBoardManager clipBoardManager;
+    private static final String BIBTEX_EDITOR_FONT_RESOURCE = "fonts/JetBrainsMono-Regular.ttf";
+
     private static DialogService dialogService;
     private static JabRefFrame mainFrame;
+    private static GitHandlerRegistry gitHandlerRegistry;
+    private static JournalAbbreviationRepository journalAbbreviationRepository;
+    private static BibTeXSyntaxHighlighter bibTeXSyntaxHighlighter;
 
     private static RemoteListenerServerManager remoteListenerServerManager;
     private static HttpServerManager httpServerManager;
@@ -99,55 +117,93 @@ public class JabRefGUI extends Application {
 
     @Override
     public void start(Stage stage) {
-        this.mainStage = stage;
-        Injector.setModelOrService(Stage.class, mainStage);
+        // Installed before the try block below (not after) so background threads started during
+        // initialize() are also covered, not just ones started once the main window is up.
+        FallbackExceptionHandler.installExceptionHandler((exception, thread) -> UiTaskExecutor.runInJavaFXThread(() ->
+                showCriticalErrorDialog(Localization.lang("Uncaught exception occurred in %0", thread.toString()), exception)));
 
-        FallbackExceptionHandler.installExceptionHandler((exception, thread) -> UiTaskExecutor.runInJavaFXThread(() -> {
-            DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
-            dialogService.showErrorDialogAndWait("Uncaught exception occurred in " + thread, exception);
-        }));
+        try {
+            this.mainStage = stage;
+            Injector.setModelOrService(Stage.class, mainStage);
 
-        initialize();
+            initialize();
 
-        JabRefGUI.mainFrame = new JabRefFrame(
-                mainStage,
-                dialogService,
-                fileUpdateMonitor,
-                preferences,
-                aiService,
-                stateManager,
-                countingUndoManager,
-                Injector.instantiateModelOrService(BibEntryTypesManager.class),
-                clipBoardManager,
-                taskExecutor);
+            JabRefGUI.mainFrame = new JabRefFrame(
+                    mainStage,
+                    dialogService,
+                    fileUpdateMonitor,
+                    preferences,
+                    aiService,
+                    stateManager,
+                    countingUndoManager,
+                    Injector.instantiateModelOrService(BibEntryTypesManager.class),
+                    clipBoardManager,
+                    taskExecutor,
+                    gitHandlerRegistry,
+                    journalAbbreviationRepository);
 
-        openWindow();
+            openWindow();
 
-        startBackgroundTasks();
+            startBackgroundTasks();
+            setupHttpServerEnabledListener();
 
-        if (!fileUpdateMonitor.isActive()) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Unable to monitor file changes. Please close files " +
-                            "and processes and restart. You may encounter errors if you continue " +
-                            "with this session."));
-        }
-
-        BuildInfo buildInfo = Injector.instantiateModelOrService(BuildInfo.class);
-        EasyBind.subscribe(preferences.getInternalPreferences().versionCheckEnabledProperty(), enabled -> {
-            if (enabled) {
-                new VersionWorker(buildInfo.version,
-                        dialogService,
-                        taskExecutor,
-                        preferences)
-                        .checkForNewVersionDelayed();
+            if (!fileUpdateMonitor.isActive()) {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Unable to monitor file changes. Please close files " +
+                                "and processes and restart. You may encounter errors if you continue " +
+                                "with this session."));
             }
-        });
 
-        setupProxy();
+            BuildInfo buildInfo = Injector.instantiateModelOrService(BuildInfo.class);
+            EasyBind.subscribe(preferences.getInternalPreferences().versionCheckEnabledProperty(), enabled -> {
+                if (enabled) {
+                    new VersionWorker(buildInfo.version,
+                            dialogService,
+                            taskExecutor,
+                            preferences)
+                            .checkForNewVersionDelayed();
+                }
+            });
+
+            setupProxy();
+        } catch (Throwable throwable) {
+            LOGGER.error("Error during initialization", throwable);
+            showCriticalErrorDialog(Localization.lang("Unhandled exception occurred."), throwable);
+            throw throwable;
+        }
+    }
+
+    /// [impl->req~ux.startup.critical-error-dialog~1]
+    ///
+    /// Used both for startup failures (from [#start(Stage)]'s catch block) and for uncaught
+    /// exceptions on other threads ([FallbackExceptionHandler], installed before [#initialize()]
+    /// so it also covers background threads started during startup). In both cases, [DialogService]
+    /// or [Scene] may not exist yet: [DialogService] is only set up in [#initialize()], and `Scene`
+    /// is only set in [#openWindow()]. Calling [DialogService] or `Dialog.initOwner` before then
+    /// throws a NullPointerException, so this falls back to an ownerless [ExceptionDialog] instead.
+    private void showCriticalErrorDialog(String header, Throwable throwable) {
+        try {
+            if (mainStage != null && mainStage.getScene() != null) {
+                Injector.instantiateModelOrService(DialogService.class).showErrorDialogAndWait(header, throwable);
+                return;
+            }
+            ExceptionDialog exceptionDialog = new ExceptionDialog(throwable);
+            exceptionDialog.setHeaderText(header);
+            exceptionDialog.showAndWait();
+        } catch (Throwable dialogFailure) {
+            LOGGER.error("Could not show critical error dialog", dialogFailure);
+        }
     }
 
     public void initialize() {
-        WebViewStore.init();
+        JabRefGUI.stateManager = new JabRefGuiStateManager();
+        Injector.setModelOrService(StateManager.class, stateManager);
+
+        // our Default task executor is the UITaskExecutor which can use the fx thread
+        JabRefGUI.taskExecutor = new UiTaskExecutor();
+        Injector.setModelOrService(TaskExecutor.class, taskExecutor);
+
+        journalAbbreviationRepository = JournalAbbreviationLoader.loadRepositoryInBackground(preferences.getAbbreviationPreferences(), taskExecutor);
 
         DefaultFileUpdateMonitor fileUpdateMonitor = new DefaultFileUpdateMonitor();
         JabRefGUI.fileUpdateMonitor = fileUpdateMonitor;
@@ -157,8 +213,10 @@ public class JabRefGUI extends Application {
         DirectoryMonitor directoryMonitor = new DirectoryMonitor();
         Injector.setModelOrService(DirectoryMonitor.class, directoryMonitor);
 
+        gitHandlerRegistry = new GitHandlerRegistry(preferences.getGitPreferences());
+        Injector.setModelOrService(GitHandlerRegistry.class, gitHandlerRegistry);
+
         BibEntryTypesManager entryTypesManager = preferences.getCustomEntryTypesRepository();
-        JournalAbbreviationRepository journalAbbreviationRepository = JournalAbbreviationLoader.loadRepository(preferences.getJournalAbbreviationPreferences());
         Injector.setModelOrService(BibEntryTypesManager.class, entryTypesManager);
         Injector.setModelOrService(JournalAbbreviationRepository.class, journalAbbreviationRepository);
         Injector.setModelOrService(ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
@@ -171,11 +229,8 @@ public class JabRefGUI extends Application {
         JabRefGUI.httpServerManager = new HttpServerManager();
         Injector.setModelOrService(HttpServerManager.class, JabRefGUI.httpServerManager);
 
-        JabRefGUI.languageServerController = new LanguageServerController(preferences, journalAbbreviationRepository);
+        JabRefGUI.languageServerController = new LanguageServerController(preferences, journalAbbreviationRepository, entryTypesManager);
         Injector.setModelOrService(LanguageServerController.class, JabRefGUI.languageServerController);
-
-        JabRefGUI.stateManager = new JabRefGuiStateManager();
-        Injector.setModelOrService(StateManager.class, stateManager);
 
         Injector.setModelOrService(KeyBindingRepository.class, preferences.getKeyBindingRepository());
 
@@ -189,20 +244,25 @@ public class JabRefGUI extends Application {
         Injector.setModelOrService(UndoManager.class, countingUndoManager);
         Injector.setModelOrService(CountingUndoManager.class, countingUndoManager);
 
-        // our Default task executor is the UITaskExecutor which can use the fx thread
-        JabRefGUI.taskExecutor = new UiTaskExecutor();
-        Injector.setModelOrService(TaskExecutor.class, taskExecutor);
-
         JabRefGUI.dialogService = new JabRefDialogService(mainStage);
         Injector.setModelOrService(DialogService.class, dialogService);
 
-        JabRefGUI.clipBoardManager = new ClipBoardManager();
+        stateManager.getRunningBackgroundTasks().addListener((ListChangeListener<? super Task<?>>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (Task<?> task : change.getAddedSubList()) {
+                        dialogService.notify(new Notifications.TaskNotification(task));
+                    }
+                }
+            }
+        });
+
+        JabRefGUI.clipBoardManager = new ClipBoardManager(stateManager);
         Injector.setModelOrService(ClipBoardManager.class, clipBoardManager);
 
         JabRefGUI.aiService = new AiService(
                 preferences.getAiPreferences(),
                 preferences.getFilePreferences(),
-                preferences.getCitationKeyPatternPreferences(),
                 dialogService,
                 taskExecutor);
         Injector.setModelOrService(AiService.class, aiService);
@@ -211,9 +271,38 @@ public class JabRefGUI extends Application {
                 preferences.getImporterPreferences(),
                 preferences.getImportFormatPreferences(),
                 preferences.getFieldPreferences(),
-                entryTypesManager
+                preferences.getEntryEditorPreferences().citationFetcherTypeProperty(),
+                preferences.getEntryEditorPreferences().citationCountFetcherTypeProperty(),
+                preferences.getCitationKeyPatternPreferences(),
+                preferences.getGrobidPreferences(),
+                preferences.getAiPreferences(),
+                aiService.getCurrentChatModel(),
+                entryTypesManager,
+                dialogService
         );
         Injector.setModelOrService(SearchCitationsRelationsService.class, citationsAndRelationsSearchService);
+
+        loadBundledFonts();
+
+        JabRefGUI.bibTeXSyntaxHighlighter = new BibTeXSyntaxHighlighter();
+        Injector.setModelOrService(BibTeXSyntaxHighlighter.class, bibTeXSyntaxHighlighter);
+    }
+
+    /// Registers bundled fonts so they can be referenced by family name in CSS.
+    private void loadBundledFonts() {
+        try (InputStream stream = JabRefGUI.class.getClassLoader().getResourceAsStream(BIBTEX_EDITOR_FONT_RESOURCE)) {
+            if (stream == null) {
+                LOGGER.warn("Could not find bundled font {}", BIBTEX_EDITOR_FONT_RESOURCE);
+                return;
+            }
+
+            Font font = Font.loadFont(stream, -1);
+            if (font == null) {
+                LOGGER.warn("Could not load bundled font {}, falling back to the platform default", BIBTEX_EDITOR_FONT_RESOURCE);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Could not load bundled font {}", BIBTEX_EDITOR_FONT_RESOURCE, e);
+        }
     }
 
     private void setupProxy() {
@@ -275,7 +364,7 @@ public class JabRefGUI extends Application {
             mainStage.setX(bounds.getMinX());
             mainStage.setY(bounds.getMinY());
             mainStage.setWidth(Math.min(bounds.getWidth(), 1024.0));
-            mainStage.setHeight(Math.min(bounds.getHeight(), 786.0));
+            mainStage.setHeight(Math.min(bounds.getHeight(), 768.0));
             LOGGER.debug("Saving window positions");
             saveWindowState();
         }
@@ -283,10 +372,18 @@ public class JabRefGUI extends Application {
         mainStage.setMaximized(windowMaximised);
         debugLogWindowState(mainStage);
 
-        Scene scene = new Scene(JabRefGUI.mainFrame);
+        PowerPane powerpane = new PowerPane();
+        powerpane.getInfoCenterPane().getInfoCenterView().getGroups().addAll(dialogService.getNotificationGroups());
+        Injector.setModelOrService(InfoCenterPane.class, powerpane.getInfoCenterPane());
+        powerpane.setContent(JabRefGUI.mainFrame);
+        powerpane.getInfoCenterPane().setInfoCenterViewPos(InfoCenterViewPos.BOTTOM_RIGHT);
+        powerpane.getInfoCenterPane().autoHideProperty().bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
+
+        Scene scene = new Scene(powerpane);
+        installControlsFxDecorationPane(powerpane);
 
         LOGGER.debug("installing CSS");
-        themeManager.installCss(scene);
+        themeManager.installCssOnScene(scene);
 
         LOGGER.debug("Handle TextEditor key bindings");
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -296,7 +393,7 @@ public class JabRefGUI extends Application {
         });
 
         mainStage.setTitle(JabRefFrame.FRAME_TITLE);
-        mainStage.getIcons().addAll(IconTheme.getLogoSetFX());
+        mainStage.getIcons().addAll(IconTheme.getLogoSet());
         mainStage.setScene(scene);
         mainStage.setOnShowing(this::onShowing);
         mainStage.setOnCloseRequest(this::onCloseRequest);
@@ -312,6 +409,20 @@ public class JabRefGUI extends Application {
         // Lifecycle note: after this method, #onShowing will be called
     }
 
+    // [impl->req~entry-editor.validation-decoration.startup~1]
+
+    /// Installs ControlsFX's decoration root before validation is first used.
+    ///
+    /// ControlsFX injects its internal `DecorationPane` as the scene root on the first
+    /// decoration. Doing that during startup avoids replacing the root while opening the entry
+    /// editor, which would otherwise trigger a large CSS reapplication on the critical path.
+    private static void installControlsFxDecorationPane(PowerPane powerpane) {
+        Region probeNode = new Region();
+        GraphicDecoration probeDecoration = new GraphicDecoration(probeNode);
+        Decorator.addDecoration(powerpane, probeDecoration);
+        Decorator.removeDecoration(powerpane, probeDecoration);
+    }
+
     public void onShowing(WindowEvent event) {
         Platform.runLater(() -> {
             mainFrame.updateHorizontalDividerPosition();
@@ -320,7 +431,7 @@ public class JabRefGUI extends Application {
 
         // Open last edited databases
         if (uiCommands.stream().noneMatch(UiCommand.BlankWorkspace.class::isInstance)
-            && preferences.getWorkspacePreferences().shouldOpenLastEdited()) {
+                && preferences.getWorkspacePreferences().shouldOpenLastEdited()) {
             mainFrame.openLastEditedDatabases();
         }
 
@@ -362,11 +473,9 @@ public class JabRefGUI extends Application {
         debugLogWindowState(mainStage);
     }
 
-    /**
-     * prints the data from the screen (only in debug mode)
-     *
-     * @param mainStage JabRef's stage
-     */
+    /// prints the data from the screen (only in debug mode)
+    ///
+    /// @param mainStage JabRef's stage
     private void debugLogWindowState(Stage mainStage) {
         LOGGER.debug("""
                         screen data:
@@ -379,9 +488,7 @@ public class JabRefGUI extends Application {
                 mainStage.isMaximized(), mainStage.getX(), mainStage.getY(), mainStage.getWidth(), mainStage.getHeight());
     }
 
-    /**
-     * Tests if the window coordinates are inside any screen
-     */
+    /// Tests if the window coordinates are inside any screen
     private boolean isWindowPositionInBounds() {
         CoreGuiPreferences coreGuiPreferences = preferences.getGuiPreferences();
 
@@ -418,21 +525,30 @@ public class JabRefGUI extends Application {
     // Background tasks
     public void startBackgroundTasks() {
         RemotePreferences remotePreferences = preferences.getRemotePreferences();
-
-        if (remotePreferences.useRemoteServer()) {
+        CLIMessageHandler cliMessageHandler = new CLIMessageHandler(mainFrame, preferences);
+        if (remotePreferences.shouldEnableRemoteServer()) {
             remoteListenerServerManager.openAndStart(
-                    new CLIMessageHandler(
-                            mainFrame,
-                            preferences),
-                    remotePreferences.getPort());
+                    cliMessageHandler,
+                    remotePreferences.getRemoteServerPort());
         }
 
-        if (remotePreferences.enableHttpServer()) {
-            httpServerManager.start(stateManager, remotePreferences.getHttpServerUri());
+        if (remotePreferences.shouldEnableHttpServer()) {
+            httpServerManager.start(preferences, stateManager, mainFrame, remotePreferences.getHttpServerUri());
         }
-        if (remotePreferences.enableLanguageServer()) {
-            languageServerController.start(remotePreferences.getLanguageServerPort());
+        if (remotePreferences.shouldEnableLanguageServer()) {
+            languageServerController.start(cliMessageHandler, remotePreferences.getLanguageServerPort());
         }
+    }
+
+    private void setupHttpServerEnabledListener() {
+        RemotePreferences remotePreferences = preferences.getRemotePreferences();
+        EasyBind.listen(remotePreferences.enableHttpServerProperty(), (_, _, newValue) -> {
+            // stop in all cases, because the port might have changed
+            httpServerManager.stop();
+            if (newValue) {
+                httpServerManager.start(preferences, stateManager, mainFrame, remotePreferences.getHttpServerUri());
+            }
+        });
     }
 
     @Override
@@ -442,6 +558,7 @@ public class JabRefGUI extends Application {
             LOGGER.trace("Stopping JabRef GUI using a virtual thread executor");
 
             // Shutdown everything in parallel to prevent causing non-shutdown of something in case of issues
+
             executor.submit(() -> {
                 LOGGER.trace("Closing citations and relations search service");
                 citationsAndRelationsSearchService.close();
@@ -477,7 +594,7 @@ public class JabRefGUI extends Application {
             });
 
             executor.submit(() -> {
-                LOGGER.trace("Shutting down language server controller");
+                LOGGER.trace("Shutting down LSP server controller");
                 languageServerController.stop();
                 LOGGER.trace("LanguageServerController shut down");
             });
@@ -511,10 +628,12 @@ public class JabRefGUI extends Application {
             });
 
             executor.submit(() -> {
-                LOGGER.trace("Shutting down postgreServer");
-                PostgreServer postgreServer = Injector.instantiateModelOrService(PostgreServer.class);
-                postgreServer.shutdown();
-                LOGGER.trace("PostgreServer shut down");
+                if (preferences.getSearchPreferences().shouldUsePostgresSearch()) {
+                    LOGGER.trace("Shutting down postgreServer");
+                    PostgresServer postgresServer = Injector.instantiateModelOrService(PostgresServer.class);
+                    postgresServer.close();
+                    LOGGER.trace("PostgreServer shut down");
+                }
             });
 
             executor.submit(() -> {

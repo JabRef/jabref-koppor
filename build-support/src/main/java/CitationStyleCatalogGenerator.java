@@ -1,12 +1,10 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
-
-//JAVA 24
+//JAVA 25+
 //RUNTIME_OPTIONS --enable-native-access=ALL-UNNAMED
 
-//DEPS com.fasterxml.jackson.core:jackson-databind:2.17.1
 //DEPS org.jspecify:jspecify:1.0.0
-//DEPS org.slf4j:slf4j-api:2.0.13
-//DEPS org.slf4j:slf4j-simple:2.0.13
+//DEPS org.slf4j:slf4j-api:2.0.18
+//DEPS org.slf4j:slf4j-simple:2.0.18
+//DEPS tools.jackson.core:jackson-databind:3.2.0
 
 //SOURCES ../../../../jablib/src/main/java/org/jabref/architecture/AllowedToUseClassGetResource.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/citationstyle/CSLStyleUtils.java
@@ -30,9 +28,9 @@ import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyle;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.ObjectMapper;
 
 /// Generates a catalog of CSL styles internally supported by JabRef.
 /// The catalog contains the list of styles, along with some pre-computed metadata (e.g. numeric nature).
@@ -47,16 +45,16 @@ public class CitationStyleCatalogGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CitationStyleCatalogGenerator.class);
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         generateCitationStyleCatalog();
     }
 
     public static void generateCitationStyleCatalog() {
         try {
-            // JBang's gradle plugin has a strange path handling. If "application->run" is started from the IDE, the path ends with "jabgui"
+            // JBang's gradle plugin has a strange path handling. If "application->run" is started from the IDE, the path ends with a module directory (e.g. "jabgui")
+            // Do not rely on the repository directory name (e.g. "jabref"), as forks may check out under a different name (e.g. "jabref-koppor")
             Path root = Path.of(".").toAbsolutePath().normalize();
-            String rootFilename = root.getFileName().toString();
-            if (!"jabref".equalsIgnoreCase(rootFilename) && rootFilename.startsWith("jab")) {
+            if (!Files.exists(root.resolve(STYLES_ROOT).resolve(DEFAULT_STYLE)) && (root.getParent() != null)) {
                 LOGGER.info("Running from IDE, adjusting path to styles root");
                 root = root.getParent();
             }
@@ -94,6 +92,8 @@ public class CitationStyleCatalogGenerator {
                                                             Path stylePath = Path.of(style.getFilePath());
                                                             Path relativePath = stylesRoot.toAbsolutePath().relativize(stylePath.toAbsolutePath());
                                                             info.put("path", relativePath.toString());
+                                                            info.put("styleId", style.getStyleId());
+                                                            info.put("styleClass", style.getStyleClass());
                                                             info.put("title", style.getTitle());
                                                             info.put("shortTitle", style.getShortTitle());
                                                             info.put("isNumeric", style.isNumericStyle());

@@ -18,10 +18,11 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import com.tngtech.archunit.library.GeneralCodingRules;
 
-/**
- * This class checks JabRef's shipped classes for architecture quality.
- * Does not analyze test classes. Hint from <a href="https://stackoverflow.com/a/44681895/873282">StackOverflow</a>
- */
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
+
+/// This class checks JabRef's shipped classes for architecture quality.
+/// Does not analyze test classes. Hint from <a href="https://stackoverflow.com/a/44681895/873282">StackOverflow</a>
 @AnalyzeClasses(packages = "org.jabref", importOptions = ImportOption.DoNotIncludeTests.class)
 public class CommonArchitectureTest {
 
@@ -31,6 +32,7 @@ public class CommonArchitectureTest {
     private static final String PACKAGE_ORG_JABREF_LOGIC = "org.jabref.logic..";
     private static final String PACKAGE_ORG_JABREF_MODEL = "org.jabref.model..";
     private static final String PACKAGE_ORG_JABREF_CLI = "org.jabref.cli..";
+    private static final String PACKAGE_ORG_JABREF_TOOLKIT_CLI = "org.jabref.toolkit.cli..";
 
     @ArchTest
     public void doNotUseApacheCommonsLang3(JavaClasses classes) {
@@ -57,15 +59,46 @@ public class CommonArchitectureTest {
     }
 
     @ArchTest
+    public void doNotUseJackson2(JavaClasses classes) {
+        // annotations still reside in com.fasterxml package:
+        ArchRuleDefinition.noClasses()
+                          .should()
+                          .dependOnClassesThat(
+                                  resideInAnyPackage("com.fasterxml..")
+                                          // https://github.com/FasterXML/jackson-databind/blob/37b593e4836af62a267f09d2193414078df36eb0/src/test/java/tools/jackson/databind/deser/AnySetterTest.java#L7C8-L7C42
+                                          .and(not(resideInAnyPackage("com.fasterxml.jackson.annotation..")))
+                          )
+                          .check(classes);
+    }
+
+    @ArchTest
+    public void doNotUseJavaFXWeb(JavaClasses classes) {
+        // javafx.web (WebView/WebEngine) is intentionally not used: it bundles a full WebKit, bloating the
+        // distribution and blocking native-image. HTML is rendered via the html-to-node library instead.
+        ArchRuleDefinition.noClasses()
+                          .should().dependOnClassesThat().resideInAPackage("javafx.scene.web..")
+                          .because("html-to-node (plain JavaFX nodes) should be used instead of javafx.web")
+                          .check(classes);
+    }
+
+    @ArchTest
     public void doNotUseAssertJ(JavaClasses classes) {
         ArchRuleDefinition.noClasses().should().accessClassesThat().resideInAPackage("org.assertj..")
                           .check(classes);
     }
 
     @ArchTest
+    public void doNotUseGuavaCache(JavaClasses classes) {
+        ArchRuleDefinition.noClasses()
+                          .should().dependOnClassesThat().resideInAPackage("com.google.common.cache..")
+                          .because("Caffeine (com.github.benmanes.caffeine.cache) should be used for caching")
+                          .check(classes);
+    }
+
+    @ArchTest
     public void doNotUseJavaAWT(JavaClasses classes) {
         ArchRuleDefinition.noClasses().that().areNotAnnotatedWith(AllowedToUseAwt.class)
-                          .should().accessClassesThat().resideInAPackage(PACKAGE_JAVA_AWT)
+                          .should().dependOnClassesThat().resideInAPackage(PACKAGE_JAVA_AWT)
                           .check(classes);
     }
 
@@ -84,6 +117,10 @@ public class CommonArchitectureTest {
         ArchRuleDefinition.noClasses().that().haveNameNotMatching(".*Test")
                           .and().areNotAnnotatedWith(AllowedToUseClassGetResource.class)
                           .and().areNotAssignableFrom("org.jabref.logic.importer.fileformat.ImporterTestEngine")
+                          // html-to-node is an external dependency sharing the org.jabref namespace; it needs a
+                          // stylesheet URL for JavaFX (Parent#getStylesheets()), which getResourceAsStream cannot
+                          // provide. It cannot use @AllowedToUseClassGetResource without depending back on JabRef.
+                          .and().resideOutsideOfPackages("org.jabref.htmltonode..")
                           .should()
                           .callMethod(Class.class, "getResource", String.class)
                           .because("getResourceAsStream(...) should be used instead")
@@ -121,7 +158,7 @@ public class CommonArchitectureTest {
     public void restrictUsagesInLogic(JavaClasses classes) {
         ArchRuleDefinition.noClasses().that().resideInAPackage(PACKAGE_ORG_JABREF_LOGIC)
                           .and().areNotAnnotatedWith(AllowedToUseSwing.class)
-                          .and().areNotAssignableFrom("org.jabref.logic.search.DatabaseSearcherWithBibFilesTest")
+                          .and().areNotAssignableFrom("org.jabref.logic.search.sqlbased.SqlBasedLibrarySearcherWithBibFilesTest")
                           .should().dependOnClassesThat().resideInAPackage(PACKAGE_JAVAX_SWING)
                           .check(classes);
     }
@@ -149,7 +186,9 @@ public class CommonArchitectureTest {
 
     @ArchTest
     public void restrictStandardStreams(JavaClasses classes) {
-        ArchRuleDefinition.noClasses().that().resideOutsideOfPackages(PACKAGE_ORG_JABREF_CLI)
+        ArchRuleDefinition.noClasses().that().resideOutsideOfPackages(
+                                  PACKAGE_ORG_JABREF_CLI,
+                                  PACKAGE_ORG_JABREF_TOOLKIT_CLI)
                           .and().resideOutsideOfPackages("org.jabref.gui.openoffice..") // Uses LibreOffice SDK
                           .and().areNotAnnotatedWith(AllowedToUseStandardStreams.class)
                           .should(GeneralCodingRules.ACCESS_STANDARD_STREAMS)
@@ -170,8 +209,14 @@ public class CommonArchitectureTest {
     @ArchTest
     public void shouldUseJSpecifyAnnotations(JavaClasses classes) {
         ArchRuleDefinition.noClasses()
-                          .should().dependOnClassesThat().resideInAPackage("org.jetbrains.annotations..")
-                          .because("JSpecify annotations should be used")
+                          .should()
+                          .dependOnClassesThat()
+                          .resideInAnyPackage(
+                                  "jakarta.annotation..",
+                                  "javax.annotation..",
+                                  "org.eclipse.jgit.annotations",
+                                  "org.jetbrains.annotations..")
+                          .because("JSpecify or Guava's @VisisbleForTesting annotations should be used")
                           .check(classes);
     }
 }

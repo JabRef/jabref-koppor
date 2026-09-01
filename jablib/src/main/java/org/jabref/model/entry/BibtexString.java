@@ -3,43 +3,48 @@ package org.jabref.model.entry;
 import java.util.Locale;
 import java.util.Objects;
 
-/**
- * This class models a BibTex String ("@String")
- */
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/// This class models a BibTex String ("@String")
+@NullMarked
 public class BibtexString implements Cloneable {
 
-    /**
-     * Type of a \@String.
-     * <p>
-     * Differentiate a \@String based on its usage:
-     * <p>
-     * - {@link #AUTHOR}: prefix "a", for author and editor fields.
-     * - {@link #INSTITUTION}: prefix "i", for institution and organization
-     * field
-     * - {@link #PUBLISHER}: prefix "p", for publisher fields
-     * - {@link #OTHER}: no prefix, for any field
-     * <p>
-     * Examples:
-     * <p>
-     * \@String { aKahle    = "Kahle, Brewster " } -> author
-     * \@String { aStallman = "Stallman, Richard" } -> author
-     * \@String { iMIT      = "{Massachusetts Institute of Technology ({MIT})}" } -> institution
-     * \@String { pMIT      = "{Massachusetts Institute of Technology ({MIT}) press}" } -> publisher
-     * \@String { anct      = "Anecdote" } -> other
-     * \@String { eg        = "for example" } -> other
-     * \@String { et        = " and " } -> other
-     * \@String { lBigMac   = "Big Mac" } -> other
-     * <p>
-     * Usage:
-     * <p>
-     * \@Misc {
-     * title       = "The GNU Project"
-     * author      = aStallman # et # aKahle
-     * institution = iMIT
-     * publisher   = pMIT
-     * note        = "Just " # eg
-     * }
-     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BibtexString.class);
+
+    /// Type of \@String.
+    ///
+    /// Differentiate a \@String based on its usage:
+    ///
+    /// - [#AUTHOR]: prefix "a", for author and editor fields.
+    /// - [#INSTITUTION: prefix "i", for institution and organization field
+    /// - [#PUBLISHER]: prefix "p", for publisher fields
+    /// - [#OTHER]: no prefix, for any field
+    ///
+    /// Examples:
+    ///
+    /// \@String { aKahle    = "Kahle, Brewster " } -> author
+    /// \@String { aStallman = "Stallman, Richard" } -> author
+    /// \@String { iMIT      = "{Massachusetts Institute of Technology ({MIT})}" } -> institution
+    /// \@String { pMIT      = "{Massachusetts Institute of Technology ({MIT}) press}" } -> publisher
+    /// \@String { anct      = "Anecdote" } -> other
+    /// \@String { eg        = "for example" } -> other
+    /// \@String { et        = " and " } -> other
+    /// \@String { lBigMac   = "Big Mac" } -> other
+    ///
+    /// Usage:
+    ///
+    /// ```bibtex
+    /// @Misc {
+    ///   title       = "The GNU Project"
+    ///   author      = aStallman # et # aKahle
+    ///   institution = iMIT
+    ///   publisher   = pMIT
+    ///   note        = "Just " # eg
+    /// }
+    /// ```
     public enum Type {
         AUTHOR("a"),
         INSTITUTION("i"),
@@ -79,25 +84,22 @@ public class BibtexString implements Cloneable {
     private String parsedSerialization;
     private boolean hasChanged;
 
-    /**
-     * Default constructor. Use this if in doubt.
-     *
-     * In case this constructor is used - and the library is eventually written, the serialization is generated from scratch (and not some null from parsedSerialization)
-     */
+    /// Default constructor. Use this if in doubt.
+    ///
+    /// In case this constructor is used - and the library is eventually written, the serialization is generated from scratch (and not some null from parsedSerialization)
     public BibtexString(String name, String content) {
         this.id = IdGenerator.next();
         this.name = name;
         this.content = content;
+        this.parsedSerialization = "";
         hasChanged = true;
         type = Type.get(name);
     }
 
-    /**
-     * This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX file.
-     * Do not use if not working with reading BibTeX files (or similar actions).     *
-     *
-     * @param parsedSerialization The serialization read during parsing
-     */
+    /// This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX file.
+    /// Do not use if not working with reading BibTeX files (or similar actions).     *
+    ///
+    /// @param parsedSerialization The serialization read during parsing
     public BibtexString(String name, String content, String parsedSerialization) {
         this(name, content);
         this.parsedSerialization = parsedSerialization;
@@ -113,9 +115,7 @@ public class BibtexString implements Cloneable {
         hasChanged = true;
     }
 
-    /**
-     * Returns the name/label of the string
-     */
+    /// Returns the name/label of the string
     public String getName() {
         return name;
     }
@@ -126,11 +126,8 @@ public class BibtexString implements Cloneable {
         type = Type.get(name);
     }
 
-    /*
-     * Never returns null
-     */
     public String getContent() {
-        return content == null ? "" : content;
+        return content;
     }
 
     public void setContent(String content) {
@@ -154,13 +151,13 @@ public class BibtexString implements Cloneable {
      * Returns user comments (arbitrary text before the string) if there are any. If not returns the empty string
      */
     public String getUserComments() {
-        if (parsedSerialization != null) {
+        if (!parsedSerialization.isEmpty()) {
             try {
                 // get the text before the string
-                String prolog = parsedSerialization.substring(0, parsedSerialization.indexOf('@'));
-                return prolog;
-            } catch (StringIndexOutOfBoundsException ignore) {
-                // if this occurs a broken parsed serialization has been set, so just do nothing
+                return parsedSerialization.substring(0, parsedSerialization.indexOf('@'));
+            } catch (StringIndexOutOfBoundsException e) {
+                // if this occurs a broken parsed serialization has been set, so just do nothing.
+                LOGGER.error("Got an unexpected error, ignoring", e);
             }
         }
         return "";
@@ -169,8 +166,8 @@ public class BibtexString implements Cloneable {
     @Override
     public Object clone() {
         BibtexString clone;
-        if (parsedSerialization == null) {
-             clone = new BibtexString(name, content);
+        if (parsedSerialization.isEmpty()) {
+            clone = new BibtexString(name, content);
         } else {
             clone = new BibtexString(name, content, parsedSerialization);
         }
@@ -184,7 +181,7 @@ public class BibtexString implements Cloneable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }

@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 
 import org.jabref.model.database.BibDatabaseContext;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -23,18 +22,19 @@ public interface LibraryTabContainer {
 
     void addTab(LibraryTab libraryTab, boolean raisePanel);
 
-    /**
-     * Closes a designated libraryTab
-     *
-     * @param tab to be closed.
-     * @return true if closing the tab was successful
-     */
+    /// Closes a designated libraryTab
+    ///
+    /// @param tab to be closed.
+    /// @return true if closing the tab was successful
     boolean closeTab(@Nullable LibraryTab tab);
 
-    boolean closeTabs(@NonNull List<LibraryTab> tabs);
+    /// Closes the designated libraryTabs
+    ///
+    /// @param tabs           to be closed.
+    /// @param showWelcomeTab whether to show the welcome tab if no library tab remains open afterwards (should be false when quitting the application)
+    /// @return true if closing the tabs was successful
+    boolean closeTabs(List<LibraryTab> tabs, boolean showWelcomeTab);
 
-    /**
-     * Refreshes the ui after changes to the preferences
-     */
+    /// Refreshes the ui after changes to the preferences
     void refresh();
 }

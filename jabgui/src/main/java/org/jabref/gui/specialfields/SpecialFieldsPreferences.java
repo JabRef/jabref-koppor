@@ -13,6 +13,15 @@ public class SpecialFieldsPreferences {
         this.specialFieldsEnabled = new SimpleBooleanProperty(specialFieldsEnabled);
     }
 
+    /// Creates Object with default values
+    private SpecialFieldsPreferences() {
+        this(true); // Default special fields enabled
+    }
+
+    public static SpecialFieldsPreferences getDefault() {
+        return new SpecialFieldsPreferences();
+    }
+
     public boolean isSpecialFieldsEnabled() {
         return specialFieldsEnabled.getValue();
     }

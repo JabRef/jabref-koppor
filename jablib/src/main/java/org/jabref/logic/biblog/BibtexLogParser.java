@@ -14,9 +14,7 @@ import org.jabref.model.entry.field.FieldFactory;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * Parses the contents of a .blg (BibTeX log) file to extract warning messages.
- */
+/// Parses the contents of a .blg (BibTeX log) file to extract warning messages.
 public class BibtexLogParser {
     private static final Pattern BIBTEX_WARNING_PATTERN = Pattern.compile("^Warning--(?<message>[a-zA-Z ]+) in (?<entryKey>[^\\s]+)$");
     private static final Pattern BIBLATEX_WARNING_PATTERN = Pattern.compile(
@@ -46,7 +44,6 @@ public class BibtexLogParser {
     ///     For example: `Biber.pm:123> WARN - Datamodel: article entry 'Scholey_2013' (file.bib): Invalid field 'journal'`
     ///
     /// @param line The single line from the .blg file to parse.
-    ///
     /// @returns An `Optional` containing a `BibWarning` if a match is found, or an empty `Optional` otherwise.
     Optional<BibWarning> parseWarningLine(String line) {
         Matcher bibtexMatcher = BIBTEX_WARNING_PATTERN.matcher(line);

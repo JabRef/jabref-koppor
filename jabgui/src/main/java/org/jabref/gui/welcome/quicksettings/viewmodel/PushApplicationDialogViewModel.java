@@ -1,5 +1,6 @@
 package org.jabref.gui.welcome.quicksettings.viewmodel;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,8 +100,8 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
             }
             String existingPath = pushToApplicationPreferences.getCommandPaths().get(selectedApp.getDisplayName());
             pathProperty.set(PushToApplicationDetector.isValidAbsolutePath(existingPath) ?
-                    existingPath :
-                    Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
+                             existingPath :
+                             Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
         });
     }
 
@@ -138,7 +139,7 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
         }
         String pathText = pathProperty.get().trim();
         Path path = Path.of(pathText);
-        return !pathText.isEmpty() && path.isAbsolute() && path.toFile().exists();
+        return !pathText.isEmpty() && path.isAbsolute() && Files.exists(path);
     }
 
     public void saveSettings() {

@@ -5,22 +5,27 @@ import java.util.Optional;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import org.jabref.model.strings.StringUtil;
+import org.jabref.logic.os.OS;
+import org.jabref.logic.util.Directories;
+import org.jabref.model.metadata.UserHostInfo;
 
-/**
- *  Preferences for the linked files
- */
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+/// Preferences for the linked files
+@NullMarked
 public class FilePreferences {
 
     public static final String[] DEFAULT_FILENAME_PATTERNS = new String[] {"[bibtexkey]", "[bibtexkey] - [title]"};
 
-    private final StringProperty userAndHost = new SimpleStringProperty();
-    private final SimpleStringProperty mainFileDirectory = new SimpleStringProperty();
+    private final SimpleObjectProperty<UserHostInfo> userAndHost = new SimpleObjectProperty<>();
+    private final ObjectProperty<@Nullable Path> mainFileDirectory = new SimpleObjectProperty<>();
     private final BooleanProperty storeFilesRelativeToBibFile = new SimpleBooleanProperty();
     private final BooleanProperty autoRenameFilesOnChange = new SimpleBooleanProperty();
     private final StringProperty fileNamePattern = new SimpleStringProperty();
@@ -32,13 +37,43 @@ public class FilePreferences {
     private final ObjectProperty<Path> backupDirectory = new SimpleObjectProperty<>();
     private final BooleanProperty confirmDeleteLinkedFile = new SimpleBooleanProperty();
     private final BooleanProperty moveToTrash = new SimpleBooleanProperty();
+
+    private final BooleanProperty adjustFileLinksOnTransfer = new SimpleBooleanProperty();
+    private final BooleanProperty copyLinkedFilesOnTransfer = new SimpleBooleanProperty();
+    private final BooleanProperty moveLinkedFilesOnTransfer = new SimpleBooleanProperty();
+
     private final BooleanProperty shouldKeepDownloadUrl = new SimpleBooleanProperty();
     private final ObjectProperty<Path> lastUsedDirectory = new SimpleObjectProperty<>();
     private final BooleanProperty openFileExplorerInFileDirectory = new SimpleBooleanProperty();
     private final BooleanProperty openFileExplorerInLastUsedDirectory = new SimpleBooleanProperty();
 
-    public FilePreferences(String userAndHost,
-                           String mainFileDirectory,
+    private FilePreferences() {
+        this(
+                new SimpleObjectProperty<>(OS.getUserHostInfo()), // userAndHost (needs to be sourced from InternalPreferences)
+                null,                                // mainFileDirectory
+                true,                                // storeFilesRelativeToBibFile
+                false,                               // autoRenameFilesOnChange
+                DEFAULT_FILENAME_PATTERNS[1],        // fileNamePattern
+                "",                                  // fileDirectoryPattern
+                true,                                // downloadLinkedFiles
+                true,                                // fulltextIndexLinkedFiles
+                Directories.getUserDirectory(),      // workingDirectory
+                true,                                // createBackup
+                Directories.getBackupDirectory(),    // backupDirectory
+                true,                                // confirmDeleteLinkedFile
+                false,                               // moveToTrash
+                true,                                // adjustFileLinksOnTransfer
+                true,                                // copyLinkedFilesOnTransfer
+                false,                               // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
+                true,                                // shouldKeepDownloadUrl
+                Path.of("/"),                        // lastUsedDirectory
+                true,                                // openFileExplorerInFileDirectory
+                false                                // openFileExplorerInLastUsedDirectory
+        );
+    }
+
+    public FilePreferences(ReadOnlyObjectProperty<UserHostInfo> userAndHost,
+                           @Nullable Path mainFileDirectory,
                            boolean storeFilesRelativeToBibFile,
                            boolean autoRenameFilesOnChange,
                            String fileNamePattern,
@@ -50,11 +85,14 @@ public class FilePreferences {
                            Path backupDirectory,
                            boolean confirmDeleteLinkedFile,
                            boolean moveToTrash,
+                           boolean adjustFileLinksOnTransfer,
+                           boolean copyLinkedFilesOnTransfer,
+                           boolean moveFilesOnTransferProperty,
                            boolean shouldKeepDownloadUrl,
                            Path lastUsedDirectory,
                            boolean openFileExplorerInFileDirectory,
                            boolean openFileExplorerInLastUsedDirectory) {
-        this.userAndHost.setValue(userAndHost);
+        this.userAndHost.bind(userAndHost);
         this.mainFileDirectory.setValue(mainFileDirectory);
         this.storeFilesRelativeToBibFile.setValue(storeFilesRelativeToBibFile);
         this.autoRenameFilesOnChange.setValue(autoRenameFilesOnChange);
@@ -67,33 +105,32 @@ public class FilePreferences {
         this.backupDirectory.setValue(backupDirectory);
         this.confirmDeleteLinkedFile.setValue(confirmDeleteLinkedFile);
         this.moveToTrash.setValue(moveToTrash);
+        this.adjustFileLinksOnTransfer.setValue(adjustFileLinksOnTransfer);
+        this.copyLinkedFilesOnTransfer.setValue(copyLinkedFilesOnTransfer);
+        this.moveLinkedFilesOnTransfer.setValue(moveFilesOnTransferProperty);
         this.shouldKeepDownloadUrl.setValue(shouldKeepDownloadUrl);
         this.lastUsedDirectory.setValue(lastUsedDirectory);
         this.openFileExplorerInFileDirectory.set(openFileExplorerInFileDirectory);
         this.openFileExplorerInLastUsedDirectory.set(openFileExplorerInLastUsedDirectory);
     }
 
-    public String getUserAndHost() {
-        return userAndHost.getValue();
+    public static FilePreferences getDefault() {
+        return new FilePreferences();
     }
 
-    public StringProperty getUserAndHostProperty() {
-        return userAndHost;
+    public String getUserAndHost() {
+        return userAndHost.getValue().getUserHostString();
     }
 
     public Optional<Path> getMainFileDirectory() {
-        if (StringUtil.isBlank(mainFileDirectory.getValue())) {
-            return Optional.empty();
-        } else {
-            return Optional.of(Path.of(mainFileDirectory.getValue()));
-        }
+        return Optional.ofNullable(mainFileDirectory.get());
     }
 
-    public StringProperty mainFileDirectoryProperty() {
+    public ObjectProperty<@Nullable Path> mainFileDirectoryProperty() {
         return mainFileDirectory;
     }
 
-    public void setMainFileDirectory(String mainFileDirectory) {
+    public void setMainFileDirectory(@Nullable Path mainFileDirectory) {
         this.mainFileDirectory.set(mainFileDirectory);
     }
 
@@ -227,6 +264,42 @@ public class FilePreferences {
 
     public void moveToTrash(boolean moveToTrash) {
         this.moveToTrash.set(moveToTrash);
+    }
+
+    public boolean shouldAdjustFileLinksOnTransfer() {
+        return adjustFileLinksOnTransfer.get();
+    }
+
+    public BooleanProperty adjustFileLinksOnTransferProperty() {
+        return adjustFileLinksOnTransfer;
+    }
+
+    public void setAdjustFileLinksOnTransfer(boolean adjustFileLinksOnTransfer) {
+        this.adjustFileLinksOnTransfer.set(adjustFileLinksOnTransfer);
+    }
+
+    public boolean shouldCopyLinkedFilesOnTransfer() {
+        return copyLinkedFilesOnTransfer.get();
+    }
+
+    public BooleanProperty copyLinkedFilesOnTransferProperty() {
+        return copyLinkedFilesOnTransfer;
+    }
+
+    public void setCopyLinkedFilesOnTransfer(boolean copyLinkedFilesOnTransfer) {
+        this.copyLinkedFilesOnTransfer.set(copyLinkedFilesOnTransfer);
+    }
+
+    public boolean shouldMoveLinkedFilesOnTransfer() {
+        return moveLinkedFilesOnTransfer.get();
+    }
+
+    public BooleanProperty moveLinkedFilesOnTransferPropertyProperty() {
+        return moveLinkedFilesOnTransfer;
+    }
+
+    public void setMoveLinkedFilesOnTransfer(boolean moveLinkedFilesOnTransfer) {
+        this.moveLinkedFilesOnTransfer.set(moveLinkedFilesOnTransfer);
     }
 
     public boolean shouldKeepDownloadUrl() {

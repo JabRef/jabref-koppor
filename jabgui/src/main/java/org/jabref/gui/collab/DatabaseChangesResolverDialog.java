@@ -17,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.PreviewViewer;
-import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
@@ -31,11 +30,9 @@ import org.slf4j.LoggerFactory;
 
 public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
     private final static Logger LOGGER = LoggerFactory.getLogger(DatabaseChangesResolverDialog.class);
-    /**
-     * Reconstructing the details view to preview an {@link DatabaseChange} every time it's selected is a heavy operation.
-     * It is also useless because changes are static and if the change data is static then the view doesn't have to change
-     * either. This cache is used to ensure that we only create the detail view instance once for each {@link DatabaseChange}.
-     */
+    /// Reconstructing the details view to preview an {@link DatabaseChange} every time it's selected is a heavy operation.
+    /// It is also useless because changes are static and if the change data is static then the view doesn't have to change
+    /// either. This cache is used to ensure that we only create the detail view instance once for each {@link DatabaseChange}.
     private final Map<DatabaseChange, DatabaseChangeDetailsView> DETAILS_VIEW_CACHE = new HashMap<>();
 
     @FXML
@@ -58,25 +55,22 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
     @Inject private UndoManager undoManager;
     @Inject private DialogService dialogService;
     @Inject private GuiPreferences preferences;
-    @Inject private ThemeManager themeManager;
     @Inject private BibEntryTypesManager entryTypesManager;
     @Inject private TaskExecutor taskExecutor;
 
-    /**
-     * A dialog going through given <code>changes</code>, which are diffs to the provided <code>database</code>.
-     * Each accepted change is written to the provided <code>database</code>.
-     *
-     * @param changes The list of changes
-     * @param database The database to apply the changes to
-     */
+    /// A dialog going through given `changes`, which are diffs to the provided `database`.
+    /// Each accepted change is written to the provided `database`.
+    ///
+    /// @param changes  The list of changes
+    /// @param database The database to apply the changes to
     public DatabaseChangesResolverDialog(List<DatabaseChange> changes, BibDatabaseContext database, String dialogTitle) {
         this.changes = changes;
         this.database = database;
 
         this.setTitle(dialogTitle);
         ViewLoader.view(this)
-                .load()
-                .setAsDialogPane(this);
+                  .load()
+                  .setAsDialogPane(this);
 
         this.setResultConverter(button -> {
             if (viewModel.areAllChangesResolved()) {
@@ -99,11 +93,11 @@ public class DatabaseChangesResolverDialog extends BaseDialog<Boolean> {
 
     @FXML
     private void initialize() {
-        PreviewViewer previewViewer = new PreviewViewer(dialogService, preferences, themeManager, taskExecutor);
+        PreviewViewer previewViewer = new PreviewViewer(dialogService, preferences, taskExecutor);
         previewViewer.setDatabaseContext(database);
-        DatabaseChangeDetailsViewFactory databaseChangeDetailsViewFactory = new DatabaseChangeDetailsViewFactory(database, dialogService, themeManager, preferences, entryTypesManager, previewViewer, taskExecutor);
+        DatabaseChangeDetailsViewFactory databaseChangeDetailsViewFactory = new DatabaseChangeDetailsViewFactory(database, dialogService, preferences, entryTypesManager, previewViewer, taskExecutor);
 
-        viewModel = new ExternalChangesResolverViewModel(changes, undoManager);
+        viewModel = new ExternalChangesResolverViewModel(changes);
 
         changeName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getName()));
         askUserToResolveChangeButton.disableProperty().bind(viewModel.canAskUserToResolveChangeProperty().not());

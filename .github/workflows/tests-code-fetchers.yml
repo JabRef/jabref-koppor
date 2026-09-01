@@ -5,34 +5,40 @@ on:
     branches:
       - main
     paths:
-      - 'src/main/java/org/jabref/logic/importer/fetcher/**'
-      - 'src/test/java/org/jabref/logic/importer/fetcher/**'
-      - 'src/main/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporter.java'
-      - 'src/test/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporterTest.java'
-      - 'src/main/java/org/jabref/logic/crawler/**'
-      - 'src/test/java/org/jabref/logic/crawler/**'
-      - '.github/workflows/tests-fetchers.yml'
-      - 'build.gradle'
+      - 'jablib/src/main/java/org/jabref/logic/importer/fetcher/**'
+      - 'jablib/src/test/java/org/jabref/logic/importer/fetcher/**'
+      - 'jablib/src/main/java/org/jabref/logic/importer/fileformat/pdf/PdfMergeMetadataImporter.java'
+      - 'jablib/src/test/java/org/jabref/logic/importer/fileformat/pdf/PdfMergeMetadataImporterTest.java'
+      - 'jablib/src/main/java/org/jabref/logic/crawler/**'
+      - 'jablib/src/test/java/org/jabref/logic/crawler/**'
+      - '.github/workflows/tests-code-fetchers.yml'
+      - '.github/actions/setup-gradle/action.yml'
+      - 'jablib/build.gradle.kts'
   pull_request:
     paths:
-      - 'src/main/java/org/jabref/logic/importer/fetcher/**'
-      - 'src/test/java/org/jabref/logic/importer/fetcher/**'
-      - 'src/main/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporter.java'
-      - 'src/test/java/org/jabref/logic/importer/fileformat/PdfMergeMetadataImporterTest.java'
-      - 'src/main/java/org/jabref/logic/crawler/**'
-      - 'src/test/java/org/jabref/logic/crawler/**'
-      - '.github/workflows/tests-fetchers.yml'
-      - 'build.gradle'
+      - 'jablib/src/main/java/org/jabref/logic/importer/fetcher/**'
+      - 'jablib/src/test/java/org/jabref/logic/importer/fetcher/**'
+      - 'jablib/src/main/java/org/jabref/logic/importer/fileformat/pdf/PdfMergeMetadataImporter.java'
+      - 'jablib/src/test/java/org/jabref/logic/importer/fileformat/pdf/PdfMergeMetadataImporterTest.java'
+      - 'jablib/src/main/java/org/jabref/logic/crawler/**'
+      - 'jablib/src/test/java/org/jabref/logic/crawler/**'
+      - '.github/actions/setup-gradle/action.yml'
+      - '.github/workflows/tests-code-fetchers.yml'
+      - 'jablib/build.gradle.kts'
   schedule:
     # run on each Monday
     - cron: '2 3 * * 1'
   workflow_dispatch:
 
 env:
-  SpringerNatureAPIKey: ${{ secrets.SPRINGERNATUREAPIKEY_FOR_TESTS }}
+  BiodiversityHeritageApiKey: ${{ secrets.BiodiversityHeritageApiKey_FOR_TESTS }}
   AstrophysicsDataSystemAPIKey: ${{ secrets.AstrophysicsDataSystemAPIKey_FOR_TESTS }}
   IEEEAPIKey: ${{ secrets.IEEEAPIKey_FOR_TESTS }}
-  BiodiversityHeritageApiKey: ${{ secrets.BiodiversityHeritageApiKey_FOR_TESTS}}
+  MedlineApiKey: ${{ secrets.MedlineApiKey_FOR_TESTS }}
+  OpenAlexApiKey: ${{ secrets.OpenAlexApiKey_FOR_TESTS }}
+  ScholarApiKey: ${{ secrets.SCHOLARAPIKEY_FOR_TESTS }}
+  SpringerNatureAPIKey: ${{ secrets.SPRINGERNATUREAPIKEY_FOR_TESTS }}
+  CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL_FOR_TESTS }}
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
@@ -45,21 +51,16 @@ jobs:
   fetchertests:
     if: github.repository == 'JabRef/jabref' || github.event_name != 'schedule'
     name: Fetcher tests
+    # On ubuntu-slim, it takes more than 15 minutes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           submodules: 'true'
           show-progress: 'false'
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: 24
-          distribution: 'corretto'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: ./.github/actions/setup-gradle
       - name: Run fetcher tests
-        run: ./gradlew fetcherTest
+        run: gradle fetcherTest
         env:
           CI: "true"

@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.keybindings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import javafx.beans.property.ListProperty;
@@ -19,7 +18,6 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingCategory;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.gui.preferences.keybindings.presets.BashKeyBindingPreset;
 import org.jabref.gui.preferences.keybindings.presets.KeyBindingPreset;
@@ -27,10 +25,13 @@ import org.jabref.gui.preferences.keybindings.presets.NewEntryBindingPreset;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.OptionalObjectProperty;
 
+import org.jspecify.annotations.NonNull;
+
 public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
+    /// Working copy the tab edits; written back to [#liveKeyBindingRepository] on store.
     private final KeyBindingRepository keyBindingRepository;
-    private final GuiPreferences preferences;
+    private final KeyBindingRepository liveKeyBindingRepository;
     private final OptionalObjectProperty<KeyBindingViewModel> selectedKeyBinding = OptionalObjectProperty.empty();
     private final ObjectProperty<KeyBindingViewModel> rootKeyBinding = new SimpleObjectProperty<>();
     private final ListProperty<KeyBindingPreset> keyBindingPresets = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -39,18 +40,17 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
     private final List<String> restartWarning = new ArrayList<>();
 
-    public KeyBindingsTabViewModel(KeyBindingRepository keyBindingRepository, DialogService dialogService, GuiPreferences preferences) {
+    public KeyBindingsTabViewModel(@NonNull KeyBindingRepository keyBindingRepository,
+                                   @NonNull DialogService dialogService) {
         this.keyBindingRepository = new KeyBindingRepository(keyBindingRepository.getKeyBindings());
-        this.dialogService = Objects.requireNonNull(dialogService);
-        this.preferences = Objects.requireNonNull(preferences);
+        this.liveKeyBindingRepository = keyBindingRepository;
+        this.dialogService = dialogService;
 
         keyBindingPresets.add(new BashKeyBindingPreset());
         keyBindingPresets.add(new NewEntryBindingPreset());
     }
 
-    /**
-     * Read all keybindings from the keybinding repository and create table keybinding models for them
-     */
+    /// Read all keybindings from the keybinding repository and create table keybinding models for them
     @Override
     public void setValues() {
         KeyBindingViewModel root = new KeyBindingViewModel(keyBindingRepository, KeyBindingCategory.FILE);
@@ -79,13 +79,11 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         }
     }
 
-    /**
-     * Searches for the term in the keybinding's localization, category, or key combination
-     *
-     * @param keyBinding keybinding to search in
-     * @param searchTerm      term to search for
-     * @return true if the term is found in the keybinding
-     */
+    /// Searches for the term in the keybinding's localization, category, or key combination
+    ///
+    /// @param keyBinding keybinding to search in
+    /// @param searchTerm term to search for
+    /// @return true if the term is found in the keybinding
     private boolean matchesSearchTerm(KeyBinding keyBinding, String searchTerm) {
         if (keyBinding.getLocalization().toLowerCase().contains(searchTerm) ||
                 keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
@@ -113,11 +111,20 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         }
     }
 
+    @Override
     public void storeSettings() {
-        if (!keyBindingRepository.equals(preferences.getKeyBindingRepository())) {
-            preferences.getKeyBindingRepository().getBindingsProperty().set(keyBindingRepository.getBindingsProperty());
-            restartWarning.add(Localization.lang("Keyboard shortcuts changed"));
+        KeyBindingRepository prefsRepo = liveKeyBindingRepository;
+
+        if (prefsRepo.equals(keyBindingRepository)) {
+            return;
         }
+
+        prefsRepo.getBindingsProperty().clear();
+        keyBindingRepository.getKeyBindings().forEach((key, value) -> {
+            prefsRepo.getBindingsProperty().put(key, value);
+        });
+
+        restartWarning.add(Localization.lang("Keyboard shortcuts changed"));
     }
 
     public void resetToDefault() {

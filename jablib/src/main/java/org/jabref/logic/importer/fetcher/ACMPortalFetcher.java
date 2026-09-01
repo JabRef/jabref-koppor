@@ -41,24 +41,31 @@ public class ACMPortalFetcher implements SearchBasedParserFetcher {
         return new DefaultQueryTransformer().transformSearchQuery(queryNode).orElse("");
     }
 
-    /**
-     * Constructing the url for the searchpage.
-     *
-     * @param queryNode the first query node
-     * @return query URL
-     */
+    /// Constructing the url for the searchpage.
+    ///
+    /// @param queryNode the first query node
+    /// @return query URL
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(createQueryString(queryNode));
+    }
+
+    /// Builds the ACM search URL, sending the given query as the `AllField` parameter.
+    private static URL buildSearchURL(String query) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SEARCH_URL);
-        uriBuilder.addParameter("AllField", createQueryString(queryNode));
+        uriBuilder.addParameter("AllField", query);
         return uriBuilder.build().toURL();
     }
 
-    /**
-     * Gets an instance of ACMPortalParser.
-     *
-     * @return the parser which can process the results returned from the ACM Portal search page
-     */
+    /// Builds the ACM search URL for a raw, catalog-native query, sent verbatim as the `AllField` parameter.
+    @Override
+    public URL getURLForRawQuery(String rawQuery) throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(rawQuery);
+    }
+
+    /// Gets an instance of ACMPortalParser.
+    ///
+    /// @return the parser which can process the results returned from the ACM Portal search page
     @Override
     public Parser getParser() {
         return new ACMPortalParser();

@@ -17,7 +17,6 @@ import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.AutoLinkPreferences;
 
 import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
@@ -42,6 +41,11 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     private final StringProperty fileDirectoryPatternProperty = new SimpleStringProperty();
     private final BooleanProperty confirmLinkedFileDeleteProperty = new SimpleBooleanProperty();
     private final BooleanProperty moveToTrashProperty = new SimpleBooleanProperty();
+
+    private final BooleanProperty adjustLinkedFilesOnTransferProperty = new SimpleBooleanProperty();
+    private final BooleanProperty copyLinkedFilesOnTransferProperty = new SimpleBooleanProperty();
+    private final BooleanProperty moveFilesOnTransferProperty = new SimpleBooleanProperty();
+
     private final BooleanProperty openFileExplorerInFilesDirectory = new SimpleBooleanProperty();
     private final BooleanProperty openFileExplorerInLastDirectory = new SimpleBooleanProperty();
 
@@ -51,10 +55,12 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     private final FilePreferences filePreferences;
     private final AutoLinkPreferences autoLinkPreferences;
 
-    public LinkedFilesTabViewModel(DialogService dialogService, CliPreferences preferences) {
+    public LinkedFilesTabViewModel(DialogService dialogService,
+                                   FilePreferences filePreferences,
+                                   AutoLinkPreferences autoLinkPreferences) {
         this.dialogService = dialogService;
-        this.filePreferences = preferences.getFilePreferences();
-        this.autoLinkPreferences = preferences.getAutoLinkPreferences();
+        this.filePreferences = filePreferences;
+        this.autoLinkPreferences = autoLinkPreferences;
 
         mainFileDirValidator = new FunctionBasedValidator<>(
                 mainFileDirectoryProperty,
@@ -90,12 +96,18 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         moveToTrashProperty.setValue(filePreferences.moveToTrash());
         openFileExplorerInFilesDirectory.setValue(filePreferences.shouldOpenFileExplorerInFileDirectory());
         openFileExplorerInLastDirectory.setValue(filePreferences.shouldOpenFileExplorerInLastUsedDirectory());
+        adjustLinkedFilesOnTransferProperty.setValue(filePreferences.shouldAdjustFileLinksOnTransfer());
+        copyLinkedFilesOnTransferProperty.setValue(filePreferences.shouldCopyLinkedFilesOnTransfer());
+        moveFilesOnTransferProperty.setValue(filePreferences.shouldMoveLinkedFilesOnTransfer());
 
         // Autolink preferences
         switch (autoLinkPreferences.getCitationKeyDependency()) {
-            case START -> autolinkFileStartsBibtexProperty.setValue(true);
-            case EXACT -> autolinkFileExactBibtexProperty.setValue(true);
-            case REGEX -> autolinkUseRegexProperty.setValue(true);
+            case START ->
+                    autolinkFileStartsBibtexProperty.setValue(true);
+            case EXACT ->
+                    autolinkFileExactBibtexProperty.setValue(true);
+            case REGEX ->
+                    autolinkUseRegexProperty.setValue(true);
         }
 
         autolinkRegexKeyProperty.setValue(autoLinkPreferences.getRegularExpression());
@@ -104,7 +116,11 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     @Override
     public void storeSettings() {
         // External files preferences / Attached files preferences / File preferences
-        filePreferences.setMainFileDirectory(mainFileDirectoryProperty.getValue());
+        if (mainFileDirectoryProperty.getValue().isEmpty()) {
+            filePreferences.setMainFileDirectory(null);
+        } else {
+            filePreferences.setMainFileDirectory(Path.of(mainFileDirectoryProperty.getValue()));
+        }
         filePreferences.setStoreFilesRelativeToBibFile(useBibLocationAsPrimaryProperty.getValue());
         filePreferences.setAutoRenameFilesOnChange(autoRenameFilesOnChangeProperty.getValue());
         filePreferences.setFileNamePattern(fileNamePatternProperty.getValue());
@@ -125,6 +141,9 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         autoLinkPreferences.setRegularExpression(autolinkRegexKeyProperty.getValue());
         filePreferences.confirmDeleteLinkedFile(confirmLinkedFileDeleteProperty.getValue());
         filePreferences.moveToTrash(moveToTrashProperty.getValue());
+        filePreferences.setAdjustFileLinksOnTransfer(adjustLinkedFilesOnTransferProperty.getValue());
+        filePreferences.setCopyLinkedFilesOnTransfer(copyLinkedFilesOnTransferProperty.getValue());
+        filePreferences.setMoveLinkedFilesOnTransfer(moveFilesOnTransferProperty.getValue());
     }
 
     ValidationStatus mainFileDirValidationStatus() {
@@ -204,6 +223,18 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
 
     public BooleanProperty moveToTrashProperty() {
         return this.moveToTrashProperty;
+    }
+
+    public BooleanProperty adjustLinkedFilesOnTransferProperty() {
+        return adjustLinkedFilesOnTransferProperty;
+    }
+
+    public BooleanProperty copyLinkedFilesOnTransferProperty() {
+        return copyLinkedFilesOnTransferProperty;
+    }
+
+    public BooleanProperty moveFilesOnTransferProperty() {
+        return moveFilesOnTransferProperty;
     }
 
     public BooleanProperty openFileExplorerInFilesDirectoryProperty() {

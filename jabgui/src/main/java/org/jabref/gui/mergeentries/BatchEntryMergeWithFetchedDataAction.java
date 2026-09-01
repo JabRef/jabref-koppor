@@ -17,7 +17,7 @@ import org.jabref.model.entry.BibEntry;
 
 /// Handles batch merging of bibliography entries with fetched data.
 ///
-///  @see BatchEntryMergeTask
+/// @see BatchEntryMergeTask
 ///
 public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
 
@@ -61,7 +61,8 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
                 entries,
                 fetcher,
                 undoManager,
-                notificationService);
+                notificationService,
+                preferences.getBibEntryPreferences().getKeywordSeparator());
 
         mergeTask.executeWith(taskExecutor);
     }

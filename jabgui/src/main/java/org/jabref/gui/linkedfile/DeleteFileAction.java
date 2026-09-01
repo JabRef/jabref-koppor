@@ -56,9 +56,7 @@ public class DeleteFileAction extends SimpleCommand {
         this.filesToDelete = List.copyOf(filesToDelete);
     }
 
-    /**
-     * Called when the user wants to delete a complete entry.
-     */
+    /// Called when the user wants to delete a complete entry.
     public DeleteFileAction(DialogService dialogService,
                             FilePreferences filePreferences,
                             BibDatabaseContext databaseContext,
@@ -142,9 +140,7 @@ public class DeleteFileAction extends SimpleCommand {
         warning.setGlyphSize(24.0);
         Label header = new Label(description, warning);
         header.setWrapText(true);
-        header.setStyle("""
-                -fx-padding: 10px;
-                -fx-background-color: -fx-background;""");
+        header.getStyleClass().add("delete-files-dialog");
 
         ListView<LinkedFileViewModel> filesToDeleteList = new ListView<>(FXCollections.observableArrayList(filesToDelete));
         new ViewModelListCellFactory<LinkedFileViewModel>()
@@ -158,11 +154,9 @@ public class DeleteFileAction extends SimpleCommand {
         return dialogPane;
     }
 
-    /**
-     * Deletes the files from the entry and optionally from disk.
-     *
-     * @param deleteFromDisk if true, the files are deleted from disk, otherwise they are only removed from the entry
-     */
+    /// Deletes the files from the entry and optionally from disk.
+    ///
+    /// @param deleteFromDisk if true, the files are deleted from disk, otherwise they are only removed from the entry
     private void deleteFiles(boolean deleteFromDisk) {
         // default: We have a success
         success = true;
@@ -176,11 +170,9 @@ public class DeleteFileAction extends SimpleCommand {
         }
     }
 
-    /**
-     * Helper method to delete the specified file from disk
-     *
-     * @param linkedFile The LinkedFile (file which linked to an entry) to be deleted from disk
-     */
+    /// Helper method to delete the specified file from disk
+    ///
+    /// @param linkedFile The LinkedFile (file which linked to an entry) to be deleted from disk
     private void deleteFileHelper(BibDatabaseContext databaseContext, LinkedFile linkedFile) {
         Optional<Path> file = linkedFile.findIn(databaseContext, filePreferences);
 

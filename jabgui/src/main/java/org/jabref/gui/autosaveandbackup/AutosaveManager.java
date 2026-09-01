@@ -15,11 +15,9 @@ import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Saves the given {@link BibDatabaseContext} on every {@link BibDatabaseContextChangedEvent} by posting a new {@link AutosaveEvent}.
- * An intelligent {@link ScheduledThreadPoolExecutor} prevents a high load while saving and rejects all redundant save tasks.
- * The scheduled action is stored and canceled if a newer save action is proposed.
- */
+/// Saves the given {@link BibDatabaseContext} on every {@link BibDatabaseContextChangedEvent} by posting a new {@link AutosaveEvent}.
+/// An intelligent {@link ScheduledThreadPoolExecutor} prevents a high load while saving and rejects all redundant save tasks.
+/// The scheduled action is stored and canceled if a newer save action is proposed.
 public class AutosaveManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutosaveManager.class);
@@ -44,8 +42,8 @@ public class AutosaveManager {
         this.executor.scheduleAtFixedRate(
                 () -> {
                     if (needsSave) {
-                       eventBus.post(new AutosaveEvent());
-                       needsSave = false;
+                        eventBus.post(new AutosaveEvent());
+                        needsSave = false;
                     }
                 },
                 DELAY_BETWEEN_AUTOSAVE_ATTEMPTS_IN_SECONDS,
@@ -61,29 +59,29 @@ public class AutosaveManager {
     }
 
     private void shutdown() {
-        coarseChangeFilter.unregisterListener(this);
+        try {
+            coarseChangeFilter.unregisterListener(this);
+        } catch (IllegalArgumentException e) {
+            // ignore exception if the listener was not registered before
+        }
         runningInstances.remove(this);
     }
 
-    /**
-     * Starts the Autosaver which is associated with the given {@link BibDatabaseContext}.
-     *
-     * @param bibDatabaseContext Associated {@link BibDatabaseContext}
-     */
+    /// Starts the Autosaver which is associated with the given {@link BibDatabaseContext}.
+    ///
+    /// @param bibDatabaseContext Associated {@link BibDatabaseContext}
     public static AutosaveManager start(BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter) {
         AutosaveManager autosaveManager = new AutosaveManager(bibDatabaseContext, coarseChangeFilter);
         runningInstances.add(autosaveManager);
         return autosaveManager;
     }
 
-    /**
-     * Shuts down the Autosaver which is associated with the given {@link BibDatabaseContext}.
-     *
-     * @param bibDatabaseContext Associated {@link BibDatabaseContext}
-     */
+    /// Shuts down the Autosaver which is associated with the given {@link BibDatabaseContext}.
+    ///
+    /// @param bibDatabaseContext Associated {@link BibDatabaseContext}
     public static void shutdown(BibDatabaseContext bibDatabaseContext) {
         runningInstances.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).findAny()
-                        .ifPresent(instance -> instance.shutdown());
+                        .ifPresent(AutosaveManager::shutdown);
     }
 
     public void registerListener(Object listener) {

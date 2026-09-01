@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Month;
@@ -16,11 +17,8 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-import org.jabref.model.strings.StringUtil;
 
-/**
- * A comparator for BibEntry fields
- */
+/// A comparator for BibEntry fields
 public class FieldComparator implements Comparator<BibEntry> {
 
     private static final Collator COLLATOR = getCollator();
@@ -39,7 +37,7 @@ public class FieldComparator implements Comparator<BibEntry> {
     }
 
     public FieldComparator(SaveOrder.SortCriterion sortCriterion) {
-        this(new OrFields(sortCriterion.field), sortCriterion.descending);
+        this(new OrFields(sortCriterion.field()), sortCriterion.descending());
     }
 
     public FieldComparator(OrFields fields, boolean descending) {
@@ -72,14 +70,11 @@ public class FieldComparator implements Comparator<BibEntry> {
         }
     }
 
-    private String getFieldValue(BibEntry entry) {
-        for (Field aField : fields.getFields()) {
-            Optional<String> o = entry.getFieldOrAliasLatexFree(aField);
-            if (o.isPresent()) {
-                return o.get();
-            }
-        }
-        return null;
+    private Optional<String> getFieldValue(BibEntry entry) {
+        return fields.getFields().stream()
+                     .map(entry::getFieldOrAliasLatexFree)
+                     .flatMap(Optional::stream)
+                     .findFirst();
     }
 
     @Override
@@ -92,8 +87,8 @@ public class FieldComparator implements Comparator<BibEntry> {
             f1 = e1.getType().getDisplayName();
             f2 = e2.getType().getDisplayName();
         } else {
-            f1 = getFieldValue(e1);
-            f2 = getFieldValue(e2);
+            f1 = getFieldValue(e1).orElse(null);
+            f2 = getFieldValue(e2).orElse(null);
         }
 
         // Catch all cases involving null:

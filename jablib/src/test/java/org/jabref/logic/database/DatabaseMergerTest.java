@@ -107,10 +107,10 @@ class DatabaseMergerTest {
         new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeStrings(target, source2);
         // Use string representation to compare since the id will not match
         List<String> resultStringsSorted = target.getStringValues()
-                .stream()
-                .map(BibtexString::toString)
-                .sorted()
-                .collect(Collectors.toList());
+                                                 .stream()
+                                                 .map(BibtexString::toString)
+                                                 .sorted()
+                                                 .collect(Collectors.toList());
 
         assertEquals(List.of(targetString.toString(), importedBibTeXString1.toString(),
                 importedBibTeXString2.toString()), resultStringsSorted);
@@ -134,9 +134,9 @@ class DatabaseMergerTest {
 
         new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeStrings(target, source);
         List<BibtexString> resultStringsSorted = target.getStringValues()
-                .stream()
-                .sorted(new BibtexStringComparator(false)::compare)
-                .collect(Collectors.toList());
+                                                       .stream()
+                                                       .sorted(new BibtexStringComparator(false)::compare)
+                                                       .collect(Collectors.toList());
 
         assertEquals(List.of(targetString1, targetString2), resultStringsSorted);
     }
@@ -188,5 +188,73 @@ class DatabaseMergerTest {
         assertEquals(1, target.getGroups().get().getChildren().size());
         assertEquals(expectedImportedGroupNode, target.getGroups().get().getChildren().getFirst());
         assertEquals(expectedContentSelectors, target.getContentSelectorsSorted().stream().toList());
+    }
+
+    @Test
+    void mergeEntriesUnionMergesGroupsFieldOnDuplicate() {
+        BibEntry existingEntry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper")
+                .withField(StandardField.GROUPS, "ArXiv");
+
+        BibEntry incomingDuplicate = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper")
+                .withField(StandardField.GROUPS, "Springer");
+
+        BibDatabase target = new BibDatabase(List.of(existingEntry));
+        BibDatabase other = new BibDatabase(List.of(incomingDuplicate));
+
+        DatabaseMerger merger = new DatabaseMerger(',');
+        merger.merge(target, other);
+
+        assertEquals(1, target.getEntries().size());
+        assertEquals("ArXiv, Springer",
+                target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
+    }
+
+    @Test
+    void mergeEntriesPreservesGroupsWhenDuplicateHasNoGroups() {
+        BibEntry existingEntry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper")
+                .withField(StandardField.GROUPS, "ArXiv");
+
+        BibEntry incomingDuplicate = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper");
+
+        BibDatabase target = new BibDatabase(List.of(existingEntry));
+        BibDatabase other = new BibDatabase(List.of(incomingDuplicate));
+
+        DatabaseMerger merger = new DatabaseMerger(',');
+        merger.merge(target, other);
+
+        assertEquals(1, target.getEntries().size());
+        assertEquals("ArXiv",
+                target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
+    }
+
+    @Test
+    void mergeEntriesDoesNotDuplicateGroupsOnRepeatedMerge() {
+        BibEntry existingEntry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper")
+                .withField(StandardField.GROUPS, "ArXiv");
+
+        BibEntry incomingDuplicate = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.DOI, "10.1234/test")
+                .withField(StandardField.TITLE, "Test Paper")
+                .withField(StandardField.GROUPS, "ArXiv");
+
+        BibDatabase target = new BibDatabase(List.of(existingEntry));
+        BibDatabase other = new BibDatabase(List.of(incomingDuplicate));
+
+        DatabaseMerger merger = new DatabaseMerger(',');
+        merger.merge(target, other);
+
+        assertEquals(1, target.getEntries().size());
+        assertEquals("ArXiv",
+                target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
     }
 }

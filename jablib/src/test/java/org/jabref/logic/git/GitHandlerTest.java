@@ -8,7 +8,9 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.git.util.NoopGitSystemReader;
+import org.jabref.logic.l10n.Localization;
 
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -20,16 +22,26 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.SystemReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.mockito.Answers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@Execution(ExecutionMode.SAME_THREAD)
+@ResourceLock("git")
 class GitHandlerTest {
     @TempDir
     Path repositoryPath;
@@ -41,15 +53,18 @@ class GitHandlerTest {
 
     @BeforeEach
     void setUpGitHandler() throws IOException, GitAPIException, URISyntaxException {
-        gitHandler = new GitHandler(repositoryPath);
+        GitPreferences gitPreferences = mock(GitPreferences.class);
+        when(gitPreferences.getUsername()).thenReturn("");
+        when(gitPreferences.getPat()).thenReturn("");
+        gitHandler = new GitHandler(repositoryPath, gitPreferences);
 
         SystemReader.setInstance(new NoopGitSystemReader());
 
         try (Git remoteGit = Git.init()
-                           .setBare(true)
-                           .setDirectory(remoteRepoPath.toFile())
-                           .setInitialBranch("main")
-                           .call()) {
+                                .setBare(true)
+                                .setDirectory(remoteRepoPath.toFile())
+                                .setInitialBranch("main")
+                                .call()) {
             // This ensures the remote repository is initialized and properly closed
         }
 
@@ -139,11 +154,34 @@ class GitHandlerTest {
     }
 
     @Test
+    void pushReportsRejectedRemoteUpdate() throws IOException, GitAPIException {
+        try (Git cloneGit = Git.cloneRepository()
+                               .setURI(remoteRepoPath.toUri().toString())
+                               .setDirectory(clonePath.toFile())
+                               .call()) {
+            Files.writeString(clonePath.resolve("remote.txt"), "remote change");
+            cloneGit.add().addFilepattern("remote.txt").call();
+            cloneGit.commit().setMessage("Remote commit").call();
+            cloneGit.push().call();
+        }
+
+        Files.writeString(repositoryPath.resolve("local.txt"), "local change");
+        gitHandler.createCommitOnCurrentBranch("Local commit", false);
+
+        JabRefException exception = assertThrows(JabRefException.class, gitHandler::pushCommitsToRemoteRepository);
+
+        assertEquals(
+                Localization.lang("Push to %0 was rejected (%1).", "refs/heads/main", RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD),
+                exception.getLocalizedMessage());
+    }
+
+    @Test
     void fromAnyPathFindsGitRootFromNestedPath() throws IOException {
         Path nested = repositoryPath.resolve("src/org/jabref");
         Files.createDirectories(nested);
 
-        Optional<GitHandler> handlerOpt = GitHandler.fromAnyPath(nested);
+        GitPreferences gitPreferences = mock(GitPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        Optional<GitHandler> handlerOpt = GitHandler.fromAnyPath(nested, gitPreferences);
 
         assertTrue(handlerOpt.isPresent(), "Expected GitHandler to be created");
         assertEquals(repositoryPath.toRealPath(), handlerOpt.get().repositoryPath.toRealPath(),

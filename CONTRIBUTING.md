@@ -102,7 +102,7 @@ GitHub will then automatically assign you.
 5. Refer to our [code how-tos](https://devdocs.jabref.org/code-howtos) if you have questions about your implementation.
 6. Implement and test your changes.
    * Create JUnit tests for your changes, apart from manual testing. Maybe even use [Test-driven Development](https://en.wikipedia.org/wiki/Test-driven_development) to speed up your development.
-   * Have fun. Learn. Communictate.
+   * Have fun. Learn. Communicate.
 7. Create a [pull request to JabRef main repository](https://github.com/JabRef/jabref/pulls).
    * For an overview on the concept of pull requests, take a look at GitHub's [pull request help documentation](https://help.github.com/articles/about-pull-requests/).
    * For text inspirations, consider [How to write the perfect pull request](https://github.com/blog/1943-how-to-write-the-perfect-pull-request).
@@ -142,7 +142,7 @@ For UI changes, we know that test cases are hard to write.
 Therefore, you can omit them.
 However, please at least add a screenshot showing your changes to the request.
 
-<!-- In case you do not have time to add a test case, we nevertheless ask you to at least run `gradlew check` to ensure that your change does not break anything else. -->
+<!-- In case you do not have time to add a test case, we nevertheless ask you to at least run `./gradlew check` to ensure that your change does not break anything else. -->
 
 #### Write a good commit message
 
@@ -162,9 +162,16 @@ We also show all contributors in our blog posts. See [Release 5.15 blog post](ht
 
 Your contribution is considered being made under [MIT license](https://tldrlegal.com/license/mit-license).
 
-#### Notes on AI usage
+#### AI Usage Policy
 
-Please keep these two principles in mind when you contribute:
+This project does *not* accept fully AI-generated contributions.
+AI tools may be used assistively only. As a contributor, you should be able to understand and take responsibility for changes you make to the codebase.
+
+Agents and AI coding assistants must follow the guidelines in [`./AGENTS.md`](./AGENTS.md).
+
+Please read the [AI Usage Policy](./AI_USAGE_POLICY.md) before proceeding.
+In short, please keep these two principles in mind when you contribute:
+
 > [!IMPORTANT]
 >
 > 1. Never let an LLM speak for you.
@@ -188,12 +195,17 @@ After implementing changes, commit to the branch your pull request is *from* and
 The pull request will automatically be updated with your changes.
 To maintain a clean git history, your commits will also be automatically squashed upon acceptance of the pull request, during merging.
 Thus, no need to worry about WIP commits or [fixing git submodule issues](https://devdocs.jabref.org/code-howtos/faq#submodules).
-As a concequece, force-pushing is not required - and must be **avoided**.
+As a consequence, force-pushing is not required - and must be **avoided**.
 
 After all the basic checks are green, maintainers will look at your pull request.
 Since JabRef is driven by volunteers in their spare time, reviews may take more time than a project with full time developers.
-The pull request may be approved immediatly, or a reviewer may request changes and/or have discussions regarding your approach.
+The pull request may be approved immediately, or a reviewer may request changes and/or have discussions regarding your approach.
 In that case, you are expected to answer any questions and implement the requested changes.
+
+> [!IMPORTANT]
+> Do **not** resolve review discussions yourself after addressing the feedback.
+> Resolving a conversation is reserved for the maintainer who started it, so they can verify the fix.
+> As a contributor, reply to the comment to indicate it has been addressed, then leave the conversation open.
 
 Please – **never ever close a pull request and open a new one** -
 This causes unnecessary work on our side, and is not in the style of the GitHub Open Source community.

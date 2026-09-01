@@ -33,6 +33,23 @@ public class ProxyPreferences {
         this.persistPassword = new SimpleBooleanProperty(persistPassword);
     }
 
+    // Creates object with default preference values
+    private ProxyPreferences() {
+        this(
+                false,      // useProxy: Whether to enable proxy usage
+                "",         // proxyHostname: The hostname of proxy
+                "80",       // proxyPort: Port number on which the proxy is listening
+                false,      // useAuthentication: Whether proxy authentication should be enabled
+                "",         // proxyUsername: Username for proxy authentication (if enabled)
+                "",         // proxyPassword: Password for proxy authentication (if enabled)
+                false       // persistPassword: Whether the proxy password should be saved/persisted
+        );
+    }
+
+    public static ProxyPreferences getDefault() {
+        return new ProxyPreferences();
+    }
+
     public final boolean shouldUseProxy() {
         return useProxy.getValue();
     }

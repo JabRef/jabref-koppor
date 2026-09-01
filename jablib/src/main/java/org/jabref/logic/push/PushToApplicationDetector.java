@@ -35,11 +35,11 @@ public class PushToApplicationDetector {
     }
 
     public static boolean isValidAbsolutePath(String path) {
-        if (path == null || path.trim().isEmpty()) {
+        if (path == null || path.isBlank()) {
             return false;
         }
         Path p = Path.of(path);
-        return p.isAbsolute() && p.toFile().exists();
+        return p.isAbsolute() && Files.exists(p);
     }
 
     private static @Nullable String findApplicationPath(PushToApplication app) {
@@ -61,7 +61,7 @@ public class PushToApplicationDetector {
 
         for (Path base : paths) {
             try {
-                if (base.toFile().exists()) {
+                if (Files.exists(base)) {
                     String result = findExecutableInDirectory(base, names);
                     if (result != null) {
                         return result;
@@ -122,7 +122,7 @@ public class PushToApplicationDetector {
     }
 
     private static boolean isValidExecutable(Path path, String[] names) {
-        if (!path.toFile().exists()) {
+        if (Files.notExists(path)) {
             return false;
         }
 
@@ -151,17 +151,28 @@ public class PushToApplicationDetector {
 
     private static String[] getPossibleExecutableNames(String name) {
         return switch (name) {
-            case "Emacs" -> new String[] {"emacs", "emacsclient"};
-            case "LyX/Kile" -> new String[] {"lyx", "kile"};
-            case "Texmaker" -> new String[] {"texmaker"};
-            case "TeXstudio" -> new String[] {"texstudio"};
-            case "TeXworks" -> new String[] {"texworks"};
-            case "Vim" -> new String[] {"vim", "nvim", "gvim"};
-            case "WinEdt" -> new String[] {"winedt"};
-            case "Sublime Text" -> new String[] {"subl", "sublime_text"};
-            case "TeXShop" -> new String[] {"texshop"};
-            case "VScode" -> new String[] {"code", "code-insiders"};
-            default -> new String[] {name.replace(" ", "").toLowerCase()};
+            case "Emacs" ->
+                    new String[] {"emacs", "emacsclient"};
+            case "LyX/Kile" ->
+                    new String[] {"lyx", "kile"};
+            case "Texmaker" ->
+                    new String[] {"texmaker"};
+            case "TeXstudio" ->
+                    new String[] {"texstudio"};
+            case "TeXworks" ->
+                    new String[] {"texworks"};
+            case "Vim" ->
+                    new String[] {"vim", "nvim", "gvim"};
+            case "WinEdt" ->
+                    new String[] {"winedt"};
+            case "Sublime Text" ->
+                    new String[] {"subl", "sublime_text"};
+            case "TeXShop" ->
+                    new String[] {"texshop"};
+            case "VScode" ->
+                    new String[] {"code", "code-insiders"};
+            default ->
+                    new String[] {name.replace(" ", "").toLowerCase()};
         };
     }
 
@@ -174,7 +185,7 @@ public class PushToApplicationDetector {
         result = trySystemCommand("where", exe);
         if (result != null) {
             String[] lines = result.split("\n");
-            return lines.length > 0 && !lines[0].trim().isEmpty() ? lines[0].trim() : null;
+            return lines.length > 0 && !lines[0].isBlank() ? lines[0].trim() : null;
         }
 
         return null;

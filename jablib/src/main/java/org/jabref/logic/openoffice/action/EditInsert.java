@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.jabref.logic.JabRefException;
 import org.jabref.logic.openoffice.frontend.OOFrontend;
 import org.jabref.logic.openoffice.frontend.UpdateCitationMarkers;
 import org.jabref.logic.openoffice.style.JStyle;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.ootext.OOText;
@@ -19,7 +21,7 @@ import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoScreenRefresh;
 import org.jabref.model.openoffice.util.OOListUtil;
-import org.jabref.model.strings.StringUtil;
+import org.jabref.model.openoffice.util.OOVoidResult;
 
 import com.sun.star.beans.IllegalTypeException;
 import com.sun.star.beans.NotRemoveableException;
@@ -27,19 +29,18 @@ import com.sun.star.beans.PropertyVetoException;
 import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
+import com.sun.star.uno.XComponentContext;
 
 public class EditInsert {
 
     private EditInsert() {
     }
 
-    /**
-     * In insertEntry we receive BibEntry values from the GUI.
-     * <p>
-     * In the document we store citations by their citation key.
-     * <p>
-     * If the citation key is missing, the best we can do is to notify the user. Or the programmer, that we cannot accept such input.
-     */
+    /// In insertEntry we receive BibEntry values from the GUI.
+    ///
+    /// In the document we store citations by their citation key.
+    ///
+    /// If the citation key is missing, the best we can do is to notify the user. Or the programmer, that we cannot accept such input.
     private static String insertEntryGetCitationKey(BibEntry entry) {
         Optional<String> key = entry.getCitationKey();
         if (key.isEmpty()) {
@@ -48,26 +49,19 @@ public class EditInsert {
         return key.get();
     }
 
-    /**
-     * @param cursor   Where to insert.
-     * @param pageInfo A single pageInfo for a list of entries. This is what we get from the GUI.
-     */
-    public static void insertCitationGroup(XTextDocument doc,
-                                           OOFrontend frontend,
-                                           XTextCursor cursor,
-                                           List<BibEntry> entries,
-                                           BibDatabase database,
-                                           JStyle style,
-                                           CitationType citationType,
-                                           String pageInfo)
-            throws
-            NoDocumentException,
-            NotRemoveableException,
-            WrappedTargetException,
-            PropertyVetoException,
-            CreationException,
-            IllegalTypeException {
-
+    /// @param cursor   Where to insert.
+    /// @param pageInfo A single pageInfo for a list of entries. This is what we get from the GUI.
+    public static OOVoidResult<JabRefException> insertCitationGroup(XTextDocument doc,
+                                                                    XComponentContext context,
+                                                                    OOFrontend frontend,
+                                                                    XTextCursor cursor,
+                                                                    List<BibEntry> entries,
+                                                                    BibDatabase database,
+                                                                    JStyle style,
+                                                                    CitationType citationType,
+                                                                    String pageInfo,
+                                                                    boolean insertSpaceBefore,
+                                                                    boolean insertSpaceAfter) {
         List<String> citationKeys = OOListUtil.map(entries, EditInsert::insertEntryGetCitationKey);
 
         final int totalEntries = entries.size();
@@ -87,7 +81,7 @@ public class EditInsert {
             citeText = OOText.fromString("[-]"); // A dash only. Only refresh later.
         } else {
             citeText = style.createCitationMarker(citations,
-                    citationType.inParenthesis(),
+                    citationType,
                     NonUniqueCitationMarker.FORGIVEN);
         }
 
@@ -99,13 +93,18 @@ public class EditInsert {
             UnoScreenRefresh.lockControllers(doc);
             UpdateCitationMarkers.createAndFillCitationGroup(frontend,
                     doc,
+                    context,
                     citationKeys,
                     pageInfos,
                     citationType,
                     citeText,
                     cursor,
                     style,
-                    true /* insertSpaceAfter */);
+                    insertSpaceBefore,
+                    insertSpaceAfter);
+            return OOVoidResult.ok();
+        } catch (NoDocumentException | NotRemoveableException | WrappedTargetException | PropertyVetoException | CreationException | IllegalTypeException e) {
+            return OOVoidResult.error(new JabRefException(e.getMessage(), e));
         } finally {
             UnoScreenRefresh.unlockControllers(doc);
         }

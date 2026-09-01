@@ -11,14 +11,17 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 
+import org.jspecify.annotations.NonNull;
+
 public class CitationKeyDeviationChecker implements EntryChecker {
 
     private final BibDatabaseContext bibDatabaseContext;
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
 
-    public CitationKeyDeviationChecker(BibDatabaseContext bibDatabaseContext, CitationKeyPatternPreferences citationKeyPatternPreferences) {
-        this.bibDatabaseContext = Objects.requireNonNull(bibDatabaseContext);
-        this.citationKeyPatternPreferences = Objects.requireNonNull(citationKeyPatternPreferences);
+    public CitationKeyDeviationChecker(@NonNull BibDatabaseContext bibDatabaseContext,
+                                       @NonNull CitationKeyPatternPreferences citationKeyPatternPreferences) {
+        this.bibDatabaseContext = bibDatabaseContext;
+        this.citationKeyPatternPreferences = citationKeyPatternPreferences;
     }
 
     @Override
@@ -35,7 +38,7 @@ public class CitationKeyDeviationChecker implements EntryChecker {
 
         if (!Objects.equals(key, generatedKey)) {
             return List.of(new IntegrityMessage(
-                    Localization.lang("Citation key deviates from generated key"), entry, InternalField.KEY_FIELD));
+                    Localization.lang("Citation key deviates from generated key %0", generatedKey), entry, InternalField.KEY_FIELD));
         }
 
         return List.of();

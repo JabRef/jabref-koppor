@@ -16,20 +16,17 @@ import org.jabref.model.openoffice.style.CitationLookupResult;
 import org.jabref.model.openoffice.style.CitationMarkerEntry;
 import org.jabref.model.openoffice.style.CitationMarkerNumericBibEntry;
 import org.jabref.model.openoffice.style.CitationMarkerNumericEntry;
+import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.style.NonUniqueCitationMarker;
 import org.jabref.model.openoffice.style.PageInfo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OOBibStyleTestHelper {
-    /*
-     * Minimal implementation for CitationMarkerNumericEntry
-     */
+    // Minimal implementation for CitationMarkerNumericEntry
     static class CitationMarkerNumericEntryImpl implements CitationMarkerNumericEntry {
 
-        /*
-         * The number encoding "this entry is unresolved" for the constructor.
-         */
+        // The number encoding "this entry is unresolved" for the constructor.
         public final static int UNRESOLVED_ENTRY_NUMBER = 0;
 
         private final String citationKey;
@@ -39,8 +36,8 @@ class OOBibStyleTestHelper {
         public CitationMarkerNumericEntryImpl(String citationKey, int num, Optional<OOText> pageInfo) {
             this.citationKey = citationKey;
             this.num = num == UNRESOLVED_ENTRY_NUMBER
-                    ? Optional.empty()
-                    : Optional.of(num);
+                       ? Optional.empty()
+                       : Optional.of(num);
             this.pageInfo = PageInfo.normalizePageInfo(pageInfo);
         }
 
@@ -84,11 +81,9 @@ class OOBibStyleTestHelper {
         return new CitationMarkerNumericBibEntryImpl(key, number);
     }
 
-    /**
-     * Reproduce old method
-     *
-     * @param inList true means label for the bibliography
-     */
+    /// Reproduce old method
+    ///
+    /// @param inList true means label for the bibliography
     static String runGetNumCitationMarker2a(JStyle style,
                                             List<Integer> num, int minGroupingCount, boolean inList) {
         if (inList) {
@@ -153,10 +148,8 @@ class OOBibStyleTestHelper {
         return result;
     }
 
-    /**
-     * @implNote Similar to old API. pageInfo is new, and unlimAuthors is
-     * replaced with isFirstAppearanceOfSource
-     */
+    /// @implNote Similar to old API. pageInfo is new, and unlimAuthors is
+    /// replaced with isFirstAppearanceOfSource
     static String getCitationMarker2ab(JStyle style,
                                        List<BibEntry> entries,
                                        Map<BibEntry, BibDatabase> entryDBMap,
@@ -164,7 +157,7 @@ class OOBibStyleTestHelper {
                                        String[] uniquefiers,
                                        Boolean[] isFirstAppearanceOfSource,
                                        String[] pageInfo,
-                                       NonUniqueCitationMarker nonunique) {
+                                       NonUniqueCitationMarker nonUniqueCitationMarker) {
         if (uniquefiers == null) {
             uniquefiers = new String[entries.size()];
             Arrays.fill(uniquefiers, null);
@@ -189,7 +182,7 @@ class OOBibStyleTestHelper {
         }
         return style.createCitationMarker(citationMarkerEntries,
                 inParenthesis,
-                nonunique).toString();
+                nonUniqueCitationMarker).toString();
     }
 
     static String getCitationMarker2(JStyle style,
@@ -207,6 +200,40 @@ class OOBibStyleTestHelper {
                 isFirstAppearanceOfSource,
                 pageInfo,
                 NonUniqueCitationMarker.THROWS);
+    }
+
+    static String getCitationMarkerForType(JStyle style,
+                                           List<BibEntry> entries,
+                                           Map<BibEntry, BibDatabase> entryDBMap,
+                                           CitationType citationType,
+                                           String[] uniquefiers,
+                                           Boolean[] isFirstAppearanceOfSource,
+                                           String[] pageInfo) {
+        if (uniquefiers == null) {
+            uniquefiers = new String[entries.size()];
+            Arrays.fill(uniquefiers, null);
+        }
+        if (pageInfo == null) {
+            pageInfo = new String[entries.size()];
+            Arrays.fill(pageInfo, null);
+        }
+        if (isFirstAppearanceOfSource == null) {
+            isFirstAppearanceOfSource = new Boolean[entries.size()];
+            Arrays.fill(isFirstAppearanceOfSource, false);
+        }
+        List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>(entries.size());
+        for (int i = 0; i < entries.size(); i++) {
+            BibEntry entry = entries.get(i);
+            CitationMarkerEntry citationMarkerEntry = makeCitationMarkerEntry(entry,
+                    entryDBMap.get(entry),
+                    uniquefiers[i],
+                    pageInfo[i],
+                    isFirstAppearanceOfSource[i]);
+            citationMarkerEntries.add(citationMarkerEntry);
+        }
+        return style.createCitationMarker(citationMarkerEntries,
+                citationType,
+                NonUniqueCitationMarker.THROWS).toString();
     }
 
     static String getCitationMarker2b(JStyle style,

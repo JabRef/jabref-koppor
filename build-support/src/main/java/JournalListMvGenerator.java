@@ -1,27 +1,33 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
-
-//JAVA 24
+//JAVA 25+
 //RUNTIME_OPTIONS --enable-native-access=ALL-UNNAMED
 
-//DEPS com.h2database:h2:2.2.224
-//DEPS org.antlr:antlr4-runtime:4.13.2
-//DEPS org.apache.commons:commons-csv:1.14.0
+//DEPS com.h2database:h2:2.4.240
 //DEPS info.debatty:java-string-similarity:2.0.0
-//DEPS org.jooq:jool:0.9.14
-//DEPS org.openjfx:javafx-base:24.0.1
-//DEPS org.slf4j:slf4j-api:2.0.13
-//DEPS org.slf4j:slf4j-simple:2.0.13
+//DEPS org.antlr:antlr4-runtime:4.13.2
+//DEPS org.apache.commons:commons-csv:1.14.1
+//DEPS org.jabref:easybind:2.3.0
+//DEPS org.jooq:jool:0.9.15
+//DEPS org.jspecify:jspecify:1.0.0
+// Keep this version in sync with versions/build.gradle.kts.
+//DEPS org.openjfx:javafx-base:26.0.2
+//DEPS org.slf4j:slf4j-api:2.0.18
+//DEPS org.slf4j:slf4j-simple:2.0.18
 
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/Abbreviation.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/AbbreviationFormat.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/AbbreviationParser.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/JournalAbbreviationLoader.java
-//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/JournalAbbreviationPreferences.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/AbbreviationPreferences.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/JournalAbbreviationRepository.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/ltwa/LtwaEntry.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/ltwa/LtwaRepository.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/ltwa/NormalizeUtils.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/journals/ltwa/PrefixTree.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/BackgroundTask.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/DelayTaskThrottler.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/FallbackExceptionHandler.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/HeadlessExecutorService.java
+//SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/TaskExecutor.java
 //SOURCES ../../../../jablib/src/main/java/org/jabref/logic/util/strings/StringSimilarity.java
 
 //SOURCES ../../../../jablib/build/generated-src/antlr/main/org/jabref/logic/journals/ltwa/*.java
@@ -44,13 +50,12 @@ import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /// Has to be started in the root of the repository due to <https://github.com/jbangdev/jbang-gradle-plugin/issues/11>
 public class JournalListMvGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalListMvGenerator.class);
 
-    public static void main(String[] args) throws IOException {
+    static void main(String[] args) throws IOException {
         boolean verbose = (args.length == 1) && ("--verbose".equals(args[0]));
 
         Path abbreviationsDirectory = Path.of("jablib", "src", "main", "abbrv.jabref.org", "journals");

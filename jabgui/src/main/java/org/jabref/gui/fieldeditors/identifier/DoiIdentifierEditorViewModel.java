@@ -15,6 +15,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 
@@ -22,10 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<DOI> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(DoiIdentifierEditorViewModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DoiIdentifierEditorViewModel.class);
 
-    private final UndoManager undoManager;
-    private final StateManager stateManager;
     private final ShortenDOIFormatter shortenDOIFormatter;
 
     public DoiIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
@@ -35,33 +34,31 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
                                         GuiPreferences preferences,
                                         UndoManager undoManager,
                                         StateManager stateManager) {
-        super(StandardField.DOI, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager);
-        this.undoManager = undoManager;
-        this.stateManager = stateManager;
+        super(StandardField.DOI, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
         this.shortenDOIFormatter = new ShortenDOIFormatter();
         configure(true, true, true);
     }
 
     @Override
     public void lookupIdentifier(BibEntry bibEntry) {
-        CrossRef doiFetcher = new CrossRef();
+        CrossRef doiFetcher = new CrossRef(preferences.getImporterPreferences());
 
         BackgroundTask.wrap(() -> doiFetcher.findIdentifier(entry))
-            .onRunning(() -> identifierLookupInProgress.setValue(true))
-            .onFinished(() -> identifierLookupInProgress.setValue(false))
-            .onSuccess(identifier -> {
-                if (identifier.isPresent()) {
-                    entry.setField(field, identifier.get().asString());
-                } else {
-                    dialogService.notify(Localization.lang("No %0 found", field.getDisplayName()));
-                }
-            }).onFailure(e -> handleIdentifierFetchingError(e, doiFetcher)).executeWith(taskExecutor);
+                      .onRunning(() -> identifierLookupInProgress.setValue(true))
+                      .onFinished(() -> identifierLookupInProgress.setValue(false))
+                      .onSuccess(identifier -> {
+                          if (identifier.isPresent()) {
+                              entry.setField(field, identifier.get().asString());
+                          } else {
+                              dialogService.notify(Localization.lang("No %0 found", FieldTextMapper.getDisplayName(field)));
+                          }
+                      }).onFailure(e -> handleIdentifierFetchingError(e, doiFetcher)).executeWith(taskExecutor);
     }
 
     @Override
     public void fetchBibliographyInformation(BibEntry bibEntry) {
         stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager)
+                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager, stateManager)
                         .fetchAndMerge(entry, field),
                 () -> dialogService.notify(Localization.lang("No library selected"))
         );
@@ -70,7 +67,7 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
     @Override
     public void openExternalLink() {
         identifier.get().map(DOI::asString)
-                .ifPresent(s -> NativeDesktop.openCustomDoi(s, preferences, dialogService));
+                  .ifPresent(s -> NativeDesktop.openCustomDoi(s, preferences, dialogService));
     }
 
     @Override
@@ -82,8 +79,8 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
                 LOGGER.info("DOI is already shortened");
                 dialogService.notify(Localization.lang("DOI is already shortened"));
             } else {
-            LOGGER.info("Shortened DOI: {} to {}", doi, shortenedDOI);
-            dialogService.notify(Localization.lang("Shortened DOI to: %0", shortenedDOI));
+                LOGGER.info("Shortened DOI: {} to {}", doi, shortenedDOI);
+                dialogService.notify(Localization.lang("Shortened DOI to: %0", shortenedDOI));
             }
         });
     }

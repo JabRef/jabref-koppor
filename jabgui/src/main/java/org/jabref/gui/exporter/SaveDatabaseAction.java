@@ -32,11 +32,11 @@ import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.logic.shared.prefs.SharedDatabasePreferences;
-import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.ChangePropagation;
@@ -47,13 +47,11 @@ import org.jabref.model.metadata.SelfContainedSaveOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Action for the "Save" and "Save as" operations called from BasePanel. This class is also used for save operations
- * when closing a database or quitting the applications.
- * <p>
- * The save operation is loaded off of the GUI thread using {@link BackgroundTask}. Callers can query whether the
- * operation was canceled, or whether it was successful.
- */
+/// Action for the "Save" and "Save as" operations called from BasePanel. This class is also used for save operations
+/// when closing a database or quitting the applications.
+///
+/// The save operation is loaded off of the GUI thread using {@link org.jabref.logic.util.BackgroundTask}. Callers can query whether the
+/// operation was canceled, or whether it was successful.
 public class SaveDatabaseAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveDatabaseAction.class);
 
@@ -62,6 +60,7 @@ public class SaveDatabaseAction {
     private final GuiPreferences preferences;
     private final BibEntryTypesManager entryTypesManager;
     private final StateManager stateManager;
+    private final JournalAbbreviationRepository journalAbbreviationRepository;
 
     public enum SaveDatabaseMode {
         SILENT, NORMAL
@@ -71,12 +70,14 @@ public class SaveDatabaseAction {
                               DialogService dialogService,
                               GuiPreferences preferences,
                               BibEntryTypesManager entryTypesManager,
-                              StateManager stateManager) {
+                              StateManager stateManager,
+                              JournalAbbreviationRepository journalAbbreviationRepository) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.entryTypesManager = entryTypesManager;
         this.stateManager = stateManager;
+        this.journalAbbreviationRepository = journalAbbreviationRepository;
     }
 
     public boolean save() {
@@ -87,9 +88,7 @@ public class SaveDatabaseAction {
         return save(libraryTab.getBibDatabaseContext(), mode);
     }
 
-    /**
-     * Asks the user for the path and saves afterward
-     */
+    /// Asks the user for the path and saves afterward
     public void saveAs() {
         askForSavePath().ifPresent(this::saveAs);
     }
@@ -100,23 +99,23 @@ public class SaveDatabaseAction {
 
     private SelfContainedSaveOrder getSaveOrder() {
         return libraryTab.getBibDatabaseContext()
-                .getMetaData().getSaveOrder()
-                .map(so -> {
-                    if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                        // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
-                        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
-                        return new SelfContainedSaveOrder(
-                                SaveOrder.OrderType.SPECIFIED,
-                                sortOrder.stream()
-                                         .filter(col -> col instanceof MainTableColumn<?>)
-                                         .map(column -> ((MainTableColumn<?>) column).getModel())
-                                         .flatMap(model -> model.getSortCriteria().stream())
-                                         .toList());
-                    } else {
-                        return SelfContainedSaveOrder.of(so);
-                    }
-                })
-                .orElse(SaveOrder.getDefaultSaveOrder());
+                         .getMetaData().getSaveOrder()
+                         .map(so -> {
+                             if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
+                                 // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
+                                 List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
+                                 return new SelfContainedSaveOrder(
+                                         SaveOrder.OrderType.SPECIFIED,
+                                         sortOrder.stream()
+                                                  .filter(col -> col instanceof MainTableColumn<?>)
+                                                  .map(column -> ((MainTableColumn<?>) column).getModel())
+                                                  .flatMap(model -> model.getSortCriteria().stream())
+                                                  .toList());
+                             } else {
+                                 return SelfContainedSaveOrder.of(so);
+                             }
+                         })
+                         .orElse(SaveOrder.getDefaultSaveOrder());
     }
 
     public void saveSelectedAsPlain() {
@@ -132,11 +131,8 @@ public class SaveDatabaseAction {
         });
     }
 
-    /**
-     * @param file the new file name to save the database to. This is stored in the database context of the panel upon
-     *             successful save.
-     * @return true on successful save
-     */
+    /// @param file the new file name to save the database to. This is stored in the database context of the panel upon successful save.
+    /// @return true on successful save
     boolean saveAs(Path file, SaveDatabaseMode mode) {
         BibDatabaseContext context = libraryTab.getBibDatabaseContext();
 
@@ -145,7 +141,7 @@ public class SaveDatabaseAction {
             // Close AutosaveManager, BackupManager, and IndexManager for original library
             AutosaveManager.shutdown(context);
             BackupManager.shutdown(context, this.preferences.getFilePreferences().getBackupDirectory(), preferences.getFilePreferences().shouldCreateBackup());
-            libraryTab.closeIndexManger();
+            libraryTab.closeSearchContext();
         }
 
         // Set new location
@@ -167,19 +163,17 @@ public class SaveDatabaseAction {
             // Reset (here: uninstall and install again) AutosaveManager, BackupManager and IndexManager for the new file name
             libraryTab.resetChangeMonitor();
             libraryTab.installAutosaveManagerAndBackupManager();
-            libraryTab.createIndexManager();
+            libraryTab.createSearchContext();
 
             preferences.getLastFilesOpenedPreferences().getFileHistory().newFile(file);
         }
         return saveResult;
     }
 
-    /**
-     * Asks the user for the path to save to. Stores the directory to the preferences, which is used next time when
-     * opening the dialog.
-     *
-     * @return the path set by the user
-     */
+    /// Asks the user for the path to save to. Stores the directory to the preferences, which is used next time when
+    /// opening the dialog.
+    ///
+    /// @return the path set by the user
     private Optional<Path> askForSavePath() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.BIBTEX_DB)
@@ -228,6 +222,8 @@ public class SaveDatabaseAction {
             libraryTab.setSaving(true);
         }
 
+        libraryTab.suspendChangeMonitor();
+
         try {
             Charset encoding = libraryTab.getBibDatabaseContext()
                                          .getMetaData()
@@ -250,6 +246,7 @@ public class SaveDatabaseAction {
             dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
             return false;
         } finally {
+            libraryTab.resumeChangeMonitor();
             // release panel from save status
             libraryTab.setSaving(false);
         }
@@ -268,12 +265,15 @@ public class SaveDatabaseAction {
                         saveConfiguration,
                         preferences.getFieldPreferences(),
                         preferences.getCitationKeyPatternPreferences(),
-                        entryTypesManager);
+                        entryTypesManager)
+                        .withJournalAbbreviationRepository(
+                                journalAbbreviationRepository,
+                                preferences.getAbbreviationPreferences().shouldUseFJournalField());
 
                 if (selectedOnly) {
-                    databaseWriter.savePartOfDatabase(bibDatabaseContext, libraryTab.getSelectedEntries());
+                    databaseWriter.writePartOfDatabase(bibDatabaseContext, libraryTab.getSelectedEntries());
                 } else {
-                    databaseWriter.saveDatabase(bibDatabaseContext);
+                    databaseWriter.writeDatabase(bibDatabaseContext);
                 }
 
                 libraryTab.registerUndoableChanges(databaseWriter.getSaveActionsFieldChanges());

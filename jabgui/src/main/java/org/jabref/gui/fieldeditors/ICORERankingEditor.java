@@ -43,8 +43,8 @@ public class ICORERankingEditor extends HBox implements FieldEditorFX {
         Injector.registerExistingAndInject(this);
 
         ViewLoader.view(this)
-                .root(this)
-                .load();
+                  .root(this)
+                  .load();
 
         this.viewModel = new ICORERankingEditorViewModel(
                 field,
@@ -56,6 +56,7 @@ public class ICORERankingEditor extends HBox implements FieldEditorFX {
                 conferenceRepository
         );
 
+        textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
 
         lookupICORERankButton.setTooltip(

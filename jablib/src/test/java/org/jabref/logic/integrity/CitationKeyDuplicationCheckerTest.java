@@ -9,9 +9,11 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ResourceLock("Localization.lang")
 class CitationKeyDuplicationCheckerTest {
 
     @Test
@@ -38,7 +40,7 @@ class CitationKeyDuplicationCheckerTest {
         CitationKeyDuplicationChecker checker = new CitationKeyDuplicationChecker(bibDatabase);
 
         List<IntegrityMessage> expected = List.of(
-                new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, StandardField.KEY));
+                new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, InternalField.KEY_FIELD));
         assertEquals(expected, checker.check(entry));
     }
 }

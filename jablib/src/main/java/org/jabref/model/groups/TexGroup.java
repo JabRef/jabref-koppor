@@ -1,7 +1,6 @@
 package org.jabref.model.groups;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -17,43 +16,56 @@ import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @AllowedToUseLogic("because it needs access to aux parser")
+@NullMarked
 public class TexGroup extends AbstractGroup implements FileUpdateListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TexGroup.class);
-
     private final Path filePath;
-    private Set<String> keysUsedInAux;
+    // Lazily computed value, therefore, nullable.
+    private @Nullable Set<String> keysUsedInAux;
     private final FileUpdateMonitor fileMonitor;
     private final AuxParser auxParser;
     private final MetaData metaData;
     private final String user;
 
-    TexGroup(String name, GroupHierarchyType context, Path filePath, AuxParser auxParser, FileUpdateMonitor fileMonitor, MetaData metaData, String user) {
+    TexGroup(String name,
+             GroupHierarchyType context,
+             Path filePath,
+             AuxParser auxParser,
+             FileUpdateMonitor fileMonitor,
+             MetaData metaData,
+             String user) {
         super(name, context);
         this.metaData = metaData;
         this.user = user;
-        this.filePath = expandPath(Objects.requireNonNull(filePath));
+        this.filePath = expandPath(filePath);
         this.auxParser = auxParser;
         this.fileMonitor = fileMonitor;
     }
 
-    TexGroup(String name, GroupHierarchyType context, Path filePath, AuxParser auxParser, FileUpdateMonitor fileMonitor, MetaData metaData) throws IOException {
-        this(name, context, filePath, auxParser, fileMonitor, metaData, System.getProperty("user.name") + '-' + InetAddress.getLocalHost().getHostName());
-    }
-
-    public static TexGroup create(String name, GroupHierarchyType context, Path filePath, AuxParser auxParser, FileUpdateMonitor fileMonitor, MetaData metaData) throws IOException {
-        TexGroup group = new TexGroup(name, context, filePath, auxParser, fileMonitor, metaData);
+    public static TexGroup create(String name,
+                                  GroupHierarchyType context,
+                                  Path filePath,
+                                  AuxParser auxParser,
+                                  FileUpdateMonitor fileMonitor,
+                                  MetaData metaData,
+                                  String userAndHost) throws IOException {
+        TexGroup group = new TexGroup(name, context, filePath, auxParser, fileMonitor, metaData, userAndHost);
         fileMonitor.addListenerForFile(group.getFilePathResolved(), group);
         return group;
     }
 
     // without FileUpdateMonitor
-    public static TexGroup create(String name, GroupHierarchyType context, Path filePath, AuxParser auxParser, MetaData metaData) throws IOException {
-        return new TexGroup(name, context, filePath, auxParser, new DummyFileUpdateMonitor(), metaData);
+    public static TexGroup create(String name,
+                                  GroupHierarchyType context,
+                                  Path filePath,
+                                  AuxParser auxParser,
+                                  MetaData metaData,
+                                  String userAndHost) throws IOException {
+        return new TexGroup(name, context, filePath, auxParser, new DummyFileUpdateMonitor(), metaData, userAndHost);
     }
 
     public Path getFilePathResolved() {
@@ -77,17 +89,11 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
 
     @Override
     public AbstractGroup deepCopy() {
-        try {
-            return new TexGroup(name.getValue(), context, filePath, auxParser, fileMonitor, metaData);
-        } catch (IOException ex) {
-            // This should never happen because we were able to monitor the file just fine until now
-            LOGGER.error("Problem creating copy of group", ex);
-            return null;
-        }
+        return new TexGroup(name.getValue(), context, filePath, auxParser, fileMonitor, metaData, user);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
@@ -127,6 +133,11 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
         metaData.groupsBinding().invalidate();
     }
 
+    /// Relativizes the given path to the file directories.
+    /// The getLatexFileDirectory must be absolute to correctly relativize because we do not have a bibdatabasecontext
+    ///
+    /// @param path The path to relativize
+    /// @return A relative path or the original one if it could not be made relative
     private Path relativize(Path path) {
         List<Path> fileDirectories = getFileDirectoriesAsPaths();
         return FileUtil.relativize(path, fileDirectories);

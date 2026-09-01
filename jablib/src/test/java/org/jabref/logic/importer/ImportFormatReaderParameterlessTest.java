@@ -13,7 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,23 +33,25 @@ class ImportFormatReaderParameterlessTest {
     }
 
     @Test
-    void importUnknownFormatThrowsExceptionIfNoMatchingImporterWasFound() throws URISyntaxException {
+    void importWithAutoDetectionThrowsExceptionIfNoMatchingImporterWasFound() throws URISyntaxException {
         Path file = Path.of(ImportFormatReaderParameterlessTest.class.getResource("fileformat/emptyFile.xml").toURI());
-        assertThrows(ImportException.class, () -> reader.importUnknownFormat(file, fileMonitor));
-    }
-
-    @Test
-    void importUnknownFormatThrowsExceptionIfPathIsNull() {
-        assertThrows(NullPointerException.class, () -> reader.importUnknownFormat(null, fileMonitor));
-    }
-
-    @Test
-    void importUnknownFormatThrowsExceptionIfDataIsNull() {
-        assertThrows(NullPointerException.class, () -> reader.importUnknownFormat(null));
+        assertThrows(ImportException.class, () -> reader.importWithAutoDetection(file));
     }
 
     @Test
     void importFromFileWithUnknownFormatThrowsException() {
         assertThrows(ImportException.class, () -> reader.importFromFile("someunknownformat", Path.of("somepath")));
+    }
+
+    @Test
+    void hasImporterForFileReturnsFalseForUnsupportedExtension() {
+        assertFalse(reader.hasImporterForFile(Path.of("dropped-file.csv")));
+    }
+
+    @Test
+    void hasImporterForFileReturnsTrueForSupportedExtension() {
+        assertTrue(reader.hasImporterForFile(Path.of("dropped-file.ris")));
+        assertTrue(reader.hasImporterForFile(Path.of("dropped-file.RIS")));
+        assertTrue(reader.hasImporterForFile(Path.of("dropped-file.Bib")));
     }
 }

@@ -2,6 +2,7 @@ package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.importer.fileformat.medline.MeshHeading;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.AuthorList;
@@ -22,11 +24,11 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
-/**
- * Importer for the MEDLINE Plain format.
- * <p>
- * check here for details on the format <a href="http://www.nlm.nih.gov/bsd/mms/medlineelements.html">...</a>
- */
+import org.jspecify.annotations.NonNull;
+
+/// Importer for the MEDLINE Plain format.
+///
+/// check here for details on the format <a href="http://www.nlm.nih.gov/bsd/mms/medlineelements.html">...</a>
 public class MedlinePlainImporter extends Importer {
 
     private static final Pattern PMID_PATTERN = Pattern.compile("PMID.*-.*");
@@ -61,12 +63,12 @@ public class MedlinePlainImporter extends Importer {
     }
 
     @Override
-    public boolean isRecognizedFormat(BufferedReader reader) throws IOException {
-
+    public boolean isRecognizedFormat(@NonNull Reader reader) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(reader);
         // Our strategy is to look for the "PMID  - *", "PMC.*-.*", or "PMCR.*-.*" line
         // (i.e., PubMed Unique Identifier, PubMed Central Identifier, PubMed Central Release)
         String str;
-        while ((str = reader.readLine()) != null) {
+        while ((str = bufferedReader.readLine()) != null) {
             if (PMID_PATTERN.matcher(str).find() || PMC_PATTERN.matcher(str).find()
                     || PMCR_PATTERN.matcher(str).find()) {
                 return true;
@@ -76,7 +78,7 @@ public class MedlinePlainImporter extends Importer {
     }
 
     @Override
-    public ParserResult importDatabase(BufferedReader reader) throws IOException {
+    public ParserResult importDatabase(@NonNull BufferedReader reader) throws IOException {
         List<BibEntry> bibitems = new ArrayList<>();
 
         // use optional here, so that no exception will be thrown if the file is empty
@@ -86,7 +88,7 @@ public class MedlinePlainImporter extends Importer {
                                         .split("\\n\\n");
 
         for (String entry1 : entries) {
-            if (entry1.trim().isEmpty() || !entry1.contains("-")) {
+            if (entry1.isBlank() || !entry1.contains("-")) {
                 continue;
             }
 
@@ -95,6 +97,7 @@ public class MedlinePlainImporter extends Importer {
             StringBuilder editor = new StringBuilder();
             StringBuilder comment = new StringBuilder();
             Map<Field, String> fieldConversionMap = new HashMap<>();
+            String keywordSeparator = importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " ";
 
             String[] lines = entry1.split("\n");
 
@@ -187,15 +190,16 @@ public class MedlinePlainImporter extends Importer {
                 switch (label) {
                     case "IRAD",
                          "IR",
-                         "FIR" -> fieldConversionMap.merge(new UnknownField("investigator"), value, (a, b) -> a + ", " + b);
-                    case "MH",
-                         "OT" -> {
-                        if (!fieldConversionMap.containsKey(StandardField.KEYWORDS)) {
-                            fieldConversionMap.put(StandardField.KEYWORDS, value);
-                        } else {
-                            fieldConversionMap.compute(StandardField.KEYWORDS, (k, kw) -> kw + importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " " + value);
-                        }
+                         "FIR" ->
+                            fieldConversionMap.merge(new UnknownField("investigator"), value, (a, b) -> a + ", " + b);
+                    case "MH" -> {
+                        String meshString = String.join(keywordSeparator, parseMeshTerm(value));
+                        fieldConversionMap.merge(StandardField.KEYWORDS, meshString,
+                                (existing, newVal) -> existing + keywordSeparator + newVal);
                     }
+                    case "OT" ->
+                            fieldConversionMap.merge(StandardField.KEYWORDS, value,
+                                    (existing, newVal) -> existing + keywordSeparator + newVal);
                     case "CON",
                          "CIN",
                          "EIN",
@@ -392,6 +396,28 @@ public class MedlinePlainImporter extends Importer {
         } else if ("MHDA".equals(lab) && isCreateDateFormat(val)) {
             hm.put(new UnknownField("mesh-date"), val);
         }
+    }
+
+    /// Parses a MeSH term from MEDLINE plain format (e.g. {@code *Kidney Diseases/diagnosis/epidemiology})
+    /// into a {@link MeshHeading} and renders it as individual keywords
+    /// (e.g. {@code ["Kidney Diseases*/diagnosis", "Kidney Diseases*/epidemiology"]}).
+    private List<String> parseMeshTerm(String meshTerm) {
+        String term = meshTerm.trim();
+        boolean descriptorMajor = term.startsWith("*");
+        if (descriptorMajor) {
+            term = term.substring(1);
+        }
+        String[] parts = term.split("/");
+        List<MeshHeading.QualifierName> qualifiers = new ArrayList<>();
+        for (int i = 1; i < parts.length; i++) {
+            String qualifier = parts[i];
+            boolean qualifierMajor = qualifier.startsWith("*");
+            if (qualifierMajor) {
+                qualifier = qualifier.substring(1);
+            }
+            qualifiers.add(new MeshHeading.QualifierName(qualifier, qualifierMajor));
+        }
+        return new MeshHeading(parts[0], descriptorMajor, qualifiers).toKeywords();
     }
 
     private boolean isCreateDateFormat(String value) {

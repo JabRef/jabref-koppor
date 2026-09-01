@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -35,16 +35,16 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 
-import org.jabref.gui.help.ErrorConsoleAction;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.util.BaseDialog;
-import org.jabref.gui.util.BaseWindow;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.gui.util.UiTaskExecutor;
@@ -55,35 +55,45 @@ import org.jabref.logic.importer.FetcherServerException;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.http.SimpleHttpResponse;
 
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.Notifications;
 import org.controlsfx.control.TaskProgressView;
 import org.controlsfx.control.textfield.CustomPasswordField;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.controlsfx.dialog.ProgressDialog;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class provides methods to create default
- * JavaFX dialogs which will also work on top of Swing
- * windows. The created dialogs are instances of the
- * {@link FXDialog} class. The available dialogs in this class
- * are useful for displaying small information graphic dialogs
- * rather than complex windows. For more complex dialogs it is
- * advised to rather create a new sub class of {@link FXDialog}.
- */
+/// This class provides methods to create default
+/// JavaFX dialogs which will also work on top of Swing
+/// windows. The created dialogs are instances of the
+/// {@link FXDialog} class. The available dialogs in this class
+/// are useful for displaying small information graphic dialogs
+/// rather than complex windows. For more complex dialogs it is
+/// advised to rather create a new sub class of {@link FXDialog}.
+@NullMarked
 public class JabRefDialogService implements DialogService {
     // Snackbar dialog maximum size
     public static final int DIALOG_SIZE_LIMIT = 300;
 
-    private static final Duration TOAST_MESSAGE_DISPLAY_TIME = Duration.millis(3000);
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefDialogService.class);
+
+    private final NotificationGroup<Object, Notification<Object>> undefinedNotifications = new NotificationGroup<>(Localization.lang("Notifications"));
+    private final NotificationGroup<Path, Notifications.FileNotification> fileNotifications = new NotificationGroup<>(Localization.lang("Files"));
+    private final NotificationGroup<Object, Notifications.UiNotification> uiNotifications = new NotificationGroup<>(Localization.lang("Preview"));
+    private final NotificationGroup<Task<?>, Notifications.TaskNotification> taskNotifications = new NotificationGroup<>(Localization.lang("Tasks"));
+
+    private final ObservableList<Notification<?>> persistentNotifications;
 
     private final Window mainWindow;
 
     public JabRefDialogService(Window mainWindow) {
         this.mainWindow = mainWindow;
+
+        taskNotifications.setViewFactory(Notifications.TaskNotificationView::new);
+        persistentNotifications = EasyBind.concat(fileNotifications.getNotifications());
     }
 
     private FXDialog createDialog(AlertType type, String title, String content) {
@@ -114,7 +124,7 @@ public class JabRefDialogService implements DialogService {
             protected Node createDetailsButton() {
                 CheckBox optOut = new CheckBox();
                 optOut.setText(optOutMessage);
-                optOut.setOnAction(e -> optOutAction.accept(optOut.isSelected()));
+                optOut.setOnAction(_ -> optOutAction.accept(optOut.isSelected()));
                 return optOut;
             }
         });
@@ -141,7 +151,7 @@ public class JabRefDialogService implements DialogService {
 
     private <T> ChoiceDialog<T> createChoiceDialog(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices) {
         ChoiceDialog<T> choiceDialog = new ChoiceDialog<>(defaultChoice, choices);
-        ((Stage) choiceDialog.getDialogPane().getScene().getWindow()).getIcons().add(IconTheme.getJabRefImage());
+        ((Stage) choiceDialog.getDialogPane().getScene().getWindow()).getIcons().add(IconTheme.getJabRefIcon());
         ButtonType okButtonType = new ButtonType(okButtonLabel, ButtonBar.ButtonData.OK_DONE);
         choiceDialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, okButtonType);
         choiceDialog.setHeaderText(title);
@@ -383,12 +393,12 @@ public class JabRefDialogService implements DialogService {
         progressDialog.setTitle(title);
         progressDialog.setContentText(content);
         progressDialog.setGraphic(null);
-        ((Stage) progressDialog.getDialogPane().getScene().getWindow()).getIcons().add(IconTheme.getJabRefImage());
-        progressDialog.setOnCloseRequest(evt -> task.cancel());
+        ((Stage) progressDialog.getDialogPane().getScene().getWindow()).getIcons().add(IconTheme.getJabRefIcon());
+        progressDialog.setOnCloseRequest(_ -> task.cancel());
         DialogPane dialogPane = progressDialog.getDialogPane();
         dialogPane.getButtonTypes().add(ButtonType.CANCEL);
         Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
-        cancelButton.setOnAction(evt -> {
+        cancelButton.setOnAction(_ -> {
             task.cancel();
             progressDialog.close();
         });
@@ -429,7 +439,7 @@ public class JabRefDialogService implements DialogService {
         alert.setResizable(true);
         alert.initOwner(mainWindow);
 
-        stateManager.getAnyTasksThatWillNotBeRecoveredRunning().addListener((observable, oldValue, newValue) -> {
+        stateManager.getAnyTasksThatWillNotBeRecoveredRunning().addListener((_, _, newValue) -> {
             if (!newValue) {
                 alert.setResult(ButtonType.YES);
                 alert.close();
@@ -443,26 +453,24 @@ public class JabRefDialogService implements DialogService {
     public void notify(String message) {
         // TODO: Change to a notification overview instead of event log when that is available.
         //       The event log is not that user friendly (different purpose).
-        LOGGER.info(message);
+        LOGGER.debug(message);
+        UiTaskExecutor.runInJavaFXThread(() -> notify(
+                new Notifications.UiNotification(Localization.lang("Info"), message)
+                        .withAutoClose(Duration.seconds(5))));
+    }
 
-        UiTaskExecutor.runInJavaFXThread(() ->
-            Notifications.create()
-                         .text(message)
-                         .position(Pos.BOTTOM_CENTER)
-                         .hideAfter(TOAST_MESSAGE_DISPLAY_TIME)
-                         .owner(mainWindow)
-                         .threshold(5,
-                            Notifications.create()
-                                         .title(Localization.lang("Last notification"))
-                                         .text(
-                                            "(" + Localization.lang("Check the event log to see all notifications") + ")"
-                                            + "\n\n" + message)
-                                         .onAction(e -> {
-                                            ErrorConsoleAction ec = new ErrorConsoleAction();
-                                            ec.execute();
-                                         }))
-                         .hideCloseButton()
-                         .show());
+    @Override
+    public void notify(Notification<?> notification) {
+        switch (notification) {
+            case Notifications.FileNotification fileNotification ->
+                    fileNotifications.getNotifications().add(fileNotification);
+            case Notifications.UiNotification uiNotification ->
+                    uiNotifications.getNotifications().add(uiNotification);
+            case Notifications.TaskNotification taskNotification ->
+                    taskNotifications.getNotifications().add(taskNotification);
+            default ->
+                    undefinedNotifications.getNotifications().add(new Notifications.UndefinedNotification(notification.getTitle(), notification.getSummary()));
+        }
     }
 
     @Override
@@ -534,12 +542,22 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public void showCustomWindow(BaseWindow window) {
-        if (window.getOwner() == null) {
-            window.initOwner(mainWindow);
+    public void showCustomDialogModal(BaseDialog<?> dialog) {
+        if (dialog.getOwner() == null) {
+            dialog.initOwner(mainWindow);
         }
-        window.applyStylesheets(mainWindow.getScene().getStylesheets());
-        window.show();
+
+        dialog.initModality(Modality.NONE);
+
+        // Using answer: <https://stackoverflow.com/a/36262208>.
+        Window dialogWindow = dialog.getDialogPane().getScene().getWindow();
+        // Using `addEventHandler` in case someone already used `setOnCloseRequest`.
+        dialogWindow.addEventHandler(
+                WindowEvent.WINDOW_CLOSE_REQUEST,
+                _ -> dialogWindow.hide()
+        );
+
+        dialog.show();
     }
 
     private String getContentByCode(int statusCode) {
@@ -553,5 +571,13 @@ public class JabRefDialogService implements DialogService {
             default ->
                     Localization.lang("Something is wrong on JabRef side. Please check the URL and try again.");
         };
+    }
+
+    public List<NotificationGroup<?, ? extends Notification<?>>> getNotificationGroups() {
+        return List.of(undefinedNotifications, fileNotifications, uiNotifications, taskNotifications);
+    }
+
+    public ObservableList<? extends Notification<?>> getPersistentNotifications() {
+        return persistentNotifications;
     }
 }

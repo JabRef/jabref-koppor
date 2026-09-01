@@ -1,35 +1,68 @@
+import org.gradlex.javamodule.dependencies.tasks.ModuleDirectivesOrderingCheck
+import org.jabref.gradle.useLibericaJdkFull
+
 plugins {
     id("org.gradlex.extra-java-module-info")
     id("org.gradlex.jvm-dependency-conflict-resolution")
-    id("org.gradlex.java-module-dependencies") // only for mappings at the moment
+    id("org.gradlex.java-module-dependencies")
 }
 
-javaModuleDependencies {
-    // TODO remove to translate 'requires' from 'module-info.java' to Gradle dependencies
-    //      and remove 'dependencies {}' block from build.gradle files
-    analyseOnly = true
-    moduleNameToGA.put("jul.to.slf4j", "org.slf4j:jul-to-slf4j")
+// module-info entry order not checked
+tasks.withType<ModuleDirectivesOrderingCheck> { enabled = false }
+
+// Opt-in (-PuseLibericaJdkFull=true): consume the JavaFX bundled in the JDK (e.g. Liberica Full) instead of Maven.
+// The java-module-dependencies plugin maps each 'requires javafx.*' to an 'org.openjfx:javafx-*' dependency; we drop
+// those from every configuration via an exclude, so 'requires javafx.*' is satisfied by the JDK's own system modules.
+// The JavaFX version pin (versions/build.gradle.kts), the platform-variant patches and the per-module opens/exports
+// patches below then have nothing to act on and stay inert; the runtime opens/exports they provided are re-applied as
+// JVM args in jabgui/build.gradle.kts. (Flag: org.jabref.gradle.Toolchains)
+// Because this exclude removes the Maven JavaFX, org.jabref.gradle.feature.compile verifies the resolved toolchain
+// actually ships JavaFX (Liberica Full, not Standard) and fails fast otherwise.
+if (useLibericaJdkFull) {
+    // The exclude is applied lazily at resolution time and, crucially, leaves moduleNameToGA untouched: eagerly reading
+    // and replacing that map (moduleNameToGA.get()/.set()) snapshots it before the plugin finishes contributing the
+    // project's other module-name -> GA mappings, silently discarding entries such as 'unirest.modules.gson' and thereby
+    // breaking transitive versions for deps only pinned via that path (e.g. gson, xz).
+    configurations.all {
+        exclude(mapOf("group" to "org.openjfx"))
+    }
 }
 
 jvmDependencyConflicts {
     consistentResolution {
         platform(":versions")
+
+        // Use a consistent set of versions (including all transitive versions) for all applications
+        providesVersions(":jabgui")
+        providesVersions(":jabkit")
+        providesVersions(":jabls-cli")
+        providesVersions(":jabsrv-cli")
+    }
+    conflictResolution {
+        select("org.gradlex:jna", "net.java.dev.jna:jna-jpms")
+        select("org.gradlex:jna-platform", "net.java.dev.jna:jna-platform-jpms")
+        select("org.jabref:mslinks", "com.github.vatbub:mslinks")
     }
 }
 
 // Tell gradle which jar to use for which platform
 // Source: https://github.com/jjohannes/java-module-system/blob/be19f6c088dca511b6d9a7487dacf0b715dbadc1/gradle/plugins/src/main/kotlin/metadata-patch.gradle.kts#L14-L22
-jvmDependencyConflicts.patch {
-    listOf("base", "controls", "fxml", "graphics", "swing", "web", "media").forEach { jfxModule ->
-        module("org.openjfx:javafx-$jfxModule") {
-            addTargetPlatformVariant("", "none", "none") // matches the empty Jars: to get better errors
-            addTargetPlatformVariant("linux", OperatingSystemFamily.LINUX, MachineArchitecture.X86_64)
-            addTargetPlatformVariant("linux-aarch64", OperatingSystemFamily.LINUX, MachineArchitecture.ARM64)
-            addTargetPlatformVariant("mac", OperatingSystemFamily.MACOS, MachineArchitecture.X86_64)
-            addTargetPlatformVariant("mac-aarch64", OperatingSystemFamily.MACOS, MachineArchitecture.ARM64)
-            addTargetPlatformVariant("win", OperatingSystemFamily.WINDOWS, MachineArchitecture.X86_64)
-        }
+listOf("javafx-base", "javafx-controls", "javafx-fxml", "javafx-graphics", "javafx-swing", "javafx-media", "jfx-incubator-input", "jfx-incubator-richtext").forEach { jfxModule ->
+    addJfxTarget(jfxModule, "", "none", "none") // matches the empty Jars: to get better errors
+    addJfxTarget(jfxModule, "linux", OperatingSystemFamily.LINUX, MachineArchitecture.X86_64)
+    addJfxTarget(jfxModule, "linux-aarch64", OperatingSystemFamily.LINUX, MachineArchitecture.ARM64)
+    addJfxTarget(jfxModule, "mac", OperatingSystemFamily.MACOS, MachineArchitecture.X86_64)
+    addJfxTarget(jfxModule, "mac-aarch64", OperatingSystemFamily.MACOS, MachineArchitecture.ARM64)
+    addJfxTarget(jfxModule, "win", OperatingSystemFamily.WINDOWS, MachineArchitecture.X86_64)
+}
+
+fun addJfxTarget(jfxModule: String, name: String, os: String, arch: String) {
+    jvmDependencyConflicts.patch.module("org.openjfx:$jfxModule") {
+        addTargetPlatformVariant(name, os, arch)
     }
+}
+
+jvmDependencyConflicts.patch {
     // Source: https://github.com/jjohannes/java-module-system/blob/be19f6c088dca511b6d9a7487dacf0b715dbadc1/gradle/plugins/src/main/kotlin/metadata-patch.gradle.kts#L9
     module("com.google.guava:guava") {
         removeDependency("com.google.code.findbugs:jsr305")
@@ -47,10 +80,7 @@ jvmDependencyConflicts.patch {
         removeDependency("org.apache.xmlgraphics:batik-ext")
         removeDependency("org.apache.xmlgraphics:xmlgraphics-commons")
     }
-    module("org.wiremock:wiremock") {
-        // workaround for https://github.com/wiremock/wiremock/issues/2874
-        addApiDependency("com.github.koppor:wiremock-slf4j-spi-shim")
-    }
+
     module("org.apache.logging.log4j:log4j-to-slf4j") {
         // remove non-module annotation libraries only used at compile time
         removeDependency("com.github.spotbugs:spotbugs-annotations")
@@ -65,18 +95,38 @@ jvmDependencyConflicts.patch {
         removeDependency("org.osgi:org.osgi.annotation.bundle")
         removeDependency("biz.aQute.bnd:biz.aQute.bnd.annotation")
     }
-    module("org.wiremock:wiremock") {
-        removeDependency("net.sf.jopt-simple:jopt-simple")
-    }
+
     module("org.testfx:testfx-core") {
         removeDependency("org.osgi:org.osgi.core")
     }
-    module("org.glassfish.jersey.containers:jersey-container-servlet") {
-    }
-    module("org.glassfish.jersey.containers:jersey-container-servlet-core") {
-    }
     module("org.xmlunit:xmlunit-legacy") {
         removeDependency("junit:junit")
+    }
+    module("dev.langchain4j:langchain4j-core") {
+        addRuntimeOnlyDependency("com.knuddels:jtokkit")
+    }
+    module("org.jabref:afterburner.fx") {
+        // POM pins javafx-* to 20; strip and re-add without version so :versions platform resolves them to current
+        removeDependency("org.openjfx:javafx-controls")
+        removeDependency("org.openjfx:javafx-fxml")
+        removeDependency("org.openjfx:javafx-swing")
+        // javafx-web (WebView/WebEngine) is intentionally NOT wanted: it bundles a full WebKit, bloating the
+        // distribution and blocking native-image. HTML rendering is done via the html-to-node library instead.
+        // Keep it removed here and do not add it as a dependency anywhere. Enforced by CommonArchitectureTest.doNotUseJavaFXWeb.
+        removeDependency("org.openjfx:javafx-web")
+        // metadata decared these as runtime only, but they are 'requires transitive' in module-info
+        addApiDependency("org.openjfx:javafx-fxml")
+        addApiDependency("org.openjfx:javafx-controls")
+    }
+    module("org.libreoffice:libreoffice") {
+        // no dependency in metadata, but 'requires org.libreoffice.unoloader' in module-info
+        addRuntimeOnlyDependency("org.libreoffice:unoloader")
+    }
+    module("io.zonky.test:embedded-postgres") {
+        removeDependency("io.zonky.test.postgres:embedded-postgres-binaries-windows-amd64")
+        removeDependency("io.zonky.test.postgres:embedded-postgres-binaries-darwin-amd64")
+        removeDependency("io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64")
+        removeDependency("io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64-alpine")
     }
 }
 
@@ -84,12 +134,14 @@ jvmDependencyConflicts.patch {
 // Required for a deterministic and clean module-aware build.
 // Especially needed for jpackage.
 extraJavaModuleInfo {
+    versionsProvidingConfiguration = "mainRuntimeClasspath"
     failOnAutomaticModules = true
     failOnModifiedDerivedModuleNames = true
     skipLocalJars = true
 
     knownModule("com.github.hypfvieh:dbus-java-core", "org.freedesktop.dbus")
     knownModule("com.github.hypfvieh:dbus-java-transport-native-unixsocket", "org.freedesktop.dbus.transport.jre")
+    knownModule("org.checkerframework:checker-qual", "org.checkerframework.checker.qual")
 
     module("ai.djl.huggingface:tokenizers", "ai.djl.tokenizers") {
         exportAllPackages()
@@ -97,6 +149,7 @@ extraJavaModuleInfo {
         requires("org.slf4j")
     }
     module("ai.djl.pytorch:pytorch-engine", "ai.djl.pytorch_engine") {
+        exportAllPackages()
         exportAllPackages()
         requires("ai.djl.api")
         requires("org.slf4j")
@@ -115,32 +168,14 @@ extraJavaModuleInfo {
         uses("ai.djl.repository.RepositoryFactory")
     }
     module("at.favre.lib:hkdf", "hkdf")
+
+    module("cc.jilt:jilt", "jilt")         {
+        exportAllPackages()
+        requires("java.compiler") // Reason: javax.annotation.processor
+    }
+
     module("com.github.javakeyring:java-keyring", "java.keyring")
 
-    module("com.github.tomtung:latex2unicode_2.13", "com.github.tomtung.latex2unicode") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    module("com.lihaoyi:fastparse_2.13", "fastparse") {
-        overrideModuleName() // fastparse_2.13 is not a valid name
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("scala.library")
-    }
-    module("com.lihaoyi:sourcecode_2.13", "com.lihaoyi.sourcecode") {
-        overrideModuleName() // sourcecode_2.13 is not a valid name
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("scala.library")
-    }
-    module("com.lihaoyi:geny_2.13", "com.lihaoyi.geny") {
-        overrideModuleName() // geny_2.13 is not a valid name
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("scala.library")
-    }
-
-    module("com.googlecode.plist:dd-plist", "dd.plist")
     module("com.h2database:h2-mvstore", "com.h2database.mvstore")
     module("com.ibm.icu:icu4j", "com.ibm.icu")
     module("com.knuddels:jtokkit", "jtokkit")
@@ -150,8 +185,10 @@ extraJavaModuleInfo {
         uses("kong.unirest.core.json.JsonEngine")
     }
     module("com.konghq:unirest-modules-gson", "unirest.modules.gson")
+    module("com.squareup.okhttp3:mockwebserver3", "mockwebserver3") {
+        preserveExisting()
+    }
     module("com.squareup.okhttp3:okhttp", "okhttp3")
-    module("com.squareup.okhttp3:okhttp-jvm", "okhttp3")
     module("com.squareup.okhttp3:okhttp-jvm-sse", "okhttp3.sse")
     module("com.squareup.okio:okio", "okio")
     module("com.squareup.retrofit2:converter-jackson", "retrofit2.converter.jackson")
@@ -195,7 +232,20 @@ extraJavaModuleInfo {
         // requires("jackson.annotations")
     }
     module("dev.langchain4j:langchain4j", "langchain4j")
-    module("dev.langchain4j:langchain4j-core", "langchain4j.core")
+    module("dev.langchain4j:langchain4j-core", "langchain4j.core") {
+        // workaround for https://github.com/langchain4j/langchain4j/issues/3668
+        patchRealModule()
+        mergeJar("dev.langchain4j:langchain4j-http-client")
+        mergeJar("dev.langchain4j:langchain4j-http-client-jdk")
+        mergeJar("dev.langchain4j:langchain4j-hugging-face")
+        mergeJar("dev.langchain4j:langchain4j-mistral-ai")
+        mergeJar("dev.langchain4j:langchain4j-open-ai")
+        mergeJar("dev.langchain4j:langchain4j-google-ai-gemini")
+        requires("java.net.http")
+        uses("dev.langchain4j.http.client.HttpClientBuilderFactory")
+        exportAllPackages()
+        requireAllDefinedDependencies()
+    }
     module("dev.langchain4j:langchain4j-google-ai-gemini", "langchain4j.google.ai.gemini")
     module("dev.langchain4j:langchain4j-http-client", "langchain4j.http.client")
     module("dev.langchain4j:langchain4j-http-client-jdk", "langchain4j.http.client.jdk")
@@ -204,11 +254,6 @@ extraJavaModuleInfo {
     module("dev.langchain4j:langchain4j-open-ai", "langchain4j.open.ai")
     module("eu.lestard:doc-annotations", "doc.annotations")
     module("info.debatty:java-string-similarity", "java.string.similarity")
-    module("io.github.classgraph:classgraph", "io.github.classgraph") {
-        overrideModuleName()
-        exportAllPackages()
-    }
-    module("io.github.adr:e-adr", "io.github.adr")
     module("io.github.java-diff-utils:java-diff-utils", "io.github.javadiffutils")
     module("io.zonky.test.postgres:embedded-postgres-binaries-darwin-amd64", "embedded.postgres.binaries.darwin.amd64")
     module("io.zonky.test.postgres:embedded-postgres-binaries-darwin-arm64v8", "embedded.postgres.binaries.darwin.arm64v8")
@@ -218,6 +263,8 @@ extraJavaModuleInfo {
     module("io.zonky.test.postgres:embedded-postgres-binaries-windows-amd64", "embedded.postgres.binaries.windows.amd64")
     module("net.harawata:appdirs", "net.harawata.appdirs")
     module("net.java.dev.jna:jna", "com.sun.jna") {
+        // Required as sometimes the non-jpms version if picked which should ideally be fixed differently
+        // More details: https://github.com/gradlex-org/jvm-dependency-conflict-resolution/issues/346
         patchRealModule()
         exportAllPackages()
         requires("java.logging")
@@ -250,14 +297,17 @@ extraJavaModuleInfo {
         requires("javafx.graphics")
     }
     module("org.javassist:javassist", "org.javassist")
-    module("org.jbibtex:jbibtex", "jbibtex") {
+    module("org.jbibtex:jbibtex", "jbibtex")
+    module("org.scilab.forge:jlatexmath", "jlatexmath") {
         exportAllPackages()
+        mergeJar("org.scilab.forge:jlatexmath-font-greek")
+        mergeJar("org.scilab.forge:jlatexmath-font-cyrillic")
+        requiresTransitive("java.desktop")
+        requiresTransitive("java.xml")
     }
-    module("org.scala-lang:scala-library", "scala.library")
     module("pt.davidafsilva.apple:jkeychain", "jkeychain")
 
     module("org.testfx:testfx-core", "org.testfx") {
-        patchRealModule()
         exportAllPackages()
         // Content based on https://github.com/TestFX/TestFX/commit/bf4a08aa82c008fdd3c296aaafee1d222f3824cb
         requires("java.desktop")
@@ -265,13 +315,10 @@ extraJavaModuleInfo {
         requiresTransitive("org.hamcrest")
     }
     module("org.testfx:testfx-junit5", "org.testfx.junit5") {
-        patchRealModule()
         exportAllPackages()
         requires("org.junit.jupiter.api")
         requiresTransitive("org.testfx")
     }
-
-    module("commons-fileupload:commons-fileupload", "commons.fileupload")
 
     module("org.xmlunit:xmlunit-core", "org.xmlunit") {
         exportAllPackages()
@@ -301,63 +348,24 @@ extraJavaModuleInfo {
         requireAllDefinedDependencies()
         requires("com.google.gson")
     }
-    module("org.eclipse.lsp4j:org.eclipse.lsp4j.debug", "org.eclipse.lsp4j.debug") {
-        exportAllPackages()
-    }
-    module("org.eclipse.lsp4j:org.eclipse.lsp4j.generator", "org.eclipse.lsp4j.generator") {
-        exportAllPackages()
-    }
+    module("org.eclipse.lsp4j:org.eclipse.lsp4j.debug", "org.eclipse.lsp4j.debug")
+    module("org.eclipse.lsp4j:org.eclipse.lsp4j.generator", "org.eclipse.lsp4j.generator")
     module("org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc", "org.eclipse.lsp4j.jsonrpc") {
         exportAllPackages()
         requires("com.google.gson")
         requires("java.logging")
     }
-    module("org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug", "org.eclipse.lsp4j.jsonrpc.debug") {
-        exportAllPackages()
-    }
-    module("org.eclipse.lsp4j:org.eclipse.lsp4j.websocket", "org.eclipse.lsp4j.websocket") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    module("org.eclipse.lsp4j:org.eclipse.lsp4j.websocket.jakarta", "org.eclipse.lsp4j.websocket.jakarta") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    module("jakarta.websocket:jakarta.websocket-api", "jakarta.websocket") {
-        overrideModuleName()
-        exportAllPackages()
-    }
-    module("javax.websocket:javax.websocket-api", "javax.websocket.api") {
-        exportAllPackages()
-    }
-    module("org.eclipse.xtend:org.eclipse.xtend", "xtend") {
-        exportAllPackages()
-    }
-    module("org.eclipse.xtend:org.eclipse.xtend.lib", "xtend.lib") {
-        overrideModuleName()
-        exportAllPackages()
-    }
-    module("org.eclipse.xtend:org.eclipse.xtend.lib.macro", "xtend.lib.macro") {
-        overrideModuleName()
-        exportAllPackages()
-    }
-    module("org.eclipse.xtext:org.eclipse.xtext.xbase.lib", "xtext.xbase.lib") {
-        overrideModuleName()
-        exportAllPackages()
-    }
+    module("org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug", "org.eclipse.lsp4j.jsonrpc.debug")
+    module("org.eclipse.lsp4j:org.eclipse.lsp4j.websocket.jakarta", "org.eclipse.lsp4j.websocket.jakarta")
+    module("jakarta.websocket:jakarta.websocket-api", "jakarta.websocket")
+    module("org.eclipse.xtend:org.eclipse.xtend", "xtend")
+    module("org.eclipse.xtend:org.eclipse.xtend.lib", "xtend.lib")
+    module("org.eclipse.xtend:org.eclipse.xtend.lib.macro", "xtend.lib.macro")
+    module("org.eclipse.xtext:org.eclipse.xtext.xbase.lib", "xtext.xbase.lib")
 
-    module("com.tngtech.archunit:archunit-junit5-api", "com.tngtech.archunit.junit5.api") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    module("com.tngtech.archunit:archunit-junit5-engine", "com.tngtech.archunit.junit5.engine") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    module("com.tngtech.archunit:archunit-junit5-engine-api", "com.tngtech.archunit.junit5.engineapi") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
+    module("com.tngtech.archunit:archunit-junit5-api", "com.tngtech.archunit.junit5.api")
+    module("com.tngtech.archunit:archunit-junit5-engine", "com.tngtech.archunit.junit5.engine")
+    module("com.tngtech.archunit:archunit-junit5-engine-api", "com.tngtech.archunit.junit5.engineapi")
     module("com.tngtech.archunit:archunit", "com.tngtech.archunit") {
         exportAllPackages()
         requireAllDefinedDependencies()
@@ -366,69 +374,7 @@ extraJavaModuleInfo {
     }
 
     module("org.glassfish.hk2.external:aopalliance-repackaged", "org.aopalliance")
-    module("org.glassfish.jersey.core:jersey-server", "jersey.server") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-        requires("jakarta.xml.bind")
-        requires("jersey.hk2")
-    }
-    // module("org.glassfish.jersey.containers:jersey-container-servlet", "jersey.servlet")
-    module("org.glassfish.jersey.inject:jersey-hk2", "jersey.hk2") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-    }
-    module("org.glassfish.jersey.core:jersey-client", "jersey.client") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-    }
-    module("org.glassfish.jersey.core:jersey-common", "jersey.common") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-        requires("java.xml")
-    }
-    module("org.glassfish.jersey.containers:jersey-container-grizzly2-http", "jersey.container.grizzly2.http") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-        requires("org.glassfish.grizzly")
-        requires("org.glassfish.grizzly.http")
-    }
-    module("org.glassfish.jersey.test-framework:jersey-test-framework-core", "jersey.test.framework.core") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requires("java.logging")
-    }
-    module("org.glassfish.jersey.containers:jersey-container-grizzly2-servlet", "jersey.container.grizzly2.servlet") {
-        // requires("jersey.servlet")
-    }
-    module("org.glassfish.jersey.containers:jersey-container-servlet", "jersey.container.servlet") {
-        exportAllPackages()
-        // requireAllDefinedDependencies()
-        requires("jersey.container.servlet.core")
-        requires("jakarta.servlet.api")
-    }
-    module("jakarta.servlet:jakarta.servlet-api", "jakarta.servlet.api") {
-        patchRealModule()
-        exportAllPackages()
-    }
-    module("org.glassfish.jersey.containers:jersey-container-servlet-core", "jersey.container.servlet.core") {
-        exportAllPackages()
-        requires("jakarta.servlet.api")
-    }
-    module("org.glassfish.jersey.media:jersey-media-jaxb", "jersey.media.jaxb") {
-        requireAllDefinedDependencies()
-        requires("java.logging")
-        requires("java.xml")
-        requires("jakarta.xml.bind")
-    }
-    module("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2", "jersey.test.framework.provider.grizzly2") {
-        requireAllDefinedDependencies()
-        requires("java.logging")
-    }
+
     module("org.glassfish.hk2:hk2-locator", "org.glassfish.hk2.locator") {
         exportAllPackages()
         requireAllDefinedDependencies()
@@ -450,13 +396,6 @@ extraJavaModuleInfo {
         requires("java.logging")
     }
 
-    module("com.github.sialcasa.mvvmFX:mvvmfx-validation", "de.saxsys.mvvmfx.validation") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-        requiresTransitive("javafx.base")
-        requiresTransitive("javafx.controls")
-        requiresTransitive("org.controlsfx.controls")
-    }
     module("de.saxsys:mvvmfx", "de.saxsys.mvvmfx") {
         exportAllPackages()
         requireAllDefinedDependencies()
@@ -466,7 +405,18 @@ extraJavaModuleInfo {
         exportAllPackages()
         requireAllDefinedDependencies()
         requiresTransitive("javafx.base")
+        requiresTransitive("javafx.controls")
+        requiresTransitive("org.controlsfx.controls")
     }
+    // JitPack-variant because we need the latest commit
+    module("com.github.sialcasa.mvvmFX:mvvmfx-validation", "de.saxsys.mvvmfx.validation") {
+        exportAllPackages()
+        requireAllDefinedDependencies()
+        requiresTransitive("javafx.base")
+        requiresTransitive("javafx.controls")
+        requiresTransitive("org.controlsfx.controls")
+    }
+
     module("org.reactfx:reactfx", "reactfx") {
         exportAllPackages()
         requireAllDefinedDependencies()
@@ -514,122 +464,54 @@ extraJavaModuleInfo {
         requireAllDefinedDependencies()
         requires("java.logging")
     }
+
     module("org.openjfx:javafx-base", "javafx.base") {
-        patchRealModule()
-        // jabgui requires at least "javafx.collections"
-        exportAllPackages()
+        preserveExisting()
+        exports("com.sun.javafx.event")
+        opens("javafx.collections")
+        opens("javafx.collections.transformation")
+        opens("com.sun.javafx.beans", "net.bytebuddy")
     }
 
-    // required for testing of jablib
+    // open packages for testing of jablib
     module("org.openjfx:javafx-fxml", "javafx.fxml") {
-        patchRealModule()
-        exportAllPackages()
-
-        requiresTransitive("javafx.graphics")
-        requiresTransitive("java.desktop")
+        preserveExisting()
+        opens("javafx.fxml", "org.jabref.jablib");
     }
 
     // Required for fxml loading (for localization test)
     module("org.openjfx:javafx-graphics", "javafx.graphics") {
-        patchRealModule()
-        exportAllPackages() // required for testfx
-
-        requiresTransitive("javafx.base")
-        requiresTransitive("java.desktop")
-        requiresTransitive("jdk.unsupported")
+        preserveExisting()
+        exports("com.sun.javafx.scene")
+        opens("com.sun.javafx.application", "org.testfx")
+        opens("javafx.scene", "org.controlsfx.controls")
     }
 
-    module("org.openjfx:jdk-jsobject", "jdk.jsobjectEmpty")
-
     module("org.controlsfx:controlsfx", "org.controlsfx.controls") {
-        patchRealModule()
-
+        preserveExisting()
         exports("impl.org.controlsfx.skin")
-        exports("org.controlsfx.control")
-        exports("org.controlsfx.control.action")
-        exports("org.controlsfx.control.decoration")
-        exports("org.controlsfx.control.table")
-        exports("org.controlsfx.control.textfield")
-        exports("org.controlsfx.dialog")
-        exports("org.controlsfx.validation")
-        exports("org.controlsfx.validation.decoration")
-
-        requires("javafx.controls")
-        requiresTransitive("javafx.graphics")
+        opens("org.controlsfx.control.textfield")
+        requires("javafx.graphics")
     }
 
     module("org.openjfx:javafx-controls", "javafx.controls") {
-        patchRealModule()
-
-        requiresTransitive("javafx.base");
-        requiresTransitive("javafx.graphics");
-
-        exports("javafx.scene.chart")
-        exports("javafx.scene.control")
-        exports("javafx.scene.control.cell")
-        exports("javafx.scene.control.skin")
-
-        // PATCH REASON:
+        preserveExisting()
+        opens("javafx.scene.control")
+        opens("javafx.scene.control.cell")
+        opens("javafx.scene.control.skin")
         exports("com.sun.javafx.scene.control")
+        // required for ActionFactory#enableTooltips
+        opens("com.sun.javafx.scene.control")
     }
 
-    module("org.hamcrest:hamcrest", "org.hamcrest") {
-        exportAllPackages()
-    }
+    module("org.hamcrest:hamcrest", "org.hamcrest")
 
     module("org.mockito:mockito-core", "org.mockito") {
         preserveExisting()
         requires("java.prefs")
     }
 
-    // Workaround for https://github.com/wiremock/wiremock/issues/2149
-    module("org.wiremock:wiremock", "wiremock") {
-        exportAllPackages()
-
-        requires("org.apache.httpcomponents.client5.httpclient5")
-        requires("com.fasterxml.jackson.core")
-        requires("com.fasterxml.jackson.databind")
-        requires("com.fasterxml.jackson.datatype.jsr310")
-        requires("com.google.common")
-        requires("commons.fileupload")
-        requires("java.xml")
-        requires("json.path")
-        requires("org.custommonkey.xmlunit")
-        requires("org.eclipse.jetty.server")
-        requires("org.eclipse.jetty.servlet")
-        requires("org.eclipse.jetty.servlets")
-        requires("org.eclipse.jetty.webapp")
-        requires("org.eclipse.jetty.proxy")
-        requires("org.eclipse.jetty.http2.server")
-        requires("org.eclipse.jetty.alpn.server")
-        requires("org.eclipse.jetty.alpn.java.server")
-        requires("org.eclipse.jetty.alpn.java.client")
-        requires("org.eclipse.jetty.alpn.client")
-        requires("org.slf4j")
-        requires("org.xmlunit")
-        requires("wiremock.slf4j.spi.shim")
-
-        uses("com.github.tomakehurst.wiremock.extension.Extension")
-
-        // workaround for https://github.com/wiremock/wiremock/issues/2874
-        mergeJar("com.github.jknack:handlebars")
-        mergeJar("com.github.jknack:handlebars-helpers")
-
-        // Required to provide package "wiremock.org.slf4j.helpers"
-        mergeJar("com.github.koppor:wiremock-slf4j-shim")
-    }
-    module("com.github.koppor:wiremock-slf4j-shim", "wiremock.slf4j.shim") {
-        patchRealModule()
-        exportAllPackages()
-    }
-    module("com.github.koppor:wiremock-slf4j-spi-shim", "wiremock.slf4j.spi.shim") {
-        patchRealModule()
-        exportAllPackages()
-    }
-    module("org.objenesis:objenesis", "org.objenesis") {
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
+    module("org.objenesis:objenesis", "org.objenesis")
     module("com.jayway.jsonpath:json-path", "json.path") {
         exportAllPackages()
         requireAllDefinedDependencies()
@@ -637,15 +519,30 @@ extraJavaModuleInfo {
     }
     module("net.minidev:json-smart", "json.smart")
     module("net.minidev:accessors-smart", "accessors.smart")
-    module("org.ow2.asm:asm", "org.objectweb.asm") {
-        preserveExisting()
-    }
 
     module("org.openjdk.jmh:jmh-core", "jmh.core")
     module("org.openjdk.jmh:jmh-generator-asm", "jmh.generator.asm")
     module("org.openjdk.jmh:jmh-generator-bytecode", "jmh.generator.bytecode")
     module("org.openjdk.jmh:jmh-generator-reflection", "jmh.generator.reflection")
     module("org.apache.commons:commons-math3", "commons.math3")
+
+    // We need to transform this, because the java modules plugin touches all Java paths
+    // Otherwise, one gets following errormessage
+    // configuration ':jablib:annotationProcessor'.
+
+    module("javax.inject:javax.inject", "javax.inject")
+    module("com.google.auto.value:auto-value-annotations", "auto.value.annotations")
+    module("io.github.eisop:dataflow-errorprone", "org.checkerframework.dataflow")
+    module("com.google.googlejavaformat:google-java-format", "com.google.googlejavaformat")
+    module("com.google.errorprone:error_prone_core", "com.google.errorprone.core")
+    module("com.google.errorprone:error_prone_check_api", "com.google.errorprone.check.api")
+    module("com.google.errorprone:error_prone_annotation", "com.google.errorprone.annotation")
+    module("com.google.auto:auto-common", "auto.common")
+    module("com.google.auto.service:auto-service-annotations", "com.google.auto.service")
+    module("com.google.protobuf:protobuf-java", "com.google.protobuf")
+    module("com.github.kevinstern:software-and-algorithms", "software.and.algorithms")
+
+    module("com.uber.nullaway:nullaway", "nullaway")
 
     // region TeaVM
     module("org.teavm:teavm-core", "teavm.core") {
@@ -704,4 +601,34 @@ extraJavaModuleInfo {
     module("com.jcraft:jzlib", "jzlib")
     module("joda-time:joda-time", "org.joda.time")
     // endregion
+}
+
+// Configure consistent resolution across the whole project
+// https://github.com/gradlex-org/extra-java-module-info/issues/186
+val consistentResolutionAttribute = Attribute.of("consistent-resolution", String::class.java)
+
+configurations.consumable("allDependencies") {
+    sourceSets.all {
+        extendsFrom(
+            configurations[this.implementationConfigurationName],
+            configurations[this.compileOnlyConfigurationName],
+            configurations[this.runtimeOnlyConfigurationName],
+            configurations[this.annotationProcessorConfigurationName],
+        )
+    }
+    attributes {
+        attribute(consistentResolutionAttribute, "global")
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+    }
+}
+
+configurations.getByName("mainRuntimeClasspath") {
+    attributes.attribute(consistentResolutionAttribute, "global")
+}
+
+configurations.getByName("javaModulesMergeJars") {
+    extendsFrom(configurations.getByName("mainRuntimeClasspath"))
 }

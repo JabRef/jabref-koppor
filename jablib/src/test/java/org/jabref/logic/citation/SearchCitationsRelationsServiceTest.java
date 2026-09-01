@@ -20,9 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SearchCitationsRelationsServiceTest {
 
-    /**
-     * Creates a mock CitationFetcher that returns specific results for citations and references
-     */
+    /// Creates a mock CitationFetcher that returns specific results for citations and references
     private CitationFetcher createMockFetcher(BibEntry targetEntry, List<BibEntry> citationsToReturn, List<BibEntry> referencesToReturn, Integer citationCount) {
         return CitationFetcherHelpersForTest.Mocks.from(
                 entry -> {
@@ -46,9 +44,7 @@ class SearchCitationsRelationsServiceTest {
         );
     }
 
-    /**
-     * Creates a mock CitationFetcher that returns empty lists for all entries
-     */
+    /// Creates a mock CitationFetcher that returns empty lists for all entries
     private CitationFetcher createEmptyMockFetcher() {
         return CitationFetcherHelpersForTest.Mocks.from(
                 _ -> List.of(),
@@ -70,7 +66,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(null, repository);
 
             // WHEN
-            List<BibEntry> citations = searchService.searchCitedBy(cited);
+            List<BibEntry> citations = searchService.searchCitedBy(cited, false);
 
             // THEN
             assertEquals(citationsToReturn, citations);
@@ -88,14 +84,15 @@ class SearchCitationsRelationsServiceTest {
                     _ -> citationsToReturn,
                     citationsDatabase::put,
                     List::of,
-                    (_, _) -> { },
+                    (_, _) -> {
+                    },
                     _ -> true,
                     _ -> false
             );
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> citations = searchService.searchCitedBy(cited);
+            List<BibEntry> citations = searchService.searchCitedBy(cited, false);
 
             // THEN
             assertTrue(citationsDatabase.containsKey(cited));
@@ -114,7 +111,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> citations = searchService.searchCitedBy(cited);
+            List<BibEntry> citations = searchService.searchCitedBy(cited, false);
 
             // THEN
             assertTrue(citationsDatabase.containsKey(cited));
@@ -131,7 +128,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> citations = searchService.searchCitedBy(cited);
+            List<BibEntry> citations = searchService.searchCitedBy(cited, false);
 
             // THEN
             assertTrue(citations.isEmpty());
@@ -153,7 +150,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(null, repository);
 
             // WHEN
-            List<BibEntry> references = searchService.searchCites(referencer);
+            List<BibEntry> references = searchService.searchCites(referencer, false);
 
             // THEN
             assertEquals(referencesToReturn, references);
@@ -169,7 +166,8 @@ class SearchCitationsRelationsServiceTest {
             CitationFetcher fetcher = createMockFetcher(referencer, null, referencesToReturn, null);
             BibEntryCitationsAndReferencesRepository repository = BibEntryRelationsRepositoryTestHelpers.Mocks.from(
                     List::of,
-                    (_, _) -> { },
+                    (_, _) -> {
+                    },
                     _ -> referencesToReturn,
                     referencesDatabase::put,
                     _ -> false,
@@ -178,7 +176,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> references = searchService.searchCites(referencer);
+            List<BibEntry> references = searchService.searchCites(referencer, false);
 
             // THEN
             assertTrue(referencesDatabase.containsKey(referencer));
@@ -199,7 +197,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> references = searchService.searchCites(reference);
+            List<BibEntry> references = searchService.searchCites(reference, false);
 
             // THEN
             assertTrue(referencesDatabase.containsKey(reference));
@@ -218,7 +216,7 @@ class SearchCitationsRelationsServiceTest {
             SearchCitationsRelationsService searchService = new SearchCitationsRelationsService(fetcher, repository);
 
             // WHEN
-            List<BibEntry> citations = searchService.searchCites(referencer);
+            List<BibEntry> citations = searchService.searchCites(referencer, false);
 
             // THEN
             assertTrue(citations.isEmpty());

@@ -19,7 +19,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
-import org.jabref.gui.ClipBoardManager;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.pdf.FileAnnotationCache;
@@ -94,7 +94,8 @@ public class FileAnnotationTabView {
         Label date = new Label(annotation.getDate());
         Label page = new Label(Localization.lang("Page") + ": " + annotation.getPage());
 
-        marking.setStyle("-fx-font-size: 0.75em; -fx-font-weight: bold");
+        marking.setStyle("-fx-font-size: 0.75em;");
+        marking.getStyleClass().add("bold");
         marking.setMaxHeight(30);
 
         Tooltip markingTooltip = new Tooltip(annotation.getMarking());

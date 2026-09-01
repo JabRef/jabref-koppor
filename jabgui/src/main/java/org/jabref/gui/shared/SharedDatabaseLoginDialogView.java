@@ -12,15 +12,16 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-import org.jabref.gui.ClipBoardManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.IconValidationDecorator;
 import org.jabref.logic.ai.AiService;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.DBMSType;
 import org.jabref.logic.util.TaskExecutor;
@@ -32,10 +33,8 @@ import com.tobiasdiez.easybind.EasyBind;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import jakarta.inject.Inject;
 
-/**
- * This offers the user to connect to a remove SQL database.
- * Moreover, it directly opens the shared database after successful connection.
- */
+/// This offers the user to connect to a remove SQL database.
+/// Moreover, it directly opens the shared database after successful connection.
 public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
     @FXML private ComboBox<DBMSType> databaseType;
     @FXML private TextField host;
@@ -65,6 +64,7 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
     @Inject private UndoManager undoManager;
     @Inject private ClipBoardManager clipBoardManager;
     @Inject private TaskExecutor taskExecutor;
+    @Inject private JournalAbbreviationRepository journalAbbreviationRepository;
 
     private final LibraryTabContainer tabContainer;
     private SharedDatabaseLoginDialogViewModel viewModel;
@@ -108,7 +108,8 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
                 fileUpdateMonitor,
                 undoManager,
                 clipBoardManager,
-                taskExecutor);
+                taskExecutor,
+                journalAbbreviationRepository);
         databaseType.getItems().addAll(DBMSType.values());
         databaseType.getSelectionModel().select(0);
 
@@ -133,6 +134,7 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
         jdbcUrl.textProperty().bindBidirectional(viewModel.jdbcUrlProperty());
         jdbcUrl.disableProperty().bind(viewModel.expertModeProperty().not());
 
+        fileKeystore.disableProperty().bind(viewModel.useSSLProperty().not());
         browseKeystore.disableProperty().bind(viewModel.useSSLProperty().not());
         passwordKeystore.disableProperty().bind(viewModel.useSSLProperty().not());
         passwordKeystore.textProperty().bindBidirectional(viewModel.keyStorePasswordProperty());
