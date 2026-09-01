@@ -196,6 +196,8 @@ javaModulePackaging {
         targetResources.from(layout.projectDirectory.dir("buildres/windows").asFileTree.matching {
             include("jabref-firefox.json")
             include("jabref-chrome.json")
+            include("jabext-firefox.json")
+            include("jabext-chrome.json")
             include("JabRefHost.bat")
             include("JabRefHost.ps1")
             include("JabRefTopBanner.bmp")
