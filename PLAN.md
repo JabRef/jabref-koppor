@@ -170,6 +170,8 @@ files in jablib): flexmark (1 file, `MarkdownFormatter`), afterburner in jablib 
 (1 file, `Directories` — XDG logic is small), jakarta.ws.rs (2 fetchers, likely just
 `UriBuilder`). Velocity is *not yet* a jablib dep in main (1 file; arrives with the
 velocity-layouts PR — note: Debian only has velocity 1.7, not engine-core 2.x).
+Update 2026-09-01: velocity-engine-core is now a jablib dependency (AI templates,
+`AiTemplateRenderer`); covered by the AI placeholder for the time being.
 
 **Patched out (not packaged):** langchain4j+djl+jvm-openai (~130 import sites — matches
 the ~30-file estimate), jtokkit, opennlp, embedded-postgres(+binaries),
@@ -228,7 +230,12 @@ auto-detection needed an explicit `--input-format` — investigate before upload
   - [x] Working `jabkit --version` / `--help` / `convert` (bibtex → RIS verified) on
         sid with Debian jars + our openjfx26 javafx.base + placeholder jars for the
         to-be-packaged libs. The bill of materials is now exact.
-- [ ] **4. Decide** Stage-1 trim set from PoC results; write the quilt patch series.
+- [x] **4. Trim set + patch series (2026-09-01):** three compatibility patches exist
+      (slf4j 1.7, commons-csv 1.9, lucene 9 — in the jabref-debian repo, see step 7).
+      Trim decision: the AI stack and embedded-postgres stay as *runtime* placeholder
+      dependencies for now — jabkit's picocli command model references langchain4j
+      types at startup, so they cannot be dropped by packaging alone; removing them
+      needs the upstream "AI as optional module" work (upstream work item 1).
 - [ ] **5. Package the missing libs** (order above), ITP each; org.jabref libs first.
   - [ ] Before filing any ITP, search WNPP/BTS for existing bugs (`wnpp-check` from
         devscripts, <https://wnpp.debian.org>, and per-source
@@ -243,11 +250,17 @@ auto-detection needed an explicit `--input-format` — investigate before upload
         forks/versions we need — reuse these bugs to track the updates).
 - [ ] **6. Update** caffeine, afterburner.fx, easybind (coordinate with current Debian
       maintainers; the forks may need new source package names).
-- [ ] **7. `jabref` source package** producing `jabkit` (+ `libjablib-java`?):
-      javahelper build; ANTLR 4.9 generation; JournalList/Ltwa MV generation via
-      `build-support` classes; depend on `citation-style-language-{styles,locales}`;
-      abbrv.jabref.org + ltwa CSVs as extra orig-tarball components (uscan multi-component);
-      desktop/AppStream assets exist in `flatpak/` for later GUI reuse.
+- [x] **7. `jabref` source package** producing `jabkit` — **working WIP
+      (2026-09-01):** <https://github.com/koppor/jabref-debian>. javac build
+      (debian/build.sh), ANTLR generation via an antlr4-4.13 placeholder package,
+      curated runtime classpath, three compat patches, autopkgtest. CI: placeholder
+      packages from Maven Central → package build at a pinned JabRef commit on
+      debian:sid → install in a pristine container with full apt dependency
+      resolution → functional test (--help + bibtex→RIS convert), all green.
+  - [ ] Remaining for a real upload: journal-list.mv generation (build-support),
+        depend on `citation-style-language-{styles,locales}` instead of the
+        submodules, orig-tarball/uscan setup, SOURCE_DATE_EPOCH-reproducible jars,
+        replace all placeholders with real packages (step 5/6), d/copyright audit.
 - [ ] **8. Debian process**: take over/retitle #877718 as ITP (jabkit first), repo on
       salsa (java-team), find sponsor — tmancill (Debian Java team) already commented in
       #135; loop in sre4ever.
