@@ -1,20 +1,27 @@
 ---
 parent: Code Howtos
-nav_order: 5
 ---
 # Fetchers
 
 Fetchers are the implementation of the [search using online services](https://docs.jabref.org/collect/import-using-online-bibliographic-database). Some fetchers require API keys to get them working. To get the fetchers running in a JabRef development setup, the keys need to be placed in the respective environment variable. The following table lists the respective fetchers, where to get the key from and the environment variable where the key has to be placed.
 
-| Service                                                                                                                                              | Key Source                                                                                                     | Environment Variable           | Rate Limit                       |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|--------------------------------| -------------------------------- |
-| [IEEEXplore](https://docs.jabref.org/collect/import-using-online-bibliographic-database#ieeexplore)                                                  | [IEEE Xplore API portal](https://developer.ieee.org)                                                           | `IEEEAPIKey`                   | 200 calls/day                    |
-| [MathSciNet](http://www.ams.org/mathscinet)                                                                                                          | (none)                                                                                                         | (none)                         | Depending on the current network |
-| [SAO/NASA Astrophysics Data System](https://docs.jabref.org/collect/import-using-online-bibliographic-database#sao-nasa-astrophysics-data-system)    | [ADS UI](https://ui.adsabs.harvard.edu/user/settings/token)                                                    | `AstrophysicsDataSystemAPIKey` | 5000 calls/day                   |
-| [ScienceDirect](https://www.sciencedirect.com)                                                                                                       |                                                                                                                | `ScienceDirectApiKey`          |                                  |
-| [Springer Nature](https://docs.jabref.org/collect/import-using-online-bibliographic-database#springer)                                               | [Springer Nature API Portal](https://dev.springernature.com)                                                   | `SpringerNatureAPIKey`         | 5000 calls/day                   |
-| [Zentralblatt Math](https://www.zbmath.org)                                                                                                          | (none)                                                                                                         | (none)                         | Depending on the current network |
- | [Biodiversity Heritage Library](https://www.biodiversitylibrary.org/)                                                                                | [Biodiversitylibrary](https://about.biodiversitylibrary.org/tools-and-services/developer-and-data-tools/#APIs) | `BiodiversityHeritageApiKey`   |         |
+| Service                                                                                                                                           | Key Source                                                                                                     | Environment Variable           | Rate Limit                                                                            |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|--------------------------------|---------------------------------------------------------------------------------------|
+| [Biodiversity Heritage Library](https://www.biodiversitylibrary.org/)                                                                             | [Biodiversitylibrary](https://about.biodiversitylibrary.org/tools-and-services/developer-and-data-tools/#APIs) | `BiodiversityHeritageApiKey`   | -                                                                                     |
+| [arXiv](https://info.arxiv.org/help/api/index.html)                                                                                               | (none)                                                                                                         | (none)                         | [One request per three seconds](https://info.arxiv.org/help/api/tou.html)             |
+| [DOAJ](https://doaj.org/)                                                                                                                         | (none)                                                                                                         | (none)                         | [2 requests/second](https://doaj.org/api/docs)                                        |
+| [Elsevier (ScienceDirect / Scopus)](https://dev.elsevier.com/)                                                                                    | [Elsevier Dev Portal](https://dev.elsevier.com/)                                                               | `ScopusApiKey`                 | [20.000 calls/week](https://dev.elsevier.com/api_key_settings.html)                   |
+| [IEEEXplore](https://docs.jabref.org/collect/import-using-online-bibliographic-database#ieeexplore)                                               | [IEEE Xplore API portal](https://developer.ieee.org)                                                           | `IEEEAPIKey`                   | 200 calls/day                                                                         |
+| [Medline/Pubmed](https://pubmed.ncbi.nlm.nih.gov/)                                                                                                | [NCBI User account](https://account.ncbi.nlm.nih.gov/settings/)                                                | `medlineApiKey`                | 10 requests/seconds                                                                   |
+| [MathSciNet](http://www.ams.org/mathscinet)                                                                                                       | (none)                                                                                                         | (none)                         | Depending on the current network                                                      |
+| [OpenAlex](https://docs.openalex.org/)                                                                                                            | <https://openalex.org/settings/api>                                                                            | `OpenAlexApiKey`               | [100,000 credits/day](https://docs.openalex.org/api-guide-for-llms#with-free-api-key) |
+| [SAO/NASA Astrophysics Data System](https://docs.jabref.org/collect/import-using-online-bibliographic-database#sao-nasa-astrophysics-data-system) | [ADS UI](https://ui.adsabs.harvard.edu/user/settings/token)                                                    | `AstrophysicsDataSystemAPIKey` | 5000 calls/day                                                                        |
+| [ScholarApi](https://scholarapi.net/)                                                                                                             | [ScholarApi User Account](https://scholarapi.net/auth/register)                                                | `ScholarApiKey`                | 1000 free credits per key                                                             |
+| [SemanticScholar](https://www.semanticscholar.org/)                                                                                               | <https://www.semanticscholar.org/product/api#api-key-form>                                                     | `SemanticScholarApiKey`        |                                                                                       |
+| [Springer Nature](https://docs.jabref.org/collect/import-using-online-bibliographic-database#springer)                                            | [Springer Nature API portal](https://dev.springernature.com). Use the "Meta API" API key.                      | `SpringerNatureAPIKey`         | 5000 calls/day                                                                        |
+| [Wiley (TDM)](https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining)                                                         | [Wiley TDM portal](https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining)                 | `WileyTdmApiKey`               | 3 articles/second **AND** 60 requests/10min                                           |
+| [Zentralblatt Math](https://www.zbmath.org)                                                                                                       | (none)                                                                                                         | (none)                         | Depending on the current network                                                      |
+
 "Depending on the current network" means that it depends on whether your request is routed through a network having paid access. For instance, some universities have subscriptions to MathSciNet.
 
 On Windows, you have to log off and log on to let IntelliJ know about the environment variable change. Execute the gradle task `processResources` in the group "others" within IntelliJ to ensure the values have been correctly written. Now, the fetcher tests should run without issues.
@@ -25,7 +32,11 @@ JabRef supports different kinds of fetchers:
 * `FulltextFetcher`: Searches for a PDF for an exiting bibliography entry
 * `SearchBasedFetcher`: Searches providers using a given query and returns a set of (new) bibliography entry. The user-facing side is implemented in the UI described at [https://docs.jabref.org/collect/import-using-online-bibliographic-database](https://docs.jabref.org/collect/import-using-online-bibliographic-database).
 
+`JournalInformationFetcher` supplies the Entry Editor's journal-information popup. It uses Crossref for journal identity (title, publisher, ISSNs) and OpenAlex for the h-index and yearly work and citation counts. If enabled in the preferences, it uses the configured OpenAlex API key.
+
 There are more fetchers supported by JabRef. Investigate the package `org.jabref.logic.importer`. Another possibility is to investigate the inheritance relation of `WebFetcher` (Ctrl+H in IntelliJ).
+
+Fetchers with a documented request limit use `FetcherRateLimiter`. Express limits with `ofRequestsPerInterval` when a provider specifies requests per time window; use `ofRequestsPerSecond` for limits returned dynamically by an API. A limiter is shared across all instances of a fetcher so parallel searches respect the provider-wide request rate.
 
 ## Fulltext Fetchers
 
@@ -50,6 +61,7 @@ All fetchers are contained in the package `org.jabref.logic.importer.fetcher`. H
 * Springer: Publisher
 * ACS: Publisher
 * IEEE: Publisher
+* Wiley: Publisher
 * Google Scholar: META\_SEARCH, because it is a search engine
 * Arxiv: PREPRINT, because preprints are published there
 * OpenAccessDOI: META\_SEARCH
@@ -60,6 +72,19 @@ Reasoning:
 * We assume the DOI resolution surely points to the correct paper and that publisher fetches may have errors: For instance, a title of a paper may lead to different publications of it. One the conference version, the other the journal version. --> the PDF could be chosen randomly
 
 Code was first introduced at [PR#3882](https://github.com/JabRef/jabref/pull/3882).
+
+### Authenticated Downloads
+
+Some publishers require authentication headers on the actual PDF download request (not just for metadata or search). Fetchers that need this can override the `getDownloadHeaders()` default method on `FulltextFetcher`:
+
+```java
+@Override
+public Map<String, String> getDownloadHeaders() {
+    return Map.of("Wiley-TDM-Client-Token", apiKey);
+}
+```
+
+These headers are propagated through the download code execution flow automatically: they are included in the `FetcherResult` returned by `FulltextFetchers.findFullTextPDF()` and applied to all HTTP requests during PDF validation and download.
 
 ## Background on embedding the keys in JabRef
 
@@ -72,13 +97,26 @@ springerNatureAPIKey=${springerNatureAPIKey}
 In `build.gradle`, these variables are filled:
 
 ```groovy
-"springerNatureAPIKey": System.getenv('SpringerNatureAPIKey')
+"springerNatureAPIKey" : System.getenv('SpringerNatureAPIKey')
 ```
 
-The `BuildInfo` class reads from that file.
+The `BuildInfo` class reads from that file and the key needs to be put into the map of default API keys in `JabRefCliPreferences::getDefaultFetcherKeys`.
 
 ```java
-new BuildInfo().springerNatureAPIKey
+keys.put(SpringerFetcher.FETCHER_NAME, buildInfo.springerNatureAPIKey);
+```
+
+The fetcher api key can then be obtained by calling the preferences.
+
+```java
+importerPreferences.getApiKey(SpringerFetcher.FETCHER_NAME);
 ```
 
 When executing `./gradlew run`, gradle executes `processResources` and populates `build/build.properties` accordingly. However, when working directly in the IDE, Eclipse keeps reading `build.properties` from `src/main/resources`. In IntelliJ, the task `JabRef Main` is executing `./gradlew processResources` before running JabRef from the IDE to ensure the `build.properties` is properly populated.
+
+## Committing and pushing changes to fetcher files
+
+Fetcher tests are run when a PR contains changes touching any file in the `src/main/java/org/jabref/logic/importer/fetcher/` directory.
+Since these tests rely on remote services, some of them may fail due to the network or the external server.
+
+To learn more about doing fetcher tests locally, see Fetchers in tests in [Testing](https://devdocs.jabref.org/code-howtos/testing.html).

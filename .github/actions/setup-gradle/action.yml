@@ -1,0 +1,43 @@
+name: Setup JDK and gradle
+description: Setup JDK and gradle. JBang is installed by the dev.jbang gradle plugin on demand; jobs calling `jbang` from the shell need jbangdev/setup-jbang themselves.
+
+inputs:
+  distribution:
+    description: JDK distribution
+    required: false
+    default: corretto
+  javaVersion:
+    description: Java version
+    required: false
+    default: '25'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ inputs.javaVersion }}
+        distribution: ${{ inputs.distribution }}
+        check-latest: true
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+      with:
+        gradle-version: current
+      env:
+        GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: false
+    # JBang resolves the //DEPS of a script into the local Maven repository (~/.m2 by default),
+    # which nothing in this repository caches. Point it into the Gradle user home's "caches"
+    # directory instead - gradle/actions/setup-gradle caches that one out of the box.
+    # Two steps because JBang is a Java program: on Windows it needs a native path
+    # (C:\Users\runneradmin\...), not the Git Bash form (/c/Users/...).
+    - name: Set JBANG_REPO
+      if: runner.os != 'Windows'
+      shell: bash
+      run: echo "JBANG_REPO=${GRADLE_USER_HOME:-$HOME/.gradle}/caches/jbang-repo" >> "$GITHUB_ENV"
+    - name: Set JBANG_REPO (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $gradleUserHome = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' }
+        "JBANG_REPO=$(Join-Path $gradleUserHome 'caches\jbang-repo')" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8

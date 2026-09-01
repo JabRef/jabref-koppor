@@ -1,29 +1,78 @@
-name: Automerge Pull Requests
-on: [pull_request]
+name: Auto Merge
+on: [ pull_request_target, workflow_dispatch ]
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   automerge:
-    name: Automerge Dependency Updates
-    runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' || contains(github.event.pull_request.labels.*.name, 'dependencies')
+    runs-on: ubuntu-slim
+    if: github.repository == 'JabRef/jabref'
+    env:
+      HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+      USER:      ${{ github.event.pull_request.user.login }}
+      TITLE:     ${{ github.event.pull_request.title }}
     steps:
-      - name: 'Wait for status checks'
-        id: waitforstatuschecks
-        uses: "WyriHaximus/github-action-wait-for-status@v1.6"
+      - uses: awalsh128/cache-apt-pkgs-action@v1.6.3
         with:
-          ignoreActions: Automerge Dependabot,Code coverage,Create snapcraft image,Deploy binaries on builds.jabref.org,codecov/project,markdown-link-check
-          checkInterval: 13
+          packages: jq
+          version: 1.0
+      - name: Determine if job should run
+        id: shouldrun
+        shell: bash
+        run: |
+          echo USER: $USER
+
+          if [[ "$USER" == "renovate-bot" ]]; then
+            echo "✅ from renote-bot"
+            echo "shouldrun=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$USER" == "dependabot[bot]" ]]; then
+            echo "✅ from dependabot"
+            echo "shouldrun=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$HEAD_REPO" != "JabRef/jabref" ]]; then
+            echo "🚫 not from JabRef/jabref"
+            echo "shouldrun=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$USER" == "dependabot[bot]" ]] || \
+            [[ "$TITLE" == "Chore(deps): "* ]] || \
+            [[ "$TITLE" == "[Bot] "* ]] || \
+            [[ "$TITLE" == "Bump "* ]] || \
+            [[ "$TITLE" == "New Crowdin updates"* ]] || \
+            [[ "$TITLE" == "Update Gradle Wrapper from"* ]]; then
+            echo "✅ title OK"
+            echo "shouldrun=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          LABELS=$(gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')
+          if echo "$LABELS" | grep -q "^automerge"; then
+            echo "✅ label automerge"
+            echo "shouldrun=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "🚫 no automerge"
+          echo "shouldrun=false" >> "$GITHUB_OUTPUT"
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Auto approve
-        uses: hmarr/auto-approve-action@v2.4.0
-        if: steps.waitforstatuschecks.outputs.status == 'success'
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Merge pull requests
-        uses: pascalgn/automerge-action@v0.15.3
-        if: steps.waitforstatuschecks.outputs.status == 'success'
+          GH_TOKEN: ${{secrets.GH_TOKEN_JABREF_MACHINE_PR_APPROVE}}
+      - name: Approve PR
+        if: steps.shouldrun.outputs.shouldrun == 'true'
+        run: gh pr review --approve "$PR_URL"
         env:
-          MERGE_METHOD: "merge"
-          MERGE_LABELS: ""
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GH_TOKEN_JABREF_MACHINE_PR_APPROVE}}
+      - name: Merge PR
+        if: steps.shouldrun.outputs.shouldrun == 'true'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GH_TOKEN_UPDATE_GRADLE_WRAPPER}}

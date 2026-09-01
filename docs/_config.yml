@@ -1,12 +1,16 @@
 repository: JabRef/jabref
 title: "Developer Documentation"
-remote_theme: just-the-docs/just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.10.0
 color_scheme: light
+
+exclude: [ _config.yml, .dockerignore, .gitignore, CNAME, Dockerfile, Gemfile, Gemfile.lock, README.md, mkdocs-custom.css ]
 
 # Hint by https://github.com/just-the-docs/just-the-docs/issues/374#issuecomment-680273258
 # Theme read from https://github.com/StylishThemes/Syntax-Themes/blob/master/pygments/css-github/
 # Browse alternative themes at https://stylishthemes.github.io/Syntax-Themes/pygments/
 highlight_theme: jellybeans
+
+favicon_ico: "/images/favicon.ico"
 
 search_enabled: true
 button: true
@@ -34,4 +38,42 @@ baseurl: ""
 url: ""
 
 plugins:
+  # from https://github.com/just-the-docs/just-the-docs/blob/main/_config.yml
+  - jekyll-seo-tag
+  - jekyll-github-metadata
+  - jekyll-include-cache
+  - jekyll-sitemap
+  # custom additions
+  - jekyll-default-layout
+  - jekyll-figure
   - jekyll-remote-theme
+  - jekyll-titles-from-headings
+  - jekyll-relative-links
+
+jekyll-figure:
+  paragraphs: false
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    title: Summary
+    color: blue
+  important:
+    title: Important
+    color: yellow
+  new:
+    title: New
+    color: green
+  note:
+    title: Note
+    color: purple
+  warning:
+    title: Warning
+    color: red
+
+mermaid:
+  # Version of mermaid library
+  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
+  version: "9.4.3"
+
+enable_copy_code_button: true

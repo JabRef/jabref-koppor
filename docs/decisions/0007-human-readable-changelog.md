@@ -6,7 +6,7 @@ nav_order: 7
 
 ## Context and Problem Statement
 
-Changes of a release have to be communicated. How and which stile to use?
+Changes of a release have to be communicated. How and which style to use?
 
 ## Considered Options
 
@@ -24,4 +24,3 @@ Chosen option: "Keep-a-changelog format with freedom in the bullet points", beca
   We nevertheless try to follow that style.
 
 Further discussion can be found at [\#2277](https://github.com/JabRef/jabref/issues/2277).
-

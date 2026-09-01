@@ -1,56 +1,55 @@
 ---
 nav_order: 1
+layout: home
 ---
 # Overview on Developing JabRef
 
 This page presents all development information around JabRef.
-In case you are a end user, please head to the [user documentation](https://docs.jabref.org) or to the [general homepage](https://www.jabref.org) of JabRef.
+In case you are an end user, please head to the [user documentation](https://docs.jabref.org) or to the [general homepage](https://www.jabref.org) of JabRef.
 
 ## Starting point for new developers
 
 On the page [Setting up a local workspace](https://devdocs.jabref.org/getting-into-the-code/guidelines-for-setting-up-a-local-workspace), we wrote about the initial steps to get your IDE running.
-We strongly recommend to continue reading there.
+We strongly recommend continuing reading there.
 After you successfully cloned and build JabRef, you are invited to continue reading here.
 
-## How tos
+## JabRef's development strategy
 
-* External: [Sync your fork with the JabRef repository](https://help.github.com/articles/syncing-a-fork/)
-* External (🇩🇪): Branches and pull requests: [https://github.com/unibas-marcelluethi/software-engineering/blob/master/docs/week2/exercises/practical-exercises.md](https://github.com/unibas-marcelluethi/software-engineering/blob/master/docs/week2/exercises/practical-exercises.md)
+We aim to keep up to high-quality code standards and use code quality tools wherever possible.
 
-## Teaching Exercises
+To ensure high code-quality,
 
-We are very happy that JabRef is part of [Software Engineering](https://en.wikipedia.org/wiki/Software\_engineering) trainings. Please head to [Teaching](teaching.md) for more information on using JabRef as a teaching object and on previous courses where JabRef was used.
+* We follow the principles of [Java by Comparison](https://java.by-comparison.com).
+* We follow the principles of [Effective Java](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/).
+* We use [Design Patterns](https://java-design-patterns.com/patterns/) when applicable.
+* We document our design decisions using the lightweight architectural decision records [MADR](https://adr.github.io/madr/).
+* Each external pull request is reviewed by at least two [JabRef Core Developers](https://github.com/JabRef/jabref/blob/main/MAINTAINERS).
 
-## Miscellaneous Hints
+## Continuous integration
 
-### Command Line
+JabRef has automatic checks using [GitHub actions](https://github.com/features/actions) in place.
+One of them is checking for proper formatting of the code.
+Consistent formatting ensures easier reading of the code.
+Thus, we ensure that all of JabRef's code follows the same code style.
 
-The package `org.jabref.cli` is responsible for handling the command line options.
+Binaries are created using [gradle](https://gradle.org).
+In case of an internal pull request, they are uploaded to <https://builds.jabref.org>.
+These binaries are created without any checks to have them available as quickly as possible, even if the localization or some fetchers are broken.
+You can fnd the deployment workflow runs at: <https://github.com/JabRef/jabref/actions?workflow=Deployment>.
 
-During development, one can configure IntelliJ to pass command line parameters:
+## Branches
 
-![IntelliJ-run-configuration](<images/intellij-run-configuration-command-line.png>)
+The [main](https://github.com/JabRef/jabref/tree/main) branch is the main development line ("trunk") and is intended to incorporate fixes and improvements as soon as possible and to move JabRef forward to modern technologies such as the latest Java version.
 
-Passing command line arguments using gradle is currently not possible as all arguments (such as `-Dfile.encoding=windows-1252`) are passed to the application.
+Other branches are used for working on and discussing improvements with the help of [pull requests](https://github.com/JabRef/jabref/pulls). One can see the binaries of each branch at [https://builds.jabref.org/](https://builds.jabref.org). Releases mark milestones and are based on the `main` branch at that point in time.
 
-Without jlink, it is not possible to generate a fat jar any more. During development, the capabilities of the IDE has to be used.
+## How JabRef acquires contributors
 
-### Groups
+* We participate in [Hacktoberfest](https://www.hacktoberfest.com).
+* We participate in [Google Summer of Code](https://developers.google.com/open-source/gsoc/).
+* We are very happy that JabRef is part of [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) trainings.
+  Please head to [Teaching](teaching.md) for more information on using JabRef as a teaching object and on previous courses where JabRef was used.
 
-Diagram showing aspects of groups: [Groups.uml](https://github.com/JabRef/jabref/tree/3b3716b1e05a0d3273c886e102a8efe5e96472e0/docs/Groups.uml).
+## Next reading
 
-## Architectural Decision Records
-
-[Architectural decisions for JabRef](adr.md) are recorded.
-
-For new ADRs, please use [template.md](https://github.com/JabRef/jabref/tree/3b3716b1e05a0d3273c886e102a8efe5e96472e0/docs/adr/template.md) as basis. More information on MADR is available at [https://adr.github.io/madr/](https://adr.github.io/madr/). General information about architectural decision records is available at [https://adr.github.io/](https://adr.github.io). Add them to the [list of architectural decision records](adr.md).
-
-## FAQ
-
-*   Q: I get `java: package org.jabref.logic.journals does not exist`.
-
-    A: You have to ignore `buildSrc/src/main` as source directory in IntelliJ as indicated in our [setup guide](https://devdocs.jabref.org/getting-into-the-code/guidelines-for-setting-up-a-local-workspace).
-
-    Also filed as IntelliJ issue [IDEA-240250](https://youtrack.jetbrains.com/issue/IDEA-240250).
-*   Q: I get `Execution failed for task ':buildSrc:jar'. Entry org/jabref/build/JournalAbbreviationConverter$_convert_closure1$_closure2.class is a duplicate but no duplicate handling strategy has been set. Please refer to https://docs.gradle.org/7.4.2/dsl/org.gradle.api.tasks.Copy.html#org.gradle.api.tasks.Copy:duplicatesStrategy for details.` What can I do?\
-    A: You have to delete directory `buildSrc/build`.
+Please head to [Architecture and Components](architecture-and-components.md) to read on the high-level architecture and JabRef's (logical) components.
