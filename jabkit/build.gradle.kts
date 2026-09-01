@@ -3,7 +3,11 @@ plugins {
     id("org.jabref.gradle.feature.shadowjar")
     id("org.jabref.gradle.feature.nativecompile")
     id("application")
+    id("org.teavm") version "0.12.3"
 }
+
+import org.gradle.nativeplatform.OperatingSystemFamily
+import org.gradle.nativeplatform.MachineArchitecture
 
 group = "org.jabref.jabkit"
 version = providers.gradleProperty("projVersion")
@@ -13,6 +17,12 @@ version = providers.gradleProperty("projVersion")
 
 mainModuleInfo {
     annotationProcessor("info.picocli.codegen")
+}
+
+dependencies {
+    // TeaVM
+    implementation(teavm.libs.jsoApis)
+    testImplementation("org.teavm:teavm-core")
 }
 
 testModuleInfo {
@@ -91,5 +101,33 @@ graalvmNative {
             imageName.set("jabkit")
             mainClass.set("org.jabref.toolkit.JabKitLauncher")
         }
+    }
+}
+
+teavm {
+    all {
+        mainClass.set("org.jabref.JabKit")
+    }
+    js {
+        addedToWebApp = true
+
+        // this is also optional, default value is <project name>.js
+        targetFileName = "example.js"
+    }
+    wasmGC {
+        addedToWebApp = true
+    }
+}
+
+configurations.testImplementation {
+    exclude(group = "org.teavm", module = "teavm-junit")
+}
+
+// Hint by @jjohannes
+configurations.teavmClasspath {
+    attributes {
+        // TeaVM Platforms: https://github.com/konsoletyper/teavm/blob/master/interop/core/src/main/java/org/teavm/interop/Platforms.java
+        attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named<OperatingSystemFamily>(OperatingSystemFamily.LINUX))
+        attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named<MachineArchitecture>(MachineArchitecture.X86_64))
     }
 }
