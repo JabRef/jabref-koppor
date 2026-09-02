@@ -93,7 +93,7 @@ class Pending:
     def new(self) -> tuple[str, threading.Event, list]:
         with self._lock:
             self._seq += 1
-            rid = f"r{self._seq}"
+            rid = f"r{os.getpid()}-{self._seq}"   # unique across host restarts: the extension names downloads after it
             ev, box = threading.Event(), []
             self._slots[rid] = (ev, box)
         return rid, ev, box
@@ -110,8 +110,17 @@ class Pending:
         with self._lock:
             self._slots.pop(rid, None)
 
+    def wake_all(self) -> None:
+        """stdin EOF: release every waiting HTTP thread (its box stays empty)."""
+        with self._lock:
+            slots = list(self._slots.values())
+        for ev, _ in slots:
+            ev.set()
+
 PENDING = Pending()
 BEARER = ""
+DONE = False                     # set on stdin EOF; browser/extension gone
+_GONE = {"error": "not-reachable", "message": "browser extension disconnected (native-messaging stdin closed)"}
 # send_nm is pluggable so the self-check can stand in for the extension.
 send_nm = write_frame
 
@@ -120,10 +129,17 @@ def _round_trip(nm_msg: dict, timeout: float) -> dict:
     rid, ev, box = PENDING.new()
     nm_msg["requestId"] = rid
     try:
-        send_nm(nm_msg)
+        if DONE:
+            return _GONE
+        try:
+            send_nm(nm_msg)
+        except (OSError, ValueError):             # stdout closed: browser gone
+            return _GONE
         if not ev.wait(timeout):
             return {"error": "timeout", "message": "provider fetch exceeded internal timeout"}
-        return box[0]
+        # Woken by nm_loop on stdin EOF without a reply: answer now instead of
+        # after our own (up to 5 min) timeout.
+        return box[0] if box else _GONE
     finally:
         PENDING.drop(rid)
 
@@ -165,7 +181,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path != "/v1/health":
             return self._error(404, "bad-request", "unknown endpoint")
-        if self._reject_origin():
+        # The spec requires every request to carry the bearer token, health included.
+        if self._reject_origin() or self._reject_bearer():
             return
         self._json(200, {"ok": True, "name": PROVIDER_NAME, "protocolVersion": PROTOCOL_VERSION})
 
@@ -184,7 +201,8 @@ class Handler(BaseHTTPRequestHandler):
                             FETCH_TIMEOUT)
             if r.get("error"):
                 return self._error(_STATUS.get(r["error"], 500), r["error"], r.get("message", r["error"]))
-            if not r.get("path") or not Path(r["path"]).is_file():
+            path = Path(r["path"]) if r.get("path") else None
+            if path is None or not path.is_file() or path.stat().st_size == 0:
                 return self._error(404, "no-pdf-found", "Provider returned no readable PDF path")
             out = {"id": r.get("id"), "path": r["path"]}
             if r.get("sourceUrl"):
@@ -211,7 +229,10 @@ def start_http() -> ThreadingHTTPServer:
 
 def write_discovery(port: int, token_file: Path) -> Path:
     DISCOVERY_DIR.mkdir(parents=True, exist_ok=True)
-    f = DISCOVERY_DIR / f"{PROVIDER_NAME}.json"
+    # Per-instance filename (keyed by port): one host runs per browser/profile, and
+    # JabRef enumerates every *.json in the directory. Concurrent hosts therefore
+    # coexist as separate providers instead of clobbering a single shared file.
+    f = DISCOVERY_DIR / f"{PROVIDER_NAME}.{port}.json"
     payload = json.dumps({
         "name": PROVIDER_NAME, "displayName": PROVIDER_DISPLAY_NAME,
         "port": port, "tokenFile": str(token_file), "protocolVersion": PROTOCOL_VERSION,
@@ -229,12 +250,15 @@ def nm_loop() -> None:
     request, correlated by requestId. Import is served by a separate host
     (jabrefHost.py / org.jabref.jabref, see ADR 0071), so anything without a
     requestId is ignored here."""
+    global DONE
     while True:
         msg = read_frame(sys.stdin.buffer)
         if msg is None:
             break                                # stdin EOF: browser/extension gone
         if "requestId" in msg:
             PENDING.deliver(msg)
+    DONE = True
+    PENDING.wake_all()                           # in-flight requests reply not-reachable
 
 
 def main() -> int:
@@ -245,13 +269,11 @@ def main() -> int:
     try:
         nm_loop()
     finally:
-        # Only remove the discovery record if it still points at this instance's
-        # port. A newer concurrent host (another browser/profile) may have taken
-        # ownership; deleting its record would strand the surviving provider.
+        # The discovery file is unique to this instance (keyed by port), so removing
+        # it on exit cannot strand another concurrently-running host.
         try:
-            if json.loads(discovery.read_text("utf-8")).get("port") == srv.server_address[1]:
-                discovery.unlink()
-        except (OSError, ValueError):
+            discovery.unlink()
+        except OSError:
             pass
         srv.shutdown()
     return 0
@@ -283,7 +305,8 @@ def _selftest() -> None:
         r = c.getresponse(); return r.status, json.loads(r.read() or b"{}")
 
     auth = {"Authorization": f"Bearer {BEARER}"}
-    s, b = req("GET", "/v1/health");                         assert (s, b["ok"]) == (200, True), b
+    s, _ = req("GET", "/v1/health");                         assert s == 401, "health without token -> 401"
+    s, b = req("GET", "/v1/health", None, auth);             assert (s, b["ok"]) == (200, True), b
     s, _ = req("POST", "/v1/fulltext", {"doi": "10/x"});     assert s == 401, "no token -> 401"
     s, _ = req("POST", "/v1/fulltext", {"doi": "10/x"}, {**auth, "Origin": "https://evil"}); assert s == 403
     s, _ = req("POST", "/v1/fulltext", {}, auth);            assert s == 400, "no doi/url -> 400"

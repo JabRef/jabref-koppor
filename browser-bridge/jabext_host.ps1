@@ -54,18 +54,23 @@ function Write-Frame($obj) {                        # [FIDDLY] manual 4-byte len
     } finally { [System.Threading.Monitor]::Exit($Sync.OutLock) }
 }
 
+$Gone = @{ error = 'not-reachable'; message = 'browser extension disconnected (native-messaging stdin closed)' }
+
 function Round-Trip([hashtable]$msg, [int]$timeoutMs) {
     $Sync.Seq++                                     # only the single-threaded HTTP loop calls this
-    $rid = "r$($Sync.Seq)"
+    $rid = "r$PID-$($Sync.Seq)"                   # unique across host restarts: the extension names downloads after it
     $msg['requestId'] = $rid
     $ev = New-Object System.Threading.ManualResetEventSlim $false
     $Sync.Pending[$rid] = @{ Event = $ev; Reply = $null }
     try {
-        Write-Frame $msg
+        if ($Sync.Done) { return $Gone }
+        try { Write-Frame $msg } catch { return $Gone }   # stdout closed: browser gone
         if (-not $ev.Wait($timeoutMs)) {
             return @{ error = 'timeout'; message = 'provider fetch exceeded internal timeout' }
         }
-        return $Sync.Pending[$rid].Reply
+        $reply = $Sync.Pending[$rid].Reply
+        if ($null -eq $reply) { return $Gone }          # woken by the reader on stdin EOF, no reply
+        return $reply
     } finally { $Sync.Pending.Remove($rid) }
 }
 
@@ -115,6 +120,7 @@ function Handle-Context($ctx) {
 
     if ($method -eq 'GET' -and $path -eq '/v1/health') {
         if (Reject-Origin $ctx) { return }
+        if (Reject-Bearer $ctx) { return }   # spec: every request carries the bearer token, health included
         Send-Json $ctx 200 @{ ok = $true; name = $ProviderName; protocolVersion = $ProtocolVersion }; return
     }
     if ($method -ne 'POST') { Send-Err $ctx 404 'bad-request' 'unknown endpoint'; return }
@@ -129,7 +135,7 @@ function Handle-Context($ctx) {
             if (-not $doi -and -not $url) { Send-Err $ctx 400 'bad-request' 'At least one of doi or url is required'; return }
             $r = Round-Trip @{ type = 'fetchFulltext'; doi = $doi; url = $url } $FetchTimeoutMs
             if ($r.error) { Send-Err $ctx (Status-For $r.error) $r.error (Msg-Of $r); return }
-            if (-not $r.path -or -not (Test-Path -LiteralPath $r.path -PathType Leaf)) {
+            if (-not $r.path -or -not (Test-Path -LiteralPath $r.path -PathType Leaf) -or (Get-Item -LiteralPath $r.path).Length -eq 0) {
                 Send-Err $ctx 404 'no-pdf-found' 'Provider returned no readable PDF path'; return
             }
             $out = @{ id = $r.id; path = $r.path }
@@ -170,23 +176,45 @@ $ReaderScript = {
             if ($slot) { $slot.Reply = $msg; $slot.Event.Set() }
         }
     }
+    # stdin EOF: browser/extension gone. Wake every HTTP thread parked in
+    # Round-Trip so it answers 'not-reachable' now instead of after its own
+    # (up to 5 min) timeout. If nothing is pending the main thread is blocked
+    # in GetContext(); Stop() throws there and ends the loop. If something is
+    # pending, the main loop sees Done after replying and stops the listener
+    # itself (stopping it here would abort the in-flight response).
     $Sync.Done = $true
-    if ($Sync.Listener) { $Sync.Listener.Stop() }   # unblock the main GetContext()
+    foreach ($slot in @($Sync.Pending.Values)) { try { $slot.Event.Set() } catch {} }
+    if ($Sync.Pending.Count -eq 0 -and $Sync.Listener) { try { $Sync.Listener.Stop() } catch {} }
 }
 
 function Main {
     $tf, $Sync.Bearer = Ensure-Token
     $Sync.Out = [Console]::OpenStandardOutput()
-    $port = Get-FreePort
+    # JABEXT_PORT (user env var) pins the port; only needed if HTTP.sys demands a
+    # URL-ACL reservation (see below), which requires a fixed port to reserve.
+    $port = if ($env:JABEXT_PORT) { [int]$env:JABEXT_PORT } else { Get-FreePort }
 
-    # [FIDDLY] HttpListener as a non-admin user needs a one-time URL-ACL
-    # reservation (netsh http add urlacl url=http://127.0.0.1:PORT/ user=...),
-    # or it throws "Access is denied" on Start(). The Java bridge sidesteps this
-    # entirely: com.sun.net.httpserver binds a raw socket, no ACL. A fully
-    # robust PS host would likewise hand-roll HTTP over a TcpListener — more code.
+    # [FIDDLY] HttpListener goes through HTTP.sys, which may refuse Start() with
+    # "Access is denied" when the prefix is not reserved for this user (netsh
+    # http add urlacl). Verified on Windows 10 22H2: a plain, non-elevated user
+    # binds http://127.0.0.1:<port>/ without any reservation (loopback prefixes
+    # are exempt), so this is only a guard. The Java bridge sidesteps HTTP.sys
+    # entirely (com.sun.net.httpserver binds a raw socket); a PS host could do
+    # the same over a TcpListener if the guard ever fires in practice.
+    $prefix = "http://127.0.0.1:$port/"
     $listener = [System.Net.HttpListener]::new()
-    $listener.Prefixes.Add("http://127.0.0.1:$port/")
-    $listener.Start()
+    $listener.Prefixes.Add($prefix)
+    try { $listener.Start() }
+    catch [System.Net.HttpListenerException] {
+        [Console]::Error.WriteLine("jabext_host: cannot listen on $prefix : $($_.Exception.Message)")
+        if ($_.Exception.ErrorCode -eq 5) {            # ERROR_ACCESS_DENIED: URL-ACL missing
+            [Console]::Error.WriteLine("jabext_host: HTTP.sys refused the prefix for this user. Pin a port and reserve it once (elevated prompt):")
+            [Console]::Error.WriteLine("jabext_host:   setx JABEXT_PORT $port")
+            [Console]::Error.WriteLine("jabext_host:   netsh http add urlacl url=http://127.0.0.1:$port/ user=$env:USERDOMAIN\$env:USERNAME")
+            [Console]::Error.WriteLine("jabext_host: then restart the browser. See browser-bridge/README.md.")
+        }
+        exit 1
+    }
     $Sync.Listener = $listener
 
     # start the NM reader on its own thread/runspace (BeginInvoke is async)
@@ -195,7 +223,9 @@ function Main {
     $async = $ps.BeginInvoke()
 
     New-Item -ItemType Directory -Force -Path $DiscoveryDir | Out-Null
-    $discovery = Join-Path $DiscoveryDir "$ProviderName.json"
+    # Per-instance filename (keyed by port): concurrent hosts coexist as separate
+    # providers instead of clobbering one shared file (JabRef enumerates every *.json).
+    $discovery = Join-Path $DiscoveryDir "$ProviderName.$port.json"
     # Publish atomically (write temp, then replace) so JabRef never reads a partial file.
     $discoveryTmp = "$discovery.$PID.tmp"
     @{ name = $ProviderName; displayName = $DisplayName; port = $port
@@ -207,15 +237,13 @@ function Main {
         while (-not $Sync.Done) {
             try { $ctx = $listener.GetContext() }   # blocks; Listener.Stop() throws here on shutdown
             catch { break }
-            Handle-Context $ctx
+            try { Handle-Context $ctx }
+            catch { try { Send-Err $ctx 500 'internal-error' "$($_.Exception.Message)" } catch {} }
         }
     } finally {
-        # Only remove the discovery record if it still points at this instance's port;
-        # a newer concurrent host may have taken ownership.
-        try {
-            $cur = Get-Content -Raw $discovery -ErrorAction Stop | ConvertFrom-Json
-            if ($cur.port -eq $port) { Remove-Item $discovery -ErrorAction SilentlyContinue }
-        } catch { }
+        # The discovery file is unique to this instance (keyed by port), so removing it
+        # on exit cannot strand another concurrently-running host.
+        Remove-Item $discovery -ErrorAction SilentlyContinue
         if ($listener.IsListening) { $listener.Stop() }
         $ps.EndInvoke($async); $ps.Dispose()
     }
