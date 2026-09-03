@@ -21,6 +21,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added the ability for LibreOffice BST citations to use style-defined labels. [forum#3764]([https://github.com/JabRef/jabref/issues/16357](https://discourse.jabref.org/t/feature-request-custom-citation-styles-from-bst/3764))
 - We added a per-library keyword separator to the library properties ("General" tab). Opening a library no longer rewrites keyword fields that consistently use a different separator than the global preference. [koppor#1353](https://github.com/JabRef/jabref-issue-melting-pot/issues/1353)
 - We added a per-library keyword separator to the library properties, so opening a library no longer rewrites keyword fields. [koppor#1353](https://github.com/JabRef/jabref-issue-melting-pot/issues/1353)
+- We added a per-library keyword separator to the library properties, so opening a library no longer rewrites keyword fields. [#16835](https://github.com/JabRef/jabref/pull/16835)
+- We added a "Normalize keyword delimiters" cleanup and save action that rewrites keyword fields to the keyword separator of the library. [#16835](https://github.com/JabRef/jabref/pull/16835)
 - We added a "Commit and push" button which allows to commit and then push in one go for Git operations. [#16339](https://github.com/JabRef/jabref/issues/16339)
 - We added the option to close and reopen the PDF preview in the unlinked files dialog. [#16159](https://github.com/JabRef/jabref/issues/16159)
 - We added the ability for LibreOffice BST citations to use style-defined labels. [forum#3764]([https://github.com/JabRef/jabref/issues/16357](https://discourse.jabref.org/t/feature-request-custom-citation-styles-from-bst/3764))
