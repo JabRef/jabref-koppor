@@ -17,14 +17,18 @@ import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.directorylibrary.DirectoryLibraryScanner;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.directorylibrary.PdfEnrichmentTask;
 import org.jabref.logic.directorylibrary.PdfEntryFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
+import org.jabref.logic.util.DirectoryMonitor;
 import org.jabref.logic.util.TaskExecutor;
+import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,9 +125,18 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
                 clipBoardManager,
                 taskExecutor);
         tabContainer.addTab(libraryTab, true);
+        // No change event follows the synchronous tab creation, so set the initial title here
+        libraryTab.updateTabTitle(false);
+
+        BibDatabaseContext databaseContext = scanResult.databaseContext();
+        DirectoryLibrarySynchronizer synchronizer = new DirectoryLibrarySynchronizer(
+                databaseContext, scanResult.catalog(), pdfEntryFactory, UiTaskExecutor::runInJavaFXThread);
+        databaseContext.attachDirectorySynchronizer(synchronizer);
+        synchronizer.startWatching(Injector.instantiateModelOrService(DirectoryMonitor.class));
+
         if (!scanResult.pendingPdfImports().isEmpty()) {
             PdfEnrichmentTask enrichment = new PdfEnrichmentTask(scanResult.pendingPdfImports(), pdfEntryFactory,
-                    scanResult.databaseContext(), UiTaskExecutor::runInJavaFXThread);
+                    databaseContext, UiTaskExecutor::runInJavaFXThread);
             enrichment.onFailure(exception -> LOGGER.error("Extracting PDF metadata failed", exception));
             cancelOnClose(libraryTab, enrichment);
             enrichment.executeWith(taskExecutor);
