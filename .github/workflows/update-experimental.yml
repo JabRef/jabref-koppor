@@ -1,0 +1,80 @@
+# This file has to stay on the default branch: GitHub registers `schedule` and
+# `workflow_dispatch` only from there, so a copy on a side branch never fires.
+# It is fork-only (no counterpart upstream), so syncing JabRef/jabref into main
+# must merge rather than force-push - a forced sync silently drops this file and
+# the daily runs stop without any failure to notice.
+name: Update experimental
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      # Editing the branch list below re-merges right away instead of waiting for the nightly run.
+      - .github/workflows/update-experimental.yml
+
+permissions:
+  contents: write
+
+env:
+  TARGET: experimental
+  # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
+  BRANCHES: |
+    origin/main
+    origin/add-import-via-browser
+    origin/directory-convert
+    koppor/directory-mapping-preference
+    origin/directory-rest-api
+    origin/common-style
+    origin/fulltext-context-menu
+    origin/fulltext-download-background-task
+    origin/show-diff-button
+
+jobs:
+  merge:
+    if: github.repository == 'JabRef/jabref-koppor'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # PAT with `workflows` scope: the default GITHUB_TOKEN cannot push
+          # merges that touch .github/workflows/* (e.g. upstream main editing a
+          # workflow file), which makes the final push fail.
+          token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
+
+      - name: Merge branches into ${{ env.TARGET }}
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote rename origin koppor
+          git remote add origin https://github.com/JabRef/jabref.git
+          git fetch --no-tags --prune origin
+          git fetch --no-tags --prune koppor
+
+          if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
+            git checkout -B "$TARGET" "koppor/$TARGET"
+          else
+            git checkout -B "$TARGET" origin/main
+          fi
+
+          while read -r branch; do
+            [ -n "$branch" ] || continue
+            if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
+              echo "::warning::Branch $branch does not exist (any more) - skipped"
+              echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
+            elif git merge --no-edit -m "Merge $branch into $TARGET" "$branch"; then
+              echo "- :white_check_mark: \`$branch\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              git merge --abort
+              echo "::warning::Merge conflict for $branch - skipped"
+              echo "- :x: \`$branch\` - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done <<< "$BRANCHES"
+
+          git push koppor "HEAD:refs/heads/$TARGET"
