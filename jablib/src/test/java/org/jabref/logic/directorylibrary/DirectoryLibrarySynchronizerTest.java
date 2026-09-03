@@ -30,6 +30,7 @@ import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.git.conflicts.GitConflictResolverStrategy;
+import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fetcher.CrossRef;
@@ -44,6 +45,11 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
 import org.jabref.model.entry.types.StandardEntryType;
+import org.jabref.model.groups.DirectoryStructureGroup;
+import org.jabref.model.groups.ExplicitGroup;
+import org.jabref.model.groups.GroupHierarchyType;
+import org.jabref.model.groups.GroupTreeNode;
+import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.SaveOrder;
 
 import org.junit.jupiter.api.AfterEach;
@@ -857,7 +863,7 @@ class DirectoryLibrarySynchronizerTest {
         assertEquals(List.of("collection.yml"), fileNames());
     }
 
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void initializeMirrorCreatesBibMirrorWithBase() throws IOException {
         Files.writeString(root.resolve("smith2020.yml"), ARTICLE_YAML);
@@ -871,7 +877,7 @@ class DirectoryLibrarySynchronizerTest {
         assertEquals(Files.readString(mirror), Files.readString(root.resolve(".jabref").resolve("mirror-base.bib")));
     }
 
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void externalMirrorEditUpdatesEntryAndSidecar() throws IOException, InterruptedException, ExecutionException {
         Path sidecar = root.resolve("smith2020.yml");
@@ -893,7 +899,7 @@ class DirectoryLibrarySynchronizerTest {
         assertTrue(Files.readString(mirror).contains("An Edited Title"));
     }
 
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void externalMirrorAdditionCreatesEntryAndSidecar() throws IOException, InterruptedException, ExecutionException {
         Files.writeString(root.resolve("smith2020.yml"), ARTICLE_YAML);
@@ -922,7 +928,7 @@ class DirectoryLibrarySynchronizerTest {
         assertTrue(Files.readString(root.resolve("doe2021.md")).contains("A Second Article"));
     }
 
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void externalMirrorDeletionRemovesEntryAndDisposesSidecar() throws IOException, InterruptedException, ExecutionException {
         Path sidecar = root.resolve("smith2020.yml");
@@ -944,7 +950,7 @@ class DirectoryLibrarySynchronizerTest {
         assertEquals(List.of(sidecar), disposedFiles);
     }
 
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void conflictingMirrorEditKeepsLibraryStateWhenResolutionIsCancelled() throws IOException, InterruptedException, ExecutionException {
         Path sidecar = root.resolve("smith2020.yml");
@@ -967,7 +973,7 @@ class DirectoryLibrarySynchronizerTest {
 
     /// A pre-existing `.bib` named like the directory, without a recorded base, is adopted by
     /// importing against an empty base — its entries appear, nothing is deleted.
-    /// [utest->req~directory-library.bib-mirror~1]
+    /// [utest->req~directory-library.bib-mirror~2]
     @Test
     void preExistingBibIsAdoptedWithoutDeletingLibraryContent() throws IOException, InterruptedException, ExecutionException {
         Files.writeString(root.resolve("smith2020.yml"), ARTICLE_YAML);
@@ -986,5 +992,62 @@ class DirectoryLibrarySynchronizerTest {
         assertEquals(2, entries().size());
         assertTrue(Files.readString(mirror).contains("smith2020"));
         assertTrue(Files.readString(mirror).contains("doe2021"));
+    }
+
+    /// [utest->req~directory-library.bib-mirror~2]
+    @Test
+    void userGroupsFromMirrorMetadataAreRestoredAtOpen() throws IOException, InterruptedException, ExecutionException {
+        Files.writeString(root.resolve("smith2020.yml"), ARTICLE_YAML);
+        openLibrary();
+        synchronizer.doInitializeMirror();
+        synchronizer.flush();
+        context.getMetaData().getGroups().orElseThrow()
+               .addSubgroup(new ExplicitGroup("My group", GroupHierarchyType.INDEPENDENT, ','));
+        // Delivered by the context's change filter in the application
+        synchronizer.listen(new GroupUpdatedEvent(context.getMetaData()));
+        synchronizer.awaitPendingEvents();
+        synchronizer.shutdown();
+
+        openLibrary();
+        synchronizer.doInitializeMirror();
+        synchronizer.flush();
+
+        List<GroupTreeNode> children = context.getMetaData().getGroups().orElseThrow().getChildren();
+        assertEquals(List.of(DirectoryStructureGroup.class, ExplicitGroup.class),
+                children.stream().map(child -> child.getGroup().getClass()).toList());
+        assertEquals("My group", children.getLast().getName());
+    }
+
+    /// [utest->req~directory-library.convert~1]
+    @Test
+    void convertedLibraryReopensWithoutMerge() throws IOException, InterruptedException, ExecutionException {
+        Files.createFile(root.resolve("paper.pdf"));
+        String bib = """
+                @Article{smith2020,
+                  title = {A Test Article},
+                  file  = {:paper.pdf:PDF},
+                }
+                """;
+        Path bibFile = root.resolve("library.bib");
+        Files.writeString(bibFile, bib);
+        BibDatabaseContext bibContext = parseBib(bib).orElseThrow();
+        bibContext.setDatabasePath(bibFile);
+        bibContext.getMetaData().setLibrarySpecificFileDirectory(root.toString());
+        FilePreferences filePreferences = mock(FilePreferences.class, Answers.RETURNS_DEEP_STUBS);
+        new DirectoryLibraryConverter().convert(bibContext, root, filePreferences);
+        List<ThreeWayEntryConflict> askedConflicts = new ArrayList<>();
+        conflictResolver = conflicts -> {
+            askedConflicts.addAll(conflicts);
+            return List.of();
+        };
+
+        openLibrary();
+        synchronizer.doInitializeMirror();
+        synchronizer.awaitPendingEvents();
+        synchronizer.flush();
+
+        assertEquals(List.of(), askedConflicts);
+        assertEquals(List.of(Optional.of("smith2020")), entries().stream().map(BibEntry::getCitationKey).toList());
+        assertEquals(Stream.of(".jabref", "paper.md", "paper.pdf", root.getFileName() + ".bib").sorted().toList(), fileNames());
     }
 }
