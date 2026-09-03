@@ -24,15 +24,15 @@ env:
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
   BRANCHES: |
     origin/main
-    origin/add-import-via-browser
-    origin/directory-convert
+    origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
+    origin/directory-convert # https://github.com/JabRef/jabref-koppor/pull/744
     koppor/directory-mapping-preference
-    origin/directory-rest-api
-    origin/common-style
-    origin/fulltext-context-menu
-    origin/fulltext-download-background-task
-    origin/keyword-separator-per-library
-    origin/show-diff-button
+    origin/directory-rest-api # https://github.com/JabRef/jabref-koppor/pull/745
+    origin/common-style # https://github.com/JabRef/jabref/pull/16708
+    origin/fulltext-context-menu # https://github.com/JabRef/jabref/pull/16829
+    origin/fulltext-download-background-task # https://github.com/JabRef/jabref/pull/16831
+    origin/keyword-separator-per-library # https://github.com/JabRef/jabref/pull/16835
+    origin/show-diff-button # https://github.com/JabRef/jabref/pull/16832
 
 jobs:
   merge:
@@ -65,6 +65,8 @@ jobs:
           fi
 
           while read -r branch; do
+            branch="${branch%%#*}"
+            branch="$(echo "$branch" | xargs)"
             [ -n "$branch" ] || continue
             if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
               echo "::warning::Branch $branch does not exist (any more) - skipped"
