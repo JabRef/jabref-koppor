@@ -210,7 +210,10 @@ public class BibDatabaseContext {
         Path bibOrMainFileDirectory;
 
         // BIB file directory or Main file directory (according to (global) preferences)
-        if (preferences.shouldStoreFilesRelativeToBibFile()) {
+        if (location == DatabaseLocation.DIRECTORY) {
+            // Sidecar links are relative to the root, whatever the global preference says
+            bibOrMainFileDirectory = getDirectoryLibraryRoot().map(Path::toAbsolutePath).orElse(null);
+        } else if (preferences.shouldStoreFilesRelativeToBibFile()) {
             bibOrMainFileDirectory = getDatabaseDirectory().orElse(null);
         } else {
             bibOrMainFileDirectory = preferences.getMainFileDirectory().orElse(null);

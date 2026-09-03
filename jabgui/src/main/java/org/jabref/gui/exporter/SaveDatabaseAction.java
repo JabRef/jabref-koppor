@@ -108,11 +108,16 @@ public class SaveDatabaseAction {
     }
 
     private SelfContainedSaveOrder getSaveOrder() {
+        return getSaveOrder(libraryTab);
+    }
+
+    /// The library's save order with a table order "flattened out": `BibWriter` has no access
+    /// to the main table's sort columns.
+    public static SelfContainedSaveOrder getSaveOrder(LibraryTab libraryTab) {
         return libraryTab.getBibDatabaseContext()
                          .getMetaData().getSaveOrder()
                          .map(so -> {
                              if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                                 // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
                                  List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
                                  return new SelfContainedSaveOrder(
                                          SaveOrder.OrderType.SPECIFIED,
