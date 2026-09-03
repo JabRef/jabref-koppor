@@ -19,7 +19,7 @@ public class PushToVScode extends AbstractPushToApplication {
 
     @Override
     protected String[] getCommandLine(String keyString) {
-        // TODO - Implementing this will fix https://github.com/JabRef/jabref/issues/6775
+        // VS Code's CLI cannot insert text into the open editor, so pushing a citation can only bring VS Code to the front
         return new String[] {commandPath};
     }
 
