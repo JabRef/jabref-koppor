@@ -29,6 +29,7 @@ env:
     koppor/directory-mapping-preference
     origin/directory-rest-api
     origin/common-style
+    origin/fulltext-context-menu
 
 jobs:
   merge:
