@@ -88,6 +88,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - Hayagriva YAML import and export now cover JabRef's "Comment" field and per-user comment fields (written as `comment`/`comment-<name>` extension keys, which the Hayagriva parser ignores), and entries carrying only BibTeX `year`/`month` fields get their `date` written. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - The entry context menu now offers "Get fulltext", and groups "Attach file", "Attach file from URL", "Open folder(s)" and "Open file" into a "More file operations..." submenu. [#16829](https://github.com/JabRef/jabref/pull/16829)
 - Searching for full text documents no longer blocks JabRef with a modal dialog; progress is shown as a cancelable background task in the status bar. [#16831](https://github.com/JabRef/jabref/pull/16831)
+- We changed the full text document search to run as a cancelable background task instead of blocking JabRef with a modal dialog. [#16831](https://github.com/JabRef/jabref/pull/16831)
 - We changed the default macOS shortcuts for "Search document identifier online" and "Focus group list" to not insert special characters. [#16528](https://github.com/JabRef/jabref/issues/16528)
 - We changed the extension of backup files from `.bak` to `.bib`, so that they can be opened in JabRef. [#11454](https://github.com/JabRef/jabref/issues/11454)
 - We changed spacing, padding and font sizes across the interface for a more consistent look and feel. [#16042](https://github.com/JabRef/jabref/issues/16042)
