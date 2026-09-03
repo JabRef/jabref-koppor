@@ -14,7 +14,7 @@
 // see  https://github.com/gradlex-org/extra-java-module-info/issues/237 why we include e-adr here
 //DEPS io.github.adr:e-adr:2.0.0
 
-// Pin JavaFX 26 to override afterburner.fx 2.0.0's transitive javafx-*:20 (Maven nearest-wins).
+// Pin JavaFX 26 to override stale transitive javafx-*:20 pins (Maven nearest-wins).
 // Required because jabsrv CAYW endpoint calls Platform.startup(); mixing javafx.graphics:20 with
 // javafx.base:26 fails with NoClassDefFoundError: javafx/util/FXPermission (removed in javafx 25+).
 //DEPS org.openjfx:javafx-base:26.0.1:${os.detected.jfxname}
@@ -53,7 +53,6 @@
 //DEPS org.glassfish.jersey.core:jersey-server:4.0.2
 //DEPS org.glassfish.jersey.inject:jersey-hk2:4.0.2
 //DEPS org.hibernate.validator:hibernate-validator:9.1.0.Final
-//DEPS org.jabref:afterburner.fx:2.0.0
 //DEPS tools.jackson.core:jackson-core:3.2.0
 //DEPS tools.jackson.core:jackson-databind:3.2.0
 //DEPS tools.jackson.dataformat:jackson-dataformat-yaml:3.2.0

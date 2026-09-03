@@ -13,6 +13,7 @@ import org.jabref.gui.theme.ThemeColorScheme;
 import org.jabref.gui.theme.ThemePreset;
 import org.jabref.gui.util.URLs;
 import org.jabref.http.manager.HttpServerManager;
+import org.jabref.injection.Injector;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiMessageHandler;
 import org.jabref.logic.help.HelpFile;
@@ -20,8 +21,6 @@ import org.jabref.logic.l10n.Language;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
 import org.jabref.model.database.BibDatabaseMode;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class GeneralTab extends AbstractPreferenceTabView<GeneralTabViewModel> {
 

@@ -111,16 +111,8 @@ jvmDependencyConflicts.patch {
     module("dev.langchain4j:langchain4j-core") {
         addRuntimeOnlyDependency("com.knuddels:jtokkit")
     }
-    module("org.jabref:afterburner.fx") {
-        // POM pins javafx-* to 20; strip and re-add without version so :versions platform resolves them to current
-        removeDependency("org.openjfx:javafx-controls")
-        removeDependency("org.openjfx:javafx-fxml")
-        removeDependency("org.openjfx:javafx-swing")
-        // javafx-web (WebView/WebEngine) is intentionally NOT wanted: it bundles a full WebKit, bloating the
-        // distribution and blocking native-image. HTML rendering is done via the html-to-node library instead.
-        // Keep it removed here and do not add it as a dependency anywhere. Enforced by CommonArchitectureTest.doNotUseJavaFXWeb.
-        removeDependency("org.openjfx:javafx-web")
-        // metadata decared these as runtime only, but they are 'requires transitive' in module-info
+    module("com.dlsc.fxmlkit:fxmlkit") {
+        // POM declares javafx-* as 'provided' (absent from metadata), but they are 'requires transitive' in module-info
         addApiDependency("org.openjfx:javafx-fxml")
         addApiDependency("org.openjfx:javafx-controls")
     }

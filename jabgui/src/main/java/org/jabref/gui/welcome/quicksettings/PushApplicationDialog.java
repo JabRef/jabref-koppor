@@ -10,6 +10,7 @@ import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.push.GuiPushToApplication;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.components.PushToApplicationCell;
 import org.jabref.gui.welcome.quicksettings.viewmodel.PushApplicationDialogViewModel;
@@ -17,7 +18,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.push.PushToApplicationDetector;
 import org.jabref.logic.util.TaskExecutor;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class PushApplicationDialog extends FXDialog {

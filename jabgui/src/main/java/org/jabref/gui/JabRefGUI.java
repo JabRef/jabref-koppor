@@ -37,8 +37,10 @@ import org.jabref.gui.undo.GuiUndoManager;
 import org.jabref.gui.undo.JabRefGuiUndoManager;
 import org.jabref.gui.util.DefaultFileUpdateMonitor;
 import org.jabref.gui.util.DirectoryMonitor;
+import org.jabref.gui.util.InjectorDiAdapter;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.http.manager.HttpServerManager;
+import org.jabref.injection.Injector;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.ai.AiService;
@@ -63,7 +65,7 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.fxmlkit.fxml.FxmlKit;
 import com.dlsc.gemsfx.PowerPane;
 import com.dlsc.gemsfx.infocenter.InfoCenterPane;
 import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
@@ -127,6 +129,11 @@ public class JabRefGUI extends Application {
             // Load JavaFX stylesheet now instead of loading it later when the first Control is initialized.
             setUserAgentStylesheet(null);
             Injector.setModelOrService(Stage.class, mainStage);
+
+            // Views built on FxmlKit (FxmlView/FxmlViewProvider) resolve their controllers
+            // and localization from the same sources as ViewLoader-based views
+            FxmlKit.setDiAdapter(new InjectorDiAdapter());
+            FxmlKit.setResourceBundle(Localization.getMessages());
 
             initialize();
 

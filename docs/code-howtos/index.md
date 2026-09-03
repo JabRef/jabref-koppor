@@ -18,11 +18,13 @@ Please read <https://github.com/cxxr/better-java>.
 
 ## Dependency injection
 
-JabRef uses a [fork](https://github.com/JabRef/afterburner.fx) of the [afterburner.fx framework](https://github.com/AdamBien/afterburner.fx) by [Adam Bien](https://adam-bien.com/).
+JabRef uses its own small service locator, `org.jabref.injection.Injector` (inspired by [afterburner.fx](https://github.com/AdamBien/afterburner.fx), which JabRef used before), together with [FxmlKit](https://github.com/dlsc-software-consulting-gmbh/FxmlKit) for FXML-based views.
 
 The main idea is to get instances by using `Injector.instantiateModelOrService(X.class)`, where `X` is the instance one needs.
 The method `instantiateModelOrService` checks if there is already an instance of the given class. If yes, it returns it. If not, it creates a new one.
-A singleton can be added by `com.airhacks.afterburner.injection.Injector#setModelOrService(X.class, y)`, where X is the class and y the instance you want to inject.
+A singleton can be added by `org.jabref.injection.Injector#setModelOrService(X.class, y)`, where X is the class and y the instance you want to inject.
+
+In view classes (loaded via `org.jabref.gui.util.ViewLoader`) and FXML controllers, fields annotated with `jakarta.inject.@Inject` are resolved from these singletons automatically during FXML loading.
 
 ## Using locally published artifacts (mavenLocal)
 

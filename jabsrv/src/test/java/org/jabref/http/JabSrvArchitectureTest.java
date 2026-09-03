@@ -12,15 +12,15 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 public class JabSrvArchitectureTest extends CommonArchitectureTest {
 
     /// jabsrv is a JAX-RS / HK2 module — resources receive collaborators via
-    /// `@Inject`, not via the afterburner DI used by the GUI. Smuggling in
+    /// `@Inject`, not via the service-locator DI used by the GUI. Smuggling in
     /// `Injector.instantiateModelOrService(...)` bypasses HK2 bindings and
     /// hides hidden coupling on the GUI bootstrap path. Register the
     /// collaborator as an HK2 constant in `Server` instead.
     @ArchTest
-    public void doNotUseAfterburnerInjector(JavaClasses classes) {
+    public void doNotUseServiceLocatorInjector(JavaClasses classes) {
         ArchRuleDefinition.noClasses()
-                          .should().dependOnClassesThat().resideInAPackage("com.airhacks.afterburner.injection..")
-                          .because("jabsrv must inject via HK2 (@Inject) — afterburner Injector belongs to the GUI module")
+                          .should().dependOnClassesThat().resideInAPackage("org.jabref.injection..")
+                          .because("jabsrv must inject via HK2 (@Inject) — org.jabref.injection.Injector belongs to the GUI/CLI modules")
                           .check(classes);
     }
 

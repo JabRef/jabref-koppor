@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.forms.PasswordFieldEditor;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.ai.preferences.AiPreferences;
@@ -30,7 +31,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.embeddings.PredefinedEmbeddingModel;
 import org.jabref.model.ai.llm.AiProvider;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.dlsc.unitfx.IntegerInputField;
 
 import static org.jabref.gui.preferences.forms.FormMetrics.GAP;

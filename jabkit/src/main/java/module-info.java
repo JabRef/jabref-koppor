@@ -10,7 +10,6 @@ module org.jabref.jabkit {
     requires java.prefs;
 
     requires javafx.base;
-    requires afterburner.fx;
 
     requires org.slf4j;
     requires jul.to.slf4j;
