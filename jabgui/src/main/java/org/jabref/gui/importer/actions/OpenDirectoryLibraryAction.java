@@ -1,5 +1,7 @@
 package org.jabref.gui.importer.actions;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import javafx.event.Event;
@@ -11,6 +13,7 @@ import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.GuiUndoManager;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
@@ -109,6 +112,20 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
                       .executeWith(taskExecutor);
     }
 
+    /// Sidecar files whose last entry was deleted are trashed or deleted per the preference;
+    /// the paired PDF is never touched.
+    private void disposeFile(Path file) {
+        try {
+            if (preferences.getFilePreferences().moveToTrash() && NativeDesktop.get().moveToTrashSupported()) {
+                NativeDesktop.get().moveToTrash(file);
+            } else {
+                Files.delete(file);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not remove sidecar {}", file, e);
+        }
+    }
+
     private void showLibraryTab(DirectoryLibraryScanner.ScanResult scanResult, PdfEntryFactory pdfEntryFactory) {
         // The synchronous factory keeps the DIRECTORY location: the ParserResult-based one
         // reconstructs a fresh (LOCAL) context from database + metadata on loading success
@@ -130,7 +147,8 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
 
         BibDatabaseContext databaseContext = scanResult.databaseContext();
         DirectoryLibrarySynchronizer synchronizer = new DirectoryLibrarySynchronizer(
-                databaseContext, scanResult.catalog(), pdfEntryFactory, UiTaskExecutor::runInJavaFXThread);
+                databaseContext, scanResult.catalog(), pdfEntryFactory, this::disposeFile,
+                UiTaskExecutor::runInJavaFXThread);
         databaseContext.attachDirectorySynchronizer(synchronizer);
         synchronizer.startWatching(Injector.instantiateModelOrService(DirectoryMonitor.class));
 

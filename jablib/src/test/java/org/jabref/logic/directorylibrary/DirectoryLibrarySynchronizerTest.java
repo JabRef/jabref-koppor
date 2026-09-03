@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import javafx.collections.FXCollections;
 
@@ -21,7 +25,11 @@ import org.jabref.logic.importer.fetcher.DoiFetcher;
 import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.event.EntriesEventSource;
+import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.field.UserSpecificCommentField;
+import org.jabref.model.entry.types.StandardEntryType;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +49,15 @@ class DirectoryLibrarySynchronizerTest {
                 title: A Test Article
                 author: Smith, Jane
                 note: first version
+            """;
+
+    /// [ARTICLE_YAML] as the writer serializes it
+    private static final String ARTICLE_YAML_WRITTEN = """
+            smith2020:
+              type: article
+              title: A Test Article
+              author: "Smith, Jane"
+              note: first version
             """;
 
     private static final String MARKDOWN_SIDECAR = """
@@ -85,6 +102,8 @@ class DirectoryLibrarySynchronizerTest {
 
     private final SteppingClock clock = new SteppingClock();
 
+    private final List<Path> disposedFiles = new ArrayList<>();
+
     private BibDatabaseContext context;
     private DirectoryLibrarySynchronizer synchronizer;
 
@@ -92,7 +111,8 @@ class DirectoryLibrarySynchronizerTest {
         PdfEntryFactory pdfEntryFactory = offlinePdfEntryFactory();
         DirectoryLibraryScanner.ScanResult scanResult = new DirectoryLibraryScanner(pdfEntryFactory).scan(root);
         context = scanResult.databaseContext();
-        synchronizer = new DirectoryLibrarySynchronizer(context, scanResult.catalog(), pdfEntryFactory, Runnable::run, clock);
+        synchronizer = new DirectoryLibrarySynchronizer(context, scanResult.catalog(), pdfEntryFactory,
+                disposedFiles::add, Runnable::run, clock);
     }
 
     /// GROBID off and no identifiers in the fixtures, so no network is touched
@@ -368,5 +388,288 @@ class DirectoryLibrarySynchronizerTest {
         synchronizer.handleFileDeleted(root.resolve("smith2020.pdf"));
         assertEquals(1, entries().size());
         assertEquals(List.of(), entries().getFirst().getFiles());
+    }
+
+    @Test
+    void localEditRewritesSidecarPreservingUnknownContent() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML + "    tongus: 2\n");
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setField(StandardField.NOTE, "rewritten by JabRef");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("first version", "rewritten by JabRef") + "  tongus: 2\n", Files.readString(sidecar));
+    }
+
+    @Test
+    void firstEditOfStubEntryCreatesMarkdownSidecarNextToPdf() throws IOException {
+        Files.createFile(root.resolve("loose.pdf"));
+        openLibrary();
+        BibEntry stub = entries().getFirst();
+
+        stub.setField(StandardField.AUTHOR, "Doe, John");
+        synchronizer.handleLocalChange(stub);
+        synchronizer.flush();
+
+        assertEquals("""
+                ---
+                entry:
+                  type: misc
+                  title: loose
+                  author:
+                  - "Doe, John"
+                ---
+                """, Files.readString(root.resolve("loose.md")));
+    }
+
+    @Test
+    void newEntryWithoutFileGetsCitationKeyNamedMarkdownSidecar() throws IOException {
+        openLibrary();
+        BibEntry entry = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("fresh2026")
+                .withField(StandardField.TITLE, "Fresh Entry");
+        context.getDatabase().insertEntry(entry);
+
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals("""
+                ---
+                fresh2026:
+                  type: article
+                  title: Fresh Entry
+                ---
+                """, Files.readString(root.resolve("fresh2026.md")));
+    }
+
+    @Test
+    void commentEditsLandInTheMarkdownBody() throws IOException {
+        Files.createFile(root.resolve("loose.pdf"));
+        openLibrary();
+        BibEntry stub = entries().getFirst();
+
+        stub.setField(StandardField.COMMENT, "First thoughts.");
+        stub.setField(new UserSpecificCommentField("koppor"), "Per-user thoughts.");
+        synchronizer.handleLocalChange(stub);
+        synchronizer.flush();
+
+        assertEquals("""
+                ---
+                entry:
+                  type: misc
+                  title: loose
+                ---
+
+                # Notes
+
+                First thoughts.
+
+                ## comment-koppor
+
+                Per-user thoughts.
+                """, Files.readString(root.resolve("loose.md")));
+    }
+
+    @Test
+    void markdownRewriteKeepsForeignBodySections() throws IOException {
+        Path sidecar = root.resolve("smith2020.md");
+        Files.writeString(sidecar, MARKDOWN_SIDECAR + """
+
+                ## Reading list
+
+                Follow-up papers.
+                """);
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setField(StandardField.COMMENT, "Updated comment text.");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals("""
+                ---
+                smith2020:
+                  type: article
+                  title: A Test Article
+                  author: "Smith, Jane"
+                ---
+
+                # Notes
+
+                Updated comment text.
+
+                ## Reading list
+
+                Follow-up papers.
+                """, Files.readString(sidecar));
+    }
+
+    @Test
+    void filteredKeystrokeEventsStillMarkTheFileForWriting() throws IOException, InterruptedException, ExecutionException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        // The CoarseChangeFilter marks every keystroke of a same-field burst as filtered; only
+        // relying on unfiltered events would strand the burst's tail (it never gets one)
+        entry.setField(StandardField.NOTE, "typed letter by letter", EntriesEventSource.LOCAL);
+        FieldChangedEvent keystroke = new FieldChangedEvent(entry, StandardField.NOTE, "typed letter by letter", "first version");
+        keystroke.setFilteredOut(true);
+        synchronizer.listen(keystroke);
+        synchronizer.awaitPendingEvents();
+        assertEquals(List.of(), synchronizer.flush());
+
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("first version", "typed letter by letter"), Files.readString(sidecar));
+    }
+
+    @Test
+    void externalEditBetweenLocalEditAndWriteIsMergedFieldWise() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        openLibrary();
+        synchronizer.takeBaseline();
+        BibEntry entry = entries().getFirst();
+
+        entry.setField(StandardField.TITLE, "Edited in JabRef");
+        synchronizer.handleLocalChange(entry);
+        Files.writeString(sidecar, ARTICLE_YAML.replace("first version", "edited externally"));
+        assertEquals(List.of(), synchronizer.flush());
+
+        assertEquals(Optional.of("Edited in JabRef"), entry.getField(StandardField.TITLE));
+        assertEquals(Optional.of("edited externally"), entry.getField(StandardField.NOTE));
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("A Test Article", "Edited in JabRef").replace("first version", "edited externally"),
+                Files.readString(sidecar));
+    }
+
+    @Test
+    void unwritableSidecarStaysPendingAndIsReported() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+        Set<PosixFilePermission> writable = Files.getPosixFilePermissions(root);
+        Files.setPosixFilePermissions(root, Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_EXECUTE));
+        try {
+            entry.setField(StandardField.NOTE, "not yet on disk");
+            synchronizer.handleLocalChange(entry);
+
+            assertEquals(List.of(sidecar), synchronizer.flush());
+            assertEquals(ARTICLE_YAML, Files.readString(sidecar));
+        } finally {
+            Files.setPosixFilePermissions(root, writable);
+        }
+
+        assertEquals(List.of(), synchronizer.flush());
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("first version", "not yet on disk"), Files.readString(sidecar));
+    }
+
+    @Test
+    void deletionUndoneBeforeTheWriteKeepsTheEntryInItsFile() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML + "    tongus: 2\n");
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        context.getDatabase().removeEntries(List.of(entry));
+        synchronizer.handleLocalRemoval(List.of(entry));
+        context.getDatabase().insertEntries(List.of(entry), EntriesEventSource.UNDO);
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(List.of(), disposedFiles);
+        assertEquals(ARTICLE_YAML_WRITTEN + "  tongus: 2\n", Files.readString(sidecar));
+    }
+
+    @Test
+    void secondEntryLinkingTheSamePdfGetsItsOwnSidecar() throws IOException {
+        Files.createFile(root.resolve("loose.pdf"));
+        openLibrary();
+        BibEntry stub = entries().getFirst();
+        stub.setField(StandardField.AUTHOR, "Doe, John");
+        synchronizer.handleLocalChange(stub);
+        BibEntry second = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("second2026")
+                .withFiles(stub.getFiles());
+        context.getDatabase().insertEntry(second);
+        synchronizer.handleLocalChange(second);
+        synchronizer.flush();
+
+        assertEquals(List.of("loose.md", "second2026.md"),
+                List.of(stub, second).stream().map(entry -> synchronizer.sidecarOf(entry).getFileName().toString()).toList());
+    }
+
+    @Test
+    void citationKeyEditRenamesYamlKey() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setCitationKey("smith2021");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("smith2020:", "smith2021:"), Files.readString(sidecar));
+    }
+
+    @Test
+    void deletingLastEntryDisposesSidecarOnly() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        Files.createFile(root.resolve("smith2020.pdf"));
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        context.getDatabase().removeEntries(List.of(entry));
+        synchronizer.handleLocalRemoval(List.of(entry));
+        synchronizer.flush();
+
+        assertEquals(List.of(sidecar), disposedFiles);
+    }
+
+    @Test
+    void deletingOneEntryOfMultiEntryFileRewritesRemainder() throws IOException {
+        Path file = root.resolve("collection.yml");
+        Files.writeString(file, """
+                first:
+                    type: article
+                    title: First
+                second:
+                    type: article
+                    title: Second
+                """);
+        openLibrary();
+        BibEntry first = entries().getFirst();
+
+        context.getDatabase().removeEntries(List.of(first));
+        synchronizer.handleLocalRemoval(List.of(first));
+        synchronizer.flush();
+
+        assertEquals("""
+                second:
+                  type: article
+                  title: Second
+                """, Files.readString(file));
+        assertEquals(List.of(), disposedFiles);
+    }
+
+    @Test
+    void ownSidecarWritesAreNotReimported() throws IOException {
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setField(StandardField.NOTE, "written back");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+        synchronizer.handleFileChanged(sidecar);
+
+        assertEquals(1, entries().size());
+        assertEquals(Optional.of("written back"), entry.getField(StandardField.NOTE));
     }
 }

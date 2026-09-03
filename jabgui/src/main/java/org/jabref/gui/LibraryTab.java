@@ -50,6 +50,7 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citationstyle.CitationStyleCache;
 import org.jabref.logic.command.CommandSelectionTab;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
@@ -459,9 +460,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                     tabTitle.append(Localization.lang("untitled"));
                 }
             } else if (databaseLocation == DatabaseLocation.DIRECTORY) {
-                if (isChanged) {
-                    tabTitle.append('*');
-                }
+                // No modification marker: changes are written back to the sidecars continuously
                 bibDatabaseContext.getDirectoryLibraryRoot().ifPresent(root -> {
                     tabTitle.append(root.getFileName().toString());
                     toolTipText.append(root.toAbsolutePath());
@@ -471,8 +470,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 addSharedDbInformation(toolTipText, bibDatabaseContext);
             }
             addModeInfo(toolTipText, bibDatabaseContext);
-            if ((databaseLocation == DatabaseLocation.LOCAL || databaseLocation == DatabaseLocation.DIRECTORY)
-                    && bibDatabaseContext.getDatabase().hasEntries()) {
+            if ((databaseLocation == DatabaseLocation.LOCAL) && bibDatabaseContext.getDatabase().hasEntries()) {
                 addChangedInformation(toolTipText);
             }
         }
@@ -642,12 +640,20 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     }
 
     public boolean requestClose() {
-        // DIRECTORY prompts as well: until file write-back exists, edits are in-memory only
-        if (bibDatabaseContext.getLocation() == DatabaseLocation.LOCAL
-                || bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.LOCAL) {
             if (isModified()) {
                 return confirmClose();
             }
+        }
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // Edits are persisted into the sidecar files; only a failed write needs the user
+            List<Path> unwritable = Optional.ofNullable(bibDatabaseContext.getDirectorySynchronizer())
+                                            .map(DirectoryLibrarySynchronizer::flush)
+                                            .orElse(List.of());
+            return unwritable.isEmpty() || dialogService.showConfirmationDialogAndWait(
+                    Localization.lang("Close library"),
+                    Localization.lang("Could not write the changes to the following files: %0", SaveDatabaseAction.joinPaths(unwritable)),
+                    Localization.lang("Close anyway"));
         }
         return true;
     }
