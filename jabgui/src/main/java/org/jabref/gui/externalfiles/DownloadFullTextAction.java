@@ -82,6 +82,8 @@ public class DownloadFullTextAction extends SimpleCommand {
             }
         }
 
+        // Subclass instead of BackgroundTask.wrap(Callable): updateProgress, updateMessage and isCancelled are
+        // protected, and the per-entry progress, the "n/m entries" message and the cancel check need them.
         BackgroundTask<Map<BibEntry, Optional<FetcherResult>>> findFullTextsTask = new BackgroundTask<>() {
             @Override
             public Map<BibEntry, Optional<FetcherResult>> call() {
@@ -156,7 +158,9 @@ public class DownloadFullTextAction extends SimpleCommand {
                     taskExecutor,
                     dialogService,
                     preferences);
-            onlineFile.download(true, result.headers());
+            // The URL is not linked on the entry, so there is no link to keep: a downloaded HTML page (paywall or
+            // consent interstitial instead of the PDF) has to be deleted rather than left orphaned in the file directory.
+            onlineFile.download(false, result.headers());
         } else {
             dialogService.notify(Localization.lang("Full text document for entry %0 already linked.",
                     entry.getCitationKey().orElse(Localization.lang("undefined"))));
