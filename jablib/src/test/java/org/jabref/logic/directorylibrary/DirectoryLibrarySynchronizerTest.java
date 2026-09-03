@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
 
@@ -104,6 +106,9 @@ class DirectoryLibrarySynchronizerTest {
 
     private final List<Path> disposedFiles = new ArrayList<>();
 
+    /// Tests opt into pattern renames by replacing this; the default keeps file names as-is.
+    private Function<BibEntry, Optional<String>> fileNameGenerator = entry -> Optional.empty();
+
     private BibDatabaseContext context;
     private DirectoryLibrarySynchronizer synchronizer;
 
@@ -112,7 +117,7 @@ class DirectoryLibrarySynchronizerTest {
         DirectoryLibraryScanner.ScanResult scanResult = new DirectoryLibraryScanner(pdfEntryFactory).scan(root);
         context = scanResult.databaseContext();
         synchronizer = new DirectoryLibrarySynchronizer(context, scanResult.catalog(), pdfEntryFactory,
-                disposedFiles::add, Runnable::run, clock);
+                disposedFiles::add, fileNameGenerator, Runnable::run, clock);
     }
 
     /// GROBID off and no identifiers in the fixtures, so no network is touched
@@ -133,6 +138,12 @@ class DirectoryLibrarySynchronizerTest {
 
     private List<BibEntry> entries() {
         return context.getDatabase().getEntries();
+    }
+
+    private List<String> fileNames() throws IOException {
+        try (Stream<Path> files = Files.list(root)) {
+            return files.map(file -> file.getFileName().toString()).sorted().toList();
+        }
     }
 
     @Test
@@ -671,5 +682,134 @@ class DirectoryLibrarySynchronizerTest {
 
         assertEquals(1, entries().size());
         assertEquals(Optional.of("written back"), entry.getField(StandardField.NOTE));
+    }
+
+    @Test
+    void patternRenameMovesSidecarAndPairedPdfTogether() throws IOException {
+        fileNameGenerator = BibEntry::getCitationKey;
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        Files.createFile(root.resolve("smith2020.pdf"));
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setCitationKey("smith2021");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(List.of("smith2021.pdf", "smith2021.yml"), fileNames());
+        assertEquals("smith2021.pdf", entry.getFiles().getFirst().getLink());
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("smith2020:", "smith2021:"), Files.readString(root.resolve("smith2021.yml")));
+    }
+
+    /// The watcher reports the rename as delete + create of both files; neither may re-import.
+    @Test
+    void patternRenameIsNotReimportedByTheWatcher() throws IOException {
+        fileNameGenerator = BibEntry::getCitationKey;
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        Files.createFile(root.resolve("smith2020.pdf"));
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+        entry.setCitationKey("smith2021");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        synchronizer.handleFileDeleted(sidecar);
+        synchronizer.handleFileDeleted(root.resolve("smith2020.pdf"));
+        synchronizer.handleFileCreated(root.resolve("smith2021.yml"));
+        synchronizer.handleFileCreated(root.resolve("smith2021.pdf"));
+        clock.advance(Duration.ofSeconds(3));
+        synchronizer.commitExpiredStagedDeletions();
+
+        assertEquals(List.of(entry), entries());
+        assertEquals("smith2021.pdf", entry.getFiles().getFirst().getLink());
+    }
+
+    @Test
+    void patternRenameSkipsTargetNameOfAnotherEntrysPdf() throws IOException {
+        fileNameGenerator = _ -> Optional.of("taken");
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        Files.createFile(root.resolve("taken.pdf"));
+        openLibrary();
+        BibEntry entry = entries().stream()
+                                  .filter(candidate -> candidate.getCitationKey().equals(Optional.of("smith2020")))
+                                  .findFirst().orElseThrow();
+
+        entry.setField(StandardField.NOTE, "changed");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(List.of("smith2020.yml", "taken.pdf"), fileNames());
+    }
+
+    @Test
+    void patternRenameMovesMarkdownSidecarAndPairedPdfTogether() throws IOException {
+        fileNameGenerator = BibEntry::getCitationKey;
+        Path sidecar = root.resolve("smith2020.md");
+        Files.writeString(sidecar, MARKDOWN_SIDECAR);
+        Files.createFile(root.resolve("smith2020.pdf"));
+        openLibrary();
+        BibEntry entry = entries().getFirst();
+
+        entry.setCitationKey("smith2021");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(List.of("smith2021.md", "smith2021.pdf"), fileNames());
+        assertEquals("""
+                ---
+                smith2021:
+                  type: article
+                  title: A Test Article
+                  author: "Smith, Jane"
+                ---
+
+                # Notes
+
+                Shared comment text.
+                """, Files.readString(root.resolve("smith2021.md")));
+    }
+
+    @Test
+    void patternRenameSkipsOccupiedTargetNames() throws IOException {
+        fileNameGenerator = _ -> Optional.of("taken");
+        Path sidecar = root.resolve("smith2020.yml");
+        Files.writeString(sidecar, ARTICLE_YAML);
+        Files.writeString(root.resolve("taken.yml"), ARTICLE_YAML.replace("smith2020", "taken"));
+        openLibrary();
+        BibEntry entry = entries().stream()
+                                  .filter(candidate -> candidate.getCitationKey().equals(Optional.of("smith2020")))
+                                  .findFirst().orElseThrow();
+
+        entry.setField(StandardField.NOTE, "changed");
+        synchronizer.handleLocalChange(entry);
+        synchronizer.flush();
+
+        assertEquals(List.of("smith2020.yml", "taken.yml"), fileNames());
+        assertEquals(ARTICLE_YAML_WRITTEN.replace("first version", "changed"), Files.readString(sidecar));
+    }
+
+    @Test
+    void multiEntryFilesKeepTheirNameDespitePattern() throws IOException {
+        fileNameGenerator = _ -> Optional.of("wrong");
+        Path file = root.resolve("collection.yml");
+        Files.writeString(file, """
+                first:
+                    type: article
+                    title: First
+                second:
+                    type: article
+                    title: Second
+                """);
+        openLibrary();
+        BibEntry first = entries().getFirst();
+
+        first.setField(StandardField.NOTE, "edited");
+        synchronizer.handleLocalChange(first);
+        synchronizer.flush();
+
+        assertEquals(List.of("collection.yml"), fileNames());
     }
 }
