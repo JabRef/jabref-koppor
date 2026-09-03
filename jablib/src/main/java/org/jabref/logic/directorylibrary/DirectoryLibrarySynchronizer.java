@@ -561,6 +561,7 @@ public class DirectoryLibrarySynchronizer implements FileAlterationListener {
                            stagedDeletions.remove(movedFrom);
                            catalog.relocateFile(movedFrom, file);
                            Optional.ofNullable(baselines.remove(movedFrom)).ifPresent(baseline -> baselines.put(file, baseline));
+                           modelUpdateMarshaller.accept(this::refreshGroupsView);
                            LOGGER.debug("Detected move {} -> {}", movedFrom, file);
                        }, () -> insertNewEntries(file, newEntries));
     }
@@ -570,8 +571,10 @@ public class DirectoryLibrarySynchronizer implements FileAlterationListener {
         // Safe without event source: the entry is not yet inserted, so no listeners see this
         findPairedPdf(file).ifPresent(pdf -> newEntries.getFirst()
                                                        .addFile(new LinkedFile("", root.relativize(pdf), StandardFileType.PDF.getName())));
-        modelUpdateMarshaller.accept(() ->
-                databaseContext.getDatabase().insertEntries(newEntries, EntriesEventSource.SHARED));
+        modelUpdateMarshaller.accept(() -> {
+            databaseContext.getDatabase().insertEntries(newEntries, EntriesEventSource.SHARED);
+            refreshGroupsView();
+        });
     }
 
     private void applyChangedFile(Path file, List<BibEntry> knownEntries, List<BibEntry> parsedEntries) {
@@ -651,8 +654,10 @@ public class DirectoryLibrarySynchronizer implements FileAlterationListener {
             }
         }, () -> {
             BibEntry stub = pdfEntryFactory.createStub(pdf, root);
-            modelUpdateMarshaller.accept(() ->
-                    databaseContext.getDatabase().insertEntries(List.of(stub), EntriesEventSource.SHARED));
+            modelUpdateMarshaller.accept(() -> {
+                databaseContext.getDatabase().insertEntries(List.of(stub), EntriesEventSource.SHARED);
+                refreshGroupsView();
+            });
             // Metadata extraction may hit the network, so it runs without this synchronizer's
             // monitor: flush and shutdown on the UI thread must never wait for it
             syncExecutor.execute(() -> enrichStub(stub, pdf));
@@ -678,6 +683,7 @@ public class DirectoryLibrarySynchronizer implements FileAlterationListener {
             modelUpdateMarshaller.accept(() -> {
                 if (isStub) {
                     databaseContext.getDatabase().removeEntries(List.of(entry), EntriesEventSource.SHARED);
+                    refreshGroupsView();
                 } else {
                     List<LinkedFile> remaining = entry.getFiles().stream()
                                                       .filter(linked -> !relativeLink.equals(linked.getLink()))
@@ -691,8 +697,16 @@ public class DirectoryLibrarySynchronizer implements FileAlterationListener {
     private void removeEntries(List<BibEntry> entries, Path file) {
         catalog.removeFile(file);
         baselines.remove(file);
-        modelUpdateMarshaller.accept(() ->
-                databaseContext.getDatabase().removeEntries(entries, EntriesEventSource.SHARED));
+        modelUpdateMarshaller.accept(() -> {
+            databaseContext.getDatabase().removeEntries(entries, EntriesEventSource.SHARED);
+            refreshGroupsView();
+        });
+    }
+
+    /// The directory-structure group materializes its subgroups from the entries; after
+    /// structural changes the groups panel must recompute (TexGroup precedent).
+    private void refreshGroupsView() {
+        databaseContext.getMetaData().groupsBinding().invalidate();
     }
 
     /// Only entries still in the database: removed entries stay cataloged until their file is
