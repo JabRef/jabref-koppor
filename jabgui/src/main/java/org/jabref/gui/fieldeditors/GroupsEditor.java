@@ -3,8 +3,6 @@ package org.jabref.gui.fieldeditors;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.undo.UndoManager;
-
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
@@ -13,6 +11,7 @@ import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.field.Field;

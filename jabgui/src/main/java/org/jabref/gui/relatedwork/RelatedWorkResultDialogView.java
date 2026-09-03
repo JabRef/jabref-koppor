@@ -2,8 +2,6 @@ package org.jabref.gui.relatedwork;
 
 import java.util.List;
 
-import javax.swing.undo.UndoManager;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
@@ -17,6 +15,7 @@ import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.relatedwork.RelatedWorkMatchResult;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 
 import jakarta.inject.Inject;

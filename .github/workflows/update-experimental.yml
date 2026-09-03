@@ -29,6 +29,9 @@ env:
     koppor/directory-mapping-preference
     origin/directory-rest-api
     origin/common-style
+    origin/fulltext-context-menu
+    origin/fulltext-download-background-task
+    origin/show-diff-button
 
 jobs:
   merge:

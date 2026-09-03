@@ -1,7 +1,5 @@
 package org.jabref.gui.preferences.xmp;
 
-import javax.swing.undo.UndoManager;
-
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,6 +21,7 @@ import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.field.Field;
 
 public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewModel> {

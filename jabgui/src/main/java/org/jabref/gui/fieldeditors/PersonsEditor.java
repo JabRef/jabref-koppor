@@ -1,7 +1,5 @@
 package org.jabref.gui.fieldeditors;
 
-import javax.swing.undo.UndoManager;
-
 import javafx.scene.Parent;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
@@ -16,6 +14,7 @@ import org.jabref.gui.undo.UndoAction;
 import org.jabref.gui.util.uithreadaware.UiThreadStringProperty;
 import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
+import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 

@@ -9,7 +9,7 @@ import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.summarization.logic.summarizationalgorithms.Summarizator;
 import org.jabref.logic.l10n.Localization;
 
-// [impl->req~ai.expert-settings.summarization-local~1]
+// [impl->feat~ai.expert-settings.summarization-local~1]
 public class AiSummaryParametersDialog extends BaseDialog<Boolean> {
     @FXML private AiSummaryParametersView aiSummaryParametersView;
 
