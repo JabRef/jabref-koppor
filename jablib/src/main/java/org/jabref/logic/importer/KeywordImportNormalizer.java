@@ -2,8 +2,8 @@ package org.jabref.logic.importer;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedSet;
 
@@ -39,15 +39,20 @@ public final class KeywordImportNormalizer {
     }
 
     /// Guesses the separator the given entries already use: the configured import delimiter occurring most often in keyword fields.
+    /// Only effective delimiters count (top level, not escaped, not inside braces), matching how [KeywordList] parses.
     /// Empty if no keyword field contains any delimiter, or if two delimiters are tied (then the caller's fallback applies).
     public static Optional<Character> guessSeparator(Iterable<BibEntry> entries, BibEntryPreferences preferences) {
         List<Character> candidates = parseConfiguredDelimiters(preferences.getImportKeywordDelimiters());
         Map<Character, Long> counts = new HashMap<>();
         for (BibEntry entry : entries) {
-            entry.getField(StandardField.KEYWORDS).ifPresent(keywords ->
-                    keywords.chars().mapToObj(symbol -> (char) symbol)
-                            .filter(candidates::contains)
-                            .forEach(symbol -> counts.merge(symbol, 1L, Long::sum)));
+            entry.getField(StandardField.KEYWORDS).ifPresent(keywords -> {
+                for (Character candidate : candidates) {
+                    long occurrences = KeywordList.countEffectiveDelimiters(keywords, candidate);
+                    if (occurrences > 0) {
+                        counts.merge(candidate, occurrences, Long::sum);
+                    }
+                }
+            });
         }
         long max = counts.values().stream().mapToLong(Long::longValue).max().orElse(0);
         List<Character> winners = counts.entrySet().stream().filter(count -> count.getValue() == max).map(Map.Entry::getKey).toList();

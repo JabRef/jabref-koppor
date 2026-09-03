@@ -30,7 +30,6 @@ import org.jabref.logic.util.CoarseChangeFilter;
 import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.metadata.MetaData;
 
 import org.jspecify.annotations.NullMarked;
@@ -137,9 +136,9 @@ public class BibDatabaseContext {
         return database;
     }
 
-    /// The keyword separator of this library, falling back to the global preference when the library does not declare one
-    public Character getKeywordSeparator(BibEntryPreferences preferences) {
-        return metaData.getKeywordSeparator().orElse(preferences.getKeywordSeparator());
+    /// The keyword separator of this library, falling back to the given separator (typically the global preference) when the library does not declare one
+    public Character getKeywordSeparator(Character fallbackKeywordSeparator) {
+        return metaData.getKeywordSeparator().orElse(fallbackKeywordSeparator);
     }
 
     public MetaData getMetaData() {
