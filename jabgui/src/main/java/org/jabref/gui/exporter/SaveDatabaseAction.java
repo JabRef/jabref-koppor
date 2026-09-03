@@ -169,6 +169,11 @@ public class SaveDatabaseAction {
         if (saveResult == SaveResult.SUCCESS) {
             // we managed to successfully save the file
             // thus, we can store the path into the context
+            if (context.getLocation() == DatabaseLocation.DIRECTORY) {
+                // "Save as" snapshots a directory library into a regular .bib library; only now,
+                // so a failed save leaves the directory library intact
+                context.convertToLocalDatabase();
+            }
             context.setDatabasePath(file);
             stateManager.setActiveDatabase(context);
             libraryTab.updateTabTitle(false);

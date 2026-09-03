@@ -128,16 +128,18 @@ public class JabRefFrameViewModel {
             }
         }
 
-        // Read the opened and focused databases before closing them
+        // Read the opened and focused databases before closing them. Directory libraries have
+        // no database path; their root stands in so they are restored on the next start.
+        // [impl->req~directory-library.session-restore~1]
         List<Path> openedLibraries = tabContainer.getLibraryTabs().stream()
                                                  .map(LibraryTab::getBibDatabaseContext)
-                                                 .map(BibDatabaseContext::getDatabasePath)
+                                                 .map(BibDatabaseContext::getPathOnDisk)
                                                  .flatMap(Optional::stream)
                                                  .map(Path::toAbsolutePath)
                                                  .toList();
         Path focusedLibraries = Optional.ofNullable(tabContainer.getCurrentLibraryTab())
                                         .map(LibraryTab::getBibDatabaseContext)
-                                        .flatMap(BibDatabaseContext::getDatabasePath)
+                                        .flatMap(BibDatabaseContext::getPathOnDisk)
                                         .map(Path::toAbsolutePath)
                                         .orElse(null);
 
