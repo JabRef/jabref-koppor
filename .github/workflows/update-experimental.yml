@@ -25,7 +25,6 @@ env:
   BRANCHES: |
     origin/main
     origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
-    origin/directory-convert # https://github.com/JabRef/jabref-koppor/pull/744
     koppor/directory-mapping-preference
     origin/directory-rest-api # https://github.com/JabRef/jabref-koppor/pull/745
     origin/common-style # https://github.com/JabRef/jabref/pull/16708
