@@ -245,6 +245,8 @@ recipeList:
   - org.openrewrite.java.logging.slf4j.ParameterizedLogging
   - org.openrewrite.java.logging.slf4j.Slf4jLogShouldBeConstant
   - org.openrewrite.java.logging.slf4j.CompleteExceptionLogging
+  # logger - see https://docs.openrewrite.org/recipes/java/logging
+  - org.openrewrite.java.logging.slf4j.Slf4jBestPractices
 
   - tech.picnic.errorprone.refasterrules.ClassRulesRecipes$ClassReferenceCastRecipe
   - tech.picnic.errorprone.refasterrules.ClassRulesRecipes$ClassReferenceIsInstancePredicateRecipe
