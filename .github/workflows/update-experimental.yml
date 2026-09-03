@@ -26,7 +26,7 @@ env:
     origin/main
     origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
     koppor/directory-mapping-preference
-    origin/directory-rest-api # https://github.com/JabRef/jabref-koppor/pull/745
+    origin/directory-split # https://github.com/JabRef/jabref-koppor/pull/760
     origin/common-style # https://github.com/JabRef/jabref/pull/16708
     origin/fulltext-context-menu # https://github.com/JabRef/jabref/pull/16829
     origin/fulltext-download-background-task # https://github.com/JabRef/jabref/pull/16831
