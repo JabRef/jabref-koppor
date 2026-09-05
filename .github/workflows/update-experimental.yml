@@ -30,8 +30,6 @@ env:
     origin/common-style # https://github.com/JabRef/jabref/pull/16708
     origin/fulltext-context-menu # https://github.com/JabRef/jabref/pull/16829
     origin/fulltext-download-background-task # https://github.com/JabRef/jabref/pull/16831
-    origin/keyword-separator-per-library # https://github.com/JabRef/jabref/pull/16835
-    origin/show-diff-button # https://github.com/JabRef/jabref/pull/16832
 
 jobs:
   merge:
