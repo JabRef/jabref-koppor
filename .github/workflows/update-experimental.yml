@@ -2,18 +2,18 @@
 # `workflow_dispatch` only from there, so a copy on a side branch never fires.
 # It is fork-only (no counterpart upstream), so syncing JabRef/jabref into main
 # must merge rather than force-push - a forced sync silently drops this file and
-# the daily runs stop without any failure to notice.
+# the hourly runs stop without any failure to notice.
 name: Update experimental
 
 on:
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
   push:
     branches:
       - main
     paths:
-      # Editing the branch list below re-merges right away instead of waiting for the nightly run.
+      # Editing the branch list below re-merges right away instead of waiting for the next hourly run.
       - .github/workflows/update-experimental.yml
 
 permissions:
