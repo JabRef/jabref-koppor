@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added a new export format "Simple HTML (Velocity)" (`simplehtml-velocity`), the first export based on the [Apache Velocity](https://velocity.apache.org/) template engine, which will gradually replace the `.layout`-based export format. [#12418](https://github.com/JabRef/jabref/issues/12418)
 - We added a "Commit and push" button which allows to commit and then push in one go for Git operations. [#16339](https://github.com/JabRef/jabref/issues/16339)
 - We added the option to close and reopen the PDF preview in the unlinked files dialog. [#16159](https://github.com/JabRef/jabref/issues/16159)
 - We added the ability for LibreOffice BST citations to use style-defined labels. [forum#3764]([https://github.com/JabRef/jabref/issues/16357](https://discourse.jabref.org/t/feature-request-custom-citation-styles-from-bst/3764))
