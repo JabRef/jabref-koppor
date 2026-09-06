@@ -30,7 +30,8 @@ public final class GitEntryChangeDetailsView extends AnchorPane {
                                      GuiPreferences preferences,
                                      BibEntryTypesManager entryTypesManager,
                                      String oldVersionLabel,
-                                     String newVersionLabel) {
+                                     String newVersionLabel,
+                                     DiffHighlighter.BasicDiffMethod diffMethod) {
         Label committedVersion = new Label(oldVersionLabel);
         committedVersion.getStyleClass().addAll(StyleClasses.CHANGE_VIEW_HEADER);
         Label savedFile = new Label(newVersionLabel);
@@ -38,7 +39,7 @@ public final class GitEntryChangeDetailsView extends AnchorPane {
 
         StyleClassedTextArea oldSourceArea = createConfiguredTextArea(oldEntry, oldDatabaseContext, preferences, entryTypesManager);
         StyleClassedTextArea newSourceArea = createConfiguredTextArea(newEntry, newDatabaseContext, preferences, entryTypesManager);
-        new SplitDiffHighlighter(oldSourceArea, newSourceArea, DiffHighlighter.BasicDiffMethod.CHARS).highlight();
+        new SplitDiffHighlighter(oldSourceArea, newSourceArea, diffMethod).highlight();
 
         ScrollPane leftScrollPane = createScrollPane(oldSourceArea);
         ScrollPane rightScrollPane = createScrollPane(newSourceArea);

@@ -1923,3 +1923,7 @@ We want to have a look that matches our icons in the tool-bar */
     -fx-fill: -color-warning-subtle !important;
     -fx-stroke: transparent !important;
 }
+
+.flashing-danger {
+    -fx-background-color: -color-danger;
+}
