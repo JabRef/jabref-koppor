@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 /// (first) entry, and PDFs without a sidecar become entries with metadata extracted from the
 /// PDF itself (see [PdfEntryFactory]). The directory itself is the library — the resulting
 /// [BibDatabaseContext] has [org.jabref.logic.shared.DatabaseLocation#DIRECTORY] and no
-/// database path; linked files are stored relative to the root, which is registered as the
-/// library-specific file directory.
+/// database path; linked files are stored relative to the root, against which the context
+/// resolves them.
 // [impl->req~directory-library.scan~5]
 @NullMarked
 public class DirectoryLibraryScanner {
@@ -76,8 +76,6 @@ public class DirectoryLibraryScanner {
     public ScanResult scan(Path root) throws IOException {
         BibDatabaseContext databaseContext = new BibDatabaseContext();
         databaseContext.convertToDirectoryLibrary(root);
-        // Makes the relative PDF links resolvable although the context has no database path
-        databaseContext.getMetaData().setLibrarySpecificFileDirectory(root.toAbsolutePath().toString());
 
         DirectoryLibraryCatalog catalog = new DirectoryLibraryCatalog();
         List<String> warnings = new ArrayList<>();
