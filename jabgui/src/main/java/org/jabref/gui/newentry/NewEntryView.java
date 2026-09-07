@@ -157,7 +157,6 @@ public class NewEntryView extends BaseDialog<BibEntry> {
 
         generateButton = (Button) this.getDialogPane().lookupButton(generateButtonType);
         generateButton.getStyleClass().addAll("customGenerateButton", "padding-6-24");
-
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
         double width = Math.clamp(bounds.getWidth() * 0.60, 400, 1100);
