@@ -94,6 +94,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.entry.event.EntriesEvent;
 import org.jabref.model.entry.event.EntriesEventSource;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.FieldFactory;
@@ -482,12 +483,21 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 } else {
                     tabTitle.append(Localization.lang("untitled"));
                 }
+            } else if (databaseLocation == DatabaseLocation.DIRECTORY) {
+                if (isChanged) {
+                    tabTitle.append('*');
+                }
+                bibDatabaseContext.getDirectoryLibraryRoot().ifPresent(root -> {
+                    tabTitle.append(root.getFileName().toString());
+                    toolTipText.append(root.toAbsolutePath());
+                });
             } else {
                 addSharedDbInformation(tabTitle, bibDatabaseContext);
                 addSharedDbInformation(toolTipText, bibDatabaseContext);
             }
             addModeInfo(toolTipText, bibDatabaseContext);
-            if ((databaseLocation == DatabaseLocation.LOCAL) && bibDatabaseContext.getDatabase().hasEntries()) {
+            if ((databaseLocation == DatabaseLocation.LOCAL || databaseLocation == DatabaseLocation.DIRECTORY)
+                    && bibDatabaseContext.getDatabase().hasEntries()) {
                 addChangedInformation(toolTipText);
             }
         }
@@ -500,6 +510,13 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
 
     @Subscribe
     public void listen(BibDatabaseContextChangedEvent event) {
+        // Background enrichment of a directory library is system-initiated (SHARED-sourced),
+        // not something the user would be asked to save
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY
+                && event instanceof EntriesEvent entriesEvent
+                && entriesEvent.getEntriesEventSource() == EntriesEventSource.SHARED) {
+            return;
+        }
         this.changedProperty.setValue(true);
     }
 
@@ -650,7 +667,9 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     }
 
     public boolean requestClose() {
-        if (bibDatabaseContext.getLocation() == DatabaseLocation.LOCAL) {
+        // DIRECTORY prompts as well: until file write-back exists, edits are in-memory only
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.LOCAL
+                || bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
             if (isModified()) {
                 return confirmClose();
             }
@@ -671,7 +690,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         }
 
         String filename = getBibDatabaseContext()
-                .getDatabasePath()
+                .getPathOnDisk()
                 .map(Path::toAbsolutePath)
                 .map(Path::toString)
                 .orElse(Localization.lang("untitled"));
