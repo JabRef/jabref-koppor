@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,7 +22,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.types.StandardEntryType;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -69,6 +69,47 @@ class AutoSetFileLinksUtilTest {
         AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
         Collection<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
         assertEquals(expected, actual);
+    }
+
+    /// [utest->req~logic.externalfiles.file-transfer.auto-link~2]
+    @Test
+    void plainMarkdownNextToPdfIsLinkedToo() throws IOException {
+        Files.createFile(path.getParent().resolve("CiteKey.md"));
+        when(databaseContext.getFileDirectories(any())).thenReturn(List.of(path.getParent()));
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
+        Collection<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
+        assertEquals(List.of(new LinkedFile("", Path.of("CiteKey.md"), "Markdown"), new LinkedFile("", Path.of("CiteKey.pdf"), "PDF")),
+                actual.stream().sorted(Comparator.comparing(LinkedFile::getLink)).toList());
+    }
+
+    /// [utest->req~logic.externalfiles.file-transfer.auto-link~2]
+    @Test
+    void plainMarkdownFileIsLinked(@TempDir Path tempDir) throws IOException {
+        Files.createFile(tempDir.resolve("CiteKey.md"));
+        when(databaseContext.getFileDirectories(any())).thenReturn(List.of(tempDir));
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
+        Collection<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
+        assertEquals(List.of(new LinkedFile("", Path.of("CiteKey.md"), "Markdown")), actual);
+    }
+
+    /// [utest->req~logic.externalfiles.file-transfer.auto-link~2]
+    @Test
+    void markdownSidecarIsNotLinked(@TempDir Path tempDir) throws IOException {
+        Files.writeString(tempDir.resolve("CiteKey.md"), """
+                ---
+                CiteKey:
+                    type: article
+                    title: A Test Article
+                ---
+
+                # Notes
+
+                Some notes.
+                """);
+        when(databaseContext.getFileDirectories(any())).thenReturn(List.of(tempDir));
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
+        Collection<LinkedFile> actual = util.findAssociatedNotLinkedFiles(entry);
+        assertEquals(List.of(), actual);
     }
 
     @Test
@@ -181,17 +222,14 @@ class AutoSetFileLinksUtilTest {
         assertEquals(expected, Set.copyOf(matchedFiles));
     }
 
-    /// [utest->req~logic.externalfiles.file-transfer.auto-link~1]
+    /// [utest->req~logic.externalfiles.file-transfer.auto-link~2]
     @Nested
-    @DisplayName("linkAssociatedFiles")
     class linkAssociatedFiles {
 
         @Nested
-        @DisplayName("byCitationKeyOnly")
         class byCitationKeyOnly {
 
             @Nested
-            @DisplayName("configuredCitationKeyDependencyWithStart")
             class configuredCitationKeyDependencyWithStart {
 
                 /// ```
@@ -355,7 +393,6 @@ class AutoSetFileLinksUtilTest {
             }
 
             @Nested
-            @DisplayName("configuredCitationKeyDependencyWithExact")
             class configuredCitationKeyDependencyWithExact {
 
                 /// ```
@@ -462,7 +499,6 @@ class AutoSetFileLinksUtilTest {
         }
 
         @Nested
-        @DisplayName("byBrokenLinkedFileNameOnly")
         class byBrokenLinkedFileNameOnly {
             /// ```
             /// CK: WeDoNotCare
@@ -744,7 +780,6 @@ class AutoSetFileLinksUtilTest {
         }
 
         @Nested
-        @DisplayName("byCitationKeyAndBrokenLinkedFileName")
         class byCitationKeyAndBrokenLinkedFileName {
 
             /// ```

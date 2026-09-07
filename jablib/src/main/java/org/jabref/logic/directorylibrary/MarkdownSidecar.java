@@ -26,6 +26,8 @@ import org.jabref.model.entry.field.StandardField;
 
 import org.jspecify.annotations.NullMarked;
 
+import static java.util.function.Predicate.not;
+
 /// A directory-library sidecar in Markdown form: `X.md` next to `X.pdf`. The YAML frontmatter
 /// (between two `---` lines) is a regular Hayagriva document carrying the bibliographic data;
 /// the Markdown body below carries JabRef's long-form notes. The text under the `# Notes`
@@ -227,7 +229,7 @@ public class MarkdownSidecar {
     }
 
     private static Optional<String> commentValue(BibEntry entry, Field field) {
-        return entry.getField(field).map(String::strip).filter(value -> !value.isEmpty());
+        return entry.getField(field).map(String::strip).filter(not(String::isEmpty));
     }
 
     private static boolean isCommentSection(String heading) {

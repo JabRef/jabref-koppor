@@ -21,6 +21,7 @@ import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FileFieldWriter;
+import org.jabref.logic.directorylibrary.MarkdownSidecar;
 import org.jabref.logic.util.io.AutoLinkPreferences;
 import org.jabref.logic.util.io.FileFinder;
 import org.jabref.logic.util.io.FileFinders;
@@ -57,6 +58,8 @@ public class AutoSetFileLinksUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoSetFileLinksUtil.class);
 
+    private final MarkdownSidecar markdownSidecar = new MarkdownSidecar();
+
     private final List<Path> directories;
     private final AutoLinkPreferences autoLinkPreferences;
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
@@ -78,7 +81,7 @@ public class AutoSetFileLinksUtil {
         this.brokenLinkedFileNameBasedFileFinder = FileFinders.constructBrokenLinkedFileNameBasedFileFinder();
     }
 
-    /// [impl->req~logic.externalfiles.file-transfer.auto-link~1]
+    /// [impl->req~logic.externalfiles.file-transfer.auto-link~2]
     public LinkFilesResult linkAssociatedFiles(List<BibEntry> entries, BiConsumer<List<LinkedFile>, BibEntry> onAddLinkedFile) {
         LinkFilesResult result = new LinkFilesResult();
 
@@ -239,9 +242,25 @@ public class AutoSetFileLinksUtil {
         // Only keep associated files that are not linked
         return associatedFiles
                 .stream()
+                .filter(associatedFile -> !isMarkdownSidecar(associatedFile))
                 .filter(associatedFile -> !isFileAlreadyLinked(associatedFile, linkedFiles))
                 .map(this::buildLinkedFileFromPath)
                 .toList();
+    }
+
+    /// A Markdown sidecar of a directory library (Hayagriva frontmatter, see [MarkdownSidecar])
+    /// is an entry's source, not an attachment, so it must not be auto-linked. Any other
+    /// Markdown file is still linked.
+    private boolean isMarkdownSidecar(Path file) {
+        if (!MarkdownSidecar.hasMarkdownExtension(file)) {
+            return false;
+        }
+        try {
+            return markdownSidecar.looksLikeSidecar(file);
+        } catch (IOException e) {
+            LOGGER.debug("Could not probe {} for a sidecar frontmatter", file, e);
+            return false;
+        }
     }
 
     private boolean isBrokenLinkedFile(LinkedFile file) {
