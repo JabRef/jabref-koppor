@@ -25,6 +25,9 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
+import org.jabref.model.groups.AbstractGroup;
+import org.jabref.model.groups.DirectoryStructureGroup;
+import org.jabref.model.groups.GroupTreeNode;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -32,6 +35,8 @@ import org.mockito.Answers;
 
 import static org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -211,6 +216,25 @@ class DirectoryLibraryScannerTest {
         assertEquals(Optional.of("On How We Can Teach – Exploring New Ways in Professional Software Development for Students"),
                 entry.getField(StandardField.TITLE));
         assertEquals(List.of(new LinkedFile("", Path.of("kriha2018.pdf"), "PDF")), entry.getFiles());
+    }
+
+    @Test
+    void groupsPanelMirrorsTheDirectoryStructure() throws IOException {
+        Path subDirectory = Files.createDirectories(root.resolve("conference"));
+        Files.writeString(subDirectory.resolve("zygos.yml"), ARTICLE_YAML.replace("smith2020", "zygos"));
+        Files.writeString(root.resolve("smith2020.yml"), ARTICLE_YAML);
+
+        ScanResult result = scan();
+
+        GroupTreeNode groupsRoot = result.databaseContext().getMetaData().getGroups().orElseThrow();
+        AbstractGroup directoryGroup = groupsRoot.getChildren().getFirst().getGroup();
+        assertEquals(root.getFileName().toString(), directoryGroup.getName());
+        BibEntry nested = result.databaseContext().getDatabase().getEntries().stream()
+                                .filter(entry -> entry.getCitationKey().equals(Optional.of("zygos")))
+                                .findFirst().orElseThrow();
+        GroupTreeNode conference = assertInstanceOf(DirectoryStructureGroup.class, directoryGroup).createSubgroups(nested).iterator().next();
+        assertEquals("conference", conference.getGroup().getName());
+        assertTrue(conference.getGroup().contains(nested));
     }
 
     @Test
