@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jabref.model.entry.BibEntry;
 
@@ -34,6 +35,23 @@ public class DirectoryLibraryCatalog {
 
     public Optional<EntrySource> sourceOf(BibEntry entry) {
         return Optional.ofNullable(sourceByEntryId.get(entry.getId()));
+    }
+
+    public void removeEntry(String entryId) {
+        Optional.ofNullable(sourceByEntryId.remove(entryId)).ifPresent(source ->
+                entryIdsByFile.computeIfPresent(source.yamlFile(), (_, ids) -> {
+                    ids.remove(entryId);
+                    return ids.isEmpty() ? null : ids;
+                }));
+    }
+
+    /// Records the Hayagriva key the entry was last written under (after a citation-key edit).
+    public void updateHayagrivaKey(BibEntry entry, String hayagrivaKey) {
+        sourceByEntryId.computeIfPresent(entry.getId(), (_, source) -> new EntrySource(source.yamlFile(), hayagrivaKey));
+    }
+
+    public Set<Path> files() {
+        return Set.copyOf(entryIdsByFile.keySet());
     }
 
     /// Entry ids of all entries read from the given file, in file order.
