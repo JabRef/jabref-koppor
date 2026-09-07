@@ -7,10 +7,9 @@ import java.util.stream.Collectors;
 
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
+import org.jabref.http.server.services.ServerUtils;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.command.CommandSelectionTab;
-import org.jabref.logic.util.io.BackupFileUtil;
-import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -61,7 +60,7 @@ public class SelectEntriesCommand extends Command {
 
         CommandSelectionTab commandSelectionTab = activeTab.get();
 
-        if (!getLibraryIdFromContext(commandSelectionTab.getBibDatabaseContext()).equals(libraryId)) {
+        if (ServerUtils.libraryId(commandSelectionTab.getBibDatabaseContext()).filter(libraryId::equals).isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                            .entity("This command cannot be executed because the libraryId does not match the active selection tab.")
                            .build();
@@ -74,11 +73,5 @@ public class SelectEntriesCommand extends Command {
         commandSelectionTab.clearAndSelect(entries);
 
         return Response.ok().build();
-    }
-
-    private String getLibraryIdFromContext(BibDatabaseContext bibDatabaseContext) {
-        return bibDatabaseContext.getDatabasePath()
-                                 .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
-                                 .orElse("");
     }
 }

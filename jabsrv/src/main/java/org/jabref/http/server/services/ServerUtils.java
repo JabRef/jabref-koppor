@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import org.jabref.http.SrvStateManager;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.chatting.util.ChatModelFactory;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
@@ -30,27 +32,50 @@ import org.jspecify.annotations.NonNull;
 
 public class ServerUtils {
 
+    /// The stable id used in URLs: derived from the `.bib` file of a regular library, or from
+    /// the root directory of a directory library (which has no `.bib` path of its own) — the
+    /// same identity the GUI session store uses, so a directory library keeps one id across
+    /// everything. Empty for unsaved libraries.
+    /// [impl->req~directory-library.rest-api~1]
+    public static Optional<String> libraryId(BibDatabaseContext context) {
+        return context.getPathOnDisk().map(ServerUtils::libraryId);
+    }
+
+    private static String libraryId(Path path) {
+        return path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path);
+    }
+
+    /// The file holding the library's BibTeX for endpoints that read or derive files: the
+    /// `.bib` itself, or, for a directory library, its `.bib` mirror inside the root.
+    ///
+    /// @throws NotFoundException if no library with the given id is found
+    public static @NonNull Path getLibraryFile(String id, SrvStateManager srvStateManager) {
+        Path path = getLibraryPath(id, srvStateManager);
+        return Files.isDirectory(path) ? path.resolve(DirectoryLibrarySynchronizer.mirrorFileName(path)) : path;
+    }
+
     /// Returns ids of all libraries the state manager currently considers
     /// open. Used by every resource that operates across the open
     /// collection (libraries listing, batch query, ...).
     public static List<String> openLibraryIds(SrvStateManager srvStateManager) {
         return srvStateManager.getOpenDatabases().stream()
-                              .map(BibDatabaseContext::getDatabasePath)
+                              .map(ServerUtils::libraryId)
                               .flatMap(Optional::stream)
-                              .map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path))
                               .toList();
     }
 
     /// Returns the on-disk path of the library with the given id, looking it up in the
-    /// state manager's open databases (the same source as [#getBibDatabaseContext]).
+    /// state manager's open databases (the same source as [#getBibDatabaseContext]). For a
+    /// directory library this is its root directory, which the GUI append command routes back
+    /// to the open directory-library tab.
     ///
     /// @throws NotFoundException if no library with the given id is found
     public static @NonNull Path getLibraryPath(String id, SrvStateManager srvStateManager) {
         return srvStateManager.getOpenDatabases()
                               .stream()
-                              .map(BibDatabaseContext::getDatabasePath)
-                              .flatMap(java.util.Optional::stream)
-                              .filter(p -> (p.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(p)).equals(id))
+                              .map(BibDatabaseContext::getPathOnDisk)
+                              .flatMap(Optional::stream)
+                              .filter(p -> libraryId(p).equals(id))
                               .findAny()
                               .orElseThrow(NotFoundException::new);
     }
@@ -77,11 +102,7 @@ public class ServerUtils {
             return srvStateManager.getActiveDatabase().orElseThrow(NotFoundException::new);
         }
         return srvStateManager.getOpenDatabases().stream()
-                              .filter(context -> context.getDatabasePath().isPresent())
-                              .filter(context -> {
-                                  Path p = context.getDatabasePath().get();
-                                  return (p.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(p)).equals(id);
-                              })
+                              .filter(context -> libraryId(context).filter(id::equals).isPresent())
                               .findFirst()
                               .orElseThrow(() -> new NotFoundException("No library with id " + HtmlEscapers.htmlEscaper().escape(id) + " found"));
     }
