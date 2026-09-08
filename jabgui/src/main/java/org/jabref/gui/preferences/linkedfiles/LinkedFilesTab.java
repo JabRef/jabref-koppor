@@ -49,7 +49,9 @@ public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabView
                                                 regex -> regex.help(StandardActions.HELP_REGEX_SEARCH, HelpFile.REGEX_SEARCH)))))
 
                 .section(Localization.lang("Fulltext Index"), fulltext -> fulltext
-                        .checkbox(Localization.lang("Automatically index all linked files for fulltext search"), viewModel.fulltextIndexProperty()))
+                        .checkbox(Localization.lang("Automatically index all linked files for fulltext search"), viewModel.fulltextIndexProperty())
+                        .checkbox(Localization.lang("Indexed files should be checked for modifications on startup"), viewModel.fulltextIndexLinkedFilesShouldCheckForModificationsProperty(),
+                                checkForModifications -> checkForModifications.disableWhen(viewModel.fulltextIndexProperty().not())))
 
                 .section(Localization.lang("Linked file name conventions"), conventions -> conventions
                         .checkbox(Localization.lang("Auto rename files if entry changes"), viewModel.autoRenameFilesOnChangeProperty())
