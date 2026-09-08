@@ -1,5 +1,7 @@
 package org.jabref.gui.preferences.keybindings;
 
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -87,7 +89,7 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
                 .withGraphic(keyBinding -> keyBinding.getResetIcon().map(JabRefIcon::getGraphicNode).orElse(null))
                 .withOnMouseClickedEvent(keyBinding -> _ -> keyBinding.resetToDefault())
-                .withStyleClass(_ -> "keybinding-table-icon-cell")
+                .withStyleClasses(() -> List.of("align-center-right", "padding-right-6"))
                 .install(resetColumn);
 
         TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> clearColumn = new TreeTableColumn<>();
@@ -97,7 +99,7 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
                 .withGraphic(keyBinding -> keyBinding.getClearIcon().map(JabRefIcon::getGraphicNode).orElse(null))
                 .withOnMouseClickedEvent(keyBinding -> _ -> keyBinding.clear())
-                .withStyleClass(_ -> "keybinding-table-icon-cell")
+                .withStyleClasses(() -> List.of("align-center-right", "padding-right-6"))
                 .install(clearColumn);
 
         keyBindingsTable.getColumns().add(actionColumn);
