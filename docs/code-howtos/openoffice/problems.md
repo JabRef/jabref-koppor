@@ -44,12 +44,12 @@ Reference marks have some features that make it easy to mess up citations in a d
   * If the space separating to citation marks is deleted, the user cannot reliably type between the marks.\
     The text typed usually becomes part of one of the marks. No visual clue as to which one.\
     Note: `[click:Merge]` then `[click:Separate]` adds a single space between. The user can position the cursor before or after it. In either case the cursor is on a boundary: it is not clear if it is in or out of a reference mark.\
-    Special case: a reference mark at the start or end of a paragraph: the cursor is usually considered to be within at the coresponding edge.
+    Special case: a reference mark at the start or end of a paragraph: the cursor is usually considered to be within at the corresponding edge.
 * (good) They can be moved (Ctrl-X,Ctrl-V)
 * They cannot be copied. (Ctrl-C, Ctrl-V) copies the text without the reference mark.
 * Reference marks are lost if the document is saved as docx.
 * I know of no way to insert text into an empty text range denoted by a reference mark
-  * JabRef 5.3 recreates the reference mark (using [insertReferenceMark](https://github.com/JabRef/jabref/blob/475b2989ffa8ec61c3327c62ed8f694149f83220/src/main/java/org/jabref/gui/openoffice/OOBibBase.java#L1072)) [here](https://github.com/JabRef/jabref/blob/475b2989ffa8ec61c3327c62ed8f694149f83220/src/main/java/org/jabref/gui/openoffice/OOBibBase.java#L706)
+  * JabRef 5.3 recreates the reference mark (using [insertReferenceMark](https://github.com/JabRef/jabref/blob/475b2989ffa8ec61c3327c62ed8f694149f83220/src/main/java/org/jabref/gui/openoffice/OOBibBase.java#L1072)) [at this location](https://github.com/JabRef/jabref/blob/475b2989ffa8ec61c3327c62ed8f694149f83220/src/main/java/org/jabref/gui/openoffice/OOBibBase.java#L706)
   * `(change)` I preferred to (try to) avoid this: [NamedRangeReferenceMark.nrGetFillCursor](https://github.com/antalk2/jabref/blob/122d5133fa6c7b44245c5ba5600d398775718664/src/main/java/org/jabref/logic/openoffice/backend/NamedRangeReferenceMark.java#L225) returns a cursor between two invisible spaces, to provide the caller a location it can safely write some text. [NamedRangeReferenceMark.nrCleanFillCursor](https://github.com/antalk2/jabref/blob/122d5133fa6c7b44245c5ba5600d398775718664/src/main/java/org/jabref/logic/openoffice/backend/NamedRangeReferenceMark.java#L432) removes these invisible spaces unless the content would become empty or a single character. By keeping the content at least two characters, we avoid the ambiguity at the edges: a cursor positioned between two characters inside is always within the reference mark. (At the edges it may or may not be inside.)
 * `(change)` `[click:Cite]` at reference mark edges: [safeInsertSpacesBetweenReferenceMarks](https://github.com/antalk2/jabref/blob/122d5133fa6c7b44245c5ba5600d398775718664/src/main/java/org/jabref/logic/openoffice/backend/NamedRangeReferenceMark.java#L67) ensures the we are not inside, by starting two new paragraphs, inserting two spaces between them, then removing the new paragraph marks.
 * `(change)` [guiActionInsertEntry](https://github.com/antalk2/jabref/blob/122d5133fa6c7b44245c5ba5600d398775718664/src/main/java/org/jabref/gui/openoffice/OOBibBase2.java#L624) checks if the cursor is in a citation mark or the bibliography.
@@ -60,11 +60,11 @@ It would be nice if we could have a backend with better properties. We probably 
 ## Undo
 
 * JabRef 5.3 does not collect the effects of GUI actions on the document into larger Undo actions.\
-  This makes the Undo functionality of LO impractial.
+  This makes the Undo functionality of LO impractical.
 * `(change)` collect the effects of GUI actions into large chunks: now a GUI action can be undone with a single click.
   * except the effect on pageInfo: that is stored at the document level and is not restored by Undo.
 
 ## Block screen refresh
 
-* LibreOffice has support in [XModel](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1frame\_1\_1XModel.html#a7b7d36374033ee9210ec0ac5c1a90d9f) to "suspend some notifications to the controllers which are used for display updates."
+* LibreOffice has support in [XModel](https://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1frame_1_1XModel.html#a7b7d36374033ee9210ec0ac5c1a90d9f) to "suspend some notifications to the controllers which are used for display updates."
 * `(change)` Now we are using this facility.

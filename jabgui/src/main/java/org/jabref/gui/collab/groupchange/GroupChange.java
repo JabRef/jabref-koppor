@@ -1,0 +1,53 @@
+package org.jabref.gui.collab.groupchange;
+
+import org.jabref.gui.collab.DatabaseChange;
+import org.jabref.gui.collab.DatabaseChangeResolverFactory;
+import org.jabref.logic.bibtex.comparator.GroupDiff;
+import org.jabref.logic.groups.GroupsFactory;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.groups.GroupTreeNode;
+import org.jabref.model.undo.CompoundEdit;
+import org.jabref.model.undo.UndoableModifySubtree;
+
+public final class GroupChange extends DatabaseChange {
+    private final GroupDiff groupDiff;
+
+    public GroupChange(GroupDiff groupDiff, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+        super(databaseContext, databaseChangeResolverFactory);
+        this.groupDiff = groupDiff;
+        setChangeName(groupDiff.getOriginalGroupRoot() == null ? Localization.lang("Removed all groups")
+                                                               : Localization.lang("Modified groups tree"));
+    }
+
+    @Override
+    public void applyChange(CompoundEdit undoEdit) {
+        GroupTreeNode newRoot = groupDiff.getNewGroupRoot();
+
+        GroupTreeNode root = databaseContext.getMetaData().getGroups().orElseGet(() -> {
+            GroupTreeNode groupTreeNode = new GroupTreeNode(GroupsFactory.createAllEntriesGroup());
+            databaseContext.getMetaData().setGroups(groupTreeNode);
+            return groupTreeNode;
+        });
+
+        GroupTreeNode before = root.copySubtree();
+        root.removeAllChildren();
+        if (newRoot == null) {
+            // I think setting root to null is not possible
+            root.setGroup(GroupsFactory.createAllEntriesGroup(), false, false, null);
+        } else {
+            // change root group, even though it'll be AllEntries anyway
+            root.setGroup(newRoot.getGroup(), false, false, null);
+            for (GroupTreeNode child : newRoot.getChildren()) {
+                child.copySubtree().moveTo(root);
+            }
+        }
+        GroupTreeNode after = root.copySubtree();
+
+        undoEdit.addEdit(new UndoableModifySubtree(root, root.getIndexedPathFromRoot(), before, after));
+    }
+
+    public GroupDiff getGroupDiff() {
+        return groupDiff;
+    }
+}

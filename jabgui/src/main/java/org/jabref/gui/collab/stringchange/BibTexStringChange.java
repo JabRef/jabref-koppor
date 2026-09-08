@@ -1,0 +1,40 @@
+package org.jabref.gui.collab.stringchange;
+
+import org.jabref.gui.collab.DatabaseChange;
+import org.jabref.gui.collab.DatabaseChangeResolverFactory;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibtexString;
+import org.jabref.model.undo.CompoundEdit;
+import org.jabref.model.undo.UndoableStringChange;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class BibTexStringChange extends DatabaseChange {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BibTexStringChange.class);
+
+    private final BibtexString oldString;
+    private final BibtexString newString;
+
+    public BibTexStringChange(BibtexString oldString, BibtexString newString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+        super(databaseContext, databaseChangeResolverFactory);
+        this.oldString = oldString;
+        this.newString = newString;
+
+        setChangeName(Localization.lang("Modified string: '%0'", oldString.getName()));
+    }
+
+    @Override
+    public void applyChange(CompoundEdit undoEdit) {
+        undoEdit.applyEdit(new UndoableStringChange(oldString, UndoableStringChange.Part.CONTENT, oldString.getContent(), newString.getContent()));
+    }
+
+    public BibtexString getOldString() {
+        return oldString;
+    }
+
+    public BibtexString getNewString() {
+        return newString;
+    }
+}

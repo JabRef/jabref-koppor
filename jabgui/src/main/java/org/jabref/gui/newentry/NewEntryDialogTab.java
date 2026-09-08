@@ -1,0 +1,9 @@
+package org.jabref.gui.newentry;
+
+public enum NewEntryDialogTab {
+    CHOOSE_ENTRY_TYPE,
+    ENTER_IDENTIFIER,
+    ENTER_URL,
+    INTERPRET_CITATIONS,
+    SPECIFY_BIBTEX,
+}

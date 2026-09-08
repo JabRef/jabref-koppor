@@ -1,14 +1,16 @@
 repository: JabRef/jabref
 title: "Developer Documentation"
-remote_theme: just-the-docs/just-the-docs@v0.5.0
+remote_theme: just-the-docs/just-the-docs@v0.10.0
 color_scheme: light
 
-exclude: [_config.yml, .dockerignore, .gitignore, CNAME, Dockerfile, Gemfile, Gemfile.lock, README.md, mkdocs-custom.css]
+exclude: [ _config.yml, .dockerignore, .gitignore, CNAME, Dockerfile, Gemfile, Gemfile.lock, README.md, mkdocs-custom.css ]
 
 # Hint by https://github.com/just-the-docs/just-the-docs/issues/374#issuecomment-680273258
 # Theme read from https://github.com/StylishThemes/Syntax-Themes/blob/master/pygments/css-github/
 # Browse alternative themes at https://stylishthemes.github.io/Syntax-Themes/pygments/
 highlight_theme: jellybeans
+
+favicon_ico: "/images/favicon.ico"
 
 search_enabled: true
 button: true
@@ -36,6 +38,12 @@ baseurl: ""
 url: ""
 
 plugins:
+  # from https://github.com/just-the-docs/just-the-docs/blob/main/_config.yml
+  - jekyll-seo-tag
+  - jekyll-github-metadata
+  - jekyll-include-cache
+  - jekyll-sitemap
+  # custom additions
   - jekyll-default-layout
   - jekyll-figure
   - jekyll-remote-theme

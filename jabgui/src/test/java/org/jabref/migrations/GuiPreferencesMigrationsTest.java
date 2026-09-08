@@ -1,0 +1,482 @@
+package org.jabref.migrations;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.jabref.gui.WorkspacePreferences;
+import org.jabref.gui.keyboard.KeyBinding;
+import org.jabref.gui.preferences.JabRefGuiPreferences;
+import org.jabref.gui.theme.ThemeColorScheme;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.logic.preferences.JabRefCliPreferences;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class GuiPreferencesMigrationsTest {
+
+    private JabRefGuiPreferences preferences;
+
+    private final String[] oldStylePatterns = new String[] {"\\bibtexkey",
+            "\\bibtexkey\\begin{title} - \\format[RemoveBrackets]{\\title}\\end{title}"};
+    private final String[] newStylePatterns = new String[] {"[citationkey]",
+            "[citationkey] - [title]"};
+
+    @BeforeEach
+    void setUp() {
+        preferences = mock(JabRefGuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        Injector.setModelOrService(CliPreferences.class, preferences);
+    }
+
+    @Test
+    void oldStyleBibtexkeyPattern0() {
+        when(preferences.get(eq(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN), any())).thenReturn(oldStylePatterns[0]);
+        when(preferences.hasKey(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN)).thenReturn(true);
+
+        PreferencesMigrations.upgradeImportFileAndDirePatterns(preferences);
+
+        verify(preferences).put(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN, newStylePatterns[0]);
+    }
+
+    @Test
+    void oldStyleBibtexkeyPattern1() {
+        when(preferences.get(eq(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN), any())).thenReturn(oldStylePatterns[1]);
+        when(preferences.hasKey(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN)).thenReturn(true);
+
+        PreferencesMigrations.upgradeImportFileAndDirePatterns(preferences);
+
+        verify(preferences).put(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN, newStylePatterns[1]);
+    }
+
+    @Test
+    void arbitraryBibtexkeyPattern() {
+        String arbitraryPattern = "[anyUserPrividedString]";
+
+        when(preferences.get(eq(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN), any())).thenReturn(arbitraryPattern);
+
+        PreferencesMigrations.upgradeImportFileAndDirePatterns(preferences);
+
+        verify(preferences, never()).put(PreferencesMigrations.V4_0_IMPORT_FILENAME_PATTERN, arbitraryPattern);
+    }
+
+    @Test
+    void upgradeMacKeyBindingDefaultsMigratesOldFullSnapshotWithoutOverwritingCustomizedBinding() {
+        List<String> bindNames = Arrays.stream(KeyBinding.values()).map(KeyBinding::getConstant).toList();
+        List<String> bindings = new ArrayList<>(Arrays.stream(KeyBinding.values()).map(KeyBinding::getDefaultKeyBinding).toList());
+        bindings.set(bindNames.indexOf(KeyBinding.FOCUS_GROUP_LIST.getConstant()), "alt+s");
+        bindings.set(bindNames.indexOf(KeyBinding.LOOKUP_DOC_IDENTIFIER.getConstant()), "alt+F");
+        bindings.set(bindNames.indexOf(KeyBinding.CLEANUP.getConstant()), "shortcut+shift+9");
+
+        when(preferences.getStringList(JabRefGuiPreferences.BIND_NAMES)).thenReturn(bindNames);
+        when(preferences.getStringList(JabRefGuiPreferences.BINDINGS)).thenReturn(bindings);
+
+        PreferencesMigrations.upgradeMacKeyBindingDefaults(preferences, true);
+
+        List<String> expectedBindings = new ArrayList<>(bindings);
+        expectedBindings.set(bindNames.indexOf(KeyBinding.FOCUS_GROUP_LIST.getConstant()), "shortcut+alt+G");
+        expectedBindings.set(bindNames.indexOf(KeyBinding.LOOKUP_DOC_IDENTIFIER.getConstant()), "shortcut+alt+F");
+        verify(preferences).putStringList(JabRefGuiPreferences.BINDINGS, expectedBindings);
+        verify(preferences).putBoolean(JabRefGuiPreferences.MACOS_KEY_BINDING_DEFAULTS_MIGRATED, true);
+    }
+
+    @Test
+    void previewStyleReviewToComment() {
+        String oldPreviewStyle = """
+                <font face="sans-serif">__NEWLINE__\
+                Customized preview style using reviews and comments:__NEWLINE__\
+                \\begin{review}<BR><BR><b>Review: </b> \\format[HTMLChars]{\\review} \\end{review}__NEWLINE__\
+                \\begin{comment} Something: \\format[HTMLChars]{\\comment} special \\end{comment}__NEWLINE__\
+                </font>__NEWLINE__\
+                \\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__\
+                \\begin{abstract}<BR><BR><b>Abstract: </b>\\format[HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__""";
+
+        String newPreviewStyle = """
+                <font face="sans-serif">__NEWLINE__\
+                Customized preview style using reviews and comments:__NEWLINE__\
+                \\begin{comment}<BR><BR><b>Comment: </b> \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} \\end{comment}__NEWLINE__\
+                \\begin{comment} Something: \\format[Markdown,HTMLChars(keepCurlyBraces)]{\\comment} special \\end{comment}__NEWLINE__\
+                </font>__NEWLINE__\
+                \\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__\
+                \\begin{doi}<BR>doi <a href="https://doi.org/\\format[DOIStrip]{\\doi}">\\format[DOIStrip]{\\doi}</a>\\end{doi}__NEWLINE__\
+                \\begin{url}<BR>URL <a href="\\url">\\url</a>\\end{url}__NEWLINE__\
+                \\begin{abstract}<BR><BR><b>Abstract: </b>\\format[LatexToUnicode,HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__""";
+
+        when(preferences.get(eq(JabRefGuiPreferences.PREVIEW_STYLE), anyString())).thenReturn(oldPreviewStyle);
+
+        PreferencesMigrations.upgradePreviewStyle(preferences);
+
+        verify(preferences).put(JabRefGuiPreferences.PREVIEW_STYLE, newPreviewStyle);
+    }
+
+    @Test
+    void previewStyleAbstractFormatterMigratesWhenOtherPatternsAreMissing() {
+        String oldPreviewStyle = """
+                <font face="sans-serif">__NEWLINE__\
+                Custom preview style with no migration patterns.__NEWLINE__\
+                \\begin{title}<BR><b>\\format[HTMLChars]{\\title}</b>\\end{title}__NEWLINE__\
+                \\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__\
+                \\begin{note}<BR>\\format[HTMLChars]{\\note}\\end{note}__NEWLINE__\
+                \\begin{abstract}<BR><BR><b>Abstract: </b>\\format[HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__\
+                </font>__NEWLINE__""";
+
+        String migratedPreviewStyle = """
+                <font face="sans-serif">__NEWLINE__\
+                Custom preview style with no migration patterns.__NEWLINE__\
+                \\begin{title}<BR><b>\\format[HTMLChars]{\\title}</b>\\end{title}__NEWLINE__\
+                \\begin{pages}<BR> p. \\format[FormatPagesForHTML]{\\pages}\\end{pages}__NEWLINE__\
+                \\begin{note}<BR>\\format[HTMLChars]{\\note}\\end{note}__NEWLINE__\
+                \\begin{abstract}<BR><BR><b>Abstract: </b>\\format[LatexToUnicode,HTMLChars]{\\abstract} \\end{abstract}__NEWLINE__\
+                </font>__NEWLINE__""";
+
+        when(preferences.get(eq(JabRefGuiPreferences.PREVIEW_STYLE), anyString())).thenReturn(oldPreviewStyle);
+
+        PreferencesMigrations.upgradePreviewStyle(preferences);
+
+        verify(preferences).put(JabRefGuiPreferences.PREVIEW_STYLE, migratedPreviewStyle);
+    }
+
+    @Test
+    void previewStyleNameChanged() {
+        String oldCycle = "Customized preview style;ieee.csl";
+        when(preferences.get(eq(JabRefGuiPreferences.PREVIEW_CYCLE), anyString())).thenReturn(oldCycle);
+
+        PreferencesMigrations.upgradeBuiltinPreviewName(preferences);
+
+        verify(preferences).put(JabRefGuiPreferences.PREVIEW_CYCLE, "PREVIEW;ieee.csl");
+    }
+
+    @Test
+    void upgradeColumnPreferencesAlreadyMigrated() {
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
+
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(columnNames);
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_WIDTHS)).thenReturn(columnWidths);
+
+        PreferencesMigrations.upgradeColumnPreferences(preferences);
+
+        verify(preferences, never()).put(JabRefGuiPreferences.COLUMN_NAMES, "anyString");
+        verify(preferences, never()).put(JabRefGuiPreferences.COLUMN_WIDTHS, "anyString");
+    }
+
+    @Test
+    void upgradeColumnPreferencesFromWithoutTypes() {
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
+        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype", "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey", "special:printed");
+        List<String> updatedWidths = Arrays.asList("28", "28", "28", "75", "300", "470", "60", "130", "100", "30");
+        List<String> newSortTypes = Arrays.asList("ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING", "ASCENDING");
+
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(columnNames);
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_WIDTHS)).thenReturn(columnWidths);
+
+        PreferencesMigrations.upgradeColumnPreferences(preferences);
+
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_NAMES, updatedNames);
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_WIDTHS, updatedWidths);
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_SORT_TYPES, newSortTypes);
+    }
+
+    @Test
+    void changeColumnPreferencesVariableNamesFor51() {
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
+
+        // The variable names have to be hardcoded, because they have changed between 5.0 and 5.1
+        when(preferences.getStringList("columnNames")).thenReturn(columnNames);
+        when(preferences.getStringList("columnWidths")).thenReturn(columnWidths);
+        when(preferences.getStringList("mainTableColumnSortTypes")).thenReturn(columnNames);
+        when(preferences.getStringList("mainTableColumnSortOrder")).thenReturn(columnWidths);
+
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_WIDTHS)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_SORT_TYPES)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_SORT_ORDER)).thenReturn(List.of());
+
+        PreferencesMigrations.changeColumnVariableNamesFor51(preferences);
+
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_NAMES, columnNames);
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_WIDTHS, columnWidths);
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_NAMES, columnNames);
+        verify(preferences).putStringList(JabRefGuiPreferences.COLUMN_WIDTHS, columnWidths);
+    }
+
+    @Test
+    void changeColumnPreferencesVariableNamesBackwardsCompatibility() {
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnWidths = Arrays.asList("75", "300", "470", "60", "130", "100", "30");
+
+        // The variable names have to be hardcoded, because they have changed between 5.0 and 5.1
+        when(preferences.getStringList("columnNames")).thenReturn(columnNames);
+        when(preferences.getStringList("columnWidths")).thenReturn(columnWidths);
+        when(preferences.getStringList("mainTableColumnSortTypes")).thenReturn(columnNames);
+        when(preferences.getStringList("mainTableColumnSortOrder")).thenReturn(columnWidths);
+
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_NAMES)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_WIDTHS)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_SORT_TYPES)).thenReturn(List.of());
+        when(preferences.getStringList(JabRefGuiPreferences.COLUMN_SORT_ORDER)).thenReturn(List.of());
+
+        PreferencesMigrations.upgradeColumnPreferences(preferences);
+
+        verify(preferences, never()).put("columnNames", "anyString");
+        verify(preferences, never()).put("columnWidths", "anyString");
+        verify(preferences, never()).put("mainTableColumnSortTypes", "anyString");
+        verify(preferences, never()).put("mainTableColumnSortOrder", "anyString");
+    }
+
+    @Test
+    void restoreColumnVariablesForBackwardCompatibility() {
+        List<String> updatedNames = Arrays.asList("groups", "files", "linked_id", "field:entrytype", "field:author/editor", "field:title", "field:year", "field:journal/booktitle", "field:citationkey", "special:printed");
+        List<String> columnNames = Arrays.asList("entrytype", "author/editor", "title", "year", "journal/booktitle", "citationkey", "printed");
+        List<String> columnWidths = Arrays.asList("100", "100", "100", "100", "100", "100", "100");
+
+        when(preferences.getStringList("columnNames")).thenReturn(updatedNames);
+
+        when(preferences.get(eq("mainFontSize"), any())).thenReturn("11.2");
+
+        PreferencesMigrations.restoreVariablesForBackwardCompatibility(preferences);
+
+        verify(preferences).putStringList("columnNames", columnNames);
+        verify(preferences).putStringList("columnWidths", columnWidths);
+        verify(preferences).put("columnSortTypes", "");
+        verify(preferences).put("columnSortOrder", "");
+
+        verify(preferences).putInt("mainFontSize", 11);
+    }
+
+    @Test
+    void moveApiKeysToKeyRing() throws PasswordAccessException {
+        final String V5_9_FETCHER_CUSTOM_KEY_NAMES = "fetcherCustomKeyNames";
+        final String V5_9_FETCHER_CUSTOM_KEYS = "fetcherCustomKeys";
+        final Keyring keyring = mock(Keyring.class);
+
+        when(preferences.getStringList(V5_9_FETCHER_CUSTOM_KEY_NAMES)).thenReturn(List.of("FetcherA", "FetcherB", "FetcherC"));
+        when(preferences.getStringList(V5_9_FETCHER_CUSTOM_KEYS)).thenReturn(List.of("KeyA", "KeyB", "KeyC"));
+        when(preferences.getInternalPreferences().getUserHostInfo().getUserHostString()).thenReturn("user-host");
+
+        try (MockedStatic<Keyring> keyringFactory = Mockito.mockStatic(Keyring.class, Answers.RETURNS_DEEP_STUBS)) {
+            keyringFactory.when(Keyring::create).thenReturn(keyring);
+
+            PreferencesMigrations.moveApiKeysToKeyring(preferences);
+
+            verify(keyring).setPassword(eq("org.jabref.customapikeys"), eq("FetcherA"), any());
+            verify(keyring).setPassword(eq("org.jabref.customapikeys"), eq("FetcherB"), any());
+            verify(keyring).setPassword(eq("org.jabref.customapikeys"), eq("FetcherC"), any());
+            verify(preferences).deleteKey(V5_9_FETCHER_CUSTOM_KEYS);
+        }
+    }
+
+    @Test
+    void upgradeCleanupsRemovesRemovedIssnCleanupJob() {
+        when(preferences.hasKey(JabRefCliPreferences.CLEANUP_JOBS)).thenReturn(true);
+        when(preferences.getStringList(JabRefCliPreferences.CLEANUP_JOBS)).thenReturn(List.of("CLEAN_UP_DOI", "CLEAN_UP_ISSN", "RENAME_PDF"));
+        when(preferences.get(anyString(), anyString())).thenReturn("");
+
+        PreferencesMigrations.upgradeCleanups(preferences);
+
+        verify(preferences).putStringList(JabRefCliPreferences.CLEANUP_JOBS, List.of("CLEAN_UP_DOI", "RENAME_PDF"));
+    }
+
+    @Test
+    void resolveBibTexStringsFields() {
+        String oldPrefsValue = "author;booktitle;editor;editora;editorb;editorc;institution;issuetitle;journal;journalsubtitle;journaltitle;mainsubtitle;month;publisher;shortauthor;shorteditor;subtitle;titleaddon";
+        String expectedValue = "author;booktitle;editor;editora;editorb;editorc;institution;issuetitle;journal;journalsubtitle;journaltitle;mainsubtitle;month;publisher;shortauthor;shorteditor;subtitle;titleaddon;monthfiled";
+        when(preferences.get(eq(JabRefCliPreferences.RESOLVE_STRINGS_FOR_FIELDS), any())).thenReturn(oldPrefsValue);
+
+        PreferencesMigrations.upgradeResolveBibTeXStringsFields(preferences);
+        verify(preferences).put(JabRefCliPreferences.RESOLVE_STRINGS_FOR_FIELDS, expectedValue);
+    }
+
+    @Test
+    void upgradeThemeMigratesOldDarkCssToDarkTheme() {
+        WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class);
+        when(preferences.get("fxTheme", null)).thenReturn("Dark.css");
+        when(preferences.getWorkspacePreferences()).thenReturn(workspacePreferences);
+
+        PreferencesMigrations.upgradeTheme(preferences);
+
+        verify(workspacePreferences).setColorScheme(ThemeColorScheme.DARK);
+        verify(preferences).deleteKey("fxTheme");
+    }
+
+    @Test
+    void upgradeThemeMigratesEmptyThemeToLightWhenThemeSyncOsIsDisabled() {
+        WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class);
+        when(preferences.get("fxTheme", null)).thenReturn("");
+        when(preferences.getBoolean("themeSyncOs", true)).thenReturn(false);
+        when(preferences.getWorkspacePreferences()).thenReturn(workspacePreferences);
+
+        PreferencesMigrations.upgradeTheme(preferences);
+
+        verify(workspacePreferences).setColorScheme(ThemeColorScheme.LIGHT);
+    }
+
+    @Test
+    void upgradeThemeKeepsDefaultsWhenThemeSyncOsWasEnabled() {
+        WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class);
+        when(preferences.get("fxTheme", null)).thenReturn("");
+        when(preferences.getBoolean("themeSyncOs", true)).thenReturn(true);
+        when(preferences.getWorkspacePreferences()).thenReturn(workspacePreferences);
+
+        PreferencesMigrations.upgradeTheme(preferences);
+
+        verify(workspacePreferences, never()).setTheme(any());
+        verify(workspacePreferences, never()).setColorScheme(any());
+    }
+
+    @Test
+    void upgradeThemeDoesNothingWhenOldPreferenceIsAbsent() {
+        WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class);
+        when(preferences.get("fxTheme", null)).thenReturn(null);
+        when(preferences.getWorkspacePreferences()).thenReturn(workspacePreferences);
+
+        PreferencesMigrations.upgradeTheme(preferences);
+
+        verify(preferences, never()).deleteKey(anyString());
+        verify(workspacePreferences, never()).setTheme(any());
+        verify(workspacePreferences, never()).setColorScheme(any());
+        verify(workspacePreferences, never()).setCustomTheme(any());
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsConvertsSeriesToJson() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("General");
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of("keywords", "doi"));
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn("Abstract");
+        when(preferences.getStringList("customTabFields_1")).thenReturn(List.of("abstract"));
+        when(preferences.get(eq("customTabName_2"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        // "Abstract" with its stock field is a former default tab and is dropped
+        verify(preferences).put("entryEditorCustomTabs", "{\"General\":[\"keywords\",\"doi\"]}");
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsDropsFormerDefaultGeneralTab() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("Allgemein");
+        // the v6.0-alpha.3 default set (stored unordered)
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of(
+                "printed", "priority", "qualityassured", "ranking", "readstatus", "relevance",
+                "doi", "icore", "crossref", "keywords", "eprint", "url", "file", "groups", "owner", "timestamp"));
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn("Mine");
+        when(preferences.getStringList("customTabFields_1")).thenReturn(List.of("keywords", "comment-.*"));
+        when(preferences.get(eq("customTabName_2"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences).put("entryEditorCustomTabs", "{\"Mine\":[\"keywords\",\"comment-.*\"]}");
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsKeepsCustomizedTabsResemblingDefaults() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        // stock field set, but user-defined name
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("My summary");
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of("abstract"));
+        // stock name, but a field removed from the v5 default set
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn("General");
+        when(preferences.getStringList("customTabFields_1")).thenReturn(List.of(
+                "printed", "priority", "qualityassured", "ranking", "readstatus", "relevance",
+                "crossref", "keywords", "eprint", "url", "file", "groups", "owner", "timestamp"));
+        // cross-match: a stock "Abstract" name (German) paired with a shipped General field set
+        when(preferences.get(eq("customTabName_2"), any())).thenReturn("Zusammenfassung");
+        when(preferences.getStringList("customTabFields_2")).thenReturn(List.of(
+                "printed", "priority", "qualityassured", "ranking", "readstatus", "relevance",
+                "doi", "crossref", "keywords", "eprint", "url", "file", "groups", "owner", "timestamp"));
+        when(preferences.get(eq("customTabName_3"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences).put(eq("entryEditorCustomTabs"), eq(
+                "{\"My summary\":[\"abstract\"],\"General\":[\"printed\",\"priority\",\"qualityassured\",\"ranking\",\"readstatus\",\"relevance\",\"crossref\",\"keywords\",\"eprint\",\"url\",\"file\",\"groups\",\"owner\",\"timestamp\"],"
+                        + "\"Zusammenfassung\":[\"printed\",\"priority\",\"qualityassured\",\"ranking\",\"readstatus\",\"relevance\",\"doi\",\"crossref\",\"keywords\",\"eprint\",\"url\",\"file\",\"groups\",\"owner\",\"timestamp\"]}"));
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsDropsJabRef3DefaultTabs() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        // the JabRef 3.8.2 defaults, stored under a German UI ("Review" localized "Überprüfung")
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("Allgemein");
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of(
+                "crossref", "keywords", "file", "doi", "url", "comment", "owner", "timestamp"));
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn("Zusammenfassung");
+        when(preferences.getStringList("customTabFields_1")).thenReturn(List.of("abstract"));
+        when(preferences.get(eq("customTabName_2"), any())).thenReturn("Überprüfung");
+        when(preferences.getStringList("customTabFields_2")).thenReturn(List.of("review"));
+        when(preferences.get(eq("customTabName_3"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences).put("entryEditorCustomTabs", "{}");
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsDropsJabRef5DefaultCommentsTab() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("Comments");
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of("comment"));
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences).put("entryEditorCustomTabs", "{}");
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsStoresEmptyMapWhenOnlyDefaultsWereStored() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn(null);
+        when(preferences.get(eq("customTabName_0"), any())).thenReturn("Abstract");
+        when(preferences.getStringList("customTabFields_0")).thenReturn(List.of("abstract"));
+        when(preferences.get(eq("customTabName_1"), any())).thenReturn(null);
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences).put("entryEditorCustomTabs", "{}");
+    }
+
+    @Test
+    void upgradeEntryEditorCustomTabsKeepsExistingJson() {
+        when(preferences.get(eq("entryEditorCustomTabs"), any())).thenReturn("{\"General\":[\"keywords\"]}");
+
+        PreferencesMigrations.upgradeEntryEditorCustomTabs(preferences);
+
+        verify(preferences, never()).put(eq("entryEditorCustomTabs"), anyString());
+    }
+
+    @Test
+    void upgradeKeyBindingsToJavaFXConvertsLegacySpaceFormat() {
+        when(preferences.getStringList(JabRefGuiPreferences.BINDINGS)).thenReturn(List.of("ctrl A", "shift B"));
+
+        PreferencesMigrations.upgradeKeyBindingsToJavaFX(preferences);
+
+        verify(preferences).putStringList(JabRefGuiPreferences.BINDINGS, List.of("shortcut+A", "shift+B"));
+    }
+
+    @Test
+    void upgradeKeyBindingsToJavaFXDoesNotRewriteExistingCtrlBinding() {
+        when(preferences.getStringList(JabRefGuiPreferences.BINDINGS)).thenReturn(List.of("ctrl+A"));
+
+        PreferencesMigrations.upgradeKeyBindingsToJavaFX(preferences);
+
+        verify(preferences).putStringList(JabRefGuiPreferences.BINDINGS, List.of("ctrl+A"));
+    }
+}
