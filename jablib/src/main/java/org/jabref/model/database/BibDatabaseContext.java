@@ -52,7 +52,7 @@ public class BibDatabaseContext {
 
     private final BibDatabase database;
 
-    private MetaData metaData;
+    private final MetaData metaData;
 
     /// Generate a random UID for unique of the concrete context
     /// In contrast to hashCode this stays unique
@@ -124,12 +124,13 @@ public class BibDatabaseContext {
         return database;
     }
 
-    public MetaData getMetaData() {
-        return metaData;
+    /// The keyword separator of this library, falling back to the given separator (typically the global preference) when the library does not declare one
+    public Character getKeywordSeparator(Character fallbackKeywordSeparator) {
+        return metaData.getKeywordSeparator().orElse(fallbackKeywordSeparator);
     }
 
-    public void setMetaData(MetaData metaData) {
-        this.metaData = metaData;
+    public MetaData getMetaData() {
+        return metaData;
     }
 
     public boolean isBiblatexMode() {
