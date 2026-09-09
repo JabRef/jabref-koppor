@@ -241,8 +241,7 @@ public class ImportFormatReader {
             }
             try {
                 if (!isRecognizedFormat.apply(importer) || importer instanceof ReferImporter) {
-                    // Refer/BibIX uses few, generic %-prefixed tags, so format recognition false-positives on
-                    // other %-tagged formats (e.g., EndNote .enw). Thus, it must be explicitly chosen by the user.
+                    // Refer/BibIX should be explicitly chosen by user // TODO: Why - introduced at PR #13118
                     continue;
                 }
                 ParserResult parserResult = importDatabase.apply(importer);
