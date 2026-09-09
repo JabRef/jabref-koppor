@@ -25,11 +25,11 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
 
 ## Steps
 
-- [ ] 1. PLAN.md committed + branch pushed to koppor
-- [ ] 2. SidePane → TabPane of docks (SidePane, SidePaneViewModel, SidePaneComponent,
+- [x] 1. PLAN.md committed + branch pushed to koppor
+- [x] 2. SidePane → TabPane of docks (SidePane, SidePaneViewModel, SidePaneComponent,
         GroupsSidePaneComponent; SidePaneViewModelTest adapted)
-- [ ] 3. Entry editor to the right (JabRefFrame, CoreGuiPreferences, JabRefGUI)
-- [ ] 4. CSS: `.dock` tab styling + borderless checkboxes
+- [x] 3. Entry editor to the right (JabRefFrame, CoreGuiPreferences, JabRefGUI)
+- [x] 4. CSS: `.dock` tab styling + borderless checkboxes
 - [ ] 5. Compile + `:jabgui:test --tests '*SidePane*'` + Xvfb screenshot
 - [ ] 6. Draft PR on JabRef/jabref-koppor with screenshot
 - [ ] 7. Follow-ups (not in this PR): layout preference classic/docked, closable editor dock
@@ -37,4 +37,10 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
 
 ## Notes / state
 
-(updated per step)
+- 2026-09-10: steps 1-4 done, `:jabgui:test --tests 'org.jabref.gui.sidepane.*'`, checkstyle and
+  LocalizationConsistencyTest green. l10n keys "Hide panel"/"Move panel up/down" removed (unused).
+- Dock CSS lives in `internal/jabref-base.css` (token-only, applies to every theme); the checkbox
+  restyle only in `jabref-theme.css` (theme decision). Entry editor tabs get the `dock` class in
+  `EntryEditor.fxml`; their selected tab merges with `-color-bg-secondary`, side pane docks with
+  `-color-bg-sidepane`.
+- Walkthrough still finds the groups pane: id `groups-side-pane` sits on the tab content node.

@@ -3,6 +3,8 @@ package org.jabref.gui.sidepane;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -78,33 +80,19 @@ class SidePaneViewModelTest {
     }
 
     @Test
-    void moveUp() {
-        sidePaneViewModel.moveUp(SidePaneType.WEB_SEARCH);
+    void reorderAppliesDraggedOrderAndRemembersIt() {
+        sidePaneViewModel.reorder(List.of(SidePaneType.OPEN_OFFICE, SidePaneType.GROUPS, SidePaneType.WEB_SEARCH));
 
-        assertEquals(SidePaneType.WEB_SEARCH, sidePaneComponents.getFirst());
-        assertEquals(SidePaneType.GROUPS, sidePaneComponents.get(1));
+        assertEquals(List.of(SidePaneType.OPEN_OFFICE, SidePaneType.GROUPS, SidePaneType.WEB_SEARCH), sidePaneComponents);
+        assertEquals(Map.of(SidePaneType.OPEN_OFFICE, 0, SidePaneType.GROUPS, 1, SidePaneType.WEB_SEARCH, 2),
+                sidePanePreferences.getPreferredPositions());
     }
 
     @Test
-    void moveUpFromFirstPosition() {
-        sidePaneViewModel.moveUp(SidePaneType.GROUPS);
+    void reorderIgnoresAnIncompleteOrder() {
+        sidePaneViewModel.reorder(List.of(SidePaneType.OPEN_OFFICE, SidePaneType.GROUPS));
 
-        assertEquals(SidePaneType.GROUPS, sidePaneComponents.getFirst());
-    }
-
-    @Test
-    void moveDown() {
-        sidePaneViewModel.moveDown(SidePaneType.WEB_SEARCH);
-
-        assertEquals(SidePaneType.OPEN_OFFICE, sidePaneComponents.get(1));
-        assertEquals(SidePaneType.WEB_SEARCH, sidePaneComponents.get(2));
-    }
-
-    @Test
-    void moveDownFromLastPosition() {
-        sidePaneViewModel.moveDown(SidePaneType.OPEN_OFFICE);
-
-        assertEquals(SidePaneType.OPEN_OFFICE, sidePaneComponents.get(2));
+        assertEquals(List.of(SidePaneType.GROUPS, SidePaneType.WEB_SEARCH, SidePaneType.OPEN_OFFICE), sidePaneComponents);
     }
 
     @Test

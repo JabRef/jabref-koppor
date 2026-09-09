@@ -2,8 +2,10 @@ package org.jabref.gui.frame;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
 import javafx.application.Platform;
@@ -108,16 +110,15 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
     private final JabRefFrameViewModel viewModel;
     private final GuiPushToApplicationCommand pushToApplicationCommand;
+    /// Godot-style docks: `[side pane | libraries | entry editor]`, each dock keeps its width when the window resizes
     private final SplitPane horizontalSplit = new SplitPane();
     private final SidePane sidePane;
-    private final SplitPane verticalSplit = new SplitPane();
     private final TabPane tabbedPane = new TabPane();
     private final EntryEditor entryEditor;
     private final ObjectProperty<PanelMode> panelMode = new SimpleObjectProperty<>(PanelMode.MAIN_TABLE);
 
-    // We need to keep a reference to the subscription, otherwise the binding gets garbage collected
-    private Subscription horizontalDividerSubscription;
-    private Subscription verticalDividerSubscription;
+    // We need to keep references to the subscriptions, otherwise the bindings get garbage collected
+    private final List<Subscription> dividerSubscriptions = new ArrayList<>();
 
     public JabRefFrame(Stage mainStage,
                        DialogService dialogService,
@@ -256,72 +257,65 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         VBox head = new VBox(0, mainMenu, mainToolBar);
         setTop(head);
 
-        verticalSplit.getItems().addAll(tabbedPane);
-        verticalSplit.setOrientation(Orientation.VERTICAL);
+        horizontalSplit.getItems().addAll(tabbedPane);
+        horizontalSplit.setOrientation(Orientation.HORIZONTAL);
         updateEditorPane();
 
-        horizontalSplit.getItems().addAll(verticalSplit);
-        horizontalSplit.setOrientation(Orientation.HORIZONTAL);
-
         SplitPane.setResizableWithParent(sidePane, false);
-        sidePane.widthProperty().addListener(_ -> updateSidePane());
-        sidePane.getChildren().addListener((InvalidationListener) _ -> updateSidePane());
+        SplitPane.setResizableWithParent(entryEditor, false);
+        sidePane.getTabs().addListener((InvalidationListener) _ -> updateSidePane());
         updateSidePane();
         setCenter(horizontalSplit);
     }
 
     private void updateSidePane() {
-        if (sidePane.getChildren().isEmpty()) {
-            if (horizontalDividerSubscription != null) {
-                horizontalDividerSubscription.unsubscribe();
-            }
+        if (sidePane.getTabs().isEmpty()) {
             horizontalSplit.getItems().remove(sidePane);
-        } else {
-            if (!horizontalSplit.getItems().contains(sidePane)) {
-                horizontalSplit.setVisible(false);
-                horizontalSplit.getItems().addFirst(sidePane);
-                Platform.runLater(() -> {
-                    updateHorizontalDividerPosition();
-                    horizontalSplit.setVisible(true);
-                });
-            }
+            updateDividerPositions();
+        } else if (!horizontalSplit.getItems().contains(sidePane)) {
+            horizontalSplit.setVisible(false);
+            horizontalSplit.getItems().addFirst(sidePane);
+            Platform.runLater(() -> {
+                updateDividerPositions();
+                horizontalSplit.setVisible(true);
+            });
         }
     }
 
     private void updateEditorPane() {
         if (panelMode.get() == PanelMode.MAIN_TABLE) {
-            if (verticalDividerSubscription != null) {
-                verticalDividerSubscription.unsubscribe();
-            }
-            verticalSplit.getItems().remove(entryEditor);
-        } else {
-            if (!verticalSplit.getItems().contains(entryEditor)) {
-                verticalSplit.getItems().addLast(entryEditor);
-                updateVerticalDividerPosition();
-            }
+            horizontalSplit.getItems().remove(entryEditor);
+            updateDividerPositions();
+        } else if (!horizontalSplit.getItems().contains(entryEditor)) {
+            horizontalSplit.getItems().addLast(entryEditor);
+            updateDividerPositions();
         }
     }
 
-    public void updateHorizontalDividerPosition() {
-        if (mainStage.isShowing() && !sidePane.getChildren().isEmpty()) {
-            horizontalSplit.setDividerPositions(preferences.getGuiPreferences().getHorizontalDividerPosition());
-            horizontalDividerSubscription = EasyBind.valueAt(horizontalSplit.getDividers(), 0)
-                                                    .mapObservable(SplitPane.Divider::positionProperty)
-                                                    .listenToValues((_, newValue) ->
-                                                            preferences.getGuiPreferences()
-                                                                       .setHorizontalDividerPosition(newValue.doubleValue()));
+    /// Restores both dock dividers from the preferences and stores them back whenever the user drags one.
+    /// Inserting or removing a dock shifts the divider indexes, so the whole set is re-applied each time.
+    public void updateDividerPositions() {
+        dividerSubscriptions.forEach(Subscription::unsubscribe);
+        dividerSubscriptions.clear();
+        if (!mainStage.isShowing()) {
+            return;
+        }
+        if (horizontalSplit.getItems().contains(sidePane)) {
+            bindDivider(horizontalSplit.getDividers().getFirst(),
+                    preferences.getGuiPreferences().getHorizontalDividerPosition(),
+                    preferences.getGuiPreferences()::setHorizontalDividerPosition);
+        }
+        if (horizontalSplit.getItems().contains(entryEditor)) {
+            bindDivider(horizontalSplit.getDividers().getLast(),
+                    preferences.getGuiPreferences().getEntryEditorDividerPosition(),
+                    preferences.getGuiPreferences()::setEntryEditorDividerPosition);
         }
     }
 
-    public void updateVerticalDividerPosition() {
-        if (mainStage.isShowing() && panelMode.get() == PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR) {
-            verticalSplit.setDividerPositions(preferences.getGuiPreferences().getVerticalDividerPosition());
-            verticalDividerSubscription = EasyBind.valueAt(verticalSplit.getDividers(), 0)
-                                                  .mapObservable(SplitPane.Divider::positionProperty)
-                                                  .listenToValues((_, newValue) ->
-                                                          preferences.getGuiPreferences()
-                                                                     .setVerticalDividerPosition(newValue.doubleValue()));
-        }
+    private void bindDivider(SplitPane.Divider divider, double position, DoubleConsumer store) {
+        divider.setPosition(position);
+        dividerSubscriptions.add(EasyBind.listen(divider.positionProperty(),
+                (_, _, newValue) -> store.accept(newValue.doubleValue())));
     }
 
     private void initKeyBindings() {
