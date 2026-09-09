@@ -61,7 +61,7 @@ public class SidePane extends TabPane {
                 clipBoardManager,
                 gitHandlerRegistry);
 
-        getStyleClass().add("dock");
+        getStyleClass().addAll("dock", "side-pane");
         setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
         setTabDragPolicy(TabDragPolicy.REORDER);
 

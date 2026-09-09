@@ -257,6 +257,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         VBox head = new VBox(0, mainMenu, mainToolBar);
         setTop(head);
 
+        tabbedPane.getStyleClass().add("dock");
         horizontalSplit.getItems().addAll(tabbedPane);
         horizontalSplit.setOrientation(Orientation.HORIZONTAL);
         updateEditorPane();

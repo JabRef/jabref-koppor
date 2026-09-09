@@ -30,7 +30,7 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
         GroupsSidePaneComponent; SidePaneViewModelTest adapted)
 - [x] 3. Entry editor to the right (JabRefFrame, CoreGuiPreferences, JabRefGUI)
 - [x] 4. CSS: `.dock` tab styling + borderless checkboxes
-- [ ] 5. Compile + `:jabgui:test --tests '*SidePane*'` + Xvfb screenshot
+- [x] 5. Compile + `:jabgui:test --tests '*SidePane*'` + Xvfb screenshot
 - [ ] 6. Draft PR on JabRef/jabref-koppor with screenshot
 - [ ] 7. Follow-ups (not in this PR): layout preference classic/docked, closable editor dock
         via View menu, remember selected dock tab
@@ -43,4 +43,10 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
   restyle only in `jabref-theme.css` (theme decision). Entry editor tabs get the `dock` class in
   `EntryEditor.fxml`; their selected tab merges with `-color-bg-secondary`, side pane docks with
   `-color-bg-sidepane`.
+- Library tab strip (`tabbedPane` in JabRefFrame) also carries `dock`; `.side-pane` splits the
+  side pane colors (`-color-bg-sidepane`) from the center/editor (`-color-bg-secondary`).
+- Xvfb-verified 2026-09-10 (display :83, isolated prefs): drag "Groups" before "Web search" →
+  `sidePaneComponentPreferredPositions` persisted; tab X → `webSearchVisible=false` persisted;
+  entry editor opens as right dock with its preview; Preferences checkboxes filled + borderless.
+- Screenshots: branch `assets-godot-dock-layout` on jabref-koppor (dock-layout.png, checkboxes.png).
 - Walkthrough still finds the groups pane: id `groups-side-pane` sits on the tab content node.

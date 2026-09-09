@@ -445,8 +445,12 @@
 }
 
 .dock > .tab-header-area > .headers-region > .tab:selected {
-    -fx-background-color: -color-bg-sidepane;
+    -fx-background-color: -color-bg-secondary;
     -fx-border-width: 0;
+}
+
+.dock.hide-tab-bar > .tab-header-area {
+    -fx-padding: 0;
 }
 
 .dock > .tab-header-area > .headers-region > .tab .tab-label {
@@ -469,13 +473,17 @@
 }
 
 .dock > .tab-content-area {
-    -fx-background-color: -color-bg-sidepane;
     -fx-padding: 0;
 }
 
-/* Sidepane */
+/* Sidepane: the dock content is the side pane color, so its selected tab merges with that */
 
+.side-pane > .tab-content-area,
 .sidePaneComponent {
+    -fx-background-color: -color-bg-sidepane;
+}
+
+.side-pane > .tab-header-area > .headers-region > .tab:selected {
     -fx-background-color: -color-bg-sidepane;
 }
 
@@ -936,10 +944,6 @@ We want to have a look that matches our icons in the tool-bar */
    (-color-bg-primary) would shine through behind the field grids. Paint it like
    the "Main" tab's container so all tabs read as one content surface. */
 .entry-editor .tab-pane > .tab-content-area {
-    -fx-background-color: -color-bg-secondary;
-}
-
-.entry-editor .dock > .tab-header-area > .headers-region > .tab:selected {
     -fx-background-color: -color-bg-secondary;
 }
 
