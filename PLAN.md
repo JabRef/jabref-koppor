@@ -49,4 +49,7 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
   `sidePaneComponentPreferredPositions` persisted; tab X → `webSearchVisible=false` persisted;
   entry editor opens as right dock with its preview; Preferences checkboxes filled + borderless.
 - Screenshots: branch `assets-godot-dock-layout` on jabref-koppor (dock-layout.png, checkboxes.png).
+- CI on jabref-koppor: "Submodules not modified" compares against koppor `main`, which lagged
+  upstream by 45 commits (themes submodule bump) → merged origin/main into koppor main
+  (55c18ada35) from worktree 2026-09-09-koppor-main. heylogs wants `[JabRef/jabref-koppor#766](...)`.
 - Walkthrough still finds the groups pane: id `groups-side-pane` sits on the tab content node.
