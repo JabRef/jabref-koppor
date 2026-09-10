@@ -31,7 +31,7 @@ filled checkboxes. Prototype on top of `main`, PR on jabref-koppor.
 - [x] 3. Entry editor to the right (JabRefFrame, CoreGuiPreferences, JabRefGUI)
 - [x] 4. CSS: `.dock` tab styling + borderless checkboxes
 - [x] 5. Compile + `:jabgui:test --tests '*SidePane*'` + Xvfb screenshot
-- [x] 6. Draft PR on JabRef/jabref-koppor with screenshot: https://github.com/JabRef/jabref-koppor/pull/766
+- [x] 6. Draft PR on JabRef/jabref-koppor with screenshot: <https://github.com/JabRef/jabref-koppor/pull/766>
 - [ ] 7. Follow-ups (not in this PR): layout preference classic/docked, closable editor dock
         via View menu, remember selected dock tab
 
