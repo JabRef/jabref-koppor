@@ -1,12 +1,15 @@
 package org.jabref.gui.sidepane;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
@@ -21,7 +24,9 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-public class SidePane extends VBox {
+/// The left dock: one tab per visible side pane (groups, web search, OpenOffice), like the docks of the Godot
+/// editor. The tabs mirror [StateManager#getVisibleSidePaneComponents()]; dragging a tab reorders that list.
+public class SidePane extends TabPane {
     private final SidePaneViewModel viewModel;
     private final GuiPreferences preferences;
     private final StateManager stateManager;
@@ -56,15 +61,36 @@ public class SidePane extends VBox {
                 clipBoardManager,
                 gitHandlerRegistry);
 
-        stateManager.getVisibleSidePaneComponents().addListener((ListChangeListener<SidePaneType>) c -> updateView());
+        getStyleClass().addAll("dock", "side-pane");
+        setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        setTabDragPolicy(TabDragPolicy.REORDER);
+
+        stateManager.getVisibleSidePaneComponents().addListener((ListChangeListener<SidePaneType>) _ -> updateView());
+        getTabs().addListener((ListChangeListener<Tab>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated()) {
+                    // The user dragged a tab; TabPane reorders its list in place, so the state has to follow
+                    viewModel.reorder(getTabs().stream().map(tab -> ((SidePaneComponent) tab).getSidePaneType()).toList());
+                }
+            }
+        });
         updateView();
     }
 
     private void updateView() {
-        getChildren().clear();
-        for (SidePaneType type : stateManager.getVisibleSidePaneComponents()) {
-            SidePaneComponent view = viewModel.getSidePaneComponent(type);
-            getChildren().add(view);
+        List<Tab> tabs = stateManager.getVisibleSidePaneComponents().stream()
+                                     .<Tab>map(viewModel::getSidePaneComponent)
+                                     .toList();
+        if (getTabs().equals(tabs)) {
+            // Already in sync, e.g. after a drag reorder that the state just adopted
+            return;
+        }
+        List<Tab> added = new ArrayList<>(tabs);
+        added.removeAll(getTabs());
+        getTabs().setAll(tabs);
+        if (!added.isEmpty()) {
+            // A pane the user just switched on should be the one on screen
+            getSelectionModel().select(added.getLast());
         }
     }
 

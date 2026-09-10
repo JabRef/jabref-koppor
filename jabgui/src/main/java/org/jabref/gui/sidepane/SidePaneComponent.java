@@ -1,85 +1,51 @@
 package org.jabref.gui.sidepane;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.groups.GroupTreeView;
-import org.jabref.gui.icon.IconTheme;
-import org.jabref.gui.util.ControlHelper;
-import org.jabref.logic.l10n.Localization;
 
-public class SidePaneComponent extends BorderPane {
+/// One dock tab of the [SidePane]: icon + title in the tab strip, the pane's content below.
+public class SidePaneComponent extends Tab {
     private final SidePaneType sidePaneType;
-    private final SimpleCommand closeCommand;
-    private final SimpleCommand moveUpCommand;
-    private final SimpleCommand moveDownCommand;
-    private final SidePaneContentFactory contentFactory;
-
-    private HBox buttonContainer;
+    private final BorderPane container = new BorderPane();
 
     public SidePaneComponent(SidePaneType sidePaneType,
                              SimpleCommand closeCommand,
-                             SimpleCommand moveUpCommand,
-                             SimpleCommand moveDownCommand,
                              SidePaneContentFactory contentFactory) {
+        super(sidePaneType.getTitle());
         this.sidePaneType = sidePaneType;
-        this.closeCommand = closeCommand;
-        this.moveUpCommand = moveUpCommand;
-        this.moveDownCommand = moveDownCommand;
-        this.contentFactory = contentFactory;
-        initialize();
+        setGraphic(sidePaneType.getIcon().getGraphicNode());
+        setTooltip(new Tooltip(sidePaneType.getTitle()));
+        container.getStyleClass().add("sidePaneComponent");
+        container.setCenter(contentFactory.create(sidePaneType));
+        setContent(container);
+        // The visible panes live in the StateManager; the SidePane mirrors that list, so closing goes through it
+        // instead of letting the TabPane drop the tab itself.
+        setOnCloseRequest(event -> {
+            event.consume();
+            closeCommand.execute();
+        });
     }
 
-    private void initialize() {
-        getStyleClass().add("sidePaneComponent");
-        setTop(createHeaderView());
-        setCenter(contentFactory.create(sidePaneType));
-        VBox.setVgrow(this, sidePaneType == SidePaneType.GROUPS ? Priority.ALWAYS : Priority.NEVER);
+    public SidePaneType getSidePaneType() {
+        return sidePaneType;
     }
 
-    private Node createHeaderView() {
-        Button closeButton = ControlHelper.iconButton(IconTheme.JabRefIcons.CLOSE);
-        closeButton.setTooltip(new Tooltip(Localization.lang("Hide panel")));
-        closeButton.setOnAction(e -> closeCommand.execute());
-
-        Button upButton = ControlHelper.iconButton(IconTheme.JabRefIcons.UP);
-        upButton.setTooltip(new Tooltip(Localization.lang("Move panel up")));
-        upButton.setOnAction(e -> moveUpCommand.execute());
-
-        Button downButton = ControlHelper.iconButton(IconTheme.JabRefIcons.DOWN);
-        downButton.setTooltip(new Tooltip(Localization.lang("Move panel down")));
-        downButton.setOnAction(e -> moveDownCommand.execute());
-
-        this.buttonContainer = new HBox();
-        buttonContainer.getChildren().addAll(upButton, downButton, closeButton);
-
-        Label label = new Label(sidePaneType.getTitle());
-
-        BorderPane headerView = new BorderPane();
-        headerView.setLeft(label);
-        headerView.setRight(buttonContainer);
-        headerView.getStyleClass().addAll("sidePaneComponentHeader", "padding-4-12");
-
-        return headerView;
+    protected void setToolbar(Node toolbar) {
+        container.setTop(toolbar);
     }
 
-    protected void addExtraNodeToHeader(Node button, int position) {
-        this.buttonContainer.getChildren().add(position, button);
+    protected BorderPane getContainer() {
+        return container;
     }
 
     public void requestFocus() {
-        for (Node child : getChildren()) {
-            if (child instanceof GroupTreeView groupTreeView) {
-                groupTreeView.requestFocusGroupTree();
-                break;
-            }
+        if (container.getCenter() instanceof GroupTreeView groupTreeView) {
+            groupTreeView.requestFocusGroupTree();
         }
     }
 }

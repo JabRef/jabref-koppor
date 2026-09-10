@@ -420,20 +420,76 @@
     -fx-background-color: -color-selection;
 }
 
-/* Sidepane */
+/* Docks (side pane on the left, entry editor on the right), styled like the Godot editor:
+   a flat tab strip without borders, the selected tab merges with the dock content below it. */
 
+.dock > .tab-header-area {
+    -fx-padding: 0.25em 0.25em 0 0.25em;
+}
+
+.dock > .tab-header-area > .tab-header-background {
+    -fx-background-color: -color-bg-tertiary;
+}
+
+.dock > .tab-header-area > .headers-region > .tab {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0.4em 0.4em 0 0;
+    -fx-border-width: 0;
+    -fx-padding: 0.4em 0.9em 0.4em 0.9em;
+    -fx-pref-height: 2.5em;
+}
+
+.dock > .tab-header-area > .headers-region > .tab:hover {
+    -fx-background-color: -color-overlay-hover;
+}
+
+.dock > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -color-bg-secondary;
+    -fx-border-width: 0;
+}
+
+.dock.hide-tab-bar > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.dock > .tab-header-area > .headers-region > .tab .tab-label {
+    -fx-text-fill: -color-fg-muted;
+}
+
+.dock > .tab-header-area > .headers-region > .tab:selected .tab-label {
+    -fx-text-fill: -color-fg-default;
+}
+
+.dock > .tab-header-area > .headers-region > .tab:selected .glyph-icon,
+.dock > .tab-header-area > .headers-region > .tab:selected .ikonli-font-icon {
+    -fx-fill: -color-accent;
+    -fx-text-fill: -color-accent;
+    -fx-icon-color: -color-accent;
+}
+
+.dock:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-width: 0;
+}
+
+.dock > .tab-content-area {
+    -fx-padding: 0;
+}
+
+/* Sidepane: the dock content is the side pane color, so its selected tab merges with that */
+
+.side-pane > .tab-content-area,
 .sidePaneComponent {
     -fx-background-color: -color-bg-sidepane;
 }
 
-.sidePaneComponentHeader {
-    -fx-pref-height: 3em;
+.side-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -color-bg-sidepane;
 }
 
-.sidePaneComponentHeader > .label {
-    -fx-text-fill: -color-accent;
-    -fx-font-weight: bold;
-    -fx-padding: 0.3em 0.9em 0.3em 0.9em;
+/* Toolbar row at the top of a side pane (groups: filter, invert, union/intersection) */
+.sidePaneComponentHeader {
+    -fx-padding: 0.2em 0.4em 0.2em 0.4em;
 }
 
 .sidePaneComponentHeader .glyph-icon,

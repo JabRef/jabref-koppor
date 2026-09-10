@@ -648,7 +648,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                 getDouble(MAIN_WINDOW_HEIGHT, defaultValues.getSizeY()),
                 getBoolean(MAIN_WINDOW_MAXIMISED, defaultValues.isWindowMaximised()),
                 getDouble(MAIN_WINDOW_SIDEPANE_WIDTH, defaultValues.getHorizontalDividerPosition()),
-                getDouble(MAIN_WINDOW_EDITOR_HEIGHT, defaultValues.getVerticalDividerPosition()));
+                getDouble(MAIN_WINDOW_EDITOR_HEIGHT, defaultValues.getEntryEditorDividerPosition()));
 
         bindDouble(coreGuiPreferences.positionXProperty(), MAIN_WINDOW_POS_X, defaultValues.getPositionX());
         bindDouble(coreGuiPreferences.positionYProperty(), MAIN_WINDOW_POS_Y, defaultValues.getPositionY());
@@ -656,7 +656,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         bindDouble(coreGuiPreferences.sizeYProperty(), MAIN_WINDOW_HEIGHT, defaultValues.getSizeY());
         bindBoolean(coreGuiPreferences.windowMaximisedProperty(), MAIN_WINDOW_MAXIMISED, defaultValues.isWindowMaximised());
         bindDouble(coreGuiPreferences.horizontalDividerPositionProperty(), MAIN_WINDOW_SIDEPANE_WIDTH, defaultValues.getHorizontalDividerPosition());
-        bindDouble(coreGuiPreferences.getVerticalDividerPositionProperty(), MAIN_WINDOW_EDITOR_HEIGHT, defaultValues.getVerticalDividerPosition());
+        bindDouble(coreGuiPreferences.entryEditorDividerPositionProperty(), MAIN_WINDOW_EDITOR_HEIGHT, defaultValues.getEntryEditorDividerPosition());
 
         return coreGuiPreferences;
     }
