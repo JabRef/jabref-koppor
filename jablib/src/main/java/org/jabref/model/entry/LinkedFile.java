@@ -277,7 +277,7 @@ public class LinkedFile implements Serializable {
             } else {
                 return FileUtil.find(link.get(), directories);
             }
-        } catch (InvalidPathException ex) {
+        } catch (InvalidPathException _) {
             return Optional.empty();
         }
     }
