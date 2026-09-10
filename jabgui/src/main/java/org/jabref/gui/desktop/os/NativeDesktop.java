@@ -20,6 +20,7 @@ import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.injection.Injector;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.util.IdentifierParser;
 import org.jabref.logic.l10n.Localization;
@@ -35,7 +36,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.Identifier;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.LoggerFactory;
 

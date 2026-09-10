@@ -8,6 +8,7 @@
 ///
 /// @see <a href="https://devdocs.jabref.org/architecture-and-components.html">Architecture and components</a>
 open module org.jabref.jablib {
+    exports org.jabref.injection;
     exports org.jabref.model;
     exports org.jabref.model.undo;
     exports org.jabref.logic;
@@ -177,7 +178,6 @@ open module org.jabref.jablib {
     requires java.base;
 
     requires transitive javafx.base;
-    requires afterburner.fx;
     requires transitive com.tobiasdiez.easybind;
 
     // for java.awt.geom.Rectangle2D required by org.jabref.logic.pdf.TextExtractor

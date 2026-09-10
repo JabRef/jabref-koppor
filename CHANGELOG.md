@@ -83,6 +83,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
+- We replaced the abandoned afterburner.fx framework (used for FXML view loading and dependency injection) with [FxmlKit](https://github.com/dlsc-software-consulting-gmbh/FxmlKit) and a small JabRef-owned service locator. [koppor#733](https://github.com/JabRef/jabref-koppor/pull/733)
 - We redesigned the "About JabRef" dialog. [#16950](https://github.com/JabRef/jabref/pull/16950)
 - We now create the group for imported entries when entries are imported, instead of when a library is opened. [#16988](https://github.com/JabRef/jabref/pull/16988)
 - We removed the keystore fields, the server timezone, and the database type selection from the "Connect to shared database" dialog. [#16800](https://github.com/JabRef/jabref/pull/16800)

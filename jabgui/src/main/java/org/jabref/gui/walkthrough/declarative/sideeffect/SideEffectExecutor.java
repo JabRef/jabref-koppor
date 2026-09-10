@@ -14,9 +14,9 @@ import javafx.util.Duration;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.walkthrough.Walkthrough;
+import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

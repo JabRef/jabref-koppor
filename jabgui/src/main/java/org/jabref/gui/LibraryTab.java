@@ -58,6 +58,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.GuiUndoManager;
 import org.jabref.gui.util.InsertUtil;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citationstyle.CitationStyleCache;
 import org.jabref.logic.command.CommandSelectionTab;
@@ -112,7 +113,6 @@ import org.jabref.model.undo.UndoableRemoveEntries;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.google.common.eventbus.Subscribe;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.Subscription;

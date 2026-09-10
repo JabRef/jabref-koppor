@@ -26,10 +26,10 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.injection.Injector;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
 import org.controlsfx.control.textfield.CustomTextField;
 

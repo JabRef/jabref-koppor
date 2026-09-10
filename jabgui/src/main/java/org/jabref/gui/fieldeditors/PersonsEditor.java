@@ -12,12 +12,11 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
 import org.jabref.gui.util.uithreadaware.UiThreadStringProperty;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class PersonsEditor extends HBox implements FieldEditorFX {
 

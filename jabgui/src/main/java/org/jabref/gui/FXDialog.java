@@ -10,6 +10,7 @@ import javafx.stage.WindowEvent;
 
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.injection.Injector;
 
 /// This class provides a super class for all dialogs implemented in JavaFX.
 ///
