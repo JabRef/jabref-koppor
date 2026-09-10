@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -23,6 +24,7 @@ import javafx.collections.transformation.SortedList;
 
 import org.jabref.gui.groups.GroupsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.logic.bibtex.comparator.EntryComparator;
 import org.jabref.logic.search.SearchContext;
 import org.jabref.logic.search.SearchPreferences;
@@ -45,6 +47,7 @@ import org.jabref.model.search.query.SearchResults;
 
 import com.tobiasdiez.easybind.EasyBind;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -53,6 +56,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(JavaFxExtension.class)
 class MainTableDataModelTest {
 
     @Test
@@ -327,6 +331,49 @@ class MainTableDataModelTest {
 
         assertFalse(vmB.isMatchedByGroup().get());
         assertFalse(vmB.isVisibleByGroup().get());
+    }
+
+    @Test
+    void deletingEntryKeepsSelectedGroupFilter() {
+        List<BibEntry> visibleEntries = new ArrayList<>();
+
+        Platform.runLater(() -> {
+            BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
+
+            BibEntry matchingEntry = new BibEntry()
+                    .withCitationKey("matching")
+                    .withField(StandardField.AUTHOR, "Alice");
+            BibEntry nonMatchingEntry = new BibEntry()
+                    .withCitationKey("nonMatching")
+                    .withField(StandardField.AUTHOR, "Bob");
+            bibDatabaseContext.getDatabase().insertEntries(List.of(matchingEntry, nonMatchingEntry));
+
+            GuiPreferences preferences = mock(GuiPreferences.class);
+            when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
+            when(preferences.getSearchPreferences()).thenReturn(
+                    new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+            when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
+
+            SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+            MainTableDataModel model = new MainTableDataModel(
+                    bibDatabaseContext,
+                    preferences,
+                    new CurrentThreadTaskExecutor(),
+                    null,
+                    selectedGroups,
+                    OptionalObjectProperty.empty(),
+                    new SimpleIntegerProperty());
+
+            selectedGroups.set(FXCollections.observableArrayList(getKeywordGroup(StandardField.AUTHOR, "Alice")));
+            bibDatabaseContext.getDatabase().removeEntry(matchingEntry);
+
+            visibleEntries.addAll(model.getEntriesFilteredAndSorted().stream()
+                                       .map(BibEntryTableViewModel::getEntry)
+                                       .toList());
+        });
+        JavaFxExtension.awaitEvents();
+
+        assertEquals(List.of(), visibleEntries);
     }
 
     private static GroupTreeNode getKeywordGroup(Field field, String searchExpression) {

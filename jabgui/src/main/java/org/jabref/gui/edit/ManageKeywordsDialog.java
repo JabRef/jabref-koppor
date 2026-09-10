@@ -9,6 +9,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.TextFieldTableCell;
 
+import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.BindingsHelper;
@@ -29,6 +30,7 @@ public class ManageKeywordsDialog extends BaseDialog<Void> {
     @FXML private TableView<String> keywordsTable;
     @FXML private ToggleGroup displayType;
     @Inject private CliPreferences preferences;
+    @Inject private StateManager stateManager;
     private ManageKeywordsViewModel viewModel;
 
     public ManageKeywordsDialog(List<BibEntry> entries) {
@@ -49,7 +51,10 @@ public class ManageKeywordsDialog extends BaseDialog<Void> {
 
     @FXML
     public void initialize() {
-        viewModel = new ManageKeywordsViewModel(preferences.getBibEntryPreferences(), entries);
+        Character keywordSeparator = stateManager.getActiveDatabase()
+                                                 .map(databaseContext -> databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()))
+                                                 .orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
+        viewModel = new ManageKeywordsViewModel(keywordSeparator, entries, stateManager.getActiveDatabase().map(stateManager::getUndoManager).orElseThrow());
 
         viewModel.displayTypeProperty().bind(
                 EasyBind.map(displayType.selectedToggleProperty(), toggle -> {

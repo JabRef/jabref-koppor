@@ -83,7 +83,7 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
         embedBibTex(bibString, file);
     }
 
-    /// Similar method: {@link org.jabref.logic.xmp.XmpUtilWriter#writeXmp(Path, BibEntry, org.jabref.model.database.BibDatabase)}
+    /// Similar method: [org.jabref.logic.xmp.XmpUtilWriter#writeXmp(Path, BibEntry, org.jabref.model.database.BibDatabase)]
     private void embedBibTex(String bibTeX, Path path) throws IOException {
         if (!Files.exists(path) || !FileUtil.isPDFFile(path)) {
             return;
@@ -134,7 +134,7 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
                 if (!names.containsKey(EMBEDDED_FILE_NAME)) {
                     try {
                         names.put(EMBEDDED_FILE_NAME, fileSpecification);
-                    } catch (UnsupportedOperationException e) {
+                    } catch (UnsupportedOperationException _) {
                         throw new IOException(Localization.lang("File '%0' is write protected.", path.toString()));
                     }
                 }

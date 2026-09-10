@@ -233,7 +233,7 @@ public class ManageStudyDefinitionViewModel {
         final String studyDirectoryAsString = directory.getValueSafe();
         try {
             studyDirectory = Path.of(studyDirectoryAsString);
-        } catch (InvalidPathException e) {
+        } catch (InvalidPathException _) {
             LOGGER.error("Invalid path was provided: {}", studyDirectoryAsString);
             dialogService.notify(Localization.lang("Unable to write to %0.", studyDirectoryAsString));
             // We do not assume another path - we return that there is an invalid object.
@@ -262,7 +262,7 @@ public class ManageStudyDefinitionViewModel {
         return new SlrStudyAndDirectory(study, studyDirectory);
     }
 
-    /// Builds a {@link Study} from the current UI state without persisting it.
+    /// Builds a [Study] from the current UI state without persisting it.
     public Study buildStudy() {
         return new Study(
                 authors,

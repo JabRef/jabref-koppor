@@ -4,8 +4,6 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.undo.UndoManager;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -46,7 +44,6 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
     private final AtomicBoolean refreshQueued = new AtomicBoolean();
 
     public UserDefinedFieldsTab(EntryEditorTabModel.CustomizedFieldsTab model,
-                                UndoManager undoManager,
                                 UndoAction undoAction,
                                 RedoAction redoAction,
                                 GuiPreferences preferences,
@@ -55,7 +52,6 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
                                 PreviewPanel previewPanel) {
         super(
                 false,
-                undoManager,
                 undoAction,
                 redoAction,
                 preferences,

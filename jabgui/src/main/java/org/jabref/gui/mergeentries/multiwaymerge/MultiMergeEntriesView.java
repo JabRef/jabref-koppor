@@ -167,7 +167,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         // add header
         int columnIndex = supplierHeader.getChildren().size();
         ToggleButton header = generateEntryHeader(entrySourceColumn, columnIndex);
-        header.getStyleClass().add("toggle-button");
+        header.getStyleClass().addAll("toggle-button", "padding-4");
         HBox.setHgrow(header, Priority.ALWAYS);
         supplierHeader.getChildren().add(header);
         header.setMinWidth(250);
@@ -356,7 +356,9 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                 cellButton.setTooltip(buttonTooltip);
 
                 cellButton.setToggleGroup(row.toggleGroup);
-                if (row.toggleGroup.getSelectedToggle() == null) {
+                // An empty cell is only added so the user can explicitly clear the merged field. Auto-selecting it
+                // would clear the value that was just merged (rows are created as a reaction to that value being set).
+                if (!content.isEmpty() && (row.toggleGroup.getSelectedToggle() == null)) {
                     cellButton.setSelected(true);
                 }
 
