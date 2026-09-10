@@ -15,6 +15,7 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
 import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.AiNamingUtils;
+import org.jabref.logic.ai.AiService;
 import org.jabref.model.ai.llm.AiProvider;
 
 import jakarta.inject.Inject;
@@ -26,6 +27,7 @@ public class AiPrivacyNoticeView extends ScrollPane {
 
     @Inject private GuiPreferences preferences;
     @Inject private DialogService dialogService;
+    @Inject private AiService aiService;
 
     private AiPrivacyNoticeViewModel viewModel;
 
@@ -42,7 +44,8 @@ public class AiPrivacyNoticeView extends ScrollPane {
                 preferences.getExternalApplicationsPreferences(),
                 preferences.getEntryEditorPreferences(),
                 preferences.getGroupsPreferences(),
-                dialogService
+                dialogService,
+                aiService.getEmbeddingModelMetadataService()
         );
 
         setupBindings();

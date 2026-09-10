@@ -13,6 +13,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
@@ -23,13 +24,12 @@ import org.jabref.model.entry.field.StandardField;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.testfx.framework.junit5.ApplicationTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 @NullMarked
-class TagsEditorTest extends ApplicationTest {
+class TagsEditorTest extends JavaFxTest {
 
     private final ListProperty<Keyword> tags = new SimpleListProperty<>(FXCollections.observableArrayList());
     private TestTagsEditor editor;
