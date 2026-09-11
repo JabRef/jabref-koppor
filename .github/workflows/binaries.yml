@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - main-release
+      - stable
       # Fork-only branch (JabRef/jabref-koppor), kept here so the nightly
       # experimental merge produces builds at builds.jabref.org/experimental.
       - experimental
@@ -313,18 +314,18 @@ jobs:
             # In the fork only `experimental` uploads: its `main` shares the
             # upload folder with upstream's and would overwrite those builds.
             if [[ "${{ github.repository }}" == "JabRef/jabref-koppor" ]]; then
-              UPLOAD_BRANCH=experimental
+              UPLOAD_BRANCHES="experimental"
             else
-              UPLOAD_BRANCH=main
+              UPLOAD_BRANCHES="main stable"
             fi
-            if [[ "${{ github.ref_name }}" == "$UPLOAD_BRANCH" ]]; then
-              echo "☁️ Push to \`$UPLOAD_BRANCH\` – will upload"
-              echo "☁️ Push to \`$UPLOAD_BRANCH\` – will upload" >> $GITHUB_STEP_SUMMARY
+            if [[ " $UPLOAD_BRANCHES " == *" ${{ github.ref_name }} "* ]]; then
+              echo "☁️ Push to \`${{ github.ref_name }}\` – will upload"
+              echo "☁️ Push to \`${{ github.ref_name }}\` – will upload" >> $GITHUB_STEP_SUMMARY
               echo "upload-to-builds-jabref-org=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi;
-            echo "⊘ Push to some branch not $UPLOAD_BRANCH – skipping upload"
-            echo "⊘ Push to some branch not $UPLOAD_BRANCH – skipping upload" >> $GITHUB_STEP_SUMMARY
+            echo "⊘ Push to some branch not in: $UPLOAD_BRANCHES – skipping upload"
+            echo "⊘ Push to some branch not in: $UPLOAD_BRANCHES – skipping upload" >> $GITHUB_STEP_SUMMARY
             echo "upload-to-builds-jabref-org=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi;
@@ -466,7 +467,7 @@ jobs:
             ]
           }'
 
-          if [[ "$GITHUB_REF" != "refs/heads/main" && "$SHOULD_NOTARIZE" != "true" ]]; then
+          if [[ "$GITHUB_REF" != "refs/heads/main" && "$GITHUB_REF" != "refs/heads/stable" && "$SHOULD_NOTARIZE" != "true" ]]; then
             # drop macos-15-intel
             MATRIX_JSON="$(jq -c ' .include |= map(select(.os != "macos-15-intel")) ' <<<"$MATRIX_JSON")"
           else
