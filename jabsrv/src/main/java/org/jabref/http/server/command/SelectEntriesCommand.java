@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
-import org.jabref.http.server.services.ServerUtils;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.command.CommandSelectionTab;
 import org.jabref.model.entry.BibEntry;
@@ -60,7 +59,7 @@ public class SelectEntriesCommand extends Command {
 
         CommandSelectionTab commandSelectionTab = activeTab.get();
 
-        if (ServerUtils.libraryId(commandSelectionTab.getBibDatabaseContext()).filter(libraryId::equals).isEmpty()) {
+        if (!commandSelectionTab.getBibDatabaseContext().getLibraryId().orElse("").equals(libraryId)) {
             return Response.status(Response.Status.BAD_REQUEST)
                            .entity("This command cannot be executed because the libraryId does not match the active selection tab.")
                            .build();

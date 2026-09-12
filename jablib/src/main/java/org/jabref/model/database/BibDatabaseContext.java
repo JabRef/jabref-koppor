@@ -132,6 +132,18 @@ public class BibDatabaseContext {
         this.path = null;
     }
 
+    /// The id used to address this library from the outside: the REST API (`/libraries/{id}/...`),
+    /// cite-as-you-write (`libraryid=`), JabMap and in-app links (`jabref://libraries/{id}/entries/{key}`).
+    ///
+    /// Derived from the `.bib` file of a regular library, or from the root directory of a
+    /// directory library (which has no `.bib` path of its own) — the same identity the session
+    /// store uses, so a directory library keeps one id across everything.
+    /// Empty for libraries that have not been saved to disk yet.
+    /// [impl->req~directory-library.rest-api~1]
+    public Optional<String> getLibraryId() {
+        return getPathOnDisk().map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path));
+    }
+
     public BibDatabase getDatabase() {
         return database;
     }

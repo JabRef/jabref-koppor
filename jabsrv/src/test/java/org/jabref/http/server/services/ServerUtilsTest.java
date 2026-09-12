@@ -37,7 +37,7 @@ class ServerUtilsTest {
     }
 
     private String rootId() {
-        return ServerUtils.libraryId(directoryLibrary()).orElseThrow();
+        return directoryLibrary().getLibraryId().orElseThrow();
     }
 
     private SrvStateManager stateManagerWith(BibDatabaseContext context) {
@@ -69,7 +69,7 @@ class ServerUtilsTest {
 
     @Test
     void unsavedLibraryHasNoId() {
-        assertEquals(Optional.empty(), ServerUtils.libraryId(new BibDatabaseContext()));
+        assertEquals(Optional.empty(), new BibDatabaseContext().getLibraryId());
     }
 
     @Test
