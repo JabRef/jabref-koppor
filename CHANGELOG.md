@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- Directory libraries now stay in sync with external file changes: creating, editing, deleting, or renaming `.yml`/`.md`/`.pdf` files in the opened folder updates the open library live, and renames keep the affected entries (selection and undo history survive). [#738](https://github.com/JabRef/jabref-koppor/pull/738)
 - We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We made almost everything in JabRef navigatable by keyboard, including adding visiual indicators. [#17059](https://github.com/JabRef/jabref/pull/17059)
 - We added a fetcher for Software Heritage identifiers (SWHID). [#16809](https://github.com/JabRef/jabref/issues/16809)
