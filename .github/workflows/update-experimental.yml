@@ -30,6 +30,7 @@ env:
     origin/fix-ai-tab-disabled-settings # https://github.com/JabRef/jabref/pull/17128
     origin/fix-ai-overlap-validator # https://github.com/JabRef/jabref/pull/17119
     origin/whats-new # https://github.com/JabRef/jabref/pull/17104
+    koppor/ai-batch-questions # https://github.com/JabRef/jabref-koppor/pull/768
 
 jobs:
   merge:
