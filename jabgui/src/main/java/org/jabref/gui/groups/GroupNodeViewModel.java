@@ -651,8 +651,6 @@ public class GroupNodeViewModel {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
             case AllEntriesGroup _,
-                 DirectoryStructureGroup _,
-                 DirectoryPathGroup _,
                  SearchGroup _,
                  AutomaticKeywordGroup _,
                  AutomaticPersonsGroup _,
@@ -660,7 +658,9 @@ public class GroupNodeViewModel {
                  DateGroup _,
                  AutomaticEntryTypeGroup _,
                  EntryTypeGroup _,
-                 TexGroup _ ->
+                 TexGroup _,
+                 DirectoryStructureGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _ ->
                     true;

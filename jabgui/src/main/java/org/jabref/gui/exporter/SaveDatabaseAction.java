@@ -287,7 +287,6 @@ public class SaveDatabaseAction {
             dialogService.notify(Localization.lang("Library saved"));
             return SaveResult.SUCCESS;
         }
-
         Optional<Path> databasePath = bibDatabaseContext.getDatabasePath();
         if (databasePath.isEmpty()) {
             Optional<Path> savePath = askForSavePath();

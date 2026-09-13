@@ -167,7 +167,7 @@ public class MainMenu extends MenuBar {
         Menu tools = new Menu(Localization.lang("Tools"));
         Menu help = new Menu(Localization.lang("Help"));
 
-        OpenDirectoryLibraryAction openDirectoryLibraryAction = new OpenDirectoryLibraryAction(frame, dialogService, preferences, aiService, stateManager, fileUpdateMonitor, entryTypesManager, undoManager, clipBoardManager, taskExecutor);
+        OpenDirectoryLibraryAction openDirectoryLibraryAction = new OpenDirectoryLibraryAction(frame, dialogService, preferences, aiService, stateManager, fileUpdateMonitor, entryTypesManager, gitHandlerRegistry, clipBoardManager, taskExecutor);
         file.getItems().addAll(
                 factory.createMenuItem(StandardActions.NEW_LIBRARY, new NewDatabaseAction(frame, preferences)),
                 factory.createMenuItem(StandardActions.OPEN_LIBRARY, openDatabaseActionSupplier.get()),
