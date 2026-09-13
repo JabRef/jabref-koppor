@@ -42,10 +42,21 @@ class WhatsNewViewModelTest {
     private static final ChangelogEntry MINE = new ChangelogEntry("Unreleased", "Added", "An entry of mine.");
     private static final ChangelogEntry PUSHED = new ChangelogEntry("Unreleased", "Fixed", "An entry pushed from elsewhere.");
 
-    /// Runs a task at once when executed, but only records it when scheduled: the test decides when the
-    /// next periodic look happens.
+    /// Runs a task at once when executed, but only records it when scheduled, or when told to hold executed
+    /// tasks too: the test decides when the next periodic look happens, and can cancel a task before it runs.
     private static final class RecordingTaskExecutor extends CurrentThreadTaskExecutor {
         private final List<BackgroundTask<?>> scheduled = new ArrayList<>();
+        private final List<BackgroundTask<?>> held = new ArrayList<>();
+        private boolean holding;
+
+        @Override
+        public <V> Future<V> execute(BackgroundTask<V> task) {
+            if (holding) {
+                held.add(task);
+                return CompletableFuture.completedFuture(null);
+            }
+            return super.execute(task);
+        }
 
         @Override
         public <V> Future<?> schedule(BackgroundTask<V> task, long delay, TimeUnit unit) {
@@ -56,7 +67,19 @@ class WhatsNewViewModelTest {
         void runScheduled() {
             List<BackgroundTask<?>> due = List.copyOf(scheduled);
             scheduled.clear();
-            due.forEach(this::execute);
+            due.forEach(super::execute);
+        }
+
+        /// Runs what was held; tasks submitted meanwhile are held again.
+        void runHeld() {
+            List<BackgroundTask<?>> due = List.copyOf(held);
+            held.clear();
+            due.forEach(super::execute);
+        }
+
+        /// Runs the task held last, ahead of the others.
+        void runHeldLast() {
+            super.execute(held.removeLast());
         }
     }
 
@@ -104,7 +127,7 @@ class WhatsNewViewModelTest {
 
     @Test
     void aLaterLookShowsWhatWasNotAnnounced() throws IOException {
-        announced().write(Set.of(OLD));
+        announced().announce(Set.of(OLD));
         when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
 
         viewModel.startWatching();
@@ -117,7 +140,7 @@ class WhatsNewViewModelTest {
 
     @Test
     void thePeriodicLookFetchesAndReportsTheUpstream() throws IOException {
-        announced().write(Set.of(OLD));
+        announced().announce(Set.of(OLD));
         viewModel.startWatching();
         when(checkout.commitsBehind()).thenReturn(2);
         when(checkout.blameUpstream()).thenReturn(Optional.of(changelog(Contributor.Me.REMOTE, OLD, PUSHED)));
@@ -136,11 +159,11 @@ class WhatsNewViewModelTest {
 
     @Test
     void presentingTheNewsMakesThemOld() throws IOException {
-        announced().write(Set.of(OLD));
+        announced().announce(Set.of(OLD));
         when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
         AtomicReference<News> presented = new AtomicReference<>();
 
-        viewModel.present(presented::set, _ -> fail("the look must not fail"));
+        viewModel.present(() -> true, presented::set, _ -> fail("the look must not fail"));
 
         assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE))), presented.get());
         assertEquals(News.NONE, viewModel.getPending());
@@ -148,23 +171,84 @@ class WhatsNewViewModelTest {
     }
 
     @Test
-    void anUnreachableUpstreamPresentsTheNewsButKeepsThemPending() throws IOException {
-        announced().write(Set.of(OLD));
+    void aFirstLookOvertakenByAClickDoesNotTurnTheClockBack() throws IOException {
+        announced().announce(Set.of(OLD));
+        when(checkout.commitsBehind()).thenReturn(2);
+        when(checkout.blameUpstream()).thenReturn(Optional.of(changelog(Contributor.Me.REMOTE, OLD, PUSHED)));
+        taskExecutor.holding = true;
+        viewModel.startWatching();
+        AtomicReference<News> presented = new AtomicReference<>();
+        viewModel.present(() -> true, presented::set, _ -> fail("the upstream was reached"));
+
+        taskExecutor.runHeldLast();
+        assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.REMOTE, PUSHED))), presented.get());
+        assertTrue(viewModel.updateAvailableProperty().get());
+        taskExecutor.runHeld();
+
+        assertTrue(viewModel.updateAvailableProperty().get());
+    }
+
+    @Test
+    void aLookOverlappingAPresentationDoesNotBringShownNewsBack() throws IOException {
+        announced().announce(Set.of(OLD));
+        when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
+        viewModel.startWatching();
+        taskExecutor.holding = true;
+        AtomicReference<News> presented = new AtomicReference<>();
+        viewModel.present(() -> true, presented::set, _ -> fail("the look must not fail"));
+        taskExecutor.runHeld();
+        // The periodic look reads the announced entries before the presentation's write got to them.
+        taskExecutor.runScheduled();
+        taskExecutor.runHeld();
+
+        assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE))), presented.get());
+        assertEquals(News.NONE, viewModel.getPending());
+        assertEquals(Optional.of(Set.of(OLD, MINE)), announced().read());
+    }
+
+    @Test
+    void aPresentationCancelledBeforeItsAnswerAnnouncesNothing() throws IOException {
+        announced().announce(Set.of(OLD));
+        when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
+        taskExecutor.holding = true;
+
+        BackgroundTask<?> presentation = viewModel.present(() -> true, _ -> fail("the window was closed"), _ -> fail("the window was closed"));
+        presentation.cancel();
+        taskExecutor.runHeld();
+
+        assertEquals(Optional.of(Set.of(OLD)), announced().read());
+    }
+
+    @Test
+    void anUnreachableUpstreamPresentsTheNewsAsFailedAndStillMakesThemOld() throws IOException {
+        announced().announce(Set.of(OLD));
         when(checkout.fetch()).thenReturn(false);
         when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
         AtomicReference<News> presented = new AtomicReference<>();
 
-        viewModel.present(_ -> fail("the upstream was not reached"), presented::set);
+        viewModel.present(() -> true, _ -> fail("the upstream was not reached"), presented::set);
 
-        News mine = new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE)));
-        assertEquals(mine, presented.get());
-        assertEquals(mine, viewModel.getPending());
+        assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE))), presented.get());
+        assertEquals(News.NONE, viewModel.getPending());
+        assertEquals(Optional.of(Set.of(OLD, MINE)), announced().read());
+    }
+
+    @Test
+    void anAnswerForAClosedWindowChangesNothing() throws IOException {
+        announced().announce(Set.of(OLD));
+        when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
+        viewModel.startWatching();
+        News known = viewModel.getPending();
+
+        viewModel.present(() -> false, _ -> fail("the window was closed"), _ -> fail("the window was closed"));
+
+        assertEquals(known, viewModel.getPending());
         assertEquals(Optional.of(Set.of(OLD)), announced().read());
     }
 
     @Test
     void aFailedLookPresentsTheNewsKnownSoFar() throws IOException {
-        announced().write(Set.of(OLD));
+        announced().announce(Set.of(OLD));
         when(checkout.blameWorkingTree()).thenReturn(Optional.of(changelog(Contributor.Me.LOCAL, OLD, MINE)));
         viewModel.startWatching();
         News known = viewModel.getPending();
@@ -172,7 +256,7 @@ class WhatsNewViewModelTest {
         Files.createDirectory(gitDir.resolve("whats-new-announced.tsv"));
         AtomicReference<News> presented = new AtomicReference<>();
 
-        viewModel.present(_ -> fail("the look must fail"), presented::set);
+        viewModel.present(() -> true, _ -> fail("the look must fail"), presented::set);
 
         assertEquals(known, presented.get());
         assertEquals(known, viewModel.getPending());

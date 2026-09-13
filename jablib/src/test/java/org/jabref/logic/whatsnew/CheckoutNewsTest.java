@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,17 +69,18 @@ class CheckoutNewsTest {
 
     @Test
     void aLaterLookFindsWhatWasNotAnnounced() throws IOException {
-        announced.write(Set.of(OLD));
+        announced.announce(Set.of(OLD));
 
         CheckoutNews.Look look = news.look(CheckoutNews.Mode.WITHOUT_FETCH);
 
-        assertEquals(new CheckoutNews.Look(false, 0, Optional.empty(), Optional.empty(), new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE)))), look);
+        assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.LOCAL, MINE))), look.news());
+        assertEquals(List.of(OLD, MINE), List.copyOf(look.seen()));
         assertEquals(Optional.of(Set.of(OLD)), announced.read());
     }
 
     @Test
     void behindTheUpstreamTheFetchedChangelogCountsToo() throws IOException {
-        announced.write(Set.of(OLD, MINE));
+        announced.announce(Set.of(OLD, MINE));
         when(checkout.commitsBehind()).thenReturn(2);
         when(checkout.blameUpstream()).thenReturn(Optional.of(changelog(Contributor.Me.REMOTE, OLD, PUSHED)));
         when(checkout.describeHead()).thenReturn(Optional.of("1111111 (2026-09-13 10:00)"));
@@ -85,36 +88,43 @@ class CheckoutNewsTest {
 
         CheckoutNews.Look look = news.look(CheckoutNews.Mode.WITH_FETCH);
 
-        assertEquals(new CheckoutNews.Look(true, 2, Optional.of("1111111 (2026-09-13 10:00)"), Optional.of("2222222 (2026-09-13 11:00)"),
-                new News(List.of(new AttributedEntry(Contributor.Me.REMOTE, PUSHED)))), look);
+        assertTrue(look.fetched());
+        assertEquals(2, look.commitsBehind());
+        assertEquals(Optional.of("1111111 (2026-09-13 10:00)"), look.head());
+        assertEquals(Optional.of("2222222 (2026-09-13 11:00)"), look.upstream());
+        assertEquals(new News(List.of(new AttributedEntry(Contributor.Me.REMOTE, PUSHED))), look.news());
+        assertEquals(List.of(OLD, MINE, PUSHED), List.copyOf(look.seen()));
     }
 
     @Test
-    void announcingNeedsAFetchedUpstream() throws IOException {
-        announced.write(Set.of(OLD));
+    void anUnreachableUpstreamIsReported() throws IOException {
+        announced.announce(Set.of(OLD));
         when(checkout.fetch()).thenReturn(false);
 
-        CheckoutNews.Look look = news.present(() -> false);
+        CheckoutNews.Look look = news.look(CheckoutNews.Mode.WITH_FETCH);
 
-        assertEquals(false, look.fetched());
+        assertFalse(look.fetched());
         assertEquals(Optional.of(Set.of(OLD)), announced.read());
     }
 
     @Test
-    void announcingHappensOnceFetched() throws IOException {
-        announced.write(Set.of(OLD));
+    void aLookWithoutAChangelogAnnouncesNothingEvenWhenAsked() throws IOException {
+        announced.announce(Set.of(OLD));
+        when(checkout.blameWorkingTree()).thenReturn(Optional.empty());
 
-        news.present(() -> false);
+        news.announce(news.look(CheckoutNews.Mode.WITH_FETCH));
 
+        assertEquals(Optional.of(Set.of(OLD)), announced.read());
+    }
+
+    @Test
+    void aLookAnnouncesNothingUntilAsked() throws IOException {
+        announced.announce(Set.of(OLD));
+
+        CheckoutNews.Look look = news.look(CheckoutNews.Mode.WITH_FETCH);
+        assertEquals(Optional.of(Set.of(OLD)), announced.read());
+
+        news.announce(look);
         assertEquals(Optional.of(Set.of(OLD, MINE)), announced.read());
-    }
-
-    @Test
-    void aCancelledLookAnnouncesNothing() throws IOException {
-        announced.write(Set.of(OLD));
-
-        news.present(() -> true);
-
-        assertEquals(Optional.of(Set.of(OLD)), announced.read());
     }
 }

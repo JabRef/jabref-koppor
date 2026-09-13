@@ -23,7 +23,9 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.prefs.Preferences;
@@ -66,7 +68,7 @@ import org.jspecify.annotations.NullMarked;
 ///
 /// "Start" (or closing the window) exits 0 and the `just` recipe starts JabRef; "Cancel" exits 1 and stops
 /// it. `--stdout` prints instead of opening a window. The first run only records the changelog. A git failure
-/// (no `CHANGELOG.md` at `HEAD`) is reported and exits 0: the news never block the start.
+/// is reported and exits 0, and the news stay unannounced for the next run: they never block the start.
 @NullMarked
 public class WhatsNewLauncher {
 
@@ -91,31 +93,47 @@ public class WhatsNewLauncher {
         Localization.setLanguage(Language.getLanguageFor(JABREF_PREFERENCES.get(LANGUAGE_PREFERENCE, Locale.getDefault().getLanguage())));
         AnnouncedEntries announced = AnnouncedEntries.inGitDir(Path.of(git("rev-parse", "--absolute-git-dir").getFirst()));
         String head = git("rev-parse", "HEAD").getFirst();
-        List<ChangelogEntry> entries = List.copyOf(ChangelogParser.entries(git("show", head + ":" + CHANGELOG)).values());
+        List<String> changelog = git("show", head + ":" + CHANGELOG);
+        SequencedMap<Integer, ChangelogEntry> entriesByLine = ChangelogParser.entries(changelog);
+        List<ChangelogEntry> entries = List.copyOf(entriesByLine.values());
         Optional<Set<ChangelogEntry>> announcedSoFar = announced.read();
-        // Announced first: a failure below must not replay the same news forever.
-        announced.write(entries);
         if (announcedSoFar.isEmpty()) {
+            announced.announce(entries);
             return;
         }
         Set<String> announcedTexts = announcedSoFar.get().stream().map(ChangelogEntry::text).collect(Collectors.toSet());
         // Without `--default`, an unset user.email is a failing command, not an empty answer.
         EntryOrigins origins = new EntryOrigins(git("config", "--default", "", "--get", "user.email").getFirst());
         List<AttributedEntry> items = new ArrayList<>();
-        for (ChangelogEntry entry : entries) {
+        for (Map.Entry<Integer, ChangelogEntry> entryAtLine : entriesByLine.entrySet()) {
+            ChangelogEntry entry = entryAtLine.getValue();
             if (!announcedTexts.contains(entry.text())) {
-                items.add(origins.attribute(entry));
+                // The history is searched for the bullet line as committed: an entry continued on further lines
+                // is joined for display only.
+                items.add(origins.attribute(entry, changelog.get(entryAtLine.getKey()).substring(2).strip()));
             }
         }
         News news = new News(items);
         if (news.isEmpty()) {
+            announced.announce(entries);
             return;
         }
         if (List.of(args).contains(STDOUT_FLAG) || java.awt.GraphicsEnvironment.isHeadless()) {
             System.out.println(news.asPlainText());
+            announced.announce(entries);
             return;
         }
-        Window.show(news, Localization.lang("What's new") + " — " + describe(head));
+        // Announced once the window is on screen: a git or JavaFX failure before that keeps the news for the next run.
+        Window.show(news, Localization.lang("What's new") + " — " + describe(head), () -> remember(announced, entries));
+    }
+
+    private static void remember(AnnouncedEntries announced, List<ChangelogEntry> entries) {
+        try {
+            announced.announce(entries);
+        } catch (IOException e) {
+            System.err.println("What's new cannot remember the announced entries: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /// Who first added a changelog entry.
@@ -140,9 +158,10 @@ public class WhatsNewLauncher {
             this.myEmail = myEmail;
         }
 
-        /// `entry` with who first added it; mine when the history does not tell, which a committed line does not do.
-        AttributedEntry attribute(ChangelogEntry entry) throws IOException, InterruptedException {
-            Contributor by = origin(entry.text(), 0).map(this::contributor).orElse(Contributor.Me.LOCAL);
+        /// `entry` with who first added its `bulletLine` (the `- ` line as committed, without the marker); mine
+        /// when the history does not tell, which a committed line does not do.
+        AttributedEntry attribute(ChangelogEntry entry, String bulletLine) throws IOException, InterruptedException {
+            Contributor by = origin(bulletLine, 0).map(this::contributor).orElse(Contributor.Me.LOCAL);
             return new AttributedEntry(by, entry);
         }
 
@@ -227,10 +246,13 @@ public class WhatsNewLauncher {
         // Application.launch instantiates the class by reflection: the news reach the window through these fields.
         private static News news = News.NONE;
         private static String title = "";
+        private static Runnable onShown = () -> { };
 
-        static void show(News news, String title) {
+        /// Shows `news` and runs `onShown` once the window is on screen.
+        static void show(News news, String title, Runnable onShown) {
             Window.news = news;
             Window.title = title;
+            Window.onShown = onShown;
             Application.launch(Window.class);
         }
 
@@ -255,6 +277,7 @@ public class WhatsNewLauncher {
             stage.setTitle(title);
             stage.setScene(scene);
             stage.show();
+            onShown.run();
         }
 
         /// Dark if JabRef's colour scheme preference says so, or says "follow system" and the system is dark.
@@ -278,7 +301,8 @@ public class WhatsNewLauncher {
         List<String> command = new ArrayList<>(List.of("git"));
         command.addAll(List.of(args));
         Process process = new ProcessBuilder(command).redirectError(ProcessBuilder.Redirect.INHERIT).start();
-        List<String> output = process.inputReader().lines().toList();
+        // Git writes the changelog and the names as UTF-8, whatever the platform's own encoding.
+        List<String> output = process.inputReader(StandardCharsets.UTF_8).lines().toList();
         if (process.waitFor() != 0) {
             throw new IOException("git " + String.join(" ", args) + " failed");
         }

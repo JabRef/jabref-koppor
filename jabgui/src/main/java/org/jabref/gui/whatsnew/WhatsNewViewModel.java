@@ -1,11 +1,11 @@
 package org.jabref.gui.whatsnew;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -40,8 +40,9 @@ import org.slf4j.LoggerFactory;
 /// projects what they find into properties.
 ///
 /// A look runs in the background and lands here on the FX thread; every property is read and written on the
-/// FX thread only. [CheckoutNews] runs looks one after the other, so their answers arrive in the order they
-/// started and an older answer never replaces a newer one.
+/// FX thread only. [CheckoutNews] runs looks one after the other, but not necessarily in the order they were
+/// due: a click right after the start may take the checkout before the first look does. So every look is
+/// numbered by the moment it is due, and an answer older than the one shown last is dropped.
 // [impl->req~whats-new.checkout-news~1]
 public class WhatsNewViewModel extends AbstractViewModel {
 
@@ -51,6 +52,8 @@ public class WhatsNewViewModel extends AbstractViewModel {
         REQUESTED,
         /// The user kept JabRef open (a library to save first); the marker is withdrawn.
         DECLINED_BY_USER,
+        /// The user kept JabRef open, but the marker could not be withdrawn: the next quit restarts JabRef.
+        MARKER_NOT_WITHDRAWN,
         /// The marker could not be written; JabRef keeps running.
         MARKER_NOT_WRITTEN
     }
@@ -69,10 +72,12 @@ public class WhatsNewViewModel extends AbstractViewModel {
     private final BooleanBinding updateAvailable = commitsBehind.greaterThan(0);
     private final StringBinding tooltip = Bindings.createStringBinding(this::tooltipText, pending, commitsBehind, title);
 
-    /// One look, as [CheckoutNews] offers it, given whether the look was cancelled meanwhile.
-    private interface LookCall {
-        Look look(BooleanSupplier cancelled) throws IOException;
+    /// One look's answer with the number of the look. FX thread.
+    private record Answer(long due, Look look) {
     }
+
+    private long looksDue;
+    private long lastShown;
 
     /// @param quit closes JabRef the ordinary way, so unsaved libraries are asked about; `false` when the user
     ///             keeps JabRef open
@@ -104,28 +109,36 @@ public class WhatsNewViewModel extends AbstractViewModel {
 
     /// One look now without fetching (`just run-loop` has just pulled), then a fetch every five minutes.
     public void startWatching() {
-        lookTask(_ -> news.look(Mode.WITHOUT_FETCH), this::show)
+        lookNow(Mode.WITHOUT_FETCH, this::show)
                 .onFinished(this::scheduleNextLook)
                 .executeWith(taskExecutor);
     }
 
-    /// A look on demand: fetches, hands the news found to `onChecked` and makes them old — the tooltip drops
-    /// them and the announced entries take them. When the upstream cannot be reached or the look fails,
-    /// `onFailed` gets the news known so far instead, and nothing is made old. Cancelling the returned task
-    /// (the window closed before the answer) makes nothing old either and calls neither consumer.
-    public BackgroundTask<?> present(Consumer<News> onChecked, Consumer<News> onFailed) {
-        BackgroundTask<Look> presentation = lookTask(news::present, look -> {
-            show(look);
+    /// A look on demand: fetches, hands the news found to `onChecked` — or to `onFailed` when the upstream could
+    /// not be reached, so no restart is offered — and only then makes them old: the tooltip drops them and the
+    /// announced entries take them. Should the look itself fail, `onFailed` gets the news known so far and
+    /// nothing is made old. Nothing happens once `windowOpen` says the window is gone: cancelling the returned
+    /// task covers a look still running, this covers an answer already on its way.
+    public BackgroundTask<?> present(BooleanSupplier windowOpen, Consumer<News> onChecked, Consumer<News> onFailed) {
+        BackgroundTask<Answer> presentation = lookNow(Mode.WITH_FETCH, answer -> {
+            if (!windowOpen.getAsBoolean()) {
+                return;
+            }
+            show(answer);
+            Look look = answer.look();
             if (look.fetched()) {
                 onChecked.accept(look.news());
-                pending.set(News.NONE);
             } else {
                 onFailed.accept(look.news());
             }
+            pending.set(pending.get().without(look.seen()));
+            announce(look);
         })
                 .onFailure(e -> {
                     LOGGER.warn("Cannot look at the checkout", e);
-                    onFailed.accept(pending.get());
+                    if (windowOpen.getAsBoolean()) {
+                        onFailed.accept(pending.get());
+                    }
                 });
         presentation.executeWith(taskExecutor);
         return presentation;
@@ -140,14 +153,13 @@ public class WhatsNewViewModel extends AbstractViewModel {
         if (quit.getAsBoolean()) {
             return RestartRequest.REQUESTED;
         }
-        restartMarker.withdraw();
-        return RestartRequest.DECLINED_BY_USER;
+        return restartMarker.withdraw() ? RestartRequest.DECLINED_BY_USER : RestartRequest.MARKER_NOT_WITHDRAWN;
     }
 
     /// The next periodic look; none once the executor is shut down, i.e. while JabRef quits.
     private void scheduleNextLook() {
         try {
-            lookTask(_ -> news.look(Mode.WITH_FETCH), this::show)
+            lookLater(Mode.WITH_FETCH, this::show)
                     .onFinished(this::scheduleNextLook)
                     .scheduleWith(taskExecutor, CHECK_INTERVAL.toMinutes(), TimeUnit.MINUTES);
         } catch (RejectedExecutionException e) {
@@ -155,20 +167,42 @@ public class WhatsNewViewModel extends AbstractViewModel {
         }
     }
 
-    /// The task for one look, not started yet; a failure is logged. FX thread.
-    private BackgroundTask<Look> lookTask(LookCall call, Consumer<Look> onSuccess) {
-        BackgroundTask<Look> task = new BackgroundTask<>() {
-            @Override
-            public Look call() throws IOException {
-                return call.look(this::isCancelled);
-            }
-        };
-        return task.onSuccess(onSuccess)
-                   .onFailure(e -> LOGGER.warn("Cannot look at the checkout", e));
+    /// The task for a look due now, numbered as such; a failure is logged. FX thread.
+    private BackgroundTask<Answer> lookNow(Mode mode, Consumer<Answer> onSuccess) {
+        long due = ++looksDue;
+        return BackgroundTask.wrap(() -> new Answer(due, news.look(mode)))
+                             .onSuccess(onSuccess)
+                             .onFailure(e -> LOGGER.warn("Cannot look at the checkout", e));
     }
 
-    /// FX thread.
-    private void show(Look look) {
+    /// The task for a look due later: numbered when it starts, so the looks due meanwhile come first. FX thread.
+    private BackgroundTask<Answer> lookLater(Mode mode, Consumer<Answer> onSuccess) {
+        AtomicLong due = new AtomicLong();
+        return BackgroundTask.wrap(() -> new Answer(due.get(), news.look(mode)))
+                             .onRunning(() -> due.set(++looksDue))
+                             .onSuccess(onSuccess)
+                             .onFailure(e -> LOGGER.warn("Cannot look at the checkout", e));
+    }
+
+    /// Makes the news of `look` old, in the background. A look that ran meanwhile has read the old announced
+    /// entries and shown them again, so the pending news drop them once more when the write is done. FX thread.
+    private void announce(Look look) {
+        BackgroundTask.wrap(() -> {
+                          news.announce(look);
+                          return look;
+                      })
+                      .onSuccess(announced -> pending.set(pending.get().without(announced.seen())))
+                      .onFailure(e -> LOGGER.warn("Cannot remember the announced entries", e))
+                      .executeWith(taskExecutor);
+    }
+
+    /// Shows the answer unless a look due later was shown already. FX thread.
+    private void show(Answer answer) {
+        if (answer.due() < lastShown) {
+            return;
+        }
+        lastShown = answer.due();
+        Look look = answer.look();
         pending.set(look.news());
         commitsBehind.set(look.commitsBehind());
         title.set(title(look));
