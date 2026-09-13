@@ -121,9 +121,9 @@ public class AskQuestionsAction extends SimpleCommand {
         }
         lastQuestions = text.get();
         return QUESTION_SEPARATOR.splitAsStream(text.get())
-                     .map(String::strip)
-                     .filter(question -> !question.isEmpty())
-                     .toList();
+                                 .map(String::strip)
+                                 .filter(question -> !question.isEmpty())
+                                 .toList();
     }
 
     private void askAll(BackgroundTask<Void> task, BibDatabaseContext context, List<BibEntry> entries, List<String> questions) {
