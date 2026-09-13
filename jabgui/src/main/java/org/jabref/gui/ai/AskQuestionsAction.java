@@ -1,10 +1,10 @@
 package org.jabref.gui.ai;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
@@ -33,6 +33,7 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +44,10 @@ import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 ///
 /// Each question is sent without the previous questions and answers in the context, so the prompt stays small
 /// (system message + retrieved excerpts + question) and works with small models.
+@NullMarked
 public class AskQuestionsAction extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(AskQuestionsAction.class);
-    private static final String QUESTION_SEPARATOR = "(?m)^\\s*---\\s*$";
+    private static final Pattern QUESTION_SEPARATOR = Pattern.compile("(?m)^\\s*---\\s*$");
 
     // ponytail: remembered per JabRef run only, add a preference if this survives the experiment
     private static String lastQuestions = "";
@@ -118,7 +120,7 @@ public class AskQuestionsAction extends SimpleCommand {
             return List.of();
         }
         lastQuestions = text.get();
-        return Arrays.stream(text.get().split(QUESTION_SEPARATOR))
+        return QUESTION_SEPARATOR.splitAsStream(text.get())
                      .map(String::strip)
                      .filter(question -> !question.isEmpty())
                      .toList();
