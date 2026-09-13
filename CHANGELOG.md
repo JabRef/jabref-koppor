@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We made almost everything in JabRef navigatable by keyboard, including adding visiual indicators. [#17059](https://github.com/JabRef/jabref/pull/17059)
 - We added a fetcher for Software Heritage identifiers (SWHID). [#16809](https://github.com/JabRef/jabref/issues/16809)
 - We added the community themes from [themes.jabref.org](https://themes.jabref.org/) (Everforest, Nord, Papers, Chocolate Honey, and Dino Girl's collection) as selectable themes. [#15915](https://github.com/JabRef/jabref/issues/15915)

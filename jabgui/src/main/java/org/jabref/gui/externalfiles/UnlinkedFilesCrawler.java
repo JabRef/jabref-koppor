@@ -24,6 +24,7 @@ import org.jabref.logic.externalfiles.ExternalFileSorter;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.io.AutoLinkPreferences;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.logic.util.io.GitIgnoreFileFilter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
