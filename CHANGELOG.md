@@ -111,6 +111,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added read-only access to shared SQL libraries in `jabkit`: every input file argument accepts a PostgreSQL URL. [#12948](https://github.com/JabRef/jabref/issues/12948)
 - We now focus the citation key field when a newly added entry opens in the entry editor. [#16929](https://github.com/JabRef/jabref/pull/16929)
 - We added creating a new entry by double-clicking the empty space below the last row of the entry table. [#16929](https://github.com/JabRef/jabref/pull/16929)
+- We added the ability for LibreOffice BST citations to use style-defined labels. [forum#3764]([https://github.com/JabRef/jabref/issues/16357](https://discourse.jabref.org/t/feature-request-custom-citation-styles-from-bst/3764))
 
 ### Changed
 
@@ -348,6 +349,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 - We fixed an issue where the deb, rpm and msi packages did not register JabRef for `.bib` files. [#17006](https://github.com/JabRef/jabref/issues/17006)
 - We fixed AI chat connection errors to show the server URL and the reason. [#17125](https://github.com/JabRef/jabref/pull/17125)
+- "Git commit" now saves a modified library first (if autosave is enabled) or asks to save it, so unsaved changes are no longer silently left out of the commit. [#16718](https://github.com/JabRef/jabref/pull/16718)
+- We fixed an issue where an error while closing a library left JabRef unclosable behind a recurring "Uncaught exception" dialog. [#16810](https://github.com/JabRef/jabref/pull/16810)
 
 ### Removed
 
