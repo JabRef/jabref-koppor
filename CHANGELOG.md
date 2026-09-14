@@ -172,6 +172,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - Embedded postgres is no longer started with JabRef unless "Experimental search (Postgres)" is enabled in General preferences. [#12844](https://github.com/JabRef/jabref/issues/12844)
 - The entry context menu now offers "Get fulltext", and groups "Attach file", "Attach file from URL", "Open folder(s)" and "Open file" into a "More file operations..." submenu. [#16829](https://github.com/JabRef/jabref/pull/16829)
 - We changed the full text document search to run as a cancelable background task instead of blocking JabRef with a modal dialog. [#16831](https://github.com/JabRef/jabref/pull/16831)
+- We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
 - We now keep changes made while the [remote SQL database](https://docs.jabref.org/collaborative-work/sqldatabase) connection is down and synchronize them once it is back. [#11211](https://github.com/JabRef/jabref/issues/11211)
 - We changed the full text document search to run as a cancelable background task instead of blocking JabRef with a modal dialog. [#16831](https://github.com/JabRef/jabref/pull/16831)
 - We changed [remote SQL database](https://docs.jabref.org/collaborative-work/sqldatabase) synchronization to PostgreSQL-only with live updates; existing database tables are migrated. [#11232](https://github.com/JabRef/jabref/issues/11232)
