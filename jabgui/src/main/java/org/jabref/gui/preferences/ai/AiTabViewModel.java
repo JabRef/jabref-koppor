@@ -523,6 +523,18 @@ public class AiTabViewModel implements PreferenceTabViewModel {
         aiPreferences.copyFrom(workingAiPreferences);
     }
 
+    /// Tests the connection with the values currently entered in the dialog, not the stored preferences.
+    public BackgroundTask<String> testConnectionTask() {
+        AiProvider provider = selectedAiProvider.get();
+        String modelName = currentChatModel.get();
+        String apiKey = currentApiKey.get();
+        String baseUrl = customizeExpertSettings.get() ? currentApiBaseUrl.get() : provider.getApiUrl();
+        double temperatureValue = LocalizedNumbersUtils.stringToDouble(temperature.get()).orElse((double) AiDefaultExpertSettings.TEMPERATURE);
+        int contextWindow = contextWindowSize.get();
+        TokenEstimatorKind tokenEstimatorKind = tokenEstimationAlgorithmProperty.get();
+        return BackgroundTask.wrap(() -> aiModelService.testConnection(provider, modelName, apiKey, temperatureValue, baseUrl, contextWindow, tokenEstimatorKind));
+    }
+
     public void resetExpertSettings() {
         String resetApiBaseUrl = selectedAiProvider.get().getApiUrl();
         currentApiBaseUrl.set(resetApiBaseUrl);
