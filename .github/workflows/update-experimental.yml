@@ -82,16 +82,22 @@ jobs:
           green=false
           compiles && green=true
 
+          push() {
+            git push --quiet koppor "HEAD:refs/heads/$TARGET"
+          }
+
           merge() {
             if git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
               if compiles; then
                 green=true
+                push
                 echo "- :white_check_mark: \`$2\` ${3:-}" >> "$GITHUB_STEP_SUMMARY"
               elif [ "$green" = true ]; then
                 git reset --hard --quiet ORIG_HEAD
                 echo "::warning::Compile error after merging $2 - skipped"
                 echo "- :x: \`$2\` ${3:-} - compile error, skipped" >> "$GITHUB_STEP_SUMMARY"
               else
+                push
                 echo "::warning::$TARGET does not compile (kept merge of $2)"
                 echo "- :warning: \`$2\` ${3:-} - merged, $TARGET does not compile" >> "$GITHUB_STEP_SUMMARY"
               fi
@@ -115,6 +121,17 @@ jobs:
             merge "$magic" "squash $squash" "(magic merge commit)"
           done
 
+          # Everything to merge: ref, label, and summary suffix per entry. Refs experimental already contains are dropped.
+          refs=()
+          labels=()
+          suffixes=()
+          candidate() {
+            git merge-base --is-ancestor "$1" HEAD && return
+            refs+=("$1")
+            labels+=("$2")
+            suffixes+=("${3:-}")
+          }
+
           while read -r branch; do
             branch="${branch%%#*}"
             branch="$(echo "$branch" | xargs)"
@@ -123,7 +140,7 @@ jobs:
               echo "::warning::Branch $branch does not exist (any more) - skipped"
               echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
             else
-              merge "$branch" "$branch"
+              candidate "$branch" "$branch"
             fi
           done <<< "$BRANCHES"
 
@@ -148,8 +165,24 @@ jobs:
               continue
             fi
             repo="${pr%/pull/*}"
-            git fetch --no-tags "$repo.git" "refs/pull/${pr##*/}/head"
-            merge FETCH_HEAD "$branch" "($pr)"
+            ref="refs/candidates/${#refs[@]}"
+            git fetch --no-tags "$repo.git" "+refs/pull/${pr##*/}/head:$ref"
+            candidate "$ref" "$branch" "($pr)"
           done <<< "$PRS"
 
-          git push koppor "HEAD:refs/heads/$TARGET"
+          # One octopus merge of everything; on a conflict or a compile error fall back to merging one by one.
+          start="$(git rev-parse HEAD)"
+          if [ "${#refs[@]}" -gt 1 ] \
+            && git merge --no-edit -m "Merge ${#refs[@]} branches into $TARGET" -m "$(printf '%s\n' "${labels[@]}")" "${refs[@]}" \
+            && { compiles || [ "$green" = false ]; }; then
+            push
+            for i in "${!refs[@]}"; do
+              echo "- :white_check_mark: \`${labels[$i]}\` ${suffixes[$i]} (octopus)" >> "$GITHUB_STEP_SUMMARY"
+            done
+          else
+            git reset --hard --quiet "$start"
+            [ "${#refs[@]}" -gt 1 ] && echo "- :octopus: octopus merge failed, merging one by one" >> "$GITHUB_STEP_SUMMARY"
+            for i in "${!refs[@]}"; do
+              merge "${refs[$i]}" "${labels[$i]}" "${suffixes[$i]}"
+            done
+          fi
