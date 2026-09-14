@@ -205,6 +205,7 @@ public enum StandardActions implements Action {
     OPEN_GITHUB("GitHub", Localization.lang("Opens JabRef's GitHub page"), IconTheme.JabRefIcons.GITHUB),
     WHATS_NEW(Localization.lang("What's new"), Localization.lang("Shows the changelog entries that landed in this checkout since your last look; restart to update when a newer version exists"), IconTheme.JabRefIcons.WHATS_NEW),
     DONATE(Localization.lang("Donate to JabRef"), Localization.lang("Donate to JabRef"), IconTheme.JabRefIcons.DONATE),
+    CONTRIBUTE(Localization.lang("Contribute to JabRef"), Localization.lang("Contribute to JabRef"), IconTheme.JabRefIcons.CONTRIBUTE),
     OPEN_FORUM(Localization.lang("Community forum"), Localization.lang("Community forum"), IconTheme.JabRefIcons.FORUM),
     ERROR_CONSOLE(Localization.lang("View event log"), Localization.lang("Display all error messages")),
     SEARCH_FOR_UPDATES(Localization.lang("Check for updates")),
