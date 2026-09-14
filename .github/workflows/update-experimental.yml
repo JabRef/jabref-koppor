@@ -170,19 +170,35 @@ jobs:
             candidate "$ref" "$branch" "($pr)"
           done <<< "$PRS"
 
-          # One octopus merge of everything; on a conflict or a compile error fall back to merging one by one.
+          # One octopus commit of everything: merge each ref locally (ort handles experimental's criss-cross history,
+          # git's octopus strategy does not), skip conflicts, then record the result with all merged refs as parents.
+          # If that does not compile, merge one by one instead, compiling and pushing after each.
           start="$(git rev-parse HEAD)"
-          if [ "${#refs[@]}" -gt 1 ] \
-            && git merge --no-edit -m "Merge ${#refs[@]} branches into $TARGET" -m "$(printf '%s\n' "${labels[@]}")" "${refs[@]}" \
-            && { compiles || [ "$green" = false ]; }; then
+          clean=()
+          for i in "${!refs[@]}"; do
+            if git merge --quiet --no-edit "${refs[$i]}"; then
+              clean+=("$i")
+            else
+              git merge --abort
+              echo "::warning::Merge conflict for ${labels[$i]} - skipped"
+              echo "- :x: \`${labels[$i]}\` ${suffixes[$i]} - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          if [ "${#clean[@]}" -gt 1 ] && { compiles || [ "$green" = false ]; }; then
+            parents=(-p "$start")
+            message="Merge ${#clean[@]} branches into $TARGET"$'\n'
+            for i in "${clean[@]}"; do
+              parents+=(-p "${refs[$i]}")
+              message+=$'\n'"${labels[$i]} ${suffixes[$i]}"
+            done
+            git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
             push
-            for i in "${!refs[@]}"; do
-              echo "- :white_check_mark: \`${labels[$i]}\` ${suffixes[$i]} (octopus)" >> "$GITHUB_STEP_SUMMARY"
+            for i in "${clean[@]}"; do
+              echo "- :octopus: \`${labels[$i]}\` ${suffixes[$i]}" >> "$GITHUB_STEP_SUMMARY"
             done
           else
             git reset --hard --quiet "$start"
-            [ "${#refs[@]}" -gt 1 ] && echo "- :octopus: octopus merge failed, merging one by one" >> "$GITHUB_STEP_SUMMARY"
-            for i in "${!refs[@]}"; do
+            for i in "${clean[@]}"; do
               merge "${refs[$i]}" "${labels[$i]}" "${suffixes[$i]}"
             done
           fi
