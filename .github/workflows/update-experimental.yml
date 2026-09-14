@@ -37,11 +37,69 @@ env:
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
     https://github.com/JabRef/jabref/pull/17134
+  # Shared shell helpers, loaded by every step with `eval "$HELPERS"`.
+  HELPERS: |
+    set -uo pipefail
+    ok() { printf '\e[32m✔ %s\e[0m\n' "$*"; }
+    bad() { printf '\e[31m✘ %s\e[0m\n' "$*"; }
+    info() { printf '\e[36m➜ %s\e[0m\n' "$*"; }
+    # Markdown for the run page; the first line of a step gets the step's SECTION as heading.
+    summary() {
+      if [ -n "${SECTION:-}" ]; then
+        echo "### $SECTION" >> "$GITHUB_STEP_SUMMARY"
+        SECTION=
+      fi
+      echo "$*" >> "$GITHUB_STEP_SUMMARY"
+    }
+    # Compiler output goes to a file: its warnings would otherwise flood the annotations. show_compile_errors prints the errors.
+    compiles() {
+      git submodule update --init --quiet
+      gradle --quiet compileJava < /dev/null > "$RUNNER_TEMP/compile.log" 2>&1
+    }
+    show_compile_errors() {
+      grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/compile.log" | sed "s|^$GITHUB_WORKSPACE/||" | sort -u || tail -n 30 "$RUNNER_TEMP/compile.log"
+    }
+    push() {
+      git push --quiet koppor "HEAD:refs/heads/$TARGET"
+    }
+    # merge <ref> <label> [suffix]: merges, compiles, pushes. A merge that breaks compilation is undone; while experimental
+    # does not compile anyway (GREEN=false), merges are kept so a fix can still come in.
+    merge() {
+      echo "::group::Merge $2 ${3:-}"
+      if ! git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
+        git merge --abort
+        echo "::endgroup::"
+        bad "$2: merge conflict, skipped"
+        echo "::warning title=Merge conflict::$2 ${3:-} - skipped"
+        summary "- :x: \`$2\` ${3:-} - merge conflict, skipped"
+      elif compiles; then
+        GREEN=true
+        push
+        echo "::endgroup::"
+        ok "$2: merged"
+        summary "- :white_check_mark: \`$2\` ${3:-}"
+      elif [ "$GREEN" = true ]; then
+        git reset --hard --quiet ORIG_HEAD
+        echo "::endgroup::"
+        bad "$2: compile error, skipped"
+        show_compile_errors
+        echo "::error title=Compile error::$2 ${3:-} - skipped"
+        summary "- :x: \`$2\` ${3:-} - compile error, skipped"
+      else
+        push
+        echo "::endgroup::"
+        info "$2: merged, $TARGET does not compile"
+        echo "::warning title=Does not compile::$TARGET does not compile (kept merge of $2)"
+        summary "- :warning: \`$2\` ${3:-} - merged, $TARGET does not compile"
+      fi
+    }
 
 jobs:
   merge:
     if: github.repository == 'JabRef/jabref-koppor'
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -53,102 +111,94 @@ jobs:
           submodules: 'true'
       - uses: ./.github/actions/setup-gradle
 
-      - name: Merge branches into ${{ env.TARGET }}
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Check out ${{ env.TARGET }}
         run: |
-          set -eu
+          eval "$HELPERS"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git remote rename origin koppor
           git remote add origin https://github.com/JabRef/jabref.git
-          git fetch --no-tags --prune origin
-          git fetch --no-tags --prune koppor
-
+          git fetch --quiet --no-tags --prune origin
+          git fetch --quiet --no-tags --prune koppor
           if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
-            git checkout -B "$TARGET" "koppor/$TARGET"
+            git checkout --quiet -B "$TARGET" "koppor/$TARGET"
           else
-            git checkout -B "$TARGET" origin/main
+            git checkout --quiet -B "$TARGET" origin/main
+          fi
+          info "$TARGET at $(git log -1 --format='%h %s')"
+
+      - name: Check that ${{ env.TARGET }} compiles
+        run: |
+          eval "$HELPERS"
+          if compiles; then
+            ok "$TARGET compiles"
+            echo "GREEN=true" >> "$GITHUB_ENV"
+          else
+            bad "$TARGET does not compile; merges are kept until it does"
+            show_compile_errors
+            echo "::warning title=Does not compile::$TARGET does not compile before merging"
+            echo "GREEN=false" >> "$GITHUB_ENV"
           fi
 
-          compiles() {
-            git submodule update --init --quiet
-            gradle --quiet compileJava
-          }
-
-          # A merge that breaks compilation is undone. While experimental itself does not compile, merges are kept,
-          # so a fix can still come in.
-          green=false
-          compiles && green=true
-
-          push() {
-            git push --quiet koppor "HEAD:refs/heads/$TARGET"
-          }
-
-          merge() {
-            if git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
-              if compiles; then
-                green=true
-                push
-                echo "- :white_check_mark: \`$2\` ${3:-}" >> "$GITHUB_STEP_SUMMARY"
-              elif [ "$green" = true ]; then
-                git reset --hard --quiet ORIG_HEAD
-                echo "::warning::Compile error after merging $2 - skipped"
-                echo "- :x: \`$2\` ${3:-} - compile error, skipped" >> "$GITHUB_STEP_SUMMARY"
-              else
-                push
-                echo "::warning::$TARGET does not compile (kept merge of $2)"
-                echo "- :warning: \`$2\` ${3:-} - merged, $TARGET does not compile" >> "$GITHUB_STEP_SUMMARY"
-              fi
-            else
-              git merge --abort
-              echo "::warning::Merge conflict for $2 - skipped"
-              echo "- :x: \`$2\` ${3:-} - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          }
-
-          # A PR squash-merged into main is already in experimental as its branch; merging the squash re-applies
-          # the change and conflicts with whatever experimental built on top. The magic merge commit (tree of the
-          # squash, parents PR head + squash) tells git both are the same change. Used only when the squash equals
-          # a clean merge of the PR head into its parent, so rebase merges and edited squashes take the normal path.
+      # A PR squash-merged into main is already in experimental as its branch; merging the squash re-applies
+      # the change and conflicts with whatever experimental built on top. The magic merge commit (tree of the
+      # squash, parents PR head + squash) tells git both are the same change. Used only when the squash equals
+      # a clean merge of the PR head into its parent, so rebase merges and edited squashes take the normal path.
+      - name: Merge squash-merged PRs via magic merge commits
+        run: |
+          eval "$HELPERS"
+          SECTION="Magic merge commits"
+          found=false
           for squash in $(git rev-list --reverse --first-parent HEAD..origin/main); do
             head="$(gh api "repos/JabRef/jabref/commits/$squash/pulls" --jq ".[] | select(.merge_commit_sha == \"$squash\") | .head.sha")" || continue
             [ -n "$head" ] && git merge-base --is-ancestor "$head" HEAD 2> /dev/null || continue
             [ "$(git merge-tree --write-tree "$squash^" "$head" 2> /dev/null)" = "$(git rev-parse "$squash^{tree}")" ] || continue
-            merge "$squash^" "origin/main before $squash"
+            found=true
+            info "$(git log -1 --format='%h %s' "$squash")"
+            merge "$squash^" "origin/main before ${squash:0:10}"
             magic="$(git commit-tree "$squash^{tree}" -p "$head" -p "$squash" -m "Magic merge commit for $squash")"
-            merge "$magic" "squash $squash" "(magic merge commit)"
+            merge "$magic" "squash ${squash:0:10}" "(magic merge commit)"
           done
+          [ "$found" = true ] || info "No squash-merged PR that $TARGET already contains"
+          echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
-          # Everything to merge: ref, label, and summary suffix per entry. Refs experimental already contains are dropped.
-          refs=()
-          labels=()
-          suffixes=()
+      - name: Collect branches and pull requests
+        run: |
+          eval "$HELPERS"
+          SECTION="Skipped before merging"
+          # One line per ref to merge: ref, label, summary suffix (tab-separated). Refs experimental already contains are dropped.
+          candidates="$RUNNER_TEMP/candidates.tsv"
+          : > "$candidates"
           candidate() {
-            git merge-base --is-ancestor "$1" HEAD && return
-            refs+=("$1")
-            labels+=("$2")
-            suffixes+=("${3:-}")
+            if git merge-base --is-ancestor "$1" HEAD; then
+              ok "$2: up to date"
+            else
+              info "$2: to merge"
+              printf '%s\t%s\t%s\n' "$1" "$2" "${3:-}" >> "$candidates"
+            fi
           }
 
+          echo "::group::Branches"
           while read -r branch; do
             branch="${branch%%#*}"
             branch="$(echo "$branch" | xargs)"
             [ -n "$branch" ] || continue
-            if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
-              echo "::warning::Branch $branch does not exist (any more) - skipped"
-              echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
-            else
+            if git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
               candidate "$branch" "$branch"
+            else
+              bad "$branch: gone"
+              echo "::warning title=Branch gone::$branch does not exist (any more) - skipped"
+              summary "- :warning: \`$branch\` - gone, skipped"
             fi
           done <<< "$BRANCHES"
+          echo "::endgroup::"
 
           # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates.
           upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository \
             --jq '.[] | select((.isDraft or .isCrossRepository) | not) | .url')"
           PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" | awk '!seen[$0]++')"
 
+          echo "::group::Pull requests"
           while read -r pr; do
             pr="${pr%%#*}"
             pr="$(echo "$pr" | xargs)"
@@ -157,54 +207,83 @@ jobs:
             # head repository: refs/pull/N/head sometimes lags behind the branch.
             if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
               --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName) \(.headRepositoryOwner.login)/\(.headRepository.name) \(.headRefOid)"')"; then
-              echo "::warning::PR $pr not found - skipped"
-              echo "- :warning: $pr - not found, skipped" >> "$GITHUB_STEP_SUMMARY"
+              bad "$pr: not found"
+              echo "::warning title=PR not found::$pr - skipped"
+              summary "- :warning: $pr - not found, skipped"
               continue
             fi
             read -r state branch head_repo head_sha <<< "$info"
             if [ "$state" != OPEN ]; then
-              echo "- :warning: \`$branch\` ($pr) - $state, skipped" >> "$GITHUB_STEP_SUMMARY"
+              info "$branch ($pr): $state, skipped"
+              summary "- :warning: \`$branch\` ($pr) - $state, skipped"
               continue
             fi
             repo="${pr%/pull/*}"
             ref="refs/candidates/${repo##*/}/${pr##*/}"
-            if ! git fetch --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
-              echo "::warning::Head of PR $pr cannot be fetched - skipped"
-              echo "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped" >> "$GITHUB_STEP_SUMMARY"
+            if ! git fetch --quiet --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
+              bad "$branch ($pr): head cannot be fetched"
+              echo "::warning title=Head not fetchable::$pr - skipped"
+              summary "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped"
               continue
             fi
             candidate "$ref" "$branch" "($pr)"
           done <<< "$PRS"
+          echo "::endgroup::"
+          info "$(wc -l < "$candidates") refs to merge"
 
-          # One octopus commit of everything: merge each ref locally (ort handles experimental's criss-cross history,
-          # git's octopus strategy does not), skip conflicts, then record the result with all merged refs as parents.
-          # If that does not compile, merge one by one instead, compiling and pushing after each.
+      # Merge each ref locally (ort handles experimental's criss-cross history, git's octopus strategy does not), skip
+      # conflicts, then record the result as one commit with all merged refs as parents.
+      - name: Merge everything into one octopus commit
+        run: |
+          eval "$HELPERS"
+          SECTION="Octopus merge"
           start="$(git rev-parse HEAD)"
-          clean=()
-          for i in "${!refs[@]}"; do
-            if git merge --quiet --no-edit "${refs[$i]}"; then
-              clean+=("$i")
+          clean="$RUNNER_TEMP/clean.tsv"
+          : > "$clean"
+          while IFS=$'\t' read -r -u 3 ref label suffix; do
+            if git merge --no-edit "$ref" > "$RUNNER_TEMP/merge.log" 2>&1; then
+              ok "$label: merges cleanly"
+              printf '%s\t%s\t%s\n' "$ref" "$label" "$suffix" >> "$clean"
             else
               git merge --abort
-              echo "::warning::Merge conflict for ${labels[$i]} - skipped"
-              echo "- :x: \`${labels[$i]}\` ${suffixes[$i]} - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+              bad "$label: merge conflict, skipped"
+              grep CONFLICT "$RUNNER_TEMP/merge.log" | sed 's/^/    /' || true
+              echo "::warning title=Merge conflict::$label $suffix - skipped"
+              summary "- :x: \`$label\` $suffix - merge conflict, skipped"
             fi
-          done
-          if [ "${#clean[@]}" -gt 1 ] && { compiles || [ "$green" = false ]; }; then
+          done 3< "$RUNNER_TEMP/candidates.tsv"
+
+          count="$(wc -l < "$clean")"
+          if [ "$count" -le 1 ]; then
+            git reset --hard --quiet "$start"
+            info "$count clean merge(s), no octopus needed"
+            echo "OCTOPUS=skipped" >> "$GITHUB_ENV"
+          elif compiles || [ "$GREEN" = false ]; then
             parents=(-p "$start")
-            message="Merge ${#clean[@]} branches into $TARGET"$'\n'
-            for i in "${clean[@]}"; do
-              parents+=(-p "${refs[$i]}")
-              message+=$'\n'"${labels[$i]} ${suffixes[$i]}"
-            done
+            message="Merge $count branches into $TARGET"$'\n'
+            while IFS=$'\t' read -r -u 3 ref label suffix; do
+              parents+=(-p "$ref")
+              message+=$'\n'"$label $suffix"
+              summary "- :octopus: \`$label\` $suffix"
+            done 3< "$clean"
             git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
             push
-            for i in "${clean[@]}"; do
-              echo "- :octopus: \`${labels[$i]}\` ${suffixes[$i]}" >> "$GITHUB_STEP_SUMMARY"
-            done
+            ok "Octopus commit $(git rev-parse --short HEAD) with $((count + 1)) parents pushed"
+            echo "OCTOPUS=merged" >> "$GITHUB_ENV"
           else
             git reset --hard --quiet "$start"
-            for i in "${clean[@]}"; do
-              merge "${refs[$i]}" "${labels[$i]}" "${suffixes[$i]}"
-            done
+            bad "The octopus commit does not compile; merging one by one"
+            show_compile_errors
+            echo "::warning title=Octopus does not compile::falling back to merging one by one"
+            echo "OCTOPUS=failed" >> "$GITHUB_ENV"
           fi
+
+      - name: Merge one by one
+        if: env.OCTOPUS != 'merged'
+        run: |
+          eval "$HELPERS"
+          SECTION="Merged one by one"
+          while IFS=$'\t' read -r -u 3 ref label suffix; do
+            merge "$ref" "$label" "$suffix"
+          done 3< "$RUNNER_TEMP/clean.tsv"
+          ok "Done"
