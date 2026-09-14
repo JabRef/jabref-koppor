@@ -27,8 +27,6 @@ env:
     origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
     koppor/directory-mapping-preference
     origin/directory-split # https://github.com/JabRef/jabref-koppor/pull/760
-    origin/fix-ai-tab-disabled-settings # https://github.com/JabRef/jabref/pull/17128
-    origin/fix-ai-overlap-validator # https://github.com/JabRef/jabref/pull/17119
     origin/whats-new # https://github.com/JabRef/jabref/pull/17104
     koppor/ai-batch-questions # https://github.com/JabRef/jabref-koppor/pull/768
 
