@@ -38,6 +38,7 @@ env:
     https://github.com/JabRef/jabref/pull/17144
     https://github.com/JabRef/jabref/pull/17123
     https://github.com/JabRef/jabref/pull/17125
+    https://github.com/JabRef/jabref/pull/17134
 
 jobs:
   merge:
