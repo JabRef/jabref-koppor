@@ -22,18 +22,21 @@ permissions:
 env:
   TARGET: experimental
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
+  # Branches without a PR.
   BRANCHES: |
     origin/main
-    origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
     koppor/directory-mapping-preference
-    origin/directory-split # https://github.com/JabRef/jabref-koppor/pull/760
-    origin/whats-new # https://github.com/JabRef/jabref/pull/17104
-    koppor/ai-batch-questions # https://github.com/JabRef/jabref-koppor/pull/768
-    origin/remove-progress-notification # https://github.com/JabRef/jabref/pull/17145
-    origin/fix-ai-chat-text-selection # https://github.com/JabRef/jabref/pull/17146
-    origin/sshd-teardown-shutdown # https://github.com/JabRef/jabref/pull/17135
-    origin/fix-sshd-executor-shutdown # https://github.com/JabRef/jabref/pull/17144
-    
+  # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
+  PRS: |
+    https://github.com/JabRef/jabref/pull/16124
+    https://github.com/JabRef/jabref-koppor/pull/760
+    https://github.com/JabRef/jabref/pull/17104
+    https://github.com/JabRef/jabref-koppor/pull/768
+    https://github.com/JabRef/jabref/pull/17145
+    https://github.com/JabRef/jabref/pull/17146
+    https://github.com/JabRef/jabref/pull/17135
+    https://github.com/JabRef/jabref/pull/17144
+
 jobs:
   merge:
     if: github.repository == 'JabRef/jabref-koppor'
@@ -48,6 +51,8 @@ jobs:
           token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
 
       - name: Merge branches into ${{ env.TARGET }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
           git config user.name "github-actions[bot]"
@@ -64,6 +69,16 @@ jobs:
             git checkout -B "$TARGET" origin/main
           fi
 
+          merge() {
+            if git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
+              echo "- :white_check_mark: \`$2\` ${3:-}" >> "$GITHUB_STEP_SUMMARY"
+            else
+              git merge --abort
+              echo "::warning::Merge conflict for $2 - skipped"
+              echo "- :x: \`$2\` ${3:-} - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          }
+
           while read -r branch; do
             branch="${branch%%#*}"
             branch="$(echo "$branch" | xargs)"
@@ -71,13 +86,29 @@ jobs:
             if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
               echo "::warning::Branch $branch does not exist (any more) - skipped"
               echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
-            elif git merge --no-edit -m "Merge $branch into $TARGET" "$branch"; then
-              echo "- :white_check_mark: \`$branch\`" >> "$GITHUB_STEP_SUMMARY"
             else
-              git merge --abort
-              echo "::warning::Merge conflict for $branch - skipped"
-              echo "- :x: \`$branch\` - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+              merge "$branch" "$branch"
             fi
           done <<< "$BRANCHES"
+
+          while read -r pr; do
+            pr="${pr%%#*}"
+            pr="$(echo "$pr" | xargs)"
+            [ -n "$pr" ] || continue
+            # Fork PRs have no branch in origin/koppor; resolve owner:branch via the API and fetch the PR ref.
+            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRefName --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName)"')"; then
+              echo "::warning::PR $pr not found - skipped"
+              echo "- :warning: $pr - not found, skipped" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            read -r state branch <<< "$info"
+            if [ "$state" != OPEN ]; then
+              echo "- :warning: \`$branch\` ($pr) - $state, skipped" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            repo="${pr%/pull/*}"
+            git fetch --no-tags "$repo.git" "refs/pull/${pr##*/}/head"
+            merge FETCH_HEAD "$branch" "($pr)"
+          done <<< "$PRS"
 
           git push koppor "HEAD:refs/heads/$TARGET"
