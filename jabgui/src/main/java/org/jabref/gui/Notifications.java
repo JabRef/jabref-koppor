@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ProgressBar;
@@ -13,7 +14,6 @@ import javafx.util.Duration;
 
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.DelayedExecution;
-import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
@@ -76,14 +76,15 @@ public class Notifications {
     }
 
     public static class TaskNotification extends Notification<Task<?>> {
-        boolean undefinedTask = false;
+        private final boolean untitled;
 
-        public TaskNotification(Task<?> task) {
+        /// @param failureReportedByCaller whether the task's failure handler already shows the error, see [org.jabref.logic.util.BackgroundTask#reportsFailureToUser()]
+        public TaskNotification(Task<?> task, boolean failureReportedByCaller) {
             super(task.getTitle(), task.getMessage());
             setUserObject(task);
-            if (StringUtil.isBlank(task.getTitle())) {
+            untitled = StringUtil.isBlank(task.getTitle());
+            if (untitled) {
                 setTitle(Localization.lang("Background task"));
-                undefinedTask = true;
             }
             setOnClick(_ -> OnClickBehaviour.NONE);
             getActions().add(new NotificationAction<>(Localization.lang("Cancel"), _ -> {
@@ -92,27 +93,35 @@ public class Notifications {
             }));
 
             // Do not overwrite existing handlers
+            // The handlers run on the JavaFX thread after the notification was added: it is created when the task starts running.
             Optional<EventHandler<WorkerStateEvent>> onSucceeded = Optional.ofNullable(task.getOnSucceeded());
             task.setOnSucceeded(event -> {
                 onSucceeded.ifPresent(handler -> handler.handle(event));
-                finishTask();
+                if (untitled) {
+                    remove();
+                } else {
+                    markFinished();
+                }
             });
             Optional<EventHandler<WorkerStateEvent>> onFailed = Optional.ofNullable(task.getOnFailed());
             task.setOnFailed(event -> {
                 onFailed.ifPresent(handler -> handler.handle(event));
-                finishTask();
+                if (untitled || failureReportedByCaller) {
+                    remove();
+                } else {
+                    // Without full progress, the notification would otherwise look like the task is still running
+                    setType(Type.ERROR);
+                    markFinished();
+                }
             });
             Optional<EventHandler<WorkerStateEvent>> onCancelled = Optional.ofNullable(task.getOnCancelled());
             task.setOnCancelled(event -> {
                 onCancelled.ifPresent(handler -> handler.handle(event));
-                finishTask();
+                remove();
             });
         }
 
-        private void finishTask() {
-            if (undefinedTask) {
-                UiTaskExecutor.runInJavaFXThread(this::remove);
-            }
+        private void markFinished() {
             setOnClick(_ -> OnClickBehaviour.REMOVE);
             getActions().clear();
         }
@@ -124,6 +133,8 @@ public class Notifications {
         public TaskNotificationView(TaskNotification notification) {
             super(notification);
             progressBar.progressProperty().bind(notification.getUserObject().progressProperty());
+            progressBar.visibleProperty().bind(notification.getUserObject().stateProperty().isNotEqualTo(Worker.State.FAILED));
+            progressBar.managedProperty().bind(progressBar.visibleProperty());
             HBox.setHgrow(progressBar, Priority.ALWAYS);
             setContent(progressBar);
             setShowContent(true);
