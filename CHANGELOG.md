@@ -102,6 +102,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added a warning when opening a pre-3.4 library whose static group memberships would be lost on save. [#3251](https://github.com/JabRef/jabref/issues/3251)
 - We added an offer to initialize a Git repository when committing a library that is not yet version controlled. [#16722](https://github.com/JabRef/jabref/pull/16722)
 - We added OCR language selection to the OCR preferences, allowing users to configure which Tesseract languages to use. [#16618](https://github.com/JabRef/jabref/issues/16618)
+- We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
 - We added a fetcher for the Bielefeld Academic Search Engine (BASE). [#15016](https://github.com/JabRef/jabref/issues/15016)
 - We added a Git section to the library properties for automatic commit, pull and push. [#12630](https://github.com/JabRef/jabref/issues/12630)
 - We added connection URL pasting to the shared database login dialog. [#16800](https://github.com/JabRef/jabref/pull/16800)
