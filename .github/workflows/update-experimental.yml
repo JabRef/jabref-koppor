@@ -79,6 +79,19 @@ jobs:
             fi
           }
 
+          # A PR squash-merged into main is already in experimental as its branch; merging the squash re-applies
+          # the change and conflicts with whatever experimental built on top. The magic merge commit (tree of the
+          # squash, parents PR head + squash) tells git both are the same change. Used only when the squash equals
+          # a clean merge of the PR head into its parent, so rebase merges and edited squashes take the normal path.
+          for squash in $(git rev-list --reverse --first-parent HEAD..origin/main); do
+            head="$(gh api "repos/JabRef/jabref/commits/$squash/pulls" --jq ".[] | select(.merge_commit_sha == \"$squash\") | .head.sha")" || continue
+            [ -n "$head" ] && git merge-base --is-ancestor "$head" HEAD 2> /dev/null || continue
+            [ "$(git merge-tree --write-tree "$squash^" "$head" 2> /dev/null)" = "$(git rev-parse "$squash^{tree}")" ] || continue
+            merge "$squash^" "origin/main before $squash"
+            magic="$(git commit-tree "$squash^{tree}" -p "$head" -p "$squash" -m "Magic merge commit for $squash")"
+            merge "$magic" "squash $squash" "(magic merge commit)"
+          done
+
           while read -r branch; do
             branch="${branch%%#*}"
             branch="$(echo "$branch" | xargs)"
