@@ -6,9 +6,10 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextArea;
+import javafx.scene.paint.Color;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -33,6 +34,9 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 
+import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +52,9 @@ import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 public class AskQuestionsAction extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(AskQuestionsAction.class);
     private static final Pattern QUESTION_SEPARATOR = Pattern.compile("(?m)^\\s*---\\s*$");
+    private static final Pattern SEPARATOR_LINE = Pattern.compile("\\s*---\\s*");
+    private static final StyleAttributeMap EVEN_SECTION = StyleAttributeMap.builder().setBackground(Color.TRANSPARENT).build();
+    private static final StyleAttributeMap ODD_SECTION = StyleAttributeMap.builder().setBackground(Color.gray(0.5, 0.15)).build();
 
     // ponytail: remembered per JabRef run only, add a preference if this survives the experiment
     private static String lastQuestions = "";
@@ -109,11 +116,20 @@ public class AskQuestionsAction extends SimpleCommand {
         };
         dialog.setTitle(Localization.lang("Ask AI questions"));
         dialog.setHeaderText(Localization.lang("Each question is asked to every selected entry. Separate questions with a line containing only ---"));
-        TextArea textArea = new TextArea(lastQuestions);
-        textArea.setPrefRowCount(12);
+        RichTextArea textArea = new RichTextArea();
+        textArea.setWrapText(true);
+        textArea.setPrefSize(600, 300);
+        textArea.appendText(lastQuestions);
+        textArea.getModel().addListener(change -> {
+            if (change.isEdit()) {
+                // Restyling inside the change callback would modify the model while it is being edited
+                Platform.runLater(() -> colorSections(textArea));
+            }
+        });
+        colorSections(textArea);
         dialog.getDialogPane().setContent(textArea);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        dialog.setResultConverter(button -> button == ButtonType.OK ? textArea.getText() : null);
+        dialog.setResultConverter(button -> button == ButtonType.OK ? plainText(textArea) : null);
 
         Optional<String> text = dialogService.showCustomDialogAndWait(dialog);
         if (text.isEmpty()) {
@@ -124,6 +140,25 @@ public class AskQuestionsAction extends SimpleCommand {
                                  .map(String::strip)
                                  .filter(question -> !question.isEmpty())
                                  .toList();
+    }
+
+    /// Alternates the paragraph background per `---` section, like the rows of the main table.
+    private static void colorSections(RichTextArea textArea) {
+        boolean odd = false;
+        for (int i = 0; i < textArea.getParagraphCount(); i++) {
+            if (SEPARATOR_LINE.matcher(textArea.getModel().getPlainText(i)).matches()) {
+                odd = !odd;
+            }
+            textArea.applyStyle(TextPos.ofLeading(i, 0), textArea.getParagraphEnd(i), odd ? ODD_SECTION : EVEN_SECTION);
+        }
+    }
+
+    private static String plainText(RichTextArea textArea) {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < textArea.getParagraphCount(); i++) {
+            text.append(textArea.getModel().getPlainText(i)).append('\n');
+        }
+        return text.toString();
     }
 
     private void askAll(BackgroundTask<Void> task, BibDatabaseContext context, List<BibEntry> entries, List<String> questions) {
