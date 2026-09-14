@@ -1228,7 +1228,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                     // ASCENDING on unknown/corrupted values so recovery operations (reset/import) do not fail.
                     try {
                         return TableColumn.SortType.valueOf(sortType);
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException _) {
                         return TableColumn.SortType.ASCENDING;
                     }
                 }).toList();
