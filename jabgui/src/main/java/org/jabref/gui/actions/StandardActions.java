@@ -80,6 +80,8 @@ public enum StandardActions implements Action {
     RELEVANT(Localization.lang("Toggle relevance"), IconTheme.JabRefIcons.RELEVANCE),
     NEW_LIBRARY(Localization.lang("New empty library"), IconTheme.JabRefIcons.NEW),
     OPEN_LIBRARY(Localization.lang("Open library..."), IconTheme.JabRefIcons.OPEN, KeyBinding.OPEN_LIBRARY),
+    OPEN_FOLDER_AS_LIBRARY(Localization.lang("Open folder as library..."), IconTheme.JabRefIcons.OPEN),
+    CONVERT_TO_FOLDER_LIBRARY(Localization.lang("Convert to folder library..."), IconTheme.JabRefIcons.FOLDER),
     MERGE_LIBRARY(Localization.lang("Merge..."), IconTheme.JabRefIcons.MERGE_ENTRIES),
     IMPORT(Localization.lang("Import"), IconTheme.JabRefIcons.IMPORT),
     EXPORT(Localization.lang("Export"), IconTheme.JabRefIcons.EXPORT, KeyBinding.EXPORT),
@@ -201,6 +203,7 @@ public enum StandardActions implements Action {
     OPEN_DEV_VERSION_LINK(Localization.lang("Development version"), Localization.lang("Opens a link where the current development version can be downloaded")),
     OPEN_CHANGELOG(Localization.lang("View change log"), Localization.lang("See what has been changed in the JabRef versions")),
     OPEN_GITHUB("GitHub", Localization.lang("Opens JabRef's GitHub page"), IconTheme.JabRefIcons.GITHUB),
+    WHATS_NEW(Localization.lang("What's new"), Localization.lang("Shows the changelog entries that landed in this checkout since your last look; restart to update when a newer version exists"), IconTheme.JabRefIcons.WHATS_NEW),
     DONATE(Localization.lang("Donate to JabRef"), Localization.lang("Donate to JabRef"), IconTheme.JabRefIcons.DONATE),
     OPEN_FORUM(Localization.lang("Community forum"), Localization.lang("Community forum"), IconTheme.JabRefIcons.FORUM),
     ERROR_CONSOLE(Localization.lang("View event log"), Localization.lang("Display all error messages")),
@@ -233,6 +236,7 @@ public enum StandardActions implements Action {
     GROUP_ENTRIES_CLEAR(Localization.lang("Clear group")),
 
     CLEAR_EMBEDDINGS_CACHE(Localization.lang("Clear embeddings cache")),
+    AI_ASK_QUESTIONS(Localization.lang("Ask AI questions...")),
 
     GIT(Localization.lang("Git"), IconTheme.JabRefIcons.GIT_SYNC),
     GIT_PULL(Localization.lang("Pull")),

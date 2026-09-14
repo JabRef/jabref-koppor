@@ -23,6 +23,7 @@ import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -203,6 +204,92 @@ class MarkdownTextFlowTest extends JavaFxTest {
         assertTrue(clipBoardManager.htmlContent.get().contains("<strong>bold</strong>"));
     }
 
+    // [utest->req~ai.chat.markdown-tables~1]
+    @Test
+    void setMarkdownRendersTableWithAlignedColumns() {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+
+        interact(() -> textFlow.setMarkdown("""
+                | Name | Year |
+                |------|------|
+                | **JabRef** | 2003 |
+                """));
+
+        assertEquals("""
+                Name   │ Year
+                ───────┼─────
+                JabRef │ 2003""", renderedText(textFlow));
+    }
+
+    @Test
+    void setMarkdownRendersTableColumnAlignment() {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+
+        interact(() -> textFlow.setMarkdown("""
+                | left | center | right |
+                |:-----|:------:|------:|
+                | a | b | c |
+                """));
+
+        assertEquals("""
+                left │ center │ right
+                ─────┼────────┼──────
+                a    │   b    │     c""", renderedText(textFlow));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ';', textBlock = """
+            '| a | b |\n|---|---|';                  'a │ b\n──┼──'
+            '| a |\n|---|\n| 1 | 2 |';               'a │\n──┼──\n1 │ 2'
+            '| e\u0301 | 🙂 |\n|---|---|\n| ab | cd |'; 'é  │ 🙂\n───┼───\nab │ cd'
+            """)
+    void setMarkdownRendersHeaderOnlyAndIrregularTables(String markdown, String expected) {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+
+        interact(() -> textFlow.setMarkdown(markdown.translateEscapes()));
+
+        assertEquals(expected.translateEscapes(), renderedText(textFlow));
+    }
+
+    @Test
+    void setMarkdownKeepsQuotedTableNextToQuoteMarker() {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+
+        interact(() -> textFlow.setMarkdown("""
+                > | a | b |
+                > |---|---|
+                > | 1 | 2 |
+                """));
+
+        assertEquals("""
+                > a │ b
+                ──┼──
+                1 │ 2""", renderedText(textFlow));
+    }
+
+    @Test
+    void copySelectedTableUsesMarkdownAndHtmlTable() {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+        String table = """
+                | a | b |
+                |---|---|
+                | 1 | 2 |""";
+
+        interact(() -> {
+            textFlow.setMarkdown(table);
+            rootPane.applyCss();
+            rootPane.layout();
+            textFlow.applyCss();
+            textFlow.autosize();
+            textFlow.layout();
+            textFlow.selectAll();
+            textFlow.copySelectedText();
+        });
+
+        assertEquals(table, clipBoardManager.stringContent.get());
+        assertTrue(clipBoardManager.htmlContent.get().contains("<table>"));
+    }
+
     @Test
     void hyperlinkHandlerDefaultsToNonNull() {
         MarkdownTextFlow textFlow = markdownTextFlow();
@@ -224,6 +311,31 @@ class MarkdownTextFlowTest extends JavaFxTest {
             Hyperlink hyperlink = (Hyperlink) textFlow.getChildren().getFirst();
             hyperlink.fire();
         });
+
+        assertEquals("https://example.com", clickedUrl.get());
+    }
+
+    @Test
+    void mouseClickOnHyperlinkInvokesCustomHandler() {
+        MarkdownTextFlow textFlow = markdownTextFlow();
+        AtomicReference<String> clickedUrl = new AtomicReference<>();
+
+        interact(() -> {
+            textFlow.setHyperlinkHandler(clickedUrl::set);
+            textFlow.setMarkdown("[link](https://example.com)");
+            rootPane.applyCss();
+            rootPane.layout();
+        });
+        awaitEvents();
+
+        JavaFxExtension.invokeAndWait(() -> {
+            Hyperlink hyperlink = (Hyperlink) textFlow.getChildren().getFirst();
+            Bounds bounds = hyperlink.localToScreen(hyperlink.getBoundsInLocal());
+            Robot robot = new Robot();
+            robot.mouseMove(bounds.getCenterX(), bounds.getCenterY());
+            robot.mouseClick(MouseButton.PRIMARY);
+        });
+        awaitEvents();
 
         assertEquals("https://example.com", clickedUrl.get());
     }

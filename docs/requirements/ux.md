@@ -49,6 +49,14 @@ Headers use Title Case, as an exception to the sentence-case rule for UI text, s
 
 Needs: impl
 
+## Double click below the last entry adds an entry
+`req~maintable.doubleclick-empty-space.add-entry~1`
+
+A double click on the empty space below the last row of the main table adds a new entry of the last used entry type and opens it in the entry editor.
+This makes the empty area of the table act like the "Add entry" menu item, at the place where the pointer already is.
+
+Needs: impl
+
 ## Critical startup failures show an error dialog
 `req~ux.startup.critical-error-dialog~1`
 
@@ -106,6 +114,23 @@ Since inspecting a library file means parsing it completely, the inspection is s
 
 Needs: impl
 
+## Synchronizing a library with its file
+`req~ux.external-library-changes.synchronize~1`
+
+While a local library is set to be synchronized with its file (a per-library setting with a global default, off unless enabled), external changes to the file must be merged into the in-memory library without asking, and unsaved in-memory changes must not be reported as external changes.
+A review is only required for an item (entry field, entry type, metadata, preamble, string) that was changed differently in memory and in the file, or that was deleted on one side and changed on the other.
+Fields changed only in the file are taken over even when other fields of the same entry were changed in memory.
+
+Needs: impl
+
+## Conflicted copies of a synchronized library are merged
+`req~ux.external-library-changes.conflicted-copies~1`
+
+When a file synchronization client (Dropbox, Nextcloud, ownCloud, OneDrive, Syncthing) leaves a conflicted copy next to a library that is set to be synchronized with its file and to have such copies merged (a per-library setting with a global default, off unless enabled), JabRef must merge that copy into the library with the same rules as for the library file itself, and offer to delete the copy once nothing of it is left to review.
+Deleting is the user's decision; JabRef must not remove the copy on its own.
+
+Needs: impl, utest
+
 ## Deleting many entries keeps the main table responsive
 `req~ux.large-library.bulk-entry-removal~1`
 
@@ -144,6 +169,13 @@ Example: new entry dialog by ID. It is expected that user would copy some paper 
 
 Needs: impl
 
+### Citation key is focused for a newly added entry
+`req~newentry.focus.citation-key~1`
+
+When a new entry is added and the entry editor opens for it, the citation key field receives keyboard focus, so the key can be typed without clicking into the field first.
+
+Needs: impl
+
 ### Automatic Identifier Detection and Focus in New Entry Dialog
 `req~newentry.clipboard.autofocus~1`
 
@@ -173,5 +205,13 @@ Needs: impl
 Every library tab carries an icon: one for a BibTeX library, one for a BibLaTeX library, and one for a shared database. A shared database shows the database icon regardless of its mode.
 
 Needs: impl, utest
+
+## Donation prompt returns every six months
+`req~ux.donation.recurring-prompt~1`
+
+JabRef asks for a donation one week after the first launch and every six months afterwards.
+Dismissing the prompt hides it until the next time, it cannot be switched off permanently.
+
+Needs: impl
 
 <!-- markdownlint-disable-file MD022 -->

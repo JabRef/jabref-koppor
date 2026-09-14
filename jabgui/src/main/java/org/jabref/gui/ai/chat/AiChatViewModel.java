@@ -140,7 +140,7 @@ public class AiChatViewModel extends AbstractViewModel {
         systemMessageTemplate.bind(aiPreferences.chattingSystemMessageTemplateProperty());
         userMessageTemplate.bind(aiPreferences.chattingUserMessageTemplateProperty());
 
-        this.embeddingModel.bind(ObservablesHelper.createClosableObjectBinding(
+        this.embeddingModel.bind(ObservablesHelper.createObjectBinding(
                 () -> EmbeddingModelFactory.create(aiPreferences, embeddingModelCache),
                 aiPreferences.getEmbeddingsProperties()
         ));
@@ -322,6 +322,7 @@ public class AiChatViewModel extends AbstractViewModel {
         task.onFailure(ex ->
                 // [impl->feat~ai.chat.show-errors~1]
                 originalChatHistory.add(ChatMessage.errorMessage(ex)));
+        task.showsFailureToUser();
 
         task.onFinished(() -> {
             tasksMap.remove(taskEntries);

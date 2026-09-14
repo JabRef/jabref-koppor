@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
@@ -49,6 +48,8 @@ import org.jabref.model.groups.AutomaticGroup;
 import org.jabref.model.groups.AutomaticKeywordGroup;
 import org.jabref.model.groups.AutomaticPersonsGroup;
 import org.jabref.model.groups.DateGroup;
+import org.jabref.model.groups.DirectoryPathGroup;
+import org.jabref.model.groups.DirectoryStructureGroup;
 import org.jabref.model.groups.EntryTypeGroup;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupEntryChanger;
@@ -130,15 +131,12 @@ public class GroupNodeViewModel {
         displayName = new SimpleObjectProperty<>(new LatexToUnicodeFormatter().format(groupNode.getName()));
         isRoot = groupNode.isRoot();
         if (groupNode.getGroup() instanceof AutomaticGroup automaticGroup) {
-            children = automaticGroup.createSubgroups(this.databaseContext.getDatabase().getEntries())
-                                     .stream()
-                                     .map(this::toViewModel)
-                                     .sorted((group1, group2) -> group1.getDisplayName().compareToIgnoreCase(group2.getDisplayName()))
-                                     .collect(Collectors.toCollection(FXCollections::observableArrayList));
+            children = FXCollections.observableArrayList(automaticSubgroups(automaticGroup));
         } else {
             children = EasyBind.mapBacked(groupNode.getChildren(), this::toViewModel);
         }
-        if (groupNode.getGroup() instanceof TexGroup) {
+        if (groupNode.getGroup() instanceof TexGroup || groupNode.getGroup() instanceof DirectoryStructureGroup) {
+            // Both derive their subgroups from files that change while the library is open
             databaseContext.getMetaData().groupsBinding().addListener(new WeakInvalidationListener(onInvalidatedGroup));
         } else if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
             SearchContext searchContext = stateManager.getSearchContext(databaseContext);
@@ -373,8 +371,19 @@ public class GroupNodeViewModel {
         }
     }
 
+    private List<GroupNodeViewModel> automaticSubgroups(AutomaticGroup automaticGroup) {
+        return automaticGroup.createSubgroups(databaseContext.getDatabase().getEntries())
+                             .stream()
+                             .map(this::toViewModel)
+                             .sorted((group1, group2) -> group1.getDisplayName().compareToIgnoreCase(group2.getDisplayName()))
+                             .toList();
+    }
+
     private void refreshGroup() {
         UiTaskExecutor.runInJavaFXThread(() -> {
+            if (groupNode.getGroup() instanceof DirectoryStructureGroup directoryStructureGroup) {
+                children.setAll(automaticSubgroups(directoryStructureGroup));
+            }
             updateMatchedEntries(); // Update the entries matched by the group
             // "Re-add" to the selected groups if it were selected, this refreshes the entries the user views
             ObservableList<GroupTreeNode> selectedGroups = this.stateManager.getSelectedGroups(this.databaseContext);
@@ -649,7 +658,9 @@ public class GroupNodeViewModel {
                  DateGroup _,
                  AutomaticEntryTypeGroup _,
                  EntryTypeGroup _,
-                 TexGroup _ ->
+                 TexGroup _,
+                 DirectoryStructureGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _ ->
                     true;
@@ -672,7 +683,9 @@ public class GroupNodeViewModel {
     public boolean canBeDragged() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _ ->
+            case AllEntriesGroup _,
+                 DirectoryStructureGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _,
                  SearchGroup _,
@@ -711,7 +724,9 @@ public class GroupNodeViewModel {
                  AutomaticDateGroup _,
                  DateGroup _,
                  AutomaticEntryTypeGroup _,
-                 EntryTypeGroup _ ->
+                 EntryTypeGroup _,
+                 DirectoryStructureGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
@@ -729,7 +744,8 @@ public class GroupNodeViewModel {
     public boolean canRemove() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _ ->
+            case AllEntriesGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _,
                  SearchGroup _,
@@ -739,7 +755,8 @@ public class GroupNodeViewModel {
                  AutomaticEntryTypeGroup _,
                  DateGroup _,
                  EntryTypeGroup _,
-                 TexGroup _ ->
+                 TexGroup _,
+                 DirectoryStructureGroup _ ->
                     true;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
@@ -759,7 +776,9 @@ public class GroupNodeViewModel {
         return switch (group) {
             case AllEntriesGroup _,
                  DateGroup _,
-                 EntryTypeGroup _ ->
+                 EntryTypeGroup _,
+                 DirectoryStructureGroup _,
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _,
                  SearchGroup _,

@@ -83,13 +83,14 @@ public class GeneralTabViewModel implements PreferenceTabViewModel {
     private final BooleanProperty confirmDeleteProperty = new SimpleBooleanProperty();
     private final BooleanProperty shouldAskForIncludingCrossReferencesProperty = new SimpleBooleanProperty();
     private final BooleanProperty hideTabBarProperty = new SimpleBooleanProperty();
-    private final BooleanProperty donationNeverShowProperty = new SimpleBooleanProperty();
 
     private final ListProperty<BibDatabaseMode> bibliographyModeListProperty = new SimpleListProperty<>();
     private final ObjectProperty<BibDatabaseMode> selectedBiblatexModeProperty = new SimpleObjectProperty<>();
 
     private final BooleanProperty alwaysReformatBibProperty = new SimpleBooleanProperty();
     private final BooleanProperty autosaveLocalLibraries = new SimpleBooleanProperty();
+    private final BooleanProperty synchronizeLocalLibraries = new SimpleBooleanProperty();
+    private final BooleanProperty mergeConflictedCopies = new SimpleBooleanProperty();
 
     private final BooleanProperty createBackupProperty = new SimpleBooleanProperty();
     private final StringProperty backupDirectoryProperty = new SimpleStringProperty("");
@@ -231,13 +232,14 @@ public class GeneralTabViewModel implements PreferenceTabViewModel {
         confirmDeleteProperty.setValue(workspacePreferences.shouldConfirmDelete());
         shouldAskForIncludingCrossReferencesProperty.setValue(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences());
         hideTabBarProperty.setValue(workspacePreferences.shouldHideTabBar());
-        donationNeverShowProperty.setValue(preferences.getDonationPreferences().isNeverShowAgain());
 
         bibliographyModeListProperty.setValue(FXCollections.observableArrayList(BibDatabaseMode.values()));
         selectedBiblatexModeProperty.setValue(libraryPreferences.getDefaultBibDatabaseMode());
 
         alwaysReformatBibProperty.setValue(libraryPreferences.shouldAlwaysReformatOnSave());
         autosaveLocalLibraries.setValue(libraryPreferences.shouldAutoSave());
+        synchronizeLocalLibraries.setValue(libraryPreferences.shouldSynchronizeWithFile());
+        mergeConflictedCopies.setValue(libraryPreferences.shouldMergeConflictedCopies());
 
         createBackupProperty.setValue(filePreferences.shouldCreateBackup());
         backupDirectoryProperty.setValue(filePreferences.getBackupDirectory().toString());
@@ -282,12 +284,13 @@ public class GeneralTabViewModel implements PreferenceTabViewModel {
         workspacePreferences.setConfirmDelete(confirmDeleteProperty.getValue());
         preferences.getCopyToPreferences().setShouldAskForIncludingCrossReferences(shouldAskForIncludingCrossReferencesProperty.getValue());
         workspacePreferences.setHideTabBar(confirmHideTabBarProperty().getValue());
-        preferences.getDonationPreferences().setNeverShowAgain(donationNeverShowProperty.getValue());
 
         libraryPreferences.setDefaultBibDatabaseMode(selectedBiblatexModeProperty.getValue());
 
         libraryPreferences.setAlwaysReformatOnSave(alwaysReformatBibProperty.getValue());
         libraryPreferences.setAutoSave(autosaveLocalLibraries.getValue());
+        libraryPreferences.setSynchronizeWithFile(synchronizeLocalLibraries.getValue());
+        libraryPreferences.setMergeConflictedCopies(mergeConflictedCopies.getValue());
 
         filePreferences.setCreateBackup(createBackupProperty.getValue());
         filePreferences.setBackupDirectory(Path.of(backupDirectoryProperty.getValue()));
@@ -474,10 +477,6 @@ public class GeneralTabViewModel implements PreferenceTabViewModel {
         return this.hideTabBarProperty;
     }
 
-    public BooleanProperty donationNeverShowProperty() {
-        return this.donationNeverShowProperty;
-    }
-
     public ListProperty<BibDatabaseMode> biblatexModeListProperty() {
         return this.bibliographyModeListProperty;
     }
@@ -492,6 +491,14 @@ public class GeneralTabViewModel implements PreferenceTabViewModel {
 
     public BooleanProperty autosaveLocalLibrariesProperty() {
         return autosaveLocalLibraries;
+    }
+
+    public BooleanProperty synchronizeLocalLibrariesProperty() {
+        return synchronizeLocalLibraries;
+    }
+
+    public BooleanProperty mergeConflictedCopiesProperty() {
+        return mergeConflictedCopies;
     }
 
     public BooleanProperty createBackupProperty() {

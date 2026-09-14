@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
@@ -121,6 +122,8 @@ public class JabRefFrameViewModel {
     private static SequencedMap<String, DatabaseConnectionProperties> collectSharedDatabases(List<LibraryTab> tabs) {
         SequencedMap<String, DatabaseConnectionProperties> sharedDatabases = new LinkedHashMap<>();
         tabs.stream()
+            // A tab still loading has no connection yet, so there is nothing to persist for it
+            .filter(tab -> !tab.isLoading())
             .map(LibraryTab::getBibDatabaseContext)
             .filter(context -> context.getLocation() == DatabaseLocation.SHARED && context.getDatabasePath().isEmpty())
             .forEach(context -> {
@@ -146,19 +149,22 @@ public class JabRefFrameViewModel {
             }
         }
 
-        // Read the opened and focused databases before closing them
+        // Read the opened and focused databases before closing them. Directory libraries have
+        // no database path; their root stands in so they are restored on the next start.
+        // [impl->req~directory-library.session-restore~1]
         List<Path> openedLibraries = tabContainer.getLibraryTabs().stream()
                                                  .map(LibraryTab::getBibDatabaseContext)
-                                                 .map(BibDatabaseContext::getDatabasePath)
+                                                 .map(BibDatabaseContext::getPathOnDisk)
                                                  .flatMap(Optional::stream)
                                                  .map(Path::toAbsolutePath)
                                                  .toList();
         Path focusedLibraries = Optional.ofNullable(tabContainer.getCurrentLibraryTab())
                                         .map(LibraryTab::getBibDatabaseContext)
-                                        .flatMap(BibDatabaseContext::getDatabasePath)
+                                        .flatMap(BibDatabaseContext::getPathOnDisk)
                                         .map(Path::toAbsolutePath)
                                         .orElse(null);
         SequencedMap<String, DatabaseConnectionProperties> sharedDatabases = collectSharedDatabases(tabContainer.getLibraryTabs());
+        List<String> unconnectedSharedDatabaseIds = tabContainer.getUnconnectedSharedDatabaseIds();
 
         // Then ask if the user really wants to close, if the library has not been saved since last save.
         if (!tabContainer.closeTabs(tabContainer.getLibraryTabs(), false)) {
@@ -166,7 +172,12 @@ public class JabRefFrameViewModel {
         }
 
         new SharedDatabaseSessionService().persistConnections(sharedDatabases);
-        storeLastOpenedFiles(openedLibraries, focusedLibraries, List.copyOf(sharedDatabases.keySet())); // store only if successfully having closed the libraries
+        // Shared databases that failed to reconnect have no tab, but their connection settings are still stored and
+        // must stay in the list so that the next start tries them again.
+        List<String> sharedDatabaseIds = Stream.concat(sharedDatabases.keySet().stream(), unconnectedSharedDatabaseIds.stream())
+                                               .distinct()
+                                               .toList();
+        storeLastOpenedFiles(openedLibraries, focusedLibraries, sharedDatabaseIds); // store only if successfully having closed the libraries
 
         ProcessingLibraryDialog processingLibraryDialog = new ProcessingLibraryDialog(dialogService);
         processingLibraryDialog.showAndWait(tabContainer.getLibraryTabs());
@@ -282,13 +293,16 @@ public class JabRefFrameViewModel {
     /// unchanged. If the library is not open yet, it is opened in a new (raised) tab; the actual
     /// loading happens in the background, so callers must run the append via
     /// [#waitForLoadingFinished(Runnable)] to let the new tab finish loading first. A path
-    /// that does not exist (or is not a .bib file) is silently ignored by
+    /// that does not exist (or is neither a .bib file nor a directory) is silently ignored by
     /// [OpenDatabaseAction#openFile(Path)] and the current tab is kept (the server side
     /// already rejects unknown ids with 404, so this is only a defensive fallback).
     private void selectLibraryTab(Optional<Path> library) {
         library.map(path -> path.toAbsolutePath().normalize()).ifPresent(normalized ->
                 tabContainer.getLibraryTabs().stream()
-                            .filter(tab -> tab.getBibDatabaseContext().getDatabasePath()
+                            // A directory library is identified by its root directory, the same
+                            // path the server derives its id from
+                            // [impl->req~directory-library.rest-api~1]
+                            .filter(tab -> tab.getBibDatabaseContext().getPathOnDisk()
                                               .map(path -> path.toAbsolutePath().normalize().equals(normalized))
                                               .orElse(false))
                             .findFirst()

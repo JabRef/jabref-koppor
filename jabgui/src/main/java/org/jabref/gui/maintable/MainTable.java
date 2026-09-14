@@ -15,6 +15,7 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.IndexedCell;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
@@ -27,6 +28,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -45,6 +47,7 @@ import org.jabref.gui.edit.EditAction;
 import org.jabref.gui.externalfiles.ExternalFilesEntryLinker;
 import org.jabref.gui.externalfiles.FindUnlinkedFilesAction;
 import org.jabref.gui.externalfiles.ImportHandler;
+import org.jabref.gui.importer.NewEntryAction;
 import org.jabref.gui.importer.fetcher.LookupIdentifierAction;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
@@ -178,6 +181,13 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
                 .setOnMouseDragEntered(this::handleOnDragEntered)
                 .install(this);
 
+        this.setOnMouseClicked(event -> {
+            // [impl->req~maintable.doubleclick-empty-space.add-entry~1]
+            if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 2) && isOnEmptyRow(event)) {
+                new NewEntryAction(true, () -> libraryTab, dialogService, preferences, stateManager).execute();
+            }
+        });
+
         this.getSortOrder().clear();
 
         // force match category column to be the first sort order, (match_category column is always the first column)
@@ -227,13 +237,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         libraryTab.getLoading().addListener((_, _, _) -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
-        // Matches float to the top (or are the only rows left), so a table scrolled down before searching would show none of them.
-        // Only scroll when the top is actually out of view, so the table does not jump while typing a query
-        libraryTab.searchQueryProperty().addListener((_, _, query) -> query.ifPresent(_ -> {
-            if (!isFirstRowVisible()) {
-                scrollTo(0);
-            }
-        }));
+        model.searchResultsVersionProperty().addListener(_ -> showSearchMatchesIfNoneVisible());
 
         // Enable sorting
         // Workaround for a JavaFX bug: https://bugs.openjdk.org/browse/JDK-8301761 (The sorting of the SortedList can become invalid)
@@ -278,6 +282,19 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         // Enable the header right-click menu.
         new MainTableHeaderContextMenu(this, mainTableColumnFactory, tabContainer, dialogService).show(true);
+    }
+
+    /// Whether the click landed on one of the filler rows below the last entry.
+    /// Clicks on an entry are already handled by the row factory, and clicks on the column headers never reach a row.
+    private boolean isOnEmptyRow(MouseEvent event) {
+        Node node = event.getPickResult().getIntersectedNode();
+        while ((node != null) && (node != this)) {
+            if (node instanceof TableRow<?> row) {
+                return row.isEmpty();
+            }
+            node = node.getParent();
+        }
+        return false;
     }
 
     private void restoreConfiguredSortOrder(MainTablePreferences mainTablePreferences) {
@@ -383,11 +400,23 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         }
     }
 
-    private boolean isFirstRowVisible() {
-        return Optional.ofNullable((VirtualFlow<?>) lookup(".virtual-flow"))
-                       .map(VirtualFlow::getFirstVisibleCell)
-                       .map(cell -> cell.getIndex() == 0)
-                       .orElse(true);
+    /// Search matches are sorted to the top (or are the only rows left), so a table scrolled down before searching shows none of them.
+    /// The table stays where it is as long as at least one match is in view, and otherwise moves the minimal distance, to avoid jumping around while a query is typed.
+    private void showSearchMatchesIfNoneVisible() {
+        Optional.ofNullable((VirtualFlow<?>) lookup(".virtual-flow")).ifPresent(flow -> {
+            int firstVisible = Optional.ofNullable(flow.getFirstVisibleCell()).map(IndexedCell::getIndex).orElse(0);
+            if (firstVisible >= getItems().size() || getItems().get(firstVisible).isMatchedBySearch()) {
+                return;
+            }
+            // Matches are a prefix of the rows, so with a non-match at the top of the viewport, the last match is above it
+            int lastMatch = -1;
+            for (int i = 0; i < firstVisible && getItems().get(i).isMatchedBySearch(); i++) {
+                lastMatch = i;
+            }
+            if (lastMatch >= 0) {
+                flow.scrollTo(lastMatch);
+            }
+        });
     }
 
     private void scrollToNextMatchCategory() {

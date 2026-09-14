@@ -21,6 +21,15 @@ Entries are kept in the library in the order of their internal ids, regardless o
 
 Needs: impl, utest
 
+## Static group memberships in the pre-3.4 format are warned about
+`req~import.library.legacy-group-memberships-warned~1`
+
+Libraries written by JabRef before 3.4 list the members of a static group inside the group instead of in the entries.
+JabRef does not convert this format anymore, so these groups show up empty and saving the library removes the memberships.
+When such a library is opened, JabRef warns about the loss and recommends a backup and opening and saving the library once with JabRef 5.15.
+
+Needs: impl, utest
+
 ## Unresolved merge conflict markers abort the import
 `req~import.bibtex.merge-conflict-markers~1`
 
@@ -38,6 +47,14 @@ When a library file cannot be read or parsed at all, JabRef names the file and t
 No library tab is left behind for such a file. The tab that was opened to hold the loading library would otherwise stay as an empty, untitled library, which the user could save over the file that had just failed to load.
 
 A file that parses with warnings is not affected: it still opens, and its warnings are reported separately.
+
+Needs: impl, utest
+
+## Legacy libraries are migrated when opened
+`req~import.bibtex.legacy-migrations~1`
+
+Opening a library written by JabRef 2.x/3.x converts its legacy content to the current representation: explicit group memberships stored inside the group tree move to the entries' `groups` field, `__markedentry` markings become groups, and special field values stored in `keywords` move to their own fields.
+The keyword separator used for splitting is the library's own, falling back to the configured one.
 
 Needs: impl, utest
 

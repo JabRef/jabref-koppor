@@ -39,6 +39,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.shared.notifications;
     exports org.jabref.logic.util;
     exports org.jabref.logic.util.io;
+    exports org.jabref.logic.sync;
     exports org.jabref.logic.xmp;
     exports org.jabref.model.database;
     exports org.jabref.model.entry;
@@ -113,6 +114,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.shared.event;
     exports org.jabref.logic.citation;
     exports org.jabref.logic.crawler;
+    exports org.jabref.logic.directorylibrary;
     exports org.jabref.logic.pseudonymization;
     exports org.jabref.logic.citation.repository;
     exports org.jabref.model.paging;
@@ -123,9 +125,11 @@ open module org.jabref.jablib {
     exports org.jabref.logic.git.status;
     exports org.jabref.logic.command;
     exports org.jabref.logic.git.util;
+    exports org.jabref.logic.whatsnew;
     exports org.jabref.logic.git.preferences;
     exports org.jabref.logic.icore;
     exports org.jabref.model.icore;
+    exports org.jabref.logic.git.merge;
     exports org.jabref.logic.git.merge.planning;
     exports org.jabref.logic.git.merge.execution;
     exports org.jabref.model.sciteTallies;
@@ -216,7 +220,7 @@ open module org.jabref.jablib {
     // region: data mapping
     requires jdk.xml.dom;
     requires com.google.gson;
-    requires tools.jackson.databind;
+    requires transitive tools.jackson.databind;
     requires tools.jackson.dataformat.yaml;
     requires tools.jackson.core;
     requires transitive com.fasterxml.jackson.annotation;
@@ -242,7 +246,7 @@ open module org.jabref.jablib {
     requires transitive com.google.common;
     requires java.string.similarity;
     requires transitive org.apache.commons.csv;
-    requires org.apache.commons.io;
+    requires transitive org.apache.commons.io;
     requires org.apache.commons.lang3;
     requires org.apache.commons.text;
     // endregion
@@ -291,7 +295,7 @@ open module org.jabref.jablib {
     uses org.apache.lucene.codecs.lucene104.Lucene104Codec;
     requires org.apache.lucene.analysis.common;
     requires transitive org.apache.lucene.core;
-    requires transitive org.apache.lucene.highlighter;
+    requires org.apache.lucene.highlighter;
     requires org.apache.lucene.queryparser;
     // endregion
 

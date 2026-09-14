@@ -3,6 +3,7 @@ package org.jabref.gui;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -63,6 +64,7 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citationstyle.CitationStyleCache;
 import org.jabref.logic.command.CommandSelectionTab;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.git.diff.GitDiffChecker;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.importer.FetcherClientException;
@@ -169,6 +171,16 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     @SuppressWarnings({"FieldCanBeLocal"})
     private Subscription dividerPositionSubscription;
 
+    /// Everything this tab listens to on the [StateManager], which outlives every library. Without
+    /// dropping these in [#onClosed], a closed tab stays reachable from a listener list for the rest
+    /// of the session, and with it its table model, its context and all its entries.
+    /// Verified by [org.jabref.gui.LibraryTabRetentionTest].
+    private final List<Subscription> stateManagerSubscriptions = new ArrayList<>();
+
+    /// Set by [#onClosed], so listener registrations still queued behind it are skipped instead of
+    /// registering after the cleanup already ran.
+    private boolean closed;
+
     private ListProperty<GroupTreeNode> selectedGroupsProperty;
     private final OptionalObjectProperty<SearchQuery> searchQueryProperty = OptionalObjectProperty.empty();
     private final IntegerProperty resultSize = new SimpleIntegerProperty(0);
@@ -216,13 +228,20 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 return;
             }
             tab.setDatabaseContext(loadedContext);
+            tab.tabContainer.removeSharedDatabaseErrorTabFor(loadedContext);
             Optional.ofNullable(tab.autoCompleterChangedListener).ifPresent(Runnable::run);
             tab.loading.set(false);
             tab.dataLoadingTask = null;
             onSuccess.accept(tab, loadedContext);
         }
 
-        private void onDatabaseLoadingFailed(Exception exception) {
+        void onDatabaseLoadingFailed(Exception exception) {
+            synchronized (this) {
+                if (cancelled) {
+                    // The user closed the loading tab meanwhile: the attempt is over, no error tab may bring it back
+                    return;
+                }
+            }
             tab.loading.set(false);
             tab.dataLoadingTask = null;
             tab.tabContainer.closeTab(tab);
@@ -314,11 +333,11 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         setOnCloseRequest(this::onCloseRequest);
         setOnClosed(this::onClosed);
 
-        stateManager.activeDatabaseProperty().addListener((_, _, _) -> {
+        stateManagerSubscriptions.add(EasyBind.listen(stateManager.activeDatabaseProperty(), (_, _, _) -> {
             if (preferences.getSearchPreferences().isFulltext()) {
                 mainTable.getTableModel().refreshSearchMatches();
             }
-        });
+        }));
     }
 
     private void initializeComponentsAndListeners(boolean isDummyContext) {
@@ -365,11 +384,15 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         aiService.setupDatabase(bibDatabaseContext, isDummyContext);
 
         Platform.runLater(() -> {
+            if (closed) {
+                return;
+            }
             // [impl->req~logic.undo.modified-marker-derived~1]
             changedProperty.bind(journal().hasChangedProperty());
             EasyBind.subscribe(changedProperty, this::updateTabTitle);
-            stateManager.getOpenDatabases().addListener((ListChangeListener<BibDatabaseContext>) _ ->
-                    updateTabTitle(changedProperty.getValue()));
+            ListChangeListener<BibDatabaseContext> openDatabasesListener = _ -> updateTabTitle(changedProperty.getValue());
+            stateManager.getOpenDatabases().addListener(openDatabasesListener);
+            stateManagerSubscriptions.add(() -> stateManager.getOpenDatabases().removeListener(openDatabasesListener));
         });
     }
 
@@ -410,6 +433,10 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         text.append(" [");
         text.append(Localization.lang("shared"));
         text.append("]");
+    }
+
+    public boolean isLoading() {
+        return loading.get();
     }
 
     private void setDataLoadingTask(BackgroundTask<?> dataLoadingTask) {
@@ -498,6 +525,9 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         // journal describes a library that is about to stop existing, and nothing else can reach it
         // once the tab moves on, so it goes with the context rather than staying for the session.
         stateManager.removeUndoManager(previousDatabaseContext);
+        // Same for its search context: initializeComponentsAndListeners below registers one for the
+        // new context, and the old registration would otherwise linger under a uid nobody holds.
+        stateManager.removeSearchContext(previousDatabaseContext);
 
         this.bibDatabaseContext = bibDatabaseContext;
 
@@ -596,6 +626,12 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 } else {
                     tabTitle.append(Localization.lang("untitled"));
                 }
+            } else if (databaseLocation == DatabaseLocation.DIRECTORY) {
+                // No modification marker: changes are written back to the sidecars continuously
+                bibDatabaseContext.getDirectoryLibraryRoot().ifPresent(root -> {
+                    tabTitle.append(root.getFileName().toString());
+                    toolTipText.append(root.toAbsolutePath());
+                });
             } else {
                 addSharedDbInformation(tabTitle, bibDatabaseContext);
                 addSharedDbInformation(toolTipText, bibDatabaseContext);
@@ -639,6 +675,13 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     /// library that does not need saving, never a library closing without asking.
     @Subscribe
     public void listen(BibDatabaseContextChangedEvent event) {
+        // Background enrichment of a directory library is system-initiated (SHARED-sourced),
+        // not something the user would be asked to save
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY
+                && event instanceof EntriesEvent entriesEvent
+                && entriesEvent.getEntriesEventSource() == EntriesEventSource.SHARED) {
+            return;
+        }
         boolean unrecorded = ((event instanceof MetaDataChangedEvent metaDataChangedEvent)
                 && (metaDataChangedEvent.getSource() == MetaDataChangeSource.LOCAL))
                 || ((event instanceof EntriesEvent entriesEvent)
@@ -798,6 +841,16 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 return confirmClose();
             }
         }
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // Edits are persisted into the sidecar files; only a failed write needs the user
+            List<Path> unwritable = Optional.ofNullable(bibDatabaseContext.getDirectorySynchronizer())
+                                            .map(DirectoryLibrarySynchronizer::flush)
+                                            .orElse(List.of());
+            return unwritable.isEmpty() || dialogService.showConfirmationDialogAndWait(
+                    Localization.lang("Close library"),
+                    Localization.lang("Could not write the changes to the following files: %0", SaveDatabaseAction.joinPaths(unwritable)),
+                    Localization.lang("Close anyway"));
+        }
         return true;
     }
 
@@ -814,7 +867,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         }
 
         String filename = getBibDatabaseContext()
-                .getDatabasePath()
+                .getPathOnDisk()
                 .map(Path::toAbsolutePath)
                 .map(Path::toString)
                 .orElse(Localization.lang("untitled"));
@@ -914,23 +967,36 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     }
 
     /// Perform necessary cleanup when this Library is closed.
+    ///
+    /// Cleanup steps also catch [LinkageError] (e.g., a [NoClassDefFoundError] when the classpath has
+    /// vanished under a running JVM): an escaping error aborts the tab close, leaving JabRef unclosable
+    /// behind a recurring uncaught-exception dialog. Fatal errors such as [VirtualMachineError] still
+    /// propagate.
     private void onClosed(Event event) {
+        closed = true;
         if (dataLoadingTask != null) {
             dataLoadingTask.cancel();
+        }
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // Stops the directory watcher and shuts the synchronizer down
+            bibDatabaseContext.convertToLocalDatabase();
         }
         if (bibDatabaseContext.getLocation() == DatabaseLocation.SHARED) {
             closeSharedDatabase(bibDatabaseContext);
         }
         try {
             changeMonitor.ifPresent(DatabaseChangeMonitor::unregister);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | LinkageError e) {
             LOGGER.error("Problem when closing change monitor", e);
         }
+        // Dropped before closing, so a failing backend shutdown cannot skip it: the registration keeps
+        // the context reachable from the StateManager, and its backend factories capture this tab.
+        stateManager.removeSearchContext(bibDatabaseContext);
         try {
             if (searchContext != null) {
                 searchContext.close();
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | LinkageError e) {
             LOGGER.error("Problem when closing search context", e);
         }
 
@@ -938,14 +1004,14 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
 
         try {
             AutosaveManager.shutdown(bibDatabaseContext);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | LinkageError e) {
             LOGGER.error("Problem when shutting down autosave manager", e);
         }
         try {
             BackupManager.shutdown(bibDatabaseContext,
                     preferences.getFilePreferences().getBackupDirectory(),
                     preferences.getFilePreferences().shouldCreateBackup());
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | LinkageError e) {
             LOGGER.error("Problem when shutting down backup manager", e);
         }
 
@@ -962,6 +1028,9 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         if (autoRenameFileOnEntryChange != null) {
             coarseChangeFilter.unregisterListener(autoRenameFileOnEntryChange);
         }
+
+        stateManagerSubscriptions.forEach(Subscription::unsubscribe);
+        stateManagerSubscriptions.clear();
 
         // clean up the groups map
         stateManager.clearSelectedGroups(bibDatabaseContext);

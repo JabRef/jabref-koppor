@@ -34,7 +34,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.remote.CLIMessageHandler;
 import org.jabref.gui.theme.ThemeManager;
 import org.jabref.gui.util.DefaultFileUpdateMonitor;
-import org.jabref.gui.util.DirectoryMonitor;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.walkthrough.WalkthroughPane;
 import org.jabref.http.manager.HttpServerManager;
@@ -42,6 +41,7 @@ import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citation.SearchCitationsRelationsService;
+import org.jabref.logic.git.GitSsh;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -54,6 +54,7 @@ import org.jabref.logic.remote.server.RemoteListenerServerManager;
 import org.jabref.logic.search.sqlbased.IndexManager;
 import org.jabref.logic.search.sqlbased.PostgresServer;
 import org.jabref.logic.util.BuildInfo;
+import org.jabref.logic.util.DirectoryMonitor;
 import org.jabref.logic.util.FallbackExceptionHandler;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.TaskExecutor;
@@ -245,7 +246,8 @@ public class JabRefGUI extends Application {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (Task<?> task : change.getAddedSubList()) {
-                        dialogService.notify(new Notifications.TaskNotification(task));
+                        stateManager.getBackgroundTask(task).ifPresent(backgroundTask ->
+                                dialogService.notify(new Notifications.TaskNotification(task, backgroundTask)));
                     }
                 }
             }
@@ -600,6 +602,17 @@ public class JabRefGUI extends Application {
                 LOGGER.trace("Stopping background tasks");
                 Unirest.shutDown();
                 LOGGER.trace("Unirest shut down");
+            });
+
+            executor.submit(() -> {
+                LOGGER.trace("Closing Git SSH session factory");
+                try {
+                    GitSsh.shutdown();
+                } catch (RuntimeException e) {
+                    // Log only: the submitted task's future is never read (a rethrow would vanish) and the UI is already gone
+                    LOGGER.error("Unable to close Git SSH session factory", e);
+                }
+                LOGGER.trace("Git SSH session factory closed");
             });
 
             // region All threading related shutdowns

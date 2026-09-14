@@ -38,6 +38,7 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileHistory;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.migrations.PerformLoadDatabaseMigrations;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
@@ -56,6 +57,8 @@ public class OpenDatabaseAction extends SimpleCommand {
     private static final List<GUIPostOpenAction> POST_OPEN_ACTIONS = List.of(
             // Check for new custom entry types loaded from the BIB file:
             new CheckForNewEntryTypesAction(),
+            // Warn that group memberships stored in the pre-3.4 format are lost
+            new LegacyGroupMembershipWarningAction(),
             // Migrate search groups fielded terms to use the new operators (RegEx, case sensitive)
             new SearchGroupsMigrationAction()
     );
@@ -162,6 +165,17 @@ public class OpenDatabaseAction extends SimpleCommand {
     ///
     /// @param filesToOpen the filesToOpen, may be null or not existing
     public void openFiles(List<Path> filesToOpen) {
+        // Directories are directory libraries (e.g. restored from the last session)
+        // [impl->req~directory-library.session-restore~1]
+        OpenDirectoryLibraryAction openDirectoryLibraryAction = new OpenDirectoryLibraryAction(tabContainer, dialogService, preferences,
+                aiService, stateManager, fileUpdateMonitor, entryTypesManager, gitHandlerRegistry, clipboardManager, taskExecutor);
+        filesToOpen.stream()
+                   .map(FileUtil::resolveIfShortcut)
+                   .filter(Files::isDirectory)
+                   .map(directory -> directory.toAbsolutePath().normalize())
+                   .distinct()
+                   .forEach(openDirectoryLibraryAction::openDirectory);
+
         // Resolve any shortcuts to their targets and filter to only .bib files.
         // The resulting list must remain modifiable for downstream processing (iterator.remove() calls below).
         Path baseDirectoryPath = JabRefBaseDirectoryLocator.getBaseDirectoryPath();
@@ -252,6 +266,7 @@ public class OpenDatabaseAction extends SimpleCommand {
         tabContainer.addTab(newTab, true);
     }
 
+    /// Visible for testing: the post-open migrations are wired here.
     @VisibleForTesting
     ParserResult loadDatabase(Path file) throws NotASharedDatabaseException, SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
         Path fileToLoad = file.toAbsolutePath();
@@ -265,7 +280,7 @@ public class OpenDatabaseAction extends SimpleCommand {
         if (BackupManager.backupFileDiffers(fileToLoad, backupDir)) {
             // In case the backup differs, ask the user what to do.
             // In case the user opted for restoring a backup, the content of the backup is contained in parserResult.
-            parserResult = BackupUIManager.showRestoreBackupDialog(dialogService, fileToLoad, preferences, fileUpdateMonitor, stateManager)
+            parserResult = BackupUIManager.showRestoreBackupDialog(dialogService, tabContainer, fileToLoad, preferences, fileUpdateMonitor, stateManager)
                                           .orElse(null);
         }
 
@@ -276,6 +291,16 @@ public class OpenDatabaseAction extends SimpleCommand {
                         preferences.getImportFormatPreferences(),
                         fileUpdateMonitor);
             }
+
+            // Legacy library content (explicit group memberships, markings, special fields in `keywords`) is converted here.
+            // This used to live in OpenDatabase#loadDatabase, which every caller went through, and was lost when jabgui and jablib
+            // were split (https://github.com/JabRef/jabref/pull/12990) - the migrations stayed in jabgui, the call did not move with them.
+            // Running it here also covers a restored backup of a legacy library. The import and CLI paths still do not migrate;
+            // that difference between opening and importing is tracked at https://github.com/JabRef/jabref/issues/8298.
+            // [impl->req~import.bibtex.legacy-migrations~1]
+            PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(
+                    parserResult,
+                    parserResult.getDatabaseContext().getKeywordSeparator(preferences.getImportFormatPreferences().bibEntryPreferences().getKeywordSeparator()));
         } catch (IOException e) {
             parserResult = ParserResult.fromError(e);
             LOGGER.error("Error opening file '{}'", fileToLoad, e);
