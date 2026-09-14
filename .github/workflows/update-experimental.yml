@@ -21,7 +21,8 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}
-  cancel-in-progress: true
+  # A run compiles after every merge and can outlast the hour; cancelling would never let one finish.
+  cancel-in-progress: false
 
 env:
   TARGET: experimental
@@ -49,6 +50,8 @@ jobs:
           # merges that touch .github/workflows/* (e.g. upstream main editing a
           # workflow file), which makes the final push fail.
           token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
+          submodules: 'true'
+      - uses: ./.github/actions/setup-gradle
 
       - name: Merge branches into ${{ env.TARGET }}
         env:
@@ -69,9 +72,29 @@ jobs:
             git checkout -B "$TARGET" origin/main
           fi
 
+          compiles() {
+            git submodule update --init --quiet
+            gradle --quiet compileJava
+          }
+
+          # A merge that breaks compilation is undone. While experimental itself does not compile, merges are kept,
+          # so a fix can still come in.
+          green=false
+          compiles && green=true
+
           merge() {
             if git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
-              echo "- :white_check_mark: \`$2\` ${3:-}" >> "$GITHUB_STEP_SUMMARY"
+              if compiles; then
+                green=true
+                echo "- :white_check_mark: \`$2\` ${3:-}" >> "$GITHUB_STEP_SUMMARY"
+              elif [ "$green" = true ]; then
+                git reset --hard --quiet ORIG_HEAD
+                echo "::warning::Compile error after merging $2 - skipped"
+                echo "- :x: \`$2\` ${3:-} - compile error, skipped" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "::warning::$TARGET does not compile (kept merge of $2)"
+                echo "- :warning: \`$2\` ${3:-} - merged, $TARGET does not compile" >> "$GITHUB_STEP_SUMMARY"
+              fi
             else
               git merge --abort
               echo "::warning::Merge conflict for $2 - skipped"
