@@ -32,17 +32,17 @@ env:
     koppor/directory-mapping-preference
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
   PRS: |
-    https://github.com/JabRef/jabref/pull/16124
     https://github.com/JabRef/jabref-koppor/pull/760
-    https://github.com/JabRef/jabref/pull/17104
     https://github.com/JabRef/jabref-koppor/pull/768
-    https://github.com/JabRef/jabref/pull/17145
-    https://github.com/JabRef/jabref/pull/17146
-    https://github.com/JabRef/jabref/pull/17135
-    https://github.com/JabRef/jabref/pull/17144
+    https://github.com/JabRef/jabref/pull/16124
+    https://github.com/JabRef/jabref/pull/17104
     https://github.com/JabRef/jabref/pull/17123
     https://github.com/JabRef/jabref/pull/17125
     https://github.com/JabRef/jabref/pull/17134
+    https://github.com/JabRef/jabref/pull/17135
+    https://github.com/JabRef/jabref/pull/17144
+    https://github.com/JabRef/jabref/pull/17145
+    https://github.com/JabRef/jabref/pull/17146
 
 jobs:
   merge:
