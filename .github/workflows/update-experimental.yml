@@ -153,20 +153,26 @@ jobs:
             pr="${pr%%#*}"
             pr="$(echo "$pr" | xargs)"
             [ -n "$pr" ] || continue
-            # Fork PRs have no branch in origin/koppor; resolve owner:branch via the API and fetch the PR ref.
-            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRefName --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName)"')"; then
+            # Fork PRs have no branch in origin/koppor; resolve the head via the API. The head commit is fetched from the
+            # head repository: refs/pull/N/head sometimes lags behind the branch.
+            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
+              --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName) \(.headRepositoryOwner.login)/\(.headRepository.name) \(.headRefOid)"')"; then
               echo "::warning::PR $pr not found - skipped"
               echo "- :warning: $pr - not found, skipped" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
-            read -r state branch <<< "$info"
+            read -r state branch head_repo head_sha <<< "$info"
             if [ "$state" != OPEN ]; then
               echo "- :warning: \`$branch\` ($pr) - $state, skipped" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
             repo="${pr%/pull/*}"
             ref="refs/candidates/${repo##*/}/${pr##*/}"
-            git fetch --no-tags "$repo.git" "+refs/pull/${pr##*/}/head:$ref"
+            if ! git fetch --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
+              echo "::warning::Head of PR $pr cannot be fetched - skipped"
+              echo "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
             candidate "$ref" "$branch" "($pr)"
           done <<< "$PRS"
 
