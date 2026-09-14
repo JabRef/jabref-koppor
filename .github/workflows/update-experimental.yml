@@ -29,7 +29,11 @@ env:
     origin/directory-split # https://github.com/JabRef/jabref-koppor/pull/760
     origin/whats-new # https://github.com/JabRef/jabref/pull/17104
     koppor/ai-batch-questions # https://github.com/JabRef/jabref-koppor/pull/768
-
+    origin/remove-progress-notification # https://github.com/JabRef/jabref/pull/17145
+    origin/fix-ai-chat-text-selection # https://github.com/JabRef/jabref/pull/17146
+    origin/sshd-teardown-shutdown # https://github.com/JabRef/jabref/pull/17135
+    origin/fix-sshd-executor-shutdown # https://github.com/JabRef/jabref/pull/17144
+    
 jobs:
   merge:
     if: github.repository == 'JabRef/jabref-koppor'
