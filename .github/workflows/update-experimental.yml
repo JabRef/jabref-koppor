@@ -165,7 +165,7 @@ jobs:
               continue
             fi
             repo="${pr%/pull/*}"
-            ref="refs/candidates/${#refs[@]}"
+            ref="refs/candidates/${repo##*/}/${pr##*/}"
             git fetch --no-tags "$repo.git" "+refs/pull/${pr##*/}/head:$ref"
             candidate "$ref" "$branch" "($pr)"
           done <<< "$PRS"
