@@ -31,20 +31,11 @@ env:
     origin/main
     koppor/directory-mapping-preference
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
+  # Non-draft PRs with their branch in JabRef/jabref are merged automatically; list only fork PRs, koppor PRs, and drafts here.
   PRS: |
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
-    https://github.com/JabRef/jabref/pull/16124
-    https://github.com/JabRef/jabref/pull/17104
-    https://github.com/JabRef/jabref/pull/17123
-    https://github.com/JabRef/jabref/pull/17125
     https://github.com/JabRef/jabref/pull/17134
-    https://github.com/JabRef/jabref/pull/17135
-    https://github.com/JabRef/jabref/pull/17136
-    https://github.com/JabRef/jabref/pull/17142
-    https://github.com/JabRef/jabref/pull/17144
-    https://github.com/JabRef/jabref/pull/17145
-    https://github.com/JabRef/jabref/pull/17146
 
 jobs:
   merge:
@@ -99,6 +90,11 @@ jobs:
               merge "$branch" "$branch"
             fi
           done <<< "$BRANCHES"
+
+          # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates.
+          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository \
+            --jq '.[] | select((.isDraft or .isCrossRepository) | not) | .url')"
+          PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" | awk '!seen[$0]++')"
 
           while read -r pr; do
             pr="${pr%%#*}"
