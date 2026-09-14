@@ -27,9 +27,8 @@ concurrency:
 env:
   TARGET: experimental
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
-  # Branches without a PR.
+  # Branches without a PR. origin/main is merged first by its own step.
   BRANCHES: |
-    origin/main
     koppor/directory-mapping-preference
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
   # Non-draft PRs with their branch in JabRef/jabref are merged automatically; list only fork PRs, koppor PRs, and drafts here.
@@ -160,6 +159,17 @@ jobs:
             merge "$magic" "squash ${squash:0:10}" "(magic merge commit)"
           done
           [ "$found" = true ] || info "No squash-merged PR that $TARGET already contains"
+          echo "GREEN=$GREEN" >> "$GITHUB_ENV"
+
+      - name: Merge origin/main
+        run: |
+          eval "$HELPERS"
+          SECTION="origin/main"
+          if git merge-base --is-ancestor origin/main HEAD; then
+            ok "origin/main: up to date"
+          else
+            merge origin/main origin/main
+          fi
           echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
       - name: Collect branches and pull requests
