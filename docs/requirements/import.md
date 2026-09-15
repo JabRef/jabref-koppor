@@ -55,6 +55,26 @@ Needs: impl, utest
 
 Opening a library written by JabRef 2.x/3.x converts its legacy content to the current representation: explicit group memberships stored inside the group tree move to the entries' `groups` field, `__markedentry` markings become groups, and special field values stored in `keywords` move to their own fields.
 The keyword separator used for splitting is the library's own, falling back to the configured one.
+## Custom entry types of a library are only offered once
+`req~import.entry-types.offered-once~1`
+
+When a library declares entry types that differ from the ones stored in the preferences, JabRef offers to store them. This holds both for entry types JabRef does not know and for customizations of entry types JabRef ships.
+
+The definition the user accepts is the one from the library file, and it replaces the stored one. Entry types the user leaves unchecked when confirming the dialog are remembered as declined. Opening the same library again therefore offers nothing, unless the definition in the library or the stored one has changed since. Cancelling the dialog decides nothing, so the entry types are offered again.
+## PDF import keeps only authors the document prints
+`req~import.pdf.author-confirmed-by-text~1`
+
+When importing a PDF, an author taken from the PDF's document properties is kept only if the text of the leading pages confirms it; otherwise an author list extracted from the document text replaces it.
+If no candidate is confirmed, a single unconfirmed person from the document properties is dropped, because office suites store the account name of whoever exported the file there.
+An author from bibliographic metadata (an entry with citation key or a known entry type, such as metadata previously written by JabRef or fetched online) is kept even when the text does not confirm it.
+If no usable text can be extracted from the leading pages, the author is left unchanged.
+
+Needs: impl, utest
+
+## PDF import extracts only plausible years
+`req~import.pdf.plausible-year~1`
+
+When extracting the year from the text of a PDF's first page, JabRef takes only a standalone four-digit number, not attached to letters and not part of a four-digit range (such as a page range), between 1900 and two years after the current year, so postal codes, ISSNs, and page ranges are not imported as the year.
 
 Needs: impl, utest
 

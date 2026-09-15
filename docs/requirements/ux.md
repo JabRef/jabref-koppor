@@ -211,7 +211,29 @@ Needs: impl, utest
 
 JabRef asks for a donation six months after the first launch and every six months afterwards.
 Dismissing the prompt hides it until the next time; "Dismiss forever" stops it for good.
+## Preferences walkthroughs open their settings dialog directly
+`req~ux.walkthrough.preferences-direct~1`
+
+Walkthroughs that require preferences must open the preferences dialog directly, so they can start regardless of the platform menu presentation.
 
 Needs: impl
+
+## Groups walkthroughs make required controls and entries available
+`req~ux.walkthrough.groups-preparation~1`
+
+The groups walkthrough must open its bundled example library, display the Groups pane, and clear the current search before guiding the user.
+
+Needs: impl
+## Finished tasks do not look like they are still running
+`req~ux.notifications.finished-task~1`
+
+A task notification never keeps a running progress bar after its task ended:
+
+- A successful task keeps its notification with full progress until the user dismisses it.
+- A failed task whose own error message is already shown to the user loses its notification.
+- Any other failed task turns into an error notification, without the exception text.
+- A cancelled task, and a finished task without a title, loses its notification.
+
+Needs: impl, utest
 
 <!-- markdownlint-disable-file MD022 -->
