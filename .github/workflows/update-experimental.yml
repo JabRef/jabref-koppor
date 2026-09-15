@@ -85,16 +85,43 @@ env:
           summary "- :x: $m"
         done
       fi
+      if [ -s "$RUNNER_TEMP/conflicts.md" ]; then
+        summary "#### Conflicts"
+        cat "$RUNNER_TEMP/conflicts.md" >> "$GITHUB_STEP_SUMMARY"
+      fi
+    }
+    # conflict_report <label> <suffix>: call while a merge stands on its conflicts (before `git merge --abort`). Prints every
+    # conflicted file with 10 lines from its first conflict marker, annotates the run, and keeps the details for recap.
+    : > "$RUNNER_TEMP/conflicts.md"
+    conflict_report() {
+      local files file line
+      files="$(git diff --name-only --diff-filter=U)"
+      printf '<details><summary><code>%s</code> %s</summary>\n\n' "$1" "$2" >> "$RUNNER_TEMP/conflicts.md"
+      while read -r file; do
+        [ -n "$file" ] || continue
+        printf '    \e[33m%s\e[0m\n' "$file"
+        printf '`%s`\n\n````\n' "$file" >> "$RUNNER_TEMP/conflicts.md"
+        line="$(grep -n -m1 '^<<<<<<<' "$file" 2> /dev/null | cut -d: -f1 || true)"
+        if [ -n "$line" ]; then
+          sed -n "${line},$((line + 9))p" "$file" | tee -a "$RUNNER_TEMP/conflicts.md" | sed 's/^/      /'
+        else
+          # modify/delete, rename or binary conflict: no markers to show
+          git status -- "$file" | grep -F -- "$file" | sed 's/^[[:space:]]*//' | tee -a "$RUNNER_TEMP/conflicts.md" | sed 's/^/      /' || true
+        fi
+        printf '````\n\n' >> "$RUNNER_TEMP/conflicts.md"
+      done <<< "$files"
+      printf '</details>\n\n' >> "$RUNNER_TEMP/conflicts.md"
+      echo "::warning title=Merge conflict::$1 $2 - skipped%0A$(printf '%s' "$files" | awk '{printf "%s%s", sep, $0; sep="%0A"}')"
     }
     # merge <ref> <label> [suffix]: merges, compiles, pushes. A merge that breaks compilation is undone; while experimental
     # does not compile anyway (GREEN=false), merges are kept so a fix can still come in.
     merge() {
       echo "::group::Merge $2 ${3:-}"
       if ! git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
-        git merge --abort
         echo "::endgroup::"
         bad "$2: merge conflict, skipped"
-        echo "::warning title=Merge conflict::$2 ${3:-} - skipped"
+        conflict_report "$2" "${3:-}"
+        git merge --abort
         SKIPPED+=("$2 ${3:-} - merge conflict")
       elif compiles; then
         GREEN=true
@@ -289,10 +316,9 @@ jobs:
               printf '%s\t%s\t%s\n' "$ref" "$label" "$suffix" >> "$clean"
               MERGED+=("$label $suffix")
             else
-              git merge --abort
               bad "$label: merge conflict, skipped"
-              grep CONFLICT "$RUNNER_TEMP/merge.log" | sed 's/^/    /' || true
-              echo "::warning title=Merge conflict::$label $suffix - skipped"
+              conflict_report "$label" "$suffix"
+              git merge --abort
               SKIPPED+=("$label $suffix - merge conflict")
             fi
           done 3< "$RUNNER_TEMP/candidates.tsv"
