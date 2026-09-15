@@ -30,6 +30,8 @@ env:
   # Branches without a PR. origin/main is merged first by its own step.
   BRANCHES: |
     koppor/directory-mapping-preference
+    # github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48 in flight (JitPack build of the PR head)
+    koppor/pdfviewfx-pr48
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
   # Non-draft PRs with their branch in JabRef/jabref are merged automatically; list only fork PRs, koppor PRs, and drafts here.
   PRS: |
