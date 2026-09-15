@@ -21,17 +21,18 @@ import javafx.stage.WindowEvent;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.walkthrough.WalkthroughPane;
 import org.jabref.injection.Injector;
 
 public class BaseDialog<T> extends Dialog<T> {
 
     protected BaseDialog() {
+        setUpDialogPane(getDialogPane());
         dialogPaneProperty().addListener((_, _, newPane) -> {
             if (newPane != null) {
-                setupKeyBindings(newPane);
+                setUpDialogPane(newPane);
             }
         });
-        setupKeyBindings(getDialogPane());
 
         setDialogIcon(IconTheme.getJabRefIcon());
 
@@ -51,6 +52,13 @@ public class BaseDialog<T> extends Dialog<T> {
         }
 
         return false;
+    }
+
+    /// Key bindings and the pane a walkthrough draws into both belong to the dialog pane, so a dialog that
+    /// swaps in a new one gets them again.
+    private void setUpDialogPane(DialogPane dialogPane) {
+        setupKeyBindings(dialogPane);
+        dialogPane.getChildren().add(new WalkthroughPane());
     }
 
     private Stage getDialogWindow() {

@@ -58,6 +58,8 @@ open module org.jabref {
 
     requires reactfx;
 
+    requires tools.maran.svg;
+    requires tools.maran.svg.materialdesign;
     requires tools.maran.svgnode;
     // endregion
 

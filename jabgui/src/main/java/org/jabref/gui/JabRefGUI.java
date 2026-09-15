@@ -37,6 +37,7 @@ import org.jabref.gui.util.DefaultFileUpdateMonitor;
 import org.jabref.gui.util.DirectoryMonitor;
 import org.jabref.gui.util.InjectorDiAdapter;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.gui.walkthrough.WalkthroughPane;
 import org.jabref.http.manager.HttpServerManager;
 import org.jabref.injection.Injector;
 import org.jabref.languageserver.controller.LanguageServerController;
@@ -378,6 +379,9 @@ public class JabRefGUI extends Application {
         powerpane.setContent(JabRefGUI.mainFrame);
         powerpane.getInfoCenterPane().setInfoCenterViewPos(InfoCenterViewPos.BOTTOM_RIGHT);
         powerpane.getInfoCenterPane().autoHideProperty().bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
+        // PowerPane is a StackPane, so the walkthrough draws into a sibling of the info center pane
+        // rather than into a wrapper around the scene root.
+        powerpane.getChildren().add(new WalkthroughPane());
 
         Scene scene = new Scene(powerpane);
         installControlsFxDecorationPane(powerpane);
