@@ -58,6 +58,8 @@ dependencies.constraints {
     api("com.github.javaparser:javaparser-core:3.28.2")
     api("com.github.javaparser:javaparser-symbol-solver-core:3.28.2")
     api("com.github.sialcasa.mvvmFX:mvvmfx-validation:f195849ca9") //jitpack
+    // In-flight test of github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48; gradle/modules.properties points com.dlsc.pdfviewfx here
+    api("com.github.koppor.PDFViewFX:pdfviewfx:9738ef3519") //jitpack
     api("com.google.errorprone:error_prone_core:2.50.0")
     api("com.google.guava:guava:33.7.1-jre")
     api("com.googlecode.plist:dd-plist:1.30")
