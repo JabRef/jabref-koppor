@@ -297,3 +297,20 @@ jobs:
             merge "$ref" "$label" "$suffix"
           done 3< "$RUNNER_TEMP/clean.tsv"
           ok "Done"
+
+      # main is upstream main plus the fork-only files (this workflow), so it
+      # only ever needs a merge from upstream. Done here - last, so a failure
+      # cannot block the experimental update above - it keeps the fork's PR
+      # bases current without a manual sync.
+      - name: Merge origin/main into main
+        run: |
+          eval "$HELPERS"
+          git checkout -B main koppor/main
+          if git merge --no-edit -m "Merge origin/main into main" origin/main; then
+            git push koppor HEAD:refs/heads/main
+            echo "- :white_check_mark: \`origin/main\` into \`main\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            git merge --abort
+            echo "::warning::Merge conflict for origin/main into main - skipped"
+            echo "- :x: \`origin/main\` into \`main\` - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+          fi
