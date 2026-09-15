@@ -51,8 +51,7 @@ dependencies.constraints {
 
     api("com.dlsc.gemsfx:gemsfx:4.4.5")
     api("com.dlsc.unitfx:unitfx:1.0.10")
-    // In-flight test of github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48, built by JitPack
-    api("com.github.koppor.PDFViewFX:pdfviewfx:9738ef3519")
+    api("com.dlsc.pdfviewfx:pdfviewfx:3.5.0")
     api("com.ibm.icu:icu4j:72.0.1!!")
     api("com.fasterxml:aalto-xml:1.4.0")
     api("org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0")
@@ -62,6 +61,8 @@ dependencies.constraints {
     api("com.github.javaparser:javaparser-core:3.28.2")
     api("com.github.javaparser:javaparser-symbol-solver-core:3.28.2")
     api("com.github.sialcasa.mvvmFX:mvvmfx-validation:f195849ca9") //jitpack
+    // In-flight test of github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48; gradle/modules.properties points com.dlsc.pdfviewfx here
+    api("com.github.koppor.PDFViewFX:pdfviewfx:9738ef3519") //jitpack
     api("com.google.errorprone:error_prone_core:2.50.0")
     api("com.google.guava:guava:33.7.1-jre")
     api("com.googlecode.plist:dd-plist:1.30")
