@@ -596,9 +596,8 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
             } catch (URISyntaxException e) {
                 throw new FetcherException("Invalid URL", e);
             }
-            // The arXiv API has problems with accents, so we remove them (i.e. Fréchet -> Frechet)
             if (StringUtil.isNotBlank(searchQuery)) {
-                uriBuilder.addParameter("search_query", StringUtil.stripAccents(searchQuery));
+                uriBuilder.addParameter("search_query", searchQuery);
             }
             if (!ids.isEmpty()) {
                 uriBuilder.addParameter("id_list",
@@ -841,7 +840,7 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                         pdfUrlParsed = XMLUtil.getAttributeContent(linkNode, "href").map(url -> {
                             try {
                                 return URLUtil.create(url);
-                            } catch (MalformedURLException e) {
+                            } catch (MalformedURLException _) {
                                 return null;
                             }
                         });
