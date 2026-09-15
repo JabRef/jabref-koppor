@@ -227,7 +227,7 @@ public class AskQuestionsAction extends SimpleCommand {
                         context,
                         linkedFile
                 ), false).getKey().get();
-            } catch (InterruptedException e) {
+            } catch (InterruptedException _) {
                 Thread.currentThread().interrupt();
                 return;
             } catch (ExecutionException e) {
