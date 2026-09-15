@@ -48,6 +48,7 @@ import org.jabref.gui.linkedfile.LinkedFileEditDialog;
 import org.jabref.gui.linkedfile.OcrLinkedFileAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.ControlHelper;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -61,7 +62,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import jakarta.inject.Inject;
