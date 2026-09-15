@@ -33,8 +33,11 @@ env:
     # github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48 in flight (JitPack build of the PR head)
     koppor/pdfviewfx-pr48
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
-  # Non-draft PRs with their branch in JabRef/jabref are merged automatically; list only fork PRs, koppor PRs, and drafts here.
+  # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
+  # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
+  # Merge order: BRANCHES, then PRS in the order given, then the automatic ones.
   PRS: |
+    https://github.com/JabRef/jabref/pull/17163
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
     https://github.com/JabRef/jabref/pull/17134
@@ -139,6 +142,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote rename origin koppor
           git remote add origin https://github.com/JabRef/jabref.git
+          # Requirement docs and the changelog get a section appended by nearly every PR, so they conflict all the time
+          # although both sides belong in. Local attribute, only for building experimental.
+          printf '%s\n' 'docs/requirements/*.md merge=union' 'CHANGELOG.md merge=union' >> .git/info/attributes
           git fetch --quiet --no-tags --prune origin
           git fetch --quiet --no-tags --prune koppor
           if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
