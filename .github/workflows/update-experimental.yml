@@ -69,6 +69,7 @@ env:
     # Results of a step, printed as separate lists at its end by recap.
     MERGED=()
     SKIPPED=()
+    SKIPPED_DETAILS=()
     recap() {
       echo
       printf '\e[1m%s (%d)\e[0m\n' "$1" "${#MERGED[@]}"
@@ -80,38 +81,44 @@ env:
       if [ "${#SKIPPED[@]}" -gt 0 ]; then
         printf '\e[1mSkipped (%d)\e[0m\n' "${#SKIPPED[@]}"
         summary "#### Skipped (${#SKIPPED[@]})"
-        for m in "${SKIPPED[@]}"; do
-          bad "$m"
-          summary "- :x: $m"
+        for i in "${!SKIPPED[@]}"; do
+          bad "${SKIPPED[$i]}"
+          summary "- :x: ${SKIPPED[$i]}"
+          [ -z "${SKIPPED_DETAILS[$i]}" ] || summary "${SKIPPED_DETAILS[$i]}"
         done
-      fi
-      if [ -s "$RUNNER_TEMP/conflicts.md" ]; then
-        summary "#### Conflicts"
-        cat "$RUNNER_TEMP/conflicts.md" >> "$GITHUB_STEP_SUMMARY"
       fi
     }
     # conflict_report <label> <suffix>: call while a merge stands on its conflicts (before `git merge --abort`). Prints every
-    # conflicted file with 10 lines from its first conflict marker, annotates the run, and keeps the details for recap.
-    : > "$RUNNER_TEMP/conflicts.md"
+    # conflicted file with 10 lines from its first conflict marker, annotates the run, and leaves the same as Markdown
+    # sub-list in $RUNNER_TEMP/details.md for skip.
     conflict_report() {
-      local files file line
+      local files file line excerpt
       files="$(git diff --name-only --diff-filter=U)"
-      printf '<details><summary><code>%s</code> %s</summary>\n\n' "$1" "$2" >> "$RUNNER_TEMP/conflicts.md"
+      : > "$RUNNER_TEMP/details.md"
       while read -r file; do
         [ -n "$file" ] || continue
-        printf '    \e[33m%s\e[0m\n' "$file"
-        printf '`%s`\n\n````\n' "$file" >> "$RUNNER_TEMP/conflicts.md"
         line="$(grep -n -m1 '^<<<<<<<' "$file" 2> /dev/null | cut -d: -f1 || true)"
         if [ -n "$line" ]; then
-          sed -n "${line},$((line + 9))p" "$file" | tee -a "$RUNNER_TEMP/conflicts.md" | sed 's/^/      /'
+          excerpt="$(sed -n "${line},$((line + 9))p" "$file")"
         else
           # modify/delete, rename or binary conflict: no markers to show
-          git status -- "$file" | grep -F -- "$file" | sed 's/^[[:space:]]*//' | tee -a "$RUNNER_TEMP/conflicts.md" | sed 's/^/      /' || true
+          excerpt="$(git status -- "$file" | grep -F -- "$file" | sed 's/^[[:space:]]*//' || true)"
         fi
-        printf '````\n\n' >> "$RUNNER_TEMP/conflicts.md"
+        printf '    \e[33m%s\e[0m\n' "$file"
+        printf '%s\n' "$excerpt" | sed 's/^/      /'
+        {
+          printf '  - <details><summary><code>%s</code></summary>\n\n    ````\n' "$file"
+          printf '%s\n' "$excerpt" | sed 's/^/    /'
+          printf '    ````\n    </details>\n'
+        } >> "$RUNNER_TEMP/details.md"
       done <<< "$files"
-      printf '</details>\n\n' >> "$RUNNER_TEMP/conflicts.md"
       echo "::warning title=Merge conflict::$1 $2 - skipped%0A$(printf '%s' "$files" | awk '{printf "%s%s", sep, $0; sep="%0A"}')"
+    }
+    # skip <text>: records a skipped ref for recap, with the details left in $RUNNER_TEMP/details.md (if any).
+    skip() {
+      SKIPPED+=("$1")
+      SKIPPED_DETAILS+=("$(cat "$RUNNER_TEMP/details.md" 2> /dev/null || true)")
+      rm -f "$RUNNER_TEMP/details.md"
     }
     # merge <ref> <label> [suffix]: merges, compiles, pushes. A merge that breaks compilation is undone; while experimental
     # does not compile anyway (GREEN=false), merges are kept so a fix can still come in.
@@ -122,7 +129,7 @@ env:
         bad "$2: merge conflict, skipped"
         conflict_report "$2" "${3:-}"
         git merge --abort
-        SKIPPED+=("$2 ${3:-} - merge conflict")
+        skip "$2 ${3:-} - merge conflict"
       elif compiles; then
         GREEN=true
         push
@@ -135,7 +142,8 @@ env:
         bad "$2: compile error, skipped"
         show_compile_errors
         echo "::error title=Compile error::$2 ${3:-} - skipped"
-        SKIPPED+=("$2 ${3:-} - compile error")
+        { printf '  - compile errors\n\n    ````\n'; show_compile_errors | sed 's/^/    /'; printf '    ````\n'; } > "$RUNNER_TEMP/details.md"
+        skip "$2 ${3:-} - compile error"
       else
         push
         echo "::endgroup::"
@@ -319,7 +327,7 @@ jobs:
               bad "$label: merge conflict, skipped"
               conflict_report "$label" "$suffix"
               git merge --abort
-              SKIPPED+=("$label $suffix - merge conflict")
+              skip "$label $suffix - merge conflict"
             fi
           done 3< "$RUNNER_TEMP/candidates.tsv"
 
