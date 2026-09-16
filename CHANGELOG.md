@@ -167,6 +167,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Fixed
 
 - We fixed an issue where case-sensitive search (`=!`, `==!`, `=~!`) in linked files ignored the casing and matched text in any casing. [#13048](https://github.com/JabRef/jabref/issues/13048)
+- We fixed an issue where closing a library did not free its memory, so a session that opened and closed several libraries kept all of them in memory. [#16948](https://github.com/JabRef/jabref/pull/16948)
 - We fixed missing publication years and empty parentheses in the related articles tab. [#16998](https://github.com/JabRef/jabref/issues/16998)
 - We fixed an issue where <kbd>Ctrl</kbd> + <kbd>W</kbd> did not close the welcome tab. [#16895](https://github.com/JabRef/jabref/pull/16895)
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
