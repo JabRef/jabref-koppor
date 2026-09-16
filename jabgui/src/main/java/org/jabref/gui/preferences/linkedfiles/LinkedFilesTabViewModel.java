@@ -36,6 +36,7 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
     private final ListProperty<String> defaultFileNamePatternsProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList(FilePreferences.DEFAULT_FILENAME_PATTERNS));
     private final BooleanProperty fulltextIndex = new SimpleBooleanProperty();
+    private final BooleanProperty fulltextIndexLinkedFilesShouldCheckForModifications = new SimpleBooleanProperty();
     private final BooleanProperty autoRenameFilesOnChangeProperty = new SimpleBooleanProperty();
     private final StringProperty fileNamePatternProperty = new SimpleStringProperty();
     private final StringProperty fileDirectoryPatternProperty = new SimpleStringProperty();
@@ -89,6 +90,7 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         useMainFileDirectoryProperty.setValue(!filePreferences.shouldStoreFilesRelativeToBibFile());
         useBibLocationAsPrimaryProperty.setValue(filePreferences.shouldStoreFilesRelativeToBibFile());
         fulltextIndex.setValue(filePreferences.shouldFulltextIndexLinkedFiles());
+        fulltextIndexLinkedFilesShouldCheckForModifications.setValue(filePreferences.shouldFulltextIndexLinkedFilesShouldCheckForModifications());
         autoRenameFilesOnChangeProperty.setValue(filePreferences.shouldAutoRenameFilesOnChange());
         fileNamePatternProperty.setValue(filePreferences.getFileNamePattern());
         fileDirectoryPatternProperty.setValue(filePreferences.getFileDirectoryPattern());
@@ -126,6 +128,7 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         filePreferences.setFileNamePattern(fileNamePatternProperty.getValue());
         filePreferences.setFileDirectoryPattern(fileDirectoryPatternProperty.getValue());
         filePreferences.setFulltextIndexLinkedFiles(fulltextIndex.getValue());
+        filePreferences.setFulltextIndexLinkedFilesShouldCheckForModifications(fulltextIndexLinkedFilesShouldCheckForModifications.getValue());
         filePreferences.setOpenFileExplorerInFileDirectory(openFileExplorerInFilesDirectory.getValue());
         filePreferences.setOpenFileExplorerInLastUsedDirectory(openFileExplorerInLastDirectory.getValue());
 
@@ -195,6 +198,10 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
 
     public BooleanProperty fulltextIndexProperty() {
         return fulltextIndex;
+    }
+
+    public BooleanProperty fulltextIndexLinkedFilesShouldCheckForModificationsProperty() {
+        return fulltextIndexLinkedFilesShouldCheckForModifications;
     }
 
     public ListProperty<String> defaultFileNamePatternsProperty() {
