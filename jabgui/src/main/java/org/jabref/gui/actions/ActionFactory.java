@@ -65,7 +65,7 @@ public class ActionFactory {
                 getLabel.setAccessible(true);
                 return (Label) getLabel.invoke(container);
             } catch (InaccessibleObjectException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                LOGGER.warn("Could not get label of menu item", e);
+                LOGGER.error("Could not get label of menu item", e);
             }
         }
         return null;

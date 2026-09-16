@@ -30,7 +30,7 @@ public class GuiGitConflictResolverStrategy implements GitConflictResolverStrate
         for (ThreeWayEntryConflict conflict : conflicts) {
             Optional<BibEntry> entryOpt = callOnFxAndWait(() -> dialog.resolveConflict(conflict));
             if (entryOpt.isEmpty()) {
-                LOGGER.debug("User cancelled conflict resolution for entry {}", conflict.local().getCitationKey().orElse("<unknown>"));
+                LOGGER.atDebug().addArgument(() -> conflict.local().getCitationKey().orElse("<unknown>")).log("User cancelled conflict resolution for entry {}");
                 return List.of();
             }
             resolved.add(entryOpt.get());

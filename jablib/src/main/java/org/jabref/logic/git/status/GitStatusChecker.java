@@ -33,7 +33,7 @@ public class GitStatusChecker {
         try {
             return checkStatusOrThrow(gitHandler);
         } catch (JabRefException e) {
-            LOGGER.warn("Failed to check Git status", e);
+            LOGGER.error("Failed to check Git status", e);
             return new GitStatusSnapshot(
                     GitStatusSnapshot.TRACKING,
                     SyncStatus.UNKNOWN,
@@ -109,7 +109,7 @@ public class GitStatusChecker {
             LOGGER.debug("Remote is NOT empty but remoteHead unresolved -> UNKNOWN");
             return SyncStatus.UNKNOWN;
         } catch (IOException | GitAPIException | JGitInternalException e) {
-            LOGGER.warn("Could not query remote origin", e);
+            LOGGER.error("Could not query remote origin", e);
             return SyncStatus.UNKNOWN;
         }
     }

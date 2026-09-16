@@ -63,7 +63,7 @@ public class SendAsStandardEmailAction extends SendAsEMailAction {
             try {
                 bibtexEntryWriter.write(entry, bibWriter, databaseContext.getMode());
             } catch (IOException e) {
-                LOGGER.warn("Problem creating BibTeX file for mailing.", e);
+                LOGGER.error("Problem creating BibTeX file for mailing.", e);
             }
         }
 

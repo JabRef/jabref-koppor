@@ -162,8 +162,7 @@ public class WriteMetadataToLinkedPdfsAction extends SimpleCommand {
                                         .filter(FileUtil::isPDFFile)
                                         .toList();
                 if (files.isEmpty()) {
-                    LOGGER.debug("Skipped empty entry '{}'",
-                            entry.getCitationKey().orElse(entry.getAuthorTitleYear(16)));
+                    LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse(entry.getAuthorTitleYear(16))).log("Skipped empty entry '{}'");
                     skipped++;
                 } else {
                     for (Path file : files) {

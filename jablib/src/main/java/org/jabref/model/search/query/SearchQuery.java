@@ -43,7 +43,7 @@ public class SearchQuery {
         } catch (ParseCancellationException e) {
             // We use getCause here as the real exception is nested and this avoids that the stack trace get too large
             // and we don't see the root cause
-            LOGGER.debug("Search query Parsing error", e.getCause());
+            LOGGER.error("Search query Parsing error", e.getCause());
             isValidExpression = false;
         }
     }
@@ -186,7 +186,7 @@ public class SearchQuery {
                 Pattern.compile(regularExpression);
                 return true;
             } catch (PatternSyntaxException e) {
-                LOGGER.debug("Invalid regular expression in search query: {}", regularExpression, e);
+                LOGGER.error("Invalid regular expression in search query: {}", regularExpression, e);
                 return false;
             }
         }

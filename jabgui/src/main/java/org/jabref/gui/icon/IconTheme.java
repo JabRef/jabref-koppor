@@ -117,7 +117,7 @@ public class IconTheme {
         try (InputStream in = url.openStream()) {
             properties.load(in);
         } catch (IOException e) {
-            LOGGER.warn("Unable to read default icon theme.", e);
+            LOGGER.error("Unable to read default icon theme.", e);
         }
 
         Map<String, String> result = new HashMap<>();

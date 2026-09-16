@@ -37,7 +37,7 @@ public class ImportCustomEntryTypesDialogViewModel {
                 newTypes.add(customType);
             } else {
                 if (!EntryTypeFactory.nameAndFieldsAreEqual(customType, currentlyStoredType.get())) {
-                    LOGGER.info("currently stored type:    {}", currentlyStoredType.get());
+                    LOGGER.atInfo().addArgument(() -> currentlyStoredType.get()).log("currently stored type:    {}");
                     LOGGER.info("type provided by library: {}", customType);
                     differentCustomizationTypes.add(new BibEntryTypePrefsAndFileViewModel(currentlyStoredType.get(), customType));
                 }

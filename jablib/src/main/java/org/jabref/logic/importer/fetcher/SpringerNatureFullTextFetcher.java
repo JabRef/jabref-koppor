@@ -65,7 +65,7 @@ public class SpringerNatureFullTextFetcher implements FulltextFetcher, Customiza
                 }
             }
         } catch (UnirestException | URISyntaxException e) {
-            LOGGER.warn("SpringerLink API request failed", e);
+            LOGGER.error("SpringerLink API request failed", e);
         }
         return Optional.empty();
     }

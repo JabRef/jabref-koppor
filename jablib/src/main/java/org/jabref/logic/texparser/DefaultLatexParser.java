@@ -85,11 +85,11 @@ public class DefaultLatexParser implements LatexParser {
         } catch (ClosedChannelException _) {
             // User changed the underlying LaTeX file
             // We ignore this error and just continue with parsing
-            LOGGER.info("Parsing has been interrupted");
+            LOGGER.warn("Parsing has been interrupted");
         } catch (IOException | UncheckedIOException e) {
             // Some weired error during reading
             // We ignore this error and just continue with parsing
-            LOGGER.info("Error while parsing file {}", latexFile, e);
+            LOGGER.error("Error while parsing file {}", latexFile, e);
         }
 
         return Optional.of(latexParserResult);

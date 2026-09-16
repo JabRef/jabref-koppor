@@ -74,7 +74,7 @@ public class DBMSConnection implements DatabaseConnection {
                 dbmsTypes.add(dbms);
             } catch (ClassNotFoundException _) {
                 // In case that the driver is not available do not perform tests for this system.
-                LOGGER.info(Localization.lang("%0 driver not available.", dbms.toString()));
+                LOGGER.warn(Localization.lang("%0 driver not available.", dbms.toString()));
             }
         }
         return dbmsTypes;

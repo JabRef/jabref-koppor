@@ -147,7 +147,7 @@ public class Walkthrough {
 
     public void goToStep(int stepIndex) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            LOGGER.debug("Invalid step index: {}. Valid range is 0 to {}.", stepIndex, steps.size() - 1);
+            LOGGER.atDebug().addArgument(stepIndex).addArgument(() -> steps.size() - 1).log("Invalid step index: {}. Valid range is 0 to {}.");
             return;
         }
 

@@ -151,7 +151,7 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
         } else {
             Collection<BibEntry> entries = result.getDatabase().getEntries();
             if (entries.size() != 1) {
-                LOGGER.debug("{} entries found! ({})", entries.size(), link);
+                LOGGER.atDebug().addArgument(() -> entries.size()).addArgument(link).log("{} entries found! ({})");
                 throw new FetcherException("Parsing entries from Google Scholar bib file failed.");
             } else {
                 BibEntry entry = entries.iterator().next();
@@ -203,7 +203,7 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
                 addHitsFromQuery(foundEntries, uriBuilder.toString());
             }
         } catch (IOException e) {
-            LOGGER.info("IOException for URL {}", uriBuilder);
+            LOGGER.warn("IOException for URL {}", uriBuilder);
             // if there are too much requests from the same IP adress google is answering with a 503 and redirecting to a captcha challenge
             // The caught IOException looks for example like this:
             // java.io.IOException: Server returned HTTP response code: 503 for URL: https://ipv4.google.com/sorry/index?continue=https://scholar.google.com/scholar%3Fhl%3Den%26btnG%3DSearch%26q%3Dbpmn&hl=en&q=CGMSBI0NBDkYuqy9wAUiGQDxp4NLQCWbIEY1HjpH5zFJhv4ANPGdWj0

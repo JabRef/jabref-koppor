@@ -54,7 +54,7 @@ public class WalkthroughOverlay {
     }
 
     public void show(@NonNull WalkthroughStep step) {
-        LOGGER.debug("Showing step: {}", step.title());
+        LOGGER.atDebug().addArgument(() -> step.title()).log("Showing step: {}");
         cleanUp();
 
         switch (step) {
@@ -143,7 +143,7 @@ public class WalkthroughOverlay {
         this.resolvedNode = result.node().orElse(null);
         VisibleComponent component = (VisibleComponent) walkthrough.getCurrentStep();
 
-        LOGGER.debug("Displaying overlay for component '{}'", component.title());
+        LOGGER.atDebug().addArgument(() -> component.title()).log("Displaying overlay for component '{}'");
 
         if (resolvedNode != null) {
             this.scroller = new WalkthroughScroller(resolvedNode);

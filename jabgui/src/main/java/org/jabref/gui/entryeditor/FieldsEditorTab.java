@@ -274,8 +274,8 @@ abstract class FieldsEditorTab extends TabWithPreviewPanel {
 
     @Override
     protected void handleFocus() {
-        LOGGER.trace("This is {}", preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get());
-        LOGGER.trace("This is then {}", !preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get());
+        LOGGER.atTrace().addArgument(() -> preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get()).log("This is {}");
+        LOGGER.atTrace().addArgument(() -> !preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get()).log("This is then {}");
         if (!preferences.getPreviewPreferences().showPreviewAsExtraTabProperty().get()) {
             LOGGER.trace("Focus on preview panel");
 

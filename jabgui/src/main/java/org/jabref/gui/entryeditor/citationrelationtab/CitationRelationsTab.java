@@ -722,7 +722,7 @@ public class CitationRelationsTab extends EntryEditorTab {
                                                .orElse(BibDatabaseMode.BIBLATEX);
             ca.appendText(getSourceString(entry, mode, preferences.getFieldPreferences(), this.entryTypesManager));
         } catch (IOException e) {
-            LOGGER.warn("Incorrect entry, could not load source:", e);
+            LOGGER.error("Incorrect entry, could not load source:", e);
             return;
         }
 
@@ -790,7 +790,7 @@ public class CitationRelationsTab extends EntryEditorTab {
                 try {
                     NativeDesktop.openBrowser(apiUri, preferences.getExternalApplicationsPreferences());
                 } catch (IOException e) {
-                    LOGGER.warn("Could not open API URL in browser: {}", apiUri, e);
+                    LOGGER.error("Could not open API URL in browser: {}", apiUri, e);
                     dialogService.notify(Localization.lang("Unable to open link."));
                 }
             });

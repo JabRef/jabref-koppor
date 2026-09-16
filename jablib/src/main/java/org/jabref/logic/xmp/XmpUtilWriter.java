@@ -152,13 +152,13 @@ public class XmpUtilWriter {
             serializer.serialize(meta, os, true);
             return os.toString(StandardCharsets.UTF_8);
         } catch (TransformerException e) {
-            LOGGER.warn("Transformation into XMP not possible: {}", e.getMessage(), e);
+            LOGGER.error("Transformation into XMP not possible: {}", e.getMessage(), e);
             return "";
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warn("Unsupported encoding to UTF-8 of bib entries in XMP metadata.", e);
+            LOGGER.error("Unsupported encoding to UTF-8 of bib entries in XMP metadata.", e);
             return "";
         } catch (IOException e) {
-            LOGGER.warn("IO Exception thrown by closing the output stream.", e);
+            LOGGER.error("IO Exception thrown by closing the output stream.", e);
             return "";
         }
     }
@@ -293,7 +293,7 @@ public class XmpUtilWriter {
                 try {
                     document.save(out);
                 } catch (IOException e) {
-                    LOGGER.debug("Could not write XMP metadata", e);
+                    LOGGER.error("Could not write XMP metadata", e);
                     throw new TransformerException("Could not write XMP metadata: " + e.getLocalizedMessage(), e);
                 }
             }
@@ -328,7 +328,7 @@ public class XmpUtilWriter {
                 try {
                     document.save(out);
                 } catch (IOException e) {
-                    LOGGER.debug("Could not remove XMP metadata", e);
+                    LOGGER.error("Could not remove XMP metadata", e);
                     throw new TransformerException(
                             "Could not remove XMP metadata: " + e.getLocalizedMessage(), e);
                 }

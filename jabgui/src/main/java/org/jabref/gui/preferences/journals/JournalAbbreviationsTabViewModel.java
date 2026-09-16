@@ -172,7 +172,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
             try {
                 abbreviationsFile.readAbbreviations();
             } catch (IOException e) {
-                LOGGER.debug("Could not read abbreviations file", e);
+                LOGGER.error("Could not read abbreviations file", e);
             }
         }
         journalFiles.add(abbreviationsFile);
@@ -292,7 +292,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
             try {
                 file.writeOrCreate();
             } catch (IOException e) {
-                LOGGER.debug("Error during writing journal CSV", e);
+                LOGGER.error("Error during writing journal CSV", e);
             }
         });
     }

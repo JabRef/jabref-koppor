@@ -192,7 +192,7 @@ class OpenDocumentRepresentation {
 
             result.appendChild(collection);
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Exception caught...", e);
+            LOGGER.error("Exception caught...", e);
         }
         return result;
     }

@@ -126,7 +126,7 @@ public final class ChatHistoryMigrationV1 {
                 return;
             }
 
-            LOGGER.debug("Starting migration of {} chat history maps from v1 to v2", oldMapNames.size());
+            LOGGER.atDebug().addArgument(() -> oldMapNames.size()).log("Starting migration of {} chat history maps from v1 to v2");
 
             for (String oldMapName : oldMapNames) {
                 try {
@@ -138,8 +138,7 @@ public final class ChatHistoryMigrationV1 {
                 }
             }
 
-            LOGGER.debug("Successfully migrated {} of {} chat history maps",
-                    migratedMapNames.size(), oldMapNames.size());
+            LOGGER.atDebug().addArgument(() -> migratedMapNames.size()).addArgument(() -> oldMapNames.size()).log("Successfully migrated {} of {} chat history maps");
         } catch (Exception e) {
             LOGGER.error("Failed to migrate chat history from v1 to v2", e);
             notificationService.notify(Localization.lang("Failed to migrate AI chat history. See logs for details."));
@@ -168,8 +167,7 @@ public final class ChatHistoryMigrationV1 {
             chatName = oldMapName.substring(index + ENTRY_CHAT_HISTORY_INFIX.length());
 
             if (!pathMatchesCurrentLibrary(pathPrefix, bibDatabaseContext)) {
-                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'",
-                        oldMapName, pathPrefix, bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>"));
+                LOGGER.atDebug().addArgument(oldMapName).addArgument(pathPrefix).addArgument(() -> bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>")).log("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'");
                 return false;
             }
 
@@ -184,8 +182,7 @@ public final class ChatHistoryMigrationV1 {
             chatName = oldMapName.substring(index + GROUP_CHAT_HISTORY_INFIX.length());
 
             if (!pathMatchesCurrentLibrary(pathPrefix, bibDatabaseContext)) {
-                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'",
-                        oldMapName, pathPrefix, bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>"));
+                LOGGER.atDebug().addArgument(oldMapName).addArgument(pathPrefix).addArgument(() -> bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>")).log("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'");
                 return false;
             }
         } else {
@@ -237,7 +234,7 @@ public final class ChatHistoryMigrationV1 {
             repository.addMessage(newIdentifier, message);
         }
 
-        LOGGER.debug("Migrated {} messages from {}", newMessages.size(), oldMapName);
+        LOGGER.atDebug().addArgument(() -> newMessages.size()).addArgument(oldMapName).log("Migrated {} messages from {}");
         return true;
     }
 

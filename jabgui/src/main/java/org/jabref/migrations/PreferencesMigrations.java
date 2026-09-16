@@ -133,7 +133,7 @@ public class PreferencesMigrations {
             return;
         }
 
-        LOGGER.info("Migrating {} custom entry editor tab(s) to the JSON preference format.", customTabs.size());
+        LOGGER.atInfo().addArgument(() -> customTabs.size()).log("Migrating {} custom entry editor tab(s) to the JSON preference format.");
         prefs.put(V6_0_ENTRY_EDITOR_CUSTOM_TABS, new ObjectMapper().writeValueAsString(customTabs));
     }
 

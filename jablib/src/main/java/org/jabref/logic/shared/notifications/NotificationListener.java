@@ -89,9 +89,9 @@ public class NotificationListener implements Runnable {
                 // Exponential backoff: 1, 2, 4, ... seconds up to the cap
                 long delayMillis = Math.min(MAX_RECONNECT_DELAY_MILLIS, 1000L << Math.min(consecutiveFailures - 1, 10));
                 if (consecutiveFailures == 1) {
-                    LOGGER.warn("Error while listening for shared database updates - reconnecting", exception);
+                    LOGGER.error("Error while listening for shared database updates - reconnecting", exception);
                 } else {
-                    LOGGER.debug("Reconnecting the shared database listener in {} ms (attempt {})", delayMillis, consecutiveFailures, exception);
+                    LOGGER.error("Reconnecting the shared database listener in {} ms (attempt {})", delayMillis, consecutiveFailures, exception);
                 }
                 try {
                     Thread.sleep(delayMillis);
@@ -129,7 +129,7 @@ public class NotificationListener implements Runnable {
         try {
             fieldChange = gson.fromJson(payload, FieldChange.class);
         } catch (JsonSyntaxException e) {
-            LOGGER.warn("Could not parse notification payload, pulling changes instead: {}", payload, e);
+            LOGGER.error("Could not parse notification payload, pulling changes instead: {}", payload, e);
             fieldChange = null;
         }
         if (fieldChange == null) {
@@ -157,7 +157,7 @@ public class NotificationListener implements Runnable {
             try {
                 current.close();
             } catch (SQLException e) {
-                LOGGER.debug("Could not close listener connection", e);
+                LOGGER.error("Could not close listener connection", e);
             }
         }
     }

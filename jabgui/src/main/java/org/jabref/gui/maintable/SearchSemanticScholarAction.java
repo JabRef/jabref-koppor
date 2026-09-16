@@ -46,7 +46,7 @@ public class SearchSemanticScholarAction extends SimpleCommand {
                 try {
                     NativeDesktop.openExternalViewer(databaseContext, preferences, url, StandardField.URL, dialogService, bibEntries.getFirst());
                 } catch (IOException ex) {
-                    LOGGER.warn("Could not open Semantic Scholar", ex);
+                    LOGGER.error("Could not open Semantic Scholar", ex);
                     dialogService.notify(Localization.lang("Unable to open Semantic Scholar.") + " " + ex.getMessage());
                 }
             });

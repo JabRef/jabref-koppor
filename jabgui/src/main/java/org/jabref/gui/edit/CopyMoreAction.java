@@ -175,7 +175,7 @@ public class CopyMoreAction extends SimpleCommand {
         try {
             layout = new LayoutHelper(layoutString, preferences.getLayoutFormatterPreferences(), abbreviationRepository).getLayoutFromText();
         } catch (IOException e) {
-            LOGGER.info("Could not get layout.", e);
+            LOGGER.error("Could not get layout.", e);
             return;
         }
 

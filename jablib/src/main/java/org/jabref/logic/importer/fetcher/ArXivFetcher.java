@@ -416,9 +416,9 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                                                        .ifPresent(entry::setCitationKey);
         } catch (FetcherClientException _) {
             // Most arXiv categories aren't indexed by INSPIRE, so a 404 here is an expected miss, not an error
-            LOGGER.trace("No INSPIRE entry found for arXiv ID '{}'", eprint);
+            LOGGER.warn("No INSPIRE entry found for arXiv ID '{}'", eprint);
         } catch (FetcherException e) {
-            LOGGER.debug("Could not look up an INSPIRE texkey for arXiv ID '{}'", eprint, e);
+            LOGGER.error("Could not look up an INSPIRE texkey for arXiv ID '{}'", eprint, e);
         }
     }
 
@@ -483,7 +483,7 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                 pdfUrl.ifPresent(_ -> LOGGER.info("Fulltext PDF found @ arXiv."));
                 return pdfUrl;
             } catch (FetcherException e) {
-                LOGGER.warn("arXiv API request failed", e);
+                LOGGER.error("arXiv API request failed", e);
             }
 
             return Optional.empty();
@@ -529,7 +529,7 @@ public class ArXivFetcher implements FulltextFetcher, PagedSearchBasedFetcher, I
                     // Get pdf of entry with the specified id
                     return OptionalUtil.toList(searchForEntryById(identifier.get()));
                 } catch (FetcherException e) {
-                    LOGGER.warn("arXiv eprint API request failed", e);
+                    LOGGER.error("arXiv eprint API request failed", e);
                 }
             }
 

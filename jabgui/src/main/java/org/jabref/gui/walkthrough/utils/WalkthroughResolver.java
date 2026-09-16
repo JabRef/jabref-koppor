@@ -153,9 +153,9 @@ public class WalkthroughResolver {
                     nodeIdleTimeout.cancel();
                 }
                 // If a new node is resolved after listening, wait for a short period of time to see if it stays the same.
-                LOGGER.info("Node resolved, waiting for it to stay the same: {}", node.get());
+                LOGGER.atInfo().addArgument(() -> node.get()).log("Node resolved, waiting for it to stay the same: {}");
                 nodeIdleTimeout = new DelayedExecution(NODE_IDLE_TIMEOUT, () -> {
-                    LOGGER.info("Node idle timeout. The node has stayed the same: {}", node.get());
+                    LOGGER.atInfo().addArgument(() -> node.get()).log("Node idle timeout. The node has stayed the same: {}");
                     handled = true;
                     detachChildrenListener();
                     finish(new WalkthroughResult(window, this.node));

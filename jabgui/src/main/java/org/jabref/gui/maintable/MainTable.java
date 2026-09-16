@@ -556,7 +556,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         try {
             content = clipboardContentGenerator.generate(entries, CitationStyleOutputFormat.HTML, database);
         } catch (IOException e) {
-            LOGGER.warn("Could not generate clipboard content. Falling back to empty clipboard", e);
+            LOGGER.error("Could not generate clipboard content. Falling back to empty clipboard", e);
             content = new ClipboardContent();
         }
         // Required to be able to drop the entries inside JabRef

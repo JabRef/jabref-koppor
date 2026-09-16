@@ -84,7 +84,7 @@ public class EmbeddingModelMetadataService {
                 }
             }
         } catch (RuntimeException e) {
-            LOGGER.debug("Could not retrieve available embedding models from DJL ModelZoo", e);
+            LOGGER.error("Could not retrieve available embedding models from DJL ModelZoo", e);
         }
 
         return List.of();
@@ -122,7 +122,7 @@ public class EmbeddingModelMetadataService {
                 }
             }
         } catch (IOException e) {
-            LOGGER.debug("Failed resolving DJL artifact metadata for {}", modelName, e);
+            LOGGER.error("Failed resolving DJL artifact metadata for {}", modelName, e);
         }
 
         // 2. If size is not present, query Hugging Face Tree API
@@ -164,7 +164,7 @@ public class EmbeddingModelMetadataService {
                 try {
                     return OptionalInt.of(Integer.parseInt(str.trim()));
                 } catch (NumberFormatException e) {
-                    LOGGER.debug("Could not parse maxLength value '{}'", str, e);
+                    LOGGER.error("Could not parse maxLength value '{}'", str, e);
                 }
             }
         }
@@ -213,7 +213,7 @@ public class EmbeddingModelMetadataService {
                 return OptionalLong.of(binBytes + configBytes);
             }
         } catch (JsonParseException | NumberFormatException | FetcherException | IOException | URISyntaxException e) {
-            LOGGER.debug("Could not fetch model size from Hugging Face tree API for {}", modelName, e);
+            LOGGER.error("Could not fetch model size from Hugging Face tree API for {}", modelName, e);
         }
         return OptionalLong.empty();
     }
@@ -256,7 +256,7 @@ public class EmbeddingModelMetadataService {
                 return OptionalInt.of(obj.get(fieldName).getAsInt());
             }
         } catch (JsonParseException | NumberFormatException | FetcherException | IOException | URISyntaxException e) {
-            LOGGER.debug("Could not fetch or parse {} from {}", fieldName, url, e);
+            LOGGER.error("Could not fetch or parse {} from {}", fieldName, url, e);
         }
         return OptionalInt.empty();
     }

@@ -97,7 +97,7 @@ public class BibtexImporter extends Importer {
             bufferedInputStream.mark(8192);
             detectedCharset = getCharset(bufferedInputStream);
             bufferedInputStream.reset();
-            LOGGER.debug("Detected charset: {}", detectedCharset.name());
+            LOGGER.atDebug().addArgument(() -> detectedCharset.name()).log("Detected charset: {}");
         }
 
         Charset encoding;
