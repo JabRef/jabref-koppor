@@ -8,6 +8,7 @@ import javafx.scene.input.TransferMode;
 
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.autocompleter.SuggestionProvider;
+import org.jabref.injection.Injector;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.database.BibDatabaseContext;
