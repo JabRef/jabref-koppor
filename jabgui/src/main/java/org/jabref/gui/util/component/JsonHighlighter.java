@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import io.github.kusoroadeolu.veneer.JSONLexer;
 import org.antlr.v4.runtime.CharStreams;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadFeature;
-import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.util.DefaultIndenter;
 import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.Separators;
@@ -38,14 +38,18 @@ public class JsonHighlighter {
     /// more on the UI thread than the formatting is worth.
     private static final int MAX_LENGTH = 100_000;
 
+    /// What separates the JSON from the explanation: the rest of its line and any blank lines.
+    /// The indentation of the first line of the explanation is kept, it may be a code block.
+    private static final Pattern SEPARATOR = Pattern.compile("^(?:[ \\t]*\\r?\\n(?:[ \\t]*\\r?\\n)*|[ \\t]+)");
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonHighlighter.class);
 
     /// Duplicate names make the parse fail, because the tree would silently drop the first value.
-    /// Decimals are kept as [java.math.BigDecimal], so that no digits are lost on the way out.
+    /// Decimals are kept as [java.math.BigDecimal], so that no digits are lost on the way out; they are
+    /// written the way `BigDecimal` prints them, so `1e100000000` stays short instead of growing digits.
     private static final JsonMapper MAPPER = JsonMapper.builder()
                                                        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                                                        .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
-                                                       .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
                                                        .build();
 
     private static final ObjectWriter WRITER = MAPPER.writer().with(prettyPrinter());
@@ -75,7 +79,8 @@ public class JsonHighlighter {
             parser.nextToken();
             // Reading through the parser, not through the mapper, leaves whatever follows untouched.
             String json = WRITER.writeValueAsString(parser.readValueAsTree());
-            String rest = trimmed.substring((int) parser.currentLocation().getCharOffset()).strip();
+            String afterJson = trimmed.substring((int) parser.currentLocation().getCharOffset());
+            String rest = SEPARATOR.matcher(afterJson).replaceFirst("").stripTrailing();
             return Optional.of(new LeadingJson(json, rest));
         } catch (JacksonException e) {
             LOGGER.debug("Text starting like JSON could not be formatted as JSON", e);

@@ -47,6 +47,13 @@ class JsonHighlighterTest {
     }
 
     @Test
+    void leadingJsonKeepsTheIndentationOfTheExplanation() {
+        JsonHighlighter.LeadingJson leadingJson = JsonHighlighter.leadingJson("{\"a\": 1}\n\n    code line\n").orElseThrow();
+
+        assertEquals("    code line", leadingJson.rest());
+    }
+
+    @Test
     void prettyPrintIndentsObjectsAndArrays() {
         assertEquals("""
                         {
@@ -65,6 +72,12 @@ class JsonHighlighterTest {
     void prettyPrintKeepsAllDigitsOfDecimals() {
         assertEquals("{\n  \"a\": 0.123456789012345678901234567890\n}",
                 JsonHighlighter.leadingJson("{\"a\": 0.123456789012345678901234567890}").orElseThrow().json());
+    }
+
+    @Test
+    void prettyPrintKeepsHugeExponentsShort() {
+        assertEquals("{\n  \"n\": 1E+100000000\n}",
+                JsonHighlighter.leadingJson("{\"n\": 1e100000000}").orElseThrow().json());
     }
 
     @Test
