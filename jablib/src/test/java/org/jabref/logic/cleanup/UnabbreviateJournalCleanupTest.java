@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
-public class UnabbreviateJournalCleanupTest {
+class UnabbreviateJournalCleanupTest {
     private UnabbreviateJournalCleanup cleanup;
     private JournalAbbreviationRepository repositoryMock;
     private BibDatabase databaseMock;

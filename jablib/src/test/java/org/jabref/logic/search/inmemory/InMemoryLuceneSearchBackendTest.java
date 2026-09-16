@@ -53,7 +53,7 @@ class InMemoryLuceneSearchBackendTest {
     }
 
     @Test
-    void searchesLinkedFileContentsWithoutPostgres() throws IOException, URISyntaxException {
+    void searchesLinkedFileContentsWithoutPostgres() throws Exception {
         assertEquals(
                 Set.of("minimal-sentence-case", "minimal-all-upper-case", "minimal-mixed-case"),
                 search("comma", EnumSet.of(SearchFlags.FULLTEXT)));
@@ -61,21 +61,21 @@ class InMemoryLuceneSearchBackendTest {
 
     /// [Issue 9482](https://github.com/JabRef/jabref/issues/9482): a quotation mark used to make the search throw.
     @Test
-    void searchesPhraseInLinkedFileContents() throws IOException, URISyntaxException {
+    void searchesPhraseInLinkedFileContents() throws Exception {
         assertEquals(
                 Set.of("minimal-sentence-case", "minimal-all-upper-case", "minimal-mixed-case"),
                 search("\"short sentence\"", EnumSet.of(SearchFlags.FULLTEXT)));
     }
 
     @Test
-    void searchesPhraseWordsSeparatelyOnMissingClosingQuote() throws IOException, URISyntaxException {
+    void searchesPhraseWordsSeparatelyOnMissingClosingQuote() throws Exception {
         assertEquals(
                 Set.of("minimal-sentence-case", "minimal-all-upper-case", "minimal-mixed-case"),
                 search("\"short sentence", EnumSet.of(SearchFlags.FULLTEXT)));
     }
 
     @Test
-    void findsNothingForPhraseNotContainedInLinkedFileContents() throws IOException, URISyntaxException {
+    void findsNothingForPhraseNotContainedInLinkedFileContents() throws Exception {
         assertEquals(Set.of(), search("\"sentence short\"", EnumSet.of(SearchFlags.FULLTEXT)));
     }
 
@@ -83,7 +83,7 @@ class InMemoryLuceneSearchBackendTest {
     /// The metadata results still have to arrive, only the linked files are left out.
     // [utest->req~jabgui.search.fulltext.lenient-query-parsing~1]
     @Test
-    void keepsMetadataResultsOnRegularExpressionLuceneCannotParse() throws IOException, URISyntaxException {
+    void keepsMetadataResultsOnRegularExpressionLuceneCannotParse() throws Exception {
         assertEquals(
                 Set.of("minimal-mixed-case"),
                 search("\"?minimal-mixed-case", EnumSet.of(SearchFlags.FULLTEXT, SearchFlags.REGULAR_EXPRESSION)));

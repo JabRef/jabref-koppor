@@ -1,7 +1,5 @@
 package org.jabref.logic.xmp;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +46,7 @@ class XmpUtilReaderTest {
     }
 
     @Test
-    void readArticleDublinCoreReadRawXmp() throws IOException, URISyntaxException {
+    void readArticleDublinCoreReadRawXmp() throws Exception {
         Path path = Path.of(XmpUtilShared.class.getResource("article_dublinCore_without_day.pdf").toURI());
         List<XMPMetadata> meta = xmpUtilReader.readRawXmp(path);
 
@@ -63,7 +61,7 @@ class XmpUtilReaderTest {
     }
 
     @Test
-    void readArticleDublinCoreReadXmp() throws IOException, URISyntaxException {
+    void readArticleDublinCoreReadXmp() throws Exception {
         Path pathPdf = Path.of(XmpUtilShared.class.getResource("article_dublinCore.pdf").toURI());
         List<BibEntry> entries = xmpUtilReader.readXmp(pathPdf, xmpPreferences);
 
@@ -78,7 +76,7 @@ class XmpUtilReaderTest {
     }
 
     @Test
-    void readArticleDublinCoreReadXmpPartialDate() throws IOException, URISyntaxException {
+    void readArticleDublinCoreReadXmpPartialDate() throws Exception {
         Path pathPdf = Path.of(XmpUtilShared.class.getResource("article_dublinCore_partial_date.pdf").toURI());
         List<BibEntry> entries = xmpUtilReader.readXmp(pathPdf, xmpPreferences);
 
@@ -92,14 +90,14 @@ class XmpUtilReaderTest {
     }
 
     @Test
-    void readEmtpyMetadata() throws IOException, URISyntaxException {
+    void readEmtpyMetadata() throws Exception {
         List<BibEntry> entries = xmpUtilReader.readXmp(Path.of(XmpUtilShared.class.getResource("empty_metadata.pdf").toURI()), xmpPreferences);
         assertEquals(List.of(), entries);
     }
 
     /// Test non XMP metadata. Metadata are included in the PDInformation
     @Test
-    void readPDMetadataNonXmp() throws IOException, URISyntaxException {
+    void readPDMetadataNonXmp() throws Exception {
         Path pathPdf = Path.of(XmpUtilShared.class.getResource("PD_metadata.pdf").toURI());
         List<BibEntry> entries = xmpUtilReader.readXmp(pathPdf, xmpPreferences);
 
@@ -115,7 +113,7 @@ class XmpUtilReaderTest {
 
     /// Tests an pdf file with metadata which has no description section.
     @Test
-    void readNoDescriptionMetadata() throws IOException, URISyntaxException {
+    void readNoDescriptionMetadata() throws Exception {
         List<BibEntry> entries = xmpUtilReader.readXmp(Path.of(XmpUtilShared.class.getResource("no_description_metadata.pdf").toURI()), xmpPreferences);
         assertEquals(List.of(), entries);
     }

@@ -1,7 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ class ImportFormatReaderIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromFileWithAutoDetection(String resource, String format, int count) throws ImportException, URISyntaxException {
+    void importFromFileWithAutoDetection(String resource, String format, int count) throws Exception {
         Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         ImportFormatReader.ImportResult importResult = reader.importWithAutoDetection(file);
         assertEquals(count, importResult.parserResult().getDatabase().getEntryCount());
@@ -49,14 +47,14 @@ class ImportFormatReaderIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromFileWithGivenFormat(String resource, String format, int count) throws ImportException, URISyntaxException {
+    void importFromFileWithGivenFormat(String resource, String format, int count) throws Exception {
         Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         assertEquals(count, reader.importFromFile(format, file).getDatabase().getEntries().size());
     }
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromStringWithAutoDetection(String resource, String format, int count) throws URISyntaxException, IOException, ImportException {
+    void importFromStringWithAutoDetection(String resource, String format, int count) throws Exception {
         Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         String data = Files.readString(file);
         assertEquals(count, reader.importWithAutoDetection(data).parserResult().getDatabase().getEntries().size());

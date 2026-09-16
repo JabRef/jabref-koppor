@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @ResourceLock("Localization.lang")
-public class NoURLCheckerTest {
+class NoURLCheckerTest {
 
     private final NoURLChecker checker = new NoURLChecker();
 

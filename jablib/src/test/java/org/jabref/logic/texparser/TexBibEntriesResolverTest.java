@@ -1,6 +1,5 @@
 package org.jabref.logic.texparser;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -87,7 +86,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void singleFile() throws URISyntaxException {
+    void singleFile() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("paper.tex").toURI());
         LatexParserResults latexParserResults = new DefaultLatexParser().parse(List.of(texFile));
 
@@ -99,7 +98,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void twoFiles() throws URISyntaxException {
+    void twoFiles() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("paper.tex").toURI());
         Path texFile2 = Path.of(TexBibEntriesResolverTest.class.getResource("paper2.tex").toURI());
         LatexParserResults latexParserResults = new DefaultLatexParser().parse(List.of(texFile, texFile2));
@@ -111,7 +110,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void duplicateFiles() throws URISyntaxException {
+    void duplicateFiles() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("paper.tex").toURI());
         LatexParserResults parserResults = new DefaultLatexParser().parse(List.of(texFile));
 
@@ -122,7 +121,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void unknownKey() throws URISyntaxException {
+    void unknownKey() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("unknown_key.tex").toURI());
         LatexParserResults parserResults = new DefaultLatexParser().parse(List.of(texFile));
 
@@ -133,7 +132,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void nestedFiles() throws URISyntaxException {
+    void nestedFiles() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("nested.tex").toURI());
         LatexParserResults parserResults = new DefaultLatexParser().parse(List.of(texFile));
 
@@ -144,7 +143,7 @@ class TexBibEntriesResolverTest {
     }
 
     @Test
-    void crossRef() throws URISyntaxException {
+    void crossRef() throws Exception {
         Path texFile = Path.of(TexBibEntriesResolverTest.class.getResource("crossref.tex").toURI());
         LatexParserResults parserResults = new DefaultLatexParser().parse(List.of(texFile));
 

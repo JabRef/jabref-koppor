@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.util.Version;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -30,7 +29,7 @@ class MrDLibFetcherTest {
     }
 
     @Test
-    void performSearch() throws FetcherException {
+    void performSearch() throws Exception {
         BibEntry bibEntry = new BibEntry();
         bibEntry.setField(StandardField.TITLE, "lernen");
         List<BibEntry> bibEntrys = fetcher.performSearch(bibEntry);
@@ -38,7 +37,7 @@ class MrDLibFetcherTest {
     }
 
     @Test
-    void performSearchForHornecker2006() throws FetcherException {
+    void performSearchForHornecker2006() throws Exception {
         BibEntry bibEntry = new BibEntry();
         bibEntry.setCitationKey("Hornecker:2006:GGT:1124772.1124838");
         bibEntry.setField(StandardField.ADDRESS, "New York, NY, USA");

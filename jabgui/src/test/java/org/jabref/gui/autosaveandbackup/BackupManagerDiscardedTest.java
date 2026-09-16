@@ -99,7 +99,7 @@ class BackupManagerDiscardedTest {
     }
 
     @Test
-    void noDiscardingASavedChange() throws IOException {
+    void noDiscardingASavedChange() throws Exception {
         databaseModification();
         makeBackup();
         saveDatabase();

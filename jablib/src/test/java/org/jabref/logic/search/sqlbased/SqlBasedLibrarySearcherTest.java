@@ -1,6 +1,5 @@
 package org.jabref.logic.search.sqlbased;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
-public class SqlBasedLibrarySearcherTest {
+class SqlBasedLibrarySearcherTest {
     private static final TaskExecutor TASK_EXECUTOR = new CurrentThreadTaskExecutor();
     private BibDatabaseContext databaseContext;
     private final CliPreferences preferences = mock(CliPreferences.class);
@@ -65,7 +64,7 @@ public class SqlBasedLibrarySearcherTest {
 
     @ParameterizedTest
     @MethodSource("org.jabref.logic.search.LibrarySearcherTestCases#commonSearchCases")
-    void commonSearchCases(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries) throws IOException {
+    void commonSearchCases(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries) throws Exception {
         for (BibEntry entry : entries) {
             databaseContext.getDatabase().insertEntry(entry);
         }

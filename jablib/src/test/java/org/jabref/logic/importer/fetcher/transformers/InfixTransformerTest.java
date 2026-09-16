@@ -6,7 +6,6 @@ import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
 
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +36,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void convertAuthorFieldPrefix() throws ParseCancellationException {
+    public void convertAuthorFieldPrefix() throws Exception {
         String queryString = "author=\"Igor Steinmacher\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -47,7 +46,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void convertUnFieldedTermPrefix() throws ParseCancellationException {
+    public void convertUnFieldedTermPrefix() throws Exception {
         String queryString = "\"default value\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -57,7 +56,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void convertExplicitUnFieldedTermPrefix() throws ParseCancellationException {
+    public void convertExplicitUnFieldedTermPrefix() throws Exception {
         String queryString = "default=\"default value\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -67,7 +66,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void convertJournalFieldPrefix() throws ParseCancellationException {
+    public void convertJournalFieldPrefix() throws Exception {
         String queryString = "journal=Nature";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -77,13 +76,13 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public abstract void convertYearField() throws ParseCancellationException;
+    public abstract void convertYearField() throws Exception;
 
     @Test
-    public abstract void convertYearRangeField() throws ParseCancellationException;
+    public abstract void convertYearRangeField() throws Exception;
 
     @Test
-    public void convertMultipleValuesWithTheSameFieldPrefix() throws ParseCancellationException {
+    public void convertMultipleValuesWithTheSameFieldPrefix() throws Exception {
         String queryString = "author=\"Igor Steinmacher\" author=\"Christoph Treude\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -93,7 +92,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void groupedOperationsPrefix() throws ParseCancellationException {
+    public void groupedOperationsPrefix() throws Exception {
         String queryString = "(author=\"Igor Steinmacher\" OR author=\"Christoph Treude\" AND author=\"Christoph Freunde\") AND title=test";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -103,7 +102,7 @@ public abstract class InfixTransformerTest<T extends AbstractQueryTransformer> {
     }
 
     @Test
-    public void notOperatorPrefix() throws ParseCancellationException {
+    public void notOperatorPrefix() throws Exception {
         String queryString = "NOT (author=\"Igor Steinmacher\" OR author=\"Christoph Treude\")";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());

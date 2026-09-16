@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 import javafx.collections.FXCollections;
 
 import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fetcher.transformers.BaseSearchQueryTransformer;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -116,7 +115,7 @@ class BaseSearchFetcherTest {
     }
 
     @Test
-    void parserReturnsEmptyListOnErrorResponse() throws ParseException {
+    void parserReturnsEmptyListOnErrorResponse() throws Exception {
         String json = """
                 {
                   "error": "invalid key"
@@ -129,7 +128,7 @@ class BaseSearchFetcherTest {
     }
 
     @Test
-    void parserReturnsEmptyListOnMissingResponseOrResultOrDocs() throws ParseException {
+    void parserReturnsEmptyListOnMissingResponseOrResultOrDocs() throws Exception {
         String jsonEmptyResponse = "{}";
         String jsonMissingDocs = "{\"response\": {}}";
         String jsonMissingNestedDocs = "{\"response\": {\"result\": {}}}";
@@ -142,7 +141,7 @@ class BaseSearchFetcherTest {
     }
 
     @Test
-    void parserParsesArticleEntryFromLiveResponseShape() throws ParseException {
+    void parserParsesArticleEntryFromLiveResponseShape() throws Exception {
         String json = """
                 {
                   "response": {
@@ -176,7 +175,7 @@ class BaseSearchFetcherTest {
     }
 
     @Test
-    void parserParsesLegacyNestedResultShape() throws ParseException {
+    void parserParsesLegacyNestedResultShape() throws Exception {
         String json = """
                 {
                   "response": {
@@ -199,7 +198,7 @@ class BaseSearchFetcherTest {
     }
 
     @Test
-    void parserDefaultsToMiscWhenNoTypeCode() throws ParseException {
+    void parserDefaultsToMiscWhenNoTypeCode() throws Exception {
         String json = """
                 {
                   "response": {
@@ -254,7 +253,7 @@ class BaseSearchFetcherTest {
 
     @ParameterizedTest
     @MethodSource("provideTypeCodes")
-    void parserMapsTypeCodeToCorrectEntryType(String typeCode, EntryType expectedType) throws ParseException {
+    void parserMapsTypeCodeToCorrectEntryType(String typeCode, EntryType expectedType) throws Exception {
         String json = """
                 {
                   "response": {

@@ -7,9 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import javafx.collections.FXCollections;
@@ -64,7 +62,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserPassesFullUrlToCustomBrowser() throws IOException, InterruptedException {
+    void openBrowserPassesFullUrlToCustomBrowser() throws Exception {
         ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(htmlType));
@@ -75,7 +73,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void windowsOpenFileWithApplicationKeepsUrlIntact() throws IOException, InterruptedException {
+    void windowsOpenFileWithApplicationKeepsUrlIntact() throws Exception {
         // The Windows implementation is executable on POSIX, which is enough to pin down that the
         // URL is passed through verbatim instead of being run through Path.of
         new Windows().openFileWithApplication(URL_WITH_QUERY, recorder.toString());
@@ -84,7 +82,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserPassesFullUrlToDesktopBrowse() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserPassesFullUrlToDesktopBrowse() throws Exception {
         FakeDesktop desktop = new FakeDesktop(true, false, false);
 
         NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), FakeDesktop.NO_FAILURE_EXPECTED, desktop);
@@ -93,7 +91,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserFallsBackToSystemHandlerWhenBrowseFails() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserFallsBackToSystemHandlerWhenBrowseFails() throws Exception {
         FakeDesktop desktop = new FakeDesktop(true, true, false);
 
         NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), FakeDesktop.NO_FAILURE_EXPECTED, desktop);
@@ -102,7 +100,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserReportsAsyncFailureWhenAllMechanismsFail() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserReportsAsyncFailureWhenAllMechanismsFail() throws Exception {
         FakeDesktop desktop = new FakeDesktop(true, true, true);
         CompletableFuture<IOException> failure = new CompletableFuture<>();
 
@@ -112,7 +110,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserUsesSystemHandlerWhenBrowseUnsupported() throws IOException {
+    void openBrowserUsesSystemHandlerWhenBrowseUnsupported() throws Exception {
         FakeDesktop desktop = new FakeDesktop(false, false, false);
 
         NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), FakeDesktop.NO_FAILURE_EXPECTED, desktop);
@@ -121,7 +119,7 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserUsesSystemHandlerForUnparseableUrl() throws IOException {
+    void openBrowserUsesSystemHandlerForUnparseableUrl() throws Exception {
         FakeDesktop desktop = new FakeDesktop(true, false, false);
         String urlWithSpace = "https://example.org/some path?x=1&y=2";
 

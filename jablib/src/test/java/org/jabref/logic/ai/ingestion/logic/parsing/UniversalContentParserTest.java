@@ -1,6 +1,5 @@
 package org.jabref.logic.ai.ingestion.logic.parsing;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -17,7 +16,7 @@ class UniversalContentParserTest {
     private final UniversalContentParser parser = new UniversalContentParser();
 
     @Test
-    void parseUnsupportedFileTypeReturnsEmptyList(@TempDir Path tempDir) throws IOException {
+    void parseUnsupportedFileTypeReturnsEmptyList(@TempDir Path tempDir) throws Exception {
         Path textFile = tempDir.resolve("test.txt");
         Files.writeString(textFile, "Some text content");
 

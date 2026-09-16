@@ -15,11 +15,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
@@ -34,7 +33,7 @@ class SemanticScholarCitationFetcherTest {
 
     @Test
     @Disabled("'references' are removed by the publisher")
-    void smoke() throws FetcherException {
+    void smoke() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("Macht_2007")
                 .withField(StandardField.AUTHOR, "Macht, Michael and Mueller, Jochen")
@@ -61,7 +60,7 @@ class SemanticScholarCitationFetcherTest {
     }
 
     @Test
-    void smokeCitationCount() throws FetcherException {
+    void smokeCitationCount() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("Macht_2007")
                 .withField(StandardField.AUTHOR, "Macht, Michael and Mueller, Jochen")
@@ -77,6 +76,6 @@ class SemanticScholarCitationFetcherTest {
 
         Optional<Integer> result = fetcher.getCitationCount(entry);
         assertNotNull(result.get());
-        assertThat(result.get(), greaterThan(0));
+        assertTrue(result.get() > 0);
     }
 }

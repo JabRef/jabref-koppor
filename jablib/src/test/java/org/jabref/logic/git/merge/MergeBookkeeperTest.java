@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 /// - Use JGit to verify the commit shape.
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("git")
-public class MergeBookkeeperTest {
+class MergeBookkeeperTest {
 
     private Path remoteDir;
     private Path localDir;

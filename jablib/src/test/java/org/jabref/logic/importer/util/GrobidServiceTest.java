@@ -1,14 +1,12 @@
 package org.jabref.logic.importer.util;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -44,7 +42,7 @@ class GrobidServiceTest {
     }
 
     @Test
-    void processValidCitationTest() throws IOException, ParseException {
+    void processValidCitationTest() throws Exception {
         BibEntry exampleBibEntry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("-1")
                 .withField(StandardField.AUTHOR, "Derwing, Tracey and Rossiter, Marian and Munro, Murray")
@@ -66,7 +64,7 @@ class GrobidServiceTest {
     }
 
     @Test
-    void processEmptyStringTest() throws IOException, ParseException {
+    void processEmptyStringTest() throws Exception {
         Optional<BibEntry> response = grobidService.processCitation(" ", importFormatPreferences, GrobidService.ConsolidateCitations.WITH_METADATA);
         assertNotNull(response);
         assertEquals(Optional.empty(), response);
@@ -90,7 +88,7 @@ class GrobidServiceTest {
     }
 
     @Test
-    void processPdfTest() throws IOException, ParseException, URISyntaxException {
+    void processPdfTest() throws Exception {
         Path file = Path.of(GrobidServiceTest.class.getResource("LNCS-minimal.pdf").toURI());
         List<BibEntry> response = grobidService.processPDF(file, importFormatPreferences);
         assertEquals(1, response.size());
@@ -101,7 +99,7 @@ class GrobidServiceTest {
     }
 
     @Test
-    void extractsReferencesFromPdf() throws IOException, ParseException, URISyntaxException {
+    void extractsReferencesFromPdf() throws Exception {
         BibEntry ref1 = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Kopp, O")
                 .withField(StandardField.ADDRESS, "Berlin; Heidelberg")

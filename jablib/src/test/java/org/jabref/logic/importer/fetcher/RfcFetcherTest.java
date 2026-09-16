@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher;
 import java.util.Optional;
 
 import org.jabref.logic.importer.FetcherClientException;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
@@ -45,7 +44,7 @@ class RfcFetcherTest {
     }
 
     @Test
-    void performSearchByIdFindsEntryWithDraftIdentifier() throws FetcherException {
+    void performSearchByIdFindsEntryWithDraftIdentifier() throws Exception {
         BibEntry bibDraftEntry = new BibEntry(StandardEntryType.TechReport)
                 .withField(InternalField.KEY_FIELD, "fielding-http-spec-01")
                 .withField(StandardField.AUTHOR, "Henrik Nielsen and Roy T. Fielding and Tim Berners-Lee")
@@ -68,12 +67,12 @@ class RfcFetcherTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"rfc1945", "RFC1945", "1945"})
-    void performSearchByIdFindsEntry(String identifier) throws FetcherException {
+    void performSearchByIdFindsEntry(String identifier) throws Exception {
         assertEquals(Optional.of(bibEntry), fetcher.performSearchById(identifier));
     }
 
     @Test
-    void performSearchByIdFindsNothingWithoutIdentifier() throws FetcherException {
+    void performSearchByIdFindsNothingWithoutIdentifier() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 

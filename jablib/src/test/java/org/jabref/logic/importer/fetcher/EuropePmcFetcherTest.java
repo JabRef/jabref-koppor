@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
@@ -60,14 +59,14 @@ class EuropePmcFetcherTest {
     }
 
     @Test
-    void searchByIDWijedasa() throws FetcherException {
+    void searchByIDWijedasa() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("27670948");
         fetchedEntry.get().clearField(StandardField.ABSTRACT); // Remove abstract due to copyright
         assertEquals(Optional.of(entryWijedasa), fetchedEntry);
     }
 
     @Test
-    void searchByIDDownloadsFulltextAndKeywords() throws FetcherException {
+    void searchByIDDownloadsFulltextAndKeywords() throws Exception {
         Optional<BibEntry> fetchedEntry;
         fetchedEntry = fetcher.performSearchById("40860931");
         fetchedEntry.get().clearField(StandardField.ABSTRACT);
@@ -75,7 +74,7 @@ class EuropePmcFetcherTest {
     }
 
     @Test
-    void searchByDoiTermReturnsWijedasa() throws FetcherException {
+    void searchByDoiTermReturnsWijedasa() throws Exception {
         // Use Europe PMC fielded search: DOI
         List<BibEntry> results = fetcher.performSearch("doi:10.1111/gcb.13516");
         BibEntry first = results.getFirst();

@@ -24,13 +24,13 @@ public abstract class AbstractIsbnFetcherTest {
     public abstract void searchByIdSuccessfulWithShortISBN() throws FetcherException;
 
     @Test
-    public void searchByIdSuccessfulWithLongISBN() throws FetcherException {
+    public void searchByIdSuccessfulWithLongISBN() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("978-0321356680");
         assertEquals(Optional.of(bibEntryEffectiveJava), fetchedEntry);
     }
 
     @Test
-    public void searchByIdReturnsEmptyWithEmptyISBN() throws FetcherException {
+    public void searchByIdReturnsEmptyWithEmptyISBN() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("");
         assertEquals(Optional.empty(), fetchedEntry);
     }
