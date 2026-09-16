@@ -37,7 +37,6 @@ env:
   # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
   # Merge order: BRANCHES, then PRS in the order given, then the automatic ones.
   PRS: |
-    https://github.com/JabRef/jabref/pull/17163
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
     https://github.com/JabRef/jabref/pull/17134
