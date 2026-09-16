@@ -55,6 +55,17 @@ class JsonHighlighterTest {
     }
 
     @Test
+    void prettyPrintKeepsAllDigitsOfDecimals() {
+        assertEquals("{\n  \"a\": 0.123456789012345678901234567890\n}",
+                JsonHighlighter.prettyPrint("{\"a\": 0.123456789012345678901234567890}").orElseThrow());
+    }
+
+    @Test
+    void prettyPrintRejectsDuplicateNamesInsteadOfDroppingThem() {
+        assertEquals(Optional.empty(), JsonHighlighter.prettyPrint("{\"a\": 1, \"a\": 2}"));
+    }
+
+    @Test
     void tokenizeStylesKeysValuesAndPunctuation() {
         assertEquals(List.of(
                         new JsonHighlighter.Segment("{", "json-punctuation"),
@@ -76,6 +87,12 @@ class JsonHighlighterTest {
                         new JsonHighlighter.Segment("true", "json-literal"),
                         new JsonHighlighter.Segment("}", "json-punctuation")),
                 JsonHighlighter.tokenize("{\"a\": \"b\", \"n\": 1.5, \"t\": true}"));
+    }
+
+    @Test
+    void tokenizeKeepsTheTextCompleteWithSupplementaryCharacters() {
+        String json = JsonHighlighter.prettyPrint("{\"a\": \"\uD83D\uDE00\", \"b\": 1}").orElseThrow();
+        assertEquals(json, JsonHighlighter.tokenize(json).stream().map(JsonHighlighter.Segment::text).reduce("", String::concat));
     }
 
     @Test
