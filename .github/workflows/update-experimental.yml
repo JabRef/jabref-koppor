@@ -30,9 +30,14 @@ env:
   # Branches without a PR. origin/main is merged first by its own step.
   BRANCHES: |
     koppor/directory-mapping-preference
+    # github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48 in flight (JitPack build of the PR head)
+    koppor/pdfviewfx-pr48
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
-  # Non-draft PRs with their branch in JabRef/jabref are merged automatically; list only fork PRs, koppor PRs, and drafts here.
+  # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
+  # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
+  # Merge order: BRANCHES, then PRS in the order given, then the automatic ones.
   PRS: |
+    https://github.com/JabRef/jabref/pull/17163
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
     https://github.com/JabRef/jabref/pull/17134
@@ -61,35 +66,90 @@ env:
     push() {
       git push --quiet koppor "HEAD:refs/heads/$TARGET"
     }
+    # Results of a step, printed as separate lists at its end by recap.
+    MERGED=()
+    SKIPPED=()
+    SKIPPED_DETAILS=()
+    recap() {
+      echo
+      printf '\e[1m%s (%d)\e[0m\n' "$1" "${#MERGED[@]}"
+      summary "#### $1 (${#MERGED[@]})"
+      for m in "${MERGED[@]}"; do
+        ok "$m"
+        summary "- :white_check_mark: $m"
+      done
+      if [ "${#SKIPPED[@]}" -gt 0 ]; then
+        printf '\e[1mSkipped (%d)\e[0m\n' "${#SKIPPED[@]}"
+        summary "#### Skipped (${#SKIPPED[@]})"
+        for i in "${!SKIPPED[@]}"; do
+          bad "${SKIPPED[$i]}"
+          summary "- :x: ${SKIPPED[$i]}"
+          [ -z "${SKIPPED_DETAILS[$i]}" ] || summary "${SKIPPED_DETAILS[$i]}"
+        done
+      fi
+    }
+    # conflict_report <label> <suffix>: call while a merge stands on its conflicts (before `git merge --abort`). Prints every
+    # conflicted file with 10 lines from its first conflict marker, annotates the run, and leaves the same as Markdown
+    # sub-list in $RUNNER_TEMP/details.md for skip.
+    conflict_report() {
+      local files file line excerpt
+      files="$(git diff --name-only --diff-filter=U)"
+      : > "$RUNNER_TEMP/details.md"
+      while read -r file; do
+        [ -n "$file" ] || continue
+        line="$(grep -n -m1 '^<<<<<<<' "$file" 2> /dev/null | cut -d: -f1 || true)"
+        if [ -n "$line" ]; then
+          excerpt="$(sed -n "${line},$((line + 9))p" "$file")"
+        else
+          # modify/delete, rename or binary conflict: no markers to show
+          excerpt="$(git status -- "$file" | grep -F -- "$file" | sed 's/^[[:space:]]*//' || true)"
+        fi
+        printf '    \e[33m%s\e[0m\n' "$file"
+        printf '%s\n' "$excerpt" | sed 's/^/      /'
+        {
+          printf '  - <details><summary><code>%s</code></summary>\n\n    ````\n' "$file"
+          printf '%s\n' "$excerpt" | sed 's/^/    /'
+          printf '    ````\n    </details>\n'
+        } >> "$RUNNER_TEMP/details.md"
+      done <<< "$files"
+      echo "::warning title=Merge conflict::$1 $2 - skipped%0A$(printf '%s' "$files" | awk '{printf "%s%s", sep, $0; sep="%0A"}')"
+    }
+    # skip <text>: records a skipped ref for recap, with the details left in $RUNNER_TEMP/details.md (if any).
+    skip() {
+      SKIPPED+=("$1")
+      SKIPPED_DETAILS+=("$(cat "$RUNNER_TEMP/details.md" 2> /dev/null || true)")
+      rm -f "$RUNNER_TEMP/details.md"
+    }
     # merge <ref> <label> [suffix]: merges, compiles, pushes. A merge that breaks compilation is undone; while experimental
     # does not compile anyway (GREEN=false), merges are kept so a fix can still come in.
     merge() {
       echo "::group::Merge $2 ${3:-}"
       if ! git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
-        git merge --abort
         echo "::endgroup::"
         bad "$2: merge conflict, skipped"
-        echo "::warning title=Merge conflict::$2 ${3:-} - skipped"
-        summary "- :x: \`$2\` ${3:-} - merge conflict, skipped"
+        conflict_report "$2" "${3:-}"
+        git merge --abort
+        skip "$2 ${3:-} - merge conflict"
       elif compiles; then
         GREEN=true
         push
         echo "::endgroup::"
         ok "$2: merged"
-        summary "- :white_check_mark: \`$2\` ${3:-}"
+        MERGED+=("$2 ${3:-}")
       elif [ "$GREEN" = true ]; then
         git reset --hard --quiet ORIG_HEAD
         echo "::endgroup::"
         bad "$2: compile error, skipped"
         show_compile_errors
         echo "::error title=Compile error::$2 ${3:-} - skipped"
-        summary "- :x: \`$2\` ${3:-} - compile error, skipped"
+        { printf '  - compile errors\n\n    ````\n'; show_compile_errors | sed 's/^/    /'; printf '    ````\n'; } > "$RUNNER_TEMP/details.md"
+        skip "$2 ${3:-} - compile error"
       else
         push
         echo "::endgroup::"
         info "$2: merged, $TARGET does not compile"
         echo "::warning title=Does not compile::$TARGET does not compile (kept merge of $2)"
-        summary "- :warning: \`$2\` ${3:-} - merged, $TARGET does not compile"
+        MERGED+=("$2 ${3:-} ($TARGET does not compile)")
       fi
     }
 
@@ -117,6 +177,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote rename origin koppor
           git remote add origin https://github.com/JabRef/jabref.git
+          # Requirement docs and the changelog get a section appended by nearly every PR, so they conflict all the time
+          # although both sides belong in. Local attribute, only for building experimental.
+          printf '%s\n' 'docs/requirements/*.md merge=union' 'CHANGELOG.md merge=union' >> .git/info/attributes
           git fetch --quiet --no-tags --prune origin
           git fetch --quiet --no-tags --prune koppor
           if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
@@ -158,7 +221,11 @@ jobs:
             magic="$(git commit-tree "$squash^{tree}" -p "$head" -p "$squash" -m "Magic merge commit for $squash")"
             merge "$magic" "squash ${squash:0:10}" "(magic merge commit)"
           done
-          [ "$found" = true ] || info "No squash-merged PR that $TARGET already contains"
+          if [ "$found" = true ]; then
+            recap "Merged via magic merge commits"
+          else
+            info "No squash-merged PR that $TARGET already contains"
+          fi
           echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
       - name: Merge origin/main
@@ -166,9 +233,10 @@ jobs:
           eval "$HELPERS"
           SECTION="origin/main"
           if git merge-base --is-ancestor origin/main HEAD; then
-            ok "origin/main: up to date"
+            ok "origin/main: already in $TARGET (merged by an earlier run)"
           else
             merge origin/main origin/main
+            recap "Merged"
           fi
           echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
@@ -254,19 +322,21 @@ jobs:
             if git merge --no-edit "$ref" > "$RUNNER_TEMP/merge.log" 2>&1; then
               ok "$label: merges cleanly"
               printf '%s\t%s\t%s\n' "$ref" "$label" "$suffix" >> "$clean"
+              MERGED+=("$label $suffix")
             else
-              git merge --abort
               bad "$label: merge conflict, skipped"
-              grep CONFLICT "$RUNNER_TEMP/merge.log" | sed 's/^/    /' || true
-              echo "::warning title=Merge conflict::$label $suffix - skipped"
-              summary "- :x: \`$label\` $suffix - merge conflict, skipped"
+              conflict_report "$label" "$suffix"
+              git merge --abort
+              skip "$label $suffix - merge conflict"
             fi
           done 3< "$RUNNER_TEMP/candidates.tsv"
 
           count="$(wc -l < "$clean")"
           if [ "$count" -le 1 ]; then
             git reset --hard --quiet "$start"
-            info "$count clean merge(s), no octopus needed"
+            info "$count PR(s) merge cleanly: no octopus commit, merged by the next step"
+            MERGED=()
+            recap "Merged into an octopus commit"
             echo "OCTOPUS=skipped" >> "$GITHUB_ENV"
           elif compiles || [ "$GREEN" = false ]; then
             parents=(-p "$start")
@@ -274,26 +344,31 @@ jobs:
             while IFS=$'\t' read -r -u 3 ref label suffix; do
               parents+=(-p "$ref")
               message+=$'\n'"$label $suffix"
-              summary "- :octopus: \`$label\` $suffix"
             done 3< "$clean"
             git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
             push
             ok "Octopus commit $(git rev-parse --short HEAD) with $((count + 1)) parents pushed"
+            recap "Merged into octopus commit $(git rev-parse --short HEAD)"
             echo "OCTOPUS=merged" >> "$GITHUB_ENV"
           else
             git reset --hard --quiet "$start"
             bad "The octopus commit does not compile; merging one by one"
             show_compile_errors
             echo "::warning title=Octopus does not compile::falling back to merging one by one"
+            MERGED=()
+            recap "Merged into an octopus commit"
             echo "OCTOPUS=failed" >> "$GITHUB_ENV"
           fi
 
       - name: Merge one by one
-        if: env.OCTOPUS != 'merged'
         run: |
           eval "$HELPERS"
-          SECTION="Merged one by one"
+          SECTION="One by one"
+          if [ "$OCTOPUS" = merged ]; then
+            info "Nothing to merge one by one: the octopus commit contains every PR that merges cleanly"
+            exit 0
+          fi
           while IFS=$'\t' read -r -u 3 ref label suffix; do
             merge "$ref" "$label" "$suffix"
           done 3< "$RUNNER_TEMP/clean.tsv"
-          ok "Done"
+          recap "Merged one by one"
