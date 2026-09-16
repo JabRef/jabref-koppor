@@ -3,7 +3,6 @@ package org.jabref.toolkit.commands;
 import java.nio.file.Path;
 
 import org.jabref.toolkit.exception.CliExceptionHandler;
-import org.jabref.toolkit.exception.ImportServiceException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,7 @@ class InputOptionSharedDatabaseTest extends AbstractJabKitTest {
     /// libpq's `host=… dbname=…` keyword form. A relative file name of that shape must still be a file.
     @ParameterizedTest
     @ValueSource(strings = {"host=references.bib", "dbname=library.bib", "postgres-notes.bib"})
-    void fileNameResemblingAConnectionUrlStaysALocalPath(String fileName) throws ImportServiceException {
+    void fileNameResemblingAConnectionUrlStaysALocalPath(String fileName) throws Exception {
         assertEquals(Path.of(fileName), InputOption.resolveInput(fileName, preferences));
     }
 }

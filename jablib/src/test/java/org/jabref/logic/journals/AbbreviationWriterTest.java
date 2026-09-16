@@ -1,6 +1,5 @@
 package org.jabref.logic.journals;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AbbreviationWriterTest {
 
     @Test
-    void shortestUniqueAbbreviationWrittenIfItDiffers(@TempDir Path tempDir) throws IOException {
+    void shortestUniqueAbbreviationWrittenIfItDiffers(@TempDir Path tempDir) throws Exception {
         Abbreviation abbreviation = new Abbreviation("Full", "Abbr", "A");
         Path csvFile = tempDir.resolve("test.csv");
         AbbreviationWriter.writeOrCreate(
@@ -26,7 +25,7 @@ class AbbreviationWriterTest {
     }
 
     @Test
-    void doNotWriteShortestUniqueAbbreviationWrittenIfItDiffers(@TempDir Path tempDir) throws IOException {
+    void doNotWriteShortestUniqueAbbreviationWrittenIfItDiffers(@TempDir Path tempDir) throws Exception {
         Abbreviation abbreviation = new Abbreviation("Full", "Abbr");
         Path csvFile = tempDir.resolve("test.csv");
         AbbreviationWriter.writeOrCreate(

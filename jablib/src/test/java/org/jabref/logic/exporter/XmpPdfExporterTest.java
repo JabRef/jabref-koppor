@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 
@@ -140,13 +137,13 @@ class XmpPdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithValidPdfFileLinks")
-    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws Exception {
         assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(OLLY_2018), abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithInvalidPdfFileLinks")
-    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws Exception {
         assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(OLLY_2018), abbreviationRepository));
     }
 
@@ -160,18 +157,18 @@ class XmpPdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("providePathsToValidPDFs")
-    void successfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void successfulExportToFileByPath(Path path) throws Exception {
         assertTrue(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("providePathsToInvalidPDFs")
-    void unsuccessfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void unsuccessfulExportToFileByPath(Path path) throws Exception {
         assertFalse(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
     @Test
-    void roundtripExportImport() throws IOException, TransformerException {
+    void roundtripExportImport() throws Exception {
         Path path = tempDir.resolve("original.pdf").toAbsolutePath();
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();

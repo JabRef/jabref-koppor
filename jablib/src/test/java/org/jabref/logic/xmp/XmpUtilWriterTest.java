@@ -1,7 +1,6 @@
 package org.jabref.logic.xmp;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -109,22 +108,22 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void olly2018Works() throws IOException, TransformerException {
+    void olly2018Works() throws Exception {
         singleEntryWorks(olly2018);
     }
 
     @Test
-    void toral2006Works() throws IOException, TransformerException {
+    void toral2006Works() throws Exception {
         singleEntryWorks(toral2006);
     }
 
     @Test
-    void vapnik2000Works() throws IOException, TransformerException {
+    void vapnik2000Works() throws Exception {
         singleEntryWorks(vapnik2000);
     }
 
     @Test
-    void writeTwoBibEntries(@TempDir Path tempDir) throws IOException, TransformerException {
+    void writeTwoBibEntries(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_writeTwo.pdf", tempDir);
         List<BibEntry> entries = List.of(olly2018, toral2006);
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), entries, null);
@@ -139,7 +138,7 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void writeThreeBibEntries(@TempDir Path tempDir) throws IOException, TransformerException {
+    void writeThreeBibEntries(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_writeThree.pdf", tempDir);
         List<BibEntry> entries = List.of(olly2018, vapnik2000, toral2006);
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), entries, null);
@@ -154,7 +153,7 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void proctingBracesAreRemovedAtTitle(@TempDir Path tempDir) throws IOException, TransformerException {
+    void proctingBracesAreRemovedAtTitle(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
         BibEntry original = new BibEntry()
                 .withField(StandardField.TITLE, "Some {P}rotected {T}erm");
@@ -169,7 +168,7 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void proctingBracesAreKeptAtPages(@TempDir Path tempDir) throws IOException, TransformerException {
+    void proctingBracesAreKeptAtPages(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
         BibEntry original = new BibEntry()
                 .withField(StandardField.PAGES, "{55}-{99}");
@@ -182,7 +181,7 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void doubleDashAtPageNumberIsKept(@TempDir Path tempDir) throws IOException, TransformerException {
+    void doubleDashAtPageNumberIsKept(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_writeBraces.pdf", tempDir);
         BibEntry original = new BibEntry()
                 .withField(StandardField.PAGES, "2--33");
@@ -195,7 +194,7 @@ class XmpUtilWriterTest {
     }
 
     @Test
-    void singleEntry(@TempDir Path tempDir) throws IOException, TransformerException {
+    void singleEntry(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef.pdf", tempDir);
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), List.of(vapnik2000), null);
         List<BibEntry> entryList = new XmpUtilReader().readXmp(pdfFile.toAbsolutePath(), xmpPreferences);
@@ -207,7 +206,7 @@ class XmpUtilWriterTest {
 
     @Test
         // [utest->req~logic.xmp.atomic-pdf-write~1]
-    void writeAndRemoveLeaveLoadablePdfAndNoTempFiles(@TempDir Path tempDir) throws IOException, TransformerException {
+    void writeAndRemoveLeaveLoadablePdfAndNoTempFiles(@TempDir Path tempDir) throws Exception {
         Path pdfFile = this.createDefaultFile("JabRef_atomic.pdf", tempDir);
 
         new XmpUtilWriter(xmpPreferences).writeXmp(pdfFile.toAbsolutePath(), List.of(olly2018), null);
@@ -227,7 +226,7 @@ class XmpUtilWriterTest {
 
     @Test
         // [utest->req~logic.xmp.atomic-pdf-write~1]
-    void failedWriteLeavesOriginalUntouchedAndNoTempFiles(@TempDir Path tempDir) throws IOException, URISyntaxException {
+    void failedWriteLeavesOriginalUntouchedAndNoTempFiles(@TempDir Path tempDir) throws Exception {
         Path pdfFile = tempDir.resolve("encrypted.pdf");
         Files.copy(Path.of(XmpUtilWriterTest.class.getResource("/pdfs/encrypted.pdf").toURI()), pdfFile);
         byte[] originalBytes = Files.readAllBytes(pdfFile);

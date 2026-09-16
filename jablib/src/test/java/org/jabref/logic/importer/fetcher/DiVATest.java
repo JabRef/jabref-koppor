@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -34,7 +33,7 @@ class DiVATest {
     }
 
     @Test
-    void performSearchById() throws FetcherException {
+    void performSearchById() throws Exception {
         BibEntry entry = new BibEntry();
         entry.setType(StandardEntryType.Article);
         entry.setCitationKey("Gustafsson260746");
@@ -64,7 +63,7 @@ class DiVATest {
     }
 
     @Test
-    void emptyId() throws FetcherException {
+    void emptyId() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 }

@@ -1,13 +1,11 @@
 package org.jabref.logic.importer.plaincitation;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.logic.importer.util.GrobidService;
 import org.jabref.model.entry.BibEntry;
@@ -102,26 +100,26 @@ public class GrobidPlainCitationParserTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideExamplesForCorrectResultTest")
-    void grobidPerformSearchCorrectResultTest(String testName, BibEntry expectedBibEntry, String searchQuery) throws FetcherException {
+    void grobidPerformSearchCorrectResultTest(String testName, BibEntry expectedBibEntry, String searchQuery) throws Exception {
         Optional<BibEntry> entry = grobidPlainCitationParser.parsePlainCitation(searchQuery);
         assertEquals(Optional.of(expectedBibEntry), entry);
     }
 
     @Test
-    void grobidPerformSearchWithEmptyStringTest() throws FetcherException {
+    void grobidPerformSearchWithEmptyStringTest() throws Exception {
         Optional<BibEntry> entry = grobidPlainCitationParser.parsePlainCitation("");
         assertEquals(Optional.empty(), entry);
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidInput")
-    void grobidPerformSearchWithInvalidDataTest(String invalidInput) throws FetcherException {
+    void grobidPerformSearchWithInvalidDataTest(String invalidInput) throws Exception {
         assertThrows(FetcherException.class, () ->
                 grobidPlainCitationParser.parsePlainCitation("invalidInput"), "performSearch should throw an FetcherException.");
     }
 
     @Test
-    void performSearchThrowsExceptionInCaseOfConnectionIssues() throws IOException, ParseException {
+    void performSearchThrowsExceptionInCaseOfConnectionIssues() throws Exception {
         GrobidService grobidServiceMock = mock(GrobidService.class);
         when(grobidServiceMock.processCitation(anyString(), any(), any())).thenThrow(new SocketTimeoutException("Timeout"));
         grobidPlainCitationParser = new GrobidPlainCitationParser(importFormatPreferences, grobidServiceMock);

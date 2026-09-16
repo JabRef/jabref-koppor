@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExternalServicesTest
-public class SciteAiFetcherTest {
+class SciteAiFetcherTest {
     private SciteAiFetcher fetcher;
 
     @BeforeEach
@@ -48,7 +47,7 @@ public class SciteAiFetcherTest {
     }
 
     @Test
-    void fetchTallies() throws FetcherException {
+    void fetchTallies() throws Exception {
         SciteAiFetcher viewModel = new SciteAiFetcher();
         DOI doi = new DOI("10.1109/ICECS.2010.5724443");
         Optional<DOI> actual = DOI.parse(viewModel.fetchTallies(doi).doi());
@@ -56,7 +55,7 @@ public class SciteAiFetcherTest {
     }
 
     @Test
-    void getCitationCountReturnsCitationCount() throws FetcherException {
+    void getCitationCountReturnsCitationCount() throws Exception {
         BibEntry entry = new BibEntry();
         entry.withField(StandardField.DOI, "10.1145/1028174.971312");
 
@@ -67,7 +66,7 @@ public class SciteAiFetcherTest {
     }
 
     @Test
-    void getCitationCountReturnsEmptyWhenNoDoi() throws FetcherException {
+    void getCitationCountReturnsEmptyWhenNoDoi() throws Exception {
         BibEntry entry = new BibEntry();
 
         Optional<Integer> result = fetcher.getCitationCount(entry);

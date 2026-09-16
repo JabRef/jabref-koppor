@@ -24,7 +24,7 @@ class LayoutHelperTest {
     }
 
     @Test
-    void unbalancedBeginEndIsParsed() throws IOException {
+    void unbalancedBeginEndIsParsed() throws Exception {
         Reader reader = Reader.of("\\begin{doi}, DOI: \\doi");
         LayoutHelper layoutHelper = new LayoutHelper(reader, layoutFormatterPreferences, abbreviationRepository);
         Layout layout = layoutHelper.getLayoutFromText();
@@ -32,7 +32,7 @@ class LayoutHelperTest {
     }
 
     @Test
-    void minimalExampleWithDoiGetsParsed() throws IOException {
+    void minimalExampleWithDoiGetsParsed() throws Exception {
         Reader reader = Reader.of("\\begin{doi}, DOI: \\doi\\end{doi}");
         LayoutHelper layoutHelper = new LayoutHelper(reader, layoutFormatterPreferences, abbreviationRepository);
         Layout layout = layoutHelper.getLayoutFromText();

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -144,14 +143,14 @@ public class AstrophysicsDataSystemTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("Diez slice theorem Lie");
         assertFalse(fetchedEntries.isEmpty());
         assertTrue(fetchedEntries.contains(diezSliceTheoremEntry));
     }
 
     @Test
-    void searchByEntryFindsEntry() throws FetcherException {
+    void searchByEntryFindsEntry() throws Exception {
         BibEntry searchEntry = new BibEntry()
                 .withField(StandardField.TITLE, "slice theorem")
                 .withField(StandardField.AUTHOR, "Diez");
@@ -164,56 +163,56 @@ public class AstrophysicsDataSystemTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void performSearchByFamaeyMcGaughEntry() throws FetcherException {
+    void performSearchByFamaeyMcGaughEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.12942/lrr-2012-10");
         fetchedEntry.ifPresent(entry -> entry.clearField(StandardField.ABSTRACT)); // Remove abstract due to copyright
         assertEquals(Optional.of(famaeyMcGaughEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchByIdEmptyDOI() throws FetcherException {
+    void performSearchByIdEmptyDOI() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("");
         assertEquals(Optional.empty(), fetchedEntry);
     }
 
     @Test
-    void performSearchByIdInvalidDoi() throws FetcherException {
+    void performSearchByIdInvalidDoi() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById("this.doi.will.fail"));
     }
 
     @Test
-    void performSearchBySunWelchEntry() throws FetcherException {
+    void performSearchBySunWelchEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1038/nmat3160");
         fetchedEntry.ifPresent(entry -> entry.clearField(StandardField.ABSTRACT)); // Remove abstract due to copyright
         assertEquals(Optional.of(sunWelchEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchByXiongSunEntry() throws FetcherException {
+    void performSearchByXiongSunEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1109/TGRS.2006.890567");
         assertEquals(Optional.of(xiongSunEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchByIngersollPollardEntry() throws FetcherException {
+    void performSearchByIngersollPollardEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1016/0019-1035(82)90169-5");
         assertEquals(Optional.of(ingersollPollardEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchByLuceyPaulEntry() throws FetcherException {
+    void performSearchByLuceyPaulEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("2000JGR...10520297L");
         assertEquals(Optional.of(luceyPaulEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchByQueryPaged_searchLimitsSize() throws FetcherException {
+    void performSearchByQueryPaged_searchLimitsSize() throws Exception {
         Page<BibEntry> page = fetcher.performSearchPaged("author:\"A\"", 0);
         assertEquals(fetcher.getPageSize(), page.getSize(), "fetcher return wrong page size");
     }
 
     @Test
-    void performSearchByQueryPaged_invalidAuthorsReturnEmptyPages() throws FetcherException {
+    void performSearchByQueryPaged_invalidAuthorsReturnEmptyPages() throws Exception {
         Page<BibEntry> page = fetcher.performSearchPaged("author:\"ThisAuthorWillNotBeFound\"", 0);
         Page<BibEntry> page5 = fetcher.performSearchPaged("author:\"ThisAuthorWillNotBeFound\"", 5);
         assertEquals(0, page.getSize(), "fetcher doesnt return empty pages for invalid author");
@@ -221,13 +220,13 @@ public class AstrophysicsDataSystemTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertTrue(result.getContent().isEmpty());
     }
 
     @Test
-    void performRawSearchQueryPagedFindsEntry() throws FetcherException {
+    void performRawSearchQueryPagedFindsEntry() throws Exception {
         Page<BibEntry> page = fetcher.performRawSearchQueryPaged("bibcode:2000JGR...10520297L", 0);
         assertEquals(List.of(luceyPaulEntry), page.getContent());
     }

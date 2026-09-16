@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BibWarningToIntegrityMessageConverterTest {
+class BibWarningToIntegrityMessageConverterTest {
     @Test
     void convertsWarningsToIntegrityMessagesTest() {
         BibEntry firstEntry = new BibEntry(StandardEntryType.Article)

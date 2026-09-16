@@ -288,7 +288,7 @@ class ThemeTokenContractTest {
     ///
     /// There is no exception: even the user's main font size goes through a `font-size-<n>` class.
     @Test
-    void noSourceFileUsesTheInlineStyleApi() throws IOException {
+    void noSourceFileUsesTheInlineStyleApi() throws Exception {
         assertEquals(List.of(), matchesInSources("java", ".java", INLINE_STYLE_API),
                 "an inline style cannot be themed: give the node a style class and let the stylesheets color it");
     }
@@ -296,7 +296,7 @@ class ThemeTokenContractTest {
     /// The declarative half of [#noSourceFileUsesTheInlineStyleApi]: `style="..."` in FXML is the same INLINE
     /// origin, just written in the layout instead of in code.
     @Test
-    void noFxmlFileUsesTheInlineStyleAttribute() throws IOException {
+    void noFxmlFileUsesTheInlineStyleAttribute() throws Exception {
         assertEquals(List.of(), matchesInSources("resources", ".fxml", INLINE_STYLE_ATTRIBUTE),
                 "an inline style cannot be themed: use styleClass and let the stylesheets color it");
     }

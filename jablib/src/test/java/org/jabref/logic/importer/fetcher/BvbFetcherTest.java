@@ -1,11 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
@@ -50,7 +47,7 @@ class BvbFetcherTest {
             .withField(StandardField.PUBLISHER, "{Addison-Wesley}");
 
     @Test
-    void performTest() throws FetcherException {
+    void performTest() throws Exception {
         String searchquery = "effective java author=bloch";
         List<BibEntry> result = fetcher.performSearch(searchquery);
         assertFalse(result.isEmpty());
@@ -62,7 +59,7 @@ class BvbFetcherTest {
     }
 
     @Test
-    void simpleSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void simpleSearchQueryURLCorrect() throws Exception {
         String query = "java jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -71,7 +68,7 @@ class BvbFetcherTest {
     }
 
     @Test
-    void complexSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void complexSearchQueryURLCorrect() throws Exception {
         String query = "title=jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -80,13 +77,13 @@ class BvbFetcherTest {
     }
 
     @Test
-    void performSearchMatchingMultipleEntries() throws FetcherException {
+    void performSearchMatchingMultipleEntries() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("effective java bloch");
         assertEquals(List.of(bibEntryISBN9783960886402, bibEntryISBN0134685997), searchResult.subList(0, 2));
     }
 
     @Test
-    void performSearchEmpty() throws FetcherException {
+    void performSearchEmpty() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("");
         assertEquals(List.of(), searchResult);
     }

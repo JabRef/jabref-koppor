@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fileformat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -45,18 +44,18 @@ class InspecImporterTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormatAccept(String fileName) throws IOException {
+    void isRecognizedFormatAccept(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(importer, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("nonInspecfileNames")
-    void isRecognizedFormatReject(String fileName) throws IOException {
+    void isRecognizedFormatReject(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(importer, fileName);
     }
 
     @Test
-    void completeBibtexEntryOnJournalPaperImport() throws IOException, URISyntaxException {
+    void completeBibtexEntryOnJournalPaperImport() throws Exception {
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article);
         expectedEntry.setField(StandardField.TITLE, "The SIS project : software reuse with a natural language approach");
         expectedEntry.setField(StandardField.AUTHOR, "Prechelt, Lutz");
@@ -72,7 +71,7 @@ class InspecImporterTest {
     }
 
     @Test
-    void importConferencePaperGivesInproceedings() throws IOException {
+    void importConferencePaperGivesInproceedings() throws Exception {
         String testInput = "Record.*INSPEC.*\n" +
                 "\n" +
                 "RT ~ Conference-Paper\n" +
@@ -87,7 +86,7 @@ class InspecImporterTest {
     }
 
     @Test
-    void importMiscGivesMisc() throws IOException {
+    void importMiscGivesMisc() throws Exception {
         String testInput = "Record.*INSPEC.*\n" +
                 "\n" +
                 "AU ~ Prechelt, Lutz \n" +

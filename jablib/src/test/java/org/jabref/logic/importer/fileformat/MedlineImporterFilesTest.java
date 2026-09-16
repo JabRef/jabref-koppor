@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -28,19 +26,19 @@ class MedlineImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(new MedlineImporter(), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("invalidFileNames")
-    void isNotRecognizedFormat(String fileName) throws IOException {
+    void isNotRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(new MedlineImporter(), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(new MedlineImporter(), fileName, FILE_ENDING);
     }
 
@@ -52,7 +50,7 @@ class MedlineImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("malformedFileNames")
-    void importMalfomedFiles(String fileName) throws IOException {
+    void importMalfomedFiles(String fileName) throws Exception {
         ImporterTestEngine.testImportMalformedFiles(new MedlineImporter(), fileName);
     }
 }

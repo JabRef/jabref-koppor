@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AbstractParamLayoutFormatterTest {
+class AbstractParamLayoutFormatterTest {
     static class ParseArgumentTester extends AbstractParamLayoutFormatter {
         public static List<String> callParseArgument(String arg) {
             return parseArgument(arg);

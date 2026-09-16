@@ -1,6 +1,5 @@
 package org.jabref.logic.biblog;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BibtexLogParserTest {
+class BibtexLogParserTest {
     private BibtexLogParser parser;
 
     @BeforeEach
@@ -26,7 +25,7 @@ public class BibtexLogParserTest {
     }
 
     @Test
-    void parsesWarningsFromResourceFileTest() throws IOException {
+    void parsesWarningsFromResourceFileTest() throws Exception {
         Path blgFile = Path.of("src/test/resources/org/jabref/logic/blg/Chocolate.blg");
         List<BibWarning> warnings = parser.parseBiblog(blgFile);
         assertEquals(List.of(

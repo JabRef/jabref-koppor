@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 class LinkedFileIngestorTest {
 
     @Test
-    void ingestSkipsOnlineLinks() throws InterruptedException {
+    void ingestSkipsOnlineLinks() throws Exception {
         LinkedFileIngestor ingestor = new LinkedFileIngestor(
                 mock(FilePreferences.class),
                 mock(IngestedDocumentsRepository.class),

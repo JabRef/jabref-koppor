@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -26,19 +24,19 @@ class CopacImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(new CopacImporter(), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("nonCopacfileNames")
-    void isNotRecognizedFormat(String fileName) throws IOException {
+    void isNotRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(new CopacImporter(), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(new CopacImporter(), fileName, FILE_ENDING);
     }
 }

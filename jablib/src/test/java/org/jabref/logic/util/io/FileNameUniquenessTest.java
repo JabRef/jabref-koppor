@@ -1,6 +1,5 @@
 package org.jabref.logic.util.io;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,7 +20,7 @@ class FileNameUniquenessTest {
     protected Path tempDir;
 
     @Test
-    void getNonOverWritingFileNameReturnsSameName() throws IOException {
+    void getNonOverWritingFileNameReturnsSameName() throws Exception {
         assertFalse(Files.exists(tempDir.resolve("sameFile.txt")));
 
         String outputFileName = FileNameUniqueness.getNonOverWritingFileName(tempDir, "sameFile.txt");
@@ -29,7 +28,7 @@ class FileNameUniquenessTest {
     }
 
     @Test
-    void getNonOverWritingFileNameReturnsUniqueNameOver1Conflict() throws IOException {
+    void getNonOverWritingFileNameReturnsUniqueNameOver1Conflict() throws Exception {
         Path dummyFilePath1 = tempDir.resolve("differentFile.txt");
 
         Files.createFile(dummyFilePath1);
@@ -39,7 +38,7 @@ class FileNameUniquenessTest {
     }
 
     @Test
-    void getNonOverWritingFileNameReturnsUniqueNameOverNConflicts() throws IOException {
+    void getNonOverWritingFileNameReturnsUniqueNameOverNConflicts() throws Exception {
         Path dummyFilePath1 = tempDir.resolve("manyfiles.txt");
         Path dummyFilePath2 = tempDir.resolve("manyfiles (1).txt");
 
@@ -51,7 +50,7 @@ class FileNameUniquenessTest {
     }
 
     @Test
-    void isDuplicatedFileWithNoSimilarNames() throws IOException {
+    void isDuplicatedFileWithNoSimilarNames() throws Exception {
         String filename1 = "file1.txt";
         Path filePath1 = tempDir.resolve(filename1);
         Files.createFile(filePath1);
@@ -61,7 +60,7 @@ class FileNameUniquenessTest {
     }
 
     @Test
-    void isDuplicatedFileWithOneSimilarNames() throws IOException {
+    void isDuplicatedFileWithOneSimilarNames() throws Exception {
         String filename1 = "file.txt";
         String filename2 = "file (1).txt";
         Path filePath1 = tempDir.resolve(filename1);
@@ -74,7 +73,7 @@ class FileNameUniquenessTest {
     }
 
     @Test
-    void taseDuplicateMarksReturnsOrignalFileName1() throws IOException {
+    void taseDuplicateMarksReturnsOrignalFileName1() throws Exception {
         String fileName1 = "abc def (1)";
         String fileName2 = FileNameUniqueness.eraseDuplicateMarks(fileName1);
         assertEquals("abc def", fileName2);

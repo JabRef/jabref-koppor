@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -26,7 +24,7 @@ class FulltextFetcherTest {
 
     @ParameterizedTest
     @MethodSource("fetcherProvider")
-    void findFullTextWithEmptyEntryFindsNothing(FulltextFetcher fetcher) throws FetcherException, IOException {
+    void findFullTextWithEmptyEntryFindsNothing(FulltextFetcher fetcher) throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 }

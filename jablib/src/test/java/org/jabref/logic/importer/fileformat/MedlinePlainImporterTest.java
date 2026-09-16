@@ -57,17 +57,17 @@ class MedlinePlainImporterTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(importer, fileName);
     }
 
     @Test
-    void doesNotRecognizeEmptyFiles() throws IOException {
+    void doesNotRecognizeEmptyFiles() throws Exception {
         assertFalse(importer.isRecognizedFormat((Reader) readerForString("")));
     }
 
     @Test
-    void importMultipleEntriesInSingleFile() throws IOException, URISyntaxException {
+    void importMultipleEntriesInSingleFile() throws Exception {
         Path inputFile = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestMultipleEntries.txt").toURI());
 
         List<BibEntry> entries = importer.importDatabase(inputFile).getDatabase()
@@ -116,7 +116,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void meshTermsAreParsedIntoIndividualKeywords() throws IOException {
+    void meshTermsAreParsedIntoIndividualKeywords() throws Exception {
         try (BufferedReader reader = readerForString("""
                 PMID-12345678
                 MH  - *Kidney Diseases/diagnosis/epidemiology
@@ -134,7 +134,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void emptyFileImport() throws IOException {
+    void emptyFileImport() throws Exception {
         List<BibEntry> emptyEntries = importer.importDatabase(readerForString("")).getDatabase().getEntries();
         assertEquals(List.of(), emptyEntries);
     }
@@ -147,7 +147,7 @@ class MedlinePlainImporterTest {
             "MedlinePlainImporterTestDOI",
             "MedlinePlainImporterTestInproceeding"
     })
-    void importSingleEntriesInSingleFiles(String testFile) throws IOException, URISyntaxException {
+    void importSingleEntriesInSingleFiles(String testFile) throws Exception {
         String medlineFile = testFile + ".txt";
         String bibtexFile = testFile + ".bib";
         assertImportOfMedlineFileEqualsBibtexFile(medlineFile, bibtexFile);
@@ -165,7 +165,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void multiLineComments() throws IOException {
+    void multiLineComments() throws Exception {
         try (BufferedReader reader = readerForString("""
                 PMID-22664220
                 CON - Comment1
@@ -214,7 +214,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void keyWords() throws IOException {
+    void keyWords() throws Exception {
         try (BufferedReader reader = readerForString("""
                 PMID-22664795
                 MH  - Female
@@ -230,7 +230,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void withNbibFile() throws IOException, URISyntaxException {
+    void withNbibFile() throws Exception {
         Path file = Path.of(MedlinePlainImporter.class.getResource("NbibImporterTest.nbib").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
@@ -239,7 +239,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void withMultipleEntriesInvalidFormat() throws IOException, URISyntaxException {
+    void withMultipleEntriesInvalidFormat() throws Exception {
         Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterStringOutOfBounds.txt").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
@@ -248,7 +248,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void invalidFormat() throws URISyntaxException, IOException {
+    void invalidFormat() throws Exception {
         Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestInvalidFormat.xml").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
@@ -267,7 +267,7 @@ class MedlinePlainImporterTest {
     }
 
     @Test
-    void allArticleTypes() throws IOException {
+    void allArticleTypes() throws Exception {
         try (BufferedReader reader = readerForString("""
                 PMID-22664795
                 MH  - Female

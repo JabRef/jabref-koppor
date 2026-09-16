@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -37,7 +35,7 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     }
 
     @Test
-    void linkFound() throws IOException, FetcherException {
+    void linkFound() throws Exception {
         entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service");
 
         assertEquals(
@@ -47,14 +45,14 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     }
 
     @Test
-    void noLinkFound() throws IOException, FetcherException {
+    void noLinkFound() throws Exception {
         entry.setField(StandardField.TITLE, "Curriculum programme of career-oriented java specialty guided by principles of software engineering");
 
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
 
     @Test
-    void findSingleEntry() throws FetcherException {
+    void findSingleEntry() throws Exception {
         entry.setType(StandardEntryType.InProceedings);
         entry.setCitationKey("geiger2013detecting");
         entry.setField(StandardField.TITLE, "Detecting Interoperability and Correctness Issues in BPMN 2.0 Process Models.");
@@ -69,7 +67,7 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
     }
 
     @Test
-    void findManyEntries() throws FetcherException {
+    void findManyEntries() throws Exception {
         List<BibEntry> foundEntries = finder.performSearch("random test string");
 
         assertEquals(20, foundEntries.size());

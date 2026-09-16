@@ -1,7 +1,5 @@
 package org.jabref.gui.theme;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +32,7 @@ class ThemePresetTest {
     /// submodule bump that brings a new theme, it fails until the theme is either listed in the enum
     /// or excluded from the build.
     @Test
-    void constantsMatchTheBundledFiles() throws IOException, URISyntaxException {
+    void constantsMatchTheBundledFiles() throws Exception {
         URL themesDirectory = ThemePreset.class.getResource(THEMES_DIRECTORY);
         assertNotNull(themesDirectory, "No themes bundled, although processResources refuses to run without them");
 

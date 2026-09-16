@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -33,7 +31,7 @@ class CopacImporterTest {
     }
 
     @Test
-    void importEmptyEntries() throws URISyntaxException, IOException {
+    void importEmptyEntries() throws Exception {
         Path path = Path.of(CopacImporterTest.class.getResource("Empty.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(path).getDatabase().getEntries();
         assertEquals(List.of(), entries);

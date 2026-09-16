@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
@@ -37,13 +36,13 @@ class SpringerNatureFullTextFetcherTest {
     }
 
     @Test
-    void doiNotPresent() throws IOException {
+    void doiNotPresent() throws Exception {
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
 
     @DisabledOnCIServer("Disable on CI Server to not hit the API call limit")
     @Test
-    void findByDOI() throws IOException {
+    void findByDOI() throws Exception {
         entry.setField(StandardField.DOI, "10.1186/s13677-015-0042-8");
         assertEquals(
                 Optional.of(URLUtil.create("http://link.springer.com/content/pdf/10.1186/s13677-015-0042-8.pdf")),
@@ -52,14 +51,14 @@ class SpringerNatureFullTextFetcherTest {
 
     @DisabledOnCIServer("Disable on CI Server to not hit the API call limit")
     @Test
-    void notFoundByDOI() throws IOException {
+    void notFoundByDOI() throws Exception {
         entry.setField(StandardField.DOI, "10.1186/unknown-doi");
 
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
 
     @Test
-    void entityWithoutDoi() throws IOException {
+    void entityWithoutDoi() throws Exception {
         assertEquals(Optional.empty(), finder.findFullText(entry));
     }
 

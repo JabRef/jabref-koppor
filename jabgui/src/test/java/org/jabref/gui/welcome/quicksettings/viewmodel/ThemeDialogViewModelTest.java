@@ -1,6 +1,5 @@
 package org.jabref.gui.welcome.quicksettings.viewmodel;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -19,7 +18,7 @@ import static org.mockito.Mockito.when;
 class ThemeDialogViewModelTest {
 
     @Test
-    void customThemeRequiresExistingFile(@TempDir Path tempDir) throws IOException {
+    void customThemeRequiresExistingFile(@TempDir Path tempDir) throws Exception {
         ThemeDialogViewModel viewModel = createViewModel();
         viewModel.customThemeEnabledProperty().set(true);
 

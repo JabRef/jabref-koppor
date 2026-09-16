@@ -6,7 +6,6 @@ import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
 
-import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +24,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     protected abstract String getTitleSuffix();
 
     @Test
-    public void convertAuthorFieldSuffix() throws QueryNodeParseException {
+    public void convertAuthorFieldSuffix() throws Exception {
         String queryString = "author=\"Igor Steinmacher\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -35,7 +34,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     }
 
     @Test
-    public void convertUnFieldedTermSuffix() throws QueryNodeParseException {
+    public void convertUnFieldedTermSuffix() throws Exception {
         String queryString = "\"default value\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -45,7 +44,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     }
 
     @Test
-    public void convertExplicitUnFieldedTermSuffix() throws QueryNodeParseException {
+    public void convertExplicitUnFieldedTermSuffix() throws Exception {
         String queryString = "default=\"default value\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -55,7 +54,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     }
 
     @Test
-    public void convertJournalFieldSuffix() throws QueryNodeParseException {
+    public void convertJournalFieldSuffix() throws Exception {
         String queryString = "journal=Nature";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -71,7 +70,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     public abstract void convertYearRangeField();
 
     @Test
-    public void convertMultipleValuesWithTheSameSuffix() throws QueryNodeParseException {
+    public void convertMultipleValuesWithTheSameSuffix() throws Exception {
         String queryString = "author=\"Igor Steinmacher\" author=\"Christoph Treude\"";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -81,7 +80,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     }
 
     @Test
-    public void groupedOperationsSuffix() throws QueryNodeParseException {
+    public void groupedOperationsSuffix() throws Exception {
         String queryString = "(author=\"Igor Steinmacher\" OR author=\"Christoph Treude\" AND author=\"Christoph Freunde\") AND title=test";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
@@ -91,7 +90,7 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
     }
 
     @Test
-    public void notOperatorSufix() throws QueryNodeParseException {
+    public void notOperatorSufix() throws Exception {
         String queryString = "!(author=\"Igor Steinmacher\" OR author=\"Christoph Treude\")";
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());

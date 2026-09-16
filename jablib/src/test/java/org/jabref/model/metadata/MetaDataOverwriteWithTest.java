@@ -43,7 +43,7 @@ class MetaDataOverwriteWithTest {
     private static final Set<String> NOT_COPIED = Set.of("eventBus", "groupsRootBinding", "isEventPropagationEnabled");
 
     @Test
-    void overwriteWithCopiesEveryField() throws IllegalAccessException {
+    void overwriteWithCopiesEveryField() throws Exception {
         MetaData source = populated();
         MetaData target = new MetaData();
 
@@ -58,7 +58,7 @@ class MetaDataOverwriteWithTest {
     /// Without this, a field added to [MetaData] but not to [#populated] would sit at its default
     /// in both instances and pass the test above while never being copied at all.
     @Test
-    void everyCopiedFieldIsPopulated() throws IllegalAccessException {
+    void everyCopiedFieldIsPopulated() throws Exception {
         MetaData source = populated();
         MetaData untouched = new MetaData();
 

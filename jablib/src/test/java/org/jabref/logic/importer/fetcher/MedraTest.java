@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -77,18 +76,18 @@ class MedraTest {
     }
 
     @Test
-    void performSearchEmptyDOI() throws FetcherException {
+    void performSearchEmptyDOI() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 
     @Test
-    void performNonExistent() throws FetcherException {
+    void performNonExistent() throws Exception {
         assertThrows(FetcherServerException.class, () -> fetcher.performSearchById("10.1016/j.bjoms.2007.08.004"));
     }
 
     @ParameterizedTest
     @MethodSource("getDoiBibEntryPairs")
-    void doiBibEntryPairs(String identifier, Optional<BibEntry> expected) throws FetcherException {
+    void doiBibEntryPairs(String identifier, Optional<BibEntry> expected) throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById(identifier);
         assertEquals(expected, fetchedEntry);
     }

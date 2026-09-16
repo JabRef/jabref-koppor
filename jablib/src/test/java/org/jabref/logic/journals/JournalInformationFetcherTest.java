@@ -20,7 +20,7 @@ class JournalInformationFetcherTest {
     }
 
     @Test
-    void getsJournalInfoUsingIssn() throws FetcherException {
+    void getsJournalInfoUsingIssn() throws Exception {
         JournalInformation journalInformation = fetcher.getJournalInformation("1545-4509", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
@@ -29,21 +29,21 @@ class JournalInformationFetcherTest {
     }
 
     @Test
-    void getsJournalInfoUsingName() throws FetcherException {
+    void getsJournalInfoUsingName() throws Exception {
         JournalInformation journalInformation = fetcher.getJournalInformation("", "Annual Review of Biochemistry").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
     }
 
     @Test
-    void getsJournalInfoUsingIssnWithoutHyphen() throws FetcherException {
+    void getsJournalInfoUsingIssnWithoutHyphen() throws Exception {
         JournalInformation journalInformation = fetcher.getJournalInformation("15454509", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
     }
 
     @Test
-    void getsJournalInfoUsingTrimmedIssn() throws FetcherException {
+    void getsJournalInfoUsingTrimmedIssn() throws Exception {
         JournalInformation journalInformation = fetcher.getJournalInformation(" 1545-4509   ", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());

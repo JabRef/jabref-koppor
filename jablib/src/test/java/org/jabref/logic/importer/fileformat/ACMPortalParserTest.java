@@ -8,8 +8,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -69,7 +67,7 @@ class ACMPortalParserTest {
     }
 
     @Test
-    void parseEntries() throws FetcherException, ParseException {
+    void parseEntries() throws Exception {
         CookieHandler.setDefault(new CookieManager());
         List<BibEntry> bibEntries = parser.parseEntries(new URLDownload(searchUrl).asInputStream());
         for (BibEntry bibEntry : bibEntries) {
@@ -79,7 +77,7 @@ class ACMPortalParserTest {
     }
 
     @Test
-    void parseDoiSearchPage() throws FetcherException, ParseException {
+    void parseDoiSearchPage() throws Exception {
         String testDoi = "10.1145/3129790.3129810";
         CookieHandler.setDefault(new CookieManager());
         List<String> doiList = parser.parseDoiSearchPage(new URLDownload(searchUrl).asInputStream());
@@ -88,7 +86,7 @@ class ACMPortalParserTest {
     }
 
     @Test
-    void getBibEntriesFromDoiList() throws FetcherException {
+    void getBibEntriesFromDoiList() throws Exception {
         List<String> testDoiList = List.of("10.1145/3129790.3129810", "10.1145/2950290");
         List<BibEntry> bibEntries = parser.getBibEntriesFromDoiList(testDoiList);
         for (BibEntry bibEntry : bibEntries) {
@@ -98,7 +96,7 @@ class ACMPortalParserTest {
     }
 
     @Test
-    void getUrlFromDoiList() throws MalformedURLException, URISyntaxException {
+    void getUrlFromDoiList() throws Exception {
         String target = "https://dl.acm.org/action/exportCiteProcCitation?targetFile=custom-bibtex&format=bibTex&dois=10.1145%2F3129790.3129810%2C10.1145%2F2950290";
 
         List<String> doiList = List.of("10.1145/3129790.3129810", "10.1145/2950290");
@@ -139,7 +137,7 @@ class ACMPortalParserTest {
     }
 
     @Test
-    void noEntryFound() throws URISyntaxException, FetcherException, MalformedURLException, ParseException {
+    void noEntryFound() throws Exception {
         CookieHandler.setDefault(new CookieManager());
         URL url = new URIBuilder("https://dl.acm.org/action/doSearch?AllField=10.1145/3129790.31298").build().toURL();
         List<BibEntry> bibEntries = parser.parseEntries(new URLDownload(url).asInputStream());

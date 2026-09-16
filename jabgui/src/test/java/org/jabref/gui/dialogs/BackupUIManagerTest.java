@@ -1,6 +1,5 @@
 package org.jabref.gui.dialogs;
 
-import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +56,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void failedRestoreShowsBackupPathAndCause(@TempDir Path tempDir) throws IOException {
+    void failedRestoreShowsBackupPathAndCause(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
@@ -83,7 +82,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void backupResolverDialogShowsLibraryAndBackupSizes(@TempDir Path tempDir) throws IOException {
+    void backupResolverDialogShowsLibraryAndBackupSizes(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.write(originalFile, new byte[1024]);
         Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, tempDir.resolve("backups"));

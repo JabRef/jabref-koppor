@@ -1,11 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.entry.BibEntry;
@@ -66,7 +63,7 @@ class GvkFetcherTest {
     }
 
     @Test
-    void simpleSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void simpleSearchQueryURLCorrect() throws Exception {
         String query = "java jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -75,7 +72,7 @@ class GvkFetcherTest {
     }
 
     @Test
-    void complexSearchQueryURLCorrect() throws MalformedURLException, URISyntaxException {
+    void complexSearchQueryURLCorrect() throws Exception {
         String query = "kon=java tit=jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -84,26 +81,26 @@ class GvkFetcherTest {
     }
 
     @Test
-    void performSearchMatchingMultipleEntries() throws FetcherException {
+    void performSearchMatchingMultipleEntries() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("title=\"effective java\"");
         assertTrue(searchResult.contains(bibEntryPPN591166003));
         assertTrue(searchResult.contains(bibEntryPPN66391437X));
     }
 
     @Test
-    void performSearch591166003() throws FetcherException {
+    void performSearch591166003() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("ppn=591166003");
         assertEquals(List.of(bibEntryPPN591166003), searchResult);
     }
 
     @Test
-    void performSearch66391437X() throws FetcherException {
+    void performSearch66391437X() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("ppn=66391437X");
         assertEquals(List.of(bibEntryPPN66391437X), searchResult);
     }
 
     @Test
-    void performSearchEmpty() throws FetcherException {
+    void performSearchEmpty() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("");
         assertEquals(List.of(), searchResult);
     }

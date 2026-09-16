@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.model.entry.BibEntry;
@@ -36,7 +35,7 @@ class OpenAlexCitationFetcherTest {
     }
 
     @Test
-    void getReferencesWithDoi() throws FetcherException {
+    void getReferencesWithDoi() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
 
@@ -46,7 +45,7 @@ class OpenAlexCitationFetcherTest {
     }
 
     @Test
-    void getCitationsWithDoi() throws FetcherException {
+    void getCitationsWithDoi() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
 

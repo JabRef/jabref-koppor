@@ -1,6 +1,5 @@
 package org.jabref.logic.texparser;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -87,7 +86,7 @@ class LatexParserTest {
     }
 
     @Test
-    void sameFileDifferentDatabases() throws URISyntaxException {
+    void sameFileDifferentDatabases() throws Exception {
         Path texFile = Path.of(LatexParserTest.class.getResource("paper.tex").toURI());
 
         LatexParserResult parserResult = new DefaultLatexParser().parse(texFile).get();
@@ -114,7 +113,7 @@ class LatexParserTest {
     }
 
     @Test
-    void twoFilesDifferentDatabases() throws URISyntaxException {
+    void twoFilesDifferentDatabases() throws Exception {
         Path texFile = Path.of(LatexParserTest.class.getResource("paper.tex").toURI());
         Path texFile2 = Path.of(LatexParserTest.class.getResource("paper2.tex").toURI());
 

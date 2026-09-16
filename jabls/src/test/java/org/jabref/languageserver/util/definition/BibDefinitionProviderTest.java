@@ -1,11 +1,9 @@
 package org.jabref.languageserver.util.definition;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.jabref.languageserver.util.LspParserHandler;
 import org.jabref.logic.FilePreferences;
-import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntryPreferences;
@@ -34,7 +32,7 @@ class BibDefinitionProviderTest {
 
     /// The functionality itself should be tested elsewhere. We keep this test, because we want to have an end-to-end test
     @Test
-    void provideDefinition() throws JabRefException, IOException {
+    void provideDefinition() throws Exception {
         ParserResult parserResult = lspParserHandler.parserResultFromString(
                 "file:///tmp/some-uri.bib",
                 """
