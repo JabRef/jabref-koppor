@@ -19,19 +19,146 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}
+  # A run compiles after every merge and can outlast the hour; cancelling would never let one finish.
+  cancel-in-progress: false
+
 env:
   TARGET: experimental
   # Remote names mirror a local JabRef checkout: origin = JabRef/jabref, koppor = JabRef/jabref-koppor.
+  # Branches without a PR. origin/main is merged first by its own step.
   BRANCHES: |
-    origin/main
-    origin/add-import-via-browser # https://github.com/JabRef/jabref/pull/16124
     koppor/directory-mapping-preference
-    origin/directory-split # https://github.com/JabRef/jabref-koppor/pull/760
+    # github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48 in flight (JitPack build of the PR head)
+    koppor/pdfviewfx-pr48
+  # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
+  # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
+  # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
+  # Merge order: BRANCHES, then PRS in the order given, then the automatic ones.
+  PRS: |
+    https://github.com/JabRef/jabref/pull/17163
+    https://github.com/JabRef/jabref-koppor/pull/760
+    https://github.com/JabRef/jabref-koppor/pull/768
+    https://github.com/JabRef/jabref/pull/17134
+  # Shared shell helpers, loaded by every step with `eval "$HELPERS"`.
+  HELPERS: |
+    set -uo pipefail
+    ok() { printf '\e[32m✔ %s\e[0m\n' "$*"; }
+    bad() { printf '\e[31m✘ %s\e[0m\n' "$*"; }
+    info() { printf '\e[36m➜ %s\e[0m\n' "$*"; }
+    # Markdown for the run page; the first line of a step gets the step's SECTION as heading.
+    summary() {
+      if [ -n "${SECTION:-}" ]; then
+        echo "### $SECTION" >> "$GITHUB_STEP_SUMMARY"
+        SECTION=
+      fi
+      echo "$*" >> "$GITHUB_STEP_SUMMARY"
+    }
+    # Compiler output goes to a file: its warnings would otherwise flood the annotations. show_compile_errors prints the errors.
+    compiles() {
+      git submodule update --init --quiet
+      gradle --quiet compileJava < /dev/null > "$RUNNER_TEMP/compile.log" 2>&1
+    }
+    show_compile_errors() {
+      grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/compile.log" | sed "s|^$GITHUB_WORKSPACE/||" | sort -u || tail -n 30 "$RUNNER_TEMP/compile.log"
+    }
+    push() {
+      git push --quiet koppor "HEAD:refs/heads/$TARGET"
+    }
+    # Results of a step, printed as separate lists at its end by recap.
+    MERGED=()
+    SKIPPED=()
+    SKIPPED_DETAILS=()
+    recap() {
+      echo
+      printf '\e[1m%s (%d)\e[0m\n' "$1" "${#MERGED[@]}"
+      summary "#### $1 (${#MERGED[@]})"
+      for m in "${MERGED[@]}"; do
+        ok "$m"
+        summary "- :white_check_mark: $m"
+      done
+      if [ "${#SKIPPED[@]}" -gt 0 ]; then
+        printf '\e[1mSkipped (%d)\e[0m\n' "${#SKIPPED[@]}"
+        summary "#### Skipped (${#SKIPPED[@]})"
+        for i in "${!SKIPPED[@]}"; do
+          bad "${SKIPPED[$i]}"
+          summary "- :x: ${SKIPPED[$i]}"
+          [ -z "${SKIPPED_DETAILS[$i]}" ] || summary "${SKIPPED_DETAILS[$i]}"
+        done
+      fi
+    }
+    # conflict_report <label> <suffix>: call while a merge stands on its conflicts (before `git merge --abort`). Prints every
+    # conflicted file with 10 lines from its first conflict marker, annotates the run, and leaves the same as Markdown
+    # sub-list in $RUNNER_TEMP/details.md for skip.
+    conflict_report() {
+      local files file line excerpt
+      files="$(git diff --name-only --diff-filter=U)"
+      : > "$RUNNER_TEMP/details.md"
+      while read -r file; do
+        [ -n "$file" ] || continue
+        line="$(grep -n -m1 '^<<<<<<<' "$file" 2> /dev/null | cut -d: -f1 || true)"
+        if [ -n "$line" ]; then
+          excerpt="$(sed -n "${line},$((line + 9))p" "$file")"
+        else
+          # modify/delete, rename or binary conflict: no markers to show
+          excerpt="$(git status -- "$file" | grep -F -- "$file" | sed 's/^[[:space:]]*//' || true)"
+        fi
+        printf '    \e[33m%s\e[0m\n' "$file"
+        printf '%s\n' "$excerpt" | sed 's/^/      /'
+        {
+          printf '  - <details><summary><code>%s</code></summary>\n\n    ````\n' "$file"
+          printf '%s\n' "$excerpt" | sed 's/^/    /'
+          printf '    ````\n    </details>\n'
+        } >> "$RUNNER_TEMP/details.md"
+      done <<< "$files"
+      echo "::warning title=Merge conflict::$1 $2 - skipped%0A$(printf '%s' "$files" | awk '{printf "%s%s", sep, $0; sep="%0A"}')"
+    }
+    # skip <text>: records a skipped ref for recap, with the details left in $RUNNER_TEMP/details.md (if any).
+    skip() {
+      SKIPPED+=("$1")
+      SKIPPED_DETAILS+=("$(cat "$RUNNER_TEMP/details.md" 2> /dev/null || true)")
+      rm -f "$RUNNER_TEMP/details.md"
+    }
+    # merge <ref> <label> [suffix]: merges, compiles, pushes. A merge that breaks compilation is undone; while experimental
+    # does not compile anyway (GREEN=false), merges are kept so a fix can still come in.
+    merge() {
+      echo "::group::Merge $2 ${3:-}"
+      if ! git merge --no-edit -m "Merge $2 into $TARGET" "$1"; then
+        echo "::endgroup::"
+        bad "$2: merge conflict, skipped"
+        conflict_report "$2" "${3:-}"
+        git merge --abort
+        skip "$2 ${3:-} - merge conflict"
+      elif compiles; then
+        GREEN=true
+        push
+        echo "::endgroup::"
+        ok "$2: merged"
+        MERGED+=("$2 ${3:-}")
+      elif [ "$GREEN" = true ]; then
+        git reset --hard --quiet ORIG_HEAD
+        echo "::endgroup::"
+        bad "$2: compile error, skipped"
+        show_compile_errors
+        echo "::error title=Compile error::$2 ${3:-} - skipped"
+        { printf '  - compile errors\n\n    ````\n'; show_compile_errors | sed 's/^/    /'; printf '    ````\n'; } > "$RUNNER_TEMP/details.md"
+        skip "$2 ${3:-} - compile error"
+      else
+        push
+        echo "::endgroup::"
+        info "$2: merged, $TARGET does not compile"
+        echo "::warning title=Does not compile::$TARGET does not compile (kept merge of $2)"
+        MERGED+=("$2 ${3:-} ($TARGET does not compile)")
+      fi
+    }
 
 jobs:
   merge:
     if: github.repository == 'JabRef/jabref-koppor'
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,38 +167,208 @@ jobs:
           # merges that touch .github/workflows/* (e.g. upstream main editing a
           # workflow file), which makes the final push fail.
           token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
+          submodules: 'true'
+      - uses: ./.github/actions/setup-gradle
 
-      - name: Merge branches into ${{ env.TARGET }}
+      - name: Check out ${{ env.TARGET }}
         run: |
-          set -eu
+          eval "$HELPERS"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git remote rename origin koppor
           git remote add origin https://github.com/JabRef/jabref.git
-          git fetch --no-tags --prune origin
-          git fetch --no-tags --prune koppor
-
+          # Requirement docs and the changelog get a section appended by nearly every PR, so they conflict all the time
+          # although both sides belong in. Local attribute, only for building experimental.
+          printf '%s\n' 'docs/requirements/*.md merge=union' 'CHANGELOG.md merge=union' >> .git/info/attributes
+          git fetch --quiet --no-tags --prune origin
+          git fetch --quiet --no-tags --prune koppor
           if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
-            git checkout -B "$TARGET" "koppor/$TARGET"
+            git checkout --quiet -B "$TARGET" "koppor/$TARGET"
           else
-            git checkout -B "$TARGET" origin/main
+            git checkout --quiet -B "$TARGET" origin/main
+          fi
+          info "$TARGET at $(git log -1 --format='%h %s')"
+
+      - name: Check that ${{ env.TARGET }} compiles
+        run: |
+          eval "$HELPERS"
+          if compiles; then
+            ok "$TARGET compiles"
+            echo "GREEN=true" >> "$GITHUB_ENV"
+          else
+            bad "$TARGET does not compile; merges are kept until it does"
+            show_compile_errors
+            echo "::warning title=Does not compile::$TARGET does not compile before merging"
+            echo "GREEN=false" >> "$GITHUB_ENV"
           fi
 
+      # A PR squash-merged into main is already in experimental as its branch; merging the squash re-applies
+      # the change and conflicts with whatever experimental built on top. The magic merge commit (tree of the
+      # squash, parents PR head + squash) tells git both are the same change. Used only when the squash equals
+      # a clean merge of the PR head into its parent, so rebase merges and edited squashes take the normal path.
+      - name: Merge squash-merged PRs via magic merge commits
+        run: |
+          eval "$HELPERS"
+          SECTION="Magic merge commits"
+          found=false
+          for squash in $(git rev-list --reverse --first-parent HEAD..origin/main); do
+            head="$(gh api "repos/JabRef/jabref/commits/$squash/pulls" --jq ".[] | select(.merge_commit_sha == \"$squash\") | .head.sha")" || continue
+            [ -n "$head" ] && git merge-base --is-ancestor "$head" HEAD 2> /dev/null || continue
+            [ "$(git merge-tree --write-tree "$squash^" "$head" 2> /dev/null)" = "$(git rev-parse "$squash^{tree}")" ] || continue
+            found=true
+            info "$(git log -1 --format='%h %s' "$squash")"
+            merge "$squash^" "origin/main before ${squash:0:10}"
+            magic="$(git commit-tree "$squash^{tree}" -p "$head" -p "$squash" -m "Magic merge commit for $squash")"
+            merge "$magic" "squash ${squash:0:10}" "(magic merge commit)"
+          done
+          if [ "$found" = true ]; then
+            recap "Merged via magic merge commits"
+          else
+            info "No squash-merged PR that $TARGET already contains"
+          fi
+          echo "GREEN=$GREEN" >> "$GITHUB_ENV"
+
+      - name: Merge origin/main
+        run: |
+          eval "$HELPERS"
+          SECTION="origin/main"
+          if git merge-base --is-ancestor origin/main HEAD; then
+            ok "origin/main: already in $TARGET (merged by an earlier run)"
+          else
+            merge origin/main origin/main
+            recap "Merged"
+          fi
+          echo "GREEN=$GREEN" >> "$GITHUB_ENV"
+
+      - name: Collect branches and pull requests
+        run: |
+          eval "$HELPERS"
+          SECTION="Skipped before merging"
+          # One line per ref to merge: ref, label, summary suffix (tab-separated). Refs experimental already contains are dropped.
+          candidates="$RUNNER_TEMP/candidates.tsv"
+          : > "$candidates"
+          candidate() {
+            if git merge-base --is-ancestor "$1" HEAD; then
+              ok "$2: up to date"
+            else
+              info "$2: to merge"
+              printf '%s\t%s\t%s\n' "$1" "$2" "${3:-}" >> "$candidates"
+            fi
+          }
+
+          echo "::group::Branches"
           while read -r branch; do
             branch="${branch%%#*}"
             branch="$(echo "$branch" | xargs)"
             [ -n "$branch" ] || continue
-            if ! git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
-              echo "::warning::Branch $branch does not exist (any more) - skipped"
-              echo "- :warning: \`$branch\` - gone, skipped" >> "$GITHUB_STEP_SUMMARY"
-            elif git merge --no-edit -m "Merge $branch into $TARGET" "$branch"; then
-              echo "- :white_check_mark: \`$branch\`" >> "$GITHUB_STEP_SUMMARY"
+            if git rev-parse -q --verify "$branch^{commit}" > /dev/null; then
+              candidate "$branch" "$branch"
             else
-              git merge --abort
-              echo "::warning::Merge conflict for $branch - skipped"
-              echo "- :x: \`$branch\` - merge conflict, skipped" >> "$GITHUB_STEP_SUMMARY"
+              bad "$branch: gone"
+              echo "::warning title=Branch gone::$branch does not exist (any more) - skipped"
+              summary "- :warning: \`$branch\` - gone, skipped"
             fi
           done <<< "$BRANCHES"
+          echo "::endgroup::"
 
-          git push koppor "HEAD:refs/heads/$TARGET"
+          # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates.
+          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository \
+            --jq '.[] | select((.isDraft or .isCrossRepository) | not) | .url')"
+          PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" | awk '!seen[$0]++')"
+
+          echo "::group::Pull requests"
+          while read -r pr; do
+            pr="${pr%%#*}"
+            pr="$(echo "$pr" | xargs)"
+            [ -n "$pr" ] || continue
+            # Fork PRs have no branch in origin/koppor; resolve the head via the API. The head commit is fetched from the
+            # head repository: refs/pull/N/head sometimes lags behind the branch.
+            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
+              --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName) \(.headRepositoryOwner.login)/\(.headRepository.name) \(.headRefOid)"')"; then
+              bad "$pr: not found"
+              echo "::warning title=PR not found::$pr - skipped"
+              summary "- :warning: $pr - not found, skipped"
+              continue
+            fi
+            read -r state branch head_repo head_sha <<< "$info"
+            if [ "$state" != OPEN ]; then
+              info "$branch ($pr): $state, skipped"
+              summary "- :warning: \`$branch\` ($pr) - $state, skipped"
+              continue
+            fi
+            repo="${pr%/pull/*}"
+            ref="refs/candidates/${repo##*/}/${pr##*/}"
+            if ! git fetch --quiet --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
+              bad "$branch ($pr): head cannot be fetched"
+              echo "::warning title=Head not fetchable::$pr - skipped"
+              summary "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped"
+              continue
+            fi
+            candidate "$ref" "$branch" "($pr)"
+          done <<< "$PRS"
+          echo "::endgroup::"
+          info "$(wc -l < "$candidates") refs to merge"
+
+      # Merge each ref locally (ort handles experimental's criss-cross history, git's octopus strategy does not), skip
+      # conflicts, then record the result as one commit with all merged refs as parents.
+      - name: Merge everything into one octopus commit
+        run: |
+          eval "$HELPERS"
+          SECTION="Octopus merge"
+          start="$(git rev-parse HEAD)"
+          clean="$RUNNER_TEMP/clean.tsv"
+          : > "$clean"
+          while IFS=$'\t' read -r -u 3 ref label suffix; do
+            if git merge --no-edit "$ref" > "$RUNNER_TEMP/merge.log" 2>&1; then
+              ok "$label: merges cleanly"
+              printf '%s\t%s\t%s\n' "$ref" "$label" "$suffix" >> "$clean"
+              MERGED+=("$label $suffix")
+            else
+              bad "$label: merge conflict, skipped"
+              conflict_report "$label" "$suffix"
+              git merge --abort
+              skip "$label $suffix - merge conflict"
+            fi
+          done 3< "$RUNNER_TEMP/candidates.tsv"
+
+          count="$(wc -l < "$clean")"
+          if [ "$count" -le 1 ]; then
+            git reset --hard --quiet "$start"
+            info "$count PR(s) merge cleanly: no octopus commit, merged by the next step"
+            MERGED=()
+            recap "Merged into an octopus commit"
+            echo "OCTOPUS=skipped" >> "$GITHUB_ENV"
+          elif compiles || [ "$GREEN" = false ]; then
+            parents=(-p "$start")
+            message="Merge $count branches into $TARGET"$'\n'
+            while IFS=$'\t' read -r -u 3 ref label suffix; do
+              parents+=(-p "$ref")
+              message+=$'\n'"$label $suffix"
+            done 3< "$clean"
+            git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
+            push
+            ok "Octopus commit $(git rev-parse --short HEAD) with $((count + 1)) parents pushed"
+            recap "Merged into octopus commit $(git rev-parse --short HEAD)"
+            echo "OCTOPUS=merged" >> "$GITHUB_ENV"
+          else
+            git reset --hard --quiet "$start"
+            bad "The octopus commit does not compile; merging one by one"
+            show_compile_errors
+            echo "::warning title=Octopus does not compile::falling back to merging one by one"
+            MERGED=()
+            recap "Merged into an octopus commit"
+            echo "OCTOPUS=failed" >> "$GITHUB_ENV"
+          fi
+
+      - name: Merge one by one
+        run: |
+          eval "$HELPERS"
+          SECTION="One by one"
+          if [ "$OCTOPUS" = merged ]; then
+            info "Nothing to merge one by one: the octopus commit contains every PR that merges cleanly"
+            exit 0
+          fi
+          while IFS=$'\t' read -r -u 3 ref label suffix; do
+            merge "$ref" "$label" "$suffix"
+          done 3< "$RUNNER_TEMP/clean.tsv"
+          recap "Merged one by one"

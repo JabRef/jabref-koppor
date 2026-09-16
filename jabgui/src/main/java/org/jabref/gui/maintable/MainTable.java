@@ -61,6 +61,7 @@ import org.jabref.gui.util.CustomLocalDragboard;
 import org.jabref.gui.util.DragDrop;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.gui.util.ViewModelTableRowFactory;
+import org.jabref.gui.walkthrough.declarative.WalkthroughNodeIds;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationstyle.CitationStyleOutputFormat;
 import org.jabref.logic.importer.fetcher.CrossRef;
@@ -136,6 +137,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         this.setOnDragOver(this::handleOnDragOverTableView);
         this.setOnDragDropped(this::handleOnDragDroppedTableView);
 
+        this.setId(WalkthroughNodeIds.MAIN_TABLE);
         this.getStyleClass().add("main-table");
 
         MainTableColumnFactory mainTableColumnFactory = new MainTableColumnFactory(
@@ -180,14 +182,14 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         // force match category column to be the first sort order, (match_category column is always the first column)
         this.getSortOrder().addFirst(getColumns().getFirst());
-        this.getSortOrder().addListener((ListChangeListener<TableColumn<BibEntryTableViewModel, ?>>) change -> {
+        this.getSortOrder().addListener((ListChangeListener<TableColumn<BibEntryTableViewModel, ?>>) _ -> {
             if (!this.getSortOrder().getFirst().equals(getColumns().getFirst())) {
                 this.getSortOrder().addFirst(getColumns().getFirst());
             }
         });
 
         if (mainTablePreferences.getResizeColumnsToFit()) {
-            this.setColumnResizePolicy(new SmartConstrainedResizePolicy());
+            this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
         }
 
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -208,10 +210,10 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         Label noContentLabel = new Label(Localization.lang("No content in table"));
         noContentLabel.getStyleClass().addAll(StyleClasses.WELCOME_HEADER);
 
-        HBox buttonBox = new HBox(20, addExampleButton, importPdfsButton);
+        HBox buttonBox = new HBox(12, addExampleButton, importPdfsButton);
         buttonBox.setAlignment(Pos.CENTER);
 
-        VBox placeholderBox = new VBox(15, noContentLabel, buttonBox);
+        VBox placeholderBox = new VBox(12, noContentLabel, buttonBox);
         placeholderBox.setAlignment(Pos.CENTER);
 
         VBox loadingPlaceholder = new VBox(new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS));
@@ -219,9 +221,9 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         updatePlaceholder(placeholderBox, loadingPlaceholder);
 
-        database.getDatabase().getEntries().addListener((ListChangeListener<BibEntry>) change -> updatePlaceholder(placeholderBox, loadingPlaceholder));
+        database.getDatabase().getEntries().addListener((ListChangeListener<BibEntry>) _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
-        this.getItems().addListener((ListChangeListener<BibEntryTableViewModel>) change -> updatePlaceholder(placeholderBox, loadingPlaceholder));
+        this.getItems().addListener((ListChangeListener<BibEntryTableViewModel>) _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
         libraryTab.getLoading().addListener((_, _, _) -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
@@ -674,6 +676,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
     private BibEntry addExampleEntry() {
         BibEntry exampleEntry = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("JabRef2023")
                 .withField(StandardField.AUTHOR, "Oliver Kopp and Carl Christian Snethlage and Christoph Schwentker")
                 .withField(StandardField.TITLE, "JabRef: BibTeX-based literature management software")
                 .withField(StandardField.JOURNAL, "TUGboat")

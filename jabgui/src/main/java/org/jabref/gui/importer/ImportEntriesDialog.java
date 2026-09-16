@@ -209,7 +209,7 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
                     Node entryNode = BibEntryView.getEntryNode(entry);
                     HBox.setHgrow(entryNode, Priority.ALWAYS);
                     HBox container = new HBox(entryNode, separator, addToggle);
-                    container.getStyleClass().add("padding-6-0");
+                    container.getStyleClass().add("padding-4-0");
                     container.prefWidthProperty().bind(entriesListView.widthProperty().subtract(25));
 
                     BackgroundTask.wrap(() -> viewModel.hasDuplicate(entry)).onSuccess(duplicateFound -> {
@@ -231,7 +231,7 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
 
                     return container;
                 })
-                .withOnMouseClickedEvent((entry, event) -> {
+                .withOnMouseClickedEvent((entry, _) -> {
                     entriesListView.getCheckModel().toggleCheckState(entry);
                     displayBibTeX(entry, viewModel.getSourceString(entry));
                 })
@@ -461,7 +461,7 @@ public class ImportEntriesDialog extends BaseDialog<Boolean> {
         bibTeXDataLabel.setText(Localization.lang("%0 source", "BibTeX"));
         bibTeXData.setBorder(new Border(new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         bibTeXData.setPadding(new Insets(5.0));
-        showEntryInformation.selectedProperty().addListener((observableValue, old_val, new_val) -> {
+        showEntryInformation.selectedProperty().addListener((_, _, new_val) -> {
             bibTeXDataBox.setVisible(new_val);
             bibTeXDataBox.setManaged(new_val);
         });
