@@ -35,12 +35,12 @@ public class AiModelService {
         List<String> dynamicModels = fetchModelsSynchronously(aiProvider, apiBaseUrl, apiKey);
 
         if (!dynamicModels.isEmpty()) {
-            LOGGER.debug("Using {} dynamic models for {}", dynamicModels.size(), aiProvider.name());
+            LOGGER.atDebug().addArgument(() -> dynamicModels.size()).addArgument(() -> aiProvider.name()).log("Using {} dynamic models for {}");
             return dynamicModels;
         }
 
         List<String> staticModels = getStaticModels(aiProvider);
-        LOGGER.debug("Using {} hardcoded models for {}", staticModels.size(), aiProvider.name());
+        LOGGER.atDebug().addArgument(() -> staticModels.size()).addArgument(() -> aiProvider.name()).log("Using {} hardcoded models for {}");
         return staticModels;
     }
 

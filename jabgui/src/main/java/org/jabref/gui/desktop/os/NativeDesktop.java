@@ -314,7 +314,7 @@ public abstract class NativeDesktop {
             uri = URLUtil.createUri(url);
         } catch (IllegalArgumentException e) {
             // Not URI-parseable (e.g. unencoded spaces); the OS URL handlers accept the raw string
-            LoggerFactory.getLogger(NativeDesktop.class).debug("Could not parse {} as URI, falling back to the OS URL handler", url, e);
+            LoggerFactory.getLogger(NativeDesktop.class).error("Could not parse {} as URI, falling back to the OS URL handler", url, e);
             desktop.openUrlWithSystemHandler(url);
             return;
         }
@@ -325,7 +325,7 @@ public abstract class NativeDesktop {
                 try {
                     desktop.desktopBrowse(uri);
                 } catch (IOException e) {
-                    LoggerFactory.getLogger(NativeDesktop.class).warn("Desktop.browse failed for {}, falling back to the OS URL handler", url, e);
+                    LoggerFactory.getLogger(NativeDesktop.class).error("Desktop.browse failed for {}, falling back to the OS URL handler", url, e);
                     try {
                         desktop.openUrlWithSystemHandler(url);
                     } catch (IOException e2) {

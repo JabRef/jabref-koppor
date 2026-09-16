@@ -198,10 +198,10 @@ public class OcrTabViewModel implements PreferenceTabViewModel {
             return process.exitValue() == 0;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOGGER.debug("Auto-detection of {} as engine's path was interrupted", path, e);
+            LOGGER.error("Auto-detection of {} as engine's path was interrupted", path, e);
             return false;
         } catch (IOException e) {
-            LOGGER.debug("{} is not available as engine's path: IOException occurred", path, e);
+            LOGGER.error("{} is not available as engine's path: IOException occurred", path, e);
             return false;
         }
     }

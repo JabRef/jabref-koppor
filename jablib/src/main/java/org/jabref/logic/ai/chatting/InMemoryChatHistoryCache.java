@@ -68,12 +68,10 @@ public class InMemoryChatHistoryCache {
                 );
 
                 originalCitationKey = entry.getCitationKey();
-                LOGGER.debug("Loaded chat history for entry {} from repository ({} messages)",
-                        originalCitationKey.orElse("<no key>"), chatHistory.size());
+                LOGGER.atDebug().addArgument(() -> originalCitationKey.orElse("<no key>")).addArgument(() -> chatHistory.size()).log("Loaded chat history for entry {} from repository ({} messages)");
             } else {
                 chatHistory = FXCollections.observableArrayList();
-                LOGGER.debug("Created new in-memory chat history for entry {} (no valid identifier)",
-                        entry.getCitationKey().orElse("<no key>"));
+                LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse("<no key>")).log("Created new in-memory chat history for entry {} (no valid identifier)");
             }
 
             return new CachedEntryChat(databaseContext, originalCitationKey, chatHistory);
@@ -98,8 +96,7 @@ public class InMemoryChatHistoryCache {
                         repository.getAllMessages(identifierOpt.get())
                 );
 
-                LOGGER.debug("Loaded chat history for group {} from repository ({} messages)",
-                        originalGroupName, chatHistory.size());
+                LOGGER.atDebug().addArgument(originalGroupName).addArgument(() -> chatHistory.size()).log("Loaded chat history for group {} from repository ({} messages)");
             } else {
                 chatHistory = FXCollections.observableArrayList();
 
@@ -124,8 +121,7 @@ public class InMemoryChatHistoryCache {
     }
 
     public synchronized void close() {
-        LOGGER.debug("Flushing {} entry chats and {} group chats to repository",
-                entryChats.size(), groupChats.size());
+        LOGGER.atDebug().addArgument(() -> entryChats.size()).addArgument(() -> groupChats.size()).log("Flushing {} entry chats and {} group chats to repository");
 
         entryChats.forEach(this::flushEntryChat);
         groupChats.forEach(this::flushGroupChat);
@@ -194,10 +190,7 @@ public class InMemoryChatHistoryCache {
 
             repository.clear(oldIdentifier);
 
-            LOGGER.debug("Cleared old chat history for {} with old {}: {}",
-                    entityType,
-                    "entry".equals(entityType) ? "key" : "name",
-                    originalName);
+            LOGGER.atDebug().addArgument(entityType).addArgument(() -> "entry".equals(entityType) ? "key" : "name").addArgument(originalName).log("Cleared old chat history for {} with old {}: {}");
         }
 
         repository.clear(currentIdentifier);
@@ -205,11 +198,9 @@ public class InMemoryChatHistoryCache {
 
         if (nameChanged) {
             if ("entry".equals(entityType)) {
-                LOGGER.debug("Transferred chat history from {} to {} ({} messages)",
-                        originalName, currentName, chatHistory.size());
+                LOGGER.atDebug().addArgument(originalName).addArgument(currentName).addArgument(() -> chatHistory.size()).log("Transferred chat history from {} to {} ({} messages)");
             } else {
-                LOGGER.debug("Transferred chat history from {} '{}' to '{}' ({} messages)",
-                        entityType, originalName, currentName, chatHistory.size());
+                LOGGER.atDebug().addArgument(entityType).addArgument(originalName).addArgument(currentName).addArgument(() -> chatHistory.size()).log("Transferred chat history from {} '{}' to '{}' ({} messages)");
             }
         } else {
             LOGGER.debug("Flushed chat history for {} {} ({} messages)",

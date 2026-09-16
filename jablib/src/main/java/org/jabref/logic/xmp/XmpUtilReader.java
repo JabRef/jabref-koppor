@@ -158,7 +158,7 @@ public class XmpUtilReader {
             try {
                 metaList.add(XMP_UTIL_SHARED.parseXmpMetadata(new ByteArrayInputStream(xmpMetaString.getBytes())));
             } catch (IOException ex) {
-                LOGGER.debug("Problem parsing XMP schema. Continuing with other schemas.", ex);
+                LOGGER.error("Problem parsing XMP schema. Continuing with other schemas.", ex);
             }
         }
         return metaList;

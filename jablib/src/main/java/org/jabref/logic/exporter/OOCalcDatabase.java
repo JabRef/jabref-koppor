@@ -70,7 +70,7 @@ class OOCalcDatabase {
                 addEntryRow(entry, table, document);
             }
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Exception caught...", e);
+            LOGGER.error("Exception caught...", e);
         }
         return document;
     }

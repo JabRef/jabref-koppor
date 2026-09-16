@@ -76,7 +76,7 @@ public final class LinkedFilesSearcher {
             return new SearchResults();
         }
 
-        LOGGER.debug("Searching in linked files with query: {}", luceneQuery.get());
+        LOGGER.atDebug().addArgument(() -> luceneQuery.get()).log("Searching in linked files with query: {}");
         try {
             SearcherManager searcherManager = maybeSearcherManager.orElseThrow();
             IndexSearcher linkedFilesIndexSearcher = acquireIndexSearcher(searcherManager);
@@ -99,7 +99,7 @@ public final class LinkedFilesSearcher {
             // Characters such as " or < are literals there, but syntax here, and Lucene reports that as IllegalArgumentException.
             // Such a query is still valid for the metadata search, so only the linked files part is skipped.
             // https://github.com/JabRef/jabref/issues/9482
-            LOGGER.trace("Error during query parsing with query {}", searchQuery, e);
+            LOGGER.error("Error during query parsing with query {}", searchQuery, e);
             return Optional.empty();
         }
     }
@@ -107,7 +107,7 @@ public final class LinkedFilesSearcher {
     private SearchResults search(IndexSearcher indexSearcher, Query searchQuery) throws IOException {
         TopDocs topDocs = indexSearcher.search(searchQuery, Integer.MAX_VALUE);
         StoredFields storedFields = indexSearcher.storedFields();
-        LOGGER.debug("Found {} matching documents", topDocs.totalHits.value());
+        LOGGER.atDebug().addArgument(() -> topDocs.totalHits.value()).log("Found {} matching documents");
         return getSearchResults(topDocs, storedFields, searchQuery);
     }
 
@@ -135,7 +135,7 @@ public final class LinkedFilesSearcher {
                 }
             }
         }
-        LOGGER.debug("Getting linked files results took {} ms", System.currentTimeMillis() - startTime);
+        LOGGER.atDebug().addArgument(() -> System.currentTimeMillis() - startTime).log("Getting linked files results took {} ms");
         return searchResults;
     }
 

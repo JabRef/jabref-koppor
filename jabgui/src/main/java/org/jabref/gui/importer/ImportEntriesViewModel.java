@@ -297,7 +297,7 @@ public class ImportEntriesViewModel extends AbstractViewModel {
             loading.set(true);
             BackgroundTask<ArrayList<BibEntry>> fetchTask = BackgroundTask
                     .wrap(() -> {
-                        LOGGER.info("Fetching entries from {} for page {}", fetcher.get().getName(), currentPageProperty.get() + 2);
+                        LOGGER.atInfo().addArgument(() -> fetcher.get().getName()).addArgument(() -> currentPageProperty.get() + 2).log("Fetching entries from {} for page {}");
                         return new ArrayList<>(pagedFetcher.performSearchPaged(query.get(), currentPageProperty.get() + 1).getContent());
                     })
                     .onSuccess(newEntries -> {

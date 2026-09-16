@@ -175,7 +175,7 @@ public class PreviewTabViewModel implements PreferenceTabViewModel {
         try {
             selectedLayoutProperty.setValue(selectedLayout);
         } catch (StringIndexOutOfBoundsException exception) {
-            LOGGER.warn("Parsing error.", exception);
+            LOGGER.error("Parsing error.", exception);
             dialogService.showErrorDialogAndWait(
                     Localization.lang("Parsing error"),
                     Localization.lang("Parsing error") + ": " + Localization.lang("illegal backslash expression"), exception);

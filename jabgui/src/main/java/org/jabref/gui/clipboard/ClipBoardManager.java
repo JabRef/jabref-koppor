@@ -115,7 +115,7 @@ public class ClipBoardManager {
                 try {
                     return (String) contents.getTransferData(DataFlavor.stringFlavor);
                 } catch (UnsupportedFlavorException | IOException e) {
-                    LOGGER.warn("Could not get transfer data", e);
+                    LOGGER.error("Could not get transfer data", e);
                 }
             }
         }

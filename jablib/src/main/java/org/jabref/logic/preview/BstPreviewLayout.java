@@ -90,7 +90,7 @@ public final class BstPreviewLayout implements PreviewLayout {
             LOGGER.error("Could not read {}.", path.toAbsolutePath(), e);
             error = Localization.lang("Error opening file '%0'", path.toString());
         } catch (ParseCancellationException e) {
-            LOGGER.warn("Could not parse BST style for preview: {}", path.toAbsolutePath(), e);
+            LOGGER.error("Could not parse BST style for preview: {}", path.toAbsolutePath(), e);
             error = Localization.lang("Error parsing file '%0'", path.toString());
         }
     }
@@ -117,7 +117,7 @@ public final class BstPreviewLayout implements PreviewLayout {
             return new BstPreviewLayout(Path.of(styleName), "", null,
                     Localization.lang("Error opening file '%0'", styleName));
         } catch (ParseCancellationException e) {
-            LOGGER.warn("Could not parse internal BST style for preview: {}", resourcePath, e);
+            LOGGER.error("Could not parse internal BST style for preview: {}", resourcePath, e);
             return new BstPreviewLayout(Path.of(styleName), "", null,
                     Localization.lang("Error parsing file '%0'", styleName));
         }

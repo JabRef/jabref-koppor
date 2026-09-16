@@ -135,7 +135,7 @@ public class ExportToClipboardAction extends SimpleCommand {
                 try {
                     Files.delete(tmp);
                 } catch (IOException e) {
-                    LOGGER.info("Cannot delete temporary clipboard file", e);
+                    LOGGER.error("Cannot delete temporary clipboard file", e);
                 }
             }
         }

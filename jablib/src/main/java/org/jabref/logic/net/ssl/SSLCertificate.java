@@ -76,7 +76,7 @@ public class SSLCertificate {
                     x509Certificate.getSigAlgName(),
                     x509Certificate.getVersion()));
         } catch (CertificateEncodingException e) {
-            LOGGER.warn("Error while encoding certificate", e);
+            LOGGER.error("Error while encoding certificate", e);
         }
         return Optional.empty();
     }
@@ -86,11 +86,11 @@ public class SSLCertificate {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             return fromX509((X509Certificate) certificateFactory.generateCertificate(Files.newInputStream(certPath)));
         } catch (CertificateException e) {
-            LOGGER.warn("Certificate doesn't follow X.509 format", e);
+            LOGGER.error("Certificate doesn't follow X.509 format", e);
         } catch (FileNotFoundException e) {
-            LOGGER.warn("Bad Certificate path: {}", certPath, e);
+            LOGGER.error("Bad Certificate path: {}", certPath, e);
         } catch (IOException e) {
-            LOGGER.warn("Error reading certificate:", e);
+            LOGGER.error("Error reading certificate:", e);
         }
         return Optional.empty();
     }

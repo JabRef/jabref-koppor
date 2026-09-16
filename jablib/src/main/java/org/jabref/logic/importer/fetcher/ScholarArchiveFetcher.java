@@ -64,7 +64,7 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
         uriBuilder.addParameter("size", String.valueOf(getPageSize()));
         uriBuilder.addParameter("format", "json");
 
-        LOGGER.debug("using URL for search {}", uriBuilder.build());
+        LOGGER.atDebug().addArgument(() -> uriBuilder.build()).log("using URL for search {}");
         return uriBuilder.build().toURL();
     }
 

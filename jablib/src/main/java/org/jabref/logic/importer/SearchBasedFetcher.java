@@ -57,7 +57,7 @@ public interface SearchBasedFetcher extends WebFetcher {
             try {
                 queryNode = visitor.visitStart(searchQueryObject.getContext());
             } catch (ParseCancellationException e) {
-                LOGGER.debug("Search query visitor failed for '{}', falling back to raw term search", searchQuery, e);
+                LOGGER.error("Search query visitor failed for '{}', falling back to raw term search", searchQuery, e);
                 queryNode = new SearchQueryNode(Optional.empty(), searchQuery);
             }
         } else {

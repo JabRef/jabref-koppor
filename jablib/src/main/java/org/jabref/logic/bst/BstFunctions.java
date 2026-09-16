@@ -639,7 +639,7 @@ public class BstFunctions {
     /// designers while debugging.
     private void bstStack(BstVMVisitor visitor, ParserRuleContext ctx) {
         while (!stack.isEmpty()) {
-            LOGGER.debug("Stack entry {}", stack.pop());
+            LOGGER.atDebug().addArgument(() -> stack.pop()).log("Stack entry {}");
         }
     }
 
@@ -794,7 +794,7 @@ public class BstFunctions {
 
     /// Pops and prints the top of the stack to the log file. It's useful for debugging.
     private void bstTop(BstVMVisitor visitor, ParserRuleContext ctx) {
-        LOGGER.debug("Stack entry {} (line {})", stack.pop(), ctx.start.getLine());
+        LOGGER.atDebug().addArgument(() -> stack.pop()).addArgument(() -> ctx.start.getLine()).log("Stack entry {} (line {})");
     }
 
     /// Pushes the current entry's type (book, article, etc.), but pushes

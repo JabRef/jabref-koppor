@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public class SearchDialog {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SearchDialog.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchDialog.class);
 
     private static final double DIALOG_WIDTH_RATIO = 0.5;
     private static final double DIALOG_HEIGHT_RATIO = 0.4;
@@ -97,7 +97,7 @@ public class SearchDialog {
                 dialogStage.getIcons().add(icon);
             }
         } catch (Exception e) {
-            LOGGER.warn("Error loading icon for SearchDialog", e);
+            LOGGER.error("Error loading icon for SearchDialog", e);
         }
 
         dialogStage.setX((screenBounds.getWidth() - dialogWidth) / 2);

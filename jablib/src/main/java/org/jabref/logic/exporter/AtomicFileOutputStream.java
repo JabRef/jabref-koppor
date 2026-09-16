@@ -255,7 +255,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
         try {
             super.close();
         } catch (IOException exception) {
-            LOGGER.debug("Unable to abort writing to file {}", temporaryFile, exception);
+            LOGGER.error("Unable to abort writing to file {}", temporaryFile, exception);
         } finally {
             cleanup();
         }
@@ -270,7 +270,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
         try {
             Files.deleteIfExists(temporaryFile);
         } catch (IOException exception) {
-            LOGGER.debug("Unable to delete file {}", temporaryFile, exception);
+            LOGGER.error("Unable to delete file {}", temporaryFile, exception);
         }
     }
 
@@ -319,7 +319,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                     try {
                         oldFilePermissions = Files.getPosixFilePermissions(targetFile);
                     } catch (IOException exception) {
-                        LOGGER.warn("Error getting file permissions for file {}.", targetFile, exception);
+                        LOGGER.error("Error getting file permissions for file {}.", targetFile, exception);
                     }
                 }
             }
@@ -375,7 +375,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                 try {
                     Files.setPosixFilePermissions(targetFile, oldFilePermissions);
                 } catch (IOException exception) {
-                    LOGGER.warn("Error writing file permissions to file {}.", targetFile, exception);
+                    LOGGER.error("Error writing file permissions to file {}.", targetFile, exception);
                 }
             }
 
@@ -384,7 +384,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                     Files.deleteIfExists(backupFile);
                 } catch (IOException exception) {
                     // The commit itself succeeded — a leftover backup is not worth reporting the write as failed
-                    LOGGER.warn("Could not delete backup file {} after successful write", backupFile, exception);
+                    LOGGER.error("Could not delete backup file {} after successful write", backupFile, exception);
                 }
             }
         } finally {
@@ -414,7 +414,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             try {
                 attributes.put("posix:group", Files.getAttribute(file, "posix:group"));
             } catch (IOException | UnsupportedOperationException | SecurityException exception) {
-                LOGGER.debug("Could not read group of {}", file, exception);
+                LOGGER.error("Could not read group of {}", file, exception);
             }
         }
 
@@ -422,7 +422,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             try {
                 Files.readAttributes(file, "user:*").forEach((name, value) -> attributes.put("user:" + name, value));
             } catch (IOException | UnsupportedOperationException | SecurityException exception) {
-                LOGGER.debug("Could not read extended attributes of {}", file, exception);
+                LOGGER.error("Could not read extended attributes of {}", file, exception);
             }
         }
 
@@ -430,7 +430,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             try {
                 attributes.put("acl:acl", Files.getAttribute(file, "acl:acl"));
             } catch (IOException | UnsupportedOperationException | SecurityException exception) {
-                LOGGER.debug("Could not read ACL of {}", file, exception);
+                LOGGER.error("Could not read ACL of {}", file, exception);
             }
         }
 
@@ -448,7 +448,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                     }
                 }
             } catch (IOException | UnsupportedOperationException | SecurityException exception) {
-                LOGGER.debug("Could not read DOS attributes of {}", file, exception);
+                LOGGER.error("Could not read DOS attributes of {}", file, exception);
             }
         }
 
@@ -462,7 +462,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             try {
                 Files.setAttribute(file, name, value);
             } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException exception) {
-                LOGGER.debug("Could not set attribute {} on {}", name, file, exception);
+                LOGGER.error("Could not set attribute {} on {}", name, file, exception);
             }
         });
     }
@@ -481,14 +481,14 @@ public class AtomicFileOutputStream extends FilterOutputStream {
             moveBackupFileIntoPlace(temporaryBackupFile);
             return true;
         } catch (IOException exception) {
-            LOGGER.warn("Could not create backup file {} (backup created: false)", backupFile, exception);
+            LOGGER.error("Could not create backup file {} (backup created: false)", backupFile, exception);
             return false;
         } finally {
             if (temporaryBackupFile != null) {
                 try {
                     Files.deleteIfExists(temporaryBackupFile);
                 } catch (IOException exception) {
-                    LOGGER.debug("Unable to delete temporary backup file {}", temporaryBackupFile, exception);
+                    LOGGER.error("Unable to delete temporary backup file {}", temporaryBackupFile, exception);
                 }
             }
         }
@@ -504,7 +504,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
         try {
             Files.move(temporaryBackupFile, backupFile, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         } catch (AtomicMoveNotSupportedException exception) {
-            LOGGER.debug("Atomic move is not supported for backup file {}. Falling back to a non-atomic move.", backupFile, exception);
+            LOGGER.error("Atomic move is not supported for backup file {}. Falling back to a non-atomic move.", backupFile, exception);
             Files.move(temporaryBackupFile, backupFile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -517,10 +517,10 @@ public class AtomicFileOutputStream extends FilterOutputStream {
         try {
             return ((Number) Files.getAttribute(targetFile, "unix:nlink")).longValue() > 1;
         } catch (IllegalArgumentException | UnsupportedOperationException exception) {
-            LOGGER.debug("Could not determine hard-link count for {}", targetFile, exception);
+            LOGGER.error("Could not determine hard-link count for {}", targetFile, exception);
             return false;
         } catch (IOException exception) {
-            LOGGER.warn("Could not determine hard-link count for {}", targetFile, exception);
+            LOGGER.error("Could not determine hard-link count for {}", targetFile, exception);
             return false;
         }
     }
@@ -567,25 +567,25 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                 return;
             } catch (AtomicMoveNotSupportedException exception) {
                 if (backupCreated) {
-                    LOGGER.debug("Atomic move is not supported for {} (backup created: {}). Falling back to an in-place save.", targetFile, backupCreated, exception);
+                    LOGGER.error("Atomic move is not supported for {} (backup created: {}). Falling back to an in-place save.", targetFile, backupCreated, exception);
                     fallBackToInPlaceSave(exception);
                 } else {
-                    LOGGER.debug("Atomic move is not supported for {} (backup created: {}). Falling back to a non-atomic move.", targetFile, backupCreated, exception);
+                    LOGGER.error("Atomic move is not supported for {} (backup created: {}). Falling back to a non-atomic move.", targetFile, backupCreated, exception);
                     moveTemporaryFileWithoutAtomicity(exception);
                 }
                 return;
             } catch (FileSystemException exception) {
                 if (attempt == MOVE_ATTEMPTS) {
                     if (backupCreated) {
-                        LOGGER.debug("Could not move temporary file (backup created: {}). Falling back to an in-place save.", backupCreated, exception);
+                        LOGGER.error("Could not move temporary file (backup created: {}). Falling back to an in-place save.", backupCreated, exception);
                         fallBackToInPlaceSave(exception);
                     } else {
-                        LOGGER.debug("Could not move temporary file (backup created: {}). Falling back to a non-atomic move.", backupCreated, exception);
+                        LOGGER.error("Could not move temporary file (backup created: {}). Falling back to a non-atomic move.", backupCreated, exception);
                         moveTemporaryFileWithoutAtomicity(exception);
                     }
                     return;
                 }
-                LOGGER.debug("Attempt {} of {} to move {} onto {} failed", attempt, MOVE_ATTEMPTS, temporaryFile, targetFile, exception);
+                LOGGER.error("Attempt {} of {} to move {} onto {} failed", attempt, MOVE_ATTEMPTS, temporaryFile, targetFile, exception);
                 try {
                     Thread.sleep(MOVE_RETRY_INITIAL_DELAY_MILLIS << (attempt - 1));
                 } catch (InterruptedException interruptedException) {
@@ -593,7 +593,7 @@ public class AtomicFileOutputStream extends FilterOutputStream {
                     InterruptedIOException interruptedIOException = new InterruptedIOException("Interrupted while moving temporary file " + temporaryFile + " onto " + targetFile);
                     interruptedIOException.initCause(interruptedException);
                     interruptedIOException.addSuppressed(exception);
-                    LOGGER.warn("Interrupted while moving temporary file {} onto {}", temporaryFile, targetFile, interruptedIOException);
+                    LOGGER.error("Interrupted while moving temporary file {} onto {}", temporaryFile, targetFile, interruptedIOException);
                     throw interruptedIOException;
                 }
             }

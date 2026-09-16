@@ -302,7 +302,7 @@ public class BibDatabaseContext {
             // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as separator between "groups"
             String fileName = BackupFileUtil.getUniqueFilePrefix(databasePath) + "--" + databasePath.getFileName();
             indexPath = appData.resolve(fileName);
-            LOGGER.debug("Index path for {} is {}", getDatabasePath().get(), indexPath);
+            LOGGER.atDebug().addArgument(() -> getDatabasePath().get()).addArgument(indexPath).log("Index path for {} is {}");
             return indexPath;
         }
 

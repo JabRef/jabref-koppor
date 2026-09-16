@@ -39,12 +39,12 @@ public class FileAnnotationCache {
     /// @param entry entry for which to get the annotations
     /// @return Map containing a list of annotations in a list for each file
     public Map<Path, List<FileAnnotation>> getFromCache(BibEntry entry) {
-        LOGGER.debug("Loading BibEntry '{}' from cache.", entry.getCitationKey().orElse(entry.getId()));
+        LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse(entry.getId())).log("Loading BibEntry '{}' from cache.");
         return annotationCache.get(entry);
     }
 
     public void remove(BibEntry entry) {
-        LOGGER.debug("Deleted BibEntry '{}' from cache.", entry.getCitationKey().orElse(entry.getId()));
+        LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse(entry.getId())).log("Deleted BibEntry '{}' from cache.");
         annotationCache.invalidate(entry);
     }
 }

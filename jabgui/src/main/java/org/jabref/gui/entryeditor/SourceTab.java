@@ -196,7 +196,7 @@ public class SourceTab extends EntryEditorTab {
                 codeArea.setEditable(false);
                 codeArea.replaceText(TextPos.ZERO, codeArea.getDocumentEnd(), ex.getMessage() + "\n\n" +
                         Localization.lang("Correct the entry, and reopen editor to display/edit source."));
-                LOGGER.debug("Incorrect entry", ex);
+                LOGGER.error("Incorrect entry", ex);
             }
         });
     }
@@ -250,7 +250,7 @@ public class SourceTab extends EntryEditorTab {
             parserResult = bibtexParser.parse(Reader.of(text));
         } catch (IOException ex) {
             validationMessage.setValue(ValidationMessage.error(Localization.lang("Failed to parse Bib(La)TeX: %0", ex.getMessage())));
-            LOGGER.debug("Incorrect source", ex);
+            LOGGER.error("Incorrect source", ex);
             return;
         }
         BibDatabase database = parserResult.getDatabase();
