@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.util.DefaultIndenter;
 import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.Separators;
@@ -27,9 +28,21 @@ import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
 
 /// Formats and splits JSON text into styled segments, so that AI answers containing JSON can be
-/// rendered readably and with syntax highlighting. Parsing and formatting are delegated to Jackson,
-/// splitting into tokens to the Veneer JSON grammar; Veneer also highlights the BibTeX source editor
-/// (see [org.jabref.gui.bibtexhighlighter.BibTeXHighlighter]).
+/// rendered readably and with syntax highlighting.
+///
+/// Highlighting reuses [Veneer](https://apidia.net/mvn/io.github.kusoroadeolu/veneer), which already
+/// highlights the BibTeX source editor (see [org.jabref.gui.bibtexhighlighter.BibTeXHighlighter]).
+/// Its `JSONSyntaxHighlighter` cannot be used directly, though:
+///
+/// * It is made for terminals: `highlight(String)` returns the text with ANSI escape codes and line
+///   numbers. For BibTeX, Veneer offers `computeHighlightRegions(String)`, which JavaFX can style; there
+///   is no such method for JSON.
+/// * It neither validates nor formats. An answer has to be recognized as JSON first — often followed by
+///   an explanation — and indented, because models tend to send everything on one line.
+///
+/// Therefore, Jackson parses and indents the JSON, and only Veneer's JSON grammar (`JSONLexer` and
+/// `JSONParser`) is used to split the result into tokens. The parse tree tells keys from string values
+/// and `true`, `false`, `null` from punctuation, which the tokens alone do not.
 ///
 /// The colors for the style classes are defined in `jabref-base.css`.
 @NullMarked
@@ -48,7 +61,10 @@ public class JsonHighlighter {
     /// Duplicate names make the parse fail, because the tree would silently drop the first value.
     /// Decimals are kept as [java.math.BigDecimal], so that no digits are lost on the way out; they are
     /// written the way `BigDecimal` prints them, so `1e100000000` stays short instead of growing digits.
+    /// Models sometimes put a line break into a string without escaping it; that is accepted, and the
+    /// formatted JSON escapes it again.
     private static final JsonMapper MAPPER = JsonMapper.builder()
+                                                       .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                                                        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                                                        .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
                                                        .build();

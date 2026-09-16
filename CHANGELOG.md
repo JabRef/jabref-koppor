@@ -64,6 +64,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added syntax highlighting for JSON answers in the AI chat. [#17181](https://github.com/JabRef/jabref/pull/17181)
 - We added indentation and syntax highlighting for JSON answers in the AI chat. [#17181](https://github.com/JabRef/jabref/pull/17181)
 - We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
+- We added a find bar to the AI chat, opened with <kbd>Ctrl</kbd> + <kbd>F</kbd>. [#17183](https://github.com/JabRef/jabref/pull/17183)
 - The citation key generator also normalizes super and subscript characters. [#15743](https://github.com/JabRef/jabref/pull/15743)
 - We added automatic source groups to SLR results and fixed group merging to preserve all source groups. [#12542](https://github.com/JabRef/jabref/issues/12542)
 - We enabled usage of relative or absolute file paths depending on your file directory settings. [#3590](https://github.com/JabRef/jabref/issues/3590)
