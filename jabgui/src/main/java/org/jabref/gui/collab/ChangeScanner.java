@@ -3,6 +3,8 @@ package org.jabref.gui.collab;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -10,12 +12,15 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.OpenDatabase;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.sync.LibraryBaseline;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NullMarked
 public class ChangeScanner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeScanner.class);
@@ -34,16 +39,41 @@ public class ChangeScanner {
     }
 
     public List<DatabaseChange> scanForChanges() {
-        if (database.getDatabasePath().isEmpty()) {
-            return List.of();
-        }
-
         try {
-            return getDatabaseChanges(database.getDatabasePath().get());
+            return scanForChanges(() -> true).orElse(List.of());
         } catch (IOException e) {
             LOGGER.warn("Error while parsing changed file.", e);
             return List.of();
         }
+    }
+
+    /// @param readyToParse consulted right before the file is parsed, e.g. to wait until a sync client has finished writing it; `false` abandons the scan
+    /// @return the changes, or empty when the scan was abandoned
+    /// @throws IOException when the file could not be read; unlike no changes, a failed read must be retried
+    public Optional<List<DatabaseChange>> scanForChanges(BooleanSupplier readyToParse) throws IOException {
+        if (database.getDatabasePath().isEmpty()) {
+            return Optional.of(List.of());
+        }
+        if (!readyToParse.getAsBoolean()) {
+            return Optional.empty();
+        }
+        return Optional.of(getDatabaseChanges(database.getDatabasePath().get()));
+    }
+
+    /// The differences between the in-memory library and the given file, e.g. a conflicted copy left by a sync client.
+    ///
+    /// @throws IOException when the file cannot be read or parsed; unlike for the library file itself, an unreadable copy must not pass as "nothing to merge"
+    public List<DatabaseChange> scanFile(Path file) throws IOException {
+        ParserResult result = OpenDatabase.loadDatabase(file, preferences.getImportFormatPreferences(), new DummyFileUpdateMonitor());
+        if (result.isInvalid()) {
+            throw new IOException("Could not parse " + file + ": " + result.getErrorMessage());
+        }
+        return DatabaseChangeList.compareAndGetChanges(database, result.getDatabaseContext(), databaseChangeResolverFactory);
+    }
+
+    /// @return the given external changes sorted by the side they happened on, see [ChangeTriage#triage]
+    public ChangeTriage.Triage triage(LibraryBaseline baseline, List<DatabaseChange> changes) {
+        return ChangeTriage.triage(baseline, changes, database, databaseChangeResolverFactory);
     }
 
     public List<DatabaseChange> getDatabaseChanges(Path fileToCompare) throws IOException {
