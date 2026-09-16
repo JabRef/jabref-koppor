@@ -93,9 +93,16 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             return;
         }
 
-        // AI models sometimes answer with plain JSON. It is shown as a highlighted code block.
-        JsonHighlighter.prettyPrint(markdownText).ifPresentOrElse(
-                json -> addJsonNodes(json, null),
+        // AI models sometimes answer with plain JSON, often followed by an explanation.
+        // The JSON is shown as a highlighted code block, the explanation as Markdown.
+        JsonHighlighter.leadingJson(markdownText).ifPresentOrElse(
+                leadingJson -> {
+                    addJsonNodes(leadingJson.json(), null);
+                    if (!leadingJson.rest().isEmpty()) {
+                        addTextNode("\n\n", null);
+                        new MarkdownRenderer().render(parser.parse(leadingJson.rest()));
+                    }
+                },
                 () -> new MarkdownRenderer().render(parser.parse(markdownText)));
     }
 
@@ -151,9 +158,11 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     /// Adds the nodes for a code block, with syntax highlighting if the code is JSON.
     // [impl->feat~ai.chat.json-highlighting~1]
     private void addCodeBlockNodes(String content, @Nullable Node codeBlock) {
-        JsonHighlighter.prettyPrint(content).ifPresentOrElse(
-                json -> addJsonNodes(json, codeBlock),
-                () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
+        JsonHighlighter.leadingJson(content)
+                       .filter(leadingJson -> leadingJson.rest().isEmpty())
+                       .ifPresentOrElse(
+                               leadingJson -> addJsonNodes(leadingJson.json(), codeBlock),
+                               () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
     }
 
     /// Adds one text node per JSON token; they are merged back into one segment when copying
@@ -272,6 +281,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
     private List<CopySegment> buildCopySegments() {
         List<CopySegment> segments = new ArrayList<>();
+        // The nodes of one Markdown node are collected in a builder: a code block has one node per token.
+        StringBuilder pending = new StringBuilder();
+        @Nullable Node pendingNode = null;
+        boolean pendingIsNewlineMarker = false;
 
         for (javafx.scene.Node fxNode : getChildren()) {
             String renderedText;
@@ -288,12 +301,22 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             }
 
             // The newline nodes between blocks carry the block's node as well, but are copied as newlines.
-            CopySegment previous = segments.isEmpty() ? null : segments.getLast();
-            if ((previous != null) && (astNode != null) && (previous.astNode() == astNode) && !isNewlineMarker(previous.text())) {
-                segments.set(segments.size() - 1, new CopySegment(previous.text() + renderedText, astNode));
-            } else {
-                segments.add(new CopySegment(renderedText, astNode));
+            if ((astNode != null) && (astNode == pendingNode) && !pendingIsNewlineMarker) {
+                pending.append(renderedText);
+                continue;
             }
+
+            if (!pending.isEmpty()) {
+                segments.add(new CopySegment(pending.toString(), pendingNode));
+            }
+            pending.setLength(0);
+            pending.append(renderedText);
+            pendingNode = astNode;
+            pendingIsNewlineMarker = isNewlineMarker(renderedText);
+        }
+
+        if (!pending.isEmpty()) {
+            segments.add(new CopySegment(pending.toString(), pendingNode));
         }
 
         return segments;
