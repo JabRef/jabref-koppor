@@ -1,16 +1,18 @@
 package org.jabref.gui.util.component;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [utest->feat~ai.chat.json-highlighting~1]
+@NullMarked
 class JsonHighlighterTest {
 
     @ParameterizedTest
@@ -21,7 +23,7 @@ class JsonHighlighterTest {
             "{\"a\": {\"b\": \"c\"}}"
     })
     void recognizesJson(String text) {
-        assertTrue(JsonHighlighter.isJson(text));
+        assertTrue(JsonHighlighter.prettyPrint(text).isPresent());
     }
 
     @ParameterizedTest
@@ -34,7 +36,22 @@ class JsonHighlighterTest {
             ""
     })
     void rejectsNonJson(String text) {
-        assertFalse(JsonHighlighter.isJson(text));
+        assertEquals(Optional.empty(), JsonHighlighter.prettyPrint(text));
+    }
+
+    @Test
+    void prettyPrintIndentsObjectsAndArrays() {
+        assertEquals("""
+                        {
+                          "a": [
+                            1,
+                            2
+                          ],
+                          "b": {
+                            "c": true
+                          }
+                        }""",
+                JsonHighlighter.prettyPrint("{\"a\":[1,2],\"b\":{\"c\":true}}").orElseThrow());
     }
 
     @Test

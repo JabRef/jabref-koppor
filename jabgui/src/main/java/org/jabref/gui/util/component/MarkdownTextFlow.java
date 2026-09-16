@@ -56,6 +56,7 @@ import com.vladsch.flexmark.util.ast.TextCollectingVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 public class MarkdownTextFlow extends SelectableTextFlow {
@@ -93,13 +94,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         }
 
         // AI models sometimes answer with plain JSON. It is shown as a highlighted code block.
-        if (JsonHighlighter.isJson(markdownText)) {
-            addCodeBlockNodes(markdownText.strip(), null);
-            return;
-        }
-
-        MarkdownRenderer renderer = new MarkdownRenderer();
-        renderer.render(parser.parse(markdownText));
+        JsonHighlighter.prettyPrint(markdownText).ifPresentOrElse(
+                json -> addJsonNodes(json, null),
+                () -> new MarkdownRenderer().render(parser.parse(markdownText)));
     }
 
     /// Displays the given text as-is, without interpreting any Markdown syntax.
@@ -154,13 +151,15 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     /// Adds the nodes for a code block, with syntax highlighting if the code is JSON.
     // [impl->feat~ai.chat.json-highlighting~1]
     private void addCodeBlockNodes(String content, @Nullable Node codeBlock) {
-        if (!JsonHighlighter.isJson(content)) {
-            addTextNode(content, codeBlock, "markdown-code-block", "font-monospace");
-            return;
-        }
+        JsonHighlighter.prettyPrint(content).ifPresentOrElse(
+                json -> addJsonNodes(json, codeBlock),
+                () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
+    }
 
-        // One text node per token; they are merged back into one segment when copying (see buildCopySegments).
-        for (JsonHighlighter.Segment segment : JsonHighlighter.tokenize(content)) {
+    /// Adds one text node per JSON token; they are merged back into one segment when copying
+    /// (see buildCopySegments).
+    private void addJsonNodes(String json, @Nullable Node codeBlock) {
+        for (JsonHighlighter.Segment segment : JsonHighlighter.tokenize(json)) {
             addTextNode(segment.text(), codeBlock, "markdown-code-block", "font-monospace", segment.styleClass());
         }
     }
@@ -254,6 +253,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     /// The text of one or more adjacent nodes that belong to the same Markdown node, as needed to
     /// reconstruct the Markdown markup while copying. A syntax-highlighted code block is rendered as
     /// one node per token, but copied as a single block.
+    @NullMarked
     private record CopySegment(String text, @Nullable Node astNode) {
     }
 
