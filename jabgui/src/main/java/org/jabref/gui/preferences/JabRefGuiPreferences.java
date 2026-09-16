@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -44,7 +45,9 @@ import org.jabref.gui.newentry.NewEntryPreferences;
 import org.jabref.gui.preview.PreviewPreferences;
 import org.jabref.gui.sidepane.SidePaneType;
 import org.jabref.gui.specialfields.SpecialFieldsPreferences;
-import org.jabref.gui.theme.Theme;
+import org.jabref.gui.theme.StyleSheet;
+import org.jabref.gui.theme.ThemeColorScheme;
+import org.jabref.gui.theme.ThemePreset;
 import org.jabref.gui.welcome.DonationPreferences;
 import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.exporter.BibDatabaseWriter;
@@ -77,7 +80,7 @@ import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPreferences {
@@ -98,6 +101,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     // region keybindings - public because needed for pref migration
     public static final String BIND_NAMES = "bindNames";
     public static final String BINDINGS = "bindings";
+    public static final String MACOS_KEY_BINDING_DEFAULTS_MIGRATED = "macOSKeyBindingDefaultsMigrated";
     // endregion
 
     // region column names
@@ -117,16 +121,12 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /// JSON shape of [#ENTRY_EDITOR_CUSTOM_TABS]; Jackson reads JSON objects into insertion-ordered maps,
-    /// so the tabs' display order survives the round-trip.
-    private static final TypeReference<LinkedHashMap<String, List<String>>> CUSTOM_TABS_TYPE = new TypeReference<>() {
-    };
-
     // region WorkspacePreferences
     private static final String OVERRIDE_DEFAULT_FONT_SIZE = "overrideDefaultFontSize";
     private static final String MAIN_FONT_SIZE = "mainFontSize";
-    private static final String THEME = "fxTheme";
-    private static final String THEME_SYNC_OS = "themeSyncOs";
+    private static final String THEME = "theme";
+    private static final String THEME_COLOR_SCHEME = "themeColorScheme";
+    private static final String THEME_CUSTOM = "themeCustom";
     private static final String OPEN_LAST_EDITED = "openLastEdited";
     private static final String SHOW_ADVANCED_HINTS = "showAdvancedHints";
     private static final String CONFIRM_DELETE = "confirmDelete";
@@ -452,14 +452,43 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         String storedCustomTabs = get(ENTRY_EDITOR_CUSTOM_TABS, "");
         if (StringUtil.isNotBlank(storedCustomTabs)) {
             try {
-                OBJECT_MAPPER.readValue(storedCustomTabs, CUSTOM_TABS_TYPE).forEach((name, fieldPatterns) ->
-                        tabModels.add(new EntryEditorTabModel.CustomizedFieldsTab(name, fieldPatterns)));
+                tabModels.addAll(parseCustomTabs(storedCustomTabs));
             } catch (JacksonException e) {
                 LOGGER.warn("Could not read the custom entry editor tabs, dropping them", e);
             }
         }
 
         return applyStoredTabOrder(tabModels, getStringList(ENTRY_EDITOR_TAB_ORDER));
+    }
+
+    /// Parses [#ENTRY_EDITOR_CUSTOM_TABS]: a JSON object mapping tab name to a pattern list (JSON
+    /// objects keep insertion order, so the tabs' display order survives the round-trip). A list item
+    /// is either a plain pattern string or `{"pattern": ..., "extract": true}` for a pattern whose
+    /// fields are extracted from the Main tab; plain strings keep stores written before the extract
+    /// flag existed readable.
+    @VisibleForTesting
+    static List<EntryEditorTabModel.CustomizedFieldsTab> parseCustomTabs(String storedCustomTabs) {
+        List<EntryEditorTabModel.CustomizedFieldsTab> tabs = new ArrayList<>();
+        JsonNode root = OBJECT_MAPPER.readTree(storedCustomTabs);
+        for (Map.Entry<String, JsonNode> tabEntry : root.properties()) {
+            List<String> fieldPatterns = new ArrayList<>();
+            Set<String> extractedPatterns = new HashSet<>();
+            for (JsonNode item : tabEntry.getValue().values()) {
+                if (item.isObject()) {
+                    String pattern = item.path("pattern").asString("");
+                    if (!pattern.isEmpty()) {
+                        fieldPatterns.add(pattern);
+                        if (item.path("extract").asBoolean(false)) {
+                            extractedPatterns.add(pattern);
+                        }
+                    }
+                } else {
+                    fieldPatterns.add(item.asString());
+                }
+            }
+            tabs.add(new EntryEditorTabModel.CustomizedFieldsTab(tabEntry.getKey(), fieldPatterns, extractedPatterns));
+        }
+        return tabs;
     }
 
     /// Reorders `tabModels` to match `storedOrder` (see [#ENTRY_EDITOR_TAB_ORDER]). The Preview tab stays
@@ -504,11 +533,8 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                     boolean _
             ) ->
                     type.name();
-            case EntryEditorTabModel.CustomizedFieldsTab(
-                    String name,
-                    List<String> _
-            ) ->
-                    "custom:" + name;
+            case EntryEditorTabModel.CustomizedFieldsTab customTab ->
+                    "custom:" + customTab.name();
         };
     }
 
@@ -518,9 +544,15 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                                                                           .map(EntryEditorTabModel.CustomizedFieldsTab.class::cast)
                                                                           .toList();
         // Keyed by name, so a duplicate tab name cannot exist in the stored format (the preferences UI
-        // prevents creating duplicates; legacy duplicates merge here, last one wins).
-        SequencedMap<String, List<String>> customTabsByName = new LinkedHashMap<>();
-        customTabs.forEach(tab -> customTabsByName.put(tab.name(), tab.fieldPatterns()));
+        // prevents creating duplicates; legacy duplicates merge here, last one wins). Non-extracted
+        // patterns stay plain strings (see parseCustomTabs), so the store only grows where the new
+        // flag is actually used.
+        SequencedMap<String, List<Object>> customTabsByName = new LinkedHashMap<>();
+        customTabs.forEach(tab -> customTabsByName.put(tab.name(), tab.fieldPatterns().stream()
+                                                                      .<Object>map(pattern -> tab.extractedFieldPatterns().contains(pattern)
+                                                                                              ? Map.of("pattern", pattern, "extract", true)
+                                                                                              : pattern)
+                                                                      .toList()));
         put(ENTRY_EDITOR_CUSTOM_TABS, OBJECT_MAPPER.writeValueAsString(customTabsByName));
 
         putStringList(ENTRY_EDITOR_TAB_ORDER, configs.stream()
@@ -670,8 +702,9 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                 getLanguage(),
                 getBoolean(OVERRIDE_DEFAULT_FONT_SIZE, defaultValues.shouldOverrideDefaultFontSize()),
                 getInt(MAIN_FONT_SIZE, defaultValues.getMainFontSize()),
-                new Theme(get(THEME, Theme.SYSTEM)),
-                getBoolean(THEME_SYNC_OS, defaultValues.shouldThemeSyncOs()),
+                ThemePreset.of(get(THEME, defaultValues.getTheme().getPreferenceName())),
+                ThemeColorScheme.of(get(THEME_COLOR_SCHEME, defaultValues.getColorScheme().getPreferenceName())),
+                asStyleSheet(get(THEME_CUSTOM, "")),
                 getBoolean(OPEN_LAST_EDITED, defaultValues.shouldOpenLastEdited()),
                 getBoolean(SHOW_ADVANCED_HINTS, defaultValues.shouldShowAdvancedHints()),
                 getBoolean(CONFIRM_DELETE, defaultValues.shouldConfirmDelete()),
@@ -690,8 +723,13 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         bindBoolean(workspacePreferences.shouldOverrideDefaultFontSizeProperty(), OVERRIDE_DEFAULT_FONT_SIZE, defaultValues.shouldOverrideDefaultFontSize());
         bindInt(workspacePreferences.mainFontSizeProperty(), MAIN_FONT_SIZE, defaultValues.getMainFontSize());
         bindObject(workspacePreferences.themeProperty(), THEME, defaultValues.getTheme(),
-                Theme::getName, Theme::new);
-        bindBoolean(workspacePreferences.themeSyncOsProperty(), THEME_SYNC_OS, defaultValues.shouldThemeSyncOs());
+                ThemePreset::getPreferenceName, ThemePreset::of);
+        bindObject(workspacePreferences.colorSchemeProperty(), THEME_COLOR_SCHEME, defaultValues.getColorScheme(),
+                ThemeColorScheme::getPreferenceName, ThemeColorScheme::of);
+        bindCustom(workspacePreferences.customThemeProperty(), THEME_CUSTOM, defaultValues.getCustomTheme(),
+                (_, _, newValue) -> put(THEME_CUSTOM, newValue.map(StyleSheet::getName).orElse("")),
+                () -> workspacePreferences.setCustomTheme(Optional.ofNullable(asStyleSheet(get(THEME_CUSTOM, "")))),
+                () -> workspacePreferences.setCustomTheme(defaultValues.getCustomTheme()));
         bindBoolean(workspacePreferences.openLastEditedProperty(), OPEN_LAST_EDITED, defaultValues.shouldOpenLastEdited());
         bindBoolean(workspacePreferences.showAdvancedHintsProperty(), SHOW_ADVANCED_HINTS, defaultValues.shouldShowAdvancedHints());
         bindBoolean(workspacePreferences.confirmDeleteProperty(), CONFIRM_DELETE, defaultValues.shouldConfirmDelete());
@@ -701,6 +739,13 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                 () -> getStringList(SELECTED_SLR_CATALOGS));
 
         return workspacePreferences;
+    }
+
+    private StyleSheet asStyleSheet(String path) {
+        if (StringUtil.isBlank(path)) {
+            return null;
+        }
+        return StyleSheet.create(path).orElse(null);
     }
     // endregion
 
@@ -1184,7 +1229,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                     // ASCENDING on unknown/corrupted values so recovery operations (reset/import) do not fail.
                     try {
                         return TableColumn.SortType.valueOf(sortType);
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException _) {
                         return TableColumn.SortType.ASCENDING;
                     }
                 }).toList();

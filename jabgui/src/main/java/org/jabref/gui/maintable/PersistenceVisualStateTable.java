@@ -27,8 +27,8 @@ public class PersistenceVisualStateTable {
     }
 
     public void addListeners() {
-        table.getColumns().addListener((InvalidationListener) obs -> updateColumns());
-        table.getSortOrder().addListener((ListChangeListener<? super TableColumn<BibEntryTableViewModel, ?>>) obs -> updateSortOrder());
+        table.getColumns().addListener((InvalidationListener) _ -> updateColumns());
+        table.getSortOrder().addListener((ListChangeListener<? super TableColumn<BibEntryTableViewModel, ?>>) _ -> updateSortOrder());
 
         // As we store the ColumnModels of the MainTable, we need to add the listener to the ColumnModel properties,
         // since the value is bound to the model after the listener to the column itself is called.
@@ -36,22 +36,22 @@ public class PersistenceVisualStateTable {
         table.getColumns().stream()
              .map(col -> ((MainTableColumn<?>) col).getModel())
              .forEach(model -> {
-                 model.widthProperty().addListener(obs -> updateColumns());
-                 model.sortTypeProperty().addListener(obs -> updateColumns());
+                 model.widthProperty().addListener(_ -> updateColumns());
+                 model.sortTypeProperty().addListener(_ -> updateColumns());
              });
     }
 
-    /// Stores shown columns, their width and their {@link TableColumn.SortType} in preferences.
+    /// Stores shown columns, their width and their [TableColumn.SortType] in preferences.
     /// The conversion to the "real" string in the preferences is made at
-    /// {@link org.jabref.logic.preferences.JabRefCliPreferences#getColumnSortTypesAsStringList(ColumnPreferences)}
+    /// [org.jabref.logic.preferences.JabRefCliPreferences#getColumnSortTypesAsStringList(ColumnPreferences)]
     private void updateColumns() {
         List<MainTableColumnModel> list = toList(table.getColumns());
         LOGGER.debug("Updating columns to {}", list);
         preferences.setColumns(list);
     }
 
-    /// Stores the SortOrder of the Table in the preferences. This includes {@link TableColumn.SortType}.
-    /// <br>
+    /// Stores the SortOrder of the Table in the preferences. This includes [TableColumn.SortType].
+    ///
     /// Cannot be combined with updateColumns, because JavaFX would provide just an empty list for the sort order
     /// on other changes.
     private void updateSortOrder() {
