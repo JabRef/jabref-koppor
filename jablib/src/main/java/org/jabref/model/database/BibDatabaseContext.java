@@ -20,6 +20,7 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.crawler.Crawler;
 import org.jabref.logic.crawler.StudyRepository;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.BibtexParser;
@@ -67,6 +68,17 @@ public class BibDatabaseContext {
 
     @Nullable
     private CoarseChangeFilter dbmsListener;
+
+    /// The root of a [DatabaseLocation#DIRECTORY] library; unrelated to [#path], which stays
+    /// empty for directory libraries.
+    @Nullable
+    private Path directoryLibraryRoot;
+
+    @Nullable
+    private DirectoryLibrarySynchronizer directorySynchronizer;
+
+    @Nullable
+    private CoarseChangeFilter directoryListener;
 
     private DatabaseLocation location;
 
@@ -122,9 +134,10 @@ public class BibDatabaseContext {
 
     /// The id used to address this library from the outside: the REST API (`/libraries/{id}/...`),
     /// cite-as-you-write (`libraryid=`), JabMap and in-app links (`jabref://libraries/{id}/entries/{key}`).
+    /// A directory library is identified by its root directory.
     /// Empty for libraries that have not been saved to disk yet.
     public Optional<String> getLibraryId() {
-        return getDatabasePath().map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path));
+        return getPathOnDisk().map(path -> path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path));
     }
 
     public BibDatabase getDatabase() {
@@ -206,7 +219,10 @@ public class BibDatabaseContext {
         Path bibOrMainFileDirectory;
 
         // BIB file directory or Main file directory (according to (global) preferences)
-        if (preferences.shouldStoreFilesRelativeToBibFile()) {
+        if (location == DatabaseLocation.DIRECTORY) {
+            // Sidecar links are relative to the root, whatever the global preference says
+            bibOrMainFileDirectory = getDirectoryLibraryRoot().map(Path::toAbsolutePath).orElse(null);
+        } else if (preferences.shouldStoreFilesRelativeToBibFile()) {
             bibOrMainFileDirectory = getDatabaseDirectory().orElse(null);
         } else {
             bibOrMainFileDirectory = preferences.getMainFileDirectory().orElse(null);
@@ -277,6 +293,33 @@ public class BibDatabaseContext {
         this.location = DatabaseLocation.SHARED;
     }
 
+    public void convertToDirectoryLibrary(Path root) {
+        this.directoryLibraryRoot = root;
+        this.location = DatabaseLocation.DIRECTORY;
+    }
+
+    public Optional<Path> getDirectoryLibraryRoot() {
+        return Optional.ofNullable(directoryLibraryRoot);
+    }
+
+    /// The place this library lives at on disk: the `.bib` file, or the root of a directory
+    /// library. Empty for unsaved and shared libraries.
+    public Optional<Path> getPathOnDisk() {
+        return getDatabasePath().or(this::getDirectoryLibraryRoot);
+    }
+
+    public void attachDirectorySynchronizer(DirectoryLibrarySynchronizer directorySynchronizer) {
+        this.directorySynchronizer = directorySynchronizer;
+        // Relays entry events keystroke-filtered to the synchronizer's write-back direction,
+        // mirroring convertToSharedDatabase
+        this.directoryListener = new CoarseChangeFilter(this);
+        directoryListener.registerListener(directorySynchronizer);
+    }
+
+    public @Nullable DirectoryLibrarySynchronizer getDirectorySynchronizer() {
+        return directorySynchronizer;
+    }
+
     public void convertToLocalDatabase() {
         if (dbmsListener != null && (location == DatabaseLocation.SHARED)) {
             if (dbmsSynchronizer != null) {
@@ -284,7 +327,20 @@ public class BibDatabaseContext {
             }
             dbmsListener.shutdown();
         }
+        if (directoryListener != null) {
+            if (directorySynchronizer != null) {
+                directoryListener.unregisterListener(directorySynchronizer);
+            }
+            directoryListener.shutdown();
+            this.directoryListener = null;
+        }
+        if (directorySynchronizer != null) {
+            // Flushes pending sidecar writes and stops the directory watcher
+            directorySynchronizer.shutdown();
+            this.directorySynchronizer = null;
+        }
 
+        this.directoryLibraryRoot = null;
         this.location = DatabaseLocation.LOCAL;
     }
 

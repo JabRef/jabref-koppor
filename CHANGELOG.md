@@ -11,6 +11,11 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- In directory libraries, a sidecar and its PDF are now renamed together to the configured filename pattern (Preferences > Linked files) whenever the entry is edited — e.g. changing the citation key renames both files. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
+- The groups panel of a directory library now mirrors the folder structure: each subdirectory appears as a group containing the entries whose files live there (updated live as files change). [#740](https://github.com/JabRef/jabref-koppor/pull/740)
+- Directory libraries now save into their sidecar files: edits are written back automatically (debounced until typing pauses; Ctrl+S forces the write and no longer creates a `.bib`), the first edit of a PDF-only entry creates a Markdown sidecar (`X.md` with the Hayagriva data as frontmatter and the comment fields as notes body), renaming a citation key renames the YAML key, and deleting an entry removes it from its file (the file is trashed once empty, the PDF stays). Hand-written content that JabRef does not understand survives rewrites. [#739](https://github.com/JabRef/jabref-koppor/pull/739)
+- Directory libraries now stay in sync with external file changes: creating, editing, deleting, or renaming `.yml`/`.md`/`.pdf` files in the opened folder updates the open library live, and renames keep the affected entries (selection and undo history survive). [#738](https://github.com/JabRef/jabref-koppor/pull/738)
+- We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We made almost everything in JabRef navigatable by keyboard, including adding visiual indicators. [#17059](https://github.com/JabRef/jabref/pull/17059)
 - We added a fetcher for Software Heritage identifiers (SWHID). [#16809](https://github.com/JabRef/jabref/issues/16809)
 - We added the community themes from [themes.jabref.org](https://themes.jabref.org/) (Everforest, Nord, Papers, Chocolate Honey, and Dino Girl's collection) as selectable themes. [#15915](https://github.com/JabRef/jabref/issues/15915)
@@ -88,6 +93,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
+- We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We improve startup performance by load citation style sources only when used. [#15962](https://github.com/JabRef/jabref/issues/15962)
 - We changed the default prompts for "AI-Chat" & "Chat with Groups" to better handle etiquette, metadata, citationkeys and context separation. [#16981](https://github.com/JabRef/jabref/pull/16981)
 - We changed the default local embedding model to `intfloat/multilingual-e5-small` for better passage retrieval. [#17120](https://github.com/JabRef/jabref/pull/17120)
@@ -300,6 +307,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Removed
 
+- We removed the `HayagrivaType` layout formatter, since the Hayagriva YAML export no longer uses a layout template. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We removed the redundant "Look up BibTeX entries in all open libraries" setting from the LibreOffice panel, which is now the toggle of "Look up BibTeX entries in the currently selected library only". [#16484](https://github.com/JabRef/jabref/pull/16484)
 - We removed the entry editor tabs "Required fields", "Optional fields", "Optional fields 2", "Deprecated fields", "Other fields", and "Comments"; their content is part of the new "Main" tab. [#12711](https://github.com/JabRef/jabref/issues/12711)
 - We removed the default custom entry editor tabs "General" and "Abstract"; their content is part of the new "Main" tab. User-defined custom tabs are kept. [#12711](https://github.com/JabRef/jabref/issues/12711)

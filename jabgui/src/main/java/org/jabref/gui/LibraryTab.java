@@ -63,6 +63,7 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citationstyle.CitationStyleCache;
 import org.jabref.logic.command.CommandSelectionTab;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.git.diff.GitDiffChecker;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.importer.FetcherClientException;
@@ -596,6 +597,12 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 } else {
                     tabTitle.append(Localization.lang("untitled"));
                 }
+            } else if (databaseLocation == DatabaseLocation.DIRECTORY) {
+                // No modification marker: changes are written back to the sidecars continuously
+                bibDatabaseContext.getDirectoryLibraryRoot().ifPresent(root -> {
+                    tabTitle.append(root.getFileName().toString());
+                    toolTipText.append(root.toAbsolutePath());
+                });
             } else {
                 addSharedDbInformation(tabTitle, bibDatabaseContext);
                 addSharedDbInformation(toolTipText, bibDatabaseContext);
@@ -639,6 +646,13 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     /// library that does not need saving, never a library closing without asking.
     @Subscribe
     public void listen(BibDatabaseContextChangedEvent event) {
+        // Background enrichment of a directory library is system-initiated (SHARED-sourced),
+        // not something the user would be asked to save
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY
+                && event instanceof EntriesEvent entriesEvent
+                && entriesEvent.getEntriesEventSource() == EntriesEventSource.SHARED) {
+            return;
+        }
         boolean unrecorded = ((event instanceof MetaDataChangedEvent metaDataChangedEvent)
                 && (metaDataChangedEvent.getSource() == MetaDataChangeSource.LOCAL))
                 || ((event instanceof EntriesEvent entriesEvent)
@@ -798,6 +812,16 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
                 return confirmClose();
             }
         }
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // Edits are persisted into the sidecar files; only a failed write needs the user
+            List<Path> unwritable = Optional.ofNullable(bibDatabaseContext.getDirectorySynchronizer())
+                                            .map(DirectoryLibrarySynchronizer::flush)
+                                            .orElse(List.of());
+            return unwritable.isEmpty() || dialogService.showConfirmationDialogAndWait(
+                    Localization.lang("Close library"),
+                    Localization.lang("Could not write the changes to the following files: %0", SaveDatabaseAction.joinPaths(unwritable)),
+                    Localization.lang("Close anyway"));
+        }
         return true;
     }
 
@@ -814,7 +838,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         }
 
         String filename = getBibDatabaseContext()
-                .getDatabasePath()
+                .getPathOnDisk()
                 .map(Path::toAbsolutePath)
                 .map(Path::toString)
                 .orElse(Localization.lang("untitled"));
@@ -917,6 +941,10 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
     private void onClosed(Event event) {
         if (dataLoadingTask != null) {
             dataLoadingTask.cancel();
+        }
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // Stops the directory watcher and shuts the synchronizer down
+            bibDatabaseContext.convertToLocalDatabase();
         }
         if (bibDatabaseContext.getLocation() == DatabaseLocation.SHARED) {
             closeSharedDatabase(bibDatabaseContext);

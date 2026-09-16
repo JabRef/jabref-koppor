@@ -32,6 +32,7 @@ import org.jabref.gui.maintable.columns.MainTableColumn;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.logic.directorylibrary.DirectoryLibrarySynchronizer;
 import org.jabref.logic.exporter.AtomicFileWriter;
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.BibWriter;
@@ -142,11 +143,16 @@ public class SaveDatabaseAction {
     }
 
     private SelfContainedSaveOrder getSaveOrder() {
+        return getSaveOrder(libraryTab);
+    }
+
+    /// The library's save order with a table order "flattened out": `BibWriter` has no access
+    /// to the main table's sort columns.
+    public static SelfContainedSaveOrder getSaveOrder(LibraryTab libraryTab) {
         return libraryTab.getBibDatabaseContext()
                          .getMetaData().getSaveOrder()
                          .map(so -> {
                              if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                                 // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
                                  List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
                                  return new SelfContainedSaveOrder(
                                          SaveOrder.OrderType.SPECIFIED,
@@ -209,6 +215,11 @@ public class SaveDatabaseAction {
         if (saveResult == SaveResult.SUCCESS) {
             // we managed to successfully save the file
             // thus, we can store the path into the context
+            if (context.getLocation() == DatabaseLocation.DIRECTORY) {
+                // "Save as" snapshots a directory library into a regular .bib library; only now,
+                // so a failed save leaves the directory library intact
+                context.convertToLocalDatabase();
+            }
             context.setDatabasePath(file);
             stateManager.setActiveDatabase(context);
             libraryTab.updateTabTitle(false);
@@ -256,7 +267,26 @@ public class SaveDatabaseAction {
         return selectedPath;
     }
 
+    public static String joinPaths(List<Path> files) {
+        return files.stream().map(Path::toString).collect(Collectors.joining("\n"));
+    }
+
     private SaveResult save(BibDatabaseContext bibDatabaseContext, SaveDatabaseMode mode, boolean mayAutoCommit) {
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY) {
+            // A directory library persists into its sidecar files; saving means flushing the
+            // debounced writes, never writing a .bib ("Save as" remains the explicit snapshot)
+            // [impl->req~directory-library.write-back~2]
+            List<Path> unwritable = Optional.ofNullable(bibDatabaseContext.getDirectorySynchronizer())
+                                            .map(DirectoryLibrarySynchronizer::flush)
+                                            .orElse(List.of());
+            if (!unwritable.isEmpty()) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Save library"),
+                        Localization.lang("Could not write the changes to the following files: %0", joinPaths(unwritable)));
+                return SaveResult.FAILURE;
+            }
+            dialogService.notify(Localization.lang("Library saved"));
+            return SaveResult.SUCCESS;
+        }
         Optional<Path> databasePath = bibDatabaseContext.getDatabasePath();
         if (databasePath.isEmpty()) {
             Optional<Path> savePath = askForSavePath();
