@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -105,31 +106,31 @@ class CustomEntryTypesTabViewModelTest {
 
         model.storeSettings();
 
-        assertTrue(model.getRestartWarnings().isEmpty());
+        assertEquals(List.of(), model.getRestartWarnings());
     }
 
     @Test
     void unchangedSaveWithFieldOutsideEntryTypesHasNoRestartWarning() {
-        FieldPreferences realFieldPreferences = new FieldPreferences(true, List.of(), List.of(StandardField.PDF, StandardField.PS, StandardField.URL));
+        FieldPreferences realFieldPreferences = new FieldPreferences(true, List.of(), List.of(StandardField.PS, StandardField.ISRN, StandardField.URL));
         when(preferences.getFieldPreferences()).thenReturn(realFieldPreferences);
         CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX, entryTypesManager, mock(DialogService.class), preferences);
         model.setValues();
 
         model.storeSettings();
 
-        assertTrue(model.getRestartWarnings().isEmpty());
+        assertEquals(List.of(), model.getRestartWarnings());
     }
 
     @Test
     void saveKeepsMultilineFieldOutsideEntryTypes() {
-        FieldPreferences realFieldPreferences = new FieldPreferences(true, List.of(), List.of(StandardField.PDF, StandardField.URL));
+        FieldPreferences realFieldPreferences = new FieldPreferences(true, List.of(), List.of(StandardField.PS, StandardField.URL));
         when(preferences.getFieldPreferences()).thenReturn(realFieldPreferences);
         CustomEntryTypesTabViewModel model = new CustomEntryTypesTabViewModel(BibDatabaseMode.BIBLATEX, entryTypesManager, mock(DialogService.class), preferences);
         model.setValues();
 
         model.storeSettings();
 
-        assertTrue(realFieldPreferences.getNonWrappableFields().contains(StandardField.PDF));
+        assertTrue(realFieldPreferences.getNonWrappableFields().contains(StandardField.PS));
     }
 
     @Test
@@ -143,10 +144,10 @@ class CustomEntryTypesTabViewModelTest {
         model.entryTypes().setAll(List.of(new CustomEntryTypeViewModel(modified, _ -> false)));
 
         model.storeSettings();
-        assertFalse(model.getRestartWarnings().isEmpty());
+        assertNotEquals(List.of(), model.getRestartWarnings());
 
         model.storeSettings();
-        assertTrue(model.getRestartWarnings().isEmpty());
+        assertEquals(List.of(), model.getRestartWarnings());
     }
 
     @Test
@@ -163,7 +164,7 @@ class CustomEntryTypesTabViewModelTest {
              .getProperties().add(FieldProperty.DATE);
         model.storeSettings();
 
-        assertFalse(model.getRestartWarnings().isEmpty());
+        assertNotEquals(List.of(), model.getRestartWarnings());
     }
 
     @Test
@@ -176,7 +177,7 @@ class CustomEntryTypesTabViewModelTest {
         model.setValues();
         model.storeSettings();
 
-        assertFalse(model.getRestartWarnings().isEmpty());
+        assertNotEquals(List.of(), model.getRestartWarnings());
     }
 
     @Test

@@ -112,23 +112,23 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        Set<Field> multilineFields = new HashSet<>();
+        // Collected across all entry types, applied to the non-wrappable fields preference after the loop
         Set<Field> singleLineFields = new HashSet<>();
+        Set<Field> multilineFields = new HashSet<>();
         for (EntryTypeViewModel typeViewModel : entryTypesWithFields) {
             List<FieldViewModel> allFields = typeViewModel.fields();
 
             BibEntryType type = typeViewModel.entryType().getValue();
             EntryType newPlainType = type.getType();
 
-            // Collect multilineFields for storage in preferences later
-            multilineFields.addAll(allFields.stream()
-                                            .filter(FieldViewModel::isMultiline)
-                                            .map(model -> model.toField(newPlainType))
-                                            .toList());
             singleLineFields.addAll(allFields.stream()
                                              .filter(model -> !model.isMultiline())
                                              .map(model -> model.toField(newPlainType))
                                              .toList());
+            multilineFields.addAll(allFields.stream()
+                                            .filter(FieldViewModel::isMultiline)
+                                            .map(model -> model.toField(newPlainType))
+                                            .toList());
 
             List<OrFields> required = allFields.stream()
                                                .filter(FieldViewModel::isRequired)
@@ -147,7 +147,7 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
             entryTypesManager.removeCustomOrModifiedEntryType(entryType, bibDatabaseMode);
         }
 
-        // Fields of no entry type (e.g., "pdf") keep their state: this tab does not show them
+        // Fields of no entry type (e.g., [StandardField#PS]) keep their state: this tab does not show them
         Set<Field> nonWrappableFields = new HashSet<>(preferences.getFieldPreferences().getNonWrappableFields());
         nonWrappableFields.removeAll(singleLineFields);
         nonWrappableFields.addAll(multilineFields);
@@ -178,6 +178,10 @@ public class CustomEntryTypesTabViewModel implements PreferenceTabViewModel {
     }
 
     /// Multiline fields not belonging to any entry type are left out: this tab does not show them.
+    ///
+    /// The non-wrappable fields preference itself cannot be compared: a field is also multiline when it carries
+    /// [FieldProperty#MULTILINE_TEXT] (e.g., `abstract`), and saving adds those to the preference - the first
+    /// unchanged save would thus look like a change.
     private Set<Field> multilineFieldsOfEntryTypes() {
         List<Field> nonWrappableFields = preferences.getFieldPreferences().getNonWrappableFields();
         return entryTypesManager.getAllTypes(bibDatabaseMode).stream()
