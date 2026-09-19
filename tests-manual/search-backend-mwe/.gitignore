@@ -1,0 +1,4 @@
+# Generated datasets and benchmark output -- reproducible from GenData.java, not committed.
+data/
+out/
+*.csv
