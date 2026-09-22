@@ -9,9 +9,19 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ## [Unreleased]
 
+### Added
+
+- We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
+
+### Changed
+
 ### Fixed
 
 - We fixed an issue where the DOI lookup button lost its progress indicator after switching to another entry and back. [#17223](https://github.com/JabRef/jabref/pull/17223)
+- We fixed an issue where importing a PDF could set the exporter's account name as author. [#16247](https://github.com/JabRef/jabref/pull/16247)
+- We fixed an issue where importing a PDF could set an implausible year, such as a postal code. [#16247](https://github.com/JabRef/jabref/pull/16247)
+
+### Removed
 
 ## [6.0-beta.1] - 2026-09-21
 
