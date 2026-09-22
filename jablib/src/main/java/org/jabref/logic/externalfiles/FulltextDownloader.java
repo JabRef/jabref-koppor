@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /// Searches the full text PDF of an entry online, downloads it into the library's file directory and links it.
 ///
-/// UI-independent, so that `jabkit get-fulltext` can use it; the GUI's "Search full text documents online" still has
+/// UI-independent, so that `jabkit get-fulltexts` can use it; the GUI's "Search full text documents online" still has
 /// its own implementation.
 @NullMarked
 public class FulltextDownloader {

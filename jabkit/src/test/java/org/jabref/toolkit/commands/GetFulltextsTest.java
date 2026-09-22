@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class GetFulltextTest extends AbstractJabKitTest {
+class GetFulltextsTest extends AbstractJabKitTest {
 
     @TempDir
     private Path tempDir;
@@ -32,7 +32,7 @@ class GetFulltextTest extends AbstractJabKitTest {
 
     @BeforeEach
     void setupDownloader() {
-        GetFulltext sut = new GetFulltext() {
+        GetFulltexts sut = new GetFulltexts() {
             @Override
             void initFields() {
                 this.fulltextDownloader = downloader;
@@ -63,7 +63,7 @@ class GetFulltextTest extends AbstractJabKitTest {
             return new FulltextDownloader.Result.NotFound();
         });
 
-        int exitCode = commandLine.executeToLog("get-fulltext", library.toString());
+        int exitCode = commandLine.executeToLog("get-fulltexts", library.toString());
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         String output = commandLine.getStandardOutput();
