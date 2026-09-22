@@ -34,6 +34,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
 - We fixed an issue where JabRef showed an "Executor has been shut down" error on Windows after resuming from suspend. [#17144](https://github.com/JabRef/jabref/pull/17144)
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
+- We fixed an issue where closing a library did not free its memory, so a session that opened and closed several libraries kept all of them in memory. [#16948](https://github.com/JabRef/jabref/pull/16948)
 
 ### Removed
 
