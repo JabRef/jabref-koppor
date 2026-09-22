@@ -56,7 +56,7 @@ class GetFulltextTest extends AbstractJabKitTest {
         Path downloadedFile = tempDir.resolve("Found.pdf");
         when(downloader.download(any(), any())).thenAnswer(invocation -> {
             BibEntry entry = invocation.getArgument(1);
-            if (entry.getCitationKey().orElseThrow().equals("Found")) {
+            if ("Found".equals(entry.getCitationKey().orElseThrow())) {
                 entry.addFile(new LinkedFile("", Path.of("Found.pdf"), "PDF"));
                 return new FulltextDownloader.Result.Downloaded(downloadedFile);
             }

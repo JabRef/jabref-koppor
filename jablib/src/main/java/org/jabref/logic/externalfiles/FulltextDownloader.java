@@ -71,29 +71,27 @@ public class FulltextDownloader {
 
     /// Links the downloaded file to the entry; the caller has to save the library.
     public Result download(BibDatabaseContext databaseContext, BibEntry entry) {
-        Optional<Path> targetDirectory = databaseContext.getFirstExistingFileDir(filePreferences);
-        if (targetDirectory.isEmpty()) {
-            return new Result.NoFileDirectory();
-        }
+        return databaseContext.getFirstExistingFileDir(filePreferences)
+                              .map(targetDirectory -> fullTextFinder.apply(entry)
+                                                                    .map(found -> download(databaseContext, entry, found, targetDirectory))
+                                                                    .orElseGet(Result.NotFound::new))
+                              .orElseGet(Result.NoFileDirectory::new);
+    }
 
-        Optional<FetcherResult> fetcherResult = fullTextFinder.apply(entry);
-        if (fetcherResult.isEmpty()) {
-            return new Result.NotFound();
-        }
-
-        String url = fetcherResult.get().source().toExternalForm();
+    private Result download(BibDatabaseContext databaseContext, BibEntry entry, FetcherResult found, Path targetDirectory) {
+        String url = found.source().toExternalForm();
         if (entry.getFiles().stream().anyMatch(file -> url.equals(file.getLink()) || url.equals(file.getSourceUrl()))) {
             return new Result.AlreadyLinked();
         }
 
-        String fileName = new LinkedFileHandler(new LinkedFile(fetcherResult.get().source(), ""), entry, databaseContext, filePreferences)
+        String fileName = new LinkedFileHandler(new LinkedFile(found.source(), ""), entry, databaseContext, filePreferences)
                 .getSuggestedFileName("pdf");
-        Path directory = targetDirectory.get().resolve(FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileDirectoryPattern()));
+        Path directory = targetDirectory.resolve(FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileDirectoryPattern()));
         Path destination = directory.resolve(FileNameUniqueness.getNonOverWritingFileName(directory, fileName));
         try {
             Files.createDirectories(directory);
-            URLDownload download = new URLDownload(fetcherResult.get().source());
-            fetcherResult.get().headers().forEach(download::addHeader);
+            URLDownload download = new URLDownload(found.source());
+            found.headers().forEach(download::addHeader);
             download.toFile(destination);
             if (FileNameUniqueness.isDuplicatedFile(directory, destination.getFileName(), LOGGER::info)) {
                 return new Result.Duplicate();
