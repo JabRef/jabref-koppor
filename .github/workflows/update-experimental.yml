@@ -36,10 +36,8 @@ env:
   # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
   # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
   # Merge order: MILESTONES, then BRANCHES, then PRS in the order given, then the automatic ones.
+  # Only PRs neither on a milestone nor merged automatically belong here, e.g. JabRef/jabref PRs from forks.
   PRS: |
-    https://github.com/JabRef/jabref-koppor/pull/760
-    https://github.com/JabRef/jabref-koppor/pull/768
-    https://github.com/JabRef/jabref-koppor/pull/771
     https://github.com/JabRef/jabref/pull/17134
   # JabRef/jabref-koppor milestone numbers; their open PRs are merged before everything else, milestone by milestone
   # (PRs within one milestone by number). 1 = soon-upstream, 2 = for-upstream.
