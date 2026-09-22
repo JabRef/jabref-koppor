@@ -53,7 +53,7 @@ Needs: impl
 `req~maintable.sort.multi-column~1`
 
 The main table sorts by a primary column and, for entries equal in it, by a secondary, tertiary, … column.
-Shift+click on a column header adds it as the next sort level.
+<kbd>Shift</kbd> + click on a column header adds it as the next sort level.
 The sort levels are kept across restarts.
 
 Needs: impl
