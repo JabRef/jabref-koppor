@@ -230,7 +230,7 @@ class MarkdownTextFlowTest extends JavaFxTest {
             textFlow.copySelectedText();
         });
 
-        assertEquals("{\n  \"a\": \"**not bold**\"\n}", clipBoardManager.stringContent.get());
+        assertEquals("```json\n{\n  \"a\": \"**not bold**\"\n}\n```", clipBoardManager.stringContent.get());
         assertFalse(clipBoardManager.htmlContent.get().contains("<strong>"));
     }
 
@@ -251,7 +251,7 @@ class MarkdownTextFlowTest extends JavaFxTest {
             textFlow.copySelectedText();
         });
 
-        assertEquals("{\n  \"a\": \"```\"\n}", clipBoardManager.stringContent.get());
+        assertEquals("```json\n{\n  \"a\": \"```\"\n}\n```", clipBoardManager.stringContent.get());
         assertTrue(clipBoardManager.htmlContent.get().contains("```"));
     }
 
