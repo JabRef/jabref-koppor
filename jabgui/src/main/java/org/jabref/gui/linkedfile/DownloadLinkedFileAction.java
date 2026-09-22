@@ -233,7 +233,7 @@ public class DownloadLinkedFileAction extends SimpleCommand {
                                 .flatMap(e -> ((FetcherException) e).getHttpResponse())
                                 .map(response -> "HTTP %d %s".formatted(response.statusCode(), response.responseMessage()))
                                 .orElseGet(ex::getLocalizedMessage);
-        dialogService.notify(new Notifications.UiNotification(
+        dialogService.notify(new Notifications.UndefinedNotification(
                 Localization.lang("Failed to download from URL"),
                 "%s\n%s\n%s".formatted(entry.getCitationKey().orElse(""), FetcherException.getRedactedUrl(urlDownload.getSource().toString()), reason).strip()));
     }

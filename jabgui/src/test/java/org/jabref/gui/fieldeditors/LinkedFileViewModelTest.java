@@ -46,6 +46,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -252,8 +253,11 @@ class LinkedFileViewModelTest {
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService, preferences);
         viewModel.download(false, new JabRefUndoManager());
 
-        verify(dialogService).notify(any(Notifications.UiNotification.class));
+        ArgumentCaptor<Notifications.UndefinedNotification> notification = ArgumentCaptor.forClass(Notifications.UndefinedNotification.class);
+        verify(dialogService).notify(notification.capture());
         verifyNoMoreInteractions(dialogService);
+        assertEquals("Failed to download from URL", notification.getValue().getTitle());
+        assertEquals("asdf\n" + serverUrl + "\nHTTP 403 Forbidden", notification.getValue().getSummary());
     }
 
     @Test
