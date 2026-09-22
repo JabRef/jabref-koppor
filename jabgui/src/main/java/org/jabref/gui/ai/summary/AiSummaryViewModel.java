@@ -304,6 +304,7 @@ public class AiSummaryViewModel extends AbstractViewModel {
             return;
         }
 
+        error.set(null);
         GenerateSummaryTask task = summarizationTaskAggregator.start(
                 new GenerateSummaryTaskRequest(
                         filePreferences,
@@ -315,6 +316,8 @@ public class AiSummaryViewModel extends AbstractViewModel {
         );
 
         currentTask.set(task);
+        // The task may have finished before the status listener was attached
+        updateByTaskState(task.getStatus());
     }
 
     private void updateByTaskState(TrackedBackgroundTask.Status value) {
@@ -324,6 +327,9 @@ public class AiSummaryViewModel extends AbstractViewModel {
         }
 
         UiTaskExecutor.runInJavaFXThread(() -> {
+            if (currentTask.get() != task) {
+                return;
+            }
             switch (value) {
                 case TrackedBackgroundTask.Status.ERROR -> {
                     error.set(task.getException());
