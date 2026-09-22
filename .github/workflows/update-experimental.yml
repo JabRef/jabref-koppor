@@ -39,6 +39,7 @@ env:
   PRS: |
     https://github.com/JabRef/jabref-koppor/pull/760
     https://github.com/JabRef/jabref-koppor/pull/768
+    https://github.com/JabRef/jabref-koppor/pull/771
     https://github.com/JabRef/jabref/pull/17134
   # changelog-merge-driver commit merging origin/main's CHANGELOG.md (github.com/maven-flow/changelog-merge-driver/pull/14 from its fork)
   DRIVER_REVISION: e3918645b2c15b5c010e7b1edd56e8721afcfedf
