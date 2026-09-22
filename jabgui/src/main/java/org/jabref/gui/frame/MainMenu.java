@@ -381,6 +381,12 @@ public class MainMenu extends MenuBar {
 
                 new SeparatorMenuItem(),
 
+                factory.createMenuItem(StandardActions.SHOW_BACKGROUND_TASKS, new SimpleCommand() {
+                    @Override
+                    public void execute() {
+                        dialogService.showBackgroundTasksDialog(stateManager);
+                    }
+                }),
                 factory.createMenuItem(StandardActions.ERROR_CONSOLE, new ErrorConsoleAction()),
 
                 new SeparatorMenuItem(),

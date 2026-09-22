@@ -93,4 +93,14 @@ are parsed correctly by the GitHub Actions runner.
 
 Needs: impl
 
+## Full text download reports each entry
+`req~jabkit.cli.get-fulltext-report~1`
+
+`jabkit get-fulltext` updates the given library in place (or writes to `--output`).
+It prints one line per entry saying whether its full text document was downloaded, not found,
+skipped, or failed, followed by a summary with the counts.
+Entries that already link a local PDF are skipped without contacting a publisher.
+
+Needs: impl
+
 <!-- markdownlint-disable-file MD022 -->
