@@ -18,6 +18,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Fixed
 
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
+- We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 
 ### Removed
 

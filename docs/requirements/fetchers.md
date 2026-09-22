@@ -51,7 +51,7 @@ For entries that contain a ScholarAPI identifier and have a PDF available, JabRe
 ## Full text search runs in the background
 `req~fetchers.fulltext-background-search~1`
 
-The search for full text documents runs as a background task shown in the status bar with progress and a cancel option, so JabRef stays usable while it runs. Its results are applied to the library the entries were selected in, and are discarded if that library was closed meanwhile.
+The search for full text documents runs as a background task shown in the status bar with progress and a cancel option, so JabRef stays usable while it runs. Each entry's result is applied as soon as its search finishes, without waiting for the remaining entries. Results are applied to the library the entries were selected in, and are discarded if that library was closed meanwhile.
 
 Needs: impl
 
