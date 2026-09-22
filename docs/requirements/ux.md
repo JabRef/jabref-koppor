@@ -49,6 +49,15 @@ Headers use Title Case, as an exception to the sentence-case rule for UI text, s
 
 Needs: impl
 
+## Main table sorts by several columns
+`req~maintable.sort.multi-column~1`
+
+The main table sorts by a primary column and, for entries equal in it, by a secondary, tertiary, … column.
+<kbd>Shift</kbd> + click on a column header adds it as the next sort level.
+The sort levels are kept across restarts.
+
+Needs: impl
+
 ## Critical startup failures show an error dialog
 `req~ux.startup.critical-error-dialog~1`
 
