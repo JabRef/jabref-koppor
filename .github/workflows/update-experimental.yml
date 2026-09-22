@@ -280,7 +280,7 @@ jobs:
             local pr info state branch head_repo head_sha repo ref
             pr="${1%%#*}"
             pr="$(echo "$pr" | xargs)"
-            [ -n "$pr" ] || return
+            [ -n "$pr" ] || return 0
             # Fork PRs have no branch in origin/koppor; resolve the head via the API. The head commit is fetched from the
             # head repository: refs/pull/N/head sometimes lags behind the branch.
             if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
@@ -288,13 +288,13 @@ jobs:
               bad "$pr: not found"
               echo "::warning title=PR not found::$pr - skipped"
               summary "- :warning: $pr - not found, skipped"
-              return
+              return 0
             fi
             read -r state branch head_repo head_sha <<< "$info"
             if [ "$state" != OPEN ]; then
               info "$branch ($pr): $state, skipped"
               summary "- :warning: \`$branch\` ($pr) - $state, skipped"
-              return
+              return 0
             fi
             repo="${pr%/pull/*}"
             ref="refs/candidates/${repo##*/}/${pr##*/}"
@@ -302,7 +302,7 @@ jobs:
               bad "$branch ($pr): head cannot be fetched"
               echo "::warning title=Head not fetchable::$pr - skipped"
               summary "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped"
-              return
+              return 0
             fi
             candidate "$ref" "$branch" "($pr)"
           }
