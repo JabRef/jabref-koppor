@@ -28,6 +28,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - Directory libraries now stay in sync with external file changes: creating, editing, deleting, or renaming `.yml`/`.md`/`.pdf` files in the opened folder updates the open library live, and renames keep the affected entries (selection and undo history survive). [#738](https://github.com/JabRef/jabref-koppor/pull/738)
 - We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We added merging of conflicted copies left by sync clients, per library or as a global default (off by default). [#16827](https://github.com/JabRef/jabref/pull/16827)
+- We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
 
 ### Changed
 

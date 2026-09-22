@@ -213,7 +213,11 @@ public interface DialogService extends NotificationService {
     /// @param title        title of the dialog
     /// @param content      message to show below the list of background tasks
     /// @param stateManager The [StateManager] which contains the background tasks
-    <V> Optional<ButtonType> showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager);
+    /// @return true if the user chose to quit or all tasks finished
+    boolean showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager);
+
+    /// Shows a non-modal dialog listing the running background tasks.
+    void showBackgroundTasksDialog(StateManager stateManager);
 
     /// Shows a new file save dialog. The method doesn't return until the
     /// displayed file save dialog is dismissed. The return value specifies the

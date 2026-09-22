@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.scene.control.ButtonType;
 
 import org.jabref.cli.CliImportHelper;
 import org.jabref.gui.DialogService;
@@ -137,11 +136,11 @@ public class JabRefFrameViewModel {
         // Ask if the user really wants to close, if there are still background tasks running
         // The background tasks may make changes themselves that need saving.
         if (stateManager.getAnyTasksThatWillNotBeRecoveredRunning().getValue()) {
-            Optional<ButtonType> shouldClose = dialogService.showBackgroundProgressDialogAndWait(
+            boolean shouldClose = dialogService.showBackgroundProgressDialogAndWait(
                     Localization.lang("Please wait..."),
                     Localization.lang("Waiting for background tasks to finish. Quit anyway?"),
                     stateManager);
-            if (!(shouldClose.isPresent() && (shouldClose.get() == ButtonType.YES))) {
+            if (!shouldClose) {
                 return false;
             }
         }

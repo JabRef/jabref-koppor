@@ -207,6 +207,7 @@ public enum StandardActions implements Action {
     DONATE(Localization.lang("Donate to JabRef"), Localization.lang("Donate to JabRef"), IconTheme.JabRefIcons.DONATE),
     CONTRIBUTE(Localization.lang("Contribute to JabRef"), Localization.lang("Contribute to JabRef"), IconTheme.JabRefIcons.CONTRIBUTE),
     OPEN_FORUM(Localization.lang("Community forum"), Localization.lang("Community forum"), IconTheme.JabRefIcons.FORUM),
+    SHOW_BACKGROUND_TASKS(Localization.lang("View background tasks"), Localization.lang("Show running background tasks")),
     ERROR_CONSOLE(Localization.lang("View event log"), Localization.lang("Display all error messages")),
     SEARCH_FOR_UPDATES(Localization.lang("Check for updates")),
     ABOUT(Localization.lang("About JabRef"), Localization.lang("About JabRef")),
