@@ -67,6 +67,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed an issue where pressing "+" in the "File" field with an automatically found file selected opened the "Add file link" dialog instead of linking the selected file. [#16938](https://github.com/JabRef/jabref/pull/16938)
+- We fixed an issue where failed full text downloads opened an error dialog for each entry. [#774](https://github.com/JabRef/jabref-koppor/pull/774)
 - We fixed an issue where case-sensitive search (`=!`, `==!`, `=~!`) in linked files ignored the casing and matched text in any casing. [#13048](https://github.com/JabRef/jabref/issues/13048)
 
 ### Removed
