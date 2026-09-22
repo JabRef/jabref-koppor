@@ -1,9 +1,9 @@
 package org.jabref.gui.externalfiles;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jabref.gui.DialogService;
@@ -41,6 +41,7 @@ public class DownloadFullTextAction extends SimpleCommand {
     private final GuiPreferences preferences;
     private final UiTaskExecutor taskExecutor;
     private final Function<BibEntry, Optional<FetcherResult>> fullTextFinder;
+    private final Consumer<Runnable> uiThread;
 
     public DownloadFullTextAction(DialogService dialogService,
                                   StateManager stateManager,
@@ -50,19 +51,22 @@ public class DownloadFullTextAction extends SimpleCommand {
                 stateManager,
                 preferences,
                 taskExecutor,
-                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDF(entry));
+                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDF(entry),
+                UiTaskExecutor::runInJavaFXThread);
     }
 
     DownloadFullTextAction(DialogService dialogService,
                            StateManager stateManager,
                            GuiPreferences preferences,
                            UiTaskExecutor taskExecutor,
-                           Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
+                           Function<BibEntry, Optional<FetcherResult>> fullTextFinder,
+                           Consumer<Runnable> uiThread) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
         this.fullTextFinder = fullTextFinder;
+        this.uiThread = uiThread;
 
         this.executable.bind(ActionHelper.needsEntriesSelected(stateManager));
     }
@@ -95,10 +99,9 @@ public class DownloadFullTextAction extends SimpleCommand {
             }
         }
 
-        BackgroundTask<List<EntryDownload>> findFullTextsTask = new BackgroundTask<>() {
+        BackgroundTask<Void> findFullTextsTask = new BackgroundTask<>() {
             @Override
-            public List<EntryDownload> call() {
-                List<EntryDownload> downloads = new ArrayList<>(entries.size());
+            public Void call() {
                 int count = 0;
                 // Marked here, not before submission, so a task cancelled while queued leaves no spinner behind
                 UiTaskExecutor.runInJavaFXThread(() -> entries.forEach(EntryLookupsInProgress.FULLTEXT::started));
@@ -110,7 +113,9 @@ public class DownloadFullTextAction extends SimpleCommand {
 
                         BibEntry lookupSnapshot = new BibEntry(entry);
                         try {
-                            downloads.add(new EntryDownload(entry, lookupSnapshot, fullTextFinder.apply(lookupSnapshot)));
+                            EntryDownload download = new EntryDownload(entry, lookupSnapshot, fullTextFinder.apply(lookupSnapshot));
+                            // Attach right away: a lookup can take minutes, so the user should not wait for the whole selection
+                            uiThread.accept(() -> downloadFullText(download, databaseContext));
                         } finally {
                             count++;
                             UiTaskExecutor.runInJavaFXThread(() -> EntryLookupsInProgress.FULLTEXT.finished(entry));
@@ -123,38 +128,35 @@ public class DownloadFullTextAction extends SimpleCommand {
                     List<BibEntry> notLookedUp = entries.subList(count, entries.size());
                     UiTaskExecutor.runInJavaFXThread(() -> notLookedUp.forEach(EntryLookupsInProgress.FULLTEXT::finished));
                 }
-                return downloads;
+                return null;
             }
         };
 
         findFullTextsTask.setTitle(Localization.lang("Download full text documents"))
                          .withInitialMessage(Localization.lang("Looking for full text document..."))
                          .showToUser(true)
-                         .onSuccess(downloads -> downloadFullTexts(downloads, databaseContext))
                          .executeWith(taskExecutor);
     }
 
-    private void downloadFullTexts(List<EntryDownload> downloads, BibDatabaseContext databaseContext) {
+    private void downloadFullText(EntryDownload download, BibDatabaseContext databaseContext) {
         if (!stateManager.getOpenDatabases().contains(databaseContext)) {
-            LOGGER.debug("Library closed before the full text search finished; skipping downloads.");
+            LOGGER.debug("Library closed before the full text search finished; skipping download.");
             return;
         }
 
-        for (EntryDownload download : downloads) {
-            BibEntry entry = download.entry();
-            if (!databaseContext.getDatabase().getEntries().contains(entry)) {
-                continue;
-            }
-            if (!entry.equals(download.lookupSnapshot())) {
-                LOGGER.debug("Entry changed during full text search; skipping download.");
-                continue;
-            }
-
-            download.result().ifPresentOrElse(
-                    result -> addLinkedFileFromURL(databaseContext, result, entry),
-                    () -> dialogService.notify(Localization.lang("No full text document found for entry %0.",
-                            entry.getCitationKey().orElse(Localization.lang("undefined")))));
+        BibEntry entry = download.entry();
+        if (!databaseContext.getDatabase().getEntries().contains(entry)) {
+            return;
         }
+        if (!entry.equals(download.lookupSnapshot())) {
+            LOGGER.debug("Entry changed during full text search; skipping download.");
+            return;
+        }
+
+        download.result().ifPresentOrElse(
+                result -> addLinkedFileFromURL(databaseContext, result, entry),
+                () -> dialogService.notify(Localization.lang("No full text document found for entry %0.",
+                        entry.getCitationKey().orElse(Localization.lang("undefined")))));
     }
 
     /// This method attaches a linked file from a URL (if not already linked) to an entry using the key and value pair
