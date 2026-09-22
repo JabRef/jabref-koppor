@@ -12,7 +12,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Added
 
 - We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
-- We added "View background tasks" to the Help menu and renamed the buttons of the quit dialog shown while background tasks are running to "Quit anyway" and "Keep JabRef open". [#12706](https://github.com/JabRef/jabref/issues/12706)
+- We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
 
 ### Changed
 
