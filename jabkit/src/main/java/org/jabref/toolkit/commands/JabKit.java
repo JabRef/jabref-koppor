@@ -23,7 +23,7 @@ import static picocli.CommandLine.Option;
                 GenerateBibFromAux.class,
                 GetCitedWorks.class,
                 GetCitingWorks.class,
-                GetFulltext.class,
+                GetFulltexts.class,
                 Git.class,
                 Pdf.class,
                 Preferences.class,

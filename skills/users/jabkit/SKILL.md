@@ -89,7 +89,7 @@ Place before the subcommand:
 | `generate-bib-from-aux` | Extract the subset of a library cited in a LaTeX `.aux` file |
 | `get-cited-works DOI` | List the works cited by a publication |
 | `get-citing-works DOI` | List the works citing a publication |
-| `get-fulltext FILE` | Download the full text PDFs of a library's entries and link them (updates FILE in place) |
+| `get-fulltexts FILE` | Download the full text PDFs of a library's entries and link them (updates FILE in place) |
 | `pdf extract-references FILE...` | Parse the "References" section of PDFs into BibTeX entries |
 | `pdf update` | Write XMP metadata and/or embedded BibTeX into linked PDFs |
 | `preferences reset\|import\|export` | Manage jabkit preferences |
@@ -123,7 +123,7 @@ jabkit -p pdf extract-references paper.pdf
 jabkit pdf update --citation-key Smith2020 --input library.bib --input-format bibtex
 
 # Download and link the full text PDFs (entries with a linked PDF are skipped)
-jabkit get-fulltext library.bib
+jabkit get-fulltexts library.bib
 
 # Library subset actually cited in a LaTeX document
 jabkit generate-bib-from-aux --aux paper.aux --input full-library.bib --output paper.bib

@@ -22,9 +22,9 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
-// [impl->req~jabkit.cli.get-fulltext-report~1]
-@Command(name = "get-fulltext", description = "Download the full text PDFs of the entries of a library and link them.")
-class GetFulltext implements Callable<Integer> {
+// [impl->req~jabkit.cli.get-fulltexts-report~1]
+@Command(name = "get-fulltexts", description = "Download the full text PDFs of the entries of a library and link them.")
+class GetFulltexts implements Callable<Integer> {
 
     protected FulltextDownloader fulltextDownloader;
 

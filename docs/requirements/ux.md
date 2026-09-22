@@ -54,6 +54,12 @@ Needs: impl
 
 A double click on the empty space below the last row of the main table adds a new entry of the last used entry type and opens it in the entry editor.
 This makes the empty area of the table act like the "Add entry" menu item, at the place where the pointer already is.
+## Main table sorts by several columns
+`req~maintable.sort.multi-column~1`
+
+The main table sorts by a primary column and, for entries equal in it, by a secondary, tertiary, … column.
+<kbd>Shift</kbd> + click on a column header adds it as the next sort level.
+The sort levels are kept across restarts.
 
 Needs: impl
 
