@@ -28,6 +28,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 - We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
 - We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
+- We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
 
 ### Fixed
 
@@ -217,7 +218,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We moved the Git settings into their own preferences tab. [#12630](https://github.com/JabRef/jabref/issues/12630)
 - "Get fulltext", groups "Attach file", "Attach file from URL", "Open folder(s)" and "Open file" commands in right click menu have been moved into a "More file operations..." submenu. [#16829](https://github.com/JabRef/jabref/pull/16829)
 - We changed the logging during full-text search indexing to identify which linked files cause errors. [#15680](https://github.com/JabRef/jabref/issues/15680)
-- We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
 - We unified the Button style. All Buttons have rounded corners, a hover, pressed and focused color. [#16980](https://github.com/JabRef/jabref/pull/16980)
 - We changed tabs to have no frame: the selected tab is marked by its accent line, hovered tabs are highlighted. [#17071](https://github.com/JabRef/jabref/pull/17071)
 - We changed tabs to always show their close button, so selecting a tab no longer shifts its label. [#17071](https://github.com/JabRef/jabref/pull/17071)
