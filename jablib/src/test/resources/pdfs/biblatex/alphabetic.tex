@@ -1,0 +1,9 @@
+% Source of alphabetic.pdf: lualatex alphabetic && biber alphabetic && lualatex alphabetic
+\documentclass{article}
+\usepackage[style=alphabetic,maxnames=2]{biblatex}
+\usepackage{hyperref}
+\addbibresource{alphabetic.bib}
+\begin{document}
+\nocite{*}
+\printbibliography
+\end{document}
