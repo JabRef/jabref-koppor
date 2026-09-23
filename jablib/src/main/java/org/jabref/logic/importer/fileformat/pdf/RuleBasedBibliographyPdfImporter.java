@@ -47,8 +47,11 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuleBasedBibliographyPdfImporter.class);
 
-    /// Numeric labels (`[12]`) and biblatex-alphabetic labels (`[AL26]`, `[Buc+23]`, `[adr26]`, `[Kop+18a]`)
-    private static final String LABEL = "\\[(\\d+|\\p{L}[\\p{L}'-]*\\+?\\d{2}[a-z]?)\\]";
+    /// Numeric labels (`[12]`) and alphabetic labels of BibTeX and biblatex styles (`[AL26]`, `[Buc+23]`, `[adr26]`, `[Kop+18a]`).
+    /// BibTeX's `alpha.bst` typesets "et al." as a raised "+", which the PDF text shows as `[BSG+ 23]`.
+    ///
+    /// [impl->req~import.pdf.references.labelled~1]
+    private static final String LABEL = "\\[(\\d+|\\p{L}[\\p{L}'-]*(?:\\+ ?)?\\d{2}[a-z]?)\\]";
     private static final Pattern REFERENCE_PATTERN = Pattern.compile(LABEL + "(.*?)(?=" + LABEL + "|$)", Pattern.DOTALL);
     private static final Pattern YEAR_AT_END = Pattern.compile(", (\\d{4})\\.$");
     private static final Pattern YEAR = Pattern.compile(", (\\d{4})(.*)");
@@ -143,7 +146,7 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         Matcher matcher = REFERENCE_PATTERN.matcher(contents);
         while (matcher.find()) {
             String reference = matcher.group(2).replaceAll("\\r?\\n", " ").trim();
-            referencesStrings.add(new IntermediateData(matcher.group(1), reference));
+            referencesStrings.add(new IntermediateData(matcher.group(1).replace(" ", ""), reference));
         }
         return referencesStrings;
     }
@@ -363,7 +366,7 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
 
     /// Parses a reference formatted by one of the biblatex standard styles.
     ///
-    /// [impl->req~import.pdf.references.biblatex~1]
+    /// [impl->req~import.pdf.references.labelled~1]
     ///
     /// Example: `Aisha Alansari and Hamzah Luqman. “Large language models hallucination: A comprehensive survey”. In: Computer Science Review 61 (2026), p. 100970. issn: 1574-0137. doi: 10.1016/j.cosrev.2026.100970.`
     private static BibEntry parseBiblatexCitation(String label, String reference) {
