@@ -68,6 +68,11 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed an issue where failed full text downloads opened an error dialog for each entry. [#774](https://github.com/JabRef/jabref-koppor/pull/774)
+- We fixed an issue where "Regenerate (custom)" in the AI summary ignored the chosen summarization algorithm. [#17216](https://github.com/JabRef/jabref/issues/17216)
+- We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
+- We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
+- We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
 
 ### Removed
 
