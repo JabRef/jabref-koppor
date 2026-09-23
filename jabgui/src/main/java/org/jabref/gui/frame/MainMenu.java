@@ -376,6 +376,7 @@ public class MainMenu extends MenuBar {
 
                 new SeparatorMenuItem(),
 
+                // [impl->req~ux.background-tasks.viewer~1]
                 factory.createMenuItem(StandardActions.SHOW_BACKGROUND_TASKS, new SimpleCommand() {
                     @Override
                     public void execute() {
