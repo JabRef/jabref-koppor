@@ -93,4 +93,15 @@ are parsed correctly by the GitHub Actions runner.
 
 Needs: impl
 
+## Faults of the reference list printed in a PDF
+`req~jabkit.cli.pdf-check-references~1`
+
+`jabkit pdf check-references FILE` reads the reference list printed in a PDF and reports faults of the underlying bibliographic data, one line per finding, starting with the reference's printed label:
+a DOI given as URL, a missing venue that hints at a wrong entry type, a volume inside a journal name, and fields printed for some references of an entry type but not for the others.
+Unless `--no-online` is given, it additionally reports DOIs that Crossref knows for references printed without one, and words whose capitals were lost, such as "Iot" instead of "IoT".
+
+The command exits with 1 if there are findings, so that CI can fail on them.
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->
