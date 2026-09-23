@@ -71,8 +71,7 @@ public class ConsistencyCheckDialogViewModel extends AbstractViewModel {
                                        .distinct()
                                        .toList();
 
-        result.entryTypeToResultMap().entrySet().stream()
-              .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+        result.entryTypeToResultMap().entrySet()
               .forEach(Unchecked.consumer(this::writeMapEntry));
     }
 
