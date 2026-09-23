@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -48,7 +49,6 @@ import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.apache.commons.io.FileUtils;
 import org.mockito.Answers;
 import org.openjdk.jmh.Main;

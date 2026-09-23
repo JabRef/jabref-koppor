@@ -105,6 +105,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
+- We replaced the abandoned afterburner.fx framework (used for FXML view loading and dependency injection) with [FxmlKit](https://github.com/dlsc-software-consulting-gmbh/FxmlKit) and a small JabRef-owned service locator. [koppor#733](https://github.com/JabRef/jabref-koppor/pull/733)
 - We improve startup performance by load citation style sources only when used. [#15962](https://github.com/JabRef/jabref/issues/15962)
 - We changed the default prompts for "AI-Chat" & "Chat with Groups" to better handle etiquette, metadata, citationkeys and context separation. [#16981](https://github.com/JabRef/jabref/pull/16981)
 - We changed the default local embedding model to `intfloat/multilingual-e5-small` for better passage retrieval. [#17120](https://github.com/JabRef/jabref/pull/17120)
