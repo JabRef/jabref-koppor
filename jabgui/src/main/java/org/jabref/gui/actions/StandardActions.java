@@ -233,6 +233,7 @@ public enum StandardActions implements Action {
     GROUP_ENTRIES_CLEAR(Localization.lang("Clear group")),
 
     CLEAR_EMBEDDINGS_CACHE(Localization.lang("Clear embeddings cache")),
+    AI_ASK_QUESTIONS(Localization.lang("Ask AI questions...")),
 
     GIT(Localization.lang("Git"), IconTheme.JabRefIcons.GIT_SYNC),
     GIT_PULL(Localization.lang("Pull")),
