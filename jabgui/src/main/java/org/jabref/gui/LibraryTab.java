@@ -180,6 +180,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
 
     /// Set by [#onClosed], so listener registrations still queued behind it are skipped instead of
     /// registering after the cleanup already ran.
+    /// A plain field suffices: it is only written and read on the JavaFX application thread.
     private boolean closed;
 
     private ListProperty<GroupTreeNode> selectedGroupsProperty;
@@ -381,6 +382,7 @@ public class LibraryTab extends Tab implements CommandSelectionTab {
         aiService.setupDatabase(bibDatabaseContext, isDummyContext);
 
         Platform.runLater(() -> {
+            // The tab was closed before this ran: registering now would add listeners no one removes.
             if (closed) {
                 return;
             }
