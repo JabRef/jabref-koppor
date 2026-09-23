@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
+import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
 import org.jspecify.annotations.NullMarked;
@@ -42,6 +44,8 @@ public class PrintedReferencesCheck {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintedReferencesCheck.class);
 
     private static final Pattern VOLUME_IN_NAME = Pattern.compile("\\bVolume \\d+");
+    // Search engines and social networks list publications, but do not publish them
+    private static final Pattern INDEX_URL = Pattern.compile("^https?://(?:[^/]*\\.)?(academia\\.edu|dblp\\.org|researchgate\\.net|scholar\\.google\\.[a-z.]+|semanticscholar\\.org)(?:[/:?]|$)");
     private static final Pattern INNER_UPPERCASE = Pattern.compile(".\\p{Lu}");
 
     private final @Nullable CrossRef crossRef;
@@ -63,9 +67,14 @@ public class PrintedReferencesCheck {
             entry.getField(StandardField.DOI)
                  .filter(doi -> doi.startsWith("http"))
                  .ifPresent(doi -> findings.add(new Finding(label, Localization.lang("DOI is given as URL '%0'. Put only the DOI into the field, the style adds the link.", doi))));
-            if (entry.getType() == StandardEntryType.Article && !entry.hasField(StandardField.JOURNAL)) {
-                findings.add(new Finding(label, Localization.lang("No journal is printed. The entry type is probably wrong: use 'online' or 'misc' for web resources.")));
+            if ((entry.getType() == StandardEntryType.Article && !entry.hasField(StandardField.JOURNAL))
+                    || (entry.getType() == StandardEntryType.InProceedings && !entry.hasField(StandardField.BOOKTITLE))) {
+                findings.add(new Finding(label, Localization.lang("Nothing is printed after 'In:'. The venue is missing, or the entry type is wrong: use 'online' or 'misc' for web resources and preprints.")));
             }
+            entry.getField(StandardField.URL)
+                 .map(INDEX_URL::matcher)
+                 .filter(Matcher::find)
+                 .ifPresent(indexUrl -> findings.add(new Finding(label, Localization.lang("URL points to %0, which indexes publications, but does not publish them. Link the publisher's page or give the DOI.", indexUrl.group(1)))));
             entry.getField(StandardField.JOURNAL)
                  .filter(journal -> VOLUME_IN_NAME.matcher(journal).find())
                  .ifPresent(journal -> findings.add(new Finding(label, Localization.lang("Journal name '%0' contains the volume. Put the volume into the volume field.", journal))));
@@ -128,7 +137,10 @@ public class PrintedReferencesCheck {
         BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(references, new BibEntryTypesManager(), (_, _) -> {
         });
         List<Finding> findings = new ArrayList<>();
-        result.entryTypeToResultMap().forEach((entryType, entryTypeResult) -> {
+        // The result map is filled from a HashMap; sorting keeps the output stable
+        result.entryTypeToResultMap().entrySet().stream().sorted(Comparator.comparing(typeResult -> typeResult.getKey().getName())).forEach(typeResult -> {
+            EntryType entryType = typeResult.getKey();
+            BibliographyConsistencyCheck.EntryTypeResult entryTypeResult = typeResult.getValue();
             List<BibEntry> entriesOfType = references.getEntries().stream().filter(entry -> entry.getType().equals(entryType)).toList();
             entryTypeResult.fields().stream().sorted(Comparator.comparing(Field::getName)).forEach(field ->
                     findings.add(new Finding("@" + entryType.getName(), Localization.lang("'%0' is printed for %1, but not for %2.",

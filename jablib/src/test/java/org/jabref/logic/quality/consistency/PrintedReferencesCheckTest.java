@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.jabref.logic.importer.fetcher.CrossRef;
+import org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -24,9 +25,10 @@ class PrintedReferencesCheckTest {
     void biblatexAlphabetic() throws URISyntaxException, IOException {
         Path pdf = Path.of(PrintedReferencesCheckTest.class.getResource("/pdfs/biblatex/alphabetic.pdf").toURI());
         assertEquals(List.of(
-                        new PrintedReferencesCheck.Finding("[adr26]", "No journal is printed. The entry type is probably wrong: use 'online' or 'misc' for web resources."),
+                        new PrintedReferencesCheck.Finding("[adr26]", "Nothing is printed after 'In:'. The venue is missing, or the entry type is wrong: use 'online' or 'misc' for web resources and preprints."),
                         new PrintedReferencesCheck.Finding("[AL26]", "DOI is given as URL 'https://doi.org/10.1016/j.cosrev.2026.100970'. Put only the DOI into the field, the style adds the link."),
                         new PrintedReferencesCheck.Finding("[ATN25]", "Journal name 'Frontiers in Artificial Intelligence Volume 8 - 2025' contains the volume. Put the volume into the volume field."),
+                        new PrintedReferencesCheck.Finding("[KAZ18]", "URL points to semanticscholar.org, which indexes publications, but does not publish them. Link the publisher's page or give the DOI."),
                         new PrintedReferencesCheck.Finding("@article", "'doi' is printed for [AL26], [ATN25], [Buc+23], but not for [adr26]."),
                         new PrintedReferencesCheck.Finding("@article", "'issn' is printed for [AL26], [ATN25], but not for [adr26], [Buc+23]."),
                         new PrintedReferencesCheck.Finding("@article", "'journal' is printed for [AL26], [ATN25], [Buc+23], but not for [adr26]."),
@@ -40,6 +42,19 @@ class PrintedReferencesCheckTest {
                         new PrintedReferencesCheck.Finding("@inproceedings", "'url' is printed for [KA19], [KAZ18], but not for [JB05]."),
                         new PrintedReferencesCheck.Finding("@inproceedings", "'volume' is printed for [KA19], but not for [JB05], [KAZ18].")),
                 new PrintedReferencesCheck(null).check(pdf));
+    }
+
+    @Test
+    void preprintWithoutVenueLinkedToSemanticScholar() {
+        String printed = """
+                [Zha+24]
+                Qintong Zhang et al. “Document Parsing Unveiled: Techniques, Challenges, and Prospects for Structured Information Extraction”. In: 2024. url: https://api.semanticscholar.org/CorpusID:27 3654101.
+                """;
+        BibDatabaseContext references = new BibDatabaseContext(new BibDatabase(new RuleBasedBibliographyPdfImporter().getEntriesFromPDFContent(printed)));
+        assertEquals(List.of(
+                        new PrintedReferencesCheck.Finding("[Zha+24]", "Nothing is printed after 'In:'. The venue is missing, or the entry type is wrong: use 'online' or 'misc' for web resources and preprints."),
+                        new PrintedReferencesCheck.Finding("[Zha+24]", "URL points to semanticscholar.org, which indexes publications, but does not publish them. Link the publisher's page or give the DOI.")),
+                new PrintedReferencesCheck(null).check(references));
     }
 
     @Test
