@@ -35,12 +35,15 @@ env:
   # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
   # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
   # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
-  # Merge order: BRANCHES, then PRS in the order given, then the automatic ones.
+  # Merge order: MILESTONES, then BRANCHES, then PRS in the order given, then the automatic ones.
+  # Only PRs neither on a milestone nor merged automatically belong here, e.g. JabRef/jabref PRs from forks.
   PRS: |
-    https://github.com/JabRef/jabref/pull/17163
-    https://github.com/JabRef/jabref-koppor/pull/760
-    https://github.com/JabRef/jabref-koppor/pull/768
     https://github.com/JabRef/jabref/pull/17134
+  # JabRef/jabref-koppor milestone numbers; their open PRs are merged before everything else, milestone by milestone
+  # (PRs within one milestone by number). 1 = soon-upstream, 2 = for-upstream.
+  MILESTONES: 1 2
+  # changelog-merge-driver commit merging origin/main's CHANGELOG.md (github.com/maven-flow/changelog-merge-driver/pull/14 from its fork)
+  DRIVER_REVISION: e3918645b2c15b5c010e7b1edd56e8721afcfedf
   # Shared shell helpers, loaded by every step with `eval "$HELPERS"`.
   HELPERS: |
     set -uo pipefail
@@ -65,6 +68,12 @@ env:
     }
     push() {
       git push --quiet koppor "HEAD:refs/heads/$TARGET"
+    }
+    # origin/main's CHANGELOG.md goes through the changelog merge driver: a release renames the unreleased heading in place,
+    # and a line-based merge then files every experimental-only entry under that release. Branches and PRs stay on union.
+    changelog_driver() {
+      sed -i '/^CHANGELOG.md merge=changelog$/d' .git/info/attributes
+      [ "$1" = off ] || echo 'CHANGELOG.md merge=changelog' >> .git/info/attributes
     }
     # Results of a step, printed as separate lists at its end by recap.
     MERGED=()
@@ -169,6 +178,8 @@ jobs:
           token: ${{ secrets.UPDATE_EXPERIMENTAL|| github.token }}
           submodules: 'true'
       - uses: ./.github/actions/setup-gradle
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
 
       - name: Check out ${{ env.TARGET }}
         run: |
@@ -180,6 +191,8 @@ jobs:
           # Requirement docs and the changelog get a section appended by nearly every PR, so they conflict all the time
           # although both sides belong in. Local attribute, only for building experimental.
           printf '%s\n' 'docs/requirements/*.md merge=union' 'CHANGELOG.md merge=union' >> .git/info/attributes
+          jbang trust add https://github.com/koppor/changelog-merge-driver/
+          git config merge.changelog.driver "jbang https://github.com/koppor/changelog-merge-driver/blob/$DRIVER_REVISION/ChangelogMergeDriver.java %A %O %B --rebase"
           git fetch --quiet --no-tags --prune origin
           git fetch --quiet --no-tags --prune koppor
           if git rev-parse -q --verify "koppor/$TARGET^{commit}" > /dev/null; then
@@ -210,6 +223,7 @@ jobs:
         run: |
           eval "$HELPERS"
           SECTION="Magic merge commits"
+          changelog_driver on
           found=false
           for squash in $(git rev-list --reverse --first-parent HEAD..origin/main); do
             head="$(gh api "repos/JabRef/jabref/commits/$squash/pulls" --jq ".[] | select(.merge_commit_sha == \"$squash\") | .head.sha")" || continue
@@ -226,18 +240,21 @@ jobs:
           else
             info "No squash-merged PR that $TARGET already contains"
           fi
+          changelog_driver off
           echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
       - name: Merge origin/main
         run: |
           eval "$HELPERS"
           SECTION="origin/main"
+          changelog_driver on
           if git merge-base --is-ancestor origin/main HEAD; then
             ok "origin/main: already in $TARGET (merged by an earlier run)"
           else
             merge origin/main origin/main
             recap "Merged"
           fi
+          changelog_driver off
           echo "GREEN=$GREEN" >> "$GITHUB_ENV"
 
       - name: Collect branches and pull requests
@@ -256,6 +273,49 @@ jobs:
             fi
           }
 
+          # pr_candidate <url>: resolve an open PR's head and queue it.
+          pr_candidate() {
+            local pr info state branch head_repo head_sha repo ref
+            pr="${1%%#*}"
+            pr="$(echo "$pr" | xargs)"
+            [ -n "$pr" ] || return 0
+            # Fork PRs have no branch in origin/koppor; resolve the head via the API. The head commit is fetched from the
+            # head repository: refs/pull/N/head sometimes lags behind the branch.
+            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
+              --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName) \(.headRepositoryOwner.login)/\(.headRepository.name) \(.headRefOid)"')"; then
+              bad "$pr: not found"
+              echo "::warning title=PR not found::$pr - skipped"
+              summary "- :warning: $pr - not found, skipped"
+              return 0
+            fi
+            read -r state branch head_repo head_sha <<< "$info"
+            if [ "$state" != OPEN ]; then
+              info "$branch ($pr): $state, skipped"
+              summary "- :warning: \`$branch\` ($pr) - $state, skipped"
+              return 0
+            fi
+            repo="${pr%/pull/*}"
+            ref="refs/candidates/${repo##*/}/${pr##*/}"
+            if ! git fetch --quiet --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
+              bad "$branch ($pr): head cannot be fetched"
+              echo "::warning title=Head not fetchable::$pr - skipped"
+              summary "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped"
+              return 0
+            fi
+            candidate "$ref" "$branch" "($pr)"
+          }
+
+          echo "::group::Milestones"
+          milestone_prs=""
+          for milestone in $MILESTONES; do
+            milestone_prs+="$(gh api "repos/JabRef/jabref-koppor/issues?milestone=$milestone&state=open&per_page=100" \
+              --jq 'map(select(.pull_request)) | sort_by(.number) | .[].html_url')"$'\n'
+          done
+          while read -r pr; do
+            pr_candidate "$pr"
+          done <<< "$milestone_prs"
+          echo "::endgroup::"
+
           echo "::group::Branches"
           while read -r branch; do
             branch="${branch%%#*}"
@@ -271,40 +331,16 @@ jobs:
           done <<< "$BRANCHES"
           echo "::endgroup::"
 
-          # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates.
+          # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates and the
+          # milestone PRs merged above.
           upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository \
             --jq '.[] | select((.isDraft or .isCrossRepository) | not) | .url')"
-          PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" | awk '!seen[$0]++')"
+          PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" \
+            | MILESTONE_PRS="$milestone_prs" awk 'BEGIN { n = split(ENVIRON["MILESTONE_PRS"], d, "\n"); for (i = 1; i <= n; i++) seen[d[i]] = 1 } !seen[$0]++')"
 
           echo "::group::Pull requests"
           while read -r pr; do
-            pr="${pr%%#*}"
-            pr="$(echo "$pr" | xargs)"
-            [ -n "$pr" ] || continue
-            # Fork PRs have no branch in origin/koppor; resolve the head via the API. The head commit is fetched from the
-            # head repository: refs/pull/N/head sometimes lags behind the branch.
-            if ! info="$(gh pr view "$pr" --json state,headRepositoryOwner,headRepository,headRefName,headRefOid \
-              --jq '"\(.state) \(.headRepositoryOwner.login):\(.headRefName) \(.headRepositoryOwner.login)/\(.headRepository.name) \(.headRefOid)"')"; then
-              bad "$pr: not found"
-              echo "::warning title=PR not found::$pr - skipped"
-              summary "- :warning: $pr - not found, skipped"
-              continue
-            fi
-            read -r state branch head_repo head_sha <<< "$info"
-            if [ "$state" != OPEN ]; then
-              info "$branch ($pr): $state, skipped"
-              summary "- :warning: \`$branch\` ($pr) - $state, skipped"
-              continue
-            fi
-            repo="${pr%/pull/*}"
-            ref="refs/candidates/${repo##*/}/${pr##*/}"
-            if ! git fetch --quiet --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
-              bad "$branch ($pr): head cannot be fetched"
-              echo "::warning title=Head not fetchable::$pr - skipped"
-              summary "- :warning: \`$branch\` ($pr) - head cannot be fetched, skipped"
-              continue
-            fi
-            candidate "$ref" "$branch" "($pr)"
+            pr_candidate "$pr"
           done <<< "$PRS"
           echo "::endgroup::"
           info "$(wc -l < "$candidates") refs to merge"
