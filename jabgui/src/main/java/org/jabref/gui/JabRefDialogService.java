@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.print.PrinterJob;
@@ -25,6 +26,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -59,6 +61,8 @@ import org.jabref.model.http.SimpleHttpResponse;
 import com.dlsc.gemsfx.infocenter.Notification;
 import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
+import com.tobiasdiez.easybind.Subscription;
 import org.controlsfx.control.TaskProgressView;
 import org.controlsfx.control.textfield.CustomPasswordField;
 import org.controlsfx.dialog.ExceptionDialog;
@@ -429,34 +433,54 @@ public class JabRefDialogService implements DialogService {
     }
 
     @Override
-    public Optional<ButtonType> showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager) {
-        TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
-        EasyBind.bindContent(taskProgressView.getTasks(), stateManager.getRunningBackgroundTasks());
-        taskProgressView.setRetainTasks(false);
-        taskProgressView.setGraphicFactory(task -> ThemeManager.downloadIconTitleMap.getOrDefault(task.getTitle(), null));
-
-        Label message = new Label(content);
-
-        VBox box = new VBox(taskProgressView, message);
-
+    public boolean showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager) {
         DialogPane contentPane = new DialogPane();
-        contentPane.setContent(box);
+
+        ButtonType quit = new ButtonType(Localization.lang("Quit anyway"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType keepOpen = new ButtonType(Localization.lang("Keep JabRef open"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
         FXDialog alert = new FXDialog(AlertType.WARNING, title);
+        contentPane.setContent(new VBox(createBackgroundTasksView(stateManager, alert), new Label(content)));
         alert.setDialogPane(contentPane);
-        alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.CANCEL);
+        alert.getButtonTypes().setAll(quit, keepOpen);
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.setResizable(true);
         alert.initOwner(mainWindow);
 
-        stateManager.getAnyTasksThatWillNotBeRecoveredRunning().addListener((_, _, newValue) -> {
+        EasyBinding<Boolean> tasksRunning = stateManager.getAnyTasksThatWillNotBeRecoveredRunning();
+        ChangeListener<Boolean> closeWhenDone = (_, _, newValue) -> {
             if (!newValue) {
-                alert.setResult(ButtonType.YES);
+                alert.setResult(quit);
                 alert.close();
             }
-        });
+        };
+        tasksRunning.addListener(closeWhenDone);
+        alert.setOnHidden(_ -> tasksRunning.removeListener(closeWhenDone));
 
-        return alert.showAndWait();
+        return alert.showAndWait().filter(quit::equals).isPresent();
+    }
+
+    @Override
+    public void showBackgroundTasksDialog(StateManager stateManager) {
+        DialogPane contentPane = new DialogPane();
+
+        FXDialog dialog = new FXDialog(AlertType.INFORMATION, Localization.lang("Background tasks"), false);
+        contentPane.setContent(createBackgroundTasksView(stateManager, dialog));
+        dialog.setDialogPane(contentPane);
+        dialog.getButtonTypes().setAll(ButtonType.CLOSE);
+        dialog.setResizable(true);
+        dialog.initOwner(mainWindow);
+        dialog.show();
+    }
+
+    /// The binding is released when `dialog` is hidden: the task list outlives every dialog showing it.
+    private static TaskProgressView<Task<?>> createBackgroundTasksView(StateManager stateManager, Dialog<?> dialog) {
+        TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
+        Subscription tasks = EasyBind.bindContent(taskProgressView.getTasks(), stateManager.getRunningBackgroundTasks());
+        dialog.addEventHandler(DialogEvent.DIALOG_HIDDEN, _ -> tasks.unsubscribe());
+        taskProgressView.setRetainTasks(false);
+        taskProgressView.setGraphicFactory(task -> ThemeManager.downloadIconTitleMap.getOrDefault(task.getTitle(), null));
+        return taskProgressView;
     }
 
     @Override
