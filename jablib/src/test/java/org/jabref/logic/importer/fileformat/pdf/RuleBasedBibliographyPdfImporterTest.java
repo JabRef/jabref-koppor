@@ -271,7 +271,7 @@ class RuleBasedBibliographyPdfImporterTest {
 
     @Test
     void biblatexAlphabetic() throws URISyntaxException {
-        // [utest->req~import.pdf.references.biblatex~1]
+        // [utest->req~import.pdf.references.labelled~1]
         Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class.getResource("/pdfs/biblatex/alphabetic.pdf").toURI());
         ParserResult parserResult = ruleBasedBibliographyPdfImporter.importDatabase(file);
 
@@ -356,7 +356,7 @@ class RuleBasedBibliographyPdfImporterTest {
 
     @Test
     void biblatexInProceedingsWithEditorsSeriesAndLocation() {
-        // [utest->req~import.pdf.references.biblatex~1]
+        // [utest->req~import.pdf.references.labelled~1]
         BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("Mül+20")
                 .withField(StandardField.AUTHOR, "Hans Müller and Eva Schmidt and Jan Kurz")
@@ -373,6 +373,23 @@ class RuleBasedBibliographyPdfImporterTest {
                 .withField(StandardField.COMMENT, "[Mül+20] Hans Müller, Eva Schmidt, and Jan Kurz. “A Title”. In: Proceedings of Something. Ed. by Anna Weber and Bernd Koch. Vol. 12. LNCS. Berlin: Springer, 2020, pp. 1–10. doi: 10.1007/978-3-030-00000-0_1.");
         List<RuleBasedBibliographyPdfImporter.IntermediateData> intermediateData = RuleBasedBibliographyPdfImporter.getIntermediateData(expected.getField(StandardField.COMMENT).get());
         assertEquals(expected, ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.getFirst().label(), intermediateData.getFirst().reference()));
+    }
+
+    @Test
+    void splitsAtBibtexAlphaLabels() {
+        // [utest->req~import.pdf.references.labelled~1]
+        String contents = """
+                [AL26] Aisha Alansari and Hamzah Luqman. Large language models hallucination: A comprehensive survey. Computer Science Review,
+                61:100970, 2026.
+                [BSG+ 23] Georg Buchgeher, Stefan Schöberl, Verena Geist, Bernhard
+                Dorninger, Philipp Haindl, and Rainer Weinreich. Using architecture
+                decision records in open source projects—an msr study on github.
+                IEEE Access, 11:63725–63740, 2023.
+                """;
+        assertEquals(List.of(
+                        new RuleBasedBibliographyPdfImporter.IntermediateData("AL26", "Aisha Alansari and Hamzah Luqman. Large language models hallucination: A comprehensive survey. Computer Science Review, 61:100970, 2026."),
+                        new RuleBasedBibliographyPdfImporter.IntermediateData("BSG+23", "Georg Buchgeher, Stefan Schöberl, Verena Geist, Bernhard Dorninger, Philipp Haindl, and Rainer Weinreich. Using architecture decision records in open source projects—an msr study on github. IEEE Access, 11:63725–63740, 2023.")),
+                RuleBasedBibliographyPdfImporter.getIntermediateData(contents));
     }
 
     static Stream<BibEntry> references() {
