@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added ARM64 Flatpak builds and nightly, beta, and stable channels. [#13349](https://github.com/JabRef/jabref/issues/13349)
 - We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
 - We added tooltips with action descriptions to menu items. [#9615](https://github.com/JabRef/jabref/issues/9615)
 - We added "Contribute to JabRef" to the Help menu, linking to [contribute.jabref.org](https://contribute.jabref.org). [#17162](https://github.com/JabRef/jabref/pull/17162)
@@ -33,6 +34,10 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
 - We added pushing the current library to [CiteDrive](https://www.citedrive.com/), including logging in to CiteDrive. [#14493](https://github.com/JabRef/jabref/pull/14493)
 - Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added tooltips with action descriptions to menu items. [#9615](https://github.com/JabRef/jabref/issues/9615)
+- We added "Contribute to JabRef" to the Help menu, linking to [contribute.jabref.org](https://contribute.jabref.org). [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
+- We added a find bar to the AI chat, opened with <kbd>Ctrl</kbd> + <kbd>F</kbd>. [#17183](https://github.com/JabRef/jabref/pull/17183)
 
 ### Changed
 
@@ -45,8 +50,10 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
 - We re-enabled the [Grobid](https://github.com/grobidOrg/grobid) citation fetcher again. It is now reachable via https. [#16668](https://github.com/JabRef/jabref/issues/16668)
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
+- We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
 - We fixed an issue where pressing "+" in the "File" field with an automatically found file selected opened the "Add file link" dialog instead of linking the selected file. [#16938](https://github.com/JabRef/jabref/pull/16938)
 - We fixed an issue where the consistency check listed the entry types in random order. [#779](https://github.com/JabRef/jabref-koppor/pull/779)
 - We fixed an issue where closing a library did not free its memory, so a session that opened and closed several libraries kept all of them in memory. [#16948](https://github.com/JabRef/jabref/pull/16948)
@@ -77,6 +84,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
+- We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
+- We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
+- We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
+- We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
+- We fixed an issue where "Regenerate (custom)" in the AI summary ignored the chosen summarization algorithm. [#17216](https://github.com/JabRef/jabref/issues/17216)
 
 ### Removed
 
