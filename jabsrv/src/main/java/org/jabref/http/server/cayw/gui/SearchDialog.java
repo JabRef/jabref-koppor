@@ -1,6 +1,5 @@
 package org.jabref.http.server.cayw.gui;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
@@ -13,7 +12,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -91,16 +89,7 @@ public class SearchDialog {
         dialogStage.setScene(scene);
 
         if (!OS.OS_X) {
-            try (InputStream inputStream = getClass().getResourceAsStream("/JabRef-icon-64.png")) {
-                if (inputStream == null) {
-                    LOGGER.warn("Error loading icon for SearchDialog");
-                } else {
-                    Image icon = new Image(inputStream);
-                    dialogStage.getIcons().add(icon);
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Error loading icon for SearchDialog", e);
-            }
+            IconThemeHelper.applyLogo(dialogStage);
         }
 
         dialogStage.setX((screenBounds.getWidth() - dialogWidth) / 2);

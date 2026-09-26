@@ -31,3 +31,14 @@ cp jabgui/build/icon-composer/Assets.car jabgui/buildres/macos/Resources/Assets.
 
 The `.icns` remains the fallback for older macOS versions.
 The DMG volume icon remains unchanged.
+
+## Clearing macOS icon cache
+
+When testing local packages or changing bundle icons, macOS LaunchServices may serve previously cached icons. To reset:
+
+```bash
+# Clear quarantine and re-register bundle
+xattr -cr /path/to/JabRef.app
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /path/to/JabRef.app
+killall Dock
+```

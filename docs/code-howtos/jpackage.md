@@ -35,6 +35,16 @@ must match `CFBundleIconName` in `jabgui/buildres/macos/Info.plist`.
 To regenerate the SVG artwork and `.icns` fallback, install `librsvg` and run
 `python3 jabgui/src/main/resources/icons/generate-dynamic-icns.py`.
 
+### Clearing macOS icon cache
+
+When testing newly packaged `.app` bundles on macOS, LaunchServices may retain previously cached icons for `org.jabref`. To force macOS to refresh:
+
+```bash
+xattr -cr jabgui/build/packages/macos-*/JabRef.app
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f jabgui/build/packages/macos-*/JabRef.app
+killall Dock
+```
+
 ## Debugging jpackage installations
 
 Sometimes issues with modularity only arise in the installed version and do not occur if you run from source. Using remote debugging, it's still possible to hook your IDE into the running JabRef application to enable debugging.
