@@ -36,6 +36,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
 - We added pushing the current library to [CiteDrive](https://www.citedrive.com/), including logging in to CiteDrive. [#14493](https://github.com/JabRef/jabref/pull/14493)
 - Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
+- We added a find bar to the AI chat, opened with <kbd>Ctrl</kbd> + <kbd>F</kbd>. [#17183](https://github.com/JabRef/jabref/pull/17183)
 
 ### Changed
 
