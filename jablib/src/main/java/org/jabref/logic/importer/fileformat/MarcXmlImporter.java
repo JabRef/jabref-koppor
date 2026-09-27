@@ -79,7 +79,7 @@ public class MarcXmlImporter extends Importer {
             }
             return new ParserResult(new MarcXmlParser().parseEntries(
                     new ByteArrayInputStream(scanResult.sruXml().getBytes(StandardCharsets.UTF_8))));
-        } catch (ParseException | XMLStreamException e) {
+        } catch (ParseException | XMLStreamException | NumberFormatException e) {
             LOGGER.debug("Could not parse MARCXML", e);
             return ParserResult.fromError(e);
         }
@@ -161,8 +161,12 @@ public class MarcXmlImporter extends Importer {
                 depth++;
                 if (depth == 2) {
                     recognized |= switch (reader.getLocalName()) {
-                        case "leader", "controlfield", "datafield" -> true;
-                        default -> false;
+                        case "leader",
+                             "controlfield",
+                             "datafield" ->
+                                true;
+                        default ->
+                                false;
                     };
                     if ("datafield".equals(reader.getLocalName())) {
                         writer.writeStartElement("datafield");

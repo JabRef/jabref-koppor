@@ -8,6 +8,7 @@ import java.util.List;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.types.StandardEntryType;
 
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
@@ -68,8 +69,45 @@ class MarcXmlImporterTest {
 
         assertTrue(importer.isRecognizedFormat(collection));
         assertEquals(List.of("First book", "Second book"), importer.importDatabase(collection).getDatabase().getEntries().stream()
-                                                               .map(entry -> entry.getField(StandardField.TITLE).orElseThrow())
-                                                               .toList());
+                                                                   .map(entry -> entry.getField(StandardField.TITLE).orElseThrow())
+                                                                   .toList());
+    }
+
+    @Test
+    void identifiesArticleFromHostIssnWithoutHostControlSubfield() throws IOException {
+        String xml = """
+                <record xmlns="http://www.loc.gov/MARC21/slim">
+                  <leader>00000nam a2200000 a 4500</leader>
+                  <datafield tag="245"><subfield code="a">An article</subfield></datafield>
+                  <datafield tag="773">
+                    <subfield code="t">A journal</subfield>
+                    <subfield code="x">0021-8553</subfield>
+                    <subfield code="g">pages:1-5</subfield>
+                  </datafield>
+                </record>
+                """;
+
+        BibEntry article = importer.importDatabase(xml).getDatabase().getEntries().getFirst();
+
+        assertEquals(StandardEntryType.Article, article.getType());
+        assertEquals("A journal", article.getField(StandardField.JOURNAL).orElseThrow());
+        assertEquals("0021-8553", article.getField(StandardField.ISSN).orElseThrow());
+        assertEquals("1-5", article.getField(StandardField.PAGES).orElseThrow());
+    }
+
+    @Test
+    void importsPublicationYearWithIsbdPunctuation() throws IOException {
+        String xml = """
+                <record xmlns="http://www.loc.gov/MARC21/slim">
+                  <leader>00000nam a2200000 a 4500</leader>
+                  <datafield tag="245"><subfield code="a">A book</subfield></datafield>
+                  <datafield tag="264" ind2="1"><subfield code="c">2023.</subfield></datafield>
+                </record>
+                """;
+
+        BibEntry book = importer.importDatabase(xml).getDatabase().getEntries().getFirst();
+
+        assertEquals("2023", book.getField(StandardField.YEAR).orElseThrow());
     }
 
     @Test
@@ -85,6 +123,18 @@ class MarcXmlImporterTest {
 
         assertTrue(result.isInvalid());
         assertEquals(0, result.getDatabase().getEntryCount());
+    }
+
+    @Test
+    void malformedDatafieldTagsReturnInvalidResult() throws IOException {
+        for (String attribute : List.of("tag=\"abc\"", "")) {
+            String xml = RECORD.replace("tag=\"245\"", attribute);
+
+            ParserResult result = importer.importDatabase(xml);
+
+            assertTrue(result.isInvalid());
+            assertEquals(0, result.getDatabase().getEntryCount());
+        }
     }
 
     @Test
