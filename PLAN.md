@@ -27,7 +27,7 @@ A term the code needs and the glossary lacks is added to the glossary first, in 
 
 Merging removes the excuse, not the anemia. The rich model then follows a rule of thumb applied at every touch, not as a project:
 
-- Needs only its own state → method on the object. `library.merge(other)` (the keyword separator already sits in the library's `MetaData`), `content.inferMode()`, `entries.purgeEmpty()`.
+- Needs only its own state → method on the object. `library.merge(other)` (the keyword separator already sits in the library's `MetaData`), `library.inferMode()`, `library.purgeEmptyEntries()`.
 - Needs I/O, preferences of other objects, or several aggregates → service class in the same package (`BibtexParser`, `BibDatabaseWriter`, fetchers). Preferences stay parameters.
 
 ### Steps to merge
@@ -42,28 +42,31 @@ Merging removes the excuse, not the anemia. The rich model then follows a rule o
 
 The glossary reserves *database* for SQL storage and defines *library* as the `.bib` file with its entries and metadata. The code says both: `LibraryTab.getBibDatabaseContext()`, `StateManager.getActiveDatabase()` in 107 files next to `getActiveLibrary()` in 3. `BibDatabaseContext` has 2,292 usages, `BibDatabase` 1,139, `BibDatabaseMode` 619.
 
+The library is also split in two along an accidental line, content versus envelope. Callers reach through the envelope in 550 places (`getDatabase().getEntries()` alone 304 times), the context already delegates `getEntries()`, `DatabaseMerger.merge` exists once per class, and "is shared" is stored in both (`BibDatabase.sharedDatabaseID`, `BibDatabaseContext.location`), so the two can disagree. A `BibDatabase` without a context is rare in main code: 34 constructions, importers mostly.
+
 ### Mapping
 
 | Today | Proposed | Note |
 | --- | --- | --- |
-| `BibDatabaseContext` | `Library` (decided 2026-09-28) | Content, `MetaData`, path, location: exactly what a `LibraryTab` shows. `LibraryTab.getLibrary()`. Not `LibraryFile`: a shared library has no file |
-| `BibDatabase` | `LibraryEntries` (decided 2026-09-28) | The `Library`/`LibraryEntries` pair, parallel to `Library`/`MetaData`. Not `LibraryFile`: a subset of the file must not carry the file's name. Follow-up below |
+| `BibDatabaseContext` + `BibDatabase` | one class `Library` (decided 2026-09-28) | Entries, `@string` constants, preamble, `MetaData`, location: exactly what a `LibraryTab` shows. `LibraryTab.getLibrary()`. Not `LibraryFile`: a shared library has no file. About 1,100 lines; if that hurts, the `@string` handling (own map, `resolveForStrings`, about 150 lines) is the one cohesive piece to extract |
 | `BibDatabaseMode`, `BibDatabaseModeDetection` | `LibraryMode`, `LibraryModeDetection` | |
 | `BibDatabases`, `BibDatabaseContextChangedEvent` | fold into the object; `LibraryChangedEvent` | |
 | `DatabaseLocation {LOCAL, SHARED}` | `LibraryLocation` | Follow-up below |
 | `logic`: `DatabaseMerger`, `BibDatabaseDiff`, `BibDatabaseWriter`, `OpenDatabase`, `DatabaseChecker`, `DatabaseFileLookup`, `DatabaseCitationKeyPatterns`, `*AiDatabaseListener` (3), `PerformLoadDatabaseMigrations` | `Library…` | 11 classes |
 | `gui`: `SaveDatabaseAction`, `OpenDatabaseAction`, `NewDatabaseAction`, `collab.DatabaseChange*` (9) | `Library…` | 12 classes |
-| `getActiveDatabase()`, `getOpenDatabases()`, `getDatabase()`, fields `bibDatabaseContext`/`databaseContext` | `getActiveLibrary()`, `getOpenLibraries()`, `getEntries()`, `library` | IntelliJ rename, not a recipe. `getEntries()` returns `LibraryEntries` like `getMetaData()` returns `MetaData`; the observable list sits behind `LibraryEntries.asList()`, replacing 304 `getDatabase().getEntries()` chains and the 8 users of the context's list delegate |
+| `getActiveDatabase()`, `getOpenDatabases()`, fields `bibDatabaseContext`/`databaseContext` | `getActiveLibrary()`, `getOpenLibraries()`, `library` | IntelliJ rename, not a recipe |
+| `getDatabase()` | gone | `library.getEntries()`, `library.insertEntry(…)`: the 550 chains lose one hop |
 | `logic.shared.*` (`DatabaseConnection`, `DatabaseSynchronizer`, `SharedDatabase*`), `MSBibDatabase`, `OOCalcDatabase` | unchanged | These are SQL databases or foreign formats |
 | l10n: "No database is open", "Database:", the pre-3.6 migration texts | "library" | 8 of 18 `database` strings; the shared/online ones stay. Translations of the 8 are lost and redone on Crowdin |
 
-**Follow-ups, not in the rename PR.** `BibDatabase` also holds the preamble, the epilog and the `@string` constants. They are file-level like `MetaData`, so under the name `LibraryEntries` they move up to `Library` (about 50 call sites, `getPreamble` and `getStringValues` mostly). `BibDatabaseContext` keeps a nullable `path`, a nullable `dbmsSynchronizer` and a `location` flag that `convertToSharedDatabase`/`convertToLocalDatabase` must keep consistent. A sealed `LibraryLocation` (`Unsaved`, `File(path)`, `SharedDatabase(synchronizer)`) makes the glossary distinction a type instead of three fields.
+**Follow-ups, not in the rename PR.** `isShared()` via `sharedDatabaseID` goes; `location` is the single source of truth. `BibDatabaseContext` keeps a nullable `path`, a nullable `dbmsSynchronizer` and a `location` flag that `convertToSharedDatabase`/`convertToLocalDatabase` must keep consistent. A sealed `LibraryLocation` (`Unsaved`, `File(path)`, `SharedDatabase(synchronizer)`) makes the glossary distinction a type instead of three fields.
 
 ### Steps to rename
 
 1. Glossary: add `database.md` (SQL storage behind a shared library; JabRef term "shared database") so the reservation is citable. Fix `library.md` (broken `[citation key]` link) and `references.md` ("a bibliography corresponds to a .bib file" contradicts `library.md`).
 2. ADR (next free number) "Code names follow the glossary: library, not database". One paragraph, the mapping table, the exclusions.
-3. OpenRewrite `ChangeType` recipe for the 29 class renames, then IntelliJ rename for methods and fields, then the 8 l10n strings. Runs after step 1.3 so files move once.
+3. OpenRewrite `ChangeType` recipe for the 28 class renames, then IntelliJ rename for methods and fields, then the 8 l10n strings. Runs after step 1.3 so files move once.
+4. Fold `BibDatabase` into `Library`, each step compiling: (a) `Library extends BibDatabase`, the `database` field goes, `getDatabase()` returns `this`; (b) IntelliJ "Inline method" on `getDatabase()` collapses the 550 chains; (c) `ChangeType BibDatabase → Library` for the 89 parameters and the 34 + 292 constructions; (d) IntelliJ "Inline Super Class" moves the members in. Own PR, right after step 2.3.
 
 ## 3. Mechanics shared by both PRs
 
