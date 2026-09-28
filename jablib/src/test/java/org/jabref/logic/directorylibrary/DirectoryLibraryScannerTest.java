@@ -97,8 +97,9 @@ class DirectoryLibraryScannerTest {
 
         assertEquals(DatabaseLocation.DIRECTORY, result.databaseContext().getLocation());
         assertEquals(Optional.of(root), result.databaseContext().getDirectoryLibraryRoot());
-        assertEquals(Optional.of(root.toAbsolutePath().toString()),
-                result.databaseContext().getMetaData().getLibrarySpecificFileDirectory());
+        FilePreferences filePreferences = mock(FilePreferences.class);
+        when(filePreferences.getUserAndHost()).thenReturn("user-host");
+        assertEquals(List.of(root.toAbsolutePath()), result.databaseContext().getFileDirectories(filePreferences));
         assertEquals(Optional.empty(), result.databaseContext().getDatabasePath());
     }
 
