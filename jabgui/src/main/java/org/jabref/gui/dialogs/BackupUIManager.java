@@ -8,7 +8,6 @@ import java.util.Optional;
 import javafx.scene.control.ButtonType;
 
 import org.jabref.gui.DialogService;
-import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autosaveandbackup.BackupManager;
 import org.jabref.gui.backup.BackupResolverDialog;
@@ -24,10 +23,12 @@ import org.jabref.logic.importer.OpenDatabase;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.io.BackupFileUtil;
+import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,16 +120,14 @@ public class BackupUIManager {
                 Optional<Boolean> allChangesResolved = dialogService.showCustomDialogAndWait(reviewBackupDialog);
                 if (allChangesResolved.orElse(false)) {
                     List<DatabaseChange> resolvedChanges = reviewBackupDialog.getResolvedChanges();
-                    LibraryTab saveState = stateManager.activeTabProperty().get().get();
+                    // The library is still being opened, so no tab exists for it yet - the active tab (if any) belongs to another
+                    // library. Its change monitor is set up when the tab is created.
                     stateManager.getUndoManager(originalDatabase).addEdit(Localization.lang("Merged external changes"), edit ->
                             resolvedChanges.stream().filter(DatabaseChange::isAccepted).forEach(change -> change.applyChange(edit)));
-                    if (reviewBackupDialog.areAllChangesDenied()) {
-                        // Here the case of a backup file is handled: If no changes of the backup are merged in, the file stays the same
-                        saveState.resetChangeMonitor();
-                    }
 
                     // In case any change of the backup is accepted, the in-memory file differs from the file on disk (which is not the backup file)
                     // This does NOT return the original ParserResult, but a modified version with all changes accepted or rejected
+                    markRecoveredIfContentRestored(originalParserResult);
                     return Optional.of(originalParserResult);
                 }
 
@@ -138,6 +137,26 @@ public class BackupUIManager {
         } catch (IOException e) {
             LOGGER.error("Error while loading backup or current database", e);
             return Optional.empty();
+        }
+    }
+
+    /// An original that could not be parsed at all (e.g. it still contains merge conflict markers) leaves its
+    /// [ParserResult] marked invalid, and the caller reports that as an open error and closes the tab. Reviewing a
+    /// backup merges content into that same result, so the flag has to be cleared once something was actually
+    /// recovered - otherwise the recovery is discarded right after the user performed it.
+    ///
+    /// Whether a change was accepted is not a sufficient signal: a backup that differs only in its groups produces
+    /// both a metadata change and a group change, and accepting the metadata change alone restores nothing. So the
+    /// restored content itself is what decides. If nothing was restored the result stays invalid and the unreadable
+    /// original is still reported.
+    @VisibleForTesting
+    static void markRecoveredIfContentRestored(ParserResult parserResult) {
+        BibDatabase database = parserResult.getDatabase();
+        boolean restoredContent = database.hasEntries()
+                || !database.hasNoStrings()
+                || database.getPreamble().isPresent();
+        if (restoredContent) {
+            parserResult.setInvalid(false);
         }
     }
 }
