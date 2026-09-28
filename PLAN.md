@@ -46,8 +46,8 @@ The glossary reserves *database* for SQL storage and defines *library* as the `.
 
 | Today | Proposed | Note |
 | --- | --- | --- |
-| `BibDatabaseContext` | `Library` | Content, `MetaData`, path, location: exactly what a `LibraryTab` shows. `LibraryTab.getLibrary()` |
-| `BibDatabase` | `LibraryFile` (as requested) | See open question 2 |
+| `BibDatabaseContext` | `Library` (decided 2026-09-28) | Content, `MetaData`, path, location: exactly what a `LibraryTab` shows. `LibraryTab.getLibrary()`. Not `LibraryFile`: a shared library has no file |
+| `BibDatabase` | `LibraryContent` | Entries, `@string` constants, preamble, epilog: a subset of what the file holds, so not `LibraryFile`. Most callers use `Library.getEntries()` and never see it. See question 2 |
 | `BibDatabaseMode`, `BibDatabaseModeDetection` | `LibraryMode`, `LibraryModeDetection` | |
 | `BibDatabases`, `BibDatabaseContextChangedEvent` | fold into the object; `LibraryChangedEvent` | |
 | `DatabaseLocation {LOCAL, SHARED}` | `LibraryLocation` | Follow-up below |
@@ -80,6 +80,6 @@ Redesigning `BibEntry` or `MetaData`; renaming anything under `logic.shared`; op
 ## 5. Questions for review
 
 1. Option A, or B right away?
-2. `BibDatabase` → `LibraryFile` names the in-memory entry collection after a file that a shared library does not have; the path lives in `BibDatabaseContext`. Alternative: `LibraryContent`, with `Library.getEntries()` (exists today as a delegate) hiding it from most callers. Which?
+2. `BibDatabase` → `LibraryContent`, or a better name for the entry collection? `LibraryFile` is out: it would name a subset of the file after the file, and shared libraries have no file at all.
 3. One combined PR (one conflict event for open PRs) or two PRs as planned (two reviewable steps)?
 4. Who announces the window and when?
