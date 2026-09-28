@@ -87,7 +87,7 @@ public class DefaultLatexParser implements LatexParser {
             // We ignore this error and just continue with parsing
             LOGGER.warn("Parsing has been interrupted");
         } catch (IOException | UncheckedIOException e) {
-            // Some weired error during reading
+            // Some weird error during reading
             // We ignore this error and just continue with parsing
             LOGGER.error("Error while parsing file {}", latexFile, e);
         }
