@@ -2,6 +2,8 @@ package org.jabref.gui.externalfiles;
 
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.RenamePdfCleanup;
+import org.jabref.logic.shared.DatabaseLocation;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
@@ -14,19 +16,27 @@ import org.slf4j.LoggerFactory;
 public class AutoRenameFileOnEntryChange {
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoRenameFileOnEntryChange.class);
 
+    private final BibDatabaseContext bibDatabaseContext;
     private final FilePreferences filePreferences;
     private final RenamePdfCleanup renamePdfCleanup;
 
     public AutoRenameFileOnEntryChange(BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences) {
+        this.bibDatabaseContext = bibDatabaseContext;
         this.filePreferences = filePreferences;
         renamePdfCleanup = new RenamePdfCleanup(false, () -> bibDatabaseContext, filePreferences);
     }
 
+    /// The library properties override the global preference when set (`MetaData#getAutoRenameFilesOnChange`);
+    /// without a filename pattern there is nothing to rename to.
+    public static boolean isEnabled(BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences) {
+        return !StringUtil.isBlank(filePreferences.getFileNamePattern())
+                && bibDatabaseContext.getMetaData().getAutoRenameFilesOnChange().orElseGet(filePreferences::shouldAutoRenameFilesOnChange);
+    }
+
     @Subscribe
     public void listen(FieldChangedEvent event) {
-        if (!filePreferences.shouldAutoRenameFilesOnChange()
-                || filePreferences.getFileNamePattern().isEmpty()
-                || filePreferences.getFileNamePattern() == null) {
+        // A directory library renames its sidecar/PDF pairs in the write-back (see SidecarWriteBack)
+        if (bibDatabaseContext.getLocation() == DatabaseLocation.DIRECTORY || !isEnabled(bibDatabaseContext, filePreferences)) {
             return;
         }
 
