@@ -47,17 +47,17 @@ The glossary reserves *database* for SQL storage and defines *library* as the `.
 | Today | Proposed | Note |
 | --- | --- | --- |
 | `BibDatabaseContext` | `Library` (decided 2026-09-28) | Content, `MetaData`, path, location: exactly what a `LibraryTab` shows. `LibraryTab.getLibrary()`. Not `LibraryFile`: a shared library has no file |
-| `BibDatabase` | `LibraryContent` | Entries, `@string` constants, preamble, epilog: a subset of what the file holds, so not `LibraryFile`. Most callers use `Library.getEntries()` and never see it. See question 2 |
+| `BibDatabase` | `LibraryEntries` (decided 2026-09-28) | The `Library`/`LibraryEntries` pair, parallel to `Library`/`MetaData`. Not `LibraryFile`: a subset of the file must not carry the file's name. Follow-up below |
 | `BibDatabaseMode`, `BibDatabaseModeDetection` | `LibraryMode`, `LibraryModeDetection` | |
 | `BibDatabases`, `BibDatabaseContextChangedEvent` | fold into the object; `LibraryChangedEvent` | |
 | `DatabaseLocation {LOCAL, SHARED}` | `LibraryLocation` | Follow-up below |
 | `logic`: `DatabaseMerger`, `BibDatabaseDiff`, `BibDatabaseWriter`, `OpenDatabase`, `DatabaseChecker`, `DatabaseFileLookup`, `DatabaseCitationKeyPatterns`, `*AiDatabaseListener` (3), `PerformLoadDatabaseMigrations` | `Library…` | 11 classes |
 | `gui`: `SaveDatabaseAction`, `OpenDatabaseAction`, `NewDatabaseAction`, `collab.DatabaseChange*` (9) | `Library…` | 12 classes |
-| `getActiveDatabase()`, `getOpenDatabases()`, `getDatabase()`, fields `bibDatabaseContext`/`databaseContext` | `getActiveLibrary()`, `getOpenLibraries()`, `getContent()`, `library` | IntelliJ rename, not a recipe |
+| `getActiveDatabase()`, `getOpenDatabases()`, `getDatabase()`, fields `bibDatabaseContext`/`databaseContext` | `getActiveLibrary()`, `getOpenLibraries()`, `getEntries()`, `library` | IntelliJ rename, not a recipe. `getEntries()` returns `LibraryEntries` like `getMetaData()` returns `MetaData`; the observable list sits behind `LibraryEntries.asList()`, replacing 304 `getDatabase().getEntries()` chains and the 8 users of the context's list delegate |
 | `logic.shared.*` (`DatabaseConnection`, `DatabaseSynchronizer`, `SharedDatabase*`), `MSBibDatabase`, `OOCalcDatabase` | unchanged | These are SQL databases or foreign formats |
 | l10n: "No database is open", "Database:", the pre-3.6 migration texts | "library" | 8 of 18 `database` strings; the shared/online ones stay. Translations of the 8 are lost and redone on Crowdin |
 
-**Follow-up, not in the rename PR.** `BibDatabaseContext` keeps a nullable `path`, a nullable `dbmsSynchronizer` and a `location` flag that `convertToSharedDatabase`/`convertToLocalDatabase` must keep consistent. A sealed `LibraryLocation` (`Unsaved`, `File(path)`, `SharedDatabase(synchronizer)`) makes the glossary distinction a type instead of three fields.
+**Follow-ups, not in the rename PR.** `BibDatabase` also holds the preamble, the epilog and the `@string` constants. They are file-level like `MetaData`, so under the name `LibraryEntries` they move up to `Library` (about 50 call sites, `getPreamble` and `getStringValues` mostly). `BibDatabaseContext` keeps a nullable `path`, a nullable `dbmsSynchronizer` and a `location` flag that `convertToSharedDatabase`/`convertToLocalDatabase` must keep consistent. A sealed `LibraryLocation` (`Unsaved`, `File(path)`, `SharedDatabase(synchronizer)`) makes the glossary distinction a type instead of three fields.
 
 ### Steps to rename
 
@@ -80,6 +80,5 @@ Redesigning `BibEntry` or `MetaData`; renaming anything under `logic.shared`; op
 ## 5. Questions for review
 
 1. Option A, or B right away?
-2. `BibDatabase` → `LibraryContent`, or a better name for the entry collection? `LibraryFile` is out: it would name a subset of the file after the file, and shared libraries have no file at all.
-3. One combined PR (one conflict event for open PRs) or two PRs as planned (two reviewable steps)?
-4. Who announces the window and when?
+2. One combined PR (one conflict event for open PRs) or two PRs as planned (two reviewable steps)?
+3. Who announces the window and when?
