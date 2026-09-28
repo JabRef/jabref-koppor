@@ -2,7 +2,6 @@ package org.jabref.languageserver.util.definition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.jabref.languageserver.util.LspParserHandler;
@@ -40,9 +39,16 @@ public class LatexDefinitionProvider extends DefinitionProvider {
 
     @Override
     Optional<String> getCitationKeyAtPosition(String content, Position position) {
+        // The parser keeps the whitespace around a key of `\cite{a, b}`; hovering it or the separator must not show the key
         return latexParser.parse(content).getCitations().entries().stream()
-                          .filter(entry -> LspRangeUtil.isPositionInRange(position, LspRangeUtil.convertToLspRange(entry.getValue().line(), entry.getValue().colStart(), entry.getValue().colEnd())))
-                          .map(Map.Entry::getKey)
+                          .filter(entry -> {
+                              String key = entry.getKey();
+                              int start = entry.getValue().colStart() + key.length() - key.stripLeading().length();
+                              int end = entry.getValue().colEnd() - (key.length() - key.stripTrailing().length());
+                              Range range = LspRangeUtil.convertToLspRange(entry.getValue().line(), start, end);
+                              return LspRangeUtil.isPositionInRange(position, range) && !position.equals(range.getEnd());
+                          })
+                          .map(entry -> entry.getKey().strip())
                           .findFirst();
     }
 

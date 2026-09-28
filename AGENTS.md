@@ -406,8 +406,8 @@ Quick check of core library:
 JabRef uses [OpenFastTrace](https://github.com/itsallcode/openfasttrace) to trace requirements to implementation and tests.
 
 For a new feature or significant bug fix, add the requirement to the appropriate `docs/requirements/<area>.md` file.
-Link the issue where the reqirement originites from.
-Respect INVEST criteria. Better more high-level and than too detailed.
+Link the issue the requirement originates from.
+Respect INVEST criteria. Prefer high-level requirements over overly detailed ones.
 Add tracing (`Needs: impl` + implementation comments).
 
 **Defining a requirement** in `docs/requirements/<area>.md`:
