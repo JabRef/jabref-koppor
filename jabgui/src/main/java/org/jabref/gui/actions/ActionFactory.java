@@ -15,9 +15,9 @@ import javafx.scene.control.Tooltip;
 import javafx.stage.WindowEvent;
 
 import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.injection.Injector;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.Subscription;
 import de.saxsys.mvvmfx.utils.commands.Command;

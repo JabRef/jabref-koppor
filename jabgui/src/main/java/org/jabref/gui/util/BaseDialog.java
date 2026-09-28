@@ -22,8 +22,7 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.walkthrough.WalkthroughPane;
-
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 public class BaseDialog<T> extends Dialog<T> {
 

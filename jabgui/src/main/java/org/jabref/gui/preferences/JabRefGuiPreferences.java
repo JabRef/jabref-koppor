@@ -49,6 +49,7 @@ import org.jabref.gui.theme.StyleSheet;
 import org.jabref.gui.theme.ThemeColorScheme;
 import org.jabref.gui.theme.ThemePreset;
 import org.jabref.gui.welcome.DonationPreferences;
+import org.jabref.injection.Injector;
 import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.ExportPreferences;
@@ -74,7 +75,6 @@ import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;

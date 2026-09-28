@@ -10,6 +10,7 @@ import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.ai.statuspane.UniversalStatusPaneView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.ExceptionsUtil;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.ai.chatting.ChatModel;
@@ -18,7 +19,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
 public class AiSummaryView extends StackPane {

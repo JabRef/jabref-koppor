@@ -41,6 +41,7 @@ import org.jabref.gui.preferences.table.TableTab;
 import org.jabref.gui.preferences.websearch.WebSearchTab;
 import org.jabref.gui.preferences.xmp.XmpPrivacyTab;
 import org.jabref.gui.testutils.JavaFxExtension;
+import org.jabref.injection.Injector;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiMessageHandler;
 import org.jabref.logic.ai.AiService;
@@ -52,7 +53,6 @@ import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.ExtendWith;

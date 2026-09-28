@@ -8,11 +8,10 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class ModifyBibliographyPropertiesDialogView extends BaseDialog<Void> {
 
