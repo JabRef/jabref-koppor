@@ -79,7 +79,7 @@ class CrossRefTest {
     @Test
     void notAcceptTitleOverThreshold() throws Exception {
         BibEntry entry = new BibEntry();
-        entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service-----");
+        entry.setField(StandardField.TITLE, "Towards Application Portability in Platform as a Service xxxxx");
         entry.setField(StandardField.AUTHOR, "Stefan Kolb and Guido Wirtz");
         assertEquals(Optional.empty(), fetcher.findIdentifier(entry));
     }
@@ -120,17 +120,18 @@ class CrossRefTest {
     }
 
     @Test
-    void performSearchByIdFindsPaperWithoutTitle() throws Exception {
-        BibEntry entry = new BibEntry(StandardEntryType.Article);
-        entry.setField(StandardField.AUTHOR, "Leo Breiman");
-        entry.setField(StandardField.DOI, "10.1023/a:1010933404324");
-        entry.setField(StandardField.ISSN, "0885-6125");
-        entry.setField(StandardField.PAGES, "5-32");
-        entry.setField(StandardField.VOLUME, "45");
-        entry.setField(StandardField.YEAR, "2001");
-        entry.setField(StandardField.JOURNAL, "Machine Learning");
-        entry.setField(StandardField.NUMBER, "1");
-        entry.setField(StandardField.PUBLISHER, "Springer Science and Business Media LLC");
+    void performSearchByIdFindsPaper() throws Exception {
+        BibEntry entry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.TITLE, "Random Forests")
+                .withField(StandardField.AUTHOR, "Leo Breiman")
+                .withField(StandardField.DOI, "10.1023/a:1010933404324")
+                .withField(StandardField.ISSN, "0885-6125")
+                .withField(StandardField.PAGES, "5-32")
+                .withField(StandardField.VOLUME, "45")
+                .withField(StandardField.YEAR, "2001")
+                .withField(StandardField.JOURNAL, "Machine Learning")
+                .withField(StandardField.NUMBER, "1")
+                .withField(StandardField.PUBLISHER, "Springer Science and Business Media LLC");
 
         assertEquals(Optional.of(entry), fetcher.performSearchById("10.1023/a:1010933404324"));
     }

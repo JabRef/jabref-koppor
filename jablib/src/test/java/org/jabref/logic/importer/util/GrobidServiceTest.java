@@ -37,15 +37,15 @@ class GrobidServiceTest {
         GrobidPreferences grobidPreferences = new GrobidPreferences(
                 true,
                 false,
-                "http://grobid.jabref.org:8070");
+                "https://grobid.jabref.org");
         grobidService = new GrobidService(grobidPreferences);
     }
 
     @Test
     void processValidCitationTest() throws Exception {
         BibEntry exampleBibEntry = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("-1")
-                .withField(StandardField.AUTHOR, "Derwing, Tracey and Rossiter, Marian and Munro, Murray")
+                .withCitationKey("derwing2002teaching")
+                .withField(StandardField.AUTHOR, "Derwing, Tracey M. and Rossiter, Marian J. and Munro, Murray J.")
                 .withField(StandardField.TITLE, "Teaching Native Speakers to Listen to Foreign-accented Speech")
                 .withField(StandardField.JOURNAL, "Journal of Multilingual and Multicultural Development")
                 .withField(StandardField.PUBLISHER, "Informa UK Limited")
@@ -83,7 +83,7 @@ class GrobidServiceTest {
         GrobidPreferences importSettingsWithGrobidDisabled = new GrobidPreferences(
                 false,
                 false,
-                "http://grobid.jabref.org:8070");
+                "https://grobid.jabref.org");
         assertThrows(UnsupportedOperationException.class, () -> new GrobidService(importSettingsWithGrobidDisabled));
     }
 
@@ -101,7 +101,7 @@ class GrobidServiceTest {
     @Test
     void extractsReferencesFromPdf() throws Exception {
         BibEntry ref1 = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Kopp, O")
+                .withField(StandardField.AUTHOR, "Kopp, O.")
                 .withField(StandardField.ADDRESS, "Berlin; Heidelberg")
                 .withField(StandardField.DATE, "2013")
                 .withField(StandardField.JOURNAL, "All links were last followed on October")

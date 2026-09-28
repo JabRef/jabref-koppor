@@ -101,7 +101,7 @@ class GVKIsbnFetcherTest extends AbstractIsbnFetcherTest {
     }
 
     @Test
-    void eResourceIsbnIsReturnedAsBoook() throws Exception {
+    void eResourceIsbnIsReturnedAsBook() throws Exception {
         assertEquals(Optional.of(StandardEntryType.Book), fetcher.performSearchById("978-0-8229-4557-4").map(BibEntry::getType));
     }
 }

@@ -90,7 +90,7 @@ class XmpUtilReaderTest {
     }
 
     @Test
-    void readEmtpyMetadata() throws Exception {
+    void readEmptyMetadata() throws Exception {
         List<BibEntry> entries = xmpUtilReader.readXmp(Path.of(XmpUtilShared.class.getResource("empty_metadata.pdf").toURI()), xmpPreferences);
         assertEquals(List.of(), entries);
     }

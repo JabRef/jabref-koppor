@@ -426,7 +426,7 @@ class BibtexParserTest {
     }
 
     @Test
-    void parseRecognizesFormatedEntry() throws Exception {
+    void parseRecognizesFormattedEntry() throws Exception {
         ParserResult result = parser.parse(
                 Reader.of("""
                         @INPROCEEDINGS{CroAnnHow05,
@@ -745,7 +745,7 @@ class BibtexParserTest {
     }
 
     @Test
-    void parseIgnoresAndWarnsAboutEntryWithFieldsThatAreNotSeperatedByComma() throws Exception {
+    void parseIgnoresAndWarnsAboutEntryWithFieldsThatAreNotSeparatedByComma() throws Exception {
         ParserResult result = parser
                 .parse(Reader.of("@article{test,author={Ed von Test} year=2005}"));
 
