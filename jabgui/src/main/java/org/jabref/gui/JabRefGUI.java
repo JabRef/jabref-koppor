@@ -296,7 +296,7 @@ public class JabRefGUI extends Application {
                 LOGGER.warn("Could not load bundled font {}, falling back to the platform default", BIBTEX_EDITOR_FONT_RESOURCE);
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not load bundled font {}", BIBTEX_EDITOR_FONT_RESOURCE, e);
+            LOGGER.error("Could not load bundled font {}", BIBTEX_EDITOR_FONT_RESOURCE, e);
         }
     }
 
@@ -343,7 +343,7 @@ public class JabRefGUI extends Application {
         // maximized target state is stored, because "saveWindowState" saves x and y only if not maximized
         boolean windowMaximised = coreGuiPreferences.isWindowMaximised();
 
-        LOGGER.debug("Screens: {}", Screen.getScreens());
+        LOGGER.atDebug().addArgument(() -> Screen.getScreens()).log("Screens: {}");
         debugLogWindowState(mainStage);
 
         if (isWindowPositionInBounds()) {

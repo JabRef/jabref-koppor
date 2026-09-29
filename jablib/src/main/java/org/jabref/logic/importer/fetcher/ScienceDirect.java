@@ -181,7 +181,7 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
             }
             return sciLink.isEmpty() ? new DoiResolution.NotFound() : new DoiResolution.ArticlePage(sciLink);
         } catch (JSONException e) {
-            LOGGER.debug("No ScienceDirect link found in API request", e);
+            LOGGER.error("No ScienceDirect link found in API request", e);
             return sciLink.isEmpty() ? new DoiResolution.NotFound() : new DoiResolution.ArticlePage(sciLink);
         }
     }

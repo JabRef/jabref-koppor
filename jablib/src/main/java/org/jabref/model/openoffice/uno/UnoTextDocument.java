@@ -68,7 +68,7 @@ public class UnoTextDocument {
             String frameTitleString = String.valueOf(frameTitleObj.get());
             return Optional.ofNullable(frameTitleString);
         } catch (WrappedTargetException e) {
-            LOGGER.warn("Could not get document title", e);
+            LOGGER.error("Could not get document title", e);
             return Optional.empty();
         }
     }

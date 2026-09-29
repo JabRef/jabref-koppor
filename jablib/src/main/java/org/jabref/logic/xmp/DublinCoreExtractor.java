@@ -91,7 +91,7 @@ public class DublinCoreExtractor {
         try {
             description = dcSchema.getDescription();
         } catch (BadFieldValueException e) {
-            LOGGER.warn("Could not get abstract", e);
+            LOGGER.error("Could not get abstract", e);
         }
         if (!StringUtil.isNullOrEmpty(description)) {
             bibEntry.setField(StandardField.ABSTRACT, description);
@@ -161,7 +161,7 @@ public class DublinCoreExtractor {
         try {
             rights = dcSchema.getRights();
         } catch (BadFieldValueException e) {
-            LOGGER.warn("Could not extract rights", e);
+            LOGGER.error("Could not extract rights", e);
         }
         if (!StringUtil.isNullOrEmpty(rights)) {
             bibEntry.setField(new UnknownField(DC_RIGHTS), rights);
@@ -190,7 +190,7 @@ public class DublinCoreExtractor {
         try {
             title = dcSchema.getTitle();
         } catch (BadFieldValueException e) {
-            LOGGER.warn("Could not extract title", e);
+            LOGGER.error("Could not extract title", e);
         }
         if (!StringUtil.isNullOrEmpty(title)) {
             bibEntry.setField(StandardField.TITLE, title);

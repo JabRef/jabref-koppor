@@ -86,7 +86,7 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
                     applicationsProperty.setAll(sortedApplications);
                     detectedApplications.clear();
                     detectedApplications.addAll(detectedPaths.keySet());
-                    LOGGER.info("Application detection completed. Found {} applications", detectedPaths.size());
+                    LOGGER.atInfo().addArgument(() -> detectedPaths.size()).log("Application detection completed. Found {} applications");
                 })
                 .onFailure(throwable -> LOGGER.warn("Application detection failed", throwable))
                 .executeWith(taskExecutor);

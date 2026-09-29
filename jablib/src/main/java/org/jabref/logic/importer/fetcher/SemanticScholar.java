@@ -80,7 +80,7 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
                         key -> jsoupRequest.header("x-api-key", key));
                 html = jsoupRequest.get();
             } catch (IOException _) {
-                LOGGER.info("Error for pdf lookup with DOI");
+                LOGGER.warn("Error for pdf lookup with DOI");
             }
         }
         if (arXiv.isPresent() && entry.getField(StandardField.EPRINT).isPresent()) {

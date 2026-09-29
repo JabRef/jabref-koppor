@@ -65,7 +65,7 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
             return super.performSearchById(identifier);
         } catch (FetcherClientException e) {
             if (e.getHttpResponse().map(response -> response.statusCode() == 404).orElse(false)) {
-                LOGGER.debug("No entry found on OpenLibrary for ISBN {}", identifier, e);
+                LOGGER.error("No entry found on OpenLibrary for ISBN {}", identifier, e);
                 return Optional.empty();
             }
             throw e;

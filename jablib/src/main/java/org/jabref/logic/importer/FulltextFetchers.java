@@ -91,7 +91,7 @@ public class FulltextFetchers {
                        .findIdentifier(clonedEntry)
                        .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
-            LOGGER.debug("Failed to find DOI", e);
+            LOGGER.error("Failed to find DOI", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class FulltextFetchers {
         } catch (InterruptedException _) {
             // ignore thread interruptions
         } catch (ExecutionException | CancellationException _) {
-            LOGGER.debug("Fetcher execution failed or was cancelled");
+            LOGGER.warn("Fetcher execution failed or was cancelled");
         }
         return Optional.empty();
     }
@@ -114,7 +114,7 @@ public class FulltextFetchers {
                               .filter(url -> isPDF.test(url.toString(), headers))
                               .map(url -> new FetcherResult(fetcher.getTrustLevel(), url, headers));
             } catch (IOException | FetcherException e) {
-                LOGGER.debug("Failed to find fulltext PDF at given URL", e);
+                LOGGER.error("Failed to find fulltext PDF at given URL", e);
             }
             return Optional.empty();
         };

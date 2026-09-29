@@ -210,7 +210,7 @@ class BibEntryMatchVisitor extends SearchBaseVisitor<Boolean> {
                     key -> Pattern.compile(key.pattern(), key.caseSensitive() ? 0 : Pattern.CASE_INSENSITIVE));
             return compiled.matcher(value).find();
         } catch (PatternSyntaxException e) {
-            LOGGER.debug("Invalid regex pattern '{}': {}", pattern, e.getMessage());
+            LOGGER.error("Invalid regex pattern '{}': {}", pattern, e.getMessage());
             return false;
         }
     }

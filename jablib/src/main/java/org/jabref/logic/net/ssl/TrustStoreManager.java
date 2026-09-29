@@ -44,7 +44,7 @@ public class TrustStoreManager {
             store = KeyStore.getInstance(KeyStore.getDefaultType());
             store.load(Files.newInputStream(storePath), STORE_PASSWORD.toCharArray());
         } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
-            LOGGER.warn("Error while loading trust store from: {}", storePath.toAbsolutePath(), e);
+            LOGGER.error("Error while loading trust store from: {}", storePath.toAbsolutePath(), e);
         }
     }
 
@@ -53,7 +53,7 @@ public class TrustStoreManager {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             store.setCertificateEntry(alias, certificateFactory.generateCertificate(Files.newInputStream(certPath)));
         } catch (KeyStoreException | CertificateException | IOException e) {
-            LOGGER.warn("Error while adding a new certificate to the truststore: {}", alias, e);
+            LOGGER.error("Error while adding a new certificate to the truststore: {}", alias, e);
         }
     }
 
@@ -61,7 +61,7 @@ public class TrustStoreManager {
         try {
             store.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn("Error while deleting certificate entry with alias: {}", alias, e);
+            LOGGER.error("Error while deleting certificate entry with alias: {}", alias, e);
         }
     }
 
@@ -69,7 +69,7 @@ public class TrustStoreManager {
         try {
             return store.isCertificateEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn("Error while checking certificate existence: {}", alias, e);
+            LOGGER.error("Error while checking certificate existence: {}", alias, e);
         }
         return false;
     }
@@ -78,7 +78,7 @@ public class TrustStoreManager {
         try {
             return Collections.list(store.aliases());
         } catch (KeyStoreException e) {
-            LOGGER.warn("Error while reading aliases", e);
+            LOGGER.error("Error while reading aliases", e);
         }
         return List.of();
     }
@@ -87,7 +87,7 @@ public class TrustStoreManager {
         try {
             return store.size();
         } catch (KeyStoreException e) {
-            LOGGER.warn("Can't count certificates", e);
+            LOGGER.error("Can't count certificates", e);
         }
         return 0;
     }
@@ -96,7 +96,7 @@ public class TrustStoreManager {
         try {
             store.store(Files.newOutputStream(storePath), STORE_PASSWORD.toCharArray());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
-            LOGGER.warn("Error while flushing trust store", e);
+            LOGGER.error("Error while flushing trust store", e);
         }
     }
 
@@ -124,7 +124,7 @@ public class TrustStoreManager {
         try {
             return (X509Certificate) store.getCertificate(alias);
         } catch (KeyStoreException e) {
-            LOGGER.warn("Error while getting certificate of alias: {}", alias, e);
+            LOGGER.error("Error while getting certificate of alias: {}", alias, e);
         }
         return null;
     }
@@ -138,7 +138,7 @@ public class TrustStoreManager {
     /// @param storePath path of the truststore
     public static void createTruststoreFileIfNotExist(Path storePath) {
         try {
-            LOGGER.debug("Trust store path: {}", storePath.toAbsolutePath());
+            LOGGER.atDebug().addArgument(() -> storePath.toAbsolutePath()).log("Trust store path: {}");
             if (Files.notExists(storePath)) {
                 Files.createDirectories(storePath.getParent());
                 try (InputStream inputStream = TrustStoreManager.class.getResourceAsStream("/ssl/truststore.jks")) {
@@ -154,7 +154,7 @@ public class TrustStoreManager {
                 LOGGER.error("Error configuring trust store {}", storePath, e);
             }
         } catch (IOException e) {
-            LOGGER.warn("Bad truststore path", e);
+            LOGGER.error("Bad truststore path", e);
         }
     }
 
@@ -187,7 +187,7 @@ public class TrustStoreManager {
                 }
             }
         } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            LOGGER.warn("Error while merging bundled certificates into existing truststore: {}", storePath, e);
+            LOGGER.error("Error while merging bundled certificates into existing truststore: {}", storePath, e);
         }
     }
 

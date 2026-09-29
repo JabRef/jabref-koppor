@@ -276,7 +276,7 @@ public class AutoSetFileLinksUtil {
                               try {
                                   return Files.isSameFile(linked, foundFile);
                               } catch (IOException e) {
-                                  LOGGER.debug("Unable to check file identity, assuming no identity", e);
+                                  LOGGER.error("Unable to check file identity, assuming no identity", e);
                                   return false;
                               }
                           });

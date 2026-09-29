@@ -145,7 +145,7 @@ public class MetaDataParser {
                 try {
                     metaData.setLibraryAbbreviationType(AbbreviationType.valueOf(getSingleItem(values)));
                 } catch (IllegalArgumentException e) {
-                    LOGGER.debug("Unknown library abbreviation type: {}", getSingleItem(values), e);
+                    LOGGER.error("Unknown library abbreviation type: {}", getSingleItem(values), e);
                 }
             } else if (MetaData.KEYPATTERNDEFAULT.equals(entry.getKey())) {
                 defaultCiteKeyPattern = new CitationKeyPattern(getSingleItem(values));

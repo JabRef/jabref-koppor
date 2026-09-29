@@ -66,7 +66,7 @@ public class GenericUrlBasedFetcher implements UrlBasedFetcher {
                                 .title();
             return title.isBlank() ? Optional.empty() : Optional.of(title);
         } catch (IOException e) {
-            LOGGER.debug("Could not fetch title for '{}', falling back to the URL as title.", FetcherException.getRedactedUrl(url), e);
+            LOGGER.error("Could not fetch title for '{}', falling back to the URL as title.", FetcherException.getRedactedUrl(url), e);
             return Optional.empty();
         }
     }

@@ -43,7 +43,7 @@ public class BackupFileUtil {
             Files.createDirectories(directory);
         } catch (IOException e) {
             directory = getDirectoryOfLibrary(targetFile);
-            LOGGER.warn("Could not create backup directory {}, using {} instead", backupDir, directory, e);
+            LOGGER.error("Could not create backup directory {}, using {} instead", backupDir, directory, e);
         }
         String baseFileName = getUniqueFilePrefix(targetFile) + "--" + targetFile.getFileName() + "--" + timeSuffix;
         Path fileName = FileUtil.addExtension(Path.of(baseFileName), extension);

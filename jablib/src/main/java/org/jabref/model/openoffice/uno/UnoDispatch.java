@@ -54,7 +54,7 @@ public class UnoDispatch {
                 execute(doc, context, RESET_ATTRIBUTES_COMMAND, EMPTY_DISPATCH_ARGUMENTS);
             }
         } catch (com.sun.star.uno.RuntimeException exception) {
-            LOGGER.debug("Could not compare insertion cursor with citation end", exception);
+            LOGGER.error("Could not compare insertion cursor with citation end", exception);
         }
     }
 
@@ -67,7 +67,7 @@ public class UnoDispatch {
             UnoCursor.getViewCursor(doc)
                      .ifPresent(viewCursor -> resetAttributesAtRangeEnd(doc, context, viewCursor, endRange));
         } catch (com.sun.star.uno.RuntimeException exception) {
-            LOGGER.debug("Could not resolve view cursor for resetting attributes", exception);
+            LOGGER.error("Could not resolve view cursor for resetting attributes", exception);
         }
     }
 
@@ -91,7 +91,7 @@ public class UnoDispatch {
 
             dispatchHelper.executeDispatch(dispatchProvider, unoUrl, "", 0, arguments);
         } catch (com.sun.star.uno.Exception | com.sun.star.uno.RuntimeException exception) {
-            LOGGER.debug("Could not execute UNO dispatch {}", unoUrl, exception);
+            LOGGER.error("Could not execute UNO dispatch {}", unoUrl, exception);
         }
     }
 }

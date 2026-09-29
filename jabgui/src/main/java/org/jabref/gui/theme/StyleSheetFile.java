@@ -89,7 +89,7 @@ final class StyleSheetFile extends StyleSheet {
                 }
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not load css url {}", url, e);
+            LOGGER.error("Could not load css url {}", url, e);
         }
 
         return Optional.empty();

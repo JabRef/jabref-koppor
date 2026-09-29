@@ -38,10 +38,10 @@ public class ChunkedSummarizator implements Summarizator {
 
     @Override
     public String summarize(ChatModel chatModel, String text) throws InterruptedException {
-        LOGGER.debug("Summarizing text ({} chars)", text.length());
+        LOGGER.atDebug().addArgument(() -> text.length()).log("Summarizing text ({} chars)");
 
         List<String> summaries = splitTextIntoChunks(chatModel, text);
-        LOGGER.debug("Text was split into {} chunks", summaries.size());
+        LOGGER.atDebug().addArgument(() -> summaries.size()).log("Text was split into {} chunks");
 
         int passes = 0;
 
@@ -49,7 +49,7 @@ public class ChunkedSummarizator implements Summarizator {
         do {
             // @formatter:on
             passes++;
-            LOGGER.debug("Summarizing pass {} ({} chunks)", passes, summaries.size());
+            LOGGER.atDebug().addArgument(passes).addArgument(() -> summaries.size()).log("Summarizing pass {} ({} chunks)");
 
             summaries = summarizeChunks(chatModel, summaries, passes);
         } while (needsAnotherPass(chatModel, summaries));

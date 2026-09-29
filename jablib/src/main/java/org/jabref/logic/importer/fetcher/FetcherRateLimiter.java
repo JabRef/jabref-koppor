@@ -40,8 +40,7 @@ final class FetcherRateLimiter {
 
     void acquire(String requestContext) {
         double waitingTime = rateLimiter.acquire();
-        LOGGER.trace("Thread {} waited {} seconds before requesting '{}' because of the {} API rate limiter",
-                Thread.currentThread().threadId(), waitingTime, requestContext, serviceName);
+        LOGGER.atTrace().addArgument(() -> Thread.currentThread().threadId()).addArgument(waitingTime).addArgument(requestContext).addArgument(serviceName).log("Thread {} waited {} seconds before requesting '{}' because of the {} API rate limiter");
     }
 
     double getRate() {
