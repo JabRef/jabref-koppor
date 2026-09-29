@@ -109,6 +109,32 @@ Markdown:
 <!-- [dsn->req~ai.summarization.general.storage~1] -->
 ```
 
+## Linking requirements across layers with `Covers:`
+
+If you have a broader feature (`feat`) and one or more detailed requirements (`req`) that detail or constrain that feature, you can indicate that the requirement is part of the feature by adding `Covers:` to the requirement:
+
+```markdown
+### Detailed requirement
+`req~ai.chat.markdown-tables~1`
+
+Markdown tables within AI chat responses must be rendered legibly.
+
+Needs: impl
+
+Covers:
+
+- feat~ai.chatting~1
+```
+
+This establishes a link between the child requirement and the parent feature in OpenFastTrace. You can also list multiple parent features if a requirement contributes to more than one:
+
+```markdown
+Covers:
+
+- feat~ai.chatting~1
+- feat~ai.llms~1
+```
+
 ## Conventions used in JabRef
 
 For requirement IDs, we follow the OFT standard artifact types, with the addition of `adr`. For the main part, we separate the path with `.`, and separate words with a hyphen, as in the example above.
@@ -127,7 +153,7 @@ We use these artifact types:
 
 Throughout development, you will mainly work with `feat`, `req`, `impl`, and `utest`. Please try to use these four types, as the others are rarely needed and we do not have good examples for them.
 
-We would really like to use the `uman` artifact type, as new features often also need to be explained to users. At the time of writing, we do not use this type in the requirements because we do not have a cross-repository setup for OFT.
+We would really like to use the `uman` artifact type, as new features often also need to be explained to users. At the time of writing, please do not write them in the requirements, as we do not have a cross-repository setup for OFT.
 
 The boundary between `feat` and `req` can sometimes be debatable, because from a software engineering perspective they refer to the same thing. However, we assign them based on the outcome: a new fetcher is a feature, while special handling of a field is a requirement. This gives us an overview of what we have in JabRef.
 
@@ -155,9 +181,10 @@ Use it only for what the title cannot carry:
 
 - the triggering condition;
 - edge cases or boundary behavior;
-- a brief rationale if needed;
 - the GitHub issue;
 - other relevant context.
+
+If you need to explain the reasoning or justification for the requirement, do not bury it in the description—use a dedicated `Rationale:` section instead.
 
 Do not repeat the subject + verb from the title, do not smuggle in a second requirement, and do not write marketing copy.
 
@@ -215,7 +242,7 @@ It is better to write more small requirements than one large one. This makes cov
 
 OFT also allows for a more sophisticated specification workflows: one can separate the specification into layers with different responsible people (managers would write an unrefined, broad requirement for a feature, software architects would detail the architecture of the feature, and developers would add new detailed requirements).
 As a result, there is a long chain of requirements. However, because JabRef is not maintained by a lot of people, we chose a simplified workflow: our requirements are typically directly implemented in the code.
-Additionnaly, the requirement can take a `Covers:` keyword linking a specific `req` to a broader `feat`.
+Additionally, the requirement can take a `Covers:` keyword linking a specific `req` to a broader `feat`.
 
 - [General reading on traceability](https://www.sodiuswillert.com/en/blog/implementing-requirements-traceability-in-systems-software-engineering)
 - [OFT User guide](https://github.com/itsallcode/openfasttrace/blob/main/doc/user_guide/user_guide.md)
