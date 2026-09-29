@@ -92,6 +92,9 @@ import org.slf4j.LoggerFactory;
 /// value on, and says so, rather than overwriting the newer value
 /// ([org.jabref.model.undo.BibChange#apply]); and the pulled change marks the library as needing a
 /// save, because it arrives as [org.jabref.model.entry.event.EntriesEventSource#SHARED].
+///
+/// A local `.bib` file changed by another program is handled differently: by a three-way comparison with the
+/// library as it last matched the file, see [org.jabref.logic.sync.LibraryBaseline].
 public class DBMSSynchronizer implements DatabaseSynchronizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DBMSSynchronizer.class);
@@ -403,6 +406,11 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
         return dbmsProcessor.getSharedMetaData();
     }
 
+    @VisibleForTesting
+    void writeSharedMetaDataToDatabase(Map<String, String> serializedMetaData) throws SQLException {
+        dbmsProcessor.setSharedMetaData(serializedMetaData);
+    }
+
     private void pullMetaDataFromDatabase() {
         if (!connected.get()) {
             return;
@@ -559,7 +567,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
     private boolean writeSharedMetaData(Map<String, String> serializedMetaData) {
         return writeOrRecord("Could not write metadata to the shared database",
                 () -> {
-                    dbmsProcessor.setSharedMetaData(serializedMetaData);
+                    writeSharedMetaDataToDatabase(serializedMetaData);
                     lastSharedMetaData = serializedMetaData;
                 },
                 () -> offlineChanges.recordMetaData(serializedMetaData, lastSharedMetaData));
@@ -570,9 +578,11 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
     private boolean writeRecordedMetaData(Map<String, String> recordedMetaData, OfflineChanges.Recorded recorded) {
         return writeOrRecord("Could not write metadata to the shared database",
                 () -> {
-                    Map<String, String> merged = recorded.mergeMetaDataInto(dbmsProcessor.getSharedMetaData());
+                    Map<String, String> shared = dbmsProcessor.getSharedMetaData();
+                    Map<String, String> merged = recorded.mergeMetaDataInto(shared);
                     dbmsProcessor.setSharedMetaData(merged);
-                    lastSharedMetaData = merged;
+                    // Not `merged`: the pull ending the replay applies it and must see a recorded group deletion as one
+                    lastSharedMetaData = shared;
                 },
                 () -> offlineChanges.recordMetaData(recordedMetaData, recorded.metaDataBase()));
     }
@@ -622,15 +632,17 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
                 && (lastAppliedLocalMetaDataRevision == currentLocalRevision)) {
             return;
         }
-        lastSharedMetaData = sharedMetaData;
         try {
             metaData.setEventPropagation(false);
             new MetaDataParser(fileMonitor).parse(metaData, sharedMetaData, keywordSeparator, userAndHost);
-            if (!sharedMetaData.containsKey(MetaData.GROUPSTREE)
-                    && !sharedMetaData.containsKey(MetaData.GROUPSTREE_LEGACY)
+            // Groups that never reached the shared database (e.g., their write failed) are not a remote deletion
+            if (containsGroupTree(lastSharedMetaData)
+                    && !containsGroupTree(sharedMetaData)
                     && metaData.getGroups().isPresent()) {
                 metaData.clearGroups();
             }
+            // Only once applied: a snapshot that failed to parse must not hide an earlier shared group tree
+            lastSharedMetaData = sharedMetaData;
             lastAppliedRemoteMetaData = Map.copyOf(sharedMetaData);
             lastAppliedLocalMetaDataRevision = currentLocalRevision;
             hasAppliedRemoteMetaData = true;
@@ -639,6 +651,11 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
         } finally {
             metaData.setEventPropagation(true);
         }
+    }
+
+    private static boolean containsGroupTree(Map<String, String> serializedMetaData) {
+        return serializedMetaData.containsKey(MetaData.GROUPSTREE)
+                || serializedMetaData.containsKey(MetaData.GROUPSTREE_LEGACY);
     }
 
     /// Applies the [MetaData] on all local and shared BibEntries.

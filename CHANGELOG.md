@@ -15,6 +15,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
 - We added tooltips with action descriptions to menu items. [#9615](https://github.com/JabRef/jabref/issues/9615)
 - We added "Contribute to JabRef" to the Help menu, linking to [contribute.jabref.org](https://contribute.jabref.org). [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We added an option to automatically merge changes made to the library file outside JabRef into the open library. [#8431](https://github.com/JabRef/jabref/issues/8431)
+- We added merging of conflicted copies left by sync clients, per library or as a global default (off by default). [#16827](https://github.com/JabRef/jabref/pull/16827)
 - We added EasyOCR, PaddleOCR, and AppleOCR as selectable OCR engines, alongside Tesseract and Docling. [#16866](https://github.com/JabRef/jabref/issues/16866)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
@@ -51,6 +53,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 - We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We moved the JabRef version display in the Welcome tab onto the "Download development version" line to save space. [#17160](https://github.com/JabRef/jabref/issues/17160)
+- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 
 ### Fixed
 
@@ -64,6 +67,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where JabRef closed when a client of the integrated language server disconnected. [#17303](https://github.com/JabRef/jabref/pull/17303)
 - We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
 - We fixed an issue where entries of type Misc were penalized too strictly during duplicate detection. [#16578](https://github.com/JabRef/jabref/issues/16578)
+- We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where the "Simple HTML" export separated author initials with spaces. [#17306](https://github.com/JabRef/jabref/pull/17306)
 - We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
@@ -96,6 +100,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We removed the "Waiting for AI reply..." notification; the AI chat already shows a progress indicator. [#17145](https://github.com/JabRef/jabref/pull/17145)
 - We removed the `HayagrivaType` layout formatter, since the Hayagriva YAML export no longer uses a layout template. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
+- The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 
 ### Fixed
 
