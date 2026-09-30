@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -425,6 +426,25 @@ class BibliographyConsistencyCheckTest {
 
         assertEquals(Map.of(), result.entryTypeToResultMap(),
                 "Differences only in filtered fields must be ignored");
+    }
+
+    @Test
+    void resultIsOrderedByEntryTypeName() {
+        List<EntryType> types = List.of(StandardEntryType.TechReport, StandardEntryType.Online, StandardEntryType.Misc,
+                StandardEntryType.InProceedings, StandardEntryType.Book, StandardEntryType.Article);
+        List<BibEntry> entries = types.stream()
+                                      .flatMap(type -> Stream.of(
+                                              new BibEntry(type, type.getName() + "1").withField(StandardField.NOTE, "note"),
+                                              new BibEntry(type, type.getName() + "2")))
+                                      .toList();
+
+        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck()
+                .check(new BibDatabaseContext(new BibDatabase(entries)), entryTypesManager, (_, _) -> {
+                });
+
+        assertEquals(List.of(StandardEntryType.Article, StandardEntryType.Book, StandardEntryType.InProceedings,
+                        StandardEntryType.Misc, StandardEntryType.Online, StandardEntryType.TechReport),
+                List.copyOf(result.entryTypeToResultMap().keySet()));
     }
 
     @Test
