@@ -21,6 +21,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Changed
 
+- We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
+
 ### Fixed
 
 - We fixed an issue where Backspace could not be registered as a keyboard shortcut. [#17241](https://github.com/JabRef/jabref/issues/17241)
