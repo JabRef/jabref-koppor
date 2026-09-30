@@ -102,6 +102,6 @@
         </ToolBar>
     </left>
     <center>
-        <TabPane fx:id="tabbed" tabClosingPolicy="UNAVAILABLE"/>
+        <TabPane fx:id="tabbed" tabClosingPolicy="UNAVAILABLE" styleClass="dock"/>
     </center>
 </fx:root>
