@@ -62,7 +62,7 @@ dependencies.constraints {
     api("com.github.javaparser:javaparser-symbol-solver-core:3.28.2")
     api("com.github.sialcasa.mvvmFX:mvvmfx-validation:f195849ca9") //jitpack
     api("com.google.errorprone:error_prone_core:2.50.0")
-    api("com.google.guava:guava:33.7.1-jre")
+    api("com.google.guava:guava:33.7.2-jre")
     api("com.googlecode.plist:dd-plist:1.30")
     api("com.h2database:h2-mvstore:2.5.252")
     api("com.knuddels:jtokkit:1.1.0")
@@ -109,7 +109,7 @@ dependencies.constraints {
     api("org.antlr:antlr4-runtime:4.13.2")
     api("org.antlr:antlr4:4.13.2")
     api("org.apache.commons:commons-csv:1.14.1")
-    api("org.apache.commons:commons-lang3:3.20.0")
+    api("org.apache.commons:commons-lang3:3.21.0")
     api("org.apache.commons:commons-text:1.15.0")
     api("org.apache.httpcomponents.core5:httpcore5:5.4.4")
     api("org.apache.httpcomponents.client5:httpclient5:5.6.4")
