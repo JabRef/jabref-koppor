@@ -61,7 +61,7 @@ dependencies.constraints {
     // In-flight test of github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48: latest commit of its branch (Gradle re-checks snapshots every 24 h; --refresh-dependencies forces it); gradle/modules.properties points com.dlsc.pdfviewfx here
     api("com.github.koppor.PDFViewFX:pdfviewfx:annotations-SNAPSHOT") //jitpack
     api("com.google.errorprone:error_prone_core:2.50.0")
-    api("com.google.guava:guava:33.7.1-jre")
+    api("com.google.guava:guava:33.7.2-jre")
     api("com.googlecode.plist:dd-plist:1.30")
     api("com.h2database:h2-mvstore:2.5.252")
     api("com.ibm.icu:icu4j:72.0.1!!")
@@ -114,7 +114,7 @@ dependencies.constraints {
     api("org.antlr:antlr4-runtime:4.13.2")
     api("org.antlr:antlr4:4.13.2")
     api("org.apache.commons:commons-csv:1.14.1")
-    api("org.apache.commons:commons-lang3:3.20.0")
+    api("org.apache.commons:commons-lang3:3.21.0")
     api("org.apache.commons:commons-text:1.15.0")
     api("org.apache.httpcomponents.core5:httpcore5:5.4.4")
     api("org.apache.httpcomponents.client5:httpclient5:5.6.4")
