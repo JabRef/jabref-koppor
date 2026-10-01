@@ -116,6 +116,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where entries of type Misc were penalized too strictly during duplicate detection. [#16578](https://github.com/JabRef/jabref/issues/16578)
 - We fixed an issue where the "Simple HTML" export separated author initials with spaces. [#17306](https://github.com/JabRef/jabref/pull/17306)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We fixed missing DOIs when importing MEDLINE records and cleaning existing MEDLINE entries. [#17173](https://github.com/JabRef/jabref/issues/17173)
+- We fixed an issue where the DOI lookup button lost its progress indicator after switching to another entry and back. [#17223](https://github.com/JabRef/jabref/pull/17223)
+
+### Removed
+
+- We removed the "Waiting for AI reply..." notification; the AI chat already shows a progress indicator. [#17145](https://github.com/JabRef/jabref/pull/17145)
 
 ## [6.0-beta.1] - 2026-09-21
 
