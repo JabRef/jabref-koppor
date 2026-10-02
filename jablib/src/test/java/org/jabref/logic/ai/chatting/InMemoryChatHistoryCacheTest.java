@@ -207,6 +207,61 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
+    void storageFailureKeepsHistoryAndRetriesOnNextChange() {
+        BibEntry entry = new BibEntry().withCitationKey("Failing2024");
+        databaseContext.getDatabase().insertEntry(entry);
+        ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Failing2024");
+
+        var history = cache.getForEntry(databaseContext, entry);
+        fakeRepository.failing = true;
+        history.add(ChatMessage.userMessage("first"));
+
+        assertEquals(List.of("first"), history.stream().map(ChatMessage::content).toList());
+        assertEquals(List.of(), fakeRepository.getAllMessages(id));
+
+        fakeRepository.failing = false;
+        history.add(ChatMessage.userMessage("second"));
+
+        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+    }
+
+    @Test
+    void failedWriteIsRolledBackSoAnotherChatCannotCommitIt() {
+        BibEntry first = new BibEntry().withCitationKey("First2024");
+        BibEntry second = new BibEntry().withCitationKey("Second2024");
+        databaseContext.getDatabase().insertEntries(first, second);
+        ChatIdentifier firstId = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "First2024");
+
+        var firstHistory = cache.getForEntry(databaseContext, first);
+        firstHistory.add(ChatMessage.userMessage("kept"));
+
+        fakeRepository.failing = true;
+        firstHistory.add(ChatMessage.userMessage("lost in storage"));
+        fakeRepository.failing = false;
+
+        // A different chat commits the shared store; the half-written first chat must not ride along
+        cache.getForEntry(databaseContext, second).add(ChatMessage.userMessage("unrelated"));
+
+        assertEquals(List.of("kept"), fakeRepository.getAllMessages(firstId).stream().map(ChatMessage::content).toList());
+    }
+
+    @Test
+    void deletedDuplicateDoesNotOverwriteTheSurvivingChat() {
+        ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Twin2024");
+        BibEntry survivor = new BibEntry().withCitationKey("Twin2024");
+        BibEntry duplicate = new BibEntry().withCitationKey("Twin2024");
+        databaseContext.getDatabase().insertEntries(survivor, duplicate);
+
+        var duplicateHistory = cache.getForEntry(databaseContext, duplicate);
+        databaseContext.getDatabase().removeEntry(duplicate);
+
+        // A late AI response still appends to the deleted duplicate's retained history
+        duplicateHistory.add(ChatMessage.userMessage("belongs to the deleted duplicate"));
+
+        assertEquals(List.of(), fakeRepository.getAllMessages(id));
+    }
+
+    @Test
     void messagesAfterEntryRemovalAreNotPersisted() {
         BibEntry entry = new BibEntry().withCitationKey("Deleted2024");
         databaseContext.getDatabase().insertEntry(entry);
@@ -254,7 +309,9 @@ class InMemoryChatHistoryCacheTest {
     private static class FakeChatHistoryRepository implements ChatHistoryRepository {
 
         private final Map<String, List<ChatMessage>> store = new HashMap<>();
+        private Map<String, List<ChatMessage>> committed = new HashMap<>();
         private int commits;
+        private boolean failing;
 
         private String key(ChatIdentifier id) {
             return id.libraryId() + "/" + id.chatType() + "/" + id.chatName();
@@ -262,6 +319,9 @@ class InMemoryChatHistoryCacheTest {
 
         @Override
         public void addMessage(ChatIdentifier chatIdentifier, ChatMessage chatMessage) {
+            if (failing) {
+                throw new IllegalStateException("storage is unavailable");
+            }
             store.computeIfAbsent(key(chatIdentifier), _ -> new ArrayList<>()).add(chatMessage);
         }
 
@@ -293,6 +353,19 @@ class InMemoryChatHistoryCacheTest {
         @Override
         public void commit() {
             commits++;
+            committed = deepCopy(store);
+        }
+
+        @Override
+        public void rollback() {
+            store.clear();
+            store.putAll(deepCopy(committed));
+        }
+
+        private static Map<String, List<ChatMessage>> deepCopy(Map<String, List<ChatMessage>> source) {
+            Map<String, List<ChatMessage>> copy = new HashMap<>();
+            source.forEach((key, messages) -> copy.put(key, new ArrayList<>(messages)));
+            return copy;
         }
     }
 }
