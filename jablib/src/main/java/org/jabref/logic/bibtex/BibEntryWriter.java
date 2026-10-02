@@ -67,7 +67,8 @@ public class BibEntryWriter {
     /// @param reformat        Should the entry be in any case, even if no change occurred?
     public void write(BibEntry entry, BibWriter out, BibDatabaseMode bibDatabaseMode, boolean reformat) throws IOException {
         // if the entry has not been modified, write it as it was
-        if (!reformat && !entry.hasChanged()) {
+        // An entry that was never parsed (e.g., built using BibEntry#withField) has nothing to write "as it was"
+        if (!reformat && !entry.hasChanged() && !entry.getParsedSerialization().isEmpty()) {
             out.write(entry.getParsedSerialization());
             out.finishBlock();
             return;
