@@ -242,8 +242,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             Node astNode = segment.astNode();
             String markdownText = getMarkdownRepresentation(astNode, renderedText);
 
+            int segmentLength = segment.layoutLength();
             int segmentStart = currentPos;
-            int segmentEnd = currentPos + renderedText.length();
+            int segmentEnd = currentPos + segmentLength;
 
             if (segmentEnd <= selStart || segmentStart >= selEnd) {
                 currentPos = segmentEnd;
@@ -257,7 +258,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 int startInSegment = overlapStart - segmentStart;
                 int endInSegment = overlapEnd - segmentStart;
 
-                if (startInSegment == 0 && endInSegment == renderedText.length()) {
+                if (startInSegment == 0 && endInSegment == segmentLength) {
                     result.add(markdownText);
                 } else {
                     String partialText = renderedText.substring(startInSegment, endInSegment);
@@ -283,8 +284,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     /// The text of one or more adjacent nodes that belong to the same Markdown node, as needed to
     /// reconstruct the Markdown markup while copying. A syntax-highlighted code block is rendered as
     /// one node per token, but copied as a single block.
+    /// `layoutLength` is the segment's width in the index space of [SelectableTextFlow#getTextFlowContent()],
+    /// where an embedded hyperlink counts as a single character rather than its rendered text.
     @NullMarked
-    private record CopySegment(String text, @Nullable Node astNode) {
+    private record CopySegment(String text, @Nullable Node astNode, int layoutLength) {
     }
 
     /// Removes the newlines Flexmark adds around the content of a code block (`\n` at the beginning,
@@ -306,6 +309,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         StringBuilder pending = new StringBuilder();
         @Nullable Node pendingNode = null;
         boolean pendingIsNewlineMarker = false;
+        int pendingLength = 0;
 
         for (javafx.scene.Node fxNode : getChildren()) {
             String renderedText;
@@ -321,23 +325,28 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 continue;
             }
 
+            // Layout indices count an embedded hyperlink as a single character, see SelectableTextFlow#getTextFlowContent()
+            int renderedLength = fxNode instanceof Hyperlink ? 1 : renderedText.length();
+
             // The newline nodes between blocks carry the block's node as well, but are copied as newlines.
             if (!pending.isEmpty() && (astNode != null) && (astNode == pendingNode) && !pendingIsNewlineMarker) {
                 pending.append(renderedText);
+                pendingLength += renderedLength;
                 continue;
             }
 
             if (!pending.isEmpty()) {
-                segments.add(new CopySegment(pending.toString(), pendingNode));
+                segments.add(new CopySegment(pending.toString(), pendingNode, pendingLength));
             }
             pending.setLength(0);
             pending.append(renderedText);
+            pendingLength = renderedLength;
             pendingNode = astNode;
             pendingIsNewlineMarker = isNewlineMarker(renderedText);
         }
 
         if (!pending.isEmpty()) {
-            segments.add(new CopySegment(pending.toString(), pendingNode));
+            segments.add(new CopySegment(pending.toString(), pendingNode, pendingLength));
         }
 
         return segments;
