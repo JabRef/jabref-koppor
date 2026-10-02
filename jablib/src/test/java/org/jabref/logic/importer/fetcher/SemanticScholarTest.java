@@ -1,14 +1,10 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.fetcher.citation.semanticscholar.SemanticScholarCitationFetcher;
@@ -22,7 +18,6 @@ import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
 
-import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -57,7 +52,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void getDocument() throws IOException, FetcherException {
+    void getDocument() throws Exception {
         String source = fetcher.getURLBySource(
                 "https://api.semanticscholar.org/graph/v1/paper/%s".formatted(DOI));
 
@@ -67,7 +62,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     @Test
     @Disabled("Returns a DOI instead of the required link")
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextFindByDOI() throws URISyntaxException, FetcherException, IOException {
+    void fullTextFindByDOI() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1038/nrn3241");
         assertEquals(
                 Optional.of(new URI("https://europepmc.org/articles/pmc4907333?pdf=render").toURL()),
@@ -78,7 +73,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     @Test
     @DisabledOnCIServer("CI server is unreliable")
     @Disabled("Sometimes, does not find any thing")
-    void fullTextFindByDOIAlternate() throws FetcherException, IOException, URISyntaxException {
+    void fullTextFindByDOIAlternate() throws Exception {
         assertEquals(
                 Optional.of(new URI("https://pdfs.semanticscholar.org/7f6e/61c254bc2df38a784c1228f56c13317caded.pdf").toURL()),
                 fetcher.findFullText(new BibEntry()
@@ -87,13 +82,13 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextSearchOnEmptyEntry() throws IOException, FetcherException {
+    void fullTextSearchOnEmptyEntry() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextNotFoundByDOI() throws IOException, FetcherException {
+    void fullTextNotFoundByDOI() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, DOI)
                                        .withField(StandardField.DOI, "10.1021/bk-2006-WWW.ch014");
 
@@ -102,7 +97,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextFindByArXiv() throws URISyntaxException, IOException, FetcherException {
+    void fullTextFindByArXiv() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.EPRINT, "1407.3561")
                                        .withField(StandardField.ARCHIVEPREFIX, "arXiv");
         assertEquals(
@@ -112,7 +107,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void fullTextEntityWithoutDoi() throws IOException, FetcherException {
+    void fullTextEntityWithoutDoi() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 
@@ -127,7 +122,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void getURLForQueryWithLucene() throws QueryNodeParseException, MalformedURLException, URISyntaxException {
+    void getURLForQueryWithLucene() throws Exception {
         String query = "Software engineering";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -136,21 +131,21 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void getURLForRawQuery() throws MalformedURLException, URISyntaxException, FetcherException {
+    void getURLForRawQuery() throws Exception {
         String expected = "https://api.semanticscholar.org/graph/v1/paper/search?query=Software%20engineering&offset=0&limit=20&fields=paperId%2CexternalIds%2Curl%2Ctitle%2Cabstract%2Cvenue%2Cyear%2Cauthors";
         String actual = fetcher.getURLForRawQuery("Software engineering", 0).toString();
         assertEquals(expected, actual);
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertTrue(result.getContent().isEmpty());
     }
 
     @Test
     @Disabled("We seem to be blocked")
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         BibEntry master = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Tobias Diez")
                 .withField(StandardField.TITLE, "Slice theorem for Fréchet group actions and covariant symplectic field theory")
@@ -166,7 +161,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
 
     @Test
     @Disabled("We seem to be blocked")
-    void searchByPlainQueryFindsEntry() throws FetcherException {
+    void searchByPlainQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("Overcoming Open Source Project Entry Barriers with a Portal for Newcomers");
         // Abstract should not be included in JabRef tests
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));
@@ -175,7 +170,7 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
 
     @Test
     @Disabled("We seem to be blocked")
-    void searchByQuotedQueryFindsEntry() throws FetcherException {
+    void searchByQuotedQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("\"Overcoming Open Source Project Entry Barriers with a Portal for Newcomers\"");
         // Abstract should not be included in JabRef tests
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));
@@ -183,13 +178,13 @@ public class SemanticScholarTest implements PagedSearchFetcherTest {
     }
 
     @Test
-    void performSearchByEmptyQuery() throws FetcherException {
+    void performSearchByEmptyQuery() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
     @Test
     @Disabled("We seem to be blocked")
-    void findByEntry() throws FetcherException {
+    void findByEntry() throws Exception {
         BibEntry barrosEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Formalising BPMN Service Interaction Patterns")
                 .withField(StandardField.AUTHOR, "Chiara Muzi and Luise Pufahl and Lorenzo Rossi and M. Weske and F. Tiezzi")

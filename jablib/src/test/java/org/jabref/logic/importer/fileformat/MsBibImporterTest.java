@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +17,7 @@ class MsBibImporterTest {
     Importer importer = new MsBibImporter();
 
     @Test
-    final void isNotRecognizedFormat() throws IOException, URISyntaxException {
+    final void isNotRecognizedFormat() throws Exception {
         List<String> notAccepted = Arrays.asList("CopacImporterTest1.txt", "IsiImporterTest1.isi",
                 "IsiImporterTestInspec.isi", "emptyFile.xml", "IsiImporterTestWOS.isi");
         for (String s : notAccepted) {
@@ -29,14 +27,14 @@ class MsBibImporterTest {
     }
 
     @Test
-    final void importEntriesEmpty() throws IOException, URISyntaxException {
+    final void importEntriesEmpty() throws Exception {
         Path file = Path.of(MsBibImporter.class.getResource("EmptyMsBib_Test.xml").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), entries);
     }
 
     @Test
-    final void importEntriesNotRecognizedFormat() throws IOException, URISyntaxException {
+    final void importEntriesNotRecognizedFormat() throws Exception {
         Path file = Path.of(MsBibImporter.class.getResource("CopacImporterTest1.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(0, entries.size());

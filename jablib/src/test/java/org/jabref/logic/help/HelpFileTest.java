@@ -1,6 +1,5 @@
 package org.jabref.logic.help;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -26,7 +25,7 @@ class HelpFileTest {
 
     @ParameterizedTest
     @MethodSource("getAllHelpFiles")
-    void referToValidPage(HelpFile help) throws IOException {
+    void referToValidPage(HelpFile help) throws Exception {
         URL url = URLUtil.create(jabrefHelp + help.getPageName());
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
         http.setRequestProperty("User-Agent", URLDownload.USER_AGENT);

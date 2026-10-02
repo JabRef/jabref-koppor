@@ -1,6 +1,5 @@
 package org.jabref.logic.quality.consistency;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -29,7 +28,7 @@ class BibliographyConsistencyCheckResultGitHubActionsWriterTest {
     private final BibtexImporter importer = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
 
     @Test
-    void deviatingFieldsAreReportedAsGitHubActionsAnnotations(@TempDir Path tempDir) throws IOException {
+    void deviatingFieldsAreReportedAsGitHubActionsAnnotations(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Article{first,

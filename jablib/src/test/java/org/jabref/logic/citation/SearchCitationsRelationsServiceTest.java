@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.jabref.logic.citation.repository.BibEntryCitationsAndReferencesRepository;
 import org.jabref.logic.citation.repository.BibEntryRelationsRepositoryTestHelpers;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcher;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcherHelpersForTest;
 import org.jabref.model.entry.BibEntry;
@@ -56,7 +55,7 @@ class SearchCitationsRelationsServiceTest {
     @Nested
     class CitationsTests {
         @Test
-        void serviceShouldSearchForCitations() throws FetcherException {
+        void serviceShouldSearchForCitations() throws Exception {
             // GIVEN
             BibEntry cited = new BibEntry();
             List<BibEntry> citationsToReturn = List.of(new BibEntry());
@@ -73,7 +72,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldCallTheFetcherForCitationsWhenRepositoryIsUpdatable() throws FetcherException {
+        void serviceShouldCallTheFetcherForCitationsWhenRepositoryIsUpdatable() throws Exception {
             // GiVEN
             BibEntry cited = new BibEntry();
             BibEntry newCitations = new BibEntry();
@@ -101,7 +100,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldFetchCitationsIfRepositoryIsEmpty() throws FetcherException {
+        void serviceShouldFetchCitationsIfRepositoryIsEmpty() throws Exception {
             BibEntry cited = new BibEntry();
             BibEntry newCitations = new BibEntry();
             List<BibEntry> citationsToReturn = List.of(newCitations);
@@ -120,7 +119,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void insertingAnEmptyCitationsShouldBePossible() throws FetcherException {
+        void insertingAnEmptyCitationsShouldBePossible() throws Exception {
             BibEntry cited = new BibEntry();
             Map<BibEntry, List<BibEntry>> citationsDatabase = new HashMap<>();
             CitationFetcher fetcher = createEmptyMockFetcher();
@@ -140,7 +139,7 @@ class SearchCitationsRelationsServiceTest {
     @Nested
     class ReferencesTests {
         @Test
-        void serviceShouldSearchForReferences() throws FetcherException {
+        void serviceShouldSearchForReferences() throws Exception {
             // GIVEN
             BibEntry referencer = new BibEntry();
             List<BibEntry> referencesToReturn = List.of(new BibEntry());
@@ -157,7 +156,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldCallTheFetcherForReferencesWhenRepositoryIsUpdatable() throws FetcherException {
+        void serviceShouldCallTheFetcherForReferencesWhenRepositoryIsUpdatable() throws Exception {
             // GIVEN
             BibEntry referencer = new BibEntry();
             BibEntry newReference = new BibEntry();
@@ -185,7 +184,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldFetchReferencesIfRepositoryIsEmpty() throws FetcherException {
+        void serviceShouldFetchReferencesIfRepositoryIsEmpty() throws Exception {
             BibEntry reference = new BibEntry();
             BibEntry newCitations = new BibEntry();
             List<BibEntry> referencesToReturn = List.of(newCitations);
@@ -206,7 +205,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void insertingAnEmptyReferencesShouldBePossible() throws FetcherException {
+        void insertingAnEmptyReferencesShouldBePossible() throws Exception {
             BibEntry referencer = new BibEntry();
             Map<BibEntry, List<BibEntry>> referenceDatabase = new HashMap<>();
             CitationFetcher fetcher = createEmptyMockFetcher();
@@ -225,7 +224,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldUpdateCitationCountWithEmptyPaperDetailsResponse() throws FetcherException {
+        void serviceShouldUpdateCitationCountWithEmptyPaperDetailsResponse() throws Exception {
             int expectedResult = 0;
             BibEntry referencer = new BibEntry();
             Map<BibEntry, List<BibEntry>> referenceDatabase = new HashMap<>();
@@ -240,7 +239,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldCorrectlyFetchCitationCountField() throws FetcherException {
+        void serviceShouldCorrectlyFetchCitationCountField() throws Exception {
             int expectedResult = 3;
             BibEntry reference = new BibEntry();
             Integer citationCount = 3;
@@ -257,7 +256,7 @@ class SearchCitationsRelationsServiceTest {
         }
 
         @Test
-        void serviceShouldUpdateBecauseIsisCitationsUpdatableTrue() throws FetcherException {
+        void serviceShouldUpdateBecauseIsisCitationsUpdatableTrue() throws Exception {
             int expectedResult = 3;
             BibEntry reference = new BibEntry();
             Integer citationCount = 3;

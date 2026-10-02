@@ -1,7 +1,6 @@
 package org.jabref.model.entry.identifier;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -169,7 +168,7 @@ class ArXivIdentifierTest {
     }
 
     @Test
-    void constructCorrectURLForEprint() throws URISyntaxException {
+    void constructCorrectURLForEprint() throws Exception {
         Optional<ArXivIdentifier> parsed = ArXivIdentifier.parse("0706.0001v1");
         assertEquals(Optional.of(new URI("https://arxiv.org/abs/0706.0001v1")), parsed.get().getExternalURI());
     }

@@ -11,6 +11,7 @@ import org.jabref.model.entry.field.StandardField;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BSTCitationOOAdapterTest {
@@ -74,7 +75,7 @@ class BSTCitationOOAdapterTest {
         // Falls back to the internal id and those should be non-empty and distinct
         assertEquals(entry1.getId(), k1);
         assertEquals(entry2.getId(), k2);
-        org.junit.jupiter.api.Assertions.assertNotEquals(k1, k2);
+        assertNotEquals(k1, k2);
     }
 
     @Test

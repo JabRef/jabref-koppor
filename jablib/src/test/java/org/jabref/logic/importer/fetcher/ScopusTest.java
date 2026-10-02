@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +95,7 @@ class ScopusTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcher
     }
 
     @Test
-    void urlForQueryWithPagination() throws URISyntaxException, MalformedURLException {
+    void urlForQueryWithPagination() throws Exception {
         SearchQueryNode queryNode = new SearchQueryNode(Optional.empty(), "machine learning");
         URL url = fetcher.getURLForQuery(queryNode, 2);
 
@@ -107,13 +105,13 @@ class ScopusTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcher
     }
 
     @Test
-    void searchByAuthorFindsEntries() throws FetcherException {
+    void searchByAuthorFindsEntries() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("Steinmacher");
         assertNotEquals(List.of(), fetchedEntries);
     }
 
     @Test
-    void searchResultContainsExpectedFields() throws FetcherException {
+    void searchResultContainsExpectedFields() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("machine learning neural networks");
         assertNotEquals(List.of(), fetchedEntries);
 
@@ -127,7 +125,7 @@ class ScopusTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcher
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertEquals(List.of(), result.getContent());
     }

@@ -48,7 +48,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void allFilesMustBeInLanguages() throws IOException {
+    void allFilesMustBeInLanguages() throws Exception {
         String bundle = "JabRef";
         // e.g., "<bundle>_en.properties", where <bundle> is [JabRef, Menu]
         Pattern propertiesFile = Pattern.compile("%s_.{2,}.properties".formatted(bundle));
@@ -102,7 +102,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void languageKeysShouldNotContainUnderscoresForSpaces() throws IOException {
+    void languageKeysShouldNotContainUnderscoresForSpaces() throws Exception {
         final List<LocalizationEntry> quotedEntries = LocalizationParser
                 .findLocalizationParametersStringsInJavaFiles()
                 .stream()
@@ -118,7 +118,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void languageKeysShouldNotContainHtmlBrAndHtmlP() throws IOException {
+    void languageKeysShouldNotContainHtmlBrAndHtmlP() throws Exception {
         final List<LocalizationEntry> entriesWithHtml = LocalizationParser
                 .findLocalizationParametersStringsInJavaFiles()
                 .stream()
@@ -134,7 +134,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void findMissingLocalizationKeys() throws IOException {
+    void findMissingLocalizationKeys() throws Exception {
         List<LocalizationEntry> missingKeys = new ArrayList<>(LocalizationParser.findMissingKeys());
         assertEquals(List.of(), missingKeys,
                 missingKeys.stream()
@@ -155,7 +155,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void findObsoleteLocalizationKeys() throws IOException {
+    void findObsoleteLocalizationKeys() throws Exception {
         Set<String> obsoleteKeys = LocalizationParser.findObsolete();
         assertEquals(Set.of(), obsoleteKeys,
                 obsoleteKeys.stream().collect(Collectors.joining("\n",
@@ -170,7 +170,7 @@ class LocalizationConsistencyTest {
     }
 
     @Test
-    void localizationParameterMustIncludeAString() throws IOException {
+    void localizationParameterMustIncludeAString() throws Exception {
         // Must start with "
         // - Localization.lang("test")
         // - Localization.lang("test %1", var)

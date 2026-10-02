@@ -1,6 +1,5 @@
 package org.jabref.logic.ai.ingestion.logic.parsing;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,7 @@ class PdfContentParserTest {
     }
 
     @Test
-    void parsePdfFileReturnsContentPerPage(@TempDir Path tempDir) throws IOException {
+    void parsePdfFileReturnsContentPerPage(@TempDir Path tempDir) throws Exception {
         Path pdfPath = tempDir.resolve("test.pdf");
 
         try (PDDocument document = new PDDocument()) {

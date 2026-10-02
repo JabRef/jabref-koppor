@@ -1,6 +1,5 @@
 package org.jabref.logic.remote;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -50,12 +49,12 @@ class RemoteCommunicationTest {
     }
 
     @Test
-    void pingReturnsTrue() throws IOException, InterruptedException {
+    void pingReturnsTrue() throws Exception {
         assertTrue(client.ping());
     }
 
     @Test
-    void healthCheckReturnsPongWithoutAffectingSerializedProtocol() throws IOException {
+    void healthCheckReturnsPongWithoutAffectingSerializedProtocol() throws Exception {
         try (Socket socket = new Socket("localhost", 34567);
              OutputStream output = socket.getOutputStream();
              InputStream input = socket.getInputStream()) {
@@ -71,7 +70,7 @@ class RemoteCommunicationTest {
     }
 
     @Test
-    void healthCheckPrefixWithUnknownRequestGetsNoResponse() throws IOException {
+    void healthCheckPrefixWithUnknownRequestGetsNoResponse() throws Exception {
         try (Socket socket = new Socket("localhost", 34567);
              OutputStream output = socket.getOutputStream();
              InputStream input = socket.getInputStream()) {
@@ -85,7 +84,7 @@ class RemoteCommunicationTest {
     }
 
     @Test
-    void nearMissHealthCheckPrefixDoesNotBreakSubsequentRequests() throws IOException {
+    void nearMissHealthCheckPrefixDoesNotBreakSubsequentRequests() throws Exception {
         try (Socket socket = new Socket("localhost", 34567);
              OutputStream output = socket.getOutputStream()) {
             output.write("JABREF/2 PING\n".getBytes(StandardCharsets.UTF_8));

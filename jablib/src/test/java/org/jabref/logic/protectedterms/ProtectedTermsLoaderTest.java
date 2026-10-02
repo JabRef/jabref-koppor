@@ -1,6 +1,5 @@
 package org.jabref.logic.protectedterms;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void getProtectedTerms() throws URISyntaxException {
+    void getProtectedTerms() throws Exception {
         List<ProtectedTermsList> backupList = new ArrayList<>(loader.getProtectedTermsLists());
 
         for (ProtectedTermsList list : backupList) {
@@ -43,7 +42,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void addProtectedTermsListFromFile() throws URISyntaxException {
+    void addProtectedTermsListFromFile() throws Exception {
         Path path = Path.of(ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/namedterms.terms")
                                                       .toURI());
         assertEquals(ProtectedTermsLoader.getInternalLists().size(), loader.getProtectedTermsLists().size());
@@ -52,7 +51,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void readProtectedTermsListFromFileReadsDescription() throws URISyntaxException {
+    void readProtectedTermsListFromFileReadsDescription() throws Exception {
         Path file = Path.of(
                 ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/namedterms.terms")
                                           .toURI());
@@ -62,7 +61,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void readProtectedTermsListFromFileDisabledWorks() throws URISyntaxException {
+    void readProtectedTermsListFromFileDisabledWorks() throws Exception {
         Path file = Path.of(ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/namedterms.terms")
                                                       .toURI());
 
@@ -71,7 +70,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void readProtectedTermsListFromFileEnabledWorks() throws URISyntaxException {
+    void readProtectedTermsListFromFileEnabledWorks() throws Exception {
         Path file = Path.of(ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/namedterms.terms")
                                                       .toURI());
 
@@ -80,7 +79,7 @@ class ProtectedTermsLoaderTest {
     }
 
     @Test
-    void readProtectedTermsListFromFileIsNotInternalList() throws URISyntaxException {
+    void readProtectedTermsListFromFileIsNotInternalList() throws Exception {
         Path file = Path.of(ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/namedterms.terms")
                                                       .toURI());
 
@@ -90,7 +89,7 @@ class ProtectedTermsLoaderTest {
 
     @Test
     void readProtectedTermsListFromFileNoDescriptionGivesDefaultDescription()
-            throws URISyntaxException {
+            throws Exception {
         Path file = Path.of(
                 ProtectedTermsLoader.class.getResource("/org/jabref/logic/protectedterms/unnamedterms.terms")
                                           .toURI());

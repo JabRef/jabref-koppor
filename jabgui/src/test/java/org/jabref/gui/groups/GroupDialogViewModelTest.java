@@ -1,6 +1,5 @@
 package org.jabref.gui.groups;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -66,7 +65,7 @@ class GroupDialogViewModelTest {
     }
 
     @Test
-    void validateExistingAbsolutePath() throws IOException {
+    void validateExistingAbsolutePath() throws Exception {
         Path anAuxFile = temporaryFolder.resolve("auxfile.aux").toAbsolutePath();
 
         Files.createFile(anAuxFile);
@@ -84,7 +83,7 @@ class GroupDialogViewModelTest {
     }
 
     @Test
-    void validateExistingRelativePath() throws IOException {
+    void validateExistingRelativePath() throws Exception {
         Path anAuxFile = Path.of("auxfile.aux");
 
         // The file needs to exist

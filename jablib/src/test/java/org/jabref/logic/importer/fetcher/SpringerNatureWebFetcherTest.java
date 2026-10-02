@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -42,7 +41,7 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
 
         BibEntry articleGenerativeAISolutions = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Gheventer, Andre and do Amaral Gurgel, Patricia and Henrique Brito, Carlos and Maiani de Mello, Rafael and Rocha, Sabrina and Feitosa, Rodrigo and Horta Travassos, Guilherme")
@@ -187,7 +186,7 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
     }
 
     @Test
-    void searchByEmptyQueryFindsNothing() throws FetcherException {
+    void searchByEmptyQueryFindsNothing() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
@@ -217,7 +216,7 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
 
     @Test
     @Disabled("401 as of 2024-08-18")
-    void supportsPhraseSearch() throws FetcherException {
+    void supportsPhraseSearch() throws Exception {
         // Normal search should match due to Redmiles, Elissa M., phrase search on the other hand should not find it.
         BibEntry expected = new BibEntry(StandardEntryType.InCollection)
                 .withField(StandardField.AUTHOR, "Booth, Kayla M. and Dosono, Bryan and Redmiles, Elissa M. and Morales, Miraida and Depew, Michael and Farzan, Rosta and Herman, Everett and Trahan, Keith and Tananis, Cindy")
@@ -243,7 +242,7 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
 
     @Test
     @Disabled("401 as of 2024-08-18")
-    void supportsBooleanANDSearch() throws FetcherException {
+    void supportsBooleanANDSearch() throws Exception {
         List<BibEntry> resultJustByAuthor = fetcher.performSearch("author:\"Redmiles, David\"");
         List<BibEntry> result = fetcher.performSearch("author:\"Redmiles, David\" AND journal:\"Computer Supported Cooperative Work\"");
 
@@ -260,7 +259,7 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertEquals(List.of(), result.getContent());
     }

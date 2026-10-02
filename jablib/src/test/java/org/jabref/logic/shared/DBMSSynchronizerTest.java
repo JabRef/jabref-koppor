@@ -28,8 +28,6 @@ import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
 import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.formatter.casechanger.LowerCaseFormatter;
-import org.jabref.logic.shared.exception.OfflineLockException;
-import org.jabref.logic.shared.exception.SharedEntryNotPresentException;
 import org.jabref.logic.shared.notifications.FieldChange;
 import org.jabref.logic.util.VirtualThreadTaskExecutor;
 import org.jabref.model.database.BibDatabase;
@@ -115,7 +113,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void entryAddedEventListener() throws SQLException {
+    void entryAddedEventListener() throws Exception {
         BibEntry expectedEntry = createExampleBibEntry(1);
         BibEntry furtherEntry = createExampleBibEntry(1);
 
@@ -149,7 +147,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void twoLocalFieldChangesAreSynchronizedCorrectly() throws SQLException {
+    void twoLocalFieldChangesAreSynchronizedCorrectly() throws Exception {
         BibEntry expectedEntry = createExampleBibEntry(1);
         expectedEntry.registerListener(dbmsSynchronizer);
 
@@ -163,7 +161,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void oneLocalAndOneSharedFieldChangeIsSynchronizedCorrectly() throws SQLException {
+    void oneLocalAndOneSharedFieldChangeIsSynchronizedCorrectly() throws Exception {
         BibEntry exampleBibEntry = createExampleBibEntry(1);
         exampleBibEntry.registerListener(dbmsSynchronizer);
 
@@ -432,7 +430,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void entriesRemovedEventListener() throws SQLException {
+    void entriesRemovedEventListener() throws Exception {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
 
@@ -454,7 +452,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void metaDataChangedEventListener() throws SQLException {
+    void metaDataChangedEventListener() throws Exception {
         MetaData testMetaData = new MetaData();
         testMetaData.registerListener(dbmsSynchronizer);
         dbmsSynchronizer.setMetaData(testMetaData);
@@ -471,7 +469,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void initializeDatabases() throws DatabaseNotSupportedException, SQLException {
+    void initializeDatabases() throws Exception {
         dbmsSynchronizer.initializeDatabases();
         assertTrue(dbmsProcessor.checkBaseIntegrity());
         dbmsSynchronizer.initializeDatabases();
@@ -479,7 +477,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void synchronizeLocalDatabaseWithEntryRemoval() throws SQLException {
+    void synchronizeLocalDatabaseWithEntryRemoval() throws Exception {
         List<BibEntry> expectedBibEntries = Arrays.asList(createExampleBibEntry(1), createExampleBibEntry(2));
 
         dbmsProcessor.insertEntry(expectedBibEntries.getFirst());
@@ -501,7 +499,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void synchronizeLocalDatabaseWithEntryUpdate() throws SQLException, OfflineLockException, SharedEntryNotPresentException {
+    void synchronizeLocalDatabaseWithEntryUpdate() throws Exception {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
@@ -520,7 +518,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void updateEntryDoesNotModifyLocalDatabase() throws SQLException, OfflineLockException, SharedEntryNotPresentException {
+    void updateEntryDoesNotModifyLocalDatabase() throws Exception {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
         assertEquals(List.of(bibEntry), bibDatabase.getEntries());
@@ -551,7 +549,7 @@ class DBMSSynchronizerTest {
     }
 
     @Test
-    void failedPullKeepsLocalEntries() throws SQLException {
+    void failedPullKeepsLocalEntries() throws Exception {
         BibEntry bibEntry = createExampleBibEntry(1);
         bibDatabase.insertEntry(bibEntry);
 

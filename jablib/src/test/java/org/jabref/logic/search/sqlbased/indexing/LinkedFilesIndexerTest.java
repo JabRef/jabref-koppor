@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
-public class LinkedFilesIndexerTest {
+class LinkedFilesIndexerTest {
     private final CliPreferences preferences = mock(CliPreferences.class);
     private final FilePreferences filePreferences = mock(FilePreferences.class);
 
@@ -56,7 +56,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void exampleThesisIndex() throws IOException {
+    void exampleThesisIndex() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
@@ -72,7 +72,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void dontIndexNonPdf() throws IOException {
+    void dontIndexNonPdf() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.AUX.getName())));
@@ -88,7 +88,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void dontIndexOnlineLinks() throws IOException {
+    void dontIndexOnlineLinks() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withFiles(List.of(new LinkedFile("Example Thesis", "https://raw.githubusercontent.com/JabRef/jabref/main/src/test/resources/pdfs/thesis-example.pdf", StandardFileType.PDF.getName())));
@@ -104,7 +104,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void exampleThesisIndexWithKey() throws IOException {
+    void exampleThesisIndexWithKey() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("Example2017")
@@ -121,7 +121,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void metaDataIndex() throws IOException {
+    void metaDataIndex() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withFiles(List.of(new LinkedFile("Example Thesis", "metaData.pdf", StandardFileType.PDF.getName())));
@@ -137,7 +137,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    void exampleThesisIndexAppendMetaData() throws IOException {
+    void exampleThesisIndexAppendMetaData() throws Exception {
         // given
         BibEntry exampleThesis = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("ExampleThesis2017")
@@ -167,7 +167,7 @@ public class LinkedFilesIndexerTest {
     }
 
     @Test
-    public void flushIndex() throws IOException {
+    void flushIndex() throws Exception {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("Example2017")

@@ -203,7 +203,7 @@ class SaveDatabaseActionTest {
     }
 
     @Test
-    void saveKeepsChangedFlag() throws IOException {
+    void saveKeepsChangedFlag() throws Exception {
         BibEntry firstEntry = new BibEntry().withField(StandardField.AUTHOR, "first");
         firstEntry.setChanged(true);
         BibEntry secondEntry = new BibEntry().withField(StandardField.AUTHOR, "second");
@@ -275,7 +275,7 @@ class SaveDatabaseActionTest {
 
     @Test
     @ExtendWith(JavaFxExtension.class)
-    void saveReportsFailureAndDoesNotReplaceFileWhenSaveMutationFails() throws IOException {
+    void saveReportsFailureAndDoesNotReplaceFileWhenSaveMutationFails() throws Exception {
         AtomicBoolean failSaveMutation = new AtomicBoolean();
         BibEntry entry = new BibEntry() {
             @Override

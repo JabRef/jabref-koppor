@@ -1,6 +1,5 @@
 package org.jabref.gui.externalfiles;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.when;
 class UnlinkedFilesCrawlerTest {
 
     @Test
-    void ignoresFilesInNamedSubdirectoryAccordingToGitignore(@TempDir Path testRoot) throws IOException {
+    void ignoresFilesInNamedSubdirectoryAccordingToGitignore(@TempDir Path testRoot) throws Exception {
         // This mirrors GitIgnoreFileFilterTest::checkDirectoryGitIgnoreSubDir but tests via the crawler
         Files.writeString(testRoot.resolve(".gitignore"), """
                 ignore/.*
@@ -65,7 +64,7 @@ class UnlinkedFilesCrawlerTest {
     }
 
     @Test
-    void minimalGitIgnore(@TempDir Path testRoot) throws IOException {
+    void minimalGitIgnore(@TempDir Path testRoot) throws Exception {
         Files.writeString(testRoot.resolve(".gitignore"), """
                 *.png
                 """);
@@ -84,7 +83,7 @@ class UnlinkedFilesCrawlerTest {
     }
 
     @Test
-    void excludingTheCurrentLibraryTest(@TempDir Path testRoot) throws IOException {
+    void excludingTheCurrentLibraryTest(@TempDir Path testRoot) throws Exception {
         // Adding 3 files one of which is the database file
         Files.createFile(testRoot.resolve("unlinkedPdf.pdf"));
         Files.createFile(testRoot.resolve("another-unlinkedPdf.pdf"));
@@ -111,7 +110,7 @@ class UnlinkedFilesCrawlerTest {
 
     /// [utest->req~jabgui.externalfiles.unlinked-files.search.non-blocking-results~1]
     @Test
-    void cachesRelatedEntriesForUnlinkedFiles(@TempDir Path testRoot) throws IOException {
+    void cachesRelatedEntriesForUnlinkedFiles(@TempDir Path testRoot) throws Exception {
         Path file = testRoot.resolve("citeKey.pdf");
         Files.createFile(file);
 
@@ -134,7 +133,7 @@ class UnlinkedFilesCrawlerTest {
     }
 
     @Test
-    void cachesRelatedEntriesForSameFileNameInEveryFileDirectory(@TempDir Path testRoot) throws IOException {
+    void cachesRelatedEntriesForSameFileNameInEveryFileDirectory(@TempDir Path testRoot) throws Exception {
         Path firstDirectory = Files.createDirectory(testRoot.resolve("first"));
         Path secondDirectory = Files.createDirectory(testRoot.resolve("second"));
         Path firstFile = Files.createFile(firstDirectory.resolve("citeKey.pdf"));
@@ -157,7 +156,7 @@ class UnlinkedFilesCrawlerTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void cachesRelatedEntriesForSymlinkedSearchDirectory(@TempDir Path testRoot) throws IOException {
+    void cachesRelatedEntriesForSymlinkedSearchDirectory(@TempDir Path testRoot) throws Exception {
         Path fileDirectory = Files.createDirectory(testRoot.resolve("files"));
         Files.createFile(fileDirectory.resolve("citeKey.pdf"));
         Path link = Files.createSymbolicLink(testRoot.resolve("link"), fileDirectory);
@@ -177,7 +176,7 @@ class UnlinkedFilesCrawlerTest {
     }
 
     @Test
-    void skipsRelatedEntryLookupWhenCancelled(@TempDir Path testRoot) throws IOException {
+    void skipsRelatedEntryLookupWhenCancelled(@TempDir Path testRoot) throws Exception {
         Files.createFile(testRoot.resolve("citeKey.pdf"));
 
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("citeKey");

@@ -3,7 +3,6 @@ package org.jabref.logic.search.query;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
@@ -31,12 +30,12 @@ class SearchQuerySQLConversionTest {
     private static EmbeddedPostgres pg;
 
     @BeforeAll
-    public static void setup() throws IOException {
+    static void setup() throws IOException {
         pg = EmbeddedPostgres.builder().start();
     }
 
     @AfterAll
-    public static void teardown() throws IOException {
+    static void teardown() throws IOException {
         pg.close();
     }
 
@@ -738,7 +737,7 @@ class SearchQuerySQLConversionTest {
 
     @ParameterizedTest
     @MethodSource
-    void searchConversion(String searchExpression, String expected) throws SQLException {
+    void searchConversion(String searchExpression, String expected) throws Exception {
         try (Connection connection = pg.getPostgresDatabase().getConnection()) {
             SqlQueryNode sqlQueryNode = SearchQueryConversion.searchToSql("tableName", new SearchQuery(searchExpression));
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQueryNode.cte())) {
@@ -910,7 +909,7 @@ class SearchQuerySQLConversionTest {
 
     @ParameterizedTest
     @MethodSource
-    void unFieldedTermsWithSearchBarFlags(String searchExpression, EnumSet<SearchFlags> searchFlags, String expected) throws SQLException {
+    void unFieldedTermsWithSearchBarFlags(String searchExpression, EnumSet<SearchFlags> searchFlags, String expected) throws Exception {
         try (Connection connection = pg.getPostgresDatabase().getConnection()) {
             SqlQueryNode sqlQueryNode = SearchQueryConversion.searchToSql("tableName", new SearchQuery(searchExpression, searchFlags));
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQueryNode.cte())) {

@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -62,13 +61,13 @@ class IsiImporterTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormatAccepted(String fileName) throws IOException {
+    void isRecognizedFormatAccepted(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(importer, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("invalidFileNames")
-    void isRecognizedFormatRejected(String fileName) throws IOException {
+    void isRecognizedFormatRejected(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(importer, fileName);
     }
 
@@ -118,7 +117,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntries1() throws IOException, URISyntaxException {
+    void importEntries1() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTest1.isi").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         BibEntry entry = entries.getFirst();
@@ -139,7 +138,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntries2() throws IOException, URISyntaxException {
+    void importEntries2() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTest2.isi").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         BibEntry entry = entries.getFirst();
@@ -156,7 +155,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntriesINSPEC() throws IOException, URISyntaxException {
+    void importEntriesINSPEC() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTestInspec.isi").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -193,7 +192,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntriesWOS() throws IOException, URISyntaxException {
+    void importEntriesWOS() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTestWOS.isi").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -249,7 +248,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importIEEEExport() throws IOException, URISyntaxException {
+    void importIEEEExport() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IEEEImport1.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         BibEntry entry = entries.getFirst();
@@ -272,7 +271,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void iEEEImport() throws IOException, URISyntaxException {
+    void iEEEImport() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IEEEImport1.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         BibEntry entry = entries.getFirst();
@@ -296,7 +295,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntriesMedline() throws IOException, URISyntaxException {
+    void importEntriesMedline() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTestMedline.isi").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -332,7 +331,7 @@ class IsiImporterTest {
     }
 
     @Test
-    void importEntriesEmpty() throws IOException, URISyntaxException {
+    void importEntriesEmpty() throws Exception {
         Path file = Path.of(IsiImporterTest.class.getResource("IsiImporterTestEmpty.isi").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();

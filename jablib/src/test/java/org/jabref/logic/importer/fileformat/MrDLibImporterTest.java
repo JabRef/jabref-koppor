@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
@@ -28,7 +27,7 @@ class MrDLibImporterTest {
     }
 
     @Test
-    void importDatabaseIsYearSetCorrectly() throws IOException {
+    void importDatabaseIsYearSetCorrectly() throws Exception {
         ParserResult parserResult = importer.importDatabase(input);
 
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
@@ -38,7 +37,7 @@ class MrDLibImporterTest {
     }
 
     @Test
-    void importDatabaseIsTitleSetCorrectly() throws IOException {
+    void importDatabaseIsTitleSetCorrectly() throws Exception {
         ParserResult parserResult = importer.importDatabase(input);
 
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
@@ -48,7 +47,7 @@ class MrDLibImporterTest {
     }
 
     @Test
-    void importDatabaseMin() throws IOException {
+    void importDatabaseMin() throws Exception {
         ParserResult parserResult = importer.importDatabase(input);
 
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();

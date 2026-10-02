@@ -61,7 +61,7 @@ class BackupFileUtilTest {
     }
 
     @Test
-    void latestBackupNextToLibraryIsFoundWhenBackupDirectoryIsAbsent(@TempDir Path tempDir) throws IOException {
+    void latestBackupNextToLibraryIsFoundWhenBackupDirectoryIsAbsent(@TempDir Path tempDir) throws Exception {
         Path library = tempDir.resolve("test.bib");
         String prefix = BackupFileUtil.getUniqueFilePrefix(library) + "--test.bib--";
         Files.writeString(tempDir.resolve(prefix + "2024-01-01--00.00.00.bib"), "");

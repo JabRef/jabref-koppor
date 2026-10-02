@@ -66,7 +66,7 @@ class OpenLibraryIsbnFetcherTest extends AbstractIsbnFetcherTest {
     }
 
     @Test
-    void searchForNonExistingIsbnReturnsEmpty() throws FetcherException {
+    void searchForNonExistingIsbnReturnsEmpty() throws Exception {
         // In this test, the ISBN needs to be a valid (syntax+checksum) ISBN number
         // However, the ISBN number is not assigned to a real book (OpenLibrary returns 404)
         assertEquals(Optional.empty(), fetcher.performSearchById("9785646216541"));

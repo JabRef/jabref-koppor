@@ -36,7 +36,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void calculateDaysUntilNextPopup() {
+    void calculateDaysUntilNextPopup() {
         int lastShownEpochDay = (int) LocalDate.now().minusDays(400).toEpochDay();
         assertEquals(0, donationProvider.calculateDaysUntilNextPopup(lastShownEpochDay));
 
@@ -45,7 +45,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void notificationIsShownWhenTheLastOneIsAYearOld() {
+    void notificationIsShownWhenTheLastOneIsAYearOld() {
         donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
 
         interact(donationProvider::showIfNeeded);
@@ -55,7 +55,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void noNotificationIsShownWhenTheUserOptedOut() {
+    void noNotificationIsShownWhenTheUserOptedOut() {
         donationPreferences.setNeverShowAgain(true);
         donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
 
@@ -65,7 +65,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void neverShowAgainActionOptsTheUserOut() {
+    void neverShowAgainActionOptsTheUserOut() {
         donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
         interact(donationProvider::showIfNeeded);
 
