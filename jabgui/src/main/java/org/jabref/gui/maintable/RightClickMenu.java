@@ -11,6 +11,7 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.StandardActions;
+import org.jabref.gui.ai.AskQuestionsAction;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.edit.CopyMoreAction;
 import org.jabref.gui.edit.CopyTo;
@@ -32,6 +33,7 @@ import org.jabref.gui.preview.PreviewPreferences;
 import org.jabref.gui.relatedwork.RelatedWorkAction;
 import org.jabref.gui.specialfields.SpecialFieldMenuItemFactory;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citationstyle.CitationStyleOutputFormat;
 import org.jabref.logic.importer.fetcher.CrossRef;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -44,6 +46,7 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.SpecialField;
 
+import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
 
 public class RightClickMenu {
@@ -92,6 +95,7 @@ public class RightClickMenu {
                 extractFileReferencesOnline,
                 extractFileReferencesOffline,
                 factory.createMenuItem(StandardActions.EXTRACT_RELATED_WORK_COMMENTS, new RelatedWorkAction(dialogService, stateManager, preferences)),
+                factory.createMenuItem(StandardActions.AI_ASK_QUESTIONS, new AskQuestionsAction(stateManager, dialogService, Injector.instantiateModelOrService(AiService.class), preferences.getAiPreferences(), preferences.getFilePreferences(), taskExecutor)),
 
                 factory.createMenuItem(StandardActions.OPEN_URL, new OpenUrlAction(dialogService, stateManager, preferences)),
 
