@@ -71,6 +71,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Simple HTML" export separated author initials with spaces. [#17306](https://github.com/JabRef/jabref/pull/17306)
 - We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
+- We fixed an issue where "Regenerate (custom)" in the AI summary ignored the chosen summarization algorithm. [#17216](https://github.com/JabRef/jabref/issues/17216)
+- We fixed AI summary regeneration restoring an outdated summary after a new generation started. [#17236](https://github.com/JabRef/jabref/pull/17236)
 - We fixed missing DOIs when importing MEDLINE records and cleaning existing MEDLINE entries. [#17173](https://github.com/JabRef/jabref/issues/17173)
 - We fixed an issue where the DOI lookup button lost its progress indicator after switching to another entry and back. [#17223](https://github.com/JabRef/jabref/pull/17223)
 - We fixed an issue where double-clicking a word in an AI chat message did not select it. [#17174](https://github.com/JabRef/jabref/pull/17174)
@@ -138,6 +140,13 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where saving the "Custom entry types" preferences removed custom fields from the non-wrapped fields. [#17121](https://github.com/JabRef/jabref/pull/17121)
 - We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
+- We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
+- We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
+- We fixed an issue where JabRef asked to store a library's custom entry types at every start. [#9930](https://github.com/JabRef/jabref/issues/9930)
+- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
+- We fixed an issue where legacy group memberships, markings, and special fields were no longer migrated when opening a library. [#17019](https://github.com/JabRef/jabref/pull/17019)
+- We fixed an issue where saving the "Custom entry types" preferences removed custom fields from the non-wrapped fields. [#17121](https://github.com/JabRef/jabref/pull/17121)
+- We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
 
 ### Removed
