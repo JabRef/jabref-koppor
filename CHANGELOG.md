@@ -52,6 +52,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
 - Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 - We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
+- We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
+- We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
 
 ### Fixed
 
