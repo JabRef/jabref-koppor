@@ -41,15 +41,16 @@ import static org.jabref.model.entry.field.StandardField.PDF;
 import static org.jabref.model.entry.field.StandardField.PS;
 import static org.jabref.model.entry.field.StandardField.URL;
 
-/// This class contains bundles OS specific implementations for file directories and file/application open handling methods.
+/// This class bundles OS specific implementations for file/application open handling methods.
 /// In case the default does not work, subclasses provide the correct behavior.
 ///
 /// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
 ///
-/// See https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform for more implementation hints.
-/// https://docs.oracle.com/javase/7/docs/api/java/awt/Desktop.html cannot be used as we don't want to rely on AWT.
+/// AWT's [Desktop] is avoided where possible, as it is not available on all platforms; see
+/// https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform.
+/// Web links are opened via JavaFX [HostServices].
 ///
 /// For non-GUI things, see [org.jabref.logic.os.OS].
 @AllowedToUseAwt("Because of moveToTrash() is not available elsewhere.")
@@ -58,6 +59,12 @@ public abstract class NativeDesktop {
     // Otherwise, org.jabref.Launcher.addLogToDisk will fail, because tinylog's properties are frozen
 
     private static final Pattern REMOTE_LINK_PATTERN = Pattern.compile("[a-z]+://.*");
+
+    private final HostServices hostServices;
+
+    protected NativeDesktop(HostServices hostServices) {
+        this.hostServices = hostServices;
+    }
 
     /// Open a http/pdf/ps viewer for the given link string.
     ///
@@ -294,16 +301,10 @@ public abstract class NativeDesktop {
     }
 
     /// Opens the user's mail client with the given `mailto:` URI
-    public static void openMailClient(URI mailto) {
-        get().showDocument(mailto.toASCIIString());
-    }
-
-    /// Hands the URI to the OS default handler via JavaFX [HostServices]. Overridable for tests.
     ///
-    /// [HostServices] is registered at the start of [org.jabref.gui.JabRefGUI#start], so this must not be called before.
-    /// It neither blocks nor reports failures.
-    void showDocument(String uri) {
-        Injector.instantiateModelOrService(HostServices.class).showDocument(uri);
+    /// Not via [HostServices#showDocument], because on Windows that starts the web browser instead of the mail client.
+    public static void openMailClient(URI mailto) throws IOException {
+        get().openUrlWithSystemHandler(mailto.toASCIIString());
     }
 
     public static void openBrowser(URI url, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
@@ -332,21 +333,21 @@ public abstract class NativeDesktop {
         dialogService.showErrorDialogAndWait(couldNotOpenBrowser, couldNotOpenBrowser + "\n" + openManually + "\n" + copiedToClipboard);
     }
 
-    /// The instance created by [org.jabref.Launcher], for the static helpers of this class
+    /// The instance created by [org.jabref.gui.JabRefGUI#start], for the static helpers of this class
     private static NativeDesktop get() {
         return Injector.instantiateModelOrService(NativeDesktop.class);
     }
 
     /// Creates the implementation for the current operating system
-    public static NativeDesktop create() {
+    public static NativeDesktop create(HostServices hostServices) {
         if (OS.WINDOWS) {
-            return new Windows();
+            return new Windows(hostServices);
         } else if (OS.OS_X) {
-            return new OSX();
+            return new OSX(hostServices);
         } else if (OS.LINUX) {
-            return new Linux();
+            return new Linux(hostServices);
         }
-        return new DefaultDesktop();
+        return new DefaultDesktop(hostServices);
     }
 
     /// Opens a file with the application configured for its file type, or with the OS default application if none is configured.
@@ -357,9 +358,13 @@ public abstract class NativeDesktop {
         openFileWithApplication(filePath, application);
     }
 
-    /// Hands the URL string, unmodified, to the OS's URL-aware handler.
-    /// Used when `Desktop.browse` is unsupported, not applicable, or failed;
-    /// the URL must never be run through `Path.of`, which mangles it.
+    /// Hands the URI to the OS via JavaFX. Neither blocks nor reports failures.
+    protected final void showDocument(String uri) {
+        hostServices.showDocument(uri);
+    }
+
+    /// Hands the URL string, unmodified, to the OS's URL-aware handler, which dispatches by scheme (e.g., `mailto:` to the mail client).
+    /// The URL must never be run through `Path.of`, which mangles it.
     public abstract void openUrlWithSystemHandler(String url) throws IOException;
 
     /// Opens a file on an Operating System, using the given application.

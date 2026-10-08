@@ -60,7 +60,7 @@ public abstract class SendAsEMailAction extends SimpleCommand {
                       .executeWith(taskExecutor);
     }
 
-    private String sendEmail() throws URISyntaxException {
+    private String sendEmail() throws URISyntaxException, IOException {
         if (stateManager.getActiveDatabase().isEmpty()) {
             return Localization.lang("Error creating email");
         }

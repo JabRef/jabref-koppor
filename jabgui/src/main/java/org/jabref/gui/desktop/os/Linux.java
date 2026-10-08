@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javafx.application.HostServices;
+
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.l10n.Localization;
@@ -28,6 +30,10 @@ import org.slf4j.LoggerFactory;
 public class Linux extends NativeDesktop {
 
     private static final String ETC_ALTERNATIVES_X_TERMINAL_EMULATOR = "/etc/alternatives/x-terminal-emulator";
+
+    public Linux(HostServices hostServices) {
+        super(hostServices);
+    }
 
     /// Starts the process and drains its output into the debug log, so it cannot block on a full pipe
     private static void startLoggingOutput(ProcessBuilder processBuilder) throws IOException {

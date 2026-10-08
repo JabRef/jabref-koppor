@@ -3,6 +3,8 @@ package org.jabref.gui.desktop.os;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import javafx.application.HostServices;
+
 import org.jabref.gui.DialogService;
 
 /// This class contains macOS (OSX) specific implementations for file directories and file/application open handling methods.
@@ -11,6 +13,10 @@ import org.jabref.gui.DialogService;
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
 public class OSX extends NativeDesktop {
+
+    public OSX(HostServices hostServices) {
+        super(hostServices);
+    }
 
     @Override
     protected void openFileWithDefaultApplication(String filePath) throws IOException {

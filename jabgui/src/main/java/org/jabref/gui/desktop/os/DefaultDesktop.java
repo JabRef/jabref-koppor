@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import javafx.application.HostServices;
+
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.util.Directories;
@@ -19,14 +21,19 @@ import org.slf4j.LoggerFactory;
 @AllowedToUseAwt("Requires AWT to open a file")
 public class DefaultDesktop extends NativeDesktop {
 
+    public DefaultDesktop(HostServices hostServices) {
+        super(hostServices);
+    }
+
     @Override
     protected void openFileWithDefaultApplication(String filePath) throws IOException {
         Desktop.getDesktop().open(Path.of(filePath).toFile());
     }
 
     @Override
-    public void openUrlWithSystemHandler(String url) throws IOException {
-        throw new IOException("No URL handler known for this platform, cannot open " + url);
+    public void openUrlWithSystemHandler(String url) {
+        // No native URL handler known for this platform
+        showDocument(url);
     }
 
     @Override

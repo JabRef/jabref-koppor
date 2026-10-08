@@ -50,7 +50,7 @@ public class FilePreferences {
     private FilePreferences() {
         this(
                 new SimpleObjectProperty<>(OS.getUserHostInfo()), // userAndHost (needs to be sourced from InternalPreferences)
-                Directories.getDocumentsDirectory(), // mainFileDirectory
+                null,                                // mainFileDirectory
                 true,                                // storeFilesRelativeToBibFile
                 false,                               // autoRenameFilesOnChange
                 DEFAULT_FILENAME_PATTERNS[1],        // fileNamePattern

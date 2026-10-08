@@ -5,11 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
-import java.util.concurrent.CompletableFuture;
 
+import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 
-import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.CustomExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /// The "browser" in these tests is a shell script recording its argument, so the assertions catch
@@ -64,7 +64,7 @@ class NativeDesktopTest {
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(htmlType));
 
-        NativeDesktop.openBrowser(URL_WITH_QUERY, preferences, NativeDesktop.create());
+        NativeDesktop.openBrowser(URL_WITH_QUERY, preferences, NativeDesktop.create(mock(HostServices.class)));
 
         assertEquals(URL_WITH_QUERY, recordedArgument());
     }
@@ -73,73 +73,33 @@ class NativeDesktopTest {
     void windowsOpenFileWithApplicationKeepsUrlIntact() throws IOException, InterruptedException {
         // The Windows implementation is executable on POSIX, which is enough to pin down that the
         // URL is passed through verbatim instead of being run through Path.of
-        new Windows().openFileWithApplication(URL_WITH_QUERY, recorder.toString());
+        new Windows(mock(HostServices.class)).openFileWithApplication(URL_WITH_QUERY, recorder.toString());
 
         assertEquals(URL_WITH_QUERY, recordedArgument());
     }
 
     @Test
     void openBrowserPassesFullUrlToShowDocument() throws IOException {
-        FakeDesktop desktop = new FakeDesktop();
+        HostServices hostServices = mock(HostServices.class);
 
-        NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), desktop);
+        NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), NativeDesktop.create(hostServices));
 
-        assertEquals(URL_WITH_QUERY, desktop.shownDocument.getNow(""));
+        verify(hostServices).showDocument(URL_WITH_QUERY);
     }
 
     @Test
     void openBrowserUsesSystemHandlerForUnparseableUrl() throws IOException {
-        FakeDesktop desktop = new FakeDesktop();
+        NativeDesktop desktop = mock(NativeDesktop.class);
         String urlWithSpace = "https://example.org/some path?x=1&y=2";
 
         NativeDesktop.openBrowser(urlWithSpace, noCustomBrowser(), desktop);
 
-        assertEquals(urlWithSpace, desktop.systemHandled.getNow(""));
+        verify(desktop).openUrlWithSystemHandler(urlWithSpace);
     }
 
     private static ExternalApplicationsPreferences noCustomBrowser() {
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet());
         return preferences;
-    }
-
-    private static final class FakeDesktop extends NativeDesktop {
-        final CompletableFuture<String> shownDocument = new CompletableFuture<>();
-        final CompletableFuture<String> systemHandled = new CompletableFuture<>();
-
-        @Override
-        void showDocument(String uri) {
-            shownDocument.complete(uri);
-        }
-
-        @Override
-        public void openUrlWithSystemHandler(String url) {
-            systemHandled.complete(url);
-        }
-
-        @Override
-        protected void openFileWithDefaultApplication(String filePath) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void openFileWithCustomApplication(String filePath, String application) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void openFolderAndSelectFile(Path file) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void openConsole(String absolutePath, DialogService dialogService) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Path getApplicationDirectory() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

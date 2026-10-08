@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javafx.application.Application;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
@@ -23,6 +22,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.frame.JabRefFrame;
 import org.jabref.gui.help.VersionWorker;
 import org.jabref.gui.icon.IconTheme;
@@ -126,7 +126,7 @@ public class JabRefGUI extends Application {
             // Load JavaFX stylesheet now instead of loading it later when the first Control is initialized.
             setUserAgentStylesheet(null);
             Injector.setModelOrService(Stage.class, mainStage);
-            Injector.setModelOrService(HostServices.class, getHostServices());
+            Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create(getHostServices()));
 
             initialize();
 

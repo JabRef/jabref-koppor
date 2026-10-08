@@ -35,6 +35,15 @@ public class Directories {
 
     /// Returns the user's documents directory, falling back to the user directory if it cannot be determined.
     public static Path getDocumentsDirectory() {
+        return DocumentsDirectoryHolder.DOCUMENTS_DIRECTORY;
+    }
+
+    /// Lazily determines the documents directory once, as the lookup may start an external process
+    private static final class DocumentsDirectoryHolder {
+        private static final Path DOCUMENTS_DIRECTORY = determineDocumentsDirectory();
+    }
+
+    private static Path determineDocumentsDirectory() {
         if (OS.WINDOWS) {
             return getWindowsDocumentsDirectory();
         }

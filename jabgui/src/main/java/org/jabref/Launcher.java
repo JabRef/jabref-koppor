@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.jabref.cli.ArgumentProcessor;
 import org.jabref.gui.JabRefGUI;
-import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.logging.JavaFxCssLogFilter;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.JabRefGuiPreferences;
@@ -58,8 +57,6 @@ public class Launcher {
             LOGGER.info("Starting JabRef v{}", BUILD_INFO.version);
 
             Injector.setModelOrService(BuildInfo.class, BUILD_INFO);
-
-            Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create());
 
             final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
 
