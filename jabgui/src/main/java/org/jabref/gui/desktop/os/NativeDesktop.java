@@ -186,28 +186,8 @@ public abstract class NativeDesktop {
             return false;
         }
 
-        String filePath = file.get().toString();
-        openExternalFilePlatformIndependent(type, filePath, externalApplicationsPreferences);
+        get().openFileWithApplication(file.get().toString(), type.map(ExternalFileType::getOpenWithApplication).orElse(""));
         return true;
-    }
-
-    private static void openExternalFilePlatformIndependent(Optional<ExternalFileType> fileType,
-                                                            String filePath,
-                                                            ExternalApplicationsPreferences externalApplicationsPreferences)
-            throws IOException {
-        if (fileType.isPresent()) {
-            String application = fileType.get().getOpenWithApplication();
-
-            if (application.isEmpty()) {
-                get().openFile(filePath, fileType.get().getExtension(), externalApplicationsPreferences);
-            } else {
-                get().openFileWithApplication(filePath, application);
-            }
-        } else {
-            // File type is not given and therefore no application specified
-            // Let the OS handle the opening of the file
-            get().openFile(filePath, "", externalApplicationsPreferences);
-        }
     }
 
     /// Opens a file browser of the folder of the given file. If possible, the file is selected
@@ -353,7 +333,13 @@ public abstract class NativeDesktop {
         dialogService.showErrorDialogAndWait(couldNotOpenBrowser, couldNotOpenBrowser + "\n" + openManually + "\n" + copiedToClipboard);
     }
 
-    public static NativeDesktop get() {
+    /// The instance created by [org.jabref.Launcher], for the static helpers of this class
+    private static NativeDesktop get() {
+        return Injector.instantiateModelOrService(NativeDesktop.class);
+    }
+
+    /// Creates the implementation for the current operating system
+    public static NativeDesktop create() {
         if (OS.WINDOWS) {
             return new Windows();
         } else if (OS.OS_X) {
@@ -364,7 +350,13 @@ public abstract class NativeDesktop {
         return new DefaultDesktop();
     }
 
-    public abstract void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException;
+    /// Opens a file with the application configured for its file type, or with the OS default application if none is configured.
+    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
+        String application = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences)
+                                              .map(ExternalFileType::getOpenWithApplication)
+                                              .orElse("");
+        openFileWithApplication(filePath, application);
+    }
 
     /// Hands the URL string, unmodified, to the OS's URL-aware handler.
     /// Used when `Desktop.browse` is unsupported, not applicable, or failed;
@@ -374,8 +366,20 @@ public abstract class NativeDesktop {
     /// Opens a file on an Operating System, using the given application.
     ///
     /// @param filePath    The filename.
-    /// @param application Link to the app that opens the file.
-    public abstract void openFileWithApplication(String filePath, String application) throws IOException;
+    /// @param application Link to the app that opens the file. If empty, the OS default application is used.
+    public void openFileWithApplication(String filePath, String application) throws IOException {
+        if (application.isEmpty()) {
+            openFileWithDefaultApplication(filePath);
+        } else {
+            openFileWithCustomApplication(filePath, application);
+        }
+    }
+
+    /// Opens a file with the application the OS associates with it.
+    protected abstract void openFileWithDefaultApplication(String filePath) throws IOException;
+
+    /// Opens a file with the given, non-empty application.
+    protected abstract void openFileWithCustomApplication(String filePath, String application) throws IOException;
 
     public abstract void openFolderAndSelectFile(Path file) throws IOException;
 

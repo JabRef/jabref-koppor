@@ -282,6 +282,8 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
 
     private static JabRefGuiPreferences singleton;
 
+    private final NativeDesktop nativeDesktop;
+
     private EntryEditorPreferences entryEditorPreferences;
     private MergeDialogPreferences mergeDialogPreferences;
     private AutoCompletePreferences autoCompletePreferences;
@@ -308,11 +310,15 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     /// All other usages should get the preferences passed (or injected).
     /// The JabRef team leaves the `@deprecated` annotation to have IntelliJ listing this method with a strike-through.
     @Deprecated
-    public static JabRefGuiPreferences getInstance() {
+    public static JabRefGuiPreferences getInstance(NativeDesktop nativeDesktop) {
         if (JabRefGuiPreferences.singleton == null) {
-            JabRefGuiPreferences.singleton = new JabRefGuiPreferences();
+            JabRefGuiPreferences.singleton = new JabRefGuiPreferences(nativeDesktop);
         }
         return JabRefGuiPreferences.singleton;
+    }
+
+    private JabRefGuiPreferences(NativeDesktop nativeDesktop) {
+        this.nativeDesktop = nativeDesktop;
     }
 
     @Override
@@ -1428,11 +1434,11 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     /// In GUI mode, we can look up the directory better
     @Override
     protected Path getDefaultPath() {
-        return NativeDesktop.get().getDefaultFileChooserDirectory();
+        return nativeDesktop.getDefaultFileChooserDirectory();
     }
 
     @Override
     protected boolean moveToTrashSupported() {
-        return NativeDesktop.get().moveToTrashSupported();
+        return nativeDesktop.moveToTrashSupported();
     }
 }

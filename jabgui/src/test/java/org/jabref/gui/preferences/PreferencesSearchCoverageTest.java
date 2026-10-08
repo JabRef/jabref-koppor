@@ -16,6 +16,7 @@ import javafx.scene.control.Labeled;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.ai.AiTab;
 import org.jabref.gui.preferences.autocompletion.AutoCompletionTab;
 import org.jabref.gui.preferences.citationkeypattern.CitationKeyPatternTab;
@@ -81,6 +82,7 @@ class PreferencesSearchCoverageTest {
         // under the interface they were written against.
         Injector.setModelOrService(CliPreferences.class, preferences);
         Injector.setModelOrService(DialogService.class, mock(DialogService.class));
+        Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create());
         Injector.setModelOrService(TaskExecutor.class, new CurrentThreadTaskExecutor());
         Injector.setModelOrService(StateManager.class, mock(StateManager.class, Answers.RETURNS_DEEP_STUBS));
         Injector.setModelOrService(AiService.class, mock(AiService.class, Answers.RETURNS_DEEP_STUBS));

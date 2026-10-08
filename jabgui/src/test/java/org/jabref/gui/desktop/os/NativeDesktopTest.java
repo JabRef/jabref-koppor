@@ -64,7 +64,7 @@ class NativeDesktopTest {
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(htmlType));
 
-        NativeDesktop.openBrowser(URL_WITH_QUERY, preferences);
+        NativeDesktop.openBrowser(URL_WITH_QUERY, preferences, NativeDesktop.create());
 
         assertEquals(URL_WITH_QUERY, recordedArgument());
     }
@@ -118,12 +118,12 @@ class NativeDesktopTest {
         }
 
         @Override
-        public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) {
+        protected void openFileWithDefaultApplication(String filePath) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void openFileWithApplication(String filePath, String application) {
+        protected void openFileWithCustomApplication(String filePath, String application) {
             throw new UnsupportedOperationException();
         }
 

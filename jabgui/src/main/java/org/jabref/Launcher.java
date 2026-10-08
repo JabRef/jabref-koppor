@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.jabref.cli.ArgumentProcessor;
 import org.jabref.gui.JabRefGUI;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.logging.JavaFxCssLogFilter;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.JabRefGuiPreferences;
@@ -58,7 +59,10 @@ public class Launcher {
 
             Injector.setModelOrService(BuildInfo.class, BUILD_INFO);
 
-            final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
+            NativeDesktop nativeDesktop = NativeDesktop.create();
+            Injector.setModelOrService(NativeDesktop.class, nativeDesktop);
+
+            final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance(nativeDesktop);
 
             ArgumentProcessor argumentProcessor = new ArgumentProcessor(
                     args,

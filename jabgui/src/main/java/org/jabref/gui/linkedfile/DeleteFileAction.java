@@ -27,6 +27,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -193,7 +194,7 @@ public class DeleteFileAction extends SimpleCommand {
             LOGGER.debug("filePreferences.moveToTrash() = {}", preferencesMoveToTrash);
             if (preferencesMoveToTrash) {
                 LOGGER.debug("Moving to trash: {}", theFile);
-                NativeDesktop.get().moveToTrash(theFile);
+                Injector.instantiateModelOrService(NativeDesktop.class).moveToTrash(theFile);
             } else {
                 LOGGER.debug("Deleting: {}", theFile);
                 Files.delete(theFile);

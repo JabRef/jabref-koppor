@@ -7,7 +7,6 @@ import java.nio.file.Path;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
-import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.util.Directories;
 
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultDesktop extends NativeDesktop {
 
     @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
+    protected void openFileWithDefaultApplication(String filePath) throws IOException {
         Desktop.getDesktop().open(Path.of(filePath).toFile());
     }
 
@@ -31,8 +30,8 @@ public class DefaultDesktop extends NativeDesktop {
     }
 
     @Override
-    public void openFileWithApplication(String filePath, String application) throws IOException {
-        Desktop.getDesktop().open(Path.of(filePath).toFile());
+    protected void openFileWithCustomApplication(String filePath, String application) throws IOException {
+        new ProcessBuilder(application, filePath).start();
     }
 
     @Override

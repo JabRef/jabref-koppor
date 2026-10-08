@@ -8,15 +8,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
-import org.jabref.gui.externalfiletype.ExternalFileType;
-import org.jabref.gui.externalfiletype.ExternalFileTypes;
-import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.HeadlessExecutorService;
@@ -34,7 +31,15 @@ public class Linux extends NativeDesktop {
 
     private static final String ETC_ALTERNATIVES_X_TERMINAL_EMULATOR = "/etc/alternatives/x-terminal-emulator";
 
-    private void nativeOpenFile(String filePath) {
+    /// Starts the process and drains its output into the debug log, so it cannot block on a full pipe
+    private static void startLoggingOutput(ProcessBuilder processBuilder) throws IOException {
+        Process process = processBuilder.start();
+        HeadlessExecutorService.INSTANCE.execute(new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug));
+        HeadlessExecutorService.INSTANCE.execute(new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug));
+    }
+
+    @Override
+    protected void openFileWithDefaultApplication(String filePath) {
         HeadlessExecutorService.INSTANCE.execute(() -> {
             try {
                 Desktop.getDesktop().open(Path.of(filePath).toFile());
@@ -54,50 +59,16 @@ public class Linux extends NativeDesktop {
     }
 
     @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
-        Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
-        String viewer;
-
-        if (type.isPresent() && !type.get().getOpenWithApplication().isEmpty()) {
-            viewer = type.get().getOpenWithApplication();
-            ProcessBuilder processBuilder = new ProcessBuilder(viewer, filePath);
-            Process process = processBuilder.start();
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
-
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
-        } else {
-            nativeOpenFile(filePath);
-        }
-    }
-
-    @Override
     public void openUrlWithSystemHandler(String url) throws IOException {
         new ProcessBuilder("xdg-open", url).start();
     }
 
     @Override
-    public void openFileWithApplication(String filePath, String application) throws IOException {
-        // Use the given app if specified, and the universal "xdg-open" otherwise:
-        String[] openWith;
-        if ((application != null) && !application.isEmpty()) {
-            openWith = application.split(" ");
-            String[] cmdArray = new String[openWith.length + 1];
-            System.arraycopy(openWith, 0, cmdArray, 0, openWith.length);
-            cmdArray[cmdArray.length - 1] = filePath;
-
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArray);
-            Process process = processBuilder.start();
-
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
-
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
-        } else {
-            nativeOpenFile(filePath);
-        }
+    protected void openFileWithCustomApplication(String filePath, String application) throws IOException {
+        // The application may carry arguments, e.g. "evince --fullscreen"
+        List<String> command = new ArrayList<>(List.of(application.split(" ")));
+        command.add(filePath);
+        startLoggingOutput(new ProcessBuilder(command));
     }
 
     @Override
@@ -122,14 +93,7 @@ public class Linux extends NativeDesktop {
             }
         }
         LoggerFactory.getLogger(Linux.class).debug("Opening folder and selecting file using {}", String.join(" ", cmd));
-        ProcessBuilder processBuilder = new ProcessBuilder(cmd);
-        Process process = processBuilder.start();
-
-        StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-        StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
-
-        HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
-        HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
+        startLoggingOutput(new ProcessBuilder(cmd));
     }
 
     @Override
@@ -162,15 +126,7 @@ public class Linux extends NativeDesktop {
 
                 LoggerFactory.getLogger(Linux.class).debug("Opening terminal using {}", String.join(" ", cmd));
 
-                ProcessBuilder builder = new ProcessBuilder(cmd);
-                builder.directory(Path.of(absolutePath).toFile());
-                Process processTerminal = builder.start();
-
-                StreamGobbler streamGobblerInput = new StreamGobbler(processTerminal.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-                StreamGobbler streamGobblerError = new StreamGobbler(processTerminal.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
-
-                HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
-                HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
+                startLoggingOutput(new ProcessBuilder(cmd).directory(Path.of(absolutePath).toFile()));
             }
         }
     }
