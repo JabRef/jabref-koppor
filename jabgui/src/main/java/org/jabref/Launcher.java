@@ -59,10 +59,9 @@ public class Launcher {
 
             Injector.setModelOrService(BuildInfo.class, BUILD_INFO);
 
-            NativeDesktop nativeDesktop = NativeDesktop.create();
-            Injector.setModelOrService(NativeDesktop.class, nativeDesktop);
+            Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create());
 
-            final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance(nativeDesktop);
+            final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
 
             ArgumentProcessor argumentProcessor = new ArgumentProcessor(
                     args,

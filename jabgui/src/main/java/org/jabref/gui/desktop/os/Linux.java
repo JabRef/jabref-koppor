@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Locale;
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
 
@@ -134,38 +132,5 @@ public class Linux extends NativeDesktop {
     @Override
     public Path getApplicationDirectory() {
         return Path.of("/usr/lib/");
-    }
-
-    @Override
-    public Path getDefaultFileChooserDirectory() {
-        String xdgDocumentsDir = System.getenv("XDG_DOCUMENTS_DIR");
-        if (xdgDocumentsDir != null) {
-            return Path.of(xdgDocumentsDir);
-        }
-
-        // Make use of xdg-user-dirs
-        // See https://www.freedesktop.org/wiki/Software/xdg-user-dirs/ for details
-        try {
-            Process process = new ProcessBuilder("xdg-user-dir", "DOCUMENTS").start(); // Package name with 's', command without
-            List<String> strings = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))
-                    .lines().toList();
-            if (strings.isEmpty()) {
-                LoggerFactory.getLogger(Linux.class).error("xdg-user-dir returned nothing");
-                return Directories.getUserDirectory();
-            }
-            String documentsDirectory = strings.getFirst();
-            Path documentsPath = Path.of(documentsDirectory);
-            if (!Files.exists(documentsPath)) {
-                LoggerFactory.getLogger(Linux.class).error("xdg-user-dir returned non-existent directory {}", documentsDirectory);
-                return Directories.getUserDirectory();
-            }
-            LoggerFactory.getLogger(Linux.class).debug("Got documents path {}", documentsPath);
-            return documentsPath;
-        } catch (IOException e) {
-            LoggerFactory.getLogger(Linux.class).error("Error while executing xdg-user-dir", e);
-        }
-
-        // Fallback
-        return Directories.getUserDirectory();
     }
 }

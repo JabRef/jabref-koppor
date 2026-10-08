@@ -6,12 +6,6 @@ import java.nio.file.Path;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.util.Directories;
 
-import com.sun.jna.platform.win32.KnownFolders;
-import com.sun.jna.platform.win32.Shell32Util;
-import com.sun.jna.platform.win32.ShlObj;
-import com.sun.jna.platform.win32.Win32Exception;
-import org.slf4j.LoggerFactory;
-
 /// This class contains Windows specific implementations for file directories and file/application open handling methods.
 ///
 /// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
@@ -39,22 +33,6 @@ public class Windows extends NativeDesktop {
             return Path.of(programDir);
         }
         return Directories.getUserDirectory();
-    }
-
-    @Override
-    public Path getDefaultFileChooserDirectory() {
-        try {
-            try {
-                return Path.of(Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_Documents));
-            } catch (UnsatisfiedLinkError _) {
-                // Windows Vista or earlier
-                return Path.of(Shell32Util.getFolderPath(ShlObj.CSIDL_MYDOCUMENTS));
-            }
-        } catch (Win32Exception e) {
-            // needs to be non-static because of org.jabref.Launcher.addLogToDisk
-            LoggerFactory.getLogger(Windows.class).error("Error accessing folder", e);
-            return Path.of(System.getProperty("user.home"));
-        }
     }
 
     @Override

@@ -24,7 +24,6 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.util.IdentifierParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
-import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
@@ -389,18 +388,6 @@ public abstract class NativeDesktop {
     ///
     /// @return the path
     public abstract Path getApplicationDirectory();
-
-    /// Get the user's default file chooser directory
-    ///
-    /// @return the path
-    public Path getDefaultFileChooserDirectory() {
-        Path userDirectory = Directories.getUserDirectory();
-        Path documents = userDirectory.resolve("Documents");
-        if (!Files.exists(documents)) {
-            return userDirectory;
-        }
-        return documents;
-    }
 
     /// Moves the given file to the trash.
     ///

@@ -21,7 +21,6 @@ import javafx.scene.control.TableColumn;
 import org.jabref.gui.CoreGuiPreferences;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.autocompleter.AutoCompletePreferences;
-import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
 import org.jabref.gui.edit.CopyToPreferences;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
@@ -282,8 +281,6 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
 
     private static JabRefGuiPreferences singleton;
 
-    private final NativeDesktop nativeDesktop;
-
     private EntryEditorPreferences entryEditorPreferences;
     private MergeDialogPreferences mergeDialogPreferences;
     private AutoCompletePreferences autoCompletePreferences;
@@ -310,15 +307,11 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
     /// All other usages should get the preferences passed (or injected).
     /// The JabRef team leaves the `@deprecated` annotation to have IntelliJ listing this method with a strike-through.
     @Deprecated
-    public static JabRefGuiPreferences getInstance(NativeDesktop nativeDesktop) {
+    public static JabRefGuiPreferences getInstance() {
         if (JabRefGuiPreferences.singleton == null) {
-            JabRefGuiPreferences.singleton = new JabRefGuiPreferences(nativeDesktop);
+            JabRefGuiPreferences.singleton = new JabRefGuiPreferences();
         }
         return JabRefGuiPreferences.singleton;
-    }
-
-    private JabRefGuiPreferences(NativeDesktop nativeDesktop) {
-        this.nativeDesktop = nativeDesktop;
     }
 
     @Override
@@ -1429,11 +1422,5 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
         });
 
         return keyBindingRepository;
-    }
-
-    /// In GUI mode, we can look up the directory better
-    @Override
-    protected Path getDefaultPath() {
-        return nativeDesktop.getDefaultFileChooserDirectory();
     }
 }
