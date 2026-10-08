@@ -65,6 +65,11 @@ public class DeleteFileAction extends SimpleCommand {
         this(dialogService, filePreferences, databaseContext, null, filesToDelete);
     }
 
+    /// The preference only states the user's wish; the platform may not offer a trash
+    private boolean shouldMoveToTrash() {
+        return filePreferences.moveToTrash() && Injector.instantiateModelOrService(NativeDesktop.class).moveToTrashSupported();
+    }
+
     private boolean deletionOfCompleteEntry() {
         return viewModel == null;
     }
@@ -117,7 +122,7 @@ public class DeleteFileAction extends SimpleCommand {
         DialogPane dialogPane = createDeleteFilesDialog(dialogDescription);
 
         String label;
-        if (filePreferences.moveToTrash()) {
+        if (shouldMoveToTrash()) {
             label = Localization.lang("Move file(s) to trash");
         } else {
             label = Localization.lang("Delete from disk");
@@ -190,9 +195,7 @@ public class DeleteFileAction extends SimpleCommand {
 
         Path theFile = file.get();
         try {
-            boolean preferencesMoveToTrash = filePreferences.moveToTrash();
-            LOGGER.debug("filePreferences.moveToTrash() = {}", preferencesMoveToTrash);
-            if (preferencesMoveToTrash) {
+            if (shouldMoveToTrash()) {
                 LOGGER.debug("Moving to trash: {}", theFile);
                 Injector.instantiateModelOrService(NativeDesktop.class).moveToTrash(theFile);
             } else {

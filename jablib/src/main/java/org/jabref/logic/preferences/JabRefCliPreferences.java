@@ -1763,8 +1763,7 @@ public class JabRefCliPreferences implements CliPreferences {
                 // Backups should sit in the data directory, because a backup file should survive cache cleanups
                 getPath(BACKUP_DIRECTORY, defaultValues.getBackupDirectory()),
                 getBoolean(FILES_CONFIRM_DELETE_LINKED, defaultValues.confirmDeleteLinkedFile()),
-                // Use fallback method in case AWT is not initialized in headless (JabKit) mode
-                getBoolean(FILES_TRASH_INSTEAD_OF_DELETE, moveToTrashSupported()),
+                getBoolean(FILES_TRASH_INSTEAD_OF_DELETE, defaultValues.moveToTrash()),
                 getBoolean(FILES_ADJUST_FILE_LINKS_ON_TRANSFER, defaultValues.shouldAdjustFileLinksOnTransfer()),
                 getBoolean(FILES_COPY_LINKED_FILES_ON_TRANSFER, defaultValues.shouldCopyLinkedFilesOnTransfer()),
                 getBoolean(FILES_MOVE_LINKED_FILES_ON_TRANSFER, defaultValues.shouldMoveLinkedFilesOnTransfer()),
@@ -1785,8 +1784,7 @@ public class JabRefCliPreferences implements CliPreferences {
         bindBoolean(filePreferences.createBackupProperty(), BACKUP_ENABLED, defaultValues.shouldCreateBackup());
         bindPath(filePreferences.backupDirectoryProperty(), BACKUP_DIRECTORY, defaultValues.getBackupDirectory());
         bindBoolean(filePreferences.confirmDeleteLinkedFileProperty(), FILES_CONFIRM_DELETE_LINKED, defaultValues.confirmDeleteLinkedFile());
-        // moveToTrash falls back to moveToTrashSupported(), which the GUI overrides when AWT is initialized.
-        bindBoolean(filePreferences.moveToTrashProperty(), FILES_TRASH_INSTEAD_OF_DELETE, moveToTrashSupported());
+        bindBoolean(filePreferences.moveToTrashProperty(), FILES_TRASH_INSTEAD_OF_DELETE, defaultValues.moveToTrash());
         bindBoolean(filePreferences.adjustFileLinksOnTransferProperty(), FILES_ADJUST_FILE_LINKS_ON_TRANSFER, defaultValues.shouldAdjustFileLinksOnTransfer());
         bindBoolean(filePreferences.copyLinkedFilesOnTransferProperty(), FILES_COPY_LINKED_FILES_ON_TRANSFER, defaultValues.shouldCopyLinkedFilesOnTransfer());
         bindBoolean(filePreferences.moveLinkedFilesOnTransferPropertyProperty(), FILES_MOVE_LINKED_FILES_ON_TRANSFER, defaultValues.shouldMoveLinkedFilesOnTransfer());
@@ -1797,10 +1795,6 @@ public class JabRefCliPreferences implements CliPreferences {
         bindBoolean(filePreferences.openFileExplorerInLastUsedDirectoryProperty(), FILES_OPEN_FILE_EXPLORER_IN_LAST_USED_DIRECTORY, defaultValues.shouldOpenFileExplorerInLastUsedDirectory());
 
         return filePreferences;
-    }
-
-    protected boolean moveToTrashSupported() {
-        return false;
     }
     // endregion
 

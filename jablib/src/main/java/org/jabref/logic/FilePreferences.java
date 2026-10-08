@@ -61,7 +61,7 @@ public class FilePreferences {
                 true,                                // createBackup
                 Directories.getBackupDirectory(),    // backupDirectory
                 true,                                // confirmDeleteLinkedFile
-                false,                               // moveToTrash
+                true,                                // moveToTrash
                 true,                                // adjustFileLinksOnTransfer
                 true,                                // copyLinkedFilesOnTransfer
                 false,                               // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
