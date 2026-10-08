@@ -89,7 +89,7 @@ public class BackupUIManager {
                                                                  Path originalPath,
                                                                  Path backupDir) {
         return UiTaskExecutor.runInJavaFXThread(
-                () -> dialogService.showCustomDialogAndWait(new BackupResolverDialog(originalPath, backupDir, externalApplicationsPreferences)));
+                () -> dialogService.showCustomDialogAndWait(new BackupResolverDialog(originalPath, backupDir, externalApplicationsPreferences, dialogService)));
     }
 
     private static Optional<ParserResult> showReviewBackupDialog(

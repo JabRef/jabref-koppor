@@ -18,6 +18,7 @@ import com.sun.jna.platform.win32.Shell32Util;
 import com.sun.jna.platform.win32.ShlObj;
 import com.sun.jna.platform.win32.Win32Exception;
 import net.harawata.appdirs.AppDirsFactory;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.LoggerFactory;
 
 /// This collects all directories based on AppDirs.
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 /// See e.g. `org.jabref.gui.desktop.os.NativeDesktop#getApplicationDirectory()`
 ///
 /// No static logger instance may be used here, because the logger configuration must not be frozen before logging is initialized.
+@NullMarked
 public class Directories {
     /// Returns the path to the system's user directory.
     ///

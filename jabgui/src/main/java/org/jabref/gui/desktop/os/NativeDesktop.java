@@ -35,6 +35,7 @@ import org.jabref.model.entry.identifier.Identifier;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.LoggerFactory;
 
 import static org.jabref.model.entry.field.StandardField.PDF;
@@ -53,6 +54,7 @@ import static org.jabref.model.entry.field.StandardField.URL;
 /// Web links are opened via JavaFX [HostServices].
 ///
 /// For non-GUI things, see [org.jabref.logic.os.OS].
+@NullMarked
 @AllowedToUseAwt("Because of moveToTrash() is not available elsewhere.")
 public abstract class NativeDesktop {
     // No LOGGER may be initialized directly
@@ -203,10 +205,6 @@ public abstract class NativeDesktop {
     public static void openFolderAndSelectFile(Path fileLink,
                                                ExternalApplicationsPreferences externalApplicationsPreferences,
                                                DialogService dialogService) throws IOException {
-        if (fileLink == null) {
-            return;
-        }
-
         boolean useCustomFileBrowser = externalApplicationsPreferences.useCustomFileBrowser();
         if (!useCustomFileBrowser) {
             get().openFolderAndSelectFile(fileLink);
@@ -226,10 +224,6 @@ public abstract class NativeDesktop {
     ///
     /// @param file Location the console should be opened at.
     public static void openConsole(Path file, GuiPreferences preferences, DialogService dialogService) throws IOException {
-        if (file == null) {
-            return;
-        }
-
         String absolutePath = file.toAbsolutePath().getParent().toString();
 
         boolean useCustomTerminal = preferences.getExternalApplicationsPreferences().useCustomTerminal();
