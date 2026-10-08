@@ -50,7 +50,7 @@ public class FilePreferences {
     private FilePreferences() {
         this(
                 new SimpleObjectProperty<>(OS.getUserHostInfo()), // userAndHost (needs to be sourced from InternalPreferences)
-                null,                                // mainFileDirectory
+                Directories.getDocumentsDirectory(), // mainFileDirectory
                 true,                                // storeFilesRelativeToBibFile
                 false,                               // autoRenameFilesOnChange
                 DEFAULT_FILENAME_PATTERNS[1],        // fileNamePattern
@@ -66,7 +66,7 @@ public class FilePreferences {
                 true,                                // copyLinkedFilesOnTransfer
                 false,                               // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
                 true,                                // shouldKeepDownloadUrl
-                Path.of("/"),                        // lastUsedDirectory
+                Directories.getDocumentsDirectory(), // lastUsedDirectory
                 true,                                // openFileExplorerInFileDirectory
                 false                                // openFileExplorerInLastUsedDirectory
         );
