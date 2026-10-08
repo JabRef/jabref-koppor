@@ -1,6 +1,5 @@
 package org.jabref.gui.frame;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,7 +7,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -32,7 +30,6 @@ import org.slf4j.LoggerFactory;
 /// Therefore, the folder(s), where the file(s) belonging to the entry are stored,
 /// are opened. This feature is disabled by default and can be switched on at
 /// preferences/external programs
-@AllowedToUseAwt("Requires AWT to send an email")
 public abstract class SendAsEMailAction extends SimpleCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAsEMailAction.class);
@@ -63,8 +60,8 @@ public abstract class SendAsEMailAction extends SimpleCommand {
                       .executeWith(taskExecutor);
     }
 
-    private String sendEmail() throws URISyntaxException, IOException {
-        if (!Desktop.isDesktopSupported() || stateManager.getActiveDatabase().isEmpty()) {
+    private String sendEmail() throws URISyntaxException {
+        if (stateManager.getActiveDatabase().isEmpty()) {
             return Localization.lang("Error creating email");
         }
 
@@ -75,8 +72,7 @@ public abstract class SendAsEMailAction extends SimpleCommand {
         List<BibEntry> entries = stateManager.getSelectedEntries();
         URI uriMailTo = getUriMailTo(entries);
 
-        Desktop desktop = Desktop.getDesktop();
-        desktop.mail(uriMailTo);
+        NativeDesktop.openMailClient(uriMailTo);
 
         return "%s: %d".formatted(Localization.lang("Entries added to an email"), entries.size());
     }

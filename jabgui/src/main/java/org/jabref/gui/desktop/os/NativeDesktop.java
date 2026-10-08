@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
+
+import javafx.application.HostServices;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
@@ -19,13 +20,11 @@ import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.util.IdentifierParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.Directories;
-import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
@@ -285,22 +284,11 @@ public abstract class NativeDesktop {
     ///
     /// @param url the URL to open
     public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
-        openBrowser(url, externalApplicationsPreferences, _ -> {
-            // Terminal failure is already logged where it is caught
-        });
-    }
-
-    /// Opens the given URL using the system browser
-    ///
-    /// @param url            the URL to open
-    /// @param onAsyncFailure invoked (from a background thread) when opening fails after this
-    ///                                                                                         method has already returned; synchronous failures throw instead
-    public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure) throws IOException {
-        openBrowser(url, externalApplicationsPreferences, onAsyncFailure, get());
+        openBrowser(url, externalApplicationsPreferences, get());
     }
 
     @VisibleForTesting
-    static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure, NativeDesktop desktop) throws IOException {
+    static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, NativeDesktop desktop) throws IOException {
         Optional<ExternalFileType> fileType = ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences);
         if (fileType.isPresent() && !fileType.get().getOpenWithApplication().isEmpty()) {
             // The user configured a custom browser; hand it the URL string unmodified
@@ -318,35 +306,25 @@ public abstract class NativeDesktop {
             desktop.openUrlWithSystemHandler(url);
             return;
         }
-        // Desktop.browse rejects relative URIs, which createUri also produces; those go to the platform opener
-        if (uri.isAbsolute() && desktop.supportsDesktopBrowse()) {
-            // Desktop.browse may block on some Linux desktops, so keep it off the JavaFX thread
-            HeadlessExecutorService.INSTANCE.execute(() -> {
-                try {
-                    desktop.desktopBrowse(uri);
-                } catch (IOException e) {
-                    LoggerFactory.getLogger(NativeDesktop.class).warn("Desktop.browse failed for {}, falling back to the OS URL handler", url, e);
-                    try {
-                        desktop.openUrlWithSystemHandler(url);
-                    } catch (IOException e2) {
-                        LoggerFactory.getLogger(NativeDesktop.class).error("Could not open browser for {}", url, e2);
-                        onAsyncFailure.accept(e2);
-                    }
-                }
-            });
+        // createUri also produces relative URIs, which only the platform opener can resolve
+        if (uri.isAbsolute()) {
+            desktop.showDocument(uri.toASCIIString());
         } else {
             desktop.openUrlWithSystemHandler(url);
         }
     }
 
-    /// Whether the AWT desktop integration can open URLs. Overridable for tests.
-    boolean supportsDesktopBrowse() {
-        return Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE);
+    /// Opens the user's mail client with the given `mailto:` URI
+    public static void openMailClient(URI mailto) {
+        get().showDocument(mailto.toASCIIString());
     }
 
-    /// Opens the URI via the AWT desktop integration. Overridable for tests.
-    void desktopBrowse(URI uri) throws IOException {
-        Desktop.getDesktop().browse(uri);
+    /// Hands the URI to the OS default handler via JavaFX [HostServices]. Overridable for tests.
+    ///
+    /// [HostServices] is registered at the start of [org.jabref.gui.JabRefGUI#start], so this must not be called before.
+    /// It neither blocks nor reports failures.
+    void showDocument(String uri) {
+        Injector.instantiateModelOrService(HostServices.class).showDocument(uri);
     }
 
     public static void openBrowser(URI url, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
@@ -358,8 +336,7 @@ public abstract class NativeDesktop {
     /// @param url the URL to open
     public static void openBrowserShowPopup(String url, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences) {
         try {
-            openBrowser(url, externalApplicationsPreferences,
-                    exception -> UiTaskExecutor.runInJavaFXThread(() -> showManualOpenPopup(url, dialogService, exception)));
+            openBrowser(url, externalApplicationsPreferences);
         } catch (IOException exception) {
             showManualOpenPopup(url, dialogService, exception);
         }
