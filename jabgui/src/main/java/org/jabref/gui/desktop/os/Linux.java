@@ -15,6 +15,7 @@ import javafx.application.HostServices;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
@@ -33,8 +34,8 @@ public class Linux extends NativeDesktop {
 
     private static final String ETC_ALTERNATIVES_X_TERMINAL_EMULATOR = "/etc/alternatives/x-terminal-emulator";
 
-    public Linux(HostServices hostServices) {
-        super(hostServices);
+    public Linux(HostServices hostServices, GuiPreferences preferences) {
+        super(hostServices, preferences);
     }
 
     /// Starts the process and drains its output into the debug log, so it cannot block on a full pipe
@@ -78,7 +79,7 @@ public class Linux extends NativeDesktop {
     }
 
     @Override
-    public void openFolderAndSelectFile(Path filePath) throws IOException {
+    protected void openFolderAndSelectFileWithDefaultFileBrowser(Path filePath) throws IOException {
         String desktopSession = System.getenv("DESKTOP_SESSION");
 
         String absoluteFilePath = filePath.toAbsolutePath().toString();
@@ -103,7 +104,7 @@ public class Linux extends NativeDesktop {
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
+    protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
 
         if (!Files.exists(Path.of(ETC_ALTERNATIVES_X_TERMINAL_EMULATOR))) {
             dialogService.showErrorDialogAndWait(Localization.lang("Could not detect terminal automatically using '%0'. Please define a custom terminal in the preferences.", ETC_ALTERNATIVES_X_TERMINAL_EMULATOR));

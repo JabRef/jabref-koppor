@@ -9,6 +9,7 @@ import javafx.application.HostServices;
 
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.Directories;
 
 import org.jspecify.annotations.NullMarked;
@@ -23,8 +24,8 @@ import org.slf4j.LoggerFactory;
 @AllowedToUseAwt("Requires AWT to open a file")
 public class DefaultDesktop extends NativeDesktop {
 
-    public DefaultDesktop(HostServices hostServices) {
-        super(hostServices);
+    public DefaultDesktop(HostServices hostServices, GuiPreferences preferences) {
+        super(hostServices, preferences);
     }
 
     @Override
@@ -44,13 +45,13 @@ public class DefaultDesktop extends NativeDesktop {
     }
 
     @Override
-    public void openFolderAndSelectFile(Path filePath) throws IOException {
+    protected void openFolderAndSelectFileWithDefaultFileBrowser(Path filePath) throws IOException {
         File file = filePath.toAbsolutePath().getParent().toFile();
         Desktop.getDesktop().open(file);
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
+    protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
         LoggerFactory.getLogger(DefaultDesktop.class).error("This feature is not supported by your Operating System.");
     }
 

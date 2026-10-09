@@ -126,7 +126,7 @@ public class JabRefGUI extends Application {
             // Load JavaFX stylesheet now instead of loading it later when the first Control is initialized.
             setUserAgentStylesheet(null);
             Injector.setModelOrService(Stage.class, mainStage);
-            Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create(getHostServices()));
+            Injector.setModelOrService(NativeDesktop.class, NativeDesktop.create(getHostServices(), preferences));
 
             initialize();
 

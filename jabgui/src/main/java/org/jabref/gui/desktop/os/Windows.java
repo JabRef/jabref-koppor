@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import javafx.application.HostServices;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.Directories;
 
 import org.jspecify.annotations.NullMarked;
@@ -18,8 +19,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class Windows extends NativeDesktop {
 
-    public Windows(HostServices hostServices) {
-        super(hostServices);
+    public Windows(HostServices hostServices, GuiPreferences preferences) {
+        super(hostServices, preferences);
     }
 
     @Override
@@ -51,12 +52,12 @@ public class Windows extends NativeDesktop {
     }
 
     @Override
-    public void openFolderAndSelectFile(Path filePath) throws IOException {
+    protected void openFolderAndSelectFileWithDefaultFileBrowser(Path filePath) throws IOException {
         new ProcessBuilder("explorer.exe", "/select,", filePath.toString()).start();
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
+    protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
         ProcessBuilder process = new ProcessBuilder("cmd.exe", "/c", "start");
         process.directory(Path.of(absolutePath).toFile());
         process.start();

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import javafx.application.HostServices;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.GuiPreferences;
 
 import org.jspecify.annotations.NullMarked;
 
@@ -17,8 +18,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class OSX extends NativeDesktop {
 
-    public OSX(HostServices hostServices) {
-        super(hostServices);
+    public OSX(HostServices hostServices, GuiPreferences preferences) {
+        super(hostServices, preferences);
     }
 
     @Override
@@ -37,12 +38,12 @@ public class OSX extends NativeDesktop {
     }
 
     @Override
-    public void openFolderAndSelectFile(Path file) throws IOException {
+    protected void openFolderAndSelectFileWithDefaultFileBrowser(Path file) throws IOException {
         new ProcessBuilder("/usr/bin/open", "-R", file.toString()).start();
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
+    protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
         new ProcessBuilder("open", "-a", "Terminal", absolutePath).start();
     }
 

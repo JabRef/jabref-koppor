@@ -19,6 +19,7 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public abstract class SendAsEMailAction extends SimpleCommand {
         List<BibEntry> entries = stateManager.getSelectedEntries();
         URI uriMailTo = getUriMailTo(entries);
 
-        NativeDesktop.openMailClient(uriMailTo);
+        Injector.instantiateModelOrService(NativeDesktop.class).openMailClient(uriMailTo);
 
         return "%s: %d".formatted(Localization.lang("Entries added to an email"), entries.size());
     }
