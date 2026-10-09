@@ -27,6 +27,7 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -62,6 +63,11 @@ public class DeleteFileAction extends SimpleCommand {
                             BibDatabaseContext databaseContext,
                             List<LinkedFileViewModel> filesToDelete) {
         this(dialogService, filePreferences, databaseContext, null, filesToDelete);
+    }
+
+    /// The preference only states the user's wish; the platform may not offer a trash
+    private boolean shouldMoveToTrash() {
+        return filePreferences.moveToTrash() && Injector.instantiateModelOrService(NativeDesktop.class).moveToTrashSupported();
     }
 
     private boolean deletionOfCompleteEntry() {
@@ -116,7 +122,7 @@ public class DeleteFileAction extends SimpleCommand {
         DialogPane dialogPane = createDeleteFilesDialog(dialogDescription);
 
         String label;
-        if (filePreferences.moveToTrash()) {
+        if (shouldMoveToTrash()) {
             label = Localization.lang("Move file(s) to trash");
         } else {
             label = Localization.lang("Delete from disk");
@@ -189,11 +195,9 @@ public class DeleteFileAction extends SimpleCommand {
 
         Path theFile = file.get();
         try {
-            boolean preferencesMoveToTrash = filePreferences.moveToTrash();
-            LOGGER.debug("filePreferences.moveToTrash() = {}", preferencesMoveToTrash);
-            if (preferencesMoveToTrash) {
+            if (shouldMoveToTrash()) {
                 LOGGER.debug("Moving to trash: {}", theFile);
-                NativeDesktop.get().moveToTrash(theFile);
+                Injector.instantiateModelOrService(NativeDesktop.class).moveToTrash(theFile);
             } else {
                 LOGGER.debug("Deleting: {}", theFile);
                 Files.delete(theFile);

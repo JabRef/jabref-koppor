@@ -2,38 +2,31 @@ package org.jabref.gui.desktop.os;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Optional;
+
+import javafx.application.HostServices;
 
 import org.jabref.gui.DialogService;
-import org.jabref.gui.externalfiletype.ExternalFileType;
-import org.jabref.gui.externalfiletype.ExternalFileTypes;
-import org.jabref.gui.frame.ExternalApplicationsPreferences;
+import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.Directories;
 
-import com.sun.jna.platform.win32.KnownFolders;
-import com.sun.jna.platform.win32.Shell32Util;
-import com.sun.jna.platform.win32.ShlObj;
-import com.sun.jna.platform.win32.Win32Exception;
-import org.slf4j.LoggerFactory;
+import org.jspecify.annotations.NullMarked;
 
 /// This class contains Windows specific implementations for file directories and file/application open handling methods.
 ///
 /// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
+@NullMarked
 public class Windows extends NativeDesktop {
 
-    @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
-        Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
+    public Windows(HostServices hostServices, GuiPreferences preferences) {
+        super(hostServices, preferences);
+    }
 
-        if (type.isPresent() && !type.get().getOpenWithApplication().isEmpty()) {
-            openFileWithApplication(filePath, type.get().getOpenWithApplication());
-        } else {
-            // quote String so explorer handles URL query strings correctly
-            String quotePath = "\"" + filePath + "\"";
-            new ProcessBuilder("explorer.exe", quotePath).start();
-        }
+    @Override
+    protected void openFileWithDefaultApplication(String filePath) throws IOException {
+        // quote String so explorer handles URL query strings correctly
+        new ProcessBuilder("explorer.exe", "\"" + filePath + "\"").start();
     }
 
     @Override
@@ -53,34 +46,18 @@ public class Windows extends NativeDesktop {
     }
 
     @Override
-    public Path getDefaultFileChooserDirectory() {
-        try {
-            try {
-                return Path.of(Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_Documents));
-            } catch (UnsatisfiedLinkError _) {
-                // Windows Vista or earlier
-                return Path.of(Shell32Util.getFolderPath(ShlObj.CSIDL_MYDOCUMENTS));
-            }
-        } catch (Win32Exception e) {
-            // needs to be non-static because of org.jabref.Launcher.addLogToDisk
-            LoggerFactory.getLogger(Windows.class).error("Error accessing folder", e);
-            return Path.of(System.getProperty("user.home"));
-        }
-    }
-
-    @Override
-    public void openFileWithApplication(String filePath, String application) throws IOException {
+    protected void openFileWithCustomApplication(String filePath, String application) throws IOException {
         // filePath may be a URL; Path.of would throw on query characters and mangle the scheme
         new ProcessBuilder(Path.of(application).toString(), filePath).start();
     }
 
     @Override
-    public void openFolderAndSelectFile(Path filePath) throws IOException {
+    protected void openFolderAndSelectFileWithDefaultFileBrowser(Path filePath) throws IOException {
         new ProcessBuilder("explorer.exe", "/select,", filePath.toString()).start();
     }
 
     @Override
-    public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
+    protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
         ProcessBuilder process = new ProcessBuilder("cmd.exe", "/c", "start");
         process.directory(Path.of(absolutePath).toFile());
         process.start();

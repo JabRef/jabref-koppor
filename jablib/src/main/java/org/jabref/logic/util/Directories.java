@@ -8,10 +8,12 @@ import org.jabref.logic.os.OS;
 import org.jabref.model.search.LinkedFilesConstants;
 
 import net.harawata.appdirs.AppDirsFactory;
+import org.jspecify.annotations.NullMarked;
 
 /// This collects all directories based on AppDirs.
 /// OS-dependent directories are handled in the NativeDesktop class.
 /// See e.g. `org.jabref.gui.desktop.os.NativeDesktop#getApplicationDirectory()`
+@NullMarked
 public class Directories {
     /// Returns the path to the system's user directory.
     ///

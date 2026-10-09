@@ -14,6 +14,8 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
 
+import com.airhacks.afterburner.injection.Injector;
+
 /// Tools for automatically detecting OpenOffice or LibreOffice installations.
 public class DetectOpenOfficeInstallation {
 
@@ -33,7 +35,7 @@ public class DetectOpenOfficeInstallation {
         dialogService.showInformationDialogAndWait(Localization.lang("Could not find OpenOffice/LibreOffice installation"),
                 Localization.lang("Unable to autodetect OpenOffice/LibreOffice installation. Please choose the installation directory manually."));
         DirectoryDialogConfiguration dirDialogConfiguration = new DirectoryDialogConfiguration.Builder()
-                .withInitialDirectory(NativeDesktop.get().getApplicationDirectory())
+                .withInitialDirectory(Injector.instantiateModelOrService(NativeDesktop.class).getApplicationDirectory())
                 .build();
         return dialogService.showDirectorySelectionDialog(dirDialogConfiguration);
     }
