@@ -300,8 +300,6 @@ open module org.jabref.jablib {
     requires net.harawata.appdirs;
     // endregion
 
-    requires com.sun.jna.platform;
-
     // region: jgit
     requires transitive org.eclipse.jgit;
     requires transitive org.eclipse.jgit.ssh.apache;

@@ -66,7 +66,11 @@ public class FilePreferences {
                 true,                                // copyLinkedFilesOnTransfer
                 false,                               // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
                 true,                                // shouldKeepDownloadUrl
-                Directories.getDocumentsDirectory(), // lastUsedDirectory
+                // The documents directory would be the better start, but finding it needs a native call (Windows)
+                // or an external process (Linux), which jablib should not run for a value read only in the GUI.
+                // Cost: the attach file dialog starts in the home directory until the user has attached a file once,
+                // and only if "open file explorer in last used directory" is enabled.
+                Directories.getUserDirectory(),      // lastUsedDirectory
                 true,                                // openFileExplorerInFileDirectory
                 false                                // openFileExplorerInLastUsedDirectory
         );
