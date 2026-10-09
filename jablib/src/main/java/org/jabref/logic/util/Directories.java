@@ -35,7 +35,7 @@ public class Directories {
         return Path.of(System.getProperty("user.home"));
     }
 
-    /// Returns the user's documents directory, falling back to the user directory if it cannot be determined.
+    /// Falls back to the user directory if the documents directory cannot be determined.
     public static Path getDocumentsDirectory() {
         return DocumentsDirectoryHolder.DOCUMENTS_DIRECTORY;
     }

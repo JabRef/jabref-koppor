@@ -294,8 +294,6 @@ public abstract class NativeDesktop {
         }
     }
 
-    /// Opens the user's mail client with the given `mailto:` URI
-    ///
     /// Not via [HostServices#showDocument], because on Windows that starts the web browser instead of the mail client.
     public static void openMailClient(URI mailto) throws IOException {
         get().openUrlWithSystemHandler(mailto.toASCIIString());
@@ -332,7 +330,6 @@ public abstract class NativeDesktop {
         return Injector.instantiateModelOrService(NativeDesktop.class);
     }
 
-    /// Creates the implementation for the current operating system
     public static NativeDesktop create(HostServices hostServices) {
         if (OS.WINDOWS) {
             return new Windows(hostServices);
@@ -344,7 +341,6 @@ public abstract class NativeDesktop {
         return new DefaultDesktop(hostServices);
     }
 
-    /// Opens a file with the application configured for its file type, or with the OS default application if none is configured.
     public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
         String application = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences)
                                               .map(ExternalFileType::getOpenWithApplication)
@@ -352,12 +348,12 @@ public abstract class NativeDesktop {
         openFileWithApplication(filePath, application);
     }
 
-    /// Hands the URI to the OS via JavaFX. Neither blocks nor reports failures.
+    /// Neither blocks nor reports failures, so callers cannot detect that no browser could be started.
     protected final void showDocument(String uri) {
         hostServices.showDocument(uri);
     }
 
-    /// Hands the URL string, unmodified, to the OS's URL-aware handler, which dispatches by scheme (e.g., `mailto:` to the mail client).
+    /// The OS handler dispatches by scheme, e.g., `mailto:` to the mail client.
     /// The URL must never be run through `Path.of`, which mangles it.
     public abstract void openUrlWithSystemHandler(String url) throws IOException;
 
@@ -373,10 +369,9 @@ public abstract class NativeDesktop {
         }
     }
 
-    /// Opens a file with the application the OS associates with it.
     protected abstract void openFileWithDefaultApplication(String filePath) throws IOException;
 
-    /// Opens a file with the given, non-empty application.
+    /// `application` is never empty.
     protected abstract void openFileWithCustomApplication(String filePath, String application) throws IOException;
 
     public abstract void openFolderAndSelectFile(Path file) throws IOException;
