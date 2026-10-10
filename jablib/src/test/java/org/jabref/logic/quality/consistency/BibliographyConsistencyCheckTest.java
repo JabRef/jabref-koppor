@@ -467,7 +467,7 @@ class BibliographyConsistencyCheckTest {
     }
 
     @Test
-    void unsetRequriedFieldsReported() {
+    void unsetRequiredFieldsReported() {
         BibEntry withDate = new BibEntry(StandardEntryType.Online)
                 .withCitationKey("withDate")
                 .withField(StandardField.DATE, "date") // Required in BibLaTeX
