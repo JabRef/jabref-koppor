@@ -19,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.Notifications;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.externalfiletype.StandardExternalFileType;
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -57,6 +59,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 // Need to run on JavaFX thread since {@link org.jabref.gui.linkedfile.DeleteFileAction.execute} creates a DialogPane
@@ -112,13 +115,17 @@ class LinkedFileViewModelTest {
 
     /// Serves the given bytes for every request on a random free port, so download tests do not depend on external sites
     private String serve(String contentType, byte[] body) throws IOException {
+        return serve(200, contentType, body);
+    }
+
+    private String serve(int status, String contentType, byte[] body) throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
         httpServer.createContext("/", exchange -> {
             exchange.getResponseHeaders().add("Content-Type", contentType);
             if ("HEAD".equals(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(200, -1);
             } else {
-                exchange.sendResponseHeaders(200, body.length);
+                exchange.sendResponseHeaders(status, body.length);
                 exchange.getResponseBody().write(body);
             }
             exchange.close();
@@ -232,6 +239,25 @@ class LinkedFileViewModelTest {
         viewModel.download(keepHtmlLink, new JabRefUndoManager());
 
         verify(dialogService, atLeastOnce()).notify(warningText);
+    }
+
+    @Test
+    void failedDownloadNotifiesInsteadOfOpeningDialog() throws IOException {
+        when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
+        when(filePreferences.getFileNamePattern()).thenReturn("[citationkey]");
+        when(filePreferences.getFileDirectoryPattern()).thenReturn("");
+        databaseContext.setDatabasePath(tempFile);
+        String serverUrl = serve(403, "text/html", "<html>Just a moment...</html>".getBytes(StandardCharsets.UTF_8));
+        linkedFile = new LinkedFile(URLUtil.create(serverUrl), "");
+
+        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService, preferences);
+        viewModel.download(false, new JabRefUndoManager());
+
+        ArgumentCaptor<Notifications.UndefinedNotification> notification = ArgumentCaptor.forClass(Notifications.UndefinedNotification.class);
+        verify(dialogService).notify(notification.capture());
+        verifyNoMoreInteractions(dialogService);
+        assertEquals("Failed to download from URL", notification.getValue().getTitle());
+        assertEquals("asdf\n" + serverUrl + "\nHTTP 403 Forbidden", notification.getValue().getSummary());
     }
 
     @Test
