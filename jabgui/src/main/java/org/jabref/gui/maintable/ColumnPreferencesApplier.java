@@ -66,6 +66,7 @@ class ColumnPreferencesApplier {
         mainTablePreferences.resizeColumnsToFitProperty().removeListener(resizeColumnsListener);
     }
 
+    // [impl->req~maintable.sort.multi-column~1]
     void applySortOrder() {
         List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = configured(mainTablePreferences.getColumnPreferences().getColumnSortOrder())
                 .stream()
