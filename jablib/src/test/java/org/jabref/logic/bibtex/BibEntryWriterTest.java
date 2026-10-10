@@ -75,6 +75,22 @@ class BibEntryWriterTest {
         assertEquals(expected, stringWriter.toString());
     }
 
+    /// An entry that was never parsed has no serialization to reuse, even if it is not flagged as changed.
+    @Test
+    void unchangedEntryWithoutParsedSerializationIsSerialized() throws IOException {
+        BibEntry entry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "Foo Bar");
+
+        bibEntryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX);
+
+        String expected = """
+                @Article{,
+                  author = {Foo Bar},
+                }
+                """.replace("\n", OS.NEWLINE);
+        assertEquals(expected, stringWriter.toString());
+    }
+
     @Test
     void bibEntryTwoSpacesBeforeAndAfterKept() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
