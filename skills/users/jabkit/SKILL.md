@@ -1,7 +1,7 @@
 ---
 name: jabkit
 category: users
-description: JabRef's Swiss Army knife CLI for BibTeX/biblatex - fetches entries online, converts DOIs to BibTeX, turns PDF papers into BibTeX entries, checks libraries, generates citation keys, writes XMP metadata, and searches .bib files.
+description: JabRef's Swiss Army knife CLI for BibTeX/biblatex - looks up a paper's metadata (DOI, venue, BibTeX) from its title or a publisher link such as IEEE Xplore or ACM, fetches entries online, converts DOIs to BibTeX, turns PDF papers into BibTeX entries, checks libraries, generates citation keys, writes XMP metadata, and searches .bib files.
 license: MIT
 ---
 
@@ -69,6 +69,12 @@ One-off run without installation:
 jbang --fresh jabkit@jabref --help
 ```
 
+Without a terminal (agents, CI) JBang cannot ask whether to trust the script and aborts; trust it once beforehand:
+
+```bash
+jbang trust add https://github.com/JabRef/
+```
+
 ## Global flags
 
 Place before the subcommand:
@@ -127,6 +133,7 @@ jabkit generate-bib-from-aux --aux paper.aux --input full-library.bib --output p
 
 ## Notes for agents
 
+- Paper link or title given: publisher pages (IEEE Xplore, ACM DL, ScienceDirect) block automated fetching, so search the title instead of scraping: `jabkit -p fetch --provider Crossref --query "<title>"`, then `jabkit -p doi-to-bibtex <doi>` for the chosen hit.
 - Always use `-p`/`--porcelain` when parsing output programmatically.
 - `fetch --provider` matches JabRef's web-search fetcher names case-insensitively; on an unknown name, jabkit reports `Could not find fetcher`.
 - URLs are accepted as input: `jabkit convert --input https://example.org/refs.ris --input-format ris`.
