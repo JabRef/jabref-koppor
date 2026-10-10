@@ -1,0 +1,112 @@
+plugins {
+    id("org.jabref.gradle.base.repositories")
+    id("org.jabref.gradle.feature.compile") // for openrewrite
+    id("org.jabref.gradle.feature.requirementtracing")
+    id("org.openrewrite.rewrite") version "7.39.0"
+    id("org.cyclonedx.bom") version "3.5.0"
+}
+
+// OpenRewrite should rewrite all sources
+// This is the behavior when applied in the root project (https://docs.openrewrite.org/reference/gradle-plugin-configuration#multi-module-gradle-projects)
+
+dependencies {
+    rewrite(platform("org.openrewrite.recipe:rewrite-recipe-bom:3.37.0"))
+    rewrite("org.openrewrite.recipe:rewrite-static-analysis")
+    rewrite("org.openrewrite.recipe:rewrite-logging-frameworks")
+    rewrite("org.openrewrite.recipe:rewrite-testing-frameworks")
+    rewrite("org.openrewrite.recipe:rewrite-migrate-java")
+}
+
+rewrite {
+    activeRecipe("org.jabref.config.rewrite.cleanup")
+    exclusion(
+        "settings.gradle",
+        "**/generated/sources/**",
+        "**/generated-src/**",
+        "**/src/main/resources/**",
+        "**/src/test/resources/**",
+        "**/module-info.java",
+        "**/*.kts",
+        "**/*.py",
+        "**/*.xml",
+        "**/*.yml"
+    )
+    plainTextMask("**/*.md")
+    failOnDryRunResults = true
+}
+
+// OpenRewrite parses with the JDK running Gradle, not with the toolchain.
+// An older JDK's parser mangles Java 25 syntax, e.g., `catch (Throwable _)` becomes `catch (Throwable_ _)`:
+// https://github.com/openrewrite/rewrite-migrate-java/issues/1239
+// A newer JDK fails to parse dozens of files:
+// https://github.com/openrewrite/rewrite/issues/7554
+tasks.matching { it.name.startsWith("rewrite") }.configureEach {
+    doFirst {
+        require(JavaVersion.current() == JavaVersion.VERSION_25) {
+            "OpenRewrite must run on JDK 25 (Gradle runs on ${JavaVersion.current()}). Set JAVA_HOME accordingly."
+        }
+    }
+}
+
+requirementTracing {
+    inputDirectories.setFrom(
+        files(
+            "docs",
+            "jablib/src/main/java",
+            "jablib/src/test/java",
+            "jabls/src/main/java",
+            "jabls/src/test/java",
+            "jabkit/src/main/java",
+            "jabkit/src/test/java",
+            "jabgui/src/main/java",
+            "jabgui/src/test/java",
+            "jabsrv/src/main/java",
+            "jabsrv/src/test/java"
+        )
+    )
+
+    filteredArtifactTypes =
+        listOf(
+            "impl",
+            "utest",
+            "model",
+            "guard",
+            "pp",
+            "feat",
+            "req",
+            "adr"
+        )
+
+    // TODO: Short Tag Importer: https://github.com/itsallcode/openfasttrace-gradle#configuring-the-short-tag-importer
+}
+
+// TODO: "run" should run the GUI, not all modules
+tasks.register("run") {
+    group = "application"
+    description = "Runs the GUI"
+    dependsOn(":jabgui:run")
+}
+
+allprojects {
+    tasks.cyclonedxDirectBom {
+        includeConfigs =
+            listOf("runtimeClasspath")
+        skipConfigs =
+            listOf(
+                "testRuntimeClasspath",
+                "testCompileClasspath",
+                "testImplementation",
+                "rewrite",
+                "mockitoAgent",
+                "antlr"
+            )
+    }
+}
+
+tasks.cyclonedxBom {
+    // Aggregated SBOM configuration
+    projectType = org.cyclonedx.model.Component.Type.APPLICATION
+    includeBuildSystem = true
+    componentVersion = project.version.toString()
+    componentGroup = "org.jabref"
+}

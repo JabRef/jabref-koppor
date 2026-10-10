@@ -1,0 +1,185 @@
+package org.jabref.gui.walkthrough;
+
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
+import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.icon.JabRefIconView;
+import org.jabref.gui.util.component.MarkdownTextFlow;
+import org.jabref.gui.walkthrough.declarative.richtext.ArbitraryJFXBlock;
+import org.jabref.gui.walkthrough.declarative.richtext.InfoBlock;
+import org.jabref.gui.walkthrough.declarative.richtext.TextBlock;
+import org.jabref.gui.walkthrough.declarative.step.PanelPosition;
+import org.jabref.gui.walkthrough.declarative.step.PanelStep;
+import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
+import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
+
+/// Renders walkthrough steps and content blocks into JavaFX nodes.
+public class WalkthroughRenderer {
+    /// Renders a tooltip step into a JavaFX node.
+    ///
+    /// @param step           The tooltip step to render
+    /// @param walkthrough    The walkthrough context for navigation
+    /// @param beforeNavigate Runnable to execute before any navigation action
+    /// @return The rendered tooltip content node
+    public Node render(TooltipStep step, Walkthrough walkthrough, Runnable beforeNavigate) {
+        VBox tooltip = makePanel();
+
+        StackPane titleContainer = new StackPane();
+        MarkdownTextFlow titleFlow = new MarkdownTextFlow(titleContainer);
+        titleFlow.getStyleClass().add("walkthrough-tooltip-title");
+        titleFlow.setMarkdown(step.title());
+        titleContainer.getChildren().add(titleFlow);
+
+        VBox contentContainer = createContent(step, walkthrough, beforeNavigate);
+        VBox.setVgrow(contentContainer, Priority.ALWAYS);
+
+        HBox actionsContainer = createActions(step, walkthrough, beforeNavigate);
+
+        step.maxHeight().ifPresent(tooltip::setMaxHeight);
+        step.maxWidth().ifPresent(tooltip::setMaxWidth);
+
+        tooltip.getChildren().addAll(titleContainer, contentContainer, actionsContainer);
+        return tooltip;
+    }
+
+    /// Renders a panel step into a JavaFX node.
+    ///
+    /// @param step           The panel step to render
+    /// @param walkthrough    The walkthrough context for navigation
+    /// @param beforeNavigate Runnable to execute before any navigation action
+    /// @return The rendered panel node
+    public Node render(PanelStep step, Walkthrough walkthrough, Runnable beforeNavigate) {
+        VBox panel = makePanel();
+        configurePanelSize(panel, step);
+
+        StackPane titleContainer = new StackPane();
+        MarkdownTextFlow titleFlow = new MarkdownTextFlow(titleContainer);
+        titleFlow.getStyleClass().add("walkthrough-title");
+        titleFlow.setMarkdown(step.title());
+        titleContainer.getChildren().add(titleFlow);
+
+        VBox contentContainer = createContent(step, walkthrough, beforeNavigate);
+        HBox actionsContainer = createActions(step, walkthrough, beforeNavigate);
+        VBox.setVgrow(contentContainer, Priority.ALWAYS);
+
+        panel.getChildren().addAll(titleContainer, contentContainer, actionsContainer);
+        return panel;
+    }
+
+    private void configurePanelSize(VBox panel, PanelStep step) {
+        boolean isVertical = step.position() == PanelPosition.LEFT || step.position() == PanelPosition.RIGHT;
+
+        if (isVertical) {
+            panel.getStyleClass().addAll("walkthrough-side-panel-vertical", "padding-4");
+            VBox.setVgrow(panel, Priority.ALWAYS);
+            panel.setMaxHeight(Double.MAX_VALUE);
+            step.maxWidth().ifPresent(panel::setMaxWidth);
+        } else if (step.position() == PanelPosition.TOP || step.position() == PanelPosition.BOTTOM) {
+            panel.getStyleClass().addAll("walkthrough-side-panel-horizontal", "padding-4");
+            HBox.setHgrow(panel, Priority.ALWAYS);
+            panel.setMaxWidth(Double.MAX_VALUE);
+            step.maxHeight().ifPresent(panel::setMaxHeight);
+        }
+    }
+
+    private Node render(ArbitraryJFXBlock block, Walkthrough walkthrough, Runnable beforeNavigate) {
+        return block.componentFactory().apply(walkthrough, beforeNavigate);
+    }
+
+    private Node render(TextBlock textBlock) {
+        StackPane container = new StackPane();
+
+        MarkdownTextFlow textFlow = new MarkdownTextFlow(container);
+        textFlow.getStyleClass().addAll("h4");
+        textFlow.setMarkdown(textBlock.text());
+
+        container.getChildren().add(textFlow);
+        return container;
+    }
+
+    private Node render(InfoBlock infoBlock) {
+        HBox infoContainer = new HBox(8);
+        infoContainer.getStyleClass().addAll("walkthrough-info-container", "align-top-left");
+
+        JabRefIconView icon = new JabRefIconView(IconTheme.JabRefIcons.INTEGRITY_INFO);
+
+        StackPane textContainer = new StackPane();
+        MarkdownTextFlow infoFlow = new MarkdownTextFlow(textContainer);
+        infoFlow.getStyleClass().addAll("walkthrough-info-text", "h4");
+        infoFlow.setMarkdown(infoBlock.text());
+        textContainer.getChildren().add(infoFlow);
+
+        HBox.setHgrow(textContainer, Priority.ALWAYS);
+        infoContainer.getChildren().addAll(icon, textContainer);
+        return infoContainer;
+    }
+
+    private VBox makePanel() {
+        VBox container = new VBox(4);
+        container.getStyleClass().addAll("walkthrough-panel", "padding-8");
+        return container;
+    }
+
+    private HBox createActions(VisibleComponent component, Walkthrough walkthrough, Runnable beforeNavigate) {
+        HBox actions = new HBox(0);
+        actions.setAlignment(Pos.CENTER_LEFT);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        component.backButtonText()
+                 .ifPresent(text ->
+                         actions.getChildren()
+                                .add(makeButton(text, false, beforeNavigate, walkthrough::previousStep)));
+
+        HBox rightActions = new HBox(4);
+        rightActions.setAlignment(Pos.CENTER_RIGHT);
+
+        component.skipButtonText()
+                 .ifPresent(text ->
+                         rightActions.getChildren()
+                                     .add(makeButton(text, false, beforeNavigate, walkthrough::skip)));
+        component.continueButtonText()
+                 .ifPresent(text ->
+                         rightActions.getChildren()
+                                     .add(makeButton(text, true, beforeNavigate, walkthrough::nextStep)));
+        actions.getChildren().addAll(spacer, rightActions);
+        return actions;
+    }
+
+    private VBox createContent(VisibleComponent component, Walkthrough walkthrough, Runnable beforeNavigate) {
+        VBox contentBox = new VBox(4);
+        contentBox.getChildren().addAll(component.content().stream().map(block ->
+                switch (block) {
+                    case TextBlock textBlock ->
+                            render(textBlock);
+                    case InfoBlock infoBlock ->
+                            render(infoBlock);
+                    case ArbitraryJFXBlock arbitraryBlock ->
+                            render(arbitraryBlock, walkthrough, beforeNavigate);
+                }
+        ).toArray(Node[]::new));
+        return contentBox;
+    }
+
+    /// @param text the already localized button text
+    private Button makeButton(String text, boolean isDefault, Runnable beforeNavigate, Runnable navigationAction) {
+        Button button = new Button(text);
+        button.getStyleClass().addAll("h5", "padding-4");
+        if (isDefault) {
+            button.setDefaultButton(true);
+        }
+        button.setOnAction(_ -> {
+            beforeNavigate.run();
+            navigationAction.run();
+        });
+        return button;
+    }
+}

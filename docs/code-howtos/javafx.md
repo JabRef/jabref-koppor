@@ -1,56 +1,31 @@
 ---
 parent: Code Howtos
-nav_order: 6
 ---
 # JavaFX
 
-## FXML
+> [JavaFX](https://github.com/openjdk/jfx?tab=readme-ov-file#openjfx) is an open source, next generation client application platform for desktop, mobile and embedded systems based on JavaSE.
+> It is a collaborative effort by many individuals and companies with the goal of producing a modern, efficient, and fully featured toolkit for developing rich client applications.
 
-The following expressions can be used in FXML attributes, according to the [official documentation](https://docs.oracle.com/javase/8/javafx/api/javafx/fxml/doc-files/introduction\_to\_fxml.html#attributes)
+JavaFX is used on JabRef for the user interface.
 
-| Type                             | Expression                                       | Value point to                                                         | Remark                                                                                                                                             |
-| -------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Location                         | `@image.png`                                     | path relative to the current FXML file                                 |                                                                                                                                                    |
-| Resource                         | `%textToBeTranslated`                            | key in ResourceBundle                                                  |                                                                                                                                                    |
-| Attribute variable               | `$idOfControl` or `$variable`                    | named control or variable in controller (may be path in the namespace) | resolved only once at load time                                                                                                                    |
-| Expression binding               | `${expression}`                                  | expression, for example `textField.text`                               | changes to source are propagated                                                                                                                   |
-| Bidirectional expression binding | `#{expression}`                                  | expression                                                             | changes are propagated in both directions (not yet implemented in JavaFX, see [feature request](https://bugs.openjdk.java.net/browse/JDK-8090665)) |
-| Event handler                    | `#nameOfEventHandler`                            | name of the event handler method in the controller                     |                                                                                                                                                    |
-| Constant                         | `<text><Strings fx:constant="MYSTRING"/></text>` | constant (here `MYSTRING` in the `Strings` class)                      |                                                                                                                                                    |
+## Resources
 
-## JavaFX Radio Buttons example
+* [JavaFX Documentation project](https://fxdocs.github.io/docs/html5/index.html): Collected information on JavaFX in a central place
+* [curated list of awesome JavaFX frameworks, libraries, books and etc...](https://github.com/mhrimaz/AwesomeJavaFX?tab=readme-ov-file#awesome-javafx-)
+* [FXTutorials](https://github.com/AlmasB/FXTutorials?tab=readme-ov-file#fxtutorials) A wide range of practical tutorials focusing on Java, JavaFX and FXGL
+* [ControlsFX](http://fxexperience.com/controlsfx/features/) amazing collection of controls
+* [CSS Reference](http://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html)
+* [mvvm framework](https://github.com/sialcasa/mvvmFX/wiki)
+* [Validation framework](https://github.com/sialcasa/mvvmFX/wiki/Validation)
+* [additional bindings](https://github.com/lestard/advanced-bindings) or [EasyBind](https://github.com/TomasMikula/EasyBind)
+* [Undo manager](https://github.com/FXMisc/UndoFX)
+* [Docking manager](https://github.com/alexbodogit/AnchorFX) or [DockFX](https://github.com/RobertBColton/DockFX)
+* [Kubed](https://github.com/hudsonb/kubed): data visualization (inspired by d3)
+* [Foojay](https://foojay.io) Java and JavaFX tutorials
 
-All radio buttons that should be grouped together need to have a ToggleGroup defined in the FXML code Example:
+### Resources of historical interest
 
-```markup
-<VBox>
-            <fx:define>
-                <ToggleGroup fx:id="citeToggleGroup"/>
-            </fx:define>
-            <children>
-                <RadioButton fx:id="inPar" minWidth="-Infinity" mnemonicParsing="false"
-                             text="%Cite selected entries between parenthesis" toggleGroup="$citeToggleGroup"/>
-                <RadioButton fx:id="inText" minWidth="-Infinity" mnemonicParsing="false"
-                             text="%Cite selected entries with in-text citation" toggleGroup="$citeToggleGroup"/>
-                <Label minWidth="-Infinity" text="%Extra information (e.g. page number)"/>
-                <TextField fx:id="pageInfo"/>
-            </children>
-</VBox>
-```
-
-## JavaFX Dialogs
-
-All dialogs should be displayed to the user via `DialogService` interface methods. `DialogService` provides methods to display various dialogs (including custom ones) to the user. It also ensures the displayed dialog opens on the correct window via `initOwner()` (for cases where the user has multiple screens). The following code snippet demonstrates how a custom dialog is displayed to the user:
-
-```java
-dialogService.showCustomDialog(new DocumentViewerView());
-```
-
-If an instance of `DialogService` is unavailable within current class/scope in which the dialog needs to be displayed, `DialogService` can be instantiated via the code snippet shown as follows:
-
-```java
-DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
-```
+* [FXExperience](http://fxexperience.com) JavaFX Links of the week
 
 ## Architecture: Model - View - (Controller) - ViewModel (MV(C)VM)
 
@@ -63,11 +38,11 @@ The goal of the MVVM architecture is to separate the state/behavior from the app
 
 The only class which access model and logic classes is the ViewModel. Controller and View have only access the ViewModel and never the backend. The ViewModel does not know the Controller or View.
 
-More details about the MVVM pattern can be found in [an article by Microsoft](https://msdn.microsoft.com/en-us/magazine/dd419663.aspx) and in [an article focusing on the implementation with JavaFX](http://blog.buildpath.de/javafx-decouple-the-view-and-its-behavior-to-create-a-testable-ui/).
+More details about the MVVM pattern can be found in [an article by Microsoft](https://msdn.microsoft.com/en-us/magazine/dd419663.aspx) and in [an article focusing on the implementation with JavaFX](https://web.archive.org/web/20140825151304/http://blog.buildpath.de/javafx-decouple-the-view-and-its-behavior-to-create-a-testable-ui/).
 
-## An example
+### Example
 
-### ViewModel
+#### ViewModel
 
 * The ViewModel should derive from `AbstractViewModel`
 
@@ -93,8 +68,8 @@ public String getHeading() {
 * Create constructor which initializes the fields to their default values. Write tests to ensure that everything works as expected!
 
 ```java
-public MyDialogViewModel(Dependency dependency) {
-    this.dependency = Objects.requireNonNull(dependency);
+public MyDialogViewModel(@NonNull Dependency dependency) {
+    this.dependency = dependency;
     heading.set("Hello " + dependency.getUserName());
 }
 ```
@@ -107,7 +82,7 @@ public void shutdown() {
 }
 ```
 
-### View - Controller
+#### View - Controller
 
 * The "code-behind" part of the view, which binds the `View` to the `ViewModel`.
 * The usual convention is that the controller ends on the suffix `*View`. Dialogs should derive from `BaseDialog`.
@@ -129,7 +104,7 @@ public class AboutDialogView extends BaseDialog<Void>
 @Inject private DialogService dialogService;
 ```
 
-*   It is convenient to load the FXML-view directly from the controller class.
+* It is convenient to load the FXML-view directly from the controller class.
 
     The FXML file is loaded using `ViewLoader` based on the name of the class passed to `view`. To make this convention-over-configuration approach work, both the FXML file and the View class should have the same name and should be located in the same package.
 
@@ -182,26 +157,82 @@ private void openJabrefWebsite() {
 }
 ```
 
-### View - FXML
+#### View - FXML
 
 The view consists a FXML file `MyDialog.fxml` which defines the structure and the layout of the UI. Moreover, the FXML file may be accompanied by a style file that should have the same name as the FXML file but with a `css` ending, e.g., `MyDialog.css`. It is recommended to use a graphical design tools like [SceneBuilder](http://gluonhq.com/labs/scene-builder/) to edit the FXML file. The tool [Scenic View](https://github.com/JonathanGiles/scenic-view) is very helpful in debugging styling issues.
 
-## Resources
+Node ids exist for the walkthrough. A walkthrough step finds the control it highlights by id, so:
 
-* [curated list of awesome JavaFX frameworks, libraries, books and etc...](https://github.com/mhrimaz/AwesomeJavaFX)
-* [ControlsFX](http://fxexperience.com/controlsfx/features/) amazing collection of controls
-* [Undo manager](https://github.com/FXMisc/UndoFX)
-* [Docking manager](https://github.com/alexbodogit/AnchorFX) [or](https://github.com/RobertBColton/DockFX)
-* [additional bindings](https://github.com/lestard/advanced-bindings) or [EasyBind](https://github.com/TomasMikula/EasyBind)
-* [Kubed](https://github.com/hudsonb/kubed): data visualization (inspired by d3)
-* [Validation framework](https://github.com/sialcasa/mvvmFX/wiki/Validation)
-* [mvvm framework](https://github.com/sialcasa/mvvmFX/wiki)
-* [CSS Reference](http://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html)
-* [JFoenix](https://github.com/jfoenixadmin/JFoenix) Material Designs look & feel
-* [JavaFX Documentation project](https://fxdocs.github.io/docs/html5/index.html): Collected information on JavaFX in a central place
-* [FXExperience](http://fxexperience.com) JavaFX Links of the week
-* [Foojay](https://foojay.io) Java and JavaFX tutorials
-* [FXTutorials](https://github.com/AlmasB/FXTutorials) A wide range of practical tutorials focusing on Java, JavaFX and FXGL
+* Give every major view, dialog and panel a stable `id`, and resolve walkthrough steps with `NodeResolver.fxId(...)` wherever such a node exists, rather than by class name, node type or visible text. Steps that target a virtualized cell — a row of the entry table, the groups tree or a preferences tab list — have no stable node to name and still match on text.
+* Keep every walkthrough id in `WalkthroughNodeIds` and set it from there. One list makes an id reusable, shows which controls the walkthroughs depend on, and stops one being deleted by accident. `WalkthroughNodeIdsTest` fails when a constant no longer names a node.
+* Style with `styleClass`, not with an id. Styling by id works and is occasionally unavoidable — the ids inside JavaFX's own custom-color dialog are the remaining case — but keeping it rare is the point: renaming an id should never change the look, and restyling should never break a walkthrough.
+* Write ids in kebab case (`entry-editor`), the same way style classes are written. An `fx:id` has to stay a Java identifier because a controller field is named after it, so give such a node an explicit `id` attribute as well — FXML applies that one, and the `fx:id` keeps injecting.
+
+## CSS style classes and themes
+
+The appearance of JabRef is the job of a theme. Themes live at <https://themes.jabref.org/> (checked out as the submodule `jabgui/src/main/themes.jabref.org`, so JabRef bundles every theme that covers both color schemes); a theme sets the `-color-*` tokens and the rules of its [style guide](https://github.com/JabRef/themes.jabref.org/blob/main/styleguide.md). A new look is a new theme there, not new CSS in JabRef.
+
+What remains in JabRef is `jabgui/src/main/resources/org/jabref/gui/theme/internal/jabref-base.css`, loaded with every theme. It holds the utility classes for padding, gaps, alignment, font size and color (`padding-12`, `gap-8`, `align-center-left`, `h3`, `text-accent`) and the structure of the shared controls and views: borders, radii, paddings and layout of buttons, tabs, the entry editor, the main table and so on, all expressed in `-color-*` tokens so that a theme only has to pick colors. The drivers, from <https://github.com/JabRef/jabref/issues/16042>, <https://github.com/JabRef/jabref/issues/16787> and <https://github.com/JabRef/jabref/issues/15721>:
+
+* Do not introduce a CSS class. Every class is a lookup for the next reader, and one used by a single view is usually a padding or a font size a utility class already offers. When the utilities cannot express what a view needs, one class named after the view (`welcome-main-container`) is the trade-off between few classes and a UI that still looks right; a second step on the spacing scale is not.
+* The utility classes form one fixed scale in `em`, so all views share the same few distances and grow with the user's font size. Do not add `padding-10` because one dialog looked better with it.
+* The spacing between the children of a `VBox`, `HBox` or `GridPane` goes into the constructor: `new VBox(12)`, `new GridPane(24, 24)`.
+* No inline styles: no `setStyle(..)`, no `styleProperty()` binding, no `-fx-*` string in Java. An inline style beats every stylesheet, so a theme could not change it.
+* Colors only through the `-color-*` tokens, never as literals, so every theme keeps working.
+* Style with `styleClass`, not with an `id`; see the node id rules above.
+
+## FXML
+
+The following expressions can be used in FXML attributes, according to the [official documentation](https://docs.oracle.com/javase/8/javafx/api/javafx/fxml/doc-files/introduction_to_fxml.html#attributes)
+
+| Type                             | Expression                                       | Value point to                                                         | Remark                                                                                                                                             |
+| -------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Location                         | `@image.png`                                     | path relative to the current FXML file                                 |                                                                                                                                                    |
+| Resource                         | `%textToBeTranslated`                            | key in ResourceBundle                                                  |                                                                                                                                                    |
+| Attribute variable               | `$idOfControl` or `$variable`                    | named control or variable in controller (may be path in the namespace) | resolved only once at load time                                                                                                                    |
+| Expression binding               | `${expression}`                                  | expression, for example `textField.text`                               | changes to source are propagated                                                                                                                   |
+| Bidirectional expression binding | `#{expression}`                                  | expression                                                             | changes are propagated in both directions (not yet implemented in JavaFX, see [feature request](https://bugs.openjdk.java.net/browse/JDK-8090665)) |
+| Event handler                    | `#nameOfEventHandler`                            | name of the event handler method in the controller                     |                                                                                                                                                    |
+| Constant                         | `<text><Strings fx:constant="MYSTRING"/></text>` | constant (here `MYSTRING` in the `Strings` class)                      |                                                                                                                                                    |
+
+## JavaFX Radio Buttons Example
+
+All radio buttons that should be grouped together need to have a ToggleGroup defined in the FXML code Example:
+
+```markup
+<VBox>
+            <fx:define>
+                <ToggleGroup fx:id="citeToggleGroup"/>
+            </fx:define>
+            <children>
+                <RadioButton fx:id="inPar" minWidth="-Infinity" mnemonicParsing="false"
+                             text="%Cite selected entries between parenthesis" toggleGroup="$citeToggleGroup"/>
+                <RadioButton fx:id="inText" minWidth="-Infinity" mnemonicParsing="false"
+                             text="%Cite selected entries with in-text citation" toggleGroup="$citeToggleGroup"/>
+                <Label minWidth="-Infinity" text="%Extra information (e.g. page number)"/>
+                <TextField fx:id="pageInfo"/>
+            </children>
+</VBox>
+```
+
+## JavaFX Dialogs
+
+All dialogs should be displayed to the user via `DialogService` interface methods. `DialogService` provides methods to display various dialogs (including custom ones) to the user. It also ensures the displayed dialog opens on the correct window via `initOwner()` (for cases where the user has multiple screens). The following code snippet demonstrates how a custom dialog is displayed to the user:
+
+```java
+dialogService.showCustomDialog(new DocumentViewerView());
+```
+
+If an instance of `DialogService` is unavailable within current class/scope in which the dialog needs to be displayed, `DialogService` can be instantiated via the code snippet shown as follows:
+
+```java
+DialogService dialogService = Injector.instantiateModelOrService(DialogService.class);
+```
+
+## Properties and Bindings
+
+JabRef makes heavy use of Properties and Bindings. These are wrappers around Observables. A good explanation on the concept can be found here:
+[JavaFX Bindings and Properties](https://web.archive.org/web/20240921154452/https://edencoding.com/javafx-properties-and-binding-a-complete-guide/)
 
 ## Features missing in JavaFX
 

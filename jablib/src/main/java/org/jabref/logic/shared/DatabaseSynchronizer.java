@@ -1,0 +1,26 @@
+package org.jabref.logic.shared;
+
+import java.sql.SQLException;
+
+import org.jabref.model.entry.BibEntry;
+
+public interface DatabaseSynchronizer {
+
+    String getDBName();
+
+    void setDBName(String dbName);
+
+    void openSharedDatabase(DatabaseConnection connection) throws DatabaseNotSupportedException, SQLException;
+
+    void closeSharedDatabase();
+
+    void pullChanges();
+
+    void registerListener(Object listener);
+
+    void synchronizeSharedEntry(BibEntry bibEntry);
+
+    void synchronizeLocalDatabase();
+
+    DatabaseConnectionProperties getConnectionProperties();
+}
