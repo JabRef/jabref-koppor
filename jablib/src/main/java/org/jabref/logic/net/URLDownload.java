@@ -145,7 +145,7 @@ public class URLDownload {
                 return Optional.of(contentType);
             }
         } catch (Exception e) {
-            LOGGER.debug("Error getting MIME type of URL via HEAD request", e);
+            LOGGER.error("Error getting MIME type of URL via HEAD request", e);
         }
 
         // Use GET request as alternative if no HEAD request is available
@@ -155,7 +155,7 @@ public class URLDownload {
                 return Optional.of(contentType);
             }
         } catch (Exception e) {
-            LOGGER.debug("Error getting MIME type of URL via GET request", e);
+            LOGGER.error("Error getting MIME type of URL via GET request", e);
         }
 
         // Try to resolve local URIs
@@ -166,7 +166,7 @@ public class URLDownload {
                 return Optional.of(contentType);
             }
         } catch (IOException e) {
-            LOGGER.debug("Error trying to get MIME type of local URI", e);
+            LOGGER.error("Error trying to get MIME type of local URI", e);
         }
 
         return Optional.empty();
@@ -244,7 +244,7 @@ public class URLDownload {
         try (InputStream input = new BufferedInputStream(this.openConnection().getInputStream())) {
             Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            LOGGER.warn("Could not copy input", e);
+            LOGGER.error("Could not copy input", e);
             throw new FetcherException("Could not copy input", e);
         }
     }

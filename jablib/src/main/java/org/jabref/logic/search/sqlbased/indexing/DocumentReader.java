@@ -44,7 +44,7 @@ public final class DocumentReader {
         MDC.put("file", fileLink);
         try (PDDocument pdfDocument = Loader.loadPDF(resolvedPdfPath.toFile())) {
             int numberOfPages = pdfDocument.getNumberOfPages();
-            LOGGER.debug("Reading file {} content with {} pages", resolvedPdfPath.toAbsolutePath(), numberOfPages);
+            LOGGER.atDebug().addArgument(() -> resolvedPdfPath.toAbsolutePath()).addArgument(numberOfPages).log("Reading file {} content with {} pages");
             for (int pageNumber = 1; pageNumber <= numberOfPages; pageNumber++) {
                 Document newDocument = new Document();
                 addIdentifiers(newDocument, fileLink);
@@ -54,7 +54,7 @@ public final class DocumentReader {
                 pages.add(newDocument);
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not read {}", resolvedPdfPath.toAbsolutePath(), e);
+            LOGGER.error("Could not read {}", resolvedPdfPath.toAbsolutePath(), e);
             return pages;
         } finally {
             MDC.remove("file");
@@ -123,7 +123,7 @@ public final class DocumentReader {
                 newDocument.add(new TextField(ANNOTATIONS_CASE_SENSITIVE.toString(), joinedAnnotations, Field.Store.NO));
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not read page {} of  {}", pageNumber, resolvedPath.toAbsolutePath(), e);
+            LOGGER.error("Could not read page {} of  {}", pageNumber, resolvedPath.toAbsolutePath(), e);
         }
     }
 

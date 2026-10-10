@@ -164,7 +164,7 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
                                        .flatMap(this::extractOpenAlexId)
                                        .map(Unchecked.function(id -> getUrl("/" + id, fieldsToSelect))));
         } catch (RuntimeException _) {
-            LOGGER.debug("Invalid OpenAlex URL");
+            LOGGER.warn("Invalid OpenAlex URL");
             return Optional.empty();
         }
     }
@@ -337,7 +337,7 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
                     .filter(StringUtil::isNotBlank)
                     .map(Unchecked.function(URLUtil::create));
         } catch (RuntimeException e) {
-            LOGGER.warn("Malformed URL", e);
+            LOGGER.error("Malformed URL", e);
             throw (MalformedURLException) e.getCause();
         }
     }
@@ -374,17 +374,17 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
                                 if (e.getHttpResponse().isPresent()) {
                                     int code = e.getHttpResponse().get().statusCode();
                                     if (code == 404) {
-                                        LOGGER.trace("Work not found at URL: {}", redactedUrl);
+                                        LOGGER.warn("Work not found at URL: {}", redactedUrl);
                                     } else {
-                                        LOGGER.debug("Could not fetch work at URL: {}", redactedUrl, e);
+                                        LOGGER.error("Could not fetch work at URL: {}", redactedUrl, e);
                                     }
                                 } else {
-                                    LOGGER.debug("Could not fetch work at URL: {}", redactedUrl, e);
+                                    LOGGER.error("Could not fetch work at URL: {}", redactedUrl, e);
                                 }
                                 return new BibEntry().withField(StandardField.URL, redactedUrl).withChanged(true);
                             } catch (RuntimeException e) {
                                 String redactedUrl = FetcherException.getRedactedUrl(url.toString());
-                                LOGGER.debug("Could not fetch work at URL: {}", redactedUrl, e);
+                                LOGGER.error("Could not fetch work at URL: {}", redactedUrl, e);
                                 return new BibEntry().withField(StandardField.URL, redactedUrl).withChanged(true);
                             }
                         }))
@@ -417,13 +417,13 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
     /// @implNote This method is similar to  [#getCitations(BibEntry)]. Streamlining this into one is not leading to more maintainable code, because handling the exceptions properly
     @Override
     public List<BibEntry> getReferences(BibEntry entry) throws FetcherException {
-        LOGGER.trace("Getting references for entry: {}", entry.getKeyAuthorTitleYear(10));
+        LOGGER.atTrace().addArgument(() -> entry.getKeyAuthorTitleYear(10)).log("Getting references for entry: {}");
         return fetch(getReferencesApiUri(entry), "referenced_works", this::workUrlsToBibEntryList);
     }
 
     @Override
     public List<BibEntry> getCitations(BibEntry entry) throws FetcherException {
-        LOGGER.trace("Getting citations for entry: {}", entry.getKeyAuthorTitleYear(10));
+        LOGGER.atTrace().addArgument(() -> entry.getKeyAuthorTitleYear(10)).log("Getting citations for entry: {}");
         return fetch(getCitationsApiUri(entry), "results", this::workArrayToBibEntryList);
     }
 
@@ -440,7 +440,7 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
             return getUrl(entry, List.of("referenced_works"))
                     .map(Unchecked.function(URL::toURI));
         } catch (MalformedURLException e) {
-            LOGGER.debug("Could not create references API URI", e);
+            LOGGER.error("Could not create references API URI", e);
             return Optional.empty();
         }
     }
@@ -475,7 +475,7 @@ public class OpenAlex implements CustomizableKeyFetcher, SearchBasedParserFetche
                                     .build()
                     ));
         } catch (FetcherException e) {
-            LOGGER.debug("Could not create citations API URI", e);
+            LOGGER.error("Could not create citations API URI", e);
             return Optional.empty();
         }
     }

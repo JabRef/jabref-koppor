@@ -41,7 +41,7 @@ public class ChangeScanner {
         try {
             return getDatabaseChanges(database.getDatabasePath().get());
         } catch (IOException e) {
-            LOGGER.warn("Error while parsing changed file.", e);
+            LOGGER.error("Error while parsing changed file.", e);
             return List.of();
         }
     }

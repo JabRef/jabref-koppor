@@ -58,7 +58,7 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
                 // we want to ignore ".gitignore" itself
                 patterns.add(FileSystems.getDefault().getPathMatcher("glob:.gitignore"));
             } catch (IOException e) {
-                LOGGER.info("Could not read .gitignore from {}", gitIgnore, e);
+                LOGGER.error("Could not read .gitignore from {}", gitIgnore, e);
                 patterns = Set.of();
             }
             gitIgnorePatterns = patterns;

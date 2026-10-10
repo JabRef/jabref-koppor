@@ -159,7 +159,7 @@ public class GroupsParser {
                 addGroupDetails(token, newGroup);
                 return newGroup;
             } catch (IOException ex) {
-                LOGGER.warn("Could not access file {}. The group {} will not reflect changes to the aux file.", path, name, ex);
+                LOGGER.error("Could not access file {}. The group {} will not reflect changes to the aux file.", path, name, ex);
 
                 TexGroup newGroup = TexGroup.create(name, context, path, new DefaultAuxParser(new BibDatabase()), metaData, userAndHost);
                 addGroupDetails(token, newGroup);

@@ -102,7 +102,7 @@ public class JumpToEntryPdfAction extends SimpleCommand {
         try {
             return FileUtil.isPDFFile(Path.of(file.getLink()));
         } catch (InvalidPathException e) {
-            LOGGER.debug("Skipping file link that is not a path: {}", file.getLink(), e);
+            LOGGER.error("Skipping file link that is not a path: {}", file.getLink(), e);
             return false;
         }
     }

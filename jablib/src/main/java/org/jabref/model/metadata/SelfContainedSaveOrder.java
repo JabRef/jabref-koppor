@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /// To avoid confusion at the caller, we offer ORIGINAL and SPECIFIED only. Not TABLE.
 public class SelfContainedSaveOrder extends SaveOrder {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SelfContainedSaveOrder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelfContainedSaveOrder.class);
 
     public SelfContainedSaveOrder(OrderType orderType, List<SortCriterion> sortCriteria) {
         super(orderType, sortCriteria);

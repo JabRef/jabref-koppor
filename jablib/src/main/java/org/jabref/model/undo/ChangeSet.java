@@ -56,7 +56,7 @@ public record ChangeSet(String name, List<BibChange> changes) implements BibChan
             try {
                 failures.addAll(change.apply().failures());
             } catch (RuntimeException e) {
-                LOGGER.warn("Could not apply {} as part of '{}'", change, name, e);
+                LOGGER.error("Could not apply {} as part of '{}'", change, name, e);
                 failures.add(new ApplyResult.Failure(change, e.toString()));
             }
         }

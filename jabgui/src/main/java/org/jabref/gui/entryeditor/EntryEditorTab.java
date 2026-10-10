@@ -83,8 +83,8 @@ public abstract class EntryEditorTab extends Tab {
         // entry or its type actually changed (intentionally lazy: not on every push to the property).
         if ((entry != renderedEntry) || !entry.getType().equals(renderedEntryType)) {
             LOGGER.trace("Tab got focus with different entry (or entry type) {}", entry);
-            LOGGER.trace("Different entry: {}", entry != renderedEntry);
-            LOGGER.trace("Different entry type: {}", !entry.getType().equals(renderedEntryType));
+            LOGGER.atTrace().addArgument(() -> entry != renderedEntry).log("Different entry: {}");
+            LOGGER.atTrace().addArgument(() -> !entry.getType().equals(renderedEntryType)).log("Different entry type: {}");
             renderedEntry = entry;
             renderedEntryType = entry.getType();
             bindToEntry(entry);

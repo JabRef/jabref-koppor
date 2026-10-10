@@ -529,7 +529,7 @@ public class JabRefCliPreferences implements CliPreferences {
                 LOGGER.info("Preferences imported from jabref.xml");
             }
         } catch (JabRefException e) {
-            LOGGER.warn("Could not import preferences from jabref.xml", e);
+            LOGGER.error("Could not import preferences from jabref.xml", e);
         }
 
         // Since some of the preference settings themselves use localized strings, we cannot set the language after
@@ -673,13 +673,13 @@ public class JabRefCliPreferences implements CliPreferences {
             try {
                 exportPreferences(Path.of("jabref.xml"));
             } catch (JabRefException e) {
-                LOGGER.warn("Could not export preferences for memory stick mode: {}", e.getMessage(), e);
+                LOGGER.error("Could not export preferences for memory stick mode: {}", e.getMessage(), e);
             }
         }
         try {
             PREFS_NODE.flush();
         } catch (BackingStoreException ex) {
-            LOGGER.warn("Cannot communicate with backing store", ex);
+            LOGGER.error("Cannot communicate with backing store", ex);
         }
     }
 
@@ -956,12 +956,12 @@ public class JabRefCliPreferences implements CliPreferences {
                             getInternalPreferences().getUserHostInfo().getUserHostString())
                             .decrypt());
                 } catch (PasswordAccessException _) {
-                    LOGGER.debug("No secret stored in keyring for {}/{}", slot.service(), slot.account());
+                    LOGGER.warn("No secret stored in keyring for {}/{}", slot.service(), slot.account());
                     result.put(slot, "");
                 }
             }
         } catch (Exception ex) {
-            LOGGER.warn("Could not open keyring", ex);
+            LOGGER.error("Could not open keyring", ex);
             return Map.of();
         }
         return result;
@@ -993,7 +993,7 @@ public class JabRefCliPreferences implements CliPreferences {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.warn("Could not open keyring", ex);
+            LOGGER.error("Could not open keyring", ex);
         }
     }
 
@@ -1064,7 +1064,7 @@ public class JabRefCliPreferences implements CliPreferences {
     /// @param path Path to export to
     @Override
     public void exportPreferences(Path path) throws JabRefException {
-        LOGGER.debug("Exporting preferences {}", path.toAbsolutePath());
+        LOGGER.atDebug().addArgument(() -> path.toAbsolutePath()).log("Exporting preferences {}");
         try (OutputStream os = Files.newOutputStream(path)) {
             PREFS_NODE.exportSubtree(os);
         } catch (BackingStoreException
@@ -1140,7 +1140,7 @@ public class JabRefCliPreferences implements CliPreferences {
     }
 
     private static void importPreferencesToBackingStore(Path path) throws JabRefException {
-        LOGGER.debug("Importing preferences {}", path.toAbsolutePath());
+        LOGGER.atDebug().addArgument(() -> path.toAbsolutePath()).log("Importing preferences {}");
         try (InputStream is = Files.newInputStream(path)) {
             Preferences.importPreferences(is);
         } catch (InvalidPreferencesFormatException | IOException ex) {
@@ -1276,7 +1276,7 @@ public class JabRefCliPreferences implements CliPreferences {
                       }
                   }));
         } catch (BackingStoreException e) {
-            LOGGER.info("Parsing customized entry types ({}) failed.", versionLabel, e);
+            LOGGER.error("Parsing customized entry types ({}) failed.", versionLabel, e);
         }
     }
 
@@ -1321,7 +1321,7 @@ public class JabRefCliPreferences implements CliPreferences {
             prefsNodev1.flush();
             prefsNodev2.flush();
         } catch (BackingStoreException e) {
-            LOGGER.info("Updating stored custom entry types failed.", e);
+            LOGGER.error("Updating stored custom entry types failed.", e);
         }
     }
 
@@ -1606,7 +1606,7 @@ public class JabRefCliPreferences implements CliPreferences {
                         preferences.get(key, null));
             }
         } catch (BackingStoreException ex) {
-            LOGGER.info("BackingStoreException in JabRefPreferences.getKeyPattern", ex);
+            LOGGER.error("BackingStoreException in JabRefPreferences.getKeyPattern", ex);
         }
 
         return citationKeyPattern;
@@ -1626,7 +1626,7 @@ public class JabRefCliPreferences implements CliPreferences {
         try {
             preferences.clear(); // We remove all old entries.
         } catch (BackingStoreException ex) {
-            LOGGER.info("BackingStoreException in JabRefPreferences::putKeyPattern", ex);
+            LOGGER.error("BackingStoreException in JabRefPreferences::putKeyPattern", ex);
         }
 
         for (EntryType entryType : pattern.getAllKeys()) {
@@ -1703,7 +1703,7 @@ public class JabRefCliPreferences implements CliPreferences {
                         try {
                             Files.deleteIfExists(Path.of("jabref.xml"));
                         } catch (IOException e) {
-                            LOGGER.warn("Error accessing filesystem", e);
+                            LOGGER.error("Error accessing filesystem", e);
                         }
                     }
                 },
@@ -2428,7 +2428,7 @@ public class JabRefCliPreferences implements CliPreferences {
                     importers.add(new CustomImporter(importerString.get(3), importerString.get(2)));
                 }
             } catch (ImportException e) {
-                LOGGER.warn("Could not load {} from preferences. Will ignore.", importerString.getFirst(), e);
+                LOGGER.error("Could not load {} from preferences. Will ignore.", importerString.getFirst(), e);
             }
         }
 
@@ -2633,13 +2633,13 @@ public class JabRefCliPreferences implements CliPreferences {
                 }
                 LOGGER.warn("BST style file not found: {}", currentStylePath);
             } catch (IOException e) {
-                LOGGER.warn("Could not load BST style: {}", currentStylePath, e);
+                LOGGER.error("Could not load BST style: {}", currentStylePath, e);
             }
         } else if (journalAbbreviationRepository != null) {
             try {
                 return new JStyle(currentStylePath, getLayoutFormatterPreferences(), journalAbbreviationRepository);
             } catch (IOException ex) {
-                LOGGER.warn("Could not create JStyle", ex);
+                LOGGER.error("Could not create JStyle", ex);
             }
         }
         return defaultStyle;

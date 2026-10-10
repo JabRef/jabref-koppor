@@ -100,7 +100,7 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
                 } // mEDRA does not explicit an API rating
             }
         } catch (FetcherException | MalformedURLException e) {
-            LOGGER.warn("Could not limit DOI API access rate", e);
+            LOGGER.error("Could not limit DOI API access rate", e);
         }
     }
 

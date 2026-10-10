@@ -123,7 +123,7 @@ public class MarkdownEditor extends SimpleEditor {
             insertMarkdownText(relativePathString, textArea);
             return true;
         } catch (FileAlreadyExistsException e) {
-            LOGGER.warn("Dropped file already exists: {} ", destination, e);
+            LOGGER.error("Dropped file already exists: {} ", destination, e);
             insertMarkdownText(relativePathString, textArea);
             return true;
         } catch (IOException e) {

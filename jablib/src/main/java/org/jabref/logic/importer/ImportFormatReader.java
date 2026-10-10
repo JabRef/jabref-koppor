@@ -261,7 +261,7 @@ public class ImportFormatReader {
                 }
             } catch (Throwable ex) {
                 // We also want to catch NPEs and continue
-                LOGGER.trace("Exception during import. Trying next importer.", ex);
+                LOGGER.error("Exception during import. Trying next importer.", ex);
                 // The import did not succeed. Go on.
             }
         }

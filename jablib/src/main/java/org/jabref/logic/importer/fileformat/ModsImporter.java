@@ -78,7 +78,7 @@ public class ModsImporter extends Importer implements Parser {
             XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(input);
             parseModsCollection(bibItems, reader);
         } catch (XMLStreamException e) {
-            LOGGER.debug("could not parse document", e);
+            LOGGER.error("could not parse document", e);
             return ParserResult.fromError(e);
         }
 

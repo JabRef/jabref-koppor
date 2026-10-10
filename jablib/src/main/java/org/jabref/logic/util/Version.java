@@ -81,10 +81,10 @@ public class Version {
 
                 parsedVersion.isDevelopmentVersion = matcher.group("dev") != null;
             } catch (NumberFormatException e) {
-                getLogger().warn("Invalid version string used: {}", version, e);
+                getLogger().error("Invalid version string used: {}", version, e);
                 return UNKNOWN_VERSION;
             } catch (IllegalArgumentException e) {
-                getLogger().warn("Invalid version pattern is used", e);
+                getLogger().error("Invalid version pattern is used", e);
                 return UNKNOWN_VERSION;
             }
         } else {

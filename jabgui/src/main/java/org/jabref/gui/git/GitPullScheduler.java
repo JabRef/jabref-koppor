@@ -57,7 +57,7 @@ public class GitPullScheduler {
             }
             bibDatabaseContext.getDatabasePath().ifPresent(path -> gitAutoSync.pull(path, bibDatabaseContext, hasUnsavedChanges));
         } catch (RuntimeException e) {
-            LOGGER.warn("Scheduled Git pull failed", e);
+            LOGGER.error("Scheduled Git pull failed", e);
         }
     }
 

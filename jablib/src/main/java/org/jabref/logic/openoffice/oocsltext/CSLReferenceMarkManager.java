@@ -259,7 +259,7 @@ public class CSLReferenceMarkManager {
                  | com.sun.star.beans.PropertyVetoException
                  | com.sun.star.lang.WrappedTargetException
                  | com.sun.star.uno.RuntimeException exception) {
-            LOGGER.warn("Could not restore escapement formatting for rewritten citation text", exception);
+            LOGGER.error("Could not restore escapement formatting for rewritten citation text", exception);
         }
     }
 
@@ -373,7 +373,7 @@ public class CSLReferenceMarkManager {
             }
         }
 
-        LOGGER.debug("Read {} existing marks", marksByName.size());
+        LOGGER.atDebug().addArgument(() -> marksByName.size()).log("Read {} existing marks");
     }
 
     public void readAndUpdateExistingMarks() throws WrappedTargetException, NoSuchElementException {
@@ -389,7 +389,7 @@ public class CSLReferenceMarkManager {
                 updateAllCitationNumbers();
             } catch (Exception
                      | CreationException e) {
-                LOGGER.warn("Error updating citation numbers", e);
+                LOGGER.error("Error updating citation numbers", e);
             }
         }
     }
@@ -404,7 +404,7 @@ public class CSLReferenceMarkManager {
             try {
                 UnoUserDefinedProperty.removeIfExists(document, propertyName);
             } catch (NotRemoveableException ex) {
-                LOGGER.warn("Could not remove unused formatted CSL citation text property: {}", propertyName, ex);
+                LOGGER.error("Could not remove unused formatted CSL citation text property: {}", propertyName, ex);
             }
         }
     }
@@ -732,7 +732,7 @@ public class CSLReferenceMarkManager {
         try {
             rangeComparison = textRangeCompare.compareRegionStarts(second.getRange(), first.getRange());
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Error comparing text ranges: {}", e.getMessage(), e);
+            LOGGER.error("Error comparing text ranges: {}", e.getMessage(), e);
             rangeComparison = 0;
         }
 
