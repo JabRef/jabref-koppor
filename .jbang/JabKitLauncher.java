@@ -37,6 +37,7 @@
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/InputOption.java
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/JabKit.java
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/Pdf.java
+//SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/PdfCheckReferences.java
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/PdfExtractReferences.java
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/PdfUpdate.java
 //SOURCES ../jabkit/src/main/java/org/jabref/toolkit/commands/Preferences.java

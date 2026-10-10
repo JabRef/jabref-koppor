@@ -16,6 +16,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added ARM64 Flatpak builds, nightly, beta, and stable channels, and host editor integration. [#13349](https://github.com/JabRef/jabref/issues/13349)
 - We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
 - Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
 - We added tooltips with action descriptions to menu items. [#9615](https://github.com/JabRef/jabref/issues/9615)
 - We added "Contribute to JabRef" to the Help menu, linking to [contribute.jabref.org](https://contribute.jabref.org). [#17162](https://github.com/JabRef/jabref/pull/17162)
 - We added EasyOCR, PaddleOCR, and AppleOCR as selectable OCR engines, alongside Tesseract and Docling. [#16866](https://github.com/JabRef/jabref/issues/16866)
