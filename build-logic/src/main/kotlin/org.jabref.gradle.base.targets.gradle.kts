@@ -75,4 +75,10 @@ javaModulePackaging {
             attributes.attributeProvider(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, jdkVersion)
         }
     }
+    // TeaVM Platforms: https://github.com/konsoletyper/teavm/blob/master/interop/core/src/main/java/org/teavm/interop/Platforms.java
+    target("webassembly") {
+        operatingSystem = OperatingSystemFamily.LINUX
+        architecture = MachineArchitecture.X86_64
+        packageTypes = listOf("")
+    }
 }
