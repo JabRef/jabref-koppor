@@ -398,7 +398,7 @@ public class JabRefGUI extends Application {
         });
 
         mainStage.setTitle(JabRefFrame.FRAME_TITLE);
-        mainStage.getIcons().addAll(IconTheme.getLogoSet());
+        IconTheme.applyLogo(mainStage);
         mainStage.setScene(scene);
         mainStage.setOnShowing(this::onShowing);
         mainStage.setOnCloseRequest(this::onCloseRequest);

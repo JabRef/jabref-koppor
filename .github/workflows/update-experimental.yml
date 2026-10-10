@@ -380,7 +380,8 @@ jobs:
             message="Merge $count branches into $TARGET"$'\n'
             while IFS=$'\t' read -r -u 3 ref label suffix; do
               parents+=(-p "$ref")
-              message+=$'\n'"$label $suffix"
+              # Without the scheme: a PR URL in a pushed commit message adds a "referenced this pull request" event to the PR.
+              message+=$'\n'"$label ${suffix//https:\/\//}"
             done 3< "$clean"
             git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
             push
