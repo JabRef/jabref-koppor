@@ -20,11 +20,18 @@ public class GroupDiff {
         final Optional<GroupTreeNode> originalGroups = originalMetaData.getGroups();
         final Optional<GroupTreeNode> newGroups = newMetaData.getGroups();
 
-        if (!originalGroups.equals(newGroups)) {
+        // special case: the data model may contain the single "All Entries" group without any children
+        boolean bothGroupsAreEmpty = groupsAreEmpty(originalGroups) && groupsAreEmpty(newGroups);
+
+        if (!originalGroups.equals(newGroups) && !bothGroupsAreEmpty) {
             return Optional.of(new GroupDiff(originalGroups.orElse(null), newGroups.orElse(null)));
         } else {
             return Optional.empty();
         }
+    }
+
+    private static boolean groupsAreEmpty(Optional<GroupTreeNode> groups) {
+        return groups.map(g -> g.getChildren().isEmpty()).orElse(true);
     }
 
     public GroupTreeNode getOriginalGroupRoot() {
