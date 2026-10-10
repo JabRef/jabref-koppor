@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Execution(ExecutionMode.SAME_THREAD)
-public class CSLStyleLoaderTest {
+class CSLStyleLoaderTest {
 
     @BeforeAll
     static void setup() {

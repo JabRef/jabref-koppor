@@ -86,7 +86,7 @@ class GlobalSearchBarTest {
     }
 
     @Test
-    void recordingSearchQueriesOnFocusLostOnly() throws InterruptedException {
+    void recordingSearchQueriesOnFocusLostOnly() throws Exception {
         stateManager.clearSearchHistory();
         String searchQuery = "Smith";
         // Track the node, that the search query will be typed into
@@ -140,7 +140,7 @@ class GlobalSearchBarTest {
     }
 
     @Test
-    void blankQueryClearsActiveSearch() throws InterruptedException {
+    void blankQueryClearsActiveSearch() throws Exception {
         TextInputControl searchField = JavaFxExtension.lookup(hBox, "#" + WalkthroughNodeIds.GLOBAL_SEARCH_FIELD, TextInputControl.class);
 
         invokeAndWait(searchField::requestFocus);

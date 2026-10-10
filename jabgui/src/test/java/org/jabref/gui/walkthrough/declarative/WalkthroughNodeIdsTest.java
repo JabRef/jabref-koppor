@@ -1,6 +1,5 @@
 package org.jabref.gui.walkthrough.declarative;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,7 +55,7 @@ class WalkthroughNodeIdsTest {
     /// searched for the form it can take.
     @ParameterizedTest
     @MethodSource("declarations")
-    void idIsDeclaredOnANode(String constantName, String id, @Nullable String declaringFile) throws IOException {
+    void idIsDeclaredOnANode(String constantName, String id, @Nullable String declaringFile) throws Exception {
         assertNotNull(declaringFile, constantName + " names no declaring file in DECLARING_FILES");
 
         Path file = MAIN.resolve(declaringFile);
@@ -69,7 +68,7 @@ class WalkthroughNodeIdsTest {
 
     @ParameterizedTest
     @MethodSource("declarations")
-    void noStylesheetSelectsById(String constantName, String id, @Nullable String declaringFile) throws IOException {
+    void noStylesheetSelectsById(String constantName, String id, @Nullable String declaringFile) throws Exception {
         try (Stream<Path> underMain = Files.walk(MAIN)) {
             Iterable<Path> stylesheets = underMain.filter(path -> path.toString().endsWith(".css"))::iterator;
             for (Path stylesheet : stylesheets) {

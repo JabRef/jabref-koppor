@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -107,7 +106,7 @@ public class DOABFetcherTest {
 
     @ParameterizedTest
     @MethodSource
-    void performSearch(BibEntry expected, String query) throws FetcherException {
+    void performSearch(BibEntry expected, String query) throws Exception {
         List<BibEntry> entries = fetcher.performSearch(query);
         // We must not contain abstracts in our code base; thus we remove the abstracts from the fetched results
         entries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));

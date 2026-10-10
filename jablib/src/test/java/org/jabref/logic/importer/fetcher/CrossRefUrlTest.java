@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
@@ -20,7 +18,7 @@ import static org.mockito.Mockito.when;
 class CrossRefUrlTest {
 
     @Test
-    void addsConfiguredEmailToEntrySearchUrl() throws URISyntaxException, MalformedURLException {
+    void addsConfiguredEmailToEntrySearchUrl() throws Exception {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKey(CrossRef.FETCHER_NAME)).thenReturn(Optional.of("user@example.org"));
         CrossRef fetcher = new CrossRef(importerPreferences);
@@ -32,7 +30,7 @@ class CrossRefUrlTest {
     }
 
     @Test
-    void omitsMailtoParameterWithoutConfiguredEmail() throws URISyntaxException, MalformedURLException {
+    void omitsMailtoParameterWithoutConfiguredEmail() throws Exception {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKey(CrossRef.FETCHER_NAME)).thenReturn(Optional.empty());
         CrossRef fetcher = new CrossRef(importerPreferences);

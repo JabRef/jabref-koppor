@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +8,8 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.model.entry.BibEntry;
@@ -47,7 +44,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void scholarApiJsonToBibtex() throws ParseException {
+    void scholarApiJsonToBibtex() throws Exception {
         String jsonString = """
                 {
                        "id": "7184",
@@ -94,13 +91,13 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertEquals(List.of(), new ArrayList<>(result.getContent()));
     }
 
     @Test
-    void searchByEmptyQueryFindsNothing() throws FetcherException {
+    void searchByEmptyQueryFindsNothing() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
@@ -137,7 +134,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void findFullTextByUrl() throws IOException, FetcherException {
+    void findFullTextByUrl() throws Exception {
         setApiKey("test-api-key");
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184")
@@ -147,20 +144,20 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void findFullTextReturnsEmptyWhenIdMissing() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWhenIdMissing() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article);
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextReturnsEmptyWhenHasPdfIsMissing() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWhenHasPdfIsMissing() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextReturnsEmptyWhenHasPdfIsFalse() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWhenHasPdfIsFalse() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184")
                 .withField(new UnknownField("scholarApiHasPdf"), "false");
@@ -168,7 +165,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void findFullTextReturnsEmptyWhenApiKeyIsMissing() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWhenApiKeyIsMissing() throws Exception {
         when(importerPreferences.getApiKey(fetcher.getName())).thenReturn(Optional.empty());
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184")
@@ -177,7 +174,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     }
 
     @Test
-    void findFullTextEncodesScholarApiId() throws IOException, FetcherException {
+    void findFullTextEncodesScholarApiId() throws Exception {
         setApiKey("test-api-key");
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184/1")

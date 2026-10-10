@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class DocumentReaderTest {
+class DocumentReaderTest {
 
     private static Stream<Arguments> getLinesToMerge() {
         return Stream.of(
@@ -29,7 +29,7 @@ public class DocumentReaderTest {
 
     @ParameterizedTest
     @MethodSource("getLinesToMerge")
-    public void mergeLinesTest(String expected, String linesToMerge) {
+    void mergeLinesTest(String expected, String linesToMerge) {
         String result = DocumentReader.mergeLines(linesToMerge);
         assertEquals(expected, result);
     }

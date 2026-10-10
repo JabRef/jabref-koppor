@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.logic.util.URLUtil;
@@ -16,7 +14,6 @@ import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
 
-import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -44,25 +41,25 @@ class ResearchGateTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextFoundByDOI() throws IOException, FetcherException {
+    void fullTextFoundByDOI() throws Exception {
         assertEquals(Optional.of(URLUtil.create(URL_PDF)), fetcher.findFullText(entry));
     }
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void fullTextNotFoundByDOI() throws IOException, FetcherException {
+    void fullTextNotFoundByDOI() throws Exception {
         BibEntry entry2 = new BibEntry().withField(StandardField.DOI, "10.1021/bk-2006-WWW.ch014");
         assertEquals(Optional.empty(), fetcher.findFullText(entry2));
     }
 
     @Test
-    void getDocumentByTitle() throws FetcherException, IOException {
+    void getDocumentByTitle() throws Exception {
         Optional<String> source = fetcher.getURLByString(entry.getTitle().get());
         assertTrue(source.isPresent() && source.get().startsWith(URL_PAGE));
     }
 
     @Test
-    void getDocumentByDOI() throws IOException, NullPointerException {
+    void getDocumentByDOI() throws Exception {
         Optional<String> source = fetcher.getURLByDoi(entry.getDOI().get());
         assertEquals(URL_PAGE, source.orElse(""));
     }
@@ -73,7 +70,7 @@ class ResearchGateTest {
     }
 
     @Test
-    void performSearchWithString() throws FetcherException {
+    void performSearchWithString() throws Exception {
         BibEntry master = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("phdthesis")
                 .withField(StandardField.AUTHOR, "Diez, Tobias")
@@ -85,7 +82,7 @@ class ResearchGateTest {
     }
 
     @Test
-    void performSearchWithLuceneQuery() throws QueryNodeParseException, FetcherException {
+    void performSearchWithLuceneQuery() throws Exception {
         BibEntry master = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("article")
                 .withField(StandardField.TITLE, "Wine Microbiology and Predictive Microbiology: " +
@@ -106,7 +103,7 @@ class ResearchGateTest {
     }
 
     @Test
-    void performSearchWithBibEntry() throws FetcherException {
+    void performSearchWithBibEntry() throws Exception {
         BibEntry entryZaffar = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("inproceedings")
                 .withField(StandardField.ISBN, "0-7695-2461-3")
@@ -123,7 +120,7 @@ class ResearchGateTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void performSearchWithTitleWithCurlyBraces() throws FetcherException {
+    void performSearchWithTitleWithCurlyBraces() throws Exception {
         BibEntry entryInput = new BibEntry(StandardEntryType.Misc)
                 .withField(StandardField.TITLE, "Communicating {COVID}-19 against the backdrop of conspiracy ideologies: {HOW} {PUBLIC} {FIGURES} {DISCUSS} {THE} {MATTER} {ON} {FACEBOOK} {AND} {TELEGRAM}");
 

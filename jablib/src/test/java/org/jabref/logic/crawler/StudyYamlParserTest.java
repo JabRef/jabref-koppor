@@ -1,6 +1,5 @@
 package org.jabref.logic.crawler;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -45,20 +44,20 @@ class StudyYamlParserTest {
     }
 
     @Test
-    void parseStudyFileSuccessfully() throws IOException {
+    void parseStudyFileSuccessfully() throws Exception {
         Study study = new StudyYamlParser().parseStudyYamlFile(testDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
         assertEquals(expectedStudy, study);
     }
 
     @Test
-    void writeStudyFileSuccessfully() throws IOException {
+    void writeStudyFileSuccessfully() throws Exception {
         new StudyYamlParser().writeStudyYamlFile(expectedStudy, testDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
         Study study = new StudyYamlParser().parseStudyYamlFile(testDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
         assertEquals(expectedStudy, study);
     }
 
     @Test
-    void readsJabRef57StudySuccessfully() throws URISyntaxException, IOException {
+    void readsJabRef57StudySuccessfully() throws Exception {
         // The field "last-search-date" was removed
         // If the field is "just" removed from the datamodel, one gets following exception:
         //   com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "last-search-date" (class org.jabref.model.study.Study), not marked as ignorable (5 known properties: "authors", "research-questions", "queries", "title", "databases"])
@@ -69,7 +68,7 @@ class StudyYamlParserTest {
     }
 
     @Test
-    void parseV2NativeStudyFileSuccessfully() throws URISyntaxException, IOException {
+    void parseV2NativeStudyFileSuccessfully() throws Exception {
         URL studyDefinition = StudyYamlParser.class.getResource("study-v2-full.yml");
 
         Study study = new StudyYamlParser().parseStudyYamlFile(Path.of(studyDefinition.toURI()));
@@ -96,7 +95,7 @@ class StudyYamlParserTest {
     }
 
     @Test
-    void writeAndReadStudyWithCatalogSpecificPreservesData() throws IOException {
+    void writeAndReadStudyWithCatalogSpecificPreservesData() throws Exception {
         StudyQuery queryWithOverrides = new StudyQuery("Quantum");
         queryWithOverrides.setCatalogSpecific(Map.of(
                 "IEEEXplore", "(Document Title:Quantum)",
@@ -116,7 +115,7 @@ class StudyYamlParserTest {
     }
 
     @Test
-    void writeAndReadStudyWithResultLimitsPreservesData() throws IOException {
+    void writeAndReadStudyWithResultLimitsPreservesData() throws Exception {
         StudyCatalog catalogWithLimit = new StudyCatalog("Springer", true, "Primary source");
         catalogWithLimit.setMaxResults(500);
         Study original = new Study(

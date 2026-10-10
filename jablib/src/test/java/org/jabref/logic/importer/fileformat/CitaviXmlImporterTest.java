@@ -39,7 +39,7 @@ class CitaviXmlImporterTest {
     }
 
     @Test
-    void importPreservesCitationKey(@TempDir Path tempDir) throws IOException {
+    void importPreservesCitationKey(@TempDir Path tempDir) throws Exception {
         String xml = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
@@ -61,7 +61,7 @@ class CitaviXmlImporterTest {
     }
 
     @Test
-    void importIgnoresEmptyCitationKey(@TempDir Path tempDir) throws IOException {
+    void importIgnoresEmptyCitationKey(@TempDir Path tempDir) throws Exception {
         String xml = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
@@ -82,7 +82,7 @@ class CitaviXmlImporterTest {
     }
 
     @Test
-    void importStripsWhitespaceFromCitationKey(@TempDir Path tempDir) throws IOException {
+    void importStripsWhitespaceFromCitationKey(@TempDir Path tempDir) throws Exception {
         String xml = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
@@ -103,7 +103,7 @@ class CitaviXmlImporterTest {
     }
 
     @Test
-    void importStripsDisallowedCharactersFromCitationKey(@TempDir Path tempDir) throws IOException {
+    void importStripsDisallowedCharactersFromCitationKey(@TempDir Path tempDir) throws Exception {
         String xml = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">

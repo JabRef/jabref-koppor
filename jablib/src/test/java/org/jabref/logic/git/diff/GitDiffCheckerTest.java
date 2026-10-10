@@ -67,7 +67,7 @@ class GitDiffCheckerTest {
     }
 
     @Test
-    void checkDiffAgainstLastCommitReturnsCommittedBibDatabase() throws IOException, GitAPIException {
+    void checkDiffAgainstLastCommitReturnsCommittedBibDatabase() throws Exception {
         Path bibFile = repositoryPath.resolve("library.bib");
         Files.writeString(bibFile, "@article{key, title={Old title}}\n");
         gitHandler.createCommitOnCurrentBranch("Add library", false);
@@ -88,7 +88,7 @@ class GitDiffCheckerTest {
     }
 
     @Test
-    void checkDiffAgainstLastCommitReturnsEmptyWhenFileDidNotExistInHead() throws IOException {
+    void checkDiffAgainstLastCommitReturnsEmptyWhenFileDidNotExistInHead() throws Exception {
         Path bibFile = repositoryPath.resolve("library.bib");
         Files.writeString(bibFile, "@article{key, title={New title}}\n");
 
@@ -102,7 +102,7 @@ class GitDiffCheckerTest {
     }
 
     @Test
-    void checkSavedWorkingTreeVersionReturnsEmptyWhenFileMissing() throws IOException {
+    void checkSavedWorkingTreeVersionReturnsEmptyWhenFileMissing() throws Exception {
         Path bibFile = repositoryPath.resolve("library.bib");
 
         BibDatabaseContext workingTreeDatabase = GitDiffChecker.checkSavedWorkingTreeVersion(
@@ -114,7 +114,7 @@ class GitDiffCheckerTest {
     }
 
     @Test
-    void checkDiffAgainstLastCommitReturnsEmptyWhenHeadDoesNotExist() throws IOException, GitAPIException {
+    void checkDiffAgainstLastCommitReturnsEmptyWhenHeadDoesNotExist() throws Exception {
         try (Git git = Git.init()
                           .setDirectory(unbornHeadRepositoryPath.toFile())
                           .setInitialBranch("main")

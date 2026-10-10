@@ -1,6 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import javafx.collections.FXCollections;
@@ -33,7 +32,7 @@ class ImportFormatReaderParameterlessTest {
     }
 
     @Test
-    void importWithAutoDetectionThrowsExceptionIfNoMatchingImporterWasFound() throws URISyntaxException {
+    void importWithAutoDetectionThrowsExceptionIfNoMatchingImporterWasFound() throws Exception {
         Path file = Path.of(ImportFormatReaderParameterlessTest.class.getResource("fileformat/emptyFile.xml").toURI());
         assertThrows(ImportException.class, () -> reader.importWithAutoDetection(file));
     }

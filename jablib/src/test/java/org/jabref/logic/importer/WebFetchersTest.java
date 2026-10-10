@@ -1,7 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Comparator;
@@ -195,7 +193,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getIdFetcherForFieldPassesImporterPreferencesToCrossref() throws URISyntaxException, MalformedURLException {
+    void getIdFetcherForFieldPassesImporterPreferencesToCrossref() throws Exception {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKey(CrossRef.FETCHER_NAME)).thenReturn(Optional.of("user@example.org"));
 

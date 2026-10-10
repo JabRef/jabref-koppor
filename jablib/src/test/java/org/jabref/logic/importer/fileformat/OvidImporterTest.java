@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fileformat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -41,25 +40,25 @@ class OvidImporterTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormatAccept(String fileName) throws IOException {
+    void isRecognizedFormatAccept(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(importer, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("invalidFileNames")
-    void isRecognizedFormatRejected(String fileName) throws IOException {
+    void isRecognizedFormatRejected(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(importer, fileName);
     }
 
     @Test
-    void importEmpty() throws IOException, URISyntaxException {
+    void importEmpty() throws Exception {
         Path file = Path.of(OvidImporter.class.getResource("Empty.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), entries);
     }
 
     @Test
-    void importEntries1() throws IOException, URISyntaxException {
+    void importEntries1() throws Exception {
         Path file = Path.of(OvidImporter.class.getResource("OvidImporterTest1.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(5, entries.size());
@@ -112,14 +111,14 @@ class OvidImporterTest {
     }
 
     @Test
-    void importEntries2() throws IOException, URISyntaxException {
+    void importEntries2() throws Exception {
         Path file = Path.of(OvidImporter.class.getResource("OvidImporterTest2Invalid.txt").toURI());
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), entries);
     }
 
     @Test
-    void importSingleEntries() throws IOException, URISyntaxException {
+    void importSingleEntries() throws Exception {
 
         for (int n = 3; n <= 7; n++) {
             Path file = Path.of(OvidImporter.class.getResource("OvidImporterTest" + n + ".txt").toURI());

@@ -1,6 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +26,7 @@ class BibDatabaseFilesTest {
     }
 
     @Test
-    void resolveStrings() throws IOException {
+    void resolveStrings() throws Exception {
         try (InputStream stream = Files.newInputStream(Path.of("src/test/resources/org/jabref/util/twente.bib"));
              InputStreamReader fr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             ParserResult result = new BibtexParser(importFormatPreferences).parse(fr);

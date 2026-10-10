@@ -59,7 +59,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesInSubDirectories() throws IOException {
+    void findAssociatedFilesInSubDirectories() throws Exception {
         List<String> extensions = Arrays.asList("jpg", "pdf");
         List<Path> dirs = Arrays.asList(graphicsDir, pdfsDir);
         FileFinder fileFinder = new CitationKeyBasedFileFinder(false);
@@ -70,7 +70,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesIgnoresFilesStartingWithKeyButContinueWithText() throws IOException {
+    void findAssociatedFilesIgnoresFilesStartingWithKeyButContinueWithText() throws Exception {
         Files.createFile(pdfsDir.resolve("HipKro03a - Hello second paper.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(false);
 
@@ -80,7 +80,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesFindsFilesStartingWithKey() throws IOException {
+    void findAssociatedFilesFindsFilesStartingWithKey() throws Exception {
         Path secondPdfFile = Files.createFile(pdfsDir.resolve("HipKro03_Hello second paper.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(false);
 
@@ -90,7 +90,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesInNonExistingDirectoryFindsNothing() throws IOException {
+    void findAssociatedFilesInNonExistingDirectoryFindsNothing() throws Exception {
         List<String> extensions = Arrays.asList("jpg", "pdf");
         List<Path> dirs = List.of(rootDir.resolve("asdfasdf/asdfasdf"));
         CitationKeyBasedFileFinder fileFinder = new CitationKeyBasedFileFinder(false);
@@ -101,7 +101,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesWithUnsafeCharactersStartWithSearch() throws IOException {
+    void findAssociatedFilesWithUnsafeCharactersStartWithSearch() throws Exception {
         BibEntry entryWithUnsafeCitationKey = new BibEntry(StandardEntryType.Article);
         entryWithUnsafeCitationKey.setCitationKey("?test");
 
@@ -114,7 +114,7 @@ class CitationKeyBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesWithUnsafeCharactersExactSearch() throws IOException {
+    void findAssociatedFilesWithUnsafeCharactersExactSearch() throws Exception {
         BibEntry entryWithUnsafeCitationKey = new BibEntry(StandardEntryType.Article);
         entryWithUnsafeCitationKey.setCitationKey("test:test/*test?");
 

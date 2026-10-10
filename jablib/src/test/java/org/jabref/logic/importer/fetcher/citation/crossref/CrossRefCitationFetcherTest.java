@@ -5,7 +5,6 @@ import java.util.List;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
@@ -25,7 +24,7 @@ class CrossRefCitationFetcherTest {
 
     /// Test for <https://api.crossref.org/works/10.47397/tb/44-3/tb138kopp-jabref>
     @Test
-    void getReferences() throws FetcherException {
+    void getReferences() throws Exception {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getDefaultPlainCitationParser()).thenReturn(PlainCitationParserChoice.RULE_BASED_GENERAL);
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class);

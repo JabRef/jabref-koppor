@@ -1,7 +1,5 @@
 package org.jabref.logic.relatedwork;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +22,7 @@ import static org.mockito.Mockito.mock;
 class RelatedWorkReferenceResolverTest {
 
     @Test
-    void parseReferencesReturnsExpectedReferenceCount() throws IOException, URISyntaxException {
+    void parseReferencesReturnsExpectedReferenceCount() throws Exception {
         Path pdfPath = Path.of(RelatedWorkReferenceResolverTest.class
                 .getResource("/org/jabref/logic/importer/fileformat/pdf/2024_SPLC_Becker.pdf")
                 .toURI());
@@ -38,7 +36,7 @@ class RelatedWorkReferenceResolverTest {
 
     @ParameterizedTest
     @MethodSource
-    void parseReferences(String marker, String expectedComment) throws IOException, URISyntaxException {
+    void parseReferences(String marker, String expectedComment) throws Exception {
         Path pdfPath = Path.of(RelatedWorkReferenceResolverTest.class
                 .getResource("/org/jabref/logic/importer/fileformat/pdf/2024_SPLC_Becker.pdf")
                 .toURI());

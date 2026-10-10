@@ -6,10 +6,11 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class FocusCommandTest extends ServerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class FocusCommandTest extends ServerTest {
 
     @Override
     protected Application configure() {
@@ -27,7 +28,7 @@ public class FocusCommandTest extends ServerTest {
                 }
                 """;
         Response response = target("/commands").request().post(Entity.json(json));
-        Assertions.assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
-        Assertions.assertEquals("This command is not supported in CLI mode.", response.readEntity(String.class));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        assertEquals("This command is not supported in CLI mode.", response.readEntity(String.class));
     }
 }

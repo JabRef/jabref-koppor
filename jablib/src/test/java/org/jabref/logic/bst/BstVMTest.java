@@ -1,7 +1,5 @@
 package org.jabref.logic.bst;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -10,7 +8,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import org.antlr.v4.runtime.RecognitionException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -33,7 +30,7 @@ public class BstVMTest {
     }
 
     @Test
-    void abbrv() throws URISyntaxException, IOException {
+    void abbrv() throws Exception {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
         assertTrue(vm.hasSortCommand());
         List<BibEntry> testEntries = List.of(defaultTestEntry());
@@ -47,7 +44,7 @@ public class BstVMTest {
     }
 
     @Test
-    void ieeetran() throws URISyntaxException, IOException {
+    void ieeetran() throws Exception {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("IEEEtran.bst").toURI()));
         assertFalse(vm.hasSortCommand());
         List<BibEntry> testEntries = List.of(TestEntry.getTestEntry());
@@ -63,7 +60,7 @@ public class BstVMTest {
     }
 
     @Test
-    void simple() throws RecognitionException {
+    void simple() throws Exception {
         BstVM vm = new BstVM("""
                 ENTRY { address author title type } { } { label }
                 INTEGERS { output.state before.all mid.sentence after.sentence after.block }
@@ -88,7 +85,7 @@ public class BstVMTest {
     }
 
     @Test
-    void label() throws RecognitionException {
+    void label() throws Exception {
         BstVM vm = new BstVM("""
                 ENTRY { title } {} { label }
                 FUNCTION { test } {
@@ -108,7 +105,7 @@ public class BstVMTest {
     }
 
     @Test
-    void quote() throws RecognitionException {
+    void quote() throws Exception {
         BstVM vm = new BstVM("FUNCTION { a }{ quote$ quote$ * } EXECUTE { a }");
 
         vm.render(List.of());
@@ -116,7 +113,7 @@ public class BstVMTest {
     }
 
     @Test
-    void buildIn() throws RecognitionException {
+    void buildIn() throws Exception {
         BstVM vm = new BstVM("EXECUTE { global.max$ }");
 
         vm.render(List.of());
@@ -126,7 +123,7 @@ public class BstVMTest {
     }
 
     @Test
-    void variables() throws RecognitionException {
+    void variables() throws Exception {
         BstVM vm = new BstVM("""
                 STRINGS { t }
                 FUNCTION { not } {
@@ -145,7 +142,7 @@ public class BstVMTest {
     }
 
     @Test
-    void hyphenatedName() throws URISyntaxException, IOException {
+    void hyphenatedName() throws Exception {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
         List<BibEntry> testEntries = List.of(
                 new BibEntry(StandardEntryType.Article)

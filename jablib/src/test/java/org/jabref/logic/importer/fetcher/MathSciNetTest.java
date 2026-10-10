@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -8,9 +7,7 @@ import javafx.collections.FXCollections;
 
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.cleanup.NormalizeWhitespacesCleanup;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -57,7 +54,7 @@ class MathSciNetTest {
     }
 
     @Test
-    void searchByEntryFindsEntry() throws FetcherException {
+    void searchByEntryFindsEntry() throws Exception {
         BibEntry searchEntry = new BibEntry()
                 .withField(StandardField.TITLE, "existence")
                 .withField(StandardField.AUTHOR, "Ratiu")
@@ -72,7 +69,7 @@ class MathSciNetTest {
 
     @Test
     @DisabledOnCIServer("CI server has no subscription to MathSciNet and thus gets 401 response. One single call goes through, but subsequent calls fail.")
-    void searchByIdInEntryFindsEntry() throws FetcherException {
+    void searchByIdInEntryFindsEntry() throws Exception {
         BibEntry searchEntry = new BibEntry()
                 .withField(StandardField.MR_NUMBER, "3537908");
 
@@ -85,7 +82,7 @@ class MathSciNetTest {
 
     @Test
     @DisabledOnCIServer("CI server has no subscription to MathSciNet and thus gets 401 response. One single call goes through, but subsequent calls fail.")
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("\"Existence and uniqueness theorems Two-Dimensional Ericksen Leslie System\"");
         assertFalse(fetchedEntries.isEmpty());
         BibEntry secondEntry = fetchedEntries.get(1);
@@ -94,7 +91,7 @@ class MathSciNetTest {
     }
 
     @Test
-    void getParser() throws IOException, ParseException {
+    void getParser() throws Exception {
         String fileName = "mathscinet.json";
         try (InputStream is = MathSciNetTest.class.getResourceAsStream(fileName)) {
             List<BibEntry> entries = fetcher.getParser().parseEntries(is);

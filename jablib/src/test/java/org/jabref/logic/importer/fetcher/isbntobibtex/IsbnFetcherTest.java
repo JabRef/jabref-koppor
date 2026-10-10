@@ -49,19 +49,19 @@ class IsbnFetcherTest {
     }
 
     @Test
-    void searchByIdSuccessfulWithShortISBN() throws FetcherException {
+    void searchByIdSuccessfulWithShortISBN() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("0134685997");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
 
     @Test
-    void searchByIdSuccessfulWithLongISBN() throws FetcherException {
+    void searchByIdSuccessfulWithLongISBN() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("9780134685991");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
 
     @Test
-    void searchByIdReturnsEmptyWithEmptyISBN() throws FetcherException {
+    void searchByIdReturnsEmptyWithEmptyISBN() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("");
         assertEquals(Optional.empty(), fetchedEntry);
     }
@@ -82,7 +82,7 @@ class IsbnFetcherTest {
     }
 
     @Test
-    void searchByEntryWithISBNSuccessful() throws FetcherException {
+    void searchByEntryWithISBNSuccessful() throws Exception {
         BibEntry input = new BibEntry().withField(StandardField.ISBN, "0134685997");
 
         List<BibEntry> fetchedEntry = fetcher.performSearch(input);
@@ -92,7 +92,7 @@ class IsbnFetcherTest {
     /// This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
     /// not available on ebook.de. The fetcher should something as it falls back to OttoBib
     @Test
-    void searchForIsbnAvailableAtOttoBibButNonOnEbookDe() throws FetcherException {
+    void searchForIsbnAvailableAtOttoBibButNonOnEbookDe() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("3728128155");
         assertNotEquals(Optional.empty(), fetchedEntry);
     }

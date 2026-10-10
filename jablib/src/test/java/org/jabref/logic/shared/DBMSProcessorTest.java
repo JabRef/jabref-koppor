@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.jabref.logic.shared.exception.OfflineLockException;
-import org.jabref.logic.shared.exception.SharedEntryNotPresentException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
@@ -65,18 +64,18 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void databaseIntegrityFullFiledAfterSetup() throws SQLException {
+    void databaseIntegrityFullFiledAfterSetup() throws Exception {
         assertTrue(dbmsProcessor.checkBaseIntegrity());
     }
 
     @Test
-    void databaseIntegrityBrokenAfterClearedTables() throws SQLException {
+    void databaseIntegrityBrokenAfterClearedTables() throws Exception {
         TestManager.clearTables(this.dbmsConnection);
         assertFalse(dbmsProcessor.checkBaseIntegrity());
     }
 
     @Test
-    void insertEntry() throws SQLException {
+    void insertEntry() throws Exception {
         BibEntry expectedEntry = getBibEntryExample();
 
         dbmsProcessor.insertEntry(expectedEntry);
@@ -106,7 +105,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void insertEntryWithEmptyFields() throws SQLException {
+    void insertEntryWithEmptyFields() throws Exception {
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article);
 
         dbmsProcessor.insertEntry(expectedEntry);
@@ -126,7 +125,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void migrationFromV1Structure() throws SQLException {
+    void migrationFromV1Structure() throws Exception {
         // Recreate the structure of JabRef 5.x/6.0-alpha (structure version 1) with one entry
         Connection connection = dbmsConnection.getConnection();
         connection.createStatement().executeUpdate("CREATE SCHEMA IF NOT EXISTS jabref");
@@ -184,7 +183,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void updateEntry() throws SQLException, OfflineLockException, SharedEntryNotPresentException {
+    void updateEntry() throws Exception {
         BibEntry expectedEntry = getBibEntryExample();
         dbmsProcessor.insertEntry(expectedEntry);
 
@@ -199,7 +198,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void updateEmptyEntry() throws SQLException, OfflineLockException, SharedEntryNotPresentException {
+    void updateEmptyEntry() throws Exception {
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article);
         dbmsProcessor.insertEntry(expectedEntry);
 
@@ -213,7 +212,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void getEntriesByIdList() throws SQLException {
+    void getEntriesByIdList() throws Exception {
         BibEntry firstEntry = getBibEntryExample();
         firstEntry.setField(InternalField.INTERNAL_ID_FIELD, "00001");
         BibEntry secondEntry = getBibEntryExample();
@@ -228,7 +227,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void updateNewerEntry() throws SQLException {
+    void updateNewerEntry() throws Exception {
         BibEntry bibEntry = getBibEntryExample();
 
         dbmsProcessor.insertEntry(bibEntry);
@@ -241,7 +240,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void updateEqualEntry() throws OfflineLockException, SharedEntryNotPresentException, SQLException {
+    void updateEqualEntry() throws Exception {
         BibEntry expectedBibEntry = getBibEntryExample();
 
         dbmsProcessor.insertEntry(expectedBibEntry);
@@ -256,7 +255,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void removeAllEntries() throws SQLException {
+    void removeAllEntries() throws Exception {
         BibEntry firstEntry = getBibEntryExample();
         BibEntry secondEntry = getBibEntryExample2();
         List<BibEntry> entriesToRemove = Arrays.asList(firstEntry, secondEntry);
@@ -270,7 +269,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void removeSomeEntries() throws SQLException {
+    void removeSomeEntries() throws Exception {
         BibEntry firstEntry = getBibEntryExample();
         BibEntry secondEntry = getBibEntryExample2();
         BibEntry thirdEntry = getBibEntryExample3();
@@ -291,7 +290,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void removeSingleEntry() throws SQLException {
+    void removeSingleEntry() throws Exception {
         BibEntry entryToRemove = getBibEntryExample();
         dbmsProcessor.insertEntry(entryToRemove);
         dbmsProcessor.removeEntries(List.of(entryToRemove));
@@ -307,7 +306,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void removeEmptyEntryList() throws SQLException {
+    void removeEmptyEntryList() throws Exception {
         dbmsProcessor.removeEntries(List.of());
 
         try (ResultSet entryResultSet = selectFrom("ENTRY", dbmsConnection)) {
@@ -316,7 +315,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void getSharedEntries() throws SQLException {
+    void getSharedEntries() throws Exception {
         BibEntry bibEntry = getBibEntryExampleWithEmptyFields();
 
         dbmsProcessor.insertEntry(bibEntry);
@@ -330,7 +329,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void getSharedEntry() throws SQLException {
+    void getSharedEntry() throws Exception {
         BibEntry bibEntry = getBibEntryExampleWithEmptyFields();
 
         dbmsProcessor.insertEntry(bibEntry);
@@ -344,13 +343,13 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void getNotExistingSharedEntry() throws SQLException {
+    void getNotExistingSharedEntry() throws Exception {
         Optional<BibEntry> actualBibEntryOptional = dbmsProcessor.getSharedEntry(1);
         assertFalse(actualBibEntryOptional.isPresent());
     }
 
     @Test
-    void getSharedIdVersionMapping() throws OfflineLockException, SharedEntryNotPresentException, SQLException {
+    void getSharedIdVersionMapping() throws Exception {
         BibEntry firstEntry = getBibEntryExample();
         dbmsProcessor.insertEntry(firstEntry);
 
@@ -369,7 +368,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void getSharedMetaData() throws SQLException {
+    void getSharedMetaData() throws Exception {
         insertMetaData("databaseType", "bibtex;", dbmsConnection);
         insertMetaData("protectedFlag", "true;", dbmsConnection);
         insertMetaData("saveActions", "enabled;\nauthor[capitalize,html_to_latex]\ntitle[title_case]\n;", dbmsConnection);
@@ -382,7 +381,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void setSharedMetaData() throws SQLException {
+    void setSharedMetaData() throws Exception {
         Map<String, String> expectedMetaData = getMetaDataExample();
         dbmsProcessor.setSharedMetaData(expectedMetaData);
 
@@ -426,7 +425,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void setSharedMetaDataRemovesObsoleteGroupTree() throws SQLException {
+    void setSharedMetaDataRemovesObsoleteGroupTree() throws Exception {
         dbmsProcessor.setSharedMetaData(Map.of(MetaData.GROUPSTREE, "group tree"));
 
         dbmsProcessor.setSharedMetaData(Map.of());
@@ -528,7 +527,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void insertManyEntries() throws SQLException {
+    void insertManyEntries() throws Exception {
         // Must survive pgjdbc's limit of 65535 bind parameters per statement:
         // 3000 entries x 8 fields x 3 parameters would be 72000 in a single unchunked INSERT
         List<BibEntry> entries = new ArrayList<>();
@@ -556,7 +555,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void insertMultipleEntries() throws SQLException {
+    void insertMultipleEntries() throws Exception {
         List<BibEntry> entries = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             entries.add(new BibEntry(StandardEntryType.Article).withField(StandardField.JOURNAL, "journal " + i)
@@ -664,7 +663,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-    void insertEntriesIsAtomic() throws SQLException {
+    void insertEntriesIsAtomic() throws Exception {
         // PostgreSQL rejects NUL characters in text, which fails the field insert after the entry insert
         BibEntry invalidEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "contains\u0000nul");

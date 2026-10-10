@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BibLogPathResolverTest {
+class BibLogPathResolverTest {
     private static final String TEST_USER = "testUser";
 
     @Test

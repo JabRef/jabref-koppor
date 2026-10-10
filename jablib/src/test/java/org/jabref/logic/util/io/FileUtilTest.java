@@ -2,7 +2,6 @@ package org.jabref.logic.util.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,7 +71,7 @@ class FileUtilTest {
     }
 
     @Test
-    void getFileSizeReturnsHumanReadableSize(@TempDir Path tempDir) throws IOException {
+    void getFileSizeReturnsHumanReadableSize(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("library.bib");
         Files.write(file, new byte[1024]);
 
@@ -207,14 +206,14 @@ class FileUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
-                JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension
-                path/to/JustTextNotASingleDot
-                path/to/.StartsWithADotIsNotAnExtension
-                path/.to/FileInsideAHiddenFolder
-                path/.to/.StartsWithADotInsideAHiddenFolder
-            """)
+    @ValueSource(strings = {
+            "JustTextNotASingleDot",
+            ".StartsWithADotIsNotAnExtension",
+            "path/to/JustTextNotASingleDot",
+            "path/to/.StartsWithADotIsNotAnExtension",
+            "path/.to/FileInsideAHiddenFolder",
+            "path/.to/.StartsWithADotInsideAHiddenFolder"
+    })
     void getAbsentFileExtension(String file) {
         file = file.replace('/', File.separatorChar);
         Optional<String> result = FileUtil.getFileExtension(file);
@@ -241,18 +240,18 @@ class FileUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
-                test.pdf
-                other.txt
-                path/test.pdf
-                path/to/file.pdf
-                JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension
-                path/to/JustTextNotASingleDot
-                path/to/.StartsWithADotIsNotAnExtension
-                path/.to/FileInsideAHiddenFolder
-                path/.to/.StartsWithADotInsideAHiddenFolder
-            """)
+    @ValueSource(strings = {
+            "test.pdf",
+            "other.txt",
+            "path/test.pdf",
+            "path/to/file.pdf",
+            "JustTextNotASingleDot",
+            ".StartsWithADotIsNotAnExtension",
+            "path/to/JustTextNotASingleDot",
+            "path/to/.StartsWithADotIsNotAnExtension",
+            "path/.to/FileInsideAHiddenFolder",
+            "path/.to/.StartsWithADotInsideAHiddenFolder"
+    })
     void fileExtensionAreTheSameForStringsAndPaths(String file) {
         file = file.replace('/', File.separatorChar);
         Optional<String> resultFromString = FileUtil.getFileExtension(file);
@@ -367,7 +366,7 @@ class FileUtilTest {
     }
 
     @Test
-    void copyFileSuccessfulWithOverrideExistFile() throws IOException {
+    void copyFileSuccessfulWithOverrideExistFile() throws Exception {
         Path subDir = rootDir.resolve("2");
         Files.createDirectory(subDir);
         Path temp = subDir.resolve("existingTestFile.txt");
@@ -377,7 +376,7 @@ class FileUtilTest {
     }
 
     @Test
-    void copyFileSuccessfulWithoutOverrideExistFile() throws IOException {
+    void copyFileSuccessfulWithoutOverrideExistFile() throws Exception {
         Path subDir = rootDir.resolve("2");
         Files.createDirectory(subDir);
         Path temp = subDir.resolve("existingTestFile.txt");
@@ -455,7 +454,7 @@ class FileUtilTest {
     }
 
     @Test
-    void isBibFile() throws IOException {
+    void isBibFile() throws Exception {
         Path bibFile = Files.createFile(rootDir.resolve("test.bib"));
         Path bibUpperFile = Files.createFile(rootDir.resolve("test_upper.BIB"));
         Path bibMixedFile = Files.createFile(rootDir.resolve("test_mixed.Bib"));
@@ -465,13 +464,13 @@ class FileUtilTest {
     }
 
     @Test
-    void isNotBibFile() throws IOException {
+    void isNotBibFile() throws Exception {
         Path bibFile = Files.createFile(rootDir.resolve("test.pdf"));
         assertFalse(FileUtil.isBibFile(bibFile));
     }
 
     @Test
-    void isPDFFile() throws IOException {
+    void isPDFFile() throws Exception {
         Path pdfFile = Files.createFile(rootDir.resolve("test.pdf"));
         Path pdfUpperFile = Files.createFile(rootDir.resolve("test_upper.PDF"));
         Path pdfMixedFile = Files.createFile(rootDir.resolve("test_mixed.Pdf"));
@@ -481,7 +480,7 @@ class FileUtilTest {
     }
 
     @Test
-    void isNotPDFFile() throws IOException {
+    void isNotPDFFile() throws Exception {
         Path bibFile = Files.createFile(rootDir.resolve("test.bib"));
         assertFalse(FileUtil.isPDFFile(bibFile));
     }
@@ -530,7 +529,7 @@ class FileUtilTest {
     }
 
     @Test
-    void extractFileExtension() throws URISyntaxException {
+    void extractFileExtension() throws Exception {
         final Path filePath = Path.of(FileUtilTest.class.getResource("pdffile.pdf").toURI());
         assertEquals(Optional.of("pdf"), FileUtil.getFileExtension(filePath));
     }
@@ -556,7 +555,7 @@ class FileUtilTest {
     }
 
     @Test
-    void findsFileInDirectory(@TempDir Path temp) throws IOException {
+    void findsFileInDirectory(@TempDir Path temp) throws Exception {
         Path firstFilePath = temp.resolve("files");
         Files.createDirectories(firstFilePath);
         Path firstFile = Files.createFile(firstFilePath.resolve("test.pdf"));
@@ -565,7 +564,7 @@ class FileUtilTest {
     }
 
     @Test
-    void findsFileStartingWithTheSameDirectory(@TempDir Path temp) throws IOException {
+    void findsFileStartingWithTheSameDirectory(@TempDir Path temp) throws Exception {
         Path firstFilePath = temp.resolve("files");
         Files.createDirectories(firstFilePath);
         Path firstFile = Files.createFile(firstFilePath.resolve("test.pdf"));
@@ -574,7 +573,7 @@ class FileUtilTest {
     }
 
     @Test
-    void doesNotFindsFileStartingWithTheSameDirectoryHasASubdirectory(@TempDir Path temp) throws IOException {
+    void doesNotFindsFileStartingWithTheSameDirectoryHasASubdirectory(@TempDir Path temp) throws Exception {
         Path firstFilesPath = temp.resolve("files");
         Path secondFilesPath = firstFilesPath.resolve("files");
         Files.createDirectories(secondFilesPath);
@@ -584,7 +583,7 @@ class FileUtilTest {
     }
 
     @Test
-    public void cTemp() {
+    void cTemp() {
         String fileName = "c:\\temp.pdf";
         if (OS.WINDOWS) {
             assertFalse(FileUtil.detectBadFileName(fileName));
@@ -596,7 +595,7 @@ class FileUtilTest {
     /// Tests for issue <https://github.com/JabRef/jabref/issues/12995>
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
-    void simpleRelativizeSymlinks() throws IOException {
+    void simpleRelativizeSymlinks() throws Exception {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
 
@@ -610,7 +609,7 @@ class FileUtilTest {
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
-    void chainedRelativizeSymlinks() throws IOException {
+    void chainedRelativizeSymlinks() throws Exception {
         Path chainReal = bibTempDir.resolve("chainReal_" + UUID.randomUUID());
         Files.createDirectories(chainReal);
 
@@ -626,7 +625,7 @@ class FileUtilTest {
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
-    void nestedRelativizeSymlinks() throws IOException {
+    void nestedRelativizeSymlinks() throws Exception {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
 
@@ -642,7 +641,7 @@ class FileUtilTest {
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
-    void unrelatedFileRemainsAbsolute() throws IOException {
+    void unrelatedFileRemainsAbsolute() throws Exception {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
         Path symlinkDir = bibTempDir.resolve("symlinkDir_" + UUID.randomUUID());
@@ -656,7 +655,7 @@ class FileUtilTest {
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
-    void symlinkEscapeCaseIgnored() throws IOException {
+    void symlinkEscapeCaseIgnored() throws Exception {
         Path veryPrivate = bibTempDir.resolve("veryprivate");
         Files.createDirectories(veryPrivate);
         Path secretFile = Files.createFile(veryPrivate.resolve("a.pdf"));

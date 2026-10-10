@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -56,13 +54,13 @@ class BibtexImporterTest {
     }
 
     @Test
-    void isRecognizedFormat() throws IOException, URISyntaxException {
+    void isRecognizedFormat() throws Exception {
         Path file = Path.of(BibtexImporterTest.class.getResource("BibtexImporter.examples.bib").toURI());
         assertTrue(importer.isRecognizedFormat(file));
     }
 
     @Test
-    void importEntries() throws IOException, URISyntaxException {
+    void importEntries() throws Exception {
         Path file = Path.of(BibtexImporterTest.class.getResource("BibtexImporter.examples.bib").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -130,7 +128,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importSemicolonSeparatedKeywordsKeepsLibrarySeparator() throws IOException {
+    void importSemicolonSeparatedKeywordsKeepsLibrarySeparator() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         ParserResult result = importer.importDatabase(new BufferedReader(Reader.of("""
                 @Article{,
@@ -146,7 +144,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importNormalizesKeywordsToSeparatorDeclaredInLibrary() throws IOException {
+    void importNormalizesKeywordsToSeparatorDeclaredInLibrary() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         ParserResult result = importer.importDatabase(new BufferedReader(Reader.of("""
                 @Article{,
@@ -163,7 +161,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importSplitsOnAllConfiguredInputDelimiters() throws IOException {
+    void importSplitsOnAllConfiguredInputDelimiters() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         List<BibEntry> importedEntries = importer.importDatabase(new BufferedReader(Reader.of("""
                 @Article{,
@@ -178,7 +176,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importConfiguredInputDelimitersStillEscapeEmbeddedConfiguredSeparatorWhenItIsNotAcceptedOnImport() throws IOException {
+    void importConfiguredInputDelimitersStillEscapeEmbeddedConfiguredSeparatorWhenItIsNotAcceptedOnImport() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         BibtexImporter importerWithSemicolonOnly = createImporter(new BibEntryPreferences(',', ";#"));
         List<BibEntry> importedEntries = importerWithSemicolonOnly.importDatabase(new BufferedReader(Reader.of("""
@@ -195,7 +193,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importConfiguredInputKeywordDelimiters() throws IOException {
+    void importConfiguredInputKeywordDelimiters() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         BibtexImporter importerWithCustomInputSeparators = createImporter(new BibEntryPreferences(',', ";#"));
         List<BibEntry> importedEntries = importerWithCustomInputSeparators.importDatabase(new BufferedReader(Reader.of("""
@@ -209,7 +207,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importCanInferOneDelimiterByPriority() throws IOException {
+    void importCanInferOneDelimiterByPriority() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         BibtexImporter importerWithPriorityInference = createImporter(
                 new BibEntryPreferences(',', ";,", BibEntryPreferences.ImportDelimiterParsingStrategy.INFER_DELIMITER_BY_PRIORITY));
@@ -224,7 +222,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void importSemicolonSeparatedKeywordsFallsBackToDefaultSeparatorWhenPreferenceIsMissing() throws IOException {
+    void importSemicolonSeparatedKeywordsFallsBackToDefaultSeparatorWhenPreferenceIsMissing() throws Exception {
         // [utest->req~import.bibtex.keywords.normalize-delimiters~1]
         BibEntryPreferences bibEntryPreferences = mock(BibEntryPreferences.class);
         when(bibEntryPreferences.getKeywordSeparator()).thenReturn(null);
@@ -252,7 +250,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void recognizesDatabaseID() throws IOException, URISyntaxException {
+    void recognizesDatabaseID() throws Exception {
         Path file = Path.of(BibtexImporterTest.class.getResource("AutosavedSharedDatabase.bib").toURI());
         String sharedDatabaseID = importer.importDatabase(file).getDatabase().getSharedDatabaseID().get();
         assertEquals("13ceoc8dm42f5g1iitao3dj2ap", sharedDatabaseID);
@@ -270,7 +268,7 @@ class BibtexImporterTest {
 
     @ParameterizedTest
     @MethodSource
-    void parsingOfEncodedFileWithHeader(Charset charset, String fileName) throws URISyntaxException, IOException {
+    void parsingOfEncodedFileWithHeader(Charset charset, String fileName) throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource(fileName).toURI()));
         assertEquals(Optional.of(charset), parserResult.getMetaData().getEncoding());
@@ -278,7 +276,7 @@ class BibtexImporterTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"encoding-windows-1252-with-header.bib", "encoding-windows-1252-without-header.bib"})
-    void parsingOfWindows1252EncodedFileReadsDegreeCharacterCorrectly(String filename) throws URISyntaxException, IOException {
+    void parsingOfWindows1252EncodedFileReadsDegreeCharacterCorrectly(String filename) throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource(filename).toURI()));
         assertEquals(
@@ -289,7 +287,7 @@ class BibtexImporterTest {
     @ParameterizedTest
     @ValueSource(strings = {"encoding-utf-8-with-header.bib", "encoding-utf-8-without-header.bib",
             "encoding-utf-16BE-with-header.bib", "encoding-utf-16BE-without-header.bib"})
-    void parsingFilesReadsUmlautCharacterCorrectly(String filename) throws URISyntaxException, IOException {
+    void parsingFilesReadsUmlautCharacterCorrectly(String filename) throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource(filename).toURI()));
         assertEquals(
@@ -308,7 +306,7 @@ class BibtexImporterTest {
 
     @ParameterizedTest
     @MethodSource
-    void parsingUtf16FilesWithAndWithoutBom(String filename, Charset expectedEncoding) throws URISyntaxException, IOException {
+    void parsingUtf16FilesWithAndWithoutBom(String filename, Charset expectedEncoding) throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource(filename).toURI()));
 
@@ -328,14 +326,14 @@ class BibtexImporterTest {
 
     @ParameterizedTest
     @MethodSource
-    void encodingExplicitlySuppliedCorrectlyDetermined(String filename, boolean encodingExplicitlySupplied) throws URISyntaxException, IOException {
+    void encodingExplicitlySuppliedCorrectlyDetermined(String filename, boolean encodingExplicitlySupplied) throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource(filename).toURI()));
         assertEquals(encodingExplicitlySupplied, parserResult.getMetaData().getEncodingExplicitlySupplied());
     }
 
     @Test
-    void wrongEncodingSupplied() throws URISyntaxException, IOException {
+    void wrongEncodingSupplied() throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource("encoding-windows-1252-but-utf-8-declared--decoding-fails.bib").toURI()));
 
@@ -346,7 +344,7 @@ class BibtexImporterTest {
     }
 
     @Test
-    void encodingNotSupplied() throws URISyntaxException, IOException {
+    void encodingNotSupplied() throws Exception {
         ParserResult parserResult = importer.importDatabase(
                 Path.of(BibtexImporterTest.class.getResource("encoding-utf-8-without-header.bib").toURI()));
         assertFalse(parserResult.getMetaData().getEncodingExplicitlySupplied());
