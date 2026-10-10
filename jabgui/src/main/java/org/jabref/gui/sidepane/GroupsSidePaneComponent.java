@@ -3,9 +3,11 @@ package org.jabref.gui.sidepane;
 import java.util.EnumSet;
 
 import javafx.collections.SetChangeListener;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
@@ -25,19 +27,22 @@ public class GroupsSidePaneComponent extends SidePaneComponent {
     private final ToggleButton invertToggle = ControlHelper.iconToggleButton(IconTheme.JabRefIcons.INVERT);
 
     public GroupsSidePaneComponent(SimpleCommand closeCommand,
-                                   SimpleCommand moveUpCommand,
-                                   SimpleCommand moveDownCommand,
                                    SidePaneContentFactory contentFactory,
                                    GroupsPreferences groupsPreferences,
                                    DialogService dialogService) {
-        super(SidePaneType.GROUPS, closeCommand, moveUpCommand, moveDownCommand, contentFactory);
-        setId(WalkthroughNodeIds.GROUPS_SIDE_PANE);
+        super(SidePaneType.GROUPS, closeCommand, contentFactory);
+        // The walkthrough highlights the groups pane by this id
+        getContainer().setId(WalkthroughNodeIds.GROUPS_SIDE_PANE);
         this.groupsPreferences = groupsPreferences;
         this.dialogService = dialogService;
 
         setupInvertToggle();
         setupFilterToggle();
         setupIntersectionUnionToggle();
+        HBox toolbar = new HBox(invertToggle, filterToggle, intersectionUnionToggle);
+        toolbar.setAlignment(Pos.CENTER_RIGHT);
+        toolbar.getStyleClass().add("sidePaneComponentHeader");
+        setToolbar(toolbar);
 
         groupsPreferences.groupViewModeProperty().addListener((SetChangeListener<GroupViewMode>) _ -> {
             GroupModeViewModel modeViewModel = new GroupModeViewModel(groupsPreferences.groupViewModeProperty());
@@ -47,19 +52,16 @@ public class GroupsSidePaneComponent extends SidePaneComponent {
     }
 
     private void setupIntersectionUnionToggle() {
-        addExtraNodeToHeader(intersectionUnionToggle, 0);
         intersectionUnionToggle.setOnAction(_ -> new ToggleUnionIntersectionAction().execute());
     }
 
     private void setupFilterToggle() {
-        addExtraNodeToHeader(filterToggle, 0);
         filterToggle.setTooltip(new Tooltip(Localization.lang("Filter by groups")));
         filterToggle.setSelected(groupsPreferences.groupViewModeProperty().contains(GroupViewMode.FILTER));
         filterToggle.selectedProperty().addListener((_, _, newValue) -> groupsPreferences.setGroupViewMode(GroupViewMode.FILTER, newValue));
     }
 
     private void setupInvertToggle() {
-        addExtraNodeToHeader(invertToggle, 0);
         invertToggle.setTooltip(new Tooltip(Localization.lang("Invert groups")));
         invertToggle.setSelected(groupsPreferences.groupViewModeProperty().contains(GroupViewMode.INVERT));
         invertToggle.selectedProperty().addListener((_, _, newValue) -> groupsPreferences.setGroupViewMode(GroupViewMode.INVERT, newValue));
