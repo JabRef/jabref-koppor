@@ -16,9 +16,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NonNull;
 

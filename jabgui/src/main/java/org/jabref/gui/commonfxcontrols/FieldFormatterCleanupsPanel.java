@@ -18,6 +18,7 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.FieldsUtil;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.Formatter;
@@ -25,7 +26,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 import org.controlsfx.control.SearchableComboBox;
 

@@ -5,10 +5,10 @@ import java.util.List;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.search.SearchType;
+import org.jabref.injection.Injector;
 import org.jabref.logic.search.SearchPreferences;
 import org.jabref.logic.util.OptionalObjectProperty;
 
-import com.airhacks.afterburner.injection.Injector;
 import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
 import org.junit.jupiter.api.AfterEach;

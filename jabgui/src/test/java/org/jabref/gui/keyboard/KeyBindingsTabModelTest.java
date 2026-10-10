@@ -9,9 +9,9 @@ import javafx.scene.input.KeyEvent;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.keybindings.KeyBindingViewModel;
 import org.jabref.gui.preferences.keybindings.KeyBindingsTabViewModel;
+import org.jabref.injection.Injector;
 import org.jabref.logic.os.OS;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

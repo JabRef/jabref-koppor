@@ -8,10 +8,9 @@ import javafx.fxml.FXML;
 
 import org.jabref.gui.groups.GroupNodeViewModel;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class AiGroupChatWindow extends BaseDialog<Void> {
     @FXML private AiGroupChatView chatView;

@@ -3,6 +3,7 @@ package org.jabref.logic.formatter.bibtexfields;
 import java.util.List;
 import java.util.Optional;
 
+import org.jabref.injection.Injector;
 import org.jabref.logic.cleanup.KeywordSeparatorAware;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
@@ -13,7 +14,6 @@ import org.jabref.logic.util.MscCodeUtils;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

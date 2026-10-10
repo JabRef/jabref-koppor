@@ -20,6 +20,7 @@ import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.FieldsUtil;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.gui.util.ViewModelListCellFactory;
+import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 
