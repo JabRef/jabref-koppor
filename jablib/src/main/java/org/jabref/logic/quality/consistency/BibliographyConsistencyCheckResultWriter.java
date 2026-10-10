@@ -75,8 +75,7 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
     }
 
     public void writeFindings() throws IOException {
-        result.entryTypeToResultMap().entrySet().stream()
-              .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+        result.entryTypeToResultMap().entrySet()
               .forEach(Unchecked.consumer(this::writeMapEntry));
     }
 
