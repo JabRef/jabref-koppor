@@ -173,7 +173,9 @@ public class AskQuestionsAction extends SimpleCommand {
         int done = 0;
         task.updateProgress(done, total);
 
-        for (BibEntry entry : entries) {
+        for (int entryIndex = 0; entryIndex < entries.size(); entryIndex++) {
+            BibEntry entry = entries.get(entryIndex);
+            String entryPosition = (entryIndex + 1) + "/" + entries.size();
             if (task.isCancelled()) {
                 return;
             }
@@ -182,15 +184,17 @@ public class AskQuestionsAction extends SimpleCommand {
             ObservableList<ChatMessage> chatHistory = aiService.getChatHistoryCache().getForEntry(context, entry);
 
             if (responseEngine.getKind() == ResponseEngineKind.EMBEDDINGS_SEARCH) {
-                task.updateMessage(Localization.lang("Generating embeddings for %0", entryName));
+                task.updateMessage(Localization.lang("Entry %0 (%1), generating embeddings", entryPosition, entryName));
                 ingestFiles(context, entry);
             }
 
-            for (String question : questions) {
+            for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
+                String question = questions.get(questionIndex);
                 if (task.isCancelled()) {
                     return;
                 }
-                task.updateMessage(entryName + ": " + question);
+                task.updateMessage(Localization.lang("Entry %0 (%1), question %2",
+                        entryPosition, entryName, (questionIndex + 1) + "/" + questions.size()) + ": " + question);
 
                 ChatMessage userMessage = ChatMessage.userMessage(question);
                 ChatMessage answer;
