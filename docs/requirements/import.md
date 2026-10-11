@@ -76,6 +76,9 @@ Needs: impl, utest
 
 Opening a library written by JabRef 2.x/3.x converts its legacy content to the current representation: explicit group memberships stored inside the group tree move to the entries' `groups` field, `__markedentry` markings become groups, and special field values stored in `keywords` move to their own fields.
 The keyword separator used for splitting is the library's own, falling back to the configured one.
+
+Needs: impl, utest
+
 ## Custom entry types of a library are only offered once
 `req~import.entry-types.offered-once~1`
 
@@ -85,10 +88,9 @@ The definition the user accepts is the one from the library file, and it replace
 ## PDF import keeps only authors the document prints
 `req~import.pdf.author-confirmed-by-text~1`
 
-When importing a PDF, an author taken from the PDF's document properties is kept only if the text of the leading pages confirms it; otherwise an author list extracted from the document text replaces it.
-If no candidate is confirmed, a single unconfirmed person from the document properties is dropped, because office suites store the account name of whoever exported the file there.
-An author from bibliographic metadata (an entry with citation key or a known entry type, such as metadata previously written by JabRef or fetched online) is kept even when the text does not confirm it.
-If no usable text can be extracted from the leading pages, the author is left unchanged.
+When importing a PDF, JabRef checks an author from document properties against the leading pages and favors a confirmed byline.
+If neither is confirmed, JabRef drops a single unconfirmed author from document properties.
+Bibliographic metadata and authors in PDFs without extractable text are preserved.
 
 Needs: impl, utest
 
@@ -100,6 +102,14 @@ When extracting the year from the text of a PDF's first page, JabRef takes only 
 `req~import.pdf.references.biblatex~1`
 ## Rule-based reference extraction reads labelled BibTeX reference lists
 `req~import.pdf.references.labelled~1`
+When extracting a year from a PDF's first page, JabRef accepts a standalone four-digit number outside a year range, between 1900 and two years after the current year.
+
+Rationale: The first page can contain postal codes, ISSNs, and page ranges that look like years but describe something else.
+
+Needs: impl, utest
+
+## Custom entry types of a library are only offered once
+`req~import.entry-types.offered-once~1`
 
 The rule-based extraction splits a PDF's reference list into references at their labels, as typeset by BibTeX and biblatex styles: numeric (`[12]`) or alphabetic (`[AL26]`, `[Buc+23]`, `[BSG+ 23]`).
 Each entry carries the printed reference in `comment`.

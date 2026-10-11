@@ -1,6 +1,7 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -17,6 +18,7 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -150,6 +152,7 @@ class PdfMergeMetadataImporterOfflineTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
             山田 太郎 and 佐藤 花子       | 山田 太郎, 佐藤 花子, Example University
+            أحمد حسن                    | أحمد حسن, Example University
             Ahmad bin Hassan            | Ahmad bin Hassan, Example University
             """)
     void unconfirmedAuthorIsReplacedByInternationalByline(String byline, String leadingPagesText) {
@@ -255,5 +258,19 @@ class PdfMergeMetadataImporterOfflineTest {
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
         assertEquals(Optional.empty(), result.getFirst().getField(StandardField.AUTHOR));
+    }
+
+    @Test
+    void realPdfBylineReplacesUnconfirmedCreatorAuthor() throws IOException, URISyntaxException {
+        Path file = Path.of(PdfMergeMetadataImporterOfflineTest.class.getResource("/pdfs/PdfContentImporter/Bogner2019.pdf").toURI());
+        BibEntry documentInformation = new BibEntry().withField(StandardField.AUTHOR, "Void, Eve");
+        BibEntry content = new BibEntry().withField(StandardField.AUTHOR, "Bogner, Justus and Wagner, Stefan and Zimmermann, Alfred");
+
+        try (PDDocument document = Loader.loadPDF(file.toFile())) {
+            BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(List.of(documentInformation, content),
+                    PdfAuthorCrossCheck.extractLeadingPagesText(document));
+
+            assertEquals(content.getField(StandardField.AUTHOR), merged.getField(StandardField.AUTHOR));
+        }
     }
 }
