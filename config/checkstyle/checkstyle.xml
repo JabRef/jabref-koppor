@@ -46,7 +46,8 @@
     <!-- Prevent empty start and end of blocks - source: comments to https://stackoverflow.com/a/48027770/873282 -->
     <module name="RegexpMultiline">
         <property name="message" value="Blank line at start of block should be removed" />
-        <property name="format" value="(\(.*\)|else)\s*\{\s*[\r]?\n\s*[\r]?\n" />
+        <!-- A record header "record Name(...) {" is not a block: a blank line after a type header is allowed (as for classes) -->
+        <property name="format" value="^(?!.*\b(record|class|interface|enum)\b).*(\(.*\)|else)\s*\{\s*[\r]?\n\s*[\r]?\n" />
         <property name="fileExtensions" value="groovy,java" />
     </module>
     <module name="RegexpMultiline">
@@ -122,8 +123,10 @@
         <module name="RedundantImport"/>
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
+        <!-- Mirrors the import layout of jfmt: java.* and javax.* first, then all other imports, then static imports.
+             Each group is separated by a blank line. See docs/code-howtos/code-quality.md#formatting -->
         <module name="ImportOrder">
-            <property name="groups" value="java,javax,javafx,org.jabref,*"/>
+            <property name="groups" value="/^javax?\./,*"/>
             <property name="ordered" value="true"/>
             <property name="separated" value="true"/>
             <property name="option" value="bottom"/>
@@ -144,7 +147,10 @@
         <module name="MethodParamPad"/>
         <module name="NoLineWrap"/>
         <module name="NoWhitespaceAfter"/>
-        <module name="NoWhitespaceBefore"/>
+        <module name="NoWhitespaceBefore">
+            <!-- ELLIPSIS excluded: jfmt writes a type-annotated varargs parameter as "String @NonNull ... params" -->
+            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, LABELED_STAT"/>
+        </module>
         <module name="ParenPad"/>
         <module name="SeparatorWrap">
             <property name="tokens" value="COMMA, SEMI, ELLIPSIS, ARRAY_DECLARATOR, RBRACK, METHOD_REF"/>
@@ -153,6 +159,14 @@
         <module name="NoWhitespaceBeforeCaseDefaultColon"/>
         <module name="WhitespaceAfter"/>
         <module name="WhitespaceAround">
+            <!-- jfmt writes empty bodies as "{}" -->
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyLoops" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+            <property name="allowEmptyCatches" value="true"/>
+            <property name="allowEmptySwitchBlockStatements" value="true"/>
             <!-- RCULRY causes issues if classes are nested within arrays, therefore not activated -->
             <property name="tokens"
                       value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV,

@@ -75,7 +75,7 @@ jobs:
       - name: Run rewrite
         run: gradle --no-configuration-cache :rewriteRun
 
-      # Reformat code (because OpenRewrite does different indents)
+      # Reformat code (because OpenRewrite does different indents and line breaks)
       - uses: ./.github/actions/format-java
 
       - name: Commit and push changes

@@ -123,6 +123,7 @@ Agents **must not**:
 - Use StringJoiner instead of StringBuilder (if possible)
 - Prefer immutability and explicit nullability (JSpecify - see below)
 - Do not reformat code only for syntax reasons. Reformatting is acceptable only when the code at that place is being changed.
+- Java formatting is done by `./gradlew jfmt`. Do not hand-format against it: jfmt has a single fixed style (4-space blocks, 8-space continuation, line breaks at syntactic boundaries, Javadoc wrapped at 80 columns, imports `java`/`javax` first, then all other imports, then static imports).
 - Remove commented code. (To keep a history of changes git was made for.)
 - No \"new Thread()\", use \"org.jabref.logic.util.BackgroundTask\" and its \"executeWith\"
 - Use compiled patterns (Pattern.compile)
@@ -352,6 +353,7 @@ If a change cannot be reasonably tested, explain **why**.
 ### Linting checks
 
 ```bash
+./gradlew jfmtCheck
 ./gradlew checkstyleMain checkstyleTest checkstyleJmh
 ./gradlew modernizer
 ./gradlew --no-configuration-cache :rewriteDryRun || git diff
@@ -362,8 +364,8 @@ npx markdownlint-cli2 "*.md"
 
 ### Fix formatting issues
 
-- Run `./gradlew rewriteRun` to fix Java formatting issues.
-- Run `docker run -v $(pwd):/github/workspace ghcr.io/leventebajczi/intellij-format:master "*.java" "" ".idea/codeStyles/Project.xml"` to fix more Java formatting issues.
+- Run `./gradlew jfmt` to format all Java sources with [jfmt](https://github.com/Netflix/jfmt). CI runs `./gradlew jfmtCheck` and fails on any difference.
+- Run `./gradlew rewriteRun` to fix Java code issues found by OpenRewrite. Run `./gradlew jfmt` afterwards, because OpenRewrite does not follow jfmt's layout.
 
 ### Logic tests
 
@@ -395,7 +397,7 @@ Fetcher tests must always hit the live endpoints — do not mock or stub the rem
 Quick check of core library:
 
 ```bash
-./gradlew :jablib:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x modernizer
+./gradlew :jablib:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x jfmtCheck -x modernizer
 ```
 
 ---

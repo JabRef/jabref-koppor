@@ -3,11 +3,44 @@ parent: Code Howtos
 ---
 # Code Quality
 
+## Formatting
+
+Java sources are formatted with [jfmt](https://github.com/Netflix/jfmt), a formatter for modern Java built on google-java-format that follows the [Code Conventions for the Java Programming Language](https://www.oracle.com/java/technologies/javase/codeconventions-introduction.html).
+jfmt has exactly one style and no configuration. The main properties are:
+
+* 4 spaces for block indentation, 8 spaces for continuation lines.
+* No maximum line length. Lines are broken at syntactic boundaries (method chains, argument lists, binary operators) only when the construct is "long enough" structurally.
+* Javadoc prose is wrapped at 80 columns. Line and block comments are left as they are.
+* Braces are added around single-statement `if`, `else`, `for`, `while`, and `do` bodies.
+* Imports are ordered `java.*` and `javax.*` first, then all other imports in one block, then static imports. Unused imports are removed and wildcard imports are expanded.
+
+Run it with
+
+```bash
+./gradlew jfmt
+```
+
+The CI job "format" runs `./gradlew jfmtCheck` and fails when any file would be rewritten. The job uploads the diff as a patch artifact.
+`jfmtCheck` is also part of `./gradlew check`.
+
+The Gradle integration lives in `build-logic/src/main/kotlin/org.jabref.gradle.check.jfmt.gradle.kts`.
+It passes the compile class path of each source set to jfmt, because jfmt resolves the types referenced in declarations before it touches imports.
+When the class path is incomplete, jfmt still formats, but skips the type-aware import normalization.
+
+### IntelliJ
+
+jfmt has no IntelliJ plugin. The project code style in `.idea/codeStyles/Project.xml` is kept close to jfmt's output (indentation, import layout), so that typing and "Reformat code" stay compatible, but it is not the source of truth.
+Set up an [external tool](https://www.jetbrains.com/help/idea/configuring-third-party-tools.html) that formats the current file, as described in [Step 3 of the IntelliJ setup](../getting-into-the-code/guidelines-for-setting-up-a-local-workspace/intellij-13-code-style.md#format-with-jfmt).
+
+### OpenRewrite
+
+OpenRewrite (see below) rewrites code with its own layout. Run `./gradlew jfmt` after `./gradlew rewriteRun`.
+
 ## Code style checkers
 
 JabRef has three code style checkers in place:
 
-* [Checkstyle](https://checkstyle.sourceforge.io/) for basic checks, such as wrong import order.
+* [Checkstyle](https://checkstyle.sourceforge.io/) for basic checks, such as wrong import order. The checkstyle rules that overlap with formatting are aligned with jfmt's output.
 * [Gradle Modernizer Plugin](https://github.com/andygoossens/gradle-modernizer-plugin#gradle-modernizer-plugin) for Java library usage checks.
   It ensures that "modern" Java concepts are used (e.g., [one should use `Deque` instead of `Stack`](https://stackoverflow.com/a/73021741/873282)).
 * [OpenRewrite](https://docs.openrewrite.org/) for advanced rules. OpenRewrite can also automatically fix issues.

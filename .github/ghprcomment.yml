@@ -42,10 +42,9 @@
 - jobName: format
   workflowName: 'Source Code Tests'
   message: >
-    Your code currently does not meet JabRef's code guidelines.
-    IntelliJ auto format covers some cases.
-    There seem to be issues with your code style and autoformat configuration.
-    Please reformat your code (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>) and commit, then push.
+    Your code is not formatted with [jfmt](https://github.com/Netflix/jfmt), JabRef's Java formatter.
+    Please run `./gradlew jfmt`, commit the result, and push.
+    See [the formatting section of the code quality howto](https://devdocs.jabref.org/code-howtos/code-quality.html#formatting) for IntelliJ integration.
 - jobName: format-javadoc
   workflowName: 'Source Code Tests'
   message: >
