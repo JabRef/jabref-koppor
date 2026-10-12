@@ -1,7 +1,5 @@
 package org.jabref.gui.sidepane;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -85,8 +83,6 @@ public class SidePaneViewModel extends AbstractViewModel {
                 case GROUPS ->
                         new GroupsSidePaneComponent(
                                 new ClosePaneAction(pane),
-                                new MoveUpAction(pane),
-                                new MoveDownAction(pane),
                                 sidePaneContentFactory,
                                 preferences.getGroupsPreferences(),
                                 dialogService);
@@ -94,8 +90,6 @@ public class SidePaneViewModel extends AbstractViewModel {
                      OPEN_OFFICE ->
                         new SidePaneComponent(pane,
                                 new ClosePaneAction(pane),
-                                new MoveUpAction(pane),
-                                new MoveDownAction(pane),
                                 sidePaneContentFactory);
             };
             sidePaneComponentLookup.put(pane, sidePaneComponent);
@@ -112,34 +106,14 @@ public class SidePaneViewModel extends AbstractViewModel {
         preferences.getSidePanePreferences().setPreferredPositions(preferredPositions);
     }
 
-    public void moveUp(SidePaneType pane) {
-        if (getPanes().contains(pane)) {
-            int currentPosition = getPanes().indexOf(pane);
-            if (currentPosition > 0) {
-                int newPosition = currentPosition - 1;
-                swap(getPanes(), currentPosition, newPosition);
-                updatePreferredPositions();
-            } else {
-                LOGGER.debug("SidePaneComponent is already at the bottom");
-            }
-        } else {
-            LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
+    /// Applies the order the user produced by dragging the dock tabs and remembers it as the preferred order.
+    public void reorder(List<SidePaneType> order) {
+        if (!(order.size() == getPanes().size() && order.containsAll(getPanes()))) {
+            LOGGER.warn("Dock order {} does not match the visible panes {}", order, getPanes());
+            return;
         }
-    }
-
-    public void moveDown(SidePaneType pane) {
-        if (getPanes().contains(pane)) {
-            int currentPosition = getPanes().indexOf(pane);
-            if (currentPosition < (getPanes().size() - 1)) {
-                int newPosition = currentPosition + 1;
-                swap(getPanes(), currentPosition, newPosition);
-                updatePreferredPositions();
-            } else {
-                LOGGER.debug("SidePaneComponent {} is already at the top", pane.getTitle());
-            }
-        } else {
-            LOGGER.warn("SidePaneComponent {} not visible", pane.getTitle());
-        }
+        getPanes().sort(Comparator.comparingInt(order::indexOf));
+        updatePreferredPositions();
     }
 
     private void show(SidePaneType pane) {
@@ -153,12 +127,6 @@ public class SidePaneViewModel extends AbstractViewModel {
 
     private ObservableList<SidePaneType> getPanes() {
         return stateManager.getVisibleSidePaneComponents();
-    }
-
-    private <T> void swap(ObservableList<T> observableList, int i, int j) {
-        List<T> placeholder = new ArrayList<>(observableList);
-        Collections.swap(placeholder, i, j);
-        observableList.sort(Comparator.comparingInt(placeholder::indexOf));
     }
 
     /// Helper class for sorting visible side panes based on their preferred position.
@@ -175,32 +143,6 @@ public class SidePaneViewModel extends AbstractViewModel {
             int pos1 = preferredPositions.getOrDefault(type1, 0);
             int pos2 = preferredPositions.getOrDefault(type2, 0);
             return Integer.compare(pos1, pos2);
-        }
-    }
-
-    private class MoveUpAction extends SimpleCommand {
-        private final SidePaneType toMoveUpPane;
-
-        public MoveUpAction(SidePaneType toMoveUpPane) {
-            this.toMoveUpPane = toMoveUpPane;
-        }
-
-        @Override
-        public void execute() {
-            moveUp(toMoveUpPane);
-        }
-    }
-
-    private class MoveDownAction extends SimpleCommand {
-        private final SidePaneType toMoveDownPane;
-
-        public MoveDownAction(SidePaneType toMoveDownPane) {
-            this.toMoveDownPane = toMoveDownPane;
-        }
-
-        @Override
-        public void execute() {
-            moveDown(toMoveDownPane);
         }
     }
 
