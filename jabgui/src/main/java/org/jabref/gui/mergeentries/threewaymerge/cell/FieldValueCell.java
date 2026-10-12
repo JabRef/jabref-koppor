@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /// A readonly, selectable field cell that contains the value of some field
 public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
-    public static final Logger LOGGER = LoggerFactory.getLogger(FieldValueCell.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FieldValueCell.class);
 
     public static final String DEFAULT_STYLE_CLASS = "merge-field-value";
     public static final String SELECTION_BOX_STYLE_CLASS = "selection-box";

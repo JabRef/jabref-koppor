@@ -33,7 +33,7 @@ final class FetcherRetry {
                 }
 
                 Duration delay = INITIAL_BACKOFF.multipliedBy(1L << retryAttempt);
-                LOGGER.info("Received HTTP 429. Retrying after {}", delay);
+                LOGGER.warn("Received HTTP 429. Retrying after {}", delay);
                 try {
                     backoff.waitFor(delay);
                 } catch (InterruptedException interruptedException) {

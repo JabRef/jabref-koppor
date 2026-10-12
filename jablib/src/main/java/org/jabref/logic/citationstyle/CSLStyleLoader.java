@@ -110,7 +110,7 @@ public record CSLStyleLoader(
                             true);
                     INTERNAL_STYLES.add(style);
                 }
-                LOGGER.debug("Loaded {} CSL style metadata entries", INTERNAL_STYLES.size());
+                LOGGER.atDebug().addArgument(() -> INTERNAL_STYLES.size()).log("Loaded {} CSL style metadata entries");
             } else {
                 LOGGER.error("Citation style catalog is empty");
             }

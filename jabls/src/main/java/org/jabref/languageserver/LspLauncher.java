@@ -72,7 +72,7 @@ public class LspLauncher extends Thread {
                         if (running) {
                             LOGGER.error("Error during LSP run", e);
                         } else {
-                            LOGGER.debug("Error while not running", e);
+                            LOGGER.error("Error while not running", e);
                         }
                     }
                 }

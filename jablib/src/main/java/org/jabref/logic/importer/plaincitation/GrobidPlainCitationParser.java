@@ -40,14 +40,14 @@ public class GrobidPlainCitationParser implements PlainCitationParser {
         try {
             return grobidService.processCitation(text, importFormatPreferences, GrobidService.ConsolidateCitations.WITH_METADATA);
         } catch (HttpStatusException e) {
-            LOGGER.debug("Could not connect to Grobid", e);
+            LOGGER.error("Could not connect to Grobid", e);
             throw new FetcherException("{grobid}", new SimpleHttpResponse(e));
         } catch (SocketTimeoutException e) {
             String msg = "Connection timed out.";
-            LOGGER.debug(msg, e);
+            LOGGER.error(msg, e);
             throw new FetcherException(msg, e.getCause());
         } catch (IOException | ParseException e) {
-            LOGGER.debug("Could not process citation", e);
+            LOGGER.error("Could not process citation", e);
             throw new FetcherException("Could not process citation", e);
         }
     }

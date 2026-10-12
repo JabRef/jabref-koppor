@@ -34,7 +34,7 @@ import tools.jackson.databind.json.JsonMapper;
 /// Implementation of the [OcrEngine] interface using Docling.
 public class DoclingEngine implements OcrEngine {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(DoclingEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DoclingEngine.class);
     private final static JsonMapper JSON_MAPPER = new JsonMapper();
     private final static PDFont FONT = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
     private final static float FONTSIZE = 12F;
@@ -140,7 +140,7 @@ public class DoclingEngine implements OcrEngine {
                 FONT.encode(ch);
                 filtered.append(ch);
             } catch (IllegalArgumentException | IOException e) {
-                LOGGER.debug("Skipping unsupported character: {}", ch, e);
+                LOGGER.error("Skipping unsupported character: {}", ch, e);
             }
         }
         return filtered.toString();

@@ -423,7 +423,7 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
                     bibLayout.put(type, layout);
                 }
             } catch (IOException ex) {
-                LOGGER.warn("Cannot parse bibliography structure", ex);
+                LOGGER.error("Cannot parse bibliography structure", ex);
             }
         }
     }

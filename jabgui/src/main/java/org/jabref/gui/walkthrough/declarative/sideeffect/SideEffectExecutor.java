@@ -49,7 +49,7 @@ public class SideEffectExecutor {
     }
 
     private boolean execute(@NonNull WalkthroughSideEffect sideEffect, @NonNull Walkthrough walkthrough, boolean forward) {
-        LOGGER.debug("Executing {} effect: {}", forward ? "forward" : "backward", sideEffect.description());
+        LOGGER.atDebug().addArgument(() -> forward ? "forward" : "backward").addArgument(() -> sideEffect.description()).log("Executing {} effect: {}");
 
         try {
             if (forward) {
@@ -78,19 +78,19 @@ public class SideEffectExecutor {
         ExpectedCondition condition = sideEffect.expectedCondition();
 
         if (condition.evaluate()) {
-            LOGGER.debug("Expected condition already met for: {}", sideEffect.description());
+            LOGGER.atDebug().addArgument(() -> sideEffect.description()).log("Expected condition already met for: {}");
             return true;
         }
 
         CompletableFuture<Boolean> conditionFuture = new CompletableFuture<>();
         startTimeout(sideEffect.timeoutMs(), () -> {
-            LOGGER.debug("Timeout reached for side effect: {}", sideEffect.description());
+            LOGGER.atDebug().addArgument(() -> sideEffect.description()).log("Timeout reached for side effect: {}");
             conditionFuture.complete(false);
         });
 
         setupDependencyMonitoring(sideEffect.dependencies(), () -> {
             if (condition.evaluate()) {
-                LOGGER.debug("Expected condition met via dependency change for: {}", sideEffect.description());
+                LOGGER.atDebug().addArgument(() -> sideEffect.description()).log("Expected condition met via dependency change for: {}");
                 conditionFuture.complete(true);
             }
         });
@@ -98,7 +98,7 @@ public class SideEffectExecutor {
         try {
             return conditionFuture.get(sideEffect.timeoutMs() + 100, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.debug("Error waiting for condition: {}", e.getMessage(), e);
+            LOGGER.error("Error waiting for condition: {}", e.getMessage(), e);
             return false;
         }
     }

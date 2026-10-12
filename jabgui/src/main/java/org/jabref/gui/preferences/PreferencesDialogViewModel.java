@@ -142,7 +142,7 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                              preferences.exportPreferences(exportFile);
                              preferences.getInternalPreferences().setLastPreferencesExportPath(exportFile);
                          } catch (JabRefException ex) {
-                             LOGGER.warn(ex.getMessage(), ex);
+                             LOGGER.error(ex.getMessage(), ex);
                              dialogService.showErrorDialogAndWait(Localization.lang("Export preferences"), ex);
                          }
                      });

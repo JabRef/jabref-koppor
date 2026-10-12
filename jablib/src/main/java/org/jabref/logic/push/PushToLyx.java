@@ -75,7 +75,7 @@ public class PushToLyx extends AbstractPushToApplication {
                 lyxOut.write(citeStr + "\n");
             } catch (IOException excep) {
                 couldNotCall = true;
-                LOGGER.warn("Problem pushing to LyX/Kile.", excep);
+                LOGGER.error("Problem pushing to LyX/Kile.", excep);
             }
         });
     }

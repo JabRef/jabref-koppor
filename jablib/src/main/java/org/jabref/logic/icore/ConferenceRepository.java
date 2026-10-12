@@ -132,7 +132,7 @@ public class ConferenceRepository {
         if (acronym.isPresent()) {
             ConferenceEntry conference;
             Set<String> acronymCandidates = ConferenceUtils.generateAcronymCandidates(acronym.get(), maxAcronymLength);
-            LOGGER.debug("Extracted acronym string: {}, Acronym candidates: {}", acronym.get(), acronymCandidates);
+            LOGGER.atDebug().addArgument(() -> acronym.get()).addArgument(acronymCandidates).log("Extracted acronym string: {}, Acronym candidates: {}");
             for (String candidate : acronymCandidates) {
                 conference = acronymToConference.get(candidate);
                 if (conference != null) {

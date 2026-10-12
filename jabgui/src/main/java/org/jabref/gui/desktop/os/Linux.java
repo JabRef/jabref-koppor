@@ -40,15 +40,15 @@ public class Linux extends NativeDesktop {
                 Desktop.getDesktop().open(Path.of(filePath).toFile());
                 LoggerFactory.getLogger(Linux.class).debug("Open file in default application with Desktop integration");
             } catch (IllegalArgumentException _) {
-                LoggerFactory.getLogger(Linux.class).debug("Fail back to xdg-open");
+                LoggerFactory.getLogger(Linux.class).warn("Fail back to xdg-open");
                 try {
                     String[] cmd = {"xdg-open", filePath};
                     Runtime.getRuntime().exec(cmd);
                 } catch (Exception e2) {
-                    LoggerFactory.getLogger(Linux.class).warn("Open operation not successful: ", e2);
+                    LoggerFactory.getLogger(Linux.class).error("Open operation not successful: ", e2);
                 }
             } catch (IOException e) {
-                LoggerFactory.getLogger(Linux.class).warn("Native open operation not successful: ", e);
+                LoggerFactory.getLogger(Linux.class).error("Native open operation not successful: ", e);
             }
         });
     }
@@ -121,7 +121,7 @@ public class Linux extends NativeDesktop {
                 cmd = new String[] {"thunar", absoluteFilePath};
             }
         }
-        LoggerFactory.getLogger(Linux.class).debug("Opening folder and selecting file using {}", String.join(" ", cmd));
+        LoggerFactory.getLogger(Linux.class).atDebug().addArgument(() -> String.join(" ", cmd)).log("Opening folder and selecting file using {}");
         ProcessBuilder processBuilder = new ProcessBuilder(cmd);
         Process process = processBuilder.start();
 

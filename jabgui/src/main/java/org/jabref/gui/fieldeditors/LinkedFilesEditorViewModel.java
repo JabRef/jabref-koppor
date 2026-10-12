@@ -220,7 +220,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
             dialogService.showErrorDialogAndWait("Error accessing the file system", e);
         }
 
-        LOGGER.trace("Found {} associated files for entry {}", result.size(), entry.getCitationKey());
+        LOGGER.atTrace().addArgument(() -> result.size()).addArgument(entry.getCitationKey()).log("Found {} associated files for entry {}");
         return result;
     }
 

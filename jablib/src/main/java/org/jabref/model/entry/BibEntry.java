@@ -533,7 +533,7 @@ public class BibEntry {
                 };
             } else {
                 // Date field not in valid format
-                LOGGER.debug("Could not parse date {}", date.get());
+                LOGGER.atDebug().addArgument(() -> date.get()).log("Could not parse date {}");
                 return Optional.empty();
             }
         }
@@ -922,7 +922,7 @@ public class BibEntry {
             this.eventBus.unregister(object);
         } catch (IllegalArgumentException e) {
             // occurs if the event source has not been registered, should not prevent shutdown
-            LOGGER.debug("Problem unregistering", e);
+            LOGGER.error("Problem unregistering", e);
         }
     }
 

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 /// Processes all incoming or outgoing bib data to external SQL Database and manages its structure.
 public class DBMSProcessor {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(DBMSProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBMSProcessor.class);
 
     private static final Set<String> GROUP_TREE_METADATA_KEYS = Set.of(MetaData.GROUPSTREE, MetaData.GROUPSTREE_LEGACY);
 
@@ -251,7 +251,7 @@ public class DBMSProcessor {
             return;
         }
 
-        LOGGER.info("Migrating shared database from old structure in schema \"{}\"", oldSchema.get());
+        LOGGER.atInfo().addArgument(() -> oldSchema.get()).log("Migrating shared database from old structure in schema \"{}\"");
         // One transaction: a mid-migration failure must not leave a partially copied library behind,
         // which would never be retried (the entry table would no longer be empty)
         inTransaction(() -> {

@@ -100,7 +100,7 @@ public class FieldRowViewModel {
         });
 
         EasyBind.subscribe(selectionProperty(), selection -> {
-            LOGGER.debug("Selecting {}' value for field {}", selection, FieldTextMapper.getDisplayName(field));
+            LOGGER.atDebug().addArgument(selection).addArgument(() -> FieldTextMapper.getDisplayName(field)).log("Selecting {}' value for field {}");
             switch (selection) {
                 case LEFT ->
                         EasyBind.subscribe(leftFieldValueProperty(), this::setMergedFieldValue);
@@ -110,7 +110,7 @@ public class FieldRowViewModel {
         });
 
         EasyBind.subscribe(mergedFieldValueProperty(), mergedValue -> {
-            LOGGER.debug("Merged value is {} for field {}", mergedValue, FieldTextMapper.getDisplayName(field));
+            LOGGER.atDebug().addArgument(mergedValue).addArgument(() -> FieldTextMapper.getDisplayName(field)).log("Merged value is {} for field {}");
             if (mergedValue.equals(getLeftFieldValue())) {
                 selectLeftValue();
             } else if (getMergedFieldValue().equals(getRightFieldValue())) {

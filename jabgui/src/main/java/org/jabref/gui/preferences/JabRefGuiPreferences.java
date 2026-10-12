@@ -454,7 +454,7 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
             try {
                 tabModels.addAll(parseCustomTabs(storedCustomTabs));
             } catch (JacksonException e) {
-                LOGGER.warn("Could not read the custom entry editor tabs, dropping them", e);
+                LOGGER.error("Could not read the custom entry editor tabs, dropping them", e);
             }
         }
 
@@ -838,9 +838,9 @@ public class JabRefGuiPreferences extends JabRefCliPreferences implements GuiPre
                 SidePaneType type = Enum.valueOf(SidePaneType.class, name);
                 preferredPositions.put(type, Integer.parseInt(componentPositions.get(i)));
             } catch (NumberFormatException e) {
-                LOGGER.debug("Invalid number format for side pane component '{}'", name, e);
+                LOGGER.error("Invalid number format for side pane component '{}'", name, e);
             } catch (IllegalArgumentException e) {
-                LOGGER.debug("Following component is not a side pane: '{}'", name, e);
+                LOGGER.error("Following component is not a side pane: '{}'", name, e);
             }
         }
 

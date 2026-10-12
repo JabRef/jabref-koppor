@@ -89,7 +89,7 @@ public final class ZoteroDocumentPreferences {
             }
             writeProperty(document, ZOTERO_PREF, updatedData);
         } catch (IOException e) {
-            LOGGER.warn("Could not serialize Zotero document preferences", e);
+            LOGGER.error("Could not serialize Zotero document preferences", e);
             return false;
         }
         return true;
@@ -113,7 +113,7 @@ public final class ZoteroDocumentPreferences {
             }
             return Optional.of(attribute);
         } catch (IOException e) {
-            LOGGER.debug("Could not parse Zotero document style", e);
+            LOGGER.error("Could not parse Zotero document style", e);
             return Optional.empty();
         }
     }

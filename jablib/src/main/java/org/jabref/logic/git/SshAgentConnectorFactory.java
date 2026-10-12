@@ -92,7 +92,7 @@ public class SshAgentConnectorFactory implements ConnectorFactory {
                     return true;
                 }
             } catch (IOException e) {
-                LOGGER.debug("Primary SSH agent not reachable, trying fallback", e);
+                LOGGER.error("Primary SSH agent not reachable, trying fallback", e);
             }
             active.close();
             active = fallback.get();

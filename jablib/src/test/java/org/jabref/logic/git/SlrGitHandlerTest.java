@@ -80,7 +80,7 @@ class SlrGitHandlerTest {
         Files.writeString(Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt"), "This is a new line of text 2\n" + Files.readString(Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt")));
         gitHandler.createCommitOnCurrentBranch("Commit 2 on branch1", false);
 
-        LOGGER.debug(gitHandler.calculatePatchOfNewSearchResults("branch1"));
+        LOGGER.atDebug().log(() -> gitHandler.calculatePatchOfNewSearchResults("branch1"));
         assertEquals(expectedPatch, gitHandler.calculatePatchOfNewSearchResults("branch1"));
     }
 

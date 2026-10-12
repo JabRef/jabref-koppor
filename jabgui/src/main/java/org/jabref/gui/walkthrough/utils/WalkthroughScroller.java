@@ -27,9 +27,9 @@ public class WalkthroughScroller {
     private final WalkthroughUtils.DebouncedInvalidationListener debouncedScroller;
 
     public WalkthroughScroller(@NonNull Node node) {
-        LOGGER.debug("Setting up scrollable parent monitoring for node: {}", node.getClass().getSimpleName());
+        LOGGER.atDebug().addArgument(() -> node.getClass().getSimpleName()).log("Setting up scrollable parent monitoring for node: {}");
         List<Node> scrollableParents = findScrollableParents(node);
-        LOGGER.debug("Found {} scrollable parents", scrollableParents.size());
+        LOGGER.atDebug().addArgument(() -> scrollableParents.size()).log("Found {} scrollable parents");
         debouncedScroller = WalkthroughUtils.debounced(_ -> scrollNodeIntoView(node, scrollableParents));
 
         scrollableParents
@@ -90,7 +90,7 @@ public class WalkthroughScroller {
                         LOGGER.warn("Unsupported scrollable type: {}", scrollableParent.getClass().getSimpleName());
             }
         } catch (RuntimeException e) {
-            LOGGER.warn("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(), e);
+            LOGGER.error("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(), e);
         }
     }
 

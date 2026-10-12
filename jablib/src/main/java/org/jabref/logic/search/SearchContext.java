@@ -55,11 +55,11 @@ public class SearchContext implements SearchBackend {
     }
 
     private synchronized void swapBackend() {
-        LOGGER.info("Swapping search backend (usePostgres={})", usePostgresProperty.get());
+        LOGGER.atInfo().addArgument(() -> usePostgresProperty.get()).log("Swapping search backend (usePostgres={})");
         try {
             backend.close();
         } catch (RuntimeException e) {
-            LOGGER.warn("Closing previous search backend threw", e);
+            LOGGER.error("Closing previous search backend threw", e);
         }
         backend = buildBackend();
     }

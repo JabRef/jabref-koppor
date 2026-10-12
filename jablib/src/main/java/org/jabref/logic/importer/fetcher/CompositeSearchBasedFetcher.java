@@ -60,7 +60,7 @@ public class CompositeSearchBasedFetcher implements SearchBasedFetcher {
                                           // All entries have to be converted before into one format, this is necessary for the format conversion
                                           return searchBasedFetcher.performSearch(queryList).stream();
                                       } catch (FetcherException e) {
-                                          LOGGER.warn("{} API request failed", searchBasedFetcher.getName(), e);
+                                          LOGGER.error("{} API request failed", searchBasedFetcher.getName(), e);
                                           return Stream.empty();
                                       }
                                   })

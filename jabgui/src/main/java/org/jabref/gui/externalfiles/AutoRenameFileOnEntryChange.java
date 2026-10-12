@@ -35,7 +35,7 @@ public class AutoRenameFileOnEntryChange {
         }
 
         BibEntry entry = event.getBibEntry();
-        LOGGER.debug("Field changed for entry {}: {}", entry.getCitationKey().orElse("defaultCitationKey"), event.getField().getName());
+        LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse("defaultCitationKey")).addArgument(() -> event.getField().getName()).log("Field changed for entry {}: {}");
         if (entry.getFiles().isEmpty()) {
             return;
         }
