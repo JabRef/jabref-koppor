@@ -312,6 +312,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private static final String FILES_IMPORT_DIRPATTERN = "importFileDirPattern";
     private static final String FILES_DOWNLOAD_LINKED = "downloadLinkedFiles";
     private static final String FILES_FULLTEXT_INDEX = "fulltextIndexLinkedFiles";
+    private static final String FILES_FULLTEXT_INDEX_CHECK_FOR_MODIFICATIONS = "fulltextIndexLinkedFilesShouldCheckForModifications";
     private static final String FILES_WORKING_DIRECTORY = "workingDirectory";
 
     // FixMe: Misplaced
@@ -1797,6 +1798,7 @@ public class JabRefCliPreferences implements CliPreferences {
                 get(FILES_IMPORT_DIRPATTERN, defaultValues.getFileDirectoryPattern()),
                 getBoolean(FILES_DOWNLOAD_LINKED, defaultValues.shouldDownloadLinkedFiles()),
                 getBoolean(FILES_FULLTEXT_INDEX, defaultValues.shouldFulltextIndexLinkedFiles()),
+                getBoolean(FILES_FULLTEXT_INDEX_CHECK_FOR_MODIFICATIONS, defaultValues.shouldFulltextIndexLinkedFilesShouldCheckForModifications()),
                 getPath(FILES_WORKING_DIRECTORY, defaultValues.getWorkingDirectory()),
                 getBoolean(BACKUP_ENABLED, defaultValues.shouldCreateBackup()),
                 // Backups should sit in the data directory, because a backup file should survive cache cleanups
@@ -1820,6 +1822,7 @@ public class JabRefCliPreferences implements CliPreferences {
         bindString(filePreferences.fileDirectoryPatternProperty(), FILES_IMPORT_DIRPATTERN, defaultValues.getFileDirectoryPattern());
         bindBoolean(filePreferences.downloadLinkedFilesProperty(), FILES_DOWNLOAD_LINKED, defaultValues.shouldDownloadLinkedFiles());
         bindBoolean(filePreferences.fulltextIndexLinkedFilesProperty(), FILES_FULLTEXT_INDEX, defaultValues.shouldFulltextIndexLinkedFiles());
+        bindBoolean(filePreferences.fulltextIndexLinkedFilesShouldCheckForModifications(), FILES_FULLTEXT_INDEX_CHECK_FOR_MODIFICATIONS, defaultValues.shouldFulltextIndexLinkedFilesShouldCheckForModifications());
         bindPath(filePreferences.workingDirectoryProperty(), FILES_WORKING_DIRECTORY, defaultValues.getWorkingDirectory());
         bindBoolean(filePreferences.createBackupProperty(), BACKUP_ENABLED, defaultValues.shouldCreateBackup());
         bindPath(filePreferences.backupDirectoryProperty(), BACKUP_DIRECTORY, defaultValues.getBackupDirectory());
